@@ -55,8 +55,6 @@ class PullerTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-
   test '91C',
   'when image_name is valid, image_pull() issues unconditional docker-pull' do
     mock_docker_pull_cdf_ruby_mini_test
@@ -67,27 +65,23 @@ class PullerTest < TestBase
 
   test '933',
   'when there is no network connectivitity, image_pull() raises' do
-    set_image_name "#{cdf}/gcc_assert"
-    cmd = "docker pull #{@image_name}"
+    image_name = "#{cdf}/gcc_assert"
+    cmd = "docker pull #{image_name}"
     stdout = [
       'Using default tag: latest',
-      "Pulling repository docker.io/#{@image_name}"
+      "Pulling repository docker.io/#{image_name}"
     ].join("\n")
     stderr = [
       'Error while pulling image: Get',
-      "https://index.docker.io/v1/repositories/#{@image_name}/images:",
+      "https://index.docker.io/v1/repositories/#{image_name}/images:",
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
-    status = 1
-    shell.mock_exec(cmd, stdout, stderr, status)
-    error = assert_raises { image_pull }
+    shell.mock_exec(cmd, stdout, stderr, status=1)
+    error = assert_raises { image_pull image_name }
     assert_equal "command:#{cmd}", error.message
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   private
-=end
 
   def mock_docker_images_prints_gcc_assert
     cmd = 'docker images --format "{{.Repository}}"'

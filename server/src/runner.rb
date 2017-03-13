@@ -22,8 +22,8 @@ class Runner
 
   def image_pull(image_name)
     assert_valid image_name
-    #assert_exec("docker pull #{image_name}")
-    42
+    assert_exec("docker pull #{image_name}")
+    true
   end
 
   # - - - - - - - - - - - - - - - - - -
