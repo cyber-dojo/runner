@@ -33,7 +33,8 @@ class MicroService < Sinatra::Base
     name = caller.to_s[prefix.length .. -1]
     { name => runner.send(name, *args) }.to_json
   rescue Exception => e
-    log << "EXCEPTION: #{e.class.name}.#{caller} #{e.message}"
+    #TODO
+    #log << "EXCEPTION: #{e.class.name}.#{caller} #{e.message}"
     { 'exception' => e.message }.to_json
   end
 
