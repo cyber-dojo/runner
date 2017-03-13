@@ -1,8 +1,8 @@
 require_relative 'test_base'
 
-class PullTest < TestBase
+class PulledTest < TestBase
 
-  def self.hex_prefix; '4CD0A7F'; end
+  def self.hex_prefix; 'F33A09'; end
 
   test '5EC',
   'image_pulled?(valid but unpulled image_name) is false' do

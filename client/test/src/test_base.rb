@@ -19,7 +19,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   def sss_run(named_args = {})
     # don't call this run() as it clashes with MiniTest
     @sss = runner.run *defaulted_args(named_args)
@@ -37,9 +36,10 @@ class TestBase < HexMiniTest
 
   def defaulted_args(named_args)
     args = []
-    args << defaulted_arg(named_args, :image_name, default_image_name)
+    args << defaulted_arg(named_args, :image_name, DEFAULT_IMAGE_NAME)
+    args << defaulted_arg(named_args, :avatar_name, DEFAULT_AVATAR_NAME)
     args << defaulted_arg(named_args, :visible_files, files)
-    args << defaulted_arg(named_args, :max_seconds, 10)
+    args << defaulted_arg(named_args, :max_seconds, DEFAULT_MAX_SECONDS)
     args
   end
 
@@ -47,9 +47,9 @@ class TestBase < HexMiniTest
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  def default_image_name
-    'cyberdojofoundation/gcc_assert'
-  end
+  DEFAULT_IMAGE_NAME  = 'cyberdojofoundation/gcc_assert'
+  DEFAULT_AVATAR_NAME = 'salmon'
+  DEFAULT_MAX_SECONDS = 10
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -64,6 +64,7 @@ class TestBase < HexMiniTest
     }]
   end
 
+=begin
   def file_sub(name, from, to)
     files[name] = files[name].sub(from, to)
   end
@@ -74,6 +75,7 @@ class TestBase < HexMiniTest
   def refute_success; refute_equal success, status, sss.to_s; end
 
   def assert_timed_out; assert_equal timed_out, status, sss.to_s; end
+=end
 
   def assert_stdout(expected); assert_equal expected, stdout, sss.to_s; end
   def assert_stderr(expected); assert_equal expected, stderr, sss.to_s; end
@@ -81,8 +83,16 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def success; 0; end
   def timed_out; 'timed_out'; end
 =end
+
+  VALID_IMAGE_NAME = 'busybox'
+  VALID_NON_EXISTENT_IMAGE_NAME = 'non_existent_box'
+  INVALID_IMAGE_NAME = '_cantStartWithSeparator'
+
+  VALID_AVATAR_NAME   = 'salmon'
+  INVALID_AVATAR_NAME = 'sunglasses'
 
 end
