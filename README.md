@@ -49,8 +49,7 @@ Pull the image with the given image_name.
 - - - -
 
 # run
-Saves the visible_files in a container run from image_name and run cyber-dojo.sh
-within max_seconds.
+Saves the visible_files in a container run from image_name and runs cyber-dojo.sh
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
