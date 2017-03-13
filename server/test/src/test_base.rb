@@ -23,6 +23,30 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def sss_run(named_args = {})
+    # don't name this run() as it clashes with MiniTest
+    args = []
+    args << defaulted_arg(named_args, :image_name, "#{cdf}/gcc_assert")
+    args << defaulted_arg(named_args, :visible_files, files={})
+    args << defaulted_arg(named_args, :max_seconds, 10)
+    @sss = runner.run(*args)
+    [stdout,stderr,status]
+  end
+
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
+  end
+
+  def sss; @sss; end
+
+  def stdout; sss[:stdout]; end
+  def stderr; sss[:stderr]; end
+  def status; sss[:status]; end
+
+  def cdf; 'cyberdojofoundation'; end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def with_captured_stdout
     begin
       old_stdout = $stdout

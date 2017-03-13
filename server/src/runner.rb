@@ -29,6 +29,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(image_name, visible_files, max_seconds)
+    assert_valid image_name
+
     { stdout:'stdout', stderr:'stderr', status:0 }
   end
 
