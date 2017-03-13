@@ -41,6 +41,7 @@ class PullerTest < TestBase
     mock_docker_images_prints_gcc_assert
     assert image_pulled?
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # pull
@@ -49,14 +50,14 @@ class PullerTest < TestBase
   test '934',
   'when image_name is invalid, image_pull() raises' do
     invalid_image_names.each do |image_name|
-      set_image_name image_name
       error = assert_raises(StandardError) {
-        image_pull
+        image_pull image_name
       }
       assert_equal 'image_name:invalid', error.message
     end
   end
 
+=begin
   test '91C',
   'when image_name is valid, image_pull() issues unconditional docker-pull' do
     set_image_name "#{cdf}/ruby_mini_test"
