@@ -13,6 +13,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 - A stateless micro-service for [cyber-dojo](http://cyber-dojo.org)
 - Runs an avatar's tests.
+- Not Yet Live.
 
 API:
   * All methods receive their arguments in a json hash.
