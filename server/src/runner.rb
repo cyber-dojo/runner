@@ -30,7 +30,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(image_name, visible_files, max_seconds)
-    ['stdout','stderr',status=0]
+    { stdout:'stdout', stderr:'stderr', status:0 }
   end
 
 end

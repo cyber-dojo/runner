@@ -61,14 +61,9 @@ class Demo < Sinatra::Base
     border = 'border:1px solid black'
     padding = 'padding:10px'
     background = "background:#{colour}"
-    json = {
-      stdout: sss['stdout'],
-      stderr: sss['stderr'],
-      status: sss['status']
-    }
     "<pre>/#{name}(#{duration}s)</pre>" +
     "<pre style='#{border};#{padding};#{background}'>" +
-    "#{JSON.pretty_unparse(json)}" +
+    "#{JSON.pretty_unparse(sss)}" +
     '</pre>'
   end
 
