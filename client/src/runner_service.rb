@@ -12,8 +12,8 @@ class RunnerService
 
   # - - - - - - - - - - - - - - - - - - -
 
-  def run(image_name, visible_files, max_seconds)
-    post(__method__, image_name, visible_files, max_seconds)
+  def run(image_name, avatar_name, visible_files, max_seconds)
+    post(__method__, image_name, avatar_name, visible_files, max_seconds)
   end
 
   private

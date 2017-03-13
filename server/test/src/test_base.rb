@@ -27,6 +27,7 @@ class TestBase < HexMiniTest
     # don't name this run() as it clashes with MiniTest
     args = []
     args << defaulted_arg(named_args, :image_name, "#{cdf}/gcc_assert")
+    args << defaulted_arg(named_args, :avatar_name, 'salmon')
     args << defaulted_arg(named_args, :visible_files, files={})
     args << defaulted_arg(named_args, :max_seconds, 10)
     @sss = runner.run(*args)

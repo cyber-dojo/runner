@@ -16,7 +16,7 @@ class MicroService < Sinatra::Base
   # - - - - - - - - - - - - - - - - - - - - -
 
   post '/run' do
-    poster(__method__, image_name, visible_files, max_seconds)
+    poster(__method__, image_name, avatar_name, visible_files, max_seconds)
   end
 
   private
@@ -40,7 +40,7 @@ class MicroService < Sinatra::Base
   # - - - - - - - - - - - - - - - -
 
   include Externals
-  #include Runner
+
   def runner
     Runner.new(self)
   end
@@ -51,7 +51,7 @@ class MicroService < Sinatra::Base
     }
   end
 
-  request_args :image_name, :visible_files, :max_seconds
+  request_args :image_name, :avatar_name, :visible_files, :max_seconds
 
   def args
     @args ||= JSON.parse(request_body)

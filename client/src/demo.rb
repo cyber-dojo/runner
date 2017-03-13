@@ -39,7 +39,7 @@ class Demo < Sinatra::Base
   def image_name; 'cyberdojofoundation/gcc_assert'; end
 
   def run(visible_files, max_seconds = 10)
-    runner.run(image_name, visible_files, max_seconds)
+    runner.run(image_name, 'salmon', visible_files, max_seconds)
   end
 
   def runner
