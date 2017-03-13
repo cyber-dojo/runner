@@ -13,7 +13,7 @@ class RunTest < TestBase
 
   test 'FAE',
   'valid avatar_name does not raise' do
-    sss_run({ avatar_name:'salmon' })
+    sss_run({ avatar_name:VALID_AVATAR_NAME })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,7 +29,7 @@ class RunTest < TestBase
   test 'C3A',
   'invalid avatar_name raises' do
     error = assert_raises(ArgumentError) {
-      sss_run({ avatar_name:'polaroid' })
+      sss_run({ avatar_name:INVALID_AVATAR_NAME })
     }
     assert_equal 'avatar_name:invalid', error.message
   end
@@ -38,5 +38,8 @@ class RunTest < TestBase
 
   INVALID_IMAGE_NAME = '_cantStartWithSeparator'
   VALID_IMAGE_NAME = 'busybox'
+
+  INVALID_AVATAR_NAME = 'polaroid'
+  VALID_AVATAR_NAME = 'salmon'
 
 end
