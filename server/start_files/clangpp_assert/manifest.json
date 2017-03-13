@@ -1,0 +1,24 @@
+
+{
+  "visible_filenames": [
+    "hiker.tests.cpp",
+    "hiker.cpp",
+    "hiker.hpp",
+    "makefile",
+    "cyber-dojo.sh"
+  ],
+
+  "filename_extension" : ".cpp",
+
+  "display_name": "C++ (clang++), assert",
+
+  "image_name": "cyberdojofoundation/clangpp_assert",
+
+  "red_amber_green" : [
+    "lambda { |output|",
+    "  return :red   if /(.*)Assertion(.*)failed./.match(output)",
+    "  return :green if /(All|\\d*) tests passed/.match(output)",
+    "  return :amber",
+    "}"
+  ]
+}

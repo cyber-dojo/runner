@@ -1,0 +1,4 @@
+This Cucumber environment is bundled with:
+- PicoContainer DI framework
+- JMock2
+- Mockito

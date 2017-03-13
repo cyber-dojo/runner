@@ -1,0 +1,23 @@
+{
+  "visible_filenames": [
+     "hiker.tests.c",
+     "hiker.c",
+     "hiker.h",
+     "makefile",
+     "cyber-dojo.sh"
+  ],
+
+  "filename_extension" : ".c",
+
+  "display_name": "C (gcc), assert",
+
+  "image_name": "cyberdojofoundation/gcc_assert",
+
+  "red_amber_green" : [
+    "lambda { |output|",
+    "  return :red   if /(.*)Assertion(.*)failed./.match(output)",
+    "  return :green if /(All|\\d*) tests passed/.match(output)",
+    "  return :amber",
+    "}"
+  ]
+}
