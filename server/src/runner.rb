@@ -41,8 +41,8 @@ class Runner
 
   private
 
-  def in_container(image_name, &block)
-    cid = create_container(image_name)
+  def in_container(image_name, avatar_name, &block)
+    cid = create_container(image_name, avatar_name)
     begin
       block.call(cid)
     ensure
@@ -52,7 +52,14 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_container(image_name)
+  def create_container(image_name, avatar_name)
+
+    # CAN I WRITE THE VISIBLE_FILES TO A TMP DIR ON THE HOST
+    # AND THEN VOLUME MOUNT THAT INTO THE CONTAINER AS THE SANDBOX DIR?
+    # THIS WOULD PROBABLY BE FASTER AND AVOID MULTIPLE [DOCKER CP] COMMANDS
+    # ESPECIALLY ON AN SSD DRIVE
+    # REMEMBER TO DO [DOCKER RM -V]
+
     #dir = avatar_dir(avatar_name)
     #home = home_dir(avatar_name)
     args = [
@@ -82,18 +89,7 @@ class Runner
 
   def remove_container(cid)
     assert_exec("docker rm --force #{cid}")
-    # The docker daemon responds to [docker rm]
-    # asynchronously...
-    # An 'immediately' following old_avatar()'s
-    #    [docker volume rm]
-    # might fail since the container is not quite dead yet.
-    # This is unlikely to happen in real use but quite
-    # likely in tests. I considered making old_avatar()
-    # check the container was dead.
-    #   pro) remove_container will never do a sleep
-    #        (delaying a run)
-    #   con) would mean storing the cid in the volume
-    #        somewhere
+    # The docker daemon responds to [docker rm] asynchronously...
     # I'm waiting max 2 seconds for the container to die.
     # o) no delay if container_dead? is true 1st time.
     # o) 0.04s delay if container_dead? is true 2nd time.
@@ -125,13 +121,13 @@ class Runner
   def write_files(cid, avatar_name, visible_files)
     return if visible_files == {}
     Dir.mktmpdir('runner') do |tmp_dir|
-      files.each do |filename, content|
+      visible_files.each do |filename, content|
         host_filename = tmp_dir + '/' + filename
         disk.write(host_filename, content)
       end
       dir = avatar_dir(avatar_name)
       assert_exec("docker cp #{tmp_dir}/. #{cid}:#{dir}")
-      files.keys.each do |filename|
+      visible_files.keys.each do |filename|
         chown_file = "chown #{avatar_name}:#{group} #{dir}/#{filename}"
         assert_docker_exec(cid, chown_file)
       end
