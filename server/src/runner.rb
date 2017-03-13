@@ -1,4 +1,4 @@
-#require_relative 'all_avatars_names'
+require_relative 'all_avatars_names'
 require_relative 'nearest_ancestors'
 require_relative 'logger_null'
 #require_relative 'string_cleaner'
@@ -14,23 +14,23 @@ class Runner
   attr_reader :parent # For nearest_ancestors()
 
   def image_pulled?(image_name)
-    assert_valid image_name
-    image_names.include?(image_name)
+    assert_valid_image_name image_name
+    image_names.include? image_name
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   def image_pull(image_name)
-    assert_valid image_name
-    assert_exec("docker pull #{image_name}")
+    assert_valid_image_name image_name
+    assert_exec "docker pull #{image_name}"
     true
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   def run(image_name, avatar_name, visible_files, max_seconds)
-    assert_valid image_name
-    #assert_valid avatar_name
+    assert_valid_image_name image_name
+    assert_valid_avatar_name avatar_name
     in_container(image_name) do |cid|
       #write_files(cid, avatar_name, visible_files)
       #stdout,stderr,status = run_cyber_dojo_sh(cid, max_seconds)
@@ -197,13 +197,22 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - -
 
-  def assert_valid image_name
-    unless valid? image_name
+  def image_names
+    cmd = 'docker images --format "{{.Repository}}"'
+    stdout,_ = assert_exec(cmd)
+    names = stdout.split("\n")
+    names.uniq - ['<none>']
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  def assert_valid_image_name(image_name)
+    unless valid_image_name? image_name
       fail_image_name('invalid')
     end
   end
 
-  def valid? image_name
+  def valid_image_name?(image_name)
     # http://stackoverflow.com/questions/37861791/
     #      how-are-docker-image-names-parsed
     # https://github.com/docker/docker/blob/master/image/spec/v1.1.md
@@ -219,17 +228,27 @@ class Runner
     fail bad_argument("image_name:#{message}")
   end
 
-  def bad_argument(message)
-    ArgumentError.new(message)
+  # - - - - - - - - - - - - - - - - - -
+
+  def assert_valid_avatar_name(avatar_name)
+    unless valid_avatar_name?(avatar_name)
+      fail_avatar_name('invalid')
+    end
+  end
+
+  include AllAvatarsNames
+  def valid_avatar_name?(avatar_name)
+    all_avatars_names.include?(avatar_name)
+  end
+
+  def fail_avatar_name(message)
+    fail bad_argument("avatar_name:#{message}")
   end
 
   # - - - - - - - - - - - - - - - - - -
 
-  def image_names
-    cmd = 'docker images --format "{{.Repository}}"'
-    stdout,_ = assert_exec(cmd)
-    names = stdout.split("\n")
-    names.uniq - ['<none>']
+  def bad_argument(message)
+    ArgumentError.new(message)
   end
 
   def assert_exec(cmd)

@@ -6,19 +6,32 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  test 'C2E',
+  'valid image_name does not raise' do
+    sss_run({ image_name:VALID_IMAGE_NAME })
+  end
+
+  test 'FAE',
+  'valid avatar_name does not raise' do
+    sss_run({ avatar_name:'salmon' })
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   test '1DC',
-  'run with invalid image_name raises' do
+  'invalid image_name raises' do
     error = assert_raises(ArgumentError) {
       sss_run({ image_name:INVALID_IMAGE_NAME })
     }
     assert_equal 'image_name:invalid', error.message
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test 'C2E',
-  'run with valid image_name does not raise' do
-    sss_run({ image_name:VALID_IMAGE_NAME })
+  test 'C3A',
+  'invalid avatar_name raises' do
+    error = assert_raises(ArgumentError) {
+      sss_run({ avatar_name:'polaroid' })
+    }
+    assert_equal 'avatar_name:invalid', error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
