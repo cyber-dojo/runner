@@ -6,6 +6,7 @@ class LoggerStdoutTest < TestBase
 
   test '962',
   '<< writes to stdout with added trailing newline' do
+    log = LoggerStdout.new(nil)
     written = with_captured_stdout { log << "Hello world" }
     assert_equal quoted('Hello world')+"\n", written
   end
