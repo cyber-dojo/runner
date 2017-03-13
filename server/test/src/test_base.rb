@@ -58,4 +58,17 @@ class TestBase < HexMiniTest
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def invalid_image_names
+    [
+      '',             # nothing!
+      '_',            # cannot start with separator
+      'name_',        # cannot end with separator
+      'ALPHA/name',   # no uppercase
+      'alpha/name_',  # cannot end in separator
+      'alpha/_name',  # cannot begin with separator
+    ]
+  end
+
 end
