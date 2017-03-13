@@ -15,8 +15,7 @@ class Runner
 
   def image_pulled?(image_name)
     assert_valid image_name
-    #image_names.include?(image_name)
-    42
+    image_names.include?(image_name)
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -60,5 +59,21 @@ class Runner
   def bad_argument(message)
     ArgumentError.new(message)
   end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  def image_names
+    cmd = 'docker images --format "{{.Repository}}"'
+    stdout,_ = assert_exec(cmd)
+    names = stdout.split("\n")
+    names.uniq - ['<none>']
+  end
+
+  def assert_exec(cmd)
+    shell.assert_exec(cmd)
+  end
+
+  include NearestAncestors
+  def shell; nearest_ancestors(:shell); end
 
 end
