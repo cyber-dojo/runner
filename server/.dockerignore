@@ -5,6 +5,7 @@
 #-----!Except these dirs
 
 !src
+!start_files
 !test
 
 #-----!Except these files
