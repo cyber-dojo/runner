@@ -1,13 +1,13 @@
 require_relative 'test_base'
-#require_relative 'mock_sheller'
+require_relative 'shell_mocker'
 #require_relative '../../src/logger_spy'
 
 class PullerTest < TestBase
 
   def self.hex_prefix; '0D5713'; end
 
-  def hex_setup; end; #@shell ||= MockSheller.new(nil); end
-  def hex_teardown; end; #shell.teardown; end
+  def hex_setup; @shell ||= ShellMocker.new(nil); end
+  def hex_teardown; shell.teardown; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # pulled?
@@ -23,25 +23,21 @@ class PullerTest < TestBase
     end
   end
 
-=begin
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '9C3',
   'when image_name is valid but not in [docker images], image_pulled?() is false' do
-    set_image_name "#{cdf}/ruby_mini_test"
     mock_docker_images_prints_gcc_assert
-    refute image_pulled?
+    refute image_pulled? "#{cdf}/ruby_mini_test"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'A44',
   'when image_name is valid and in [docker images], image_pulled?() is true' do
-    set_image_name "#{cdf}/gcc_assert"
     mock_docker_images_prints_gcc_assert
-    assert image_pulled?
+    assert image_pulled? "#{cdf}/gcc_assert"
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # pull
@@ -57,13 +53,17 @@ class PullerTest < TestBase
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 =begin
+
   test '91C',
   'when image_name is valid, image_pull() issues unconditional docker-pull' do
-    set_image_name "#{cdf}/ruby_mini_test"
     mock_docker_pull_cdf_ruby_mini_test
-    image_pull
+    image_pull "#{cdf}/ruby_mini_test"
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '933',
   'when there is no network connectivitity, image_pull() raises' do
@@ -87,22 +87,23 @@ class PullerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   private
+=end
 
   def mock_docker_images_prints_gcc_assert
     cmd = 'docker images --format "{{.Repository}}"'
     stdout = "#{cdf}/gcc_assert"
-    shell.mock_exec(cmd, stdout, '', success)
+    shell.mock_exec(cmd, stdout, stderr='', shell.success)
   end
 
   def mock_docker_pull_cdf_ruby_mini_test
     image_name = "#{cdf}/ruby_mini_test"
-    shell.mock_exec("docker pull #{image_name}", '', '', success)
+    cmd = "docker pull #{image_name}"
+    shell.mock_exec(cmd, stdout='', stderr='', shell.success)
   end
 
   def cdf
     'cyberdojofoundation'
   end
-=end
 
   def invalid_image_names
     [

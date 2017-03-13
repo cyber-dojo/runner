@@ -23,7 +23,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
   def with_captured_stdout
     begin
       old_stdout = $stdout
