@@ -1,11 +1,11 @@
 require_relative '../hex_mini_test'
-#require_relative '../../src/externals'
+require_relative '../../src/externals'
 require_relative '../../src/runner'
 require 'json'
 
 class TestBase < HexMiniTest
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  include Externals
 
   def runner
     @runner ||= Runner.new(self)
@@ -20,5 +20,8 @@ class TestBase < HexMiniTest
   def image_pull(image_name)
     runner.image_pull(image_name)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
 end
