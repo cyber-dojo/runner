@@ -8,8 +8,12 @@ before_script:
 
 script:
     # pull images used by tests
-    - docker pull cyberdojofoundation/gcc_assert
     - docker pull cyberdojofoundation/clangpp_assert
+    - docker pull cyberdojofoundation/csharp_moq
+    - docker pull cyberdojofoundation/csharp_nunit
+    - docker pull cyberdojofoundation/gcc_assert
+    - docker pull cyberdojofoundation/java_cucumber_pico
+
     #
     - ./pipe_build_up_test.sh \
         && ./push_and_trigger.sh cyber-dojo/puller
