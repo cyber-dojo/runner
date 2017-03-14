@@ -36,6 +36,9 @@ class TestBase < HexMiniTest
   def assert_stderr(expected); assert_equal expected, stderr, sss; end
   def assert_status(expected); assert_equal expected, status, sss; end
 
+  def assert_stdout_include(text); assert stdout.include?(text), sss; end
+  def assert_stderr_include(text); assert stderr.include?(text), sss; end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_cyber_dojo_sh(script, named_args = {})
@@ -75,7 +78,7 @@ class TestBase < HexMiniTest
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  def default_image_name; "#{cdf}/gcc_assert"; end
+  def default_image_name; image_from_test_name; end
   def default_kata_id; hex_test_id + '0' * (10-hex_test_id.length); end
   def default_avatar_name; 'salmon'; end
   def default_visible_files; @files ||= read_files; end
@@ -89,9 +92,16 @@ class TestBase < HexMiniTest
     }]
   end
 
+  def image_from_test_name
+    "#{cdf}/#{language_from_test_name}"
+  end
+
   def language_from_test_name
     rows = {
-      'gcc,assert'      => 'gcc_assert',
+      '[C#,NUnit]'      => 'csharp_nunit',
+      '[C#,Moq]'        => 'csharp_moq',
+      '[Java,Cucumber]' => 'java_cucumber_pico',
+      '[gcc,assert]'    => 'gcc_assert',
       '[Alpine]'        => 'gcc_assert',
       '[Ubuntu]'        => 'clangpp_assert'
     }
