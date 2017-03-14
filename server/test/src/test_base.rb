@@ -23,6 +23,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  #def assert_run_times_out(named_args)
+  #  stdout,stderr,status = sss_run(named_args)
+  #  assert_equal timed_out, status, [stdout,stderr]
+  #  [stdout,stderr]
+  #end
+
   def sss_run(named_args = {})
     # don't name this run() as it clashes with MiniTest
     @sss = runner.run *defaulted_args(named_args)
@@ -34,6 +40,12 @@ class TestBase < HexMiniTest
   def stdout; sss[:stdout]; end
   def stderr; sss[:stderr]; end
   def status; sss[:status]; end
+
+  #def assert_stdout(expected); assert_equal expected, stdout, sss; end
+  #def assert_stderr(expected); assert_equal expected, stderr, sss; end
+  #def assert_status(expected); assert_equal expected, status, sss; end
+
+  #def timed_out; 'timed_out'; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -56,8 +68,7 @@ class TestBase < HexMiniTest
   def default_visible_files; @files ||= read_files; end
   def default_max_seconds; 10; end
 
-  def read_files
-    language_dir = language_from_test_name
+  def read_files(language_dir = language_from_test_name)
     dir = "/app/start_files/#{language_dir}"
     json = JSON.parse(IO.read("#{dir}/manifest.json"))
     Hash[json['visible_filenames'].collect { |filename|
@@ -67,6 +78,7 @@ class TestBase < HexMiniTest
 
   def language_from_test_name
     rows = {
+      'gcc,assert'      => 'gcc_assert',
       '[Alpine]'        => 'gcc_assert',
       '[Ubuntu]'        => 'clangpp_assert'
     }
