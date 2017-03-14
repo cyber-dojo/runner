@@ -11,6 +11,11 @@ class RunTest < TestBase
     sss_run({ image_name:VALID_IMAGE_NAME })
   end
 
+  test '3B6',
+  'valid kata_id does not raise' do
+    sss_run({ kata_id:VALID_KATA_ID })
+  end
+
   test 'FAE',
   'valid avatar_name does not raise' do
     sss_run({ avatar_name:VALID_AVATAR_NAME })
@@ -26,6 +31,14 @@ class RunTest < TestBase
     assert_equal 'image_name:invalid', error.message
   end
 
+  test '3FF',
+  'invalid kata_id raises' do
+    error = assert_raises(ArgumentError) {
+      sss_run({ kata_id:INVALID_KATA_ID })
+    }
+    assert_equal 'kata_id:invalid', error.message
+  end
+
   test 'C3A',
   'invalid avatar_name raises' do
     error = assert_raises(ArgumentError) {
@@ -38,6 +51,9 @@ class RunTest < TestBase
 
   INVALID_IMAGE_NAME = '_cantStartWithSeparator'
   VALID_IMAGE_NAME = 'busybox'
+
+  VALID_KATA_ID = '2911DDFD16'
+  INVALID_KATA_ID = '345'
 
   INVALID_AVATAR_NAME = 'polaroid'
   VALID_AVATAR_NAME = 'salmon'

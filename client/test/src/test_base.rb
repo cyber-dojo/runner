@@ -36,10 +36,11 @@ class TestBase < HexMiniTest
 
   def defaulted_args(named_args)
     args = []
-    args << defaulted_arg(named_args, :image_name, DEFAULT_IMAGE_NAME)
-    args << defaulted_arg(named_args, :avatar_name, DEFAULT_AVATAR_NAME)
-    args << defaulted_arg(named_args, :visible_files, files)
-    args << defaulted_arg(named_args, :max_seconds, DEFAULT_MAX_SECONDS)
+    args << defaulted_arg(named_args, :image_name,    default_image_name)
+    args << defaulted_arg(named_args, :kata_id,       default_kata_id)
+    args << defaulted_arg(named_args, :avatar_name,   default_avatar_name)
+    args << defaulted_arg(named_args, :visible_files, default_visible_files)
+    args << defaulted_arg(named_args, :max_seconds,   default_max_seconds)
     args
   end
 
@@ -47,15 +48,13 @@ class TestBase < HexMiniTest
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  DEFAULT_IMAGE_NAME  = 'cyberdojofoundation/gcc_assert'
-  DEFAULT_AVATAR_NAME = 'salmon'
-  DEFAULT_MAX_SECONDS = 10
+  def default_image_name; 'cyberdojofoundation/gcc_assert'; end
+  def default_kata_id; hex_test_id + '0' * (10-hex_test_id.length); end
+  def default_avatar_name; 'salmon'; end
+  def default_visible_files; @files ||= read_files; end
+  def default_max_seconds; 10; end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
-
-  def files
-    @files ||= read_files
-  end
 
   def read_files
     filenames =%w( hiker.c hiker.h hiker.tests.c cyber-dojo.sh makefile )
@@ -88,9 +87,12 @@ class TestBase < HexMiniTest
   def timed_out; 'timed_out'; end
 =end
 
-  VALID_IMAGE_NAME = 'busybox'
+  VALID_IMAGE_NAME              = 'busybox'
   VALID_NON_EXISTENT_IMAGE_NAME = 'non_existent_box'
-  INVALID_IMAGE_NAME = '_cantStartWithSeparator'
+  INVALID_IMAGE_NAME            = '_cantStartWithSeparator'
+
+  VALID_KATA_ID       = '41135B4F2B'
+  INVALID_KATA_ID     = '675'
 
   VALID_AVATAR_NAME   = 'salmon'
   INVALID_AVATAR_NAME = 'sunglasses'

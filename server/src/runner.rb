@@ -28,10 +28,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def run(image_name, avatar_name, visible_files, max_seconds)
+  def run(image_name, kata_id, avatar_name, visible_files, max_seconds)
     assert_valid_image_name image_name
+    assert_valid_kata_id kata_id
     assert_valid_avatar_name avatar_name
-    in_container(image_name) do |cid|
+    in_container(image_name, kata_id, avatar_name) do |cid|
       #write_files(cid, avatar_name, visible_files)
       #stdout,stderr,status = run_cyber_dojo_sh(cid, max_seconds)
       stdout,stderr,status = '','',0
@@ -41,8 +42,8 @@ class Runner
 
   private
 
-  def in_container(image_name, avatar_name, &block)
-    cid = create_container(image_name, avatar_name)
+  def in_container(image_name, kata_id, avatar_name, &block)
+    cid = create_container(image_name, kata_id, avatar_name)
     begin
       block.call(cid)
     ensure
@@ -52,7 +53,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_container(image_name, avatar_name)
+  def create_container(image_name, kata_id, avatar_name)
 
     # CAN I WRITE THE VISIBLE_FILES TO A TMP DIR ON THE HOST
     # AND THEN VOLUME MOUNT THAT INTO THE CONTAINER AS THE SANDBOX DIR?
@@ -222,6 +223,28 @@ class Runner
 
   def fail_image_name(message)
     fail bad_argument("image_name:#{message}")
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  def assert_valid_kata_id(kata_id)
+    unless valid_kata_id? kata_id
+      fail_kata_id('invalid')
+    end
+  end
+
+  def valid_kata_id?(kata_id)
+    kata_id.class.name == 'String' &&
+      kata_id.length == 10 &&
+        kata_id.chars.all? { |char| hex?(char) }
+  end
+
+  def hex?(char)
+    '0123456789ABCDEF'.include?(char)
+  end
+
+  def fail_kata_id(message)
+    fail bad_argument("kata_id:#{message}")
   end
 
   # - - - - - - - - - - - - - - - - - -

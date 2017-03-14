@@ -25,26 +25,35 @@ class TestBase < HexMiniTest
 
   def sss_run(named_args = {})
     # don't name this run() as it clashes with MiniTest
-    args = []
-    args << defaulted_arg(named_args, :image_name, "#{cdf}/gcc_assert")
-    args << defaulted_arg(named_args, :avatar_name, 'salmon')
-    args << defaulted_arg(named_args, :visible_files, files={})
-    args << defaulted_arg(named_args, :max_seconds, 10)
-    @sss = runner.run(*args)
+    @sss = runner.run *defaulted_args(named_args)
     [stdout,stderr,status]
+  end
+
+  def defaulted_args(named_args)
+    args = []
+    args << defaulted_arg(named_args, :image_name,    default_image_name)
+    args << defaulted_arg(named_args, :kata_id,       default_kata_id)
+    args << defaulted_arg(named_args, :avatar_name,   default_avatar_name)
+    args << defaulted_arg(named_args, :visible_files, default_visible_files)
+    args << defaulted_arg(named_args, :max_seconds,   default_max_seconds)
+    args
   end
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
+  def default_image_name; "#{cdf}/gcc_assert"; end
+  def default_kata_id; hex_test_id + '0' * (10-hex_test_id.length); end
+  def default_avatar_name; 'salmon'; end
+  def default_visible_files; @files ||= {}; end #read_files; end
+  def default_max_seconds; 10; end
+
   def sss; @sss; end
 
   def stdout; sss[:stdout]; end
   def stderr; sss[:stderr]; end
   def status; sss[:status]; end
-
-  def cdf; 'cyberdojofoundation'; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -71,5 +80,7 @@ class TestBase < HexMiniTest
       'alpha/_name',  # cannot begin with separator
     ]
   end
+
+  def cdf; 'cyberdojofoundation'; end
 
 end
