@@ -76,28 +76,20 @@ module OsHelper
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-=begin
+
   def new_avatar_starting_files_test
-    # kata_setup has already called new_avatar() which
-    # has setup a salmon. So I create a new avatar with
-    # known ls-starting-files. Note that kata_teardown
-    # calls old_avatar('salmon') and old_kata
-    new_avatar('lion', ls_starting_files)
-    begin
-      sss_run({ avatar_name:'lion', changed_files:{} })
-      assert_equal success, status
-      assert_equal '', stderr
-      ls_stdout = stdout
-      ls_files = ls_parse(ls_stdout)
-      assert_equal ls_starting_files.keys.sort, ls_files.keys.sort
-      lion_uid = user_id('lion')
-      assert_equal_atts('empty.txt',     '-rw-r--r--', lion_uid, group,  0, ls_files)
-      assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', lion_uid, group, 29, ls_files)
-      assert_equal_atts('hello.txt',     '-rw-r--r--', lion_uid, group, 11, ls_files)
-      assert_equal_atts('hello.sh',      '-rw-r--r--', lion_uid, group, 16, ls_files)
-    ensure
-      old_avatar('lion')
-    end
+    sss_run({ avatar_name:'lion', visible_files:ls_starting_files })
+    assert_status success
+    assert_stderr ''
+    ls_stdout = stdout
+    ls_files = ls_parse(ls_stdout)
+    assert_equal ls_starting_files.keys.sort, ls_files.keys.sort
+    lion_uid = runner.user_id('lion')
+    group = runner.group
+    assert_equal_atts('empty.txt',     '-rw-r--r--', lion_uid, group,  0, ls_files)
+    assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', lion_uid, group, 29, ls_files)
+    assert_equal_atts('hello.txt',     '-rw-r--r--', lion_uid, group, 11, ls_files)
+    assert_equal_atts('hello.sh',      '-rw-r--r--', lion_uid, group, 16, ls_files)
   end
 
   def assert_equal_atts(filename, permissions, user, group, size, ls_files)
@@ -110,7 +102,7 @@ module OsHelper
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+=begin
   def unchanged_files_test
     named_args = { changed_files:ls_starting_files }
     before_ls = assert_run_succeeds(named_args)
@@ -220,6 +212,7 @@ module OsHelper
   end
 
   private
+=end
 
   def ls_starting_files
     {
@@ -248,7 +241,7 @@ module OsHelper
       attr = line.split
       [filename = attr[0], {
         permissions: attr[1],
-               user: attr[2],
+               user: attr[2].to_i,
               group: attr[3],
                size: attr[4].to_i,
          time_stamp: attr[6],
@@ -258,6 +251,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def alpine?
     etc_issue.include? 'Alpine'
   end

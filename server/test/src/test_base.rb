@@ -53,9 +53,9 @@ class TestBase < HexMiniTest
   def stderr; sss[:stderr]; end
   def status; sss[:status]; end
 
-  #def assert_stdout(expected); assert_equal expected, stdout, sss; end
-  #def assert_stderr(expected); assert_equal expected, stderr, sss; end
-  #def assert_status(expected); assert_equal expected, status, sss; end
+  def assert_stdout(expected); assert_equal expected, stdout, sss; end
+  def assert_stderr(expected); assert_equal expected, stderr, sss; end
+  def assert_status(expected); assert_equal expected, status, sss; end
 
   #def timed_out; 'timed_out'; end
   def success; shell.success; end

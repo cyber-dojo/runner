@@ -45,7 +45,7 @@ class RunAlpineTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-=begin
+
   os_test '1FB',
   'new_avatar has starting-files in its sandbox with owner/group/permissions set' do
     new_avatar_starting_files_test
@@ -53,6 +53,7 @@ class RunAlpineTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   os_test '4E8',
   'unchanged files still exist and are unchanged' do
     unchanged_files_test
