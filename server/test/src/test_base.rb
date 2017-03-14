@@ -79,7 +79,7 @@ class TestBase < HexMiniTest
   end
 
   def default_image_name; image_from_test_name; end
-  def default_kata_id; hex_test_id + '0' * (10-hex_test_id.length); end
+  def default_kata_id; kata_id_from_test_id; end
   def default_avatar_name; 'salmon'; end
   def default_visible_files; @files ||= read_files; end
   def default_max_seconds; 10; end
@@ -94,6 +94,10 @@ class TestBase < HexMiniTest
 
   def image_from_test_name
     "#{cdf}/#{language_from_test_name}"
+  end
+
+  def kata_id_from_test_id
+    hex_test_id + '0' * (10-hex_test_id.length)
   end
 
   def language_from_test_name
