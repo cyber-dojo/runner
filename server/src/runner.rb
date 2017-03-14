@@ -42,6 +42,32 @@ class Runner
 
   private
 
+  def user_id(avatar_name)
+    40000 + all_avatars_names.index(avatar_name)
+  end
+
+  def group
+    'cyber-dojo'
+  end
+
+  def gid
+    5000
+  end
+
+  def home_dir(avatar_name)
+    "/home/#{avatar_name}"
+  end
+
+  def avatar_dir(avatar_name)
+    "#{sandboxes_root_dir}/#{avatar_name}"
+  end
+
+  def sandboxes_root_dir
+    '/sandboxes'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def in_container(image_name, kata_id, avatar_name, &block)
     cid = create_container(image_name, kata_id, avatar_name)
     begin
@@ -61,8 +87,8 @@ class Runner
     # ESPECIALLY ON AN SSD DRIVE
     # REMEMBER TO DO [DOCKER RM -V]
 
-    #dir = avatar_dir(avatar_name)
-    #home = home_dir(avatar_name)
+    dir = avatar_dir(avatar_name)
+    home = home_dir(avatar_name)
     args = [
       '--detach',                          # get the cid
       '--interactive',                     # for later execs
@@ -72,15 +98,17 @@ class Runner
       '--ulimit nproc=64:64',              # max number processes = 64
       '--ulimit core=0:0',                 # max core file size = 0 blocks
       '--ulimit nofile=128:128',           # max number of files = 128
-      #"--env CYBER_DOJO_KATA_ID=#{kata_id}",
-      #"--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
-      #"--env CYBER_DOJO_SANDBOX=#{dir}",
-      #"--env HOME=#{home}",
+      "--env CYBER_DOJO_KATA_ID=#{kata_id}",
+      "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
+      "--env CYBER_DOJO_SANDBOX=#{dir}",
+      "--env HOME=#{home}",
       '--user=root',
       #"--volume #{volume_name}:#{volume_root}:rw"
     ].join(space = ' ')
     stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
     cid = stdout.strip
+
+    #TODO: DONT DO ETC/ISSUE LOOKUP TWICE
     #assert_docker_exec(cid, add_group_cmd(cid))
     #assert_docker_exec(cid, add_user_cmd(cid, avatar_name))
     cid
@@ -138,8 +166,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, max_seconds)
-    # I thought doing [chmod 755] in new_avatar() would
-    # be "sticky" and remain 755 but it appears not...
     uid = user_id(avatar_name)
     dir = avatar_dir(avatar_name)
     docker_cmd = [
@@ -270,9 +296,13 @@ class Runner
     ArgumentError.new(message)
   end
 
+  # - - - - - - - - - - - - - - - - - -
+
   def assert_exec(cmd)
     shell.assert_exec(cmd)
   end
+
+  # - - - - - - - - - - - - - - - - - -
 
   include NearestAncestors
   def shell; nearest_ancestors(:shell); end
