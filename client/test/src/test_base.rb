@@ -21,7 +21,7 @@ class TestBase < HexMiniTest
 
   def sss_run(named_args = {})
     # don't call this run() as it clashes with MiniTest
-    @sss = runner.run *defaulted_args(named_args)
+    @sss ||= runner.run *defaulted_args(named_args)
   end
 
   def sss
@@ -35,13 +35,12 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def defaulted_args(named_args)
-    args = []
-    args << defaulted_arg(named_args, :image_name,    default_image_name)
-    args << defaulted_arg(named_args, :kata_id,       default_kata_id)
-    args << defaulted_arg(named_args, :avatar_name,   default_avatar_name)
-    args << defaulted_arg(named_args, :visible_files, default_visible_files)
-    args << defaulted_arg(named_args, :max_seconds,   default_max_seconds)
-    args
+    image_name    = defaulted_arg(named_args, :image_name,    default_image_name)
+    kata_id       = defaulted_arg(named_args, :kata_id,       default_kata_id)
+    avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
+    visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
+    max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
+    [image_name, kata_id, avatar_name, visible_files, max_seconds]
   end
 
   def defaulted_arg(named_args, arg_name, arg_default)
@@ -87,14 +86,13 @@ class TestBase < HexMiniTest
   def timed_out; 'timed_out'; end
 =end
 
-  VALID_IMAGE_NAME              = 'cyberdojofoundation/gcc_assert'
+  VALID_IMAGE_NAME    = 'cyberdojofoundation/gcc_assert'
+  VALID_KATA_ID       = '41135B4F2B'
+  VALID_AVATAR_NAME   = 'salmon'
+
   VALID_NON_EXISTENT_IMAGE_NAME = 'non_existent_box'
   INVALID_IMAGE_NAME            = '_cantStartWithSeparator'
-
-  VALID_KATA_ID       = '41135B4F2B'
   INVALID_KATA_ID     = '675'
-
-  VALID_AVATAR_NAME   = 'salmon'
   INVALID_AVATAR_NAME = 'sunglasses'
 
 end

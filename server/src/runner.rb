@@ -34,8 +34,7 @@ class Runner
     assert_valid_avatar_name avatar_name
     in_container(image_name, kata_id, avatar_name) do |cid|
       write_files(cid, avatar_name, visible_files)
-      #stdout,stderr,status = run_cyber_dojo_sh(cid, max_seconds)
-      stdout,stderr,status = '','',0
+      stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
       { stdout:stdout, stderr:stderr, status:status }
     end
   end
@@ -226,12 +225,17 @@ class Runner
 
   def write_files(cid, avatar_name, visible_files)
     return if visible_files == {}
+    dir = avatar_dir(avatar_name)
+    chown_dir = "chown #{avatar_name}:#{group} #{dir}"
+    assert_docker_exec(cid, chown_dir)
+    chmod_dir = "chmod 755 #{dir}"
+    assert_docker_exec(cid, chmod_dir)
+
     Dir.mktmpdir('runner') do |tmp_dir|
       visible_files.each do |filename, content|
         host_filename = tmp_dir + '/' + filename
         disk.write(host_filename, content)
       end
-      dir = avatar_dir(avatar_name)
       assert_exec("docker cp #{tmp_dir}/. #{cid}:#{dir}")
       visible_files.keys.each do |filename|
         chown_file = "chown #{avatar_name}:#{group} #{dir}/#{filename}"
@@ -242,7 +246,6 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   def run_cyber_dojo_sh(cid, avatar_name, max_seconds)
     uid = user_id(avatar_name)
     dir = avatar_dir(avatar_name)
@@ -251,13 +254,16 @@ class Runner
       "--user=#{uid}:#{gid}",
       '--interactive',
       cid,
-      "sh -c 'cd #{dir} && chmod 755 . && sh ./cyber-dojo.sh'"
+      "sh -c 'cd #{dir} && sh ./cyber-dojo.sh'"
     ].join(space)
 
     run_timeout(docker_cmd, max_seconds)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  include StringCleaner
+  include StringTruncater
 
   def run_timeout(docker_cmd, max_seconds)
     r_stdout, w_stdout = IO.pipe
@@ -293,7 +299,6 @@ class Runner
       r_stderr.close
     end
   end
-=end
 
   # - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - -
@@ -315,7 +320,6 @@ class Runner
 
   def valid_image_name?(image_name)
     # http://stackoverflow.com/questions/37861791/
-    #      how-are-docker-image-names-parsed
     # https://github.com/docker/docker/blob/master/image/spec/v1.1.md
     # Simplified, no hostname, no :tag
     alpha_numeric = '[a-z0-9]+'

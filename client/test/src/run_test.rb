@@ -46,9 +46,9 @@ class RunTest < TestBase
           kata_id:VALID_KATA_ID,
       avatar_name:VALID_AVATAR_NAME
     })
-    assert_stdout ''
-    assert_stderr ''
-    assert_status 0
+    assert_equal 'String', stdout.class.name
+    assert_equal 'String', stderr.class.name
+    assert_equal 'Fixnum', status.class.name
   end
 
 end
