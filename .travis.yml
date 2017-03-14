@@ -1,0 +1,15 @@
+sudo: required
+services: docker
+language: node_js
+
+before_script:
+    - curl -O https://raw.githubusercontent.com/cyber-dojo/cyber-dojo/master/shared/push_and_trigger.sh
+    - chmod +x push_and_trigger.sh
+
+script:
+    # pull images used by tests
+    - docker pull cyberdojofoundation/gcc_assert
+    - docker pull cyberdojofoundation/clangpp_assert
+    #
+    - ./pipe_build_up_test.sh \
+        && ./push_and_trigger.sh cyber-dojo/puller
