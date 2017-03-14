@@ -7,7 +7,7 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'C2E',
-  'valid Alpine-image_name,kata_id,avatar_name does not raise' do
+  '[Alpine] valid image_name,kata_id,avatar_name does not raise' do
     sss_run({
       image_name:VALID_ALPINE_IMAGE_NAME,
          kata_id:VALID_KATA_ID,
@@ -16,7 +16,7 @@ class RunTest < TestBase
   end
 
   test '8A4',
-  'valid Ubuntu-image_name,kata_id,avatar_name does not raise' do
+  '[Ubuntu] valid image_name,kata_id,avatar_name does not raise' do
     sss_run({
       image_name:VALID_UBUNTU_IMAGE_NAME,
          kata_id:VALID_KATA_ID,

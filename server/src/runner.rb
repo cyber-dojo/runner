@@ -33,7 +33,7 @@ class Runner
     assert_valid_kata_id kata_id
     assert_valid_avatar_name avatar_name
     in_container(image_name, kata_id, avatar_name) do |cid|
-      #write_files(cid, avatar_name, visible_files)
+      write_files(cid, avatar_name, visible_files)
       #stdout,stderr,status = run_cyber_dojo_sh(cid, max_seconds)
       stdout,stderr,status = '','',0
       { stdout:stdout, stderr:stderr, status:status }
@@ -144,8 +144,8 @@ class Runner
 
   def alpine_add_user_cmd(avatar_name)
     # Alpine linux has an existing web-proxy user
-    # called squid which I have to work round.
-    # See avatar_exists?() in docker_avatar_volume_runner.rb
+    # called squid which is one of the avatars!
+    # I have to work round this.
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
     [ "(deluser #{avatar_name}",
@@ -224,7 +224,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   def write_files(cid, avatar_name, visible_files)
     return if visible_files == {}
     Dir.mktmpdir('runner') do |tmp_dir|
@@ -243,6 +242,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def run_cyber_dojo_sh(cid, avatar_name, max_seconds)
     uid = user_id(avatar_name)
     dir = avatar_dir(avatar_name)
