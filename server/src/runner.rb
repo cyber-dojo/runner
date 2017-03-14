@@ -104,16 +104,94 @@ class Runner
       "--env HOME=#{home}",
       '--user=root',
       #"--volume #{volume_name}:#{volume_root}:rw"
-    ].join(space = ' ')
+    ].join(space)
     stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
     cid = stdout.strip
-
-    #TODO: DONT DO ETC/ISSUE LOOKUP TWICE
-    #assert_docker_exec(cid, add_group_cmd(cid))
-    #assert_docker_exec(cid, add_user_cmd(cid, avatar_name))
+    assert_docker_exec(cid, add_group_cmd(cid))
+    assert_docker_exec(cid, add_user_cmd(cid, avatar_name))
     cid
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def add_group_cmd(cid)
+    if alpine? cid
+      return alpine_add_group_cmd
+    end
+    if ubuntu? cid
+      return ubuntu_add_group_cmd
+    end
+  end
+
+  def alpine_add_group_cmd
+    "addgroup -g #{gid} #{group}"
+  end
+
+  def ubuntu_add_group_cmd
+    "addgroup --gid #{gid} #{group}"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def add_user_cmd(cid, avatar_name)
+    if alpine? cid
+      return alpine_add_user_cmd(avatar_name)
+    end
+    if ubuntu? cid
+      return ubuntu_add_user_cmd(avatar_name)
+    end
+  end
+
+  def alpine_add_user_cmd(avatar_name)
+    # Alpine linux has an existing web-proxy user
+    # called squid which I have to work round.
+    # See avatar_exists?() in docker_avatar_volume_runner.rb
+    home = home_dir(avatar_name)
+    uid = user_id(avatar_name)
+    [ "(deluser #{avatar_name}",
+       ';',
+       'adduser',
+         '-D',             # don't assign a password
+         "-G #{group}",
+         "-h #{home}",     # home dir
+         '-s /bin/sh',     # shell
+         "-u #{uid}",
+         avatar_name,
+      ')'
+    ].join(space)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def ubuntu_add_user_cmd(avatar_name)
+    home = home_dir(avatar_name)
+    uid = user_id(avatar_name)
+    [ 'adduser',
+        '--disabled-password',
+        '--gecos ""',          # don't ask for details
+        "--home #{home}",      # home dir
+        "--ingroup #{group}",
+        "--uid #{uid}",
+        avatar_name
+    ].join(space)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def alpine?(cid)
+    etc_issue(cid).include?('Alpine')
+  end
+
+  def ubuntu?(cid)
+    etc_issue(cid).include?('Ubuntu')
+  end
+
+  def etc_issue(cid)
+    @ss ||= assert_docker_exec(cid, 'cat /etc/issue')
+    @ss[stdout=0]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def remove_container(cid)
@@ -174,7 +252,7 @@ class Runner
       '--interactive',
       cid,
       "sh -c 'cd #{dir} && chmod 755 . && sh ./cyber-dojo.sh'"
-    ].join(space = ' ')
+    ].join(space)
 
     run_timeout(docker_cmd, max_seconds)
   end
@@ -298,6 +376,10 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
+  def assert_docker_exec(cid, cmd)
+    assert_exec("docker exec #{cid} sh -c '#{cmd}'")
+  end
+
   def assert_exec(cmd)
     shell.assert_exec(cmd)
   end
@@ -308,5 +390,7 @@ class Runner
   def shell; nearest_ancestors(:shell); end
   def  disk; nearest_ancestors(:disk); end
   def   log; nearest_ancestors(:log); end
+
+  def space; ' '; end
 
 end

@@ -50,7 +50,7 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   INVALID_IMAGE_NAME = '_cantStartWithSeparator'
-  VALID_IMAGE_NAME = 'busybox'
+  VALID_IMAGE_NAME = "cyberdojofoundation/gcc_assert"
 
   VALID_KATA_ID = '2911DDFD16'
   INVALID_KATA_ID = '345'

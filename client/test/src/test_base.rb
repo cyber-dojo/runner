@@ -87,7 +87,7 @@ class TestBase < HexMiniTest
   def timed_out; 'timed_out'; end
 =end
 
-  VALID_IMAGE_NAME              = 'busybox'
+  VALID_IMAGE_NAME              = 'cyberdojofoundation/gcc_assert'
   VALID_NON_EXISTENT_IMAGE_NAME = 'non_existent_box'
   INVALID_IMAGE_NAME            = '_cantStartWithSeparator'
 
