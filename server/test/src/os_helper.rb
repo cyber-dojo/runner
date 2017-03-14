@@ -9,15 +9,15 @@ module OsHelper
   def kata_id_env_vars_test
     printenv_cmd = 'printenv CYBER_DOJO_KATA_ID'
     env_kata_id = assert_cyber_dojo_sh(printenv_cmd).strip
-    assert_equal @kata_id, env_kata_id
+    assert_equal default_kata_id, env_kata_id
 
     printenv_cmd = 'printenv CYBER_DOJO_AVATAR_NAME'
     env_avatar_name = assert_cyber_dojo_sh(printenv_cmd).strip
-    assert_equal @avatar_name, env_avatar_name
+    assert_equal default_avatar_name, env_avatar_name
 
-    #printenv_cmd = 'printenv CYBER_DOJO_SANDBOX'
-    #env_sandbox = assert_cyber_dojo_sh(printenv_cmd).strip
-    #assert_equal sandbox, env_sandbox
+    printenv_cmd = 'printenv CYBER_DOJO_SANDBOX'
+    env_sandbox = assert_cyber_dojo_sh(printenv_cmd).strip
+    assert_equal runner.sandbox_dir(default_avatar_name), env_sandbox
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,27 +33,28 @@ module OsHelper
 =end
 
   def assert_group_exists
-    stdout = assert_cyber_dojo_sh("getent group #{group}").strip
+    stdout = assert_cyber_dojo_sh("getent group #{runner.group}").strip
     entries = stdout.split(':')  # cyber-dojo:x:5000
     getent_group = entries[0]
     getent_gid = entries[2].to_i
-    assert_equal group, getent_group, stdout
-    assert_equal gid, getent_gid, stdout
+    assert_equal runner.group, getent_group, stdout
+    assert_equal runner.gid, getent_gid, stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-=begin
+
   def new_avatar_home_test
     home = assert_cyber_dojo_sh('printenv HOME').strip
-    assert_equal "/home/#{avatar_name}", home
+    assert_equal runner.home_dir(default_avatar_name), home
 
     cd_home_pwd = assert_cyber_dojo_sh('cd ~ && pwd').strip
-    assert_equal "/home/#{avatar_name}", cd_home_pwd
+    assert_equal runner.home_dir(default_avatar_name), cd_home_pwd
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def new_avatar_sandbox_setup_test
+    sandbox = runner.sandbox_dir(default_avatar_name)
     # sandbox exists
     assert_cyber_dojo_sh "[ -d #{sandbox} ]"
 
@@ -62,12 +63,12 @@ module OsHelper
     refute_equal '', ls
 
     # sandbox's is owned by avatar
-    stat_user = assert_cyber_dojo_sh("stat -c '%u' #{sandbox}").strip
-    assert_equal user_id, stat_user
+    stat_user = assert_cyber_dojo_sh("stat -c '%u' #{sandbox}").strip.to_i
+    assert_equal runner.user_id(default_avatar_name), stat_user
 
     # sandbox's group is set
     stat_gid = assert_cyber_dojo_sh("stat -c '%g' #{sandbox}").strip.to_i
-    assert_equal gid, stat_gid
+    assert_equal runner.gid, stat_gid
 
     # sandbox's permissions are set
     stat_perms = assert_cyber_dojo_sh("stat -c '%A' #{sandbox}").strip
@@ -75,7 +76,7 @@ module OsHelper
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+=begin
   def new_avatar_starting_files_test
     # kata_setup has already called new_avatar() which
     # has setup a salmon. So I create a new avatar with

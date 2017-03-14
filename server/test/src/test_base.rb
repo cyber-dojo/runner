@@ -60,18 +60,15 @@ class TestBase < HexMiniTest
   #def timed_out; 'timed_out'; end
   def success; shell.success; end
 
-  def group; runner.group; end
-  def gid; runner.gid; end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def defaulted_args(named_args)
-    @image_name    = defaulted_arg(named_args, :image_name,    default_image_name)
-    @kata_id       = defaulted_arg(named_args, :kata_id,       default_kata_id)
-    @avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
-    @visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
-    @max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
-    [@image_name, @kata_id, @avatar_name, @visible_files, @max_seconds]
+    image_name    = defaulted_arg(named_args, :image_name,    default_image_name)
+    kata_id       = defaulted_arg(named_args, :kata_id,       default_kata_id)
+    avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
+    visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
+    max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
+    [image_name, kata_id, avatar_name, visible_files, max_seconds]
   end
 
   def defaulted_arg(named_args, arg_name, arg_default)

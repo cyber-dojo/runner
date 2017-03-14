@@ -31,7 +31,7 @@ class RunAlpineTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-=begin
+
   os_test '2A0',
   'new_avatar has HOME set off /home' do
     new_avatar_home_test
@@ -45,7 +45,7 @@ class RunAlpineTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+=begin
   os_test '1FB',
   'new_avatar has starting-files in its sandbox with owner/group/permissions set' do
     new_avatar_starting_files_test

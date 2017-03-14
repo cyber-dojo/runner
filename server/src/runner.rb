@@ -43,26 +43,11 @@ class Runner
 
   def group; 'cyber-dojo'; end
   def gid; 5000; end
+  def user_id(avatar_name); 40000 + all_avatars_names.index(avatar_name); end
+  def home_dir(avatar_name); "/home/#{avatar_name}"; end
+  def sandbox_dir(avatar_name); "/sandboxes/#{avatar_name}"; end
 
   private
-
-  def user_id(avatar_name)
-    40000 + all_avatars_names.index(avatar_name)
-  end
-
-  def home_dir(avatar_name)
-    "/home/#{avatar_name}"
-  end
-
-  def avatar_dir(avatar_name)
-    "#{sandboxes_root_dir}/#{avatar_name}"
-  end
-
-  def sandboxes_root_dir
-    '/sandboxes'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def in_container(image_name, kata_id, avatar_name, &block)
     cid = create_container(image_name, kata_id, avatar_name)
@@ -83,7 +68,7 @@ class Runner
     # ESPECIALLY ON AN SSD DRIVE
     # REMEMBER TO DO [DOCKER RM -V]
 
-    dir = avatar_dir(avatar_name)
+    dir = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     args = [
       '--detach',                          # get the cid
@@ -222,20 +207,20 @@ class Runner
 
   def write_files(cid, avatar_name, visible_files)
     return if visible_files == {}
-    dir = avatar_dir(avatar_name)
-    chown_dir = "chown #{avatar_name}:#{group} #{dir}"
-    assert_docker_exec(cid, chown_dir)
-    chmod_dir = "chmod 755 #{dir}"
-    assert_docker_exec(cid, chmod_dir)
+    sandbox = sandbox_dir(avatar_name)
+    chown_sandbox_dir = "chown #{avatar_name}:#{group} #{sandbox}"
+    assert_docker_exec(cid, chown_sandbox_dir)
+    chmod_sandbox_dir = "chmod 755 #{sandbox}"
+    assert_docker_exec(cid, chmod_sandbox_dir)
 
     Dir.mktmpdir('runner') do |tmp_dir|
       visible_files.each do |filename, content|
         host_filename = tmp_dir + '/' + filename
         disk.write(host_filename, content)
       end
-      assert_exec("docker cp #{tmp_dir}/. #{cid}:#{dir}")
+      assert_exec("docker cp #{tmp_dir}/. #{cid}:#{sandbox}")
       visible_files.keys.each do |filename|
-        chown_file = "chown #{avatar_name}:#{group} #{dir}/#{filename}"
+        chown_file = "chown #{avatar_name}:#{group} #{sandbox}/#{filename}"
         assert_docker_exec(cid, chown_file)
       end
     end
@@ -245,13 +230,13 @@ class Runner
 
   def run_cyber_dojo_sh(cid, avatar_name, max_seconds)
     uid = user_id(avatar_name)
-    dir = avatar_dir(avatar_name)
+    sandbox = sandbox_dir(avatar_name)
     docker_cmd = [
       'docker exec',
       "--user=#{uid}:#{gid}",
       '--interactive',
       cid,
-      "sh -c 'cd #{dir} && sh ./cyber-dojo.sh'"
+      "sh -c 'cd #{sandbox} && sh ./cyber-dojo.sh'"
     ].join(space)
 
     run_timeout(docker_cmd, max_seconds)
