@@ -1,4 +1,3 @@
-=begin
 require_relative 'test_base'
 
 class TimeoutTest < TestBase
@@ -6,7 +5,7 @@ class TimeoutTest < TestBase
   def self.hex_prefix; '45B57'; end
 
   test 'B2B',
-  '[gcc,assert] when run(test-code) does not complete in max_seconds',
+  '[gcc,assert] when test-code does not complete in max_seconds',
   'and does not produce output,',
   'the output is empty, and',
   'the status is timed_out' do
@@ -22,9 +21,7 @@ class TimeoutTest < TestBase
       visible_files:gcc_assert_files,
       max_seconds:2
     }
-    stdout,stderr = assert_run_times_out(named_args)
-    assert_stdout ''
-    assert_stderr ''
+    assert_run_times_out(named_args)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,16 +45,13 @@ class TimeoutTest < TestBase
       visible_files:gcc_assert_files,
       max_seconds:2
     }
-    stdout,stderr = assert_run_times_out(named_args)
-    assert_stdout ''
-    assert_stderr ''
+    assert_run_times_out(named_args)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  private
 
   def gcc_assert_files
-    read_files('gcc_assert')
+    @gcc_assert_files ||= read_files('gcc_assert')
   end
 
 end
-=end

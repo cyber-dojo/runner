@@ -21,6 +21,21 @@ class TestBase < HexMiniTest
     runner.image_pull(image_name)
   end
 
+  def sss_run(named_args = {})
+    # don't name this run() as it clashes with MiniTest
+    @sss = runner.run *defaulted_args(named_args)
+    [stdout,stderr,status]
+  end
+
+  def sss; @sss; end
+  def stdout; sss[:stdout]; end
+  def stderr; sss[:stderr]; end
+  def status; sss[:status]; end
+
+  def assert_stdout(expected); assert_equal expected, stdout, sss; end
+  def assert_stderr(expected); assert_equal expected, stderr, sss; end
+  def assert_status(expected); assert_equal expected, status, sss; end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_cyber_dojo_sh(script, named_args = {})
@@ -35,29 +50,14 @@ class TestBase < HexMiniTest
     stdout
   end
 
-  #def assert_run_times_out(named_args)
-  #  stdout,stderr,status = sss_run(named_args)
-  #  assert_equal timed_out, status, [stdout,stderr]
-  #  [stdout,stderr]
-  #end
-
-  def sss_run(named_args = {})
-    # don't name this run() as it clashes with MiniTest
-    @sss = runner.run *defaulted_args(named_args)
-    [stdout,stderr,status]
+  def assert_run_times_out(named_args)
+    stdout,stderr,status = sss_run(named_args)
+    assert_stdout ''
+    assert_stderr ''
+    assert_status timed_out
   end
 
-  def sss; @sss; end
-
-  def stdout; sss[:stdout]; end
-  def stderr; sss[:stderr]; end
-  def status; sss[:status]; end
-
-  def assert_stdout(expected); assert_equal expected, stdout, sss; end
-  def assert_stderr(expected); assert_equal expected, stderr, sss; end
-  def assert_status(expected); assert_equal expected, status, sss; end
-
-  #def timed_out; 'timed_out'; end
+  def timed_out; 'timed_out'; end
   def success; shell.success; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
