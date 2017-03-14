@@ -7,18 +7,21 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'C2E',
-  'valid image_name does not raise' do
-    sss_run({ image_name:VALID_IMAGE_NAME })
+  'valid Alpine-image_name,kata_id,avatar_name does not raise' do
+    sss_run({
+      image_name:VALID_ALPINE_IMAGE_NAME,
+         kata_id:VALID_KATA_ID,
+     avatar_name:VALID_AVATAR_NAME
+    })
   end
 
-  test '3B6',
-  'valid kata_id does not raise' do
-    sss_run({ kata_id:VALID_KATA_ID })
-  end
-
-  test 'FAE',
-  'valid avatar_name does not raise' do
-    sss_run({ avatar_name:VALID_AVATAR_NAME })
+  test '8A4',
+  'valid Ubuntu-image_name,kata_id,avatar_name does not raise' do
+    sss_run({
+      image_name:VALID_UBUNTU_IMAGE_NAME,
+         kata_id:VALID_KATA_ID,
+     avatar_name:VALID_AVATAR_NAME
+    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,13 +52,13 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  INVALID_IMAGE_NAME = '_cantStartWithSeparator'
-  VALID_IMAGE_NAME = "cyberdojofoundation/gcc_assert"
-
+  VALID_ALPINE_IMAGE_NAME = 'cyberdojofoundation/gcc_assert'
+  VALID_UBUNTU_IMAGE_NAME = 'cyberdojofoundation/clangpp_assert'
   VALID_KATA_ID = '2911DDFD16'
-  INVALID_KATA_ID = '345'
-
-  INVALID_AVATAR_NAME = 'polaroid'
   VALID_AVATAR_NAME = 'salmon'
+
+  INVALID_IMAGE_NAME  = '_cantStartWithSeparator'
+  INVALID_KATA_ID     = '345'
+  INVALID_AVATAR_NAME = 'polaroid'
 
 end
