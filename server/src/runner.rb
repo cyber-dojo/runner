@@ -39,18 +39,15 @@ class Runner
     end
   end
 
+  # - - - - - - - - - - - - - - - - - -
+
+  def group; 'cyber-dojo'; end
+  def gid; 5000; end
+
   private
 
   def user_id(avatar_name)
     40000 + all_avatars_names.index(avatar_name)
-  end
-
-  def group
-    'cyber-dojo'
-  end
-
-  def gid
-    5000
   end
 
   def home_dir(avatar_name)

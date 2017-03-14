@@ -23,6 +23,18 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def assert_cyber_dojo_sh(script, named_args = {})
+    named_args[:visible_files] = { 'cyber-dojo.sh' => script }
+    assert_run_succeeds(named_args)
+  end
+
+  def assert_run_succeeds(named_args)
+    stdout,stderr,status = sss_run(named_args)
+    assert_equal success, status, [stdout,stderr]
+    assert_equal '', stderr, stdout
+    stdout
+  end
+
   #def assert_run_times_out(named_args)
   #  stdout,stderr,status = sss_run(named_args)
   #  assert_equal timed_out, status, [stdout,stderr]
@@ -46,16 +58,20 @@ class TestBase < HexMiniTest
   #def assert_status(expected); assert_equal expected, status, sss; end
 
   #def timed_out; 'timed_out'; end
+  def success; shell.success; end
+
+  def group; runner.group; end
+  def gid; runner.gid; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def defaulted_args(named_args)
-    image_name    = defaulted_arg(named_args, :image_name,    default_image_name)
-    kata_id       = defaulted_arg(named_args, :kata_id,       default_kata_id)
-    avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
-    visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
-    max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
-    [image_name, kata_id, avatar_name, visible_files, max_seconds]
+    @image_name    = defaulted_arg(named_args, :image_name,    default_image_name)
+    @kata_id       = defaulted_arg(named_args, :kata_id,       default_kata_id)
+    @avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
+    @visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
+    @max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
+    [@image_name, @kata_id, @avatar_name, @visible_files, @max_seconds]
   end
 
   def defaulted_arg(named_args, arg_name, arg_default)
