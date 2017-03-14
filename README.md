@@ -53,6 +53,8 @@ Saves the visible_files in a container run from image_name and runs cyber-dojo.s
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
+              "kata_id": "15B9AD6C42",
+          "avatar_name": "salmon",
         "visible_files": { "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
                            "fizz_buzz.c": "#include...",
                            "cyber-dojo.sh": "make",
