@@ -209,9 +209,8 @@ class Runner
     return if visible_files == {}
     sandbox = sandbox_dir(avatar_name)
     chown_sandbox_dir = "chown #{avatar_name}:#{group} #{sandbox}"
-    assert_docker_exec(cid, chown_sandbox_dir)
     chmod_sandbox_dir = "chmod 755 #{sandbox}"
-    assert_docker_exec(cid, chmod_sandbox_dir)
+    assert_docker_exec(cid, [chmod_sandbox_dir,chown_sandbox_dir].join(' && '))
 
     Dir.mktmpdir('runner') do |tmp_dir|
       visible_files.each do |filename, content|
