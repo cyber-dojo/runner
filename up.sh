@@ -22,13 +22,3 @@ check_up()
 
 check_up 'runner_stateless_server'
 check_up 'runner_stateless_client'
-
-#set +e
-#c=$(docker ps --filter status=running --format '{{.Names}}' | grep ^runner_stateless_client$)
-#set -e
-#if [ "${c}" != "runner_stateless_client" ]; then
-#  echo
-#  echo "runner_stateless_client exited"
-#  docker logs runner_stateless_client
-#  exit 1
-#fi
