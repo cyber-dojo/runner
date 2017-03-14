@@ -103,7 +103,7 @@ class Runner
       "--env CYBER_DOJO_SANDBOX=#{dir}",
       "--env HOME=#{home}",
       '--user=root',
-      #"--volume #{volume_name}:#{volume_root}:rw"
+      "--volume=#{dir}"
     ].join(space)
     stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
     cid = stdout.strip
@@ -195,7 +195,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def remove_container(cid)
-    assert_exec("docker rm --force #{cid}")
+    assert_exec("docker rm --force --volumes #{cid}")
     # The docker daemon responds to [docker rm] asynchronously...
     # I'm waiting max 2 seconds for the container to die.
     # o) no delay if container_dead? is true 1st time.
