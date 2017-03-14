@@ -22,16 +22,6 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  def refute_avatar_users_exist
-    etc_passwd = assert_docker_run 'cat /etc/passwd'
-    all_avatars_names.each do |name|
-      uid = runner.user_id(name).to_s
-      refute etc_passwd.include?(uid), "#{name}:#{uid}"
-    end
-  end
-=end
-
   def assert_group_exists
     stdout = assert_cyber_dojo_sh("getent group #{runner.group}").strip
     entries = stdout.split(':')  # cyber-dojo:x:5000
