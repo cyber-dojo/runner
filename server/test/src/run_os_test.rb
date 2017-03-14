@@ -53,42 +53,9 @@ class RunAlpineTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  os_test '4E8',
-  'unchanged files still exist and are unchanged' do
-    unchanged_files_test
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  os_test '385',
-  'deleted files are removed',
-  'and all previous files are unchanged' do
-    deleted_files_test
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  os_test '232',
-  'new files are added with owner/group/permissions',
-  'and all previous files are unchanged' do
-    new_files_test
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  os_test '9A7',
-  'a changed file is resaved and its size and time-stamp updates',
-  'and all previous files are unchanged' do
-    changed_file_test
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   os_test 'D7C',
   'is ulimited' do
     ulimit_test
   end
-=end
 
 end

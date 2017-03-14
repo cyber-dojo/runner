@@ -102,117 +102,28 @@ module OsHelper
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-=begin
-  def unchanged_files_test
-    named_args = { changed_files:ls_starting_files }
-    before_ls = assert_run_succeeds(named_args)
-    named_args = { changed_files:{} }
-    after_ls = assert_run_succeeds(named_args)
-    assert_equal before_ls, after_ls
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def deleted_files_test
-    named_args = { changed_files:ls_starting_files }
-    ls_stdout = assert_run_succeeds(named_args)
-    before = ls_parse(ls_stdout)
-    before_filenames = before.keys
-
-    deleted_filenames = ['hello.txt']
-    named_args = {
-      changed_files:{},
-      deleted_filenames:deleted_filenames
-    }
-    ls_stdout = assert_run_succeeds(named_args)
-    after = ls_parse(ls_stdout)
-    after_filenames = after.keys
-
-    actual_deleted_filenames = before_filenames - after_filenames
-    assert_equal deleted_filenames, actual_deleted_filenames
-    after.each { |filename, attr| assert_equal before[filename], attr }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def new_files_test
-    named_args = { changed_files:ls_starting_files }
-    ls_stdout = assert_run_succeeds(named_args)
-    before = ls_parse(ls_stdout)
-    before_filenames = before.keys
-
-    new_filename = 'fizz_buzz.h'
-    new_file_content = '#ifndef...'
-    named_args = { changed_files:{ new_filename => new_file_content } }
-    ls_stdout = assert_run_succeeds(named_args)
-    after = ls_parse(ls_stdout)
-    after_filenames = after.keys
-
-    actual_new_filenames = after_filenames - before_filenames
-    assert_equal [ new_filename ], actual_new_filenames
-    attr = after[new_filename]
-    assert_equal '-rw-r--r--', attr[:permissions]
-    assert_equal user_id,      attr[:user]
-    assert_equal group,        attr[:group]
-    assert_equal new_file_content.size, attr[:size]
-    before.each { |filename, attr| assert_equal after[filename], attr }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def changed_file_test
-    named_args = { changed_files:ls_starting_files }
-    ls_stdout = assert_run_succeeds(named_args)
-    before = ls_parse(ls_stdout)
-
-    sleep 2
-
-    hello_txt = ls_starting_files['hello.txt']
-    extra = "\ngreetings"
-    named_args = { changed_files:{ 'hello.txt' => hello_txt + extra } }
-    ls_stdout = assert_run_succeeds(named_args)
-    after = ls_parse(ls_stdout)
-
-    assert_equal before.keys, after.keys
-    before.each do |filename, was_attr|
-      now_attr = after[filename]
-      same = lambda { |sym| assert_equal was_attr[sym], now_attr[sym] }
-      same.call(:permissions)
-      same.call(:user)
-      same.call(:group)
-      if filename == 'hello.txt'
-        refute_equal now_attr[:time_stamp], was_attr[:time_stamp]
-        assert_equal now_attr[:size], was_attr[:size] + extra.size
-      else
-        same.call(:time_stamp)
-        same.call(:size)
-      end
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit_test
+    etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
-    assert_equal  64, ulimit(lines, :max_processes)
-    assert_equal   0, ulimit(lines, :max_core_size)
-    assert_equal 128, ulimit(lines, :max_no_files)
+    assert_equal  64, ulimit(lines, :max_processes, etc_issue)
+    assert_equal   0, ulimit(lines, :max_core_size, etc_issue)
+    assert_equal 128, ulimit(lines, :max_no_files,  etc_issue)
   end
 
-  def ulimit(lines, key)
+  def ulimit(lines, key, etc_issue)
     table = {             # alpine,                       ubuntu
       :max_processes => [ '-p: processes',               'process'         ],
       :max_core_size => [ '-c: core file size (blocks)', 'coredump(blocks)'],
       :max_no_files  => [ '-n: file descriptors',        'nofiles'         ],
     }
-    if alpine?; txt = table[key][0]; end
-    if ubuntu?; txt = table[key][1]; end
+    if alpine?(etc_issue); txt = table[key][0]; end
+    if ubuntu?(etc_issue); txt = table[key][1]; end
     line = lines.detect { |limit| limit.start_with? txt }
     line.split[-1].to_i
   end
 
   private
-=end
 
   def ls_starting_files
     {
@@ -251,20 +162,12 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  def alpine?
+  def alpine?(etc_issue)
     etc_issue.include? 'Alpine'
   end
 
-  def ubuntu?
+  def ubuntu?(etc_issue)
     etc_issue.include? 'Ubuntu'
   end
-
-  def etc_issue
-    changed_files = { 'cyber-dojo.sh' => 'cat /etc/issue' }
-    stdout,_,_ = sss_run({ changed_files:changed_files })
-    stdout
-  end
-=end
 
 end
