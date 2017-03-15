@@ -1,7 +1,7 @@
 require_relative 'test_base'
 require_relative 'shell_mocker'
 
-class PullTest < TestBase
+class ImagePullTest < TestBase
 
   def self.hex_prefix; '0D5713'; end
 
@@ -9,7 +9,7 @@ class PullTest < TestBase
   def hex_teardown; shell.teardown; end
 
   test '934',
-  'when image_name is invalid, image_pull() raises' do
+  'raises when image_name is invalid' do
     invalid_image_names.each do |image_name|
       error = assert_raises(StandardError) {
         image_pull image_name
@@ -21,7 +21,7 @@ class PullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '91C',
-  'when image_name is valid, image_pull() execs a docker-pull' do
+  'docker-pulls when image_name is valid' do
     mock_docker_pull "#{cdf}/ruby_mini_test"
     assert image_pull "#{cdf}/ruby_mini_test"
 
@@ -35,7 +35,7 @@ class PullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '933',
-  'when there is no network connectivitity, image_pull() raises' do
+  'raises when there is no network connectivitity' do
     image_name = "#{cdf}/gcc_assert"
     cmd = "docker pull #{image_name}"
     stdout = [
