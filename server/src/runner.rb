@@ -46,6 +46,7 @@ class Runner
   def user_id(avatar_name); 40000 + all_avatars_names.index(avatar_name); end
   def home_dir(avatar_name); "/home/#{avatar_name}"; end
   def sandbox_dir(avatar_name); "/sandboxes/#{avatar_name}"; end
+  def timed_out; 'timed_out'; end
 
   private
 
@@ -277,7 +278,7 @@ class Runner
       # https://github.com/docker/docker/issues/9098
       Process.kill(-9, pid)
       Process.detach(pid)
-      ['', '', 'timed_out']
+      ['', '', timed_out]
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?

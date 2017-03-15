@@ -62,7 +62,7 @@ class TestBase < HexMiniTest
     assert_status timed_out
   end
 
-  def timed_out; 'timed_out'; end
+  def timed_out; runner.timed_out; end
   def success; shell.success; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
