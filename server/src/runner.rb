@@ -22,6 +22,8 @@ class Runner
     images.include? image_name
   end
 
+  # - - - - - - - - - - - - - - - - - -
+
   def image_pulled?(image_name)
     assert_valid_image_name image_name
     image_names.include? image_name
@@ -31,8 +33,26 @@ class Runner
 
   def image_pull(image_name)
     assert_valid_image_name image_name
-    assert_exec "docker pull #{image_name}"
-    true
+    repo = image_name_without_tag(image_name)
+    no_log = LoggerNull.new(self)
+    cmd = "docker pull #{image_name}"
+    _stdout,stderr,status = shell.exec(cmd, no_log)
+
+    #puts "~~~~~~"
+    #puts _stdout
+    #puts "~~~~~~"
+    #puts ":#{stderr}:"        #repository cdf/does_not_exist not found
+    #puts ":#{image_name}:"    #cdf/does_not_exist:1.9.3
+    #puts "~~~~~~"
+    #puts "repo:#{repo}:"
+
+    if status == shell.success
+      return true
+    elsif stderr.include?("repository #{repo} not found")
+      return false
+    else
+      fail stderr
+    end
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -315,15 +335,24 @@ class Runner
   end
 
   def valid_image_name?(image_name)
+    image_name =~ image_name_regex
+  end
+
+  def image_name_without_tag(image_name)
+    image_name =~ image_name_regex
+    $1
+  end
+
+  def image_name_regex
     # http://stackoverflow.com/questions/37861791/
     # https://github.com/docker/docker/blob/master/image/spec/v1.1.md
-    # Simplified, no hostname, no :tag
+    # Simplified, no hostname
     alpha_numeric = '[a-z0-9]+'
     separator = '[_.-]+'
     component = "#{alpha_numeric}(#{separator}#{alpha_numeric})*"
     name = "#{component}(/#{component})*"
     tag = '[\w][\w.-]{0,127}'
-    image_name =~ /^#{name}(:#{tag})?$/o
+    /^(#{name})(:#{tag})?$/o
   end
 
   def fail_image_name(message)

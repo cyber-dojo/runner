@@ -47,11 +47,13 @@ class TestBase < HexMiniTest
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  def default_image_name; 'cyberdojofoundation/gcc_assert'; end
+  def default_image_name; "#{cdf}/gcc_assert"; end
   def default_kata_id; hex_test_id + '0' * (10-hex_test_id.length); end
   def default_avatar_name; 'salmon'; end
   def default_visible_files; @files ||= read_files; end
   def default_max_seconds; 10; end
+
+  def cdf; 'cyberdojofoundation'; end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 

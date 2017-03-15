@@ -87,6 +87,16 @@ class ShellMockerTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
+  test '4FF',
+  'assert_exec raises when status is non-zero' do
+    shell = ShellMocker.new(nil)
+    shell.mock_exec('false', '', '', 1)
+    error = assert_raises { shell.assert_exec('false') }
+    assert_equal 'command:false', error.message
+  end
+
+  # - - - - - - - - - - - - - - -
+
   test '3BE',
   'success is zero' do
     shell = ShellMocker.new(nil)

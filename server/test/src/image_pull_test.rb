@@ -6,7 +6,9 @@ class ImagePullTest < TestBase
   def self.hex_prefix; '0D5713'; end
 
   def hex_setup; @shell ||= ShellMocker.new(nil); end
-  def hex_teardown; shell.teardown; end
+  def hex_teardown; shell.teardown if shell.respond_to? :teardown; end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '934',
   'raises when image_name is invalid' do
@@ -21,15 +23,58 @@ class ImagePullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '91C',
-  'docker-pulls when image_name is valid' do
-    mock_docker_pull "#{cdf}/ruby_mini_test"
-    assert image_pull "#{cdf}/ruby_mini_test"
+  'true when image_name is valid and exists' do
+    image_name = "#{cdf}/ruby_mini_test"
 
-    mock_docker_pull "#{cdf}/ruby_mini_test:latest"
-    assert image_pull "#{cdf}/ruby_mini_test:latest"
+    mock_docker_pull_success image_name, tag=''
+    assert image_pull image_name
 
-    mock_docker_pull "#{cdf}/ruby_mini_test:1.9.3"
-    assert image_pull "#{cdf}/ruby_mini_test:1.9.3"
+    mock_docker_pull_success image_name, tag='latest'
+    assert image_pull "#{image_name}:#{tag}"
+
+    mock_docker_pull_success image_name, tag='1.9.3'
+    assert image_pull "#{image_name}:#{tag}"
+  end
+
+  def mock_docker_pull_success(image_name, tag)
+    stdout = []
+    if tag == ''
+      stdout << 'Using default tag: latest'
+    else
+      image_name += ":#{tag}"
+    end
+    stdout << "latest: Pulling from #{image_name}"
+    stdout << 'Digest: sha256:2abe11877faf57729d1d010a5ad95764b4d1965f3dc3e93cef2bb07bc9c5c07b'
+    stdout << "Status: Image is up to date for #{image_name}:#{tag}"
+    mock_docker_pull(image_name, stdout.join("\n"), stderr='', status=shell.success)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test 'D80',
+  'false when image_name is valid but does not exist' do
+    image_name = "#{cdf}/does_not_exist"
+
+    mock_docker_pull_not_exist image_name, tag=''
+    refute image_pull image_name
+
+    mock_docker_pull_not_exist image_name, tag='latest'
+    refute image_pull "#{image_name}:#{tag}"
+
+    mock_docker_pull_not_exist image_name, tag='1.9.3'
+    refute image_pull "#{image_name}:#{tag}"
+  end
+
+  def mock_docker_pull_not_exist(repo, tag)
+    stdout = (tag == '') ? 'Using default tag: latest' : ''
+    stderr = [
+      'Error response from daemon: ',
+      "repository #{repo} not found: ",
+      'does not exist or no pull access'
+    ].join
+    image_name = repo
+    image_name += ":#{tag}" unless tag == ''
+    mock_docker_pull(image_name, stdout, stderr, 1)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,14 +94,14 @@ class ImagePullTest < TestBase
     ].join(' ')
     shell.mock_exec(cmd, stdout, stderr, status=1)
     error = assert_raises { image_pull image_name }
-    assert_equal "command:#{cmd}", error.message
+    assert_equal stderr, error.message
   end
 
   private
 
-  def mock_docker_pull(image_name)
+  def mock_docker_pull(image_name, stdout, stderr, status)
     cmd = "docker pull #{image_name}"
-    shell.mock_exec(cmd, stdout='', stderr='', shell.success)
+    shell.mock_exec(cmd, stdout, stderr, status)
   end
 
 end
