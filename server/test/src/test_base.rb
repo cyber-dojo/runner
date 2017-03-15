@@ -150,6 +150,8 @@ class TestBase < HexMiniTest
     ]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def cdf; 'cyberdojofoundation'; end
 
 end
