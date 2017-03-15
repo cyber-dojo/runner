@@ -71,6 +71,22 @@ class ShellMockerTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
+  test '470',
+  'teardown does not raise if there is an uncaught exception' do
+    shell = ShellMocker.new(nil)
+    shell.mock_exec(pwd, wd, stderr='', success)
+    error = assert_raises {
+      begin
+        fail 'forced'
+      ensure
+        shell.teardown
+      end
+    }
+    assert_equal 'forced', error.message
+  end
+
+  # - - - - - - - - - - - - - - -
+
   test '3BE',
   'success is zero' do
     shell = ShellMocker.new(nil)
