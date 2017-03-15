@@ -5,6 +5,10 @@ require_relative 'runner'
 
 class MicroService < Sinatra::Base
 
+  get '/image_exists?' do
+    getter(__method__, image_name)
+  end
+
   get '/image_pulled?' do
     getter(__method__, image_name)
   end
