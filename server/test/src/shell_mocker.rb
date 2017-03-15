@@ -57,7 +57,7 @@ class ShellMocker
         self.class.name,
         "exec(command) - does not match mock",
         "actual-command: #{command}",
-        "mocked-command: #{mock['command']}}"
+        "mocked-command: #{mock['command']}"
       ].join("\n") + "\n"
     end
     [mock['stdout'], mock['stderr'], mock['status']]
