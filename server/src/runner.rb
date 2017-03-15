@@ -48,7 +48,8 @@ class Runner
 
     if status == shell.success
       return true
-    elsif stderr.include?("repository #{repo} not found")
+    elsif stderr.include?('not found')
+    #elsif stderr.include?("repository #{repo} not found")
       return false
     else
       fail stderr
