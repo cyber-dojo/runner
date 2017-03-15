@@ -22,11 +22,13 @@ class PulledTest < TestBase
 
   test '9C3',
   'when image_name is valid but not in [docker images], image_pulled?() is false' do
-    mock_docker_images_prints_gcc_assert
+    mock_docker_images_prints "#{cdf}/gcc_assert"
     refute image_pulled? "#{cdf}/ruby_mini_test"
-    mock_docker_images_prints_gcc_assert
+
+    mock_docker_images_prints "#{cdf}/gcc_assert"
     refute image_pulled? "#{cdf}/ruby_mini_test:latest"
-    mock_docker_images_prints_gcc_assert
+
+    mock_docker_images_prints "#{cdf}/gcc_assert"
     refute image_pulled? "#{cdf}/ruby_mini_test:1.9.3"
   end
 
@@ -34,16 +36,15 @@ class PulledTest < TestBase
 
   test 'A44',
   'when image_name is valid and in [docker images], image_pulled?() is true' do
-    mock_docker_images_prints_gcc_assert
+    mock_docker_images_prints "#{cdf}/gcc_assert"
     assert image_pulled? "#{cdf}/gcc_assert"
   end
 
   private
 
-  def mock_docker_images_prints_gcc_assert
+  def mock_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
-    stdout = "#{cdf}/gcc_assert"
-    shell.mock_exec(cmd, stdout, stderr='', shell.success)
+    shell.mock_exec(cmd, stdout=image_name, stderr='', shell.success)
   end
 
 end

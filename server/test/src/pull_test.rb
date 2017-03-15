@@ -21,9 +21,15 @@ class PullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '91C',
-  'when image_name is valid, image_pull() issues unconditional docker-pull' do
-    mock_docker_pull_cdf_ruby_mini_test
-    image_pull "#{cdf}/ruby_mini_test"
+  'when image_name is valid, image_pull() execs a docker-pull' do
+    mock_docker_pull "#{cdf}/ruby_mini_test"
+    assert image_pull "#{cdf}/ruby_mini_test"
+
+    mock_docker_pull "#{cdf}/ruby_mini_test:latest"
+    assert image_pull "#{cdf}/ruby_mini_test:latest"
+
+    mock_docker_pull "#{cdf}/ruby_mini_test:1.9.3"
+    assert image_pull "#{cdf}/ruby_mini_test:1.9.3"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,8 +54,7 @@ class PullTest < TestBase
 
   private
 
-  def mock_docker_pull_cdf_ruby_mini_test
-    image_name = "#{cdf}/ruby_mini_test"
+  def mock_docker_pull(image_name)
     cmd = "docker pull #{image_name}"
     shell.mock_exec(cmd, stdout='', stderr='', shell.success)
   end
