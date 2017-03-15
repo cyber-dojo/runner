@@ -22,6 +22,22 @@ API:
 
 - - - -
 
+# image_exists?
+Asks whether the image with the given image_name exists on dockerhub.
+- parameter, eg
+```
+  { "image_name": "cyberdojofoundation/gcc_assert" }
+```
+- returns true if it does, false if it doesn't.
+```
+  { "pulled?": true   }
+  { "pulled?": false  }
+```
+- raises exception if the image_name is invalid, eg
+```
+  { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
+```
+
 # image_pulled?
 Asks whether the image with the given image_name has been pulled.
 - parameter, eg
@@ -33,6 +49,10 @@ Asks whether the image with the given image_name has been pulled.
   { "pulled?": true   }
   { "pulled?": false  }
 ```
+- raises exception if the image_name is invalid, eg
+```
+  { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
+```
 
 # image_pull
 Pull the image with the given image_name.
@@ -40,9 +60,14 @@ Pull the image with the given image_name.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- returns true if the pull succeeds.
+- returns true if the pull succeeds, false if it fails.
 ```
-  { "pull": true   }
+  { "pull": true  }
+  { "pull": false }
+```
+- raises exception if the image_name is invalid, eg
+```
+  { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
 ```
 
 - - - -
