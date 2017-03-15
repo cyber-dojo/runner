@@ -10,9 +10,11 @@ class ShellMocker
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def teardown
-    mocks = read
-    pretty = JSON.pretty_generate(mocks)
-    fail "#{filename}: uncalled mocks(#{pretty})" unless mocks == []
+    if !uncaught_exception?
+      mocks = read
+      pretty = JSON.pretty_generate(mocks)
+      fail "#{filename}: uncalled mocks(#{pretty})" unless mocks == []
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,6 +79,10 @@ class ShellMocker
 
   def filename
     @filename
+  end
+
+  def uncaught_exception?
+    $!
   end
 
 end
