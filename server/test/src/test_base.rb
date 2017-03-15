@@ -115,6 +115,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def gcc_assert_files
+    @gcc_assert_files ||= read_files('gcc_assert')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def with_captured_stdout
     begin
       old_stdout = $stdout

@@ -48,10 +48,4 @@ class TimeoutTest < TestBase
     assert_run_times_out(named_args)
   end
 
-  private
-
-  def gcc_assert_files
-    @gcc_assert_files ||= read_files('gcc_assert')
-  end
-
 end
