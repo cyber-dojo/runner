@@ -1,7 +1,7 @@
 require_relative 'test_base'
 require_relative 'shell_mocker'
 
-class PullerTest < TestBase
+class PullTest < TestBase
 
   def self.hex_prefix; '0D5713'; end
 
