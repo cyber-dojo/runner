@@ -144,6 +144,9 @@ class TestBase < HexMiniTest
       'ALPHA/name',   # no uppercase
       'alpha/name_',  # cannot end in separator
       'alpha/_name',  # cannot begin with separator
+      'n:tag space',  # tags can't contain a space
+      'n:-tag',       # tags can't start with a -
+      'n:.tag',       # tags can't start with a .
     ]
   end
 

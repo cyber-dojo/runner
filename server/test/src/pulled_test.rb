@@ -24,6 +24,10 @@ class PulledTest < TestBase
   'when image_name is valid but not in [docker images], image_pulled?() is false' do
     mock_docker_images_prints_gcc_assert
     refute image_pulled? "#{cdf}/ruby_mini_test"
+    mock_docker_images_prints_gcc_assert
+    refute image_pulled? "#{cdf}/ruby_mini_test:latest"
+    mock_docker_images_prints_gcc_assert
+    refute image_pulled? "#{cdf}/ruby_mini_test:1.9.3"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
