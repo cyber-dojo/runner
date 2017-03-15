@@ -32,24 +32,17 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def image_pull(image_name)
+    # The contents of stderr seem to vary depending
+    # on what your running on, eg DockerToolbox or not
+    # and where, eg Travis or not. I'm using 'not found'
+    # as that always seems to be present.
     assert_valid_image_name image_name
-    repo = image_name_without_tag(image_name)
     no_log = LoggerNull.new(self)
     cmd = "docker pull #{image_name}"
     _stdout,stderr,status = shell.exec(cmd, no_log)
-
-    #puts "~~~~~~"
-    #puts _stdout
-    #puts "~~~~~~"
-    #puts ":#{stderr}:"        #repository cdf/does_not_exist not found
-    #puts ":#{image_name}:"    #cdf/does_not_exist:1.9.3
-    #puts "~~~~~~"
-    #puts "repo:#{repo}:"
-
     if status == shell.success
       return true
     elsif stderr.include?('not found')
-    #elsif stderr.include?("repository #{repo} not found")
       return false
     else
       fail stderr
@@ -336,15 +329,6 @@ class Runner
   end
 
   def valid_image_name?(image_name)
-    image_name =~ image_name_regex
-  end
-
-  def image_name_without_tag(image_name)
-    image_name =~ image_name_regex
-    $1
-  end
-
-  def image_name_regex
     # http://stackoverflow.com/questions/37861791/
     # https://github.com/docker/docker/blob/master/image/spec/v1.1.md
     # Simplified, no hostname
@@ -353,7 +337,7 @@ class Runner
     component = "#{alpha_numeric}(#{separator}#{alpha_numeric})*"
     name = "#{component}(/#{component})*"
     tag = '[\w][\w.-]{0,127}'
-    /^(#{name})(:#{tag})?$/o
+    image_name =~ /^(#{name})(:#{tag})?$/o
   end
 
   def fail_image_name(message)
