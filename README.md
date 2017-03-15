@@ -55,7 +55,7 @@ Asks whether the image with the given image_name has been pulled.
 ```
 
 # image_pull
-Pull the image with the given image_name.
+Pulls the image with the given image_name.
 - parameter, eg
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
