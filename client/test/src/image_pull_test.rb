@@ -6,7 +6,7 @@ class ImagePullTest < TestBase
 
   test '5EC',
   'false when image_name is valid but does not exist' do
-    assert_equal false, image_pull('lazybox')
+    assert_equal false, image_pull("#{cdf}/lazybox")
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
