@@ -28,14 +28,14 @@ Asks whether the image with the given image_name exists on dockerhub.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- returns true if it does, false if it doesn't.
-```
-  { "pulled?": true   }
-  { "pulled?": false  }
-```
 - raises exception if the image_name is invalid, eg
 ```
   { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
+```
+- returns true if it does, false if it doesn't, eg
+```
+  { "image_exists?": true   }
+  { "image_exists?": false  }
 ```
 
 # image_pulled?
@@ -44,14 +44,14 @@ Asks whether the image with the given image_name has been pulled.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- returns true if it has, false if it hasn't.
-```
-  { "pulled?": true   }
-  { "pulled?": false  }
-```
 - raises exception if the image_name is invalid, eg
 ```
   { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
+```
+- returns true if it has, false if it hasn't, eg
+```
+  { "image_pulled?": true   }
+  { "image_pulled?": false  }
 ```
 
 # image_pull
@@ -60,14 +60,14 @@ Pulls the image with the given image_name.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- returns true if the pull succeeds, false if it fails.
-```
-  { "pull": true  }
-  { "pull": false }
-```
-- raises exception if the image_name is invalid, eg
+- raises an exception if the image_name is invalid, eg
 ```
   { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
+```
+- returns true if the pull succeeds, false if it fails, eg
+```
+  { "image_pull": true  }
+  { "image_pull": false }
 ```
 
 - - - -
