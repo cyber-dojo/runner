@@ -313,6 +313,8 @@ class Runner
     component = "#{alpha_numeric}(#{separator}#{alpha_numeric})*"
     name = "#{component}(/#{component})*"
     image_name =~ /^#{name}$/o
+
+    #tag = "[\w][\w.-]{0,127}"
   end
 
   def fail_image_name(message)

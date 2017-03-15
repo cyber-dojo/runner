@@ -21,6 +21,8 @@ class TestBase < HexMiniTest
     runner.image_pull(image_name)
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def sss_run(named_args = {})
     # don't name this run() as it clashes with MiniTest
     @sss = runner.run *defaulted_args(named_args)
