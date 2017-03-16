@@ -77,7 +77,8 @@ class TestBase < HexMiniTest
     avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
     visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
     max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
-    [image_name, kata_id, avatar_name, visible_files, max_seconds]
+    deleted_filenames = []
+    [image_name, kata_id, avatar_name, deleted_filenames, visible_files, max_seconds]
   end
 
   def defaulted_arg(named_args, arg_name, arg_default)

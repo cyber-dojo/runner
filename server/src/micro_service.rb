@@ -20,7 +20,9 @@ class MicroService < Sinatra::Base
   # - - - - - - - - - - - - - - - - - - - - -
 
   post '/run' do
-    poster(__method__, image_name, kata_id, avatar_name, visible_files, max_seconds)
+    args = [image_name, kata_id, avatar_name]
+    args += [deleted_filenames, visible_files, max_seconds]
+    poster(__method__, *args)
   end
 
   private
@@ -55,7 +57,9 @@ class MicroService < Sinatra::Base
     }
   end
 
-  request_args :image_name, :kata_id, :avatar_name, :visible_files, :max_seconds
+  request_args :image_name, :kata_id, :avatar_name
+  request_args :deleted_filenames, :visible_files
+  request_args :max_seconds
 
   def args
     @args ||= JSON.parse(request_body)
