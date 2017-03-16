@@ -86,13 +86,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(image_name, kata_id, avatar_name)
-
-    # CAN I WRITE THE VISIBLE_FILES TO A TMP DIR ON THE HOST
-    # AND THEN VOLUME MOUNT THAT INTO THE CONTAINER AS THE SANDBOX DIR?
-    # THIS WOULD PROBABLY BE FASTER AND AVOID MULTIPLE [DOCKER CP] COMMANDS
-    # ESPECIALLY ON AN SSD DRIVE
-    # REMEMBER TO DO [DOCKER RM -V]
-
     dir = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     args = [
