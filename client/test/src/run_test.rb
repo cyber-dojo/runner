@@ -49,6 +49,25 @@ class RunTest < TestBase
     assert_equal 'String', stdout.class.name
     assert_equal 'String', stderr.class.name
     assert_equal 'Fixnum', status.class.name
+    refute_status success
+    refute_status timed_out
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '743',
+  'code with infinite-loop times-out' do
+    visible_files = default_visible_files
+    visible_files['hiker.c'] = [
+      '#include "hiker.h"',
+      'int answer(void)',
+      '{',
+      '    for(;;);',
+      '    return 6 * 9;',
+      '}'
+    ].join("\n")
+    sss_run({ visible_files:visible_files, max_seconds:2 })
+    assert_status timed_out
   end
 
 end
