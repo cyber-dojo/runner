@@ -1,6 +1,8 @@
 
 module NearestAncestors # mix-in
 
+  module_function
+
   def nearest_ancestors(symbol, my = self)
     loop {
       unless my.respond_to? :parent

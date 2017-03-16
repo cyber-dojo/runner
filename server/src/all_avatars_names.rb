@@ -1,6 +1,8 @@
 
 module AllAvatarsNames # mix-in
 
+  module_function
+
   def all_avatars_names
     %w(alligator antelope     bat       bear
        bee       beetle       buffalo   butterfly

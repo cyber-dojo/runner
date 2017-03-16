@@ -32,17 +32,15 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def image_pull(image_name)
-    # The contents of stderr seem to vary depending
+    # [1] The contents of stderr seem to vary depending
     # on what your running on, eg DockerToolbox or not
     # and where, eg Travis or not. I'm using 'not found'
     # as that always seems to be present.
     assert_valid_image_name image_name
-    no_log = LoggerNull.new(self)
-    cmd = "docker pull #{image_name}"
-    _stdout,stderr,status = shell.exec(cmd, no_log)
+    _stdout,stderr,status = quiet_exec("docker pull #{image_name}")
     if status == shell.success
       return true
-    elsif stderr.include?('not found')
+    elsif stderr.include?('not found') # [1]
       return false
     else
       fail stderr
@@ -52,11 +50,13 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(image_name, kata_id, avatar_name, _deleted_filenames, visible_files, max_seconds)
-    # deleted_filenames is for compatibility with stateful runner's API
+    # deleted_filenames is unused and is for
+    # compatibility with the stateful runner's API
     assert_valid_image_name image_name
     assert_valid_kata_id kata_id
     assert_valid_avatar_name avatar_name
     in_container(image_name, kata_id, avatar_name) do |cid|
+      add_user_and_group(cid, avatar_name)
       write_files(cid, avatar_name, visible_files)
       stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
       { stdout:stdout, stderr:stderr, status:status }
@@ -91,7 +91,7 @@ class Runner
     args = [
       '--detach',                          # get the cid
       '--interactive',                     # for later execs
-      '--net=none',                        # for security
+      '--net=none',                        # no network
       '--pids-limit=64',                   # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
       '--ulimit nproc=64:64',              # max number processes = 64
@@ -106,25 +106,48 @@ class Runner
     ].join(space)
     stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
     cid = stdout.strip
+  end
 
-    add_user_and_group_cmd = [
+  # - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def remove_container(cid)
+    assert_exec("docker rm --force #{cid}")
+    # The docker daemon responds to [docker rm] asynchronously...
+    # I'm waiting max 2 seconds for the container to die.
+    # o) no delay if container_dead? is true 1st time.
+    # o) 0.04s delay if container_dead? is true 2nd time, etc
+    removed = false
+    tries = 0
+    while !removed && tries < 50
+      removed = container_dead?(cid)
+      sleep(1.0 / 25.0) unless removed
+      tries += 1
+    end
+    log << "Failed:remove_container(#{cid})" unless removed
+  end
+
+  def container_dead?(cid)
+    cmd = "docker inspect --format='{{ .State.Running }}' #{cid}"
+    _,stderr,status = quiet_exec(cmd)
+    expected_stderr = "Error: No such image, container or task: #{cid}"
+    (status == 1) && (stderr.strip == expected_stderr)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def add_user_and_group(cid, avatar_name)
+    assert_docker_exec(cid, [
       add_group_cmd(cid),
       add_user_cmd(cid, avatar_name)
-    ].join(' && ')
-    assert_docker_exec(cid, add_user_and_group_cmd)
-
-    cid
+    ].join(' && '))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
 
   def add_group_cmd(cid)
-    if alpine? cid
-      return alpine_add_group_cmd
-    end
-    if ubuntu? cid
-      return ubuntu_add_group_cmd
-    end
+    return alpine_add_group_cmd if alpine? cid
+    return ubuntu_add_group_cmd if ubuntu? cid
   end
 
   def alpine_add_group_cmd
@@ -138,12 +161,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def add_user_cmd(cid, avatar_name)
-    if alpine? cid
-      return alpine_add_user_cmd(avatar_name)
-    end
-    if ubuntu? cid
-      return ubuntu_add_user_cmd(avatar_name)
-    end
+    return alpine_add_user_cmd(avatar_name) if alpine? cid
+    return ubuntu_add_user_cmd(avatar_name) if ubuntu? cid
   end
 
   def alpine_add_user_cmd(avatar_name)
@@ -164,8 +183,6 @@ class Runner
       ')'
     ].join(space)
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ubuntu_add_user_cmd(avatar_name)
     home = home_dir(avatar_name)
@@ -198,36 +215,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def remove_container(cid)
-    assert_exec("docker rm --force #{cid}")
-    # The docker daemon responds to [docker rm] asynchronously...
-    # I'm waiting max 2 seconds for the container to die.
-    # o) no delay if container_dead? is true 1st time.
-    # o) 0.04s delay if container_dead? is true 2nd time.
-    removed = false
-    tries = 0
-    while !removed && tries < 50
-      removed = container_dead?(cid)
-      sleep(1.0 / 25.0) unless removed
-      tries += 1
-    end
-    log << "Failed:remove_container(#{cid})" unless removed
-  end
-
-  def container_dead?(cid)
-    cmd = "docker inspect --format='{{ .State.Running }}' #{cid}"
-    _,stderr,status = quiet_exec(cmd)
-    expected_stderr = "Error: No such image, container or task: #{cid}"
-    (status == 1) && (stderr.strip == expected_stderr)
-  end
-
-  def quiet_exec(cmd)
-    shell.exec(cmd, LoggerNull.new(self))
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def write_files(cid, avatar_name, visible_files)
     return if visible_files == {}
     sandbox = sandbox_dir(avatar_name)
@@ -248,6 +235,7 @@ class Runner
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, max_seconds)
@@ -391,6 +379,10 @@ class Runner
 
   def assert_exec(cmd)
     shell.assert_exec(cmd)
+  end
+
+  def quiet_exec(cmd)
+    shell.exec(cmd, LoggerNull.new(self))
   end
 
   # - - - - - - - - - - - - - - - - - -
