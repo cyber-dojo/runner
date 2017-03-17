@@ -41,4 +41,23 @@ class HexMiniTestTest < TestBase
     assert_equal expected, hex_test_name
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'D31', %w(
+    hex-test-name can be long
+    and split over many
+    comma separated lines
+    and will automatically be
+    joined with spaces
+  ) do
+    expected = [
+      'hex-test-name can be long',
+      'and split over many',
+      'comma separated lines',
+      'and will automatically be',
+      'joined with spaces'
+    ].join(' ')
+    assert_equal expected, hex_test_name
+  end
+
 end

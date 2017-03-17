@@ -73,8 +73,8 @@ class ImageExistsTest < TestBase
   def mock_docker_search_prints(found_image_name)
     cmd = "docker search #{@image_name}"
     stdout = [
-      'NAME                               DESCRIPTION   STARS     OFFICIAL   AUTOMATED',
-      "#{found_image_name}  0"
+      'NAME                 DESCRIPTION   STARS     OFFICIAL   AUTOMATED',
+      "#{found_image_name}                0"
     ].join("\n")
     shell.mock_exec(cmd, stdout, stderr='', shell.success)
   end

@@ -174,9 +174,9 @@ class Runner
     [ "(deluser #{avatar_name}",
        ';',
        'adduser',
-         '-D',             # don't assign a password
+         '-D',             # no password
          "-G #{group}",
-         "-h #{home}",     # home dir
+         "-h #{home}",
          '-s /bin/sh',     # shell
          "-u #{uid}",
          avatar_name,
@@ -190,7 +190,7 @@ class Runner
     [ 'adduser',
         '--disabled-password',
         '--gecos ""',          # don't ask for details
-        "--home #{home}",      # home dir
+        "--home #{home}",
         "--ingroup #{group}",
         "--uid #{uid}",
         avatar_name
@@ -357,6 +357,7 @@ class Runner
   end
 
   include AllAvatarsNames
+
   def valid_avatar_name?(avatar_name)
     all_avatars_names.include?(avatar_name)
   end
@@ -388,6 +389,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   include NearestAncestors
+
   def shell; nearest_ancestors(:shell); end
   def  disk; nearest_ancestors(:disk); end
   def   log; nearest_ancestors(:log); end
