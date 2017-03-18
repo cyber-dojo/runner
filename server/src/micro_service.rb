@@ -5,35 +5,22 @@ require_relative 'runner'
 
 class MicroService < Sinatra::Base
 
-  get '/image_exists?' do
-    getter(__method__, image_name)
-  end
-
-  get '/image_pulled?' do
-    getter(__method__, image_name)
-  end
-
-  post '/image_pull' do
-    poster(__method__, image_name)
-  end
+   get '/image_exists?' do; getter(__method__, image_name); end
+   get '/image_pulled?' do; getter(__method__, image_name); end
+  post '/image_pull'    do; poster(__method__, image_name); end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   post '/run' do
-    args = [image_name, kata_id, avatar_name]
+    args  = [image_name, kata_id, avatar_name]
     args += [deleted_filenames, visible_files, max_seconds]
     poster(__method__, *args)
   end
 
   private
 
-  def getter(name, *args)
-    runner_json('GET /', name, *args)
-  end
-
-  def poster(name, *args)
-    runner_json('POST /', name, *args)
-  end
+  def getter(name, *args); runner_json( 'GET /', name, *args); end
+  def poster(name, *args); runner_json('POST /', name, *args); end
 
   def runner_json(prefix, caller, *args)
     name = caller.to_s[prefix.length .. -1]
@@ -47,9 +34,7 @@ class MicroService < Sinatra::Base
 
   include Externals
 
-  def runner
-    Runner.new(self)
-  end
+  def runner; Runner.new(self); end
 
   def self.request_args(*names)
     names.each { |name|
@@ -61,9 +46,7 @@ class MicroService < Sinatra::Base
   request_args :deleted_filenames, :visible_files
   request_args :max_seconds
 
-  def args
-    @args ||= JSON.parse(request_body)
-  end
+  def args; @args ||= JSON.parse(request_body); end
 
   def request_body
     request.body.rewind
