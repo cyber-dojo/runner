@@ -9,7 +9,7 @@ class ShellMockerTest < TestBase
 
   test 'B51',
   'MockSheller ctor only sets mocks=[] when file does not already exist' do
-    # So the Mock has to work when it is "re-created" in different threads
+    # has to work when it is "re-created" in different threads
     shell_1 = ShellMocker.new(nil)
     shell_1.mock_exec(pwd, wd, stderr='', success)
 

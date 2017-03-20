@@ -23,7 +23,8 @@ API:
 - - - -
 
 # image_exists?
-Asks whether the image with the given image_name exists on dockerhub.
+Asks whether the image with the given image_name exists, as determined
+by running [docker search].
 - parameter, eg
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
