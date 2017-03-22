@@ -89,12 +89,15 @@ Saves the visible_files in a container run from image_name and runs cyber-dojo.s
           "max_seconds": 10
   }
 ```
-- returns an integer status, stdout, and stderr, if the run completed in max_seconds, eg
+- returns an integer status, stdout, stderr, and colour, if the run completed in max_seconds.
+colour can be nil indicating the caller must determine the colour, otherwise colour
+will be "red", "amber", or "green". eg
 ```
     { "run": {
         "status": 2,
         "stdout": "makefile:17: recipe for target 'test' failed\n",
-        "stderr": "invalid suffix sss on integer constant"
+        "stderr": "invalid suffix sss on integer constant",
+        "colour": "red"
     }
 ```
 - returns the string status "timed_out" if the run did not complete in max_seconds, eg

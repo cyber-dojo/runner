@@ -55,6 +55,20 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'A65',
+  'image_name=gcc_assert returns non-nil colour' do
+    sss_run({ image_name:"#{cdf}/gcc_assert" })
+    assert_colour 'red'
+  end
+
+  test '251',
+  'image_name!=gcc_assert returns nil colour' do
+    sss_run({ image_name:"#{cdf}/clangpp_assert" })
+    assert_nil colour
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test '743',
   'code with infinite-loop times-out' do
     visible_files = default_visible_files

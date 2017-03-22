@@ -59,7 +59,8 @@ class Runner
       add_user_and_group(cid, avatar_name)
       write_files(cid, avatar_name, visible_files)
       stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
-      { stdout:stdout, stderr:stderr, status:status }
+      colour = ragger.colour(image_name, stdout, stderr, status)
+      { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
   end
 
@@ -402,6 +403,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   include NearestAncestors
+
+  def ragger; nearest_ancestors(:ragger); end
 
   def shell; nearest_ancestors(:shell); end
   def  disk; nearest_ancestors(:disk); end

@@ -22,17 +22,19 @@ class TestBase < HexMiniTest
   def sss_run(named_args = {})
     # don't name this run() as it clashes with MiniTest
     @sss = runner.run *defaulted_args(named_args)
-    [stdout,stderr,status]
+    [stdout,stderr,status,colour]
   end
 
   def sss; @sss; end
   def stdout; sss[:stdout]; end
   def stderr; sss[:stderr]; end
   def status; sss[:status]; end
+  def colour; sss[:colour]; end
 
   def assert_stdout(expected); assert_equal expected, stdout, sss; end
   def assert_stderr(expected); assert_equal expected, stderr, sss; end
   def assert_status(expected); assert_equal expected, status, sss; end
+  def assert_colour(expected); assert_equal expected, colour, sss; end
 
   def assert_stdout_include(text); assert stdout.include?(text), sss; end
   def assert_stderr_include(text); assert stderr.include?(text), sss; end

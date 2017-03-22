@@ -26,6 +26,22 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  test '8A9',
+  'run with image=cdf/gcc_assert returns non-nil traffic-light colour' do
+    sss_run( { image_name:"#{cdf}/gcc_assert" })
+    assert_colour 'red'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '8C5',
+  'run with image!=cdf/gcc_assert returns nil traffic-light colour' do
+    sss_run( { image_name:"#{cdf}/clangpp_assert" })
+    assert_nil colour
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   test '1DC',
   'invalid image_name raises' do
     error = assert_raises(ArgumentError) {
