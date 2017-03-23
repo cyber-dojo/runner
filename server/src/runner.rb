@@ -59,7 +59,7 @@ class Runner
       add_user_and_group(cid, avatar_name)
       write_files(cid, avatar_name, visible_files)
       stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
-      colour = ragger.colour(image_name, stdout, stderr, status)
+      colour = red_amber_green(cid, stdout, stderr, status)
       { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
   end
@@ -264,6 +264,19 @@ class Runner
     ].join(space)
 
     run_timeout(docker_cmd, max_seconds)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def red_amber_green(cid, stdout, stderr, status)
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    out,_err,st = quiet_exec("docker exec #{cid} sh -c '#{cmd}'")
+    if st == shell.success
+      rag = eval(out)
+      rag.call(stdout, stderr, status).to_s
+    else
+      nil
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
