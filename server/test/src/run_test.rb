@@ -29,7 +29,7 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '8A9', %w(
-  run with image=cdf/gcc_assert
+  run with image that has red_amber_green.rb
   returns non-nil traffic-light colour
   ) do
     sss_run( { image_name:"#{cdf}/gcc_assert" })
@@ -38,13 +38,13 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  test '8C5',
-  'run with image!=cdf/gcc_assert returns nil traffic-light colour' do
-    sss_run( { image_name:"#{cdf}/clangpp_assert" })
+  test '8C5', %w(
+  run with image that does not have red_amber_green.rb
+  returns nil traffic-light colour
+  ) do
+    sss_run( { image_name:"#{cdf}/visual-basic_nunit" })
     assert_nil colour
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
