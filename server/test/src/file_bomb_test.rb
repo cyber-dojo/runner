@@ -9,8 +9,10 @@ class FileBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'DB3',
-  '[Alpine] file() bomb in C to exhaust file-handles runs out of steam' do
+  test 'DB3', %w( [Alpine]
+  file-bomb in C to exhaust file-handles
+  fails to go off
+  ) do
     gcc_assert_files['hiker.c'] =
     [
       '#include "hiker.h"',
