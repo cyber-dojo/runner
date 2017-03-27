@@ -55,8 +55,10 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'A65',
-  'image_name=gcc_assert returns non-nil colour' do
+  test 'A65', %w(
+  image with red_amber_green.rb file
+  returns non-nil colour
+  ) do
     sss_run({ image_name:"#{cdf}/gcc_assert" })
     assert_colour 'red'
   end
