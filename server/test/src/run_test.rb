@@ -6,8 +6,9 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'C2E',
-  '[Alpine] valid image_name,kata_id,avatar_name does not raise' do
+  test 'C2E', %w( [Alpine]
+  valid image_name,kata_id,avatar_name does not raise
+  ) do
     sss_run({
       image_name:VALID_ALPINE_IMAGE_NAME,
          kata_id:VALID_KATA_ID,
@@ -15,8 +16,9 @@ class RunTest < TestBase
     })
   end
 
-  test '8A4',
-  '[Ubuntu] valid image_name,kata_id,avatar_name does not raise' do
+  test '8A4', %w( [Ubuntu]
+  valid image_name,kata_id,avatar_name does not raise
+  ) do
     sss_run({
       image_name:VALID_UBUNTU_IMAGE_NAME,
          kata_id:VALID_KATA_ID,
@@ -26,8 +28,10 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '8A9',
-  'run with image=cdf/gcc_assert returns non-nil traffic-light colour' do
+  test '8A9', %w(
+  run with image=cdf/gcc_assert
+  returns non-nil traffic-light colour
+  ) do
     sss_run( { image_name:"#{cdf}/gcc_assert" })
     assert_colour 'red'
   end
@@ -44,24 +48,31 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '1DC',
-  'invalid image_name raises' do
+  test '1DC', %w(
+  invalid image_name raises
+  ) do
     error = assert_raises(ArgumentError) {
       sss_run({ image_name:INVALID_IMAGE_NAME })
     }
     assert_equal 'image_name:invalid', error.message
   end
 
-  test '3FF',
-  'invalid kata_id raises' do
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '3FF', %w(
+  invalid kata_id raises
+  ) do
     error = assert_raises(ArgumentError) {
       sss_run({ kata_id:INVALID_KATA_ID })
     }
     assert_equal 'kata_id:invalid', error.message
   end
 
-  test 'C3A',
-  'invalid avatar_name raises' do
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test 'C3A', %w(
+  invalid avatar_name raises
+  ) do
     error = assert_raises(ArgumentError) {
       sss_run({ avatar_name:INVALID_AVATAR_NAME })
     }
