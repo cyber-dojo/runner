@@ -103,8 +103,6 @@ class TestBase < HexMiniTest
 
   def language_from_test_name
     rows = {
-      '[C#,NUnit]'      => 'csharp_nunit',
-      '[C#,Moq]'        => 'csharp_moq',
       '[Java,Cucumber]' => 'java_cucumber_pico',
       '[gcc,assert]'    => 'gcc_assert',
       '[Alpine]'        => 'gcc_assert',
