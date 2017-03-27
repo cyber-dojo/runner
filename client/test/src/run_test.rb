@@ -61,12 +61,6 @@ class RunTest < TestBase
     assert_colour 'red'
   end
 
-  test '251',
-  'image_name!=gcc_assert returns nil colour' do
-    sss_run({ image_name:"#{cdf}/clangpp_assert" })
-    assert_nil colour
-  end
-
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '743',
