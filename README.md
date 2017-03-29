@@ -90,8 +90,7 @@ Saves the visible_files in a container run from image_name and runs cyber-dojo.s
   }
 ```
 - returns an integer status, stdout, stderr, and colour, if the run completed in max_seconds.
-colour can be nil indicating the caller must determine the colour, otherwise colour
-will be "red", "amber", or "green". eg
+Colour will be "red", "amber", or "green". eg
 ```
     { "run": {
         "status": 2,
