@@ -17,8 +17,9 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 API:
   * All methods receive their arguments in a json hash.
   * All methods return a json hash with a single key.
-  * If the method raises an exception, the key equals "exception".
   * If the method completes, the key equals the method's name.
+  * If the method raises an exception, the key equals "exception".
+    For example, if the image_name is invalid.
 
 - - - -
 
@@ -29,11 +30,7 @@ by running [docker search].
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- raises exception if the image_name is invalid, eg
-```
-  { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
-```
-- returns true if it does, false if it doesn't, eg
+- returns true if it does, false if it doesn't.
 ```
   { "image_exists?": true   }
   { "image_exists?": false  }
@@ -45,11 +42,7 @@ Asks whether the image with the given image_name has been pulled.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- raises exception if the image_name is invalid, eg
-```
-  { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
-```
-- returns true if it has, false if it hasn't, eg
+- returns true if it has, false if it hasn't.
 ```
   { "image_pulled?": true   }
   { "image_pulled?": false  }
@@ -61,11 +54,7 @@ Pulls the image with the given image_name.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- raises an exception if the image_name is invalid, eg
-```
-  { "image_name": "cyberdojofoundation/_cantStartWithUnderscore" }
-```
-- returns true if the pull succeeds, false if it fails, eg
+- returns true if the pull succeeds, false if it failed.
 ```
   { "image_pull": true  }
   { "image_pull": false }
