@@ -233,20 +233,43 @@ class Runner
     return if visible_files == {}
     sandbox = sandbox_dir(avatar_name)
     chown_sandbox_dir = "chown #{avatar_name}:#{group} #{sandbox}"
-    chmod_sandbox_dir = "chmod 755 #{sandbox}"
-    assert_docker_exec(cid, [chmod_sandbox_dir,chown_sandbox_dir].join(' && '))
+    assert_docker_exec(cid, chown_sandbox_dir)
 
     Dir.mktmpdir('runner') do |tmp_dir|
       visible_files.each do |filename, content|
         host_filename = tmp_dir + '/' + filename
         disk.write(host_filename, content)
       end
-      assert_exec("docker cp #{tmp_dir}/. #{cid}:#{sandbox}")
-      visible_files.keys.each do |filename|
-        chown_file = "chown #{avatar_name}:#{group} #{sandbox}/#{filename}"
-        assert_docker_exec(cid, chown_file)
-      end
+      uid = user_id(avatar_name)
+      cmd = [
+        "cd #{tmp_dir}",
+        '&&',
+        'tar',
+        "--owner=#{uid}",
+        "--group=#{gid}",
+        '-zcf',      # create a compressed tar file
+        '-',         # write it to stdout
+        '.',         # tar the current directory
+        '|',
+        'docker exec',
+        "--user=#{uid}:#{gid}",
+        '--interactive',
+        cid,
+        'sh -c',
+        "'",         # open quote
+        "cd #{sandbox}",
+        '&&',
+        'tar',
+        '-zxf',      # extract from a compressed tar file
+        '-',         # which is read from stdin
+        '-C',        # save the extracted files to
+        '.',         # the current directory
+        "'"          # close quote
+      ].join(space)
+      assert_exec(cmd)
     end
+    # do after tar-pipe as it sets sandbox to 700
+    assert_docker_exec(cid, "chmod 755 #{sandbox}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
