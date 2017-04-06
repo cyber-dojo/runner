@@ -82,15 +82,6 @@ module OsHelper
     assert_equal_atts('hello.sh',      '-rw-r--r--', lion_uid, group, 16, ls_files)
   end
 
-  def assert_equal_atts(filename, permissions, user, group, size, ls_files)
-    atts = ls_files[filename]
-    refute_nil atts, filename
-    assert_equal user,  atts[:user ], { filename => atts }
-    assert_equal group, atts[:group], { filename => atts }
-    assert_equal size,  atts[:size ], { filename => atts }
-    assert_equal permissions, atts[:permissions], { filename => atts }
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit_test
@@ -122,32 +113,6 @@ module OsHelper
       'hello.txt'     => 'hello world',
       'hello.sh'      => 'echo hello world',
     }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def ls_cmd;
-    # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %z" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.000000000
-    # |        |           |      |          |    |          |
-    # filename permissions user   group      size date       time
-    # 0        1           2      3          4    5          6
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def ls_parse(ls_stdout)
-    Hash[ls_stdout.split("\n").collect { |line|
-      attr = line.split
-      [filename = attr[0], {
-        permissions: attr[1],
-               user: attr[2].to_i,
-              group: attr[3],
-               size: attr[4].to_i,
-         time_stamp: attr[6],
-      }]
-    }]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
