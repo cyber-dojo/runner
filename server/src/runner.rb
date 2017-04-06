@@ -236,8 +236,10 @@ class Runner
     assert_docker_exec(cid, chown_sandbox_dir)
 
     Dir.mktmpdir('runner') do |tmp_dir|
-      visible_files.each do |filename, content|
-        host_filename = tmp_dir + '/' + filename
+      visible_files.each do |pathed_filename, content|
+        src_dir = tmp_dir + '/' + File.dirname(pathed_filename)
+        shell.exec("mkdir -vp #{src_dir}") if src_dir != '.'
+        host_filename = tmp_dir + '/' + pathed_filename
         disk.write(host_filename, content)
       end
       uid = user_id(avatar_name)
