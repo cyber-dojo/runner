@@ -64,6 +64,19 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test '722',
+  'code with extra 500K file is red' do
+    visible_files = default_visible_files
+    visible_files['extra'] = 'X'*1023*500
+    sss_run({
+      visible_files:visible_files,
+      image_name:"#{cdf}/gcc_assert"
+    })
+    assert_colour 'red'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test '743',
   'code with infinite-loop times-out' do
     visible_files = default_visible_files
