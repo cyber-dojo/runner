@@ -11,6 +11,26 @@ class MicroService < Sinatra::Base
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  post '/kata_new' do
+    no_op(__method__, image_name, kata_id)
+  end
+
+  post '/kata_old' do
+    no_op(__method__, image_name, kata_id)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  post '/avatar_new' do
+    no_op(__method__, image_name, kata_id, avatar_name, starting_files)
+  end
+
+  post '/avatar_old' do
+    no_op(__method__, image_name, kata_id, avatar_name)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   post '/run' do
     args  = [image_name, kata_id, avatar_name]
     args += [deleted_filenames, visible_files, max_seconds]
@@ -18,6 +38,11 @@ class MicroService < Sinatra::Base
   end
 
   private
+
+  def no_op(name, *_args);
+    name = name.to_s['POST /'.length .. -1]
+    { name => {} }.to_json;
+  end
 
   def getter(name, *args); runner_json( 'GET /', name, *args); end
   def poster(name, *args); runner_json('POST /', name, *args); end
@@ -43,8 +68,8 @@ class MicroService < Sinatra::Base
   end
 
   request_args :image_name, :kata_id, :avatar_name
-  request_args :deleted_filenames, :visible_files
-  request_args :max_seconds
+  request_args :starting_files
+  request_args :deleted_filenames, :visible_files, :max_seconds
 
   def args; @args ||= JSON.parse(request_body); end
 
