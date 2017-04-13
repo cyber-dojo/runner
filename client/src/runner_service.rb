@@ -32,9 +32,9 @@ class RunnerService
 
   # - - - - - - - - - - - - - - - - - - -
 
-  def run(image_name, kata_id, avatar_name, deleted_filenames, visible_files, max_seconds)
+  def run(image_name, kata_id, avatar_name, visible_files, max_seconds)
     args = [image_name, kata_id, avatar_name]
-    args += [deleted_filenames, visible_files, max_seconds]
+    args += [visible_files, max_seconds]
     post(__method__, *args)
   end
 

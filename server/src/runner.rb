@@ -49,9 +49,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def run(image_name, kata_id, avatar_name, _deleted_filenames, visible_files, max_seconds)
-    # deleted_filenames is unused and is for
-    # compatibility with the stateful runner's API
+  def run(image_name, kata_id, avatar_name, visible_files, max_seconds)
     assert_valid_image_name image_name
     assert_valid_kata_id kata_id
     assert_valid_avatar_name avatar_name

@@ -32,7 +32,7 @@ class MicroService < Sinatra::Base
 
   post '/run' do
     args  = [image_name, kata_id, avatar_name]
-    args += [deleted_filenames, visible_files, max_seconds]
+    args += [visible_files, max_seconds]
     poster(__method__, *args)
   end
 
