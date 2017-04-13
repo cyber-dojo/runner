@@ -13,17 +13,6 @@ class Runner
 
   attr_reader :parent # For nearest_ancestors()
 
-  def image_exists?(image_name)
-    assert_valid_image_name image_name
-    stdout,_ = assert_exec("docker search #{image_name}")
-    lines = stdout.split("\n")
-    lines.shift # HEADINGS
-    images = lines.map { |line| line.split[0] }
-    images.include? image_name
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
   def image_pulled?(image_name)
     assert_valid_image_name image_name
     image_names.include? image_name
