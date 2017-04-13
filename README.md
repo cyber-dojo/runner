@@ -17,8 +17,8 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 API:
   * All methods receive their arguments in a json hash.
   * All methods return a json hash with a single key.
-  * If the method completes, the key equals the method's name.
-  * If the method raises an exception, the key equals "exception".
+    * If the method completes, the key equals the method's name.
+    * If the method raises an exception, the key equals "exception".
 
 - - - -
 
@@ -40,7 +40,7 @@ Pulls the image with the given image_name.
 ```
   { "image_name": "cyberdojofoundation/gcc_assert" }
 ```
-- returns true if the pull succeeds, false if it failed.
+- returns true if the pull succeeded, false if it failed.
 ```
   { "image_pull": true  }
   { "image_pull": false }
