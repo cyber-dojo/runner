@@ -15,7 +15,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Not Yet Live.
 
 API:
-  * All methods receive their arguments in a json hash.
+  * All methods receive their named arguments in a json hash.
   * All methods return a json hash with a single key.
     * If the method completes, the key equals the method's name.
     * If the method raises an exception, the key equals "exception".
