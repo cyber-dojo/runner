@@ -19,26 +19,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_new(image_name, kata_id)
-    runner.kata_new(image_name, kata_id)
-  end
-
-  def kata_old(image_name, kata_id)
-    runner.kata_old(image_name, kata_id)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_new(image_name, kata_id, avatar_name, starting_files)
-    runner.avatar_new(image_name, kata_id, avatar_name, starting_files)
-  end
-
-  def avatar_old(image_name, kata_id, avatar_name)
-    runner.avatar_old(image_name, kata_id, avatar_name)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - -
-
   def sss_run(named_args = {})
     # don't call this run() as it clashes with MiniTest
     @sss ||= runner.run *defaulted_args(named_args)

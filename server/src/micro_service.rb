@@ -10,26 +10,6 @@ class MicroService < Sinatra::Base
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  post '/kata_new' do
-    no_op(__method__, image_name, kata_id)
-  end
-
-  post '/kata_old' do
-    no_op(__method__, image_name, kata_id)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  post '/avatar_new' do
-    no_op(__method__, image_name, kata_id, avatar_name, starting_files)
-  end
-
-  post '/avatar_old' do
-    no_op(__method__, image_name, kata_id, avatar_name)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   post '/run' do
     args  = [image_name, kata_id, avatar_name]
     args += [visible_files, max_seconds]
