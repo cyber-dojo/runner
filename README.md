@@ -19,7 +19,6 @@ API:
   * All methods return a json hash with a single key.
   * If the method completes, the key equals the method's name.
   * If the method raises an exception, the key equals "exception".
-    For example, if the image_name is invalid.
 
 - - - -
 
