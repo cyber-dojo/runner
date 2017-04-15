@@ -257,7 +257,7 @@ class Runner
       ].join(space)
       assert_exec(cmd)
     end
-    # do after tar-pipe as it sets sandbox to 700
+    # do after tar-pipe as tar-pipe sets sandbox to 700
     assert_docker_exec(cid, "chmod 755 #{sandbox}")
   end
 
@@ -316,6 +316,7 @@ class Runner
       # cyber-dojo.sh process running __inside__
       # the docker container. See
       # https://github.com/docker/docker/issues/9098
+      # The container killed by remove_container().
       Process.kill(-9, pid)
       Process.detach(pid)
       ['', '', timed_out]
