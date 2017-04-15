@@ -6,6 +6,25 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  test 'BD5', %w(
+  valid image_name with hostname does not raise
+  ) do
+    %w(
+      quay.io/cdf/gcc_assert
+      quay.io:8080/cdf/gcc_assert
+      quay.io/cdf/gcc_assert:latest
+      quay.io:8080/cdf/gcc_assert:12
+      localhost/cdf/gcc_assert
+      localhost/cdf/gcc_assert:tag
+      localhost:80/cdf/gcc_assert
+      localhost:80/cdf/gcc_assert:1.2.3
+    ).each { |image_name|
+      runner.image_pulled? image_name
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   test 'C2E', %w( [Alpine]
   valid image_name,kata_id,avatar_name does not raise
   ) do
