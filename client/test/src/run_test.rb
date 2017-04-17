@@ -11,8 +11,7 @@ class RunTest < TestBase
     error = assert_raises(StandardError) {
       sss_run({image_name:INVALID_IMAGE_NAME})
     }
-    expected = 'RunnerService:run:image_name:invalid'
-    assert_equal expected, error.message
+    assert error.message.start_with? 'RunnerService:run:'
   end
 
   # - - - - - - - - - - - - - - - - - - - - -

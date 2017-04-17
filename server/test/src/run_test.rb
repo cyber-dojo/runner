@@ -73,10 +73,10 @@ class RunTest < TestBase
   test '1DC', %w(
   invalid image_name raises
   ) do
-    error = assert_raises(ArgumentError) {
+    @log = LoggerNull.new(nil)
+    assert_raises(ArgumentError) {
       sss_run({ image_name:INVALID_IMAGE_NAME })
     }
-    assert_equal 'image_name:invalid', error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -6,15 +6,13 @@ class ImagePulledTest < TestBase
   def self.hex_prefix; '109807'; end
 
   def hex_setup; @shell ||= ShellMocker.new(nil); end
-  def hex_teardown; shell.teardown; end
+  def hex_teardown; shell.teardown if shell.respond_to? :teardown; end
 
   test 'D97',
-  'raises when image_name is invalid' do
+  'false when image_name is invalid' do
+    @shell = ShellBasher.new(self)
     invalid_image_names.each do |image_name|
-      error = assert_raises(StandardError) {
-        image_pulled? image_name
-      }
-      assert_equal 'image_name:invalid', error.message
+      refute image_pulled?(image_name)
     end
   end
 

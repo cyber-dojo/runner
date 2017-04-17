@@ -12,11 +12,11 @@ class ImagePullTest < TestBase
 
   test '934',
   'raises when image_name is invalid' do
+    @shell = ShellBasher.new(self)
     invalid_image_names.each do |image_name|
-      error = assert_raises(StandardError) {
+      assert_raises(StandardError) {
         image_pull image_name
       }
-      assert_equal 'image_name:invalid', error.message
     end
   end
 

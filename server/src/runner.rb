@@ -14,7 +14,6 @@ class Runner
   attr_reader :parent # For nearest_ancestors()
 
   def image_pulled?(image_name)
-    assert_valid_image_name image_name
     image_names.include? image_name
   end
 
@@ -25,7 +24,6 @@ class Runner
     # on what your running on, eg DockerToolbox or not
     # and where, eg Travis or not. I'm using 'not found'
     # as that always seems to be present.
-    assert_valid_image_name image_name
     _stdout,stderr,status = quiet_exec("docker pull #{image_name}")
     if status == shell.success
       return true
@@ -39,7 +37,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(image_name, kata_id, avatar_name, visible_files, max_seconds)
-    assert_valid_image_name image_name
     assert_valid_kata_id kata_id
     assert_valid_avatar_name avatar_name
     in_container(image_name, kata_id, avatar_name) do |cid|
@@ -57,17 +54,14 @@ class Runner
   def gid; 5000; end
 
   def user_id(avatar_name)
-    assert_valid_avatar_name(avatar_name)
     40000 + all_avatars_names.index(avatar_name)
   end
 
   def home_dir(avatar_name)
-    assert_valid_avatar_name(avatar_name)
     "/home/#{avatar_name}"
   end
 
   def sandbox_dir(avatar_name)
-    assert_valid_avatar_name(avatar_name)
     "/sandboxes/#{avatar_name}"
   end
 
@@ -336,40 +330,6 @@ class Runner
     stdout,_ = assert_exec(cmd)
     names = stdout.split("\n")
     names.uniq - ['<none>']
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  def assert_valid_image_name(image_name)
-    unless valid_image_name? image_name
-      fail_image_name('invalid')
-    end
-  end
-
-  def valid_image_name?(image_name)
-    # http://stackoverflow.com/questions/37861791
-    i = image_name.index('/')
-    if i.nil? || i == -1 || (
-        !image_name[0...i].include?('.') &&
-        !image_name[0...i].include?(':') &&
-         image_name[0...i] != 'localhost')
-      hostname = ''
-      remote_name = image_name
-    else
-      hostname = image_name[0..i-1]
-      remote_name = image_name[i+1..-1]
-    end
-
-    alpha_numeric = '[a-z0-9]+'
-    separator = '([.]{1}|[_]{1,2}|[-]+)'
-    component = "#{alpha_numeric}(#{separator}#{alpha_numeric})*"
-    name = "#{component}(/#{component})*"
-    tag = '[\w][\w.-]{0,126}'
-    remote_name =~ /^(#{name})(:(#{tag}))?$/
-  end
-
-  def fail_image_name(message)
-    fail bad_argument("image_name:#{message}")
   end
 
   # - - - - - - - - - - - - - - - - - -
