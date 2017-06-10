@@ -18,11 +18,6 @@ class MicroService < Sinatra::Base
 
   private
 
-  def no_op(name, *_args);
-    name = name.to_s['POST /'.length .. -1]
-    { name => {} }.to_json;
-  end
-
   def getter(name, *args); runner_json( 'GET /', name, *args); end
   def poster(name, *args); runner_json('POST /', name, *args); end
 
