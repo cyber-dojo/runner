@@ -1,9 +1,7 @@
 #!/bin/bash
 
-my_dir="$( cd "$( dirname "${0}" )" && pwd )"
-${my_dir}/build.sh
-${my_dir}/up.sh
+readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
+${MY_DIR}/build.sh
+${MY_DIR}/up.sh
 
-. ${my_dir}/.env
-
-echo "$(docker-machine ip default):${CYBER_DOJO_RUNNER_STATELESS_CLIENT_PORT}"
+. ${MY_DIR}/.env

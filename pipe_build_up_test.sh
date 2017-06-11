@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-my_dir="$( cd "$( dirname "${0}" )" && pwd )"
+readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
 
-${my_dir}/build.sh
-${my_dir}/up.sh
-${my_dir}/test.sh ${*}
+${MY_DIR}/build.sh
+${MY_DIR}/up.sh
+${MY_DIR}/test.sh ${*}

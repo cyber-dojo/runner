@@ -1,13 +1,6 @@
 #!/bin/bash
 set -e
 
-my_dir="$( cd "$( dirname "${0}" )" && pwd )"
-
-docker-compose --file ${my_dir}/docker-compose.yml down --volumes
-docker-compose --file ${my_dir}/docker-compose.yml up -d
-
-sleep 1
-
 check_up()
 {
   set +e
@@ -21,5 +14,10 @@ check_up()
   fi
 }
 
+readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
+docker-compose --file ${MY_DIR}/docker-compose.yml down --volumes
+docker-compose --file ${MY_DIR}/docker-compose.yml up -d
+# crude wait for services
+sleep 1
 check_up 'runner_stateless_server'
 check_up 'runner_stateless_client'

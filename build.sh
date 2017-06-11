@@ -1,4 +1,5 @@
 #!/bin/bash
 
-my_dir="$( cd "$( dirname "${0}" )" && pwd )"
-docker-compose --file ${my_dir}/docker-compose.yml build
+readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
+
+docker-compose --file ${MY_DIR}/docker-compose.yml build
