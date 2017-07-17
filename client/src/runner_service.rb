@@ -2,12 +2,12 @@ require_relative 'http_service'
 
 class RunnerService
 
-  def image_pulled?(image_name)
-    get(__method__, image_name)
+  def image_pulled?(image_name, kata_id)
+    get(__method__, image_name, kata_id)
   end
 
-  def image_pull(image_name)
-    post(__method__, image_name)
+  def image_pull(image_name, kata_id)
+    post(__method__, image_name, kata_id)
   end
 
   # - - - - - - - - - - - - - - - - - - -

@@ -7,17 +7,18 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'D71',
-  'invalid image_name raises' do
+  'raises when image_name is invalid' do
     error = assert_raises(StandardError) {
       sss_run({image_name:INVALID_IMAGE_NAME})
     }
-    assert error.message.start_with? 'RunnerService:run:'
+    expected = 'RunnerService:run:image_name:invalid'
+    assert_equal expected, error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '656',
-  'invalid kata_id raises' do
+  'raises when kata_id is invalid' do
     error = assert_raises(StandardError) {
       sss_run({kata_id:INVALID_KATA_ID})
     }
@@ -28,7 +29,7 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'A29',
-  'invalid avatar_name raises' do
+  'raises when avatar_name is invalid' do
     error = assert_raises(StandardError) {
       sss_run({avatar_name:INVALID_AVATAR_NAME})
     }

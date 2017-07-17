@@ -5,15 +5,13 @@ require 'json'
 
 class MicroService < Sinatra::Base
 
-   get '/image_pulled?' do; getter(__method__, image_name); end
-  post '/image_pull'    do; poster(__method__, image_name); end
+   get '/image_pulled?' do; getter(__method__); end
+  post '/image_pull'    do; poster(__method__); end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   post '/run' do
-    args  = [image_name, kata_id, avatar_name]
-    args += [visible_files, max_seconds]
-    poster(__method__, *args)
+    poster(__method__, avatar_name, visible_files, max_seconds)
   end
 
   private
@@ -33,7 +31,7 @@ class MicroService < Sinatra::Base
 
   include Externals
 
-  def runner; Runner.new(self); end
+  def runner; Runner.new(self, image_name, kata_id); end
 
   def self.request_args(*names)
     names.each { |name|

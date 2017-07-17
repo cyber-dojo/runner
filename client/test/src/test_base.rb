@@ -9,19 +9,23 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_pulled?(image_name)
-    runner.image_pulled? image_name
+  def image_pulled?(named_args = {})
+    image_name = defaulted_arg(named_args, :image_name,    default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,       default_kata_id)
+    runner.image_pulled? image_name, kata_id
   end
 
-  def image_pull(image_name)
-    runner.image_pull image_name
+  def image_pull(named_args = {})
+    image_name = defaulted_arg(named_args, :image_name,    default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,       default_kata_id)
+    runner.image_pull image_name, kata_id
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def sss_run(named_args = {})
     # don't call this run() as it clashes with MiniTest
-    @sss ||= runner.run *defaulted_args(named_args)
+    @sss = runner.run *defaulted_args(named_args)
   end
 
   def status; sss['status']; end
@@ -56,8 +60,7 @@ class TestBase < HexMiniTest
   VALID_KATA_ID       = '41135B4F2B'
   VALID_AVATAR_NAME   = 'salmon'
 
-  VALID_NON_EXISTENT_IMAGE_NAME = 'non_existent_box'
-  INVALID_IMAGE_NAME            = '_cantStartWithSeparator'
+  INVALID_IMAGE_NAME  = '_cantStartWithSeparator'
   INVALID_KATA_ID     = '675'
   INVALID_AVATAR_NAME = 'sunglasses'
 

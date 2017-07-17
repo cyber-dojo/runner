@@ -7,19 +7,27 @@ require 'timeout'
 
 class Runner
 
-  def initialize(parent)
+  def initialize(parent, image_name, kata_id)
     @parent = parent
+    @image_name = image_name
+    @kata_id = kata_id
+    assert_valid_image_name
+    assert_valid_kata_id
   end
 
   attr_reader :parent # For nearest_ancestors()
+  attr_reader :image_name
+  attr_reader :kata_id
 
-  def image_pulled?(image_name)
+  # - - - - - - - - - - - - - - - - - -
+
+  def image_pulled?
     image_names.include? image_name
   end
 
   # - - - - - - - - - - - - - - - - - -
 
-  def image_pull(image_name)
+  def image_pull
     # [1] The contents of stderr seem to vary depending
     # on what your running on, eg DockerToolbox or not
     # and where, eg Travis or not. I'm using 'not found'
@@ -36,10 +44,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def run(image_name, kata_id, avatar_name, visible_files, max_seconds)
-    assert_valid_kata_id kata_id
+  def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name avatar_name
-    in_container(image_name, kata_id, avatar_name) do |cid|
+    in_container(avatar_name) do |cid|
       add_user_and_group(cid, avatar_name)
       write_files(cid, avatar_name, visible_files)
       stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
@@ -69,8 +76,8 @@ class Runner
 
   private
 
-  def in_container(image_name, kata_id, avatar_name, &block)
-    cid = create_container(image_name, kata_id, avatar_name)
+  def in_container(avatar_name, &block)
+    cid = create_container(avatar_name)
     begin
       block.call(cid)
     ensure
@@ -80,7 +87,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_container(image_name, kata_id, avatar_name)
+  def create_container(avatar_name)
     dir = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     args = [
@@ -334,13 +341,64 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def assert_valid_kata_id(kata_id)
-    unless valid_kata_id? kata_id
+  def assert_valid_image_name
+    unless valid_image_name?
+      fail_image_name('invalid')
+    end
+  end
+
+  def valid_image_name?
+    hostname,remote_name = split_image_name
+    valid_hostname?(hostname) && valid_remote_name?(remote_name)
+  end
+
+  def split_image_name
+    # http://stackoverflow.com/questions/37861791/
+    i = image_name.index('/')
+    if i.nil? || i == -1 || (
+        !image_name[0...i].include?('.') &&
+        !image_name[0...i].include?(':') &&
+         image_name[0...i] != 'localhost')
+      hostname = ''
+      remote_name = image_name
+    else
+      hostname = image_name[0..i-1]
+      remote_name = image_name[i+1..-1]
+    end
+    return hostname,remote_name
+  end
+
+  def valid_hostname?(hostname)
+    return true if hostname == ''
+    port = '[\d]+'
+    component = "([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])"
+    hostname =~ /^(#{component}(\.#{component})*)(:(#{port}))?$/
+  end
+
+  def valid_remote_name?(remote_name)
+    alpha_numeric = '[a-z0-9]+'
+    separator = '([.]{1}|[_]{1,2}|[-]+)'
+    component = "#{alpha_numeric}(#{separator}#{alpha_numeric})*"
+    name = "#{component}(/#{component})*"
+    tag = '[\w][\w.-]{0,127}'
+
+    digest_component = '[A-Za-z][A-Za-z0-9]*'
+    digest_separator = '[-_+.]'
+    digest_algorithm = "#{digest_component}(#{digest_separator}#{digest_component})*"
+    digest_hex = "[0-9a-fA-F]{32,}"
+    digest = "#{digest_algorithm}[:]#{digest_hex}"
+    remote_name =~ /^(#{name})(:(#{tag}))?(@#{digest})?$/
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_valid_kata_id
+    unless valid_kata_id?
       fail_kata_id('invalid')
     end
   end
 
-  def valid_kata_id?(kata_id)
+  def valid_kata_id?
     kata_id.class.name == 'String' &&
       kata_id.length == 10 &&
         kata_id.chars.all? { |char| hex?(char) }
@@ -348,10 +406,6 @@ class Runner
 
   def hex?(char)
     '0123456789ABCDEF'.include?(char)
-  end
-
-  def fail_kata_id(message)
-    fail bad_argument("kata_id:#{message}")
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -368,11 +422,19 @@ class Runner
     all_avatars_names.include?(avatar_name)
   end
 
+  # - - - - - - - - - - - - - - - - - -
+
+  def fail_kata_id(message)
+    fail bad_argument("kata_id:#{message}")
+  end
+
+  def fail_image_name(message)
+    fail bad_argument("image_name:#{message}")
+  end
+
   def fail_avatar_name(message)
     fail bad_argument("avatar_name:#{message}")
   end
-
-  # - - - - - - - - - - - - - - - - - -
 
   def bad_argument(message)
     ArgumentError.new(message)

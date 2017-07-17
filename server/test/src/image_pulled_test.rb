@@ -9,10 +9,11 @@ class ImagePulledTest < TestBase
   def hex_teardown; shell.teardown if shell.respond_to? :teardown; end
 
   test 'D97',
-  'false when image_name is invalid' do
-    @shell = ShellBasher.new(self)
-    invalid_image_names.each do |image_name|
-      refute image_pulled?(image_name)
+  'raises when image_name is invalid' do
+    invalid_image_names.each do |invalid_image_name|
+      set_image_name invalid_image_name
+      error = assert_raises(ArgumentError) { image_pulled? }
+      assert_equal 'image_name:invalid', error.message
     end
   end
 
@@ -21,13 +22,8 @@ class ImagePulledTest < TestBase
   test '9C3',
   'false when image_name is valid but not in [docker images]' do
     mock_docker_images_prints "#{cdf}/gcc_assert"
-    refute image_pulled? "#{cdf}/ruby_mini_test"
-
-    mock_docker_images_prints "#{cdf}/gcc_assert"
-    refute image_pulled? "#{cdf}/ruby_mini_test:latest"
-
-    mock_docker_images_prints "#{cdf}/gcc_assert"
-    refute image_pulled? "#{cdf}/ruby_mini_test:1.9.3"
+    set_image_name "#{cdf}/ruby_mini_test:1.9.3"
+    refute image_pulled?
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,7 +31,8 @@ class ImagePulledTest < TestBase
   test 'A44',
   'true when image_name is valid and in [docker images]' do
     mock_docker_images_prints "#{cdf}/gcc_assert"
-    assert image_pulled? "#{cdf}/gcc_assert"
+    set_image_name "#{cdf}/gcc_assert"
+    assert image_pulled?
   end
 
   private

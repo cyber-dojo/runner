@@ -12,11 +12,10 @@ class ImagePullTest < TestBase
 
   test '934',
   'raises when image_name is invalid' do
-    @shell = ShellBasher.new(self)
-    invalid_image_names.each do |image_name|
-      assert_raises(StandardError) {
-        image_pull image_name
-      }
+    invalid_image_names.each do |invalid_image_name|
+      set_image_name invalid_image_name
+      error = assert_raises(ArgumentError) { image_pull }
+      assert_equal 'image_name:invalid', error.message
     end
   end
 
@@ -27,13 +26,13 @@ class ImagePullTest < TestBase
     image_name = "#{cdf}/ruby_mini_test"
 
     mock_docker_pull_success image_name, tag=''
-    assert image_pull image_name
+    assert image_pull
 
     mock_docker_pull_success image_name, tag='latest'
-    assert image_pull "#{image_name}:#{tag}"
+    assert image_pull
 
     mock_docker_pull_success image_name, tag='1.9.3'
-    assert image_pull "#{image_name}:#{tag}"
+    assert image_pull
   end
 
   def mock_docker_pull_success(image_name, tag)
@@ -54,15 +53,14 @@ class ImagePullTest < TestBase
   test 'D80',
   'false when image_name is valid but does not exist' do
     image_name = "#{cdf}/does_not_exist"
-
     mock_docker_pull_not_exist image_name, tag=''
-    refute image_pull image_name
+    refute image_pull
 
     mock_docker_pull_not_exist image_name, tag='latest'
-    refute image_pull "#{image_name}:#{tag}"
+    refute image_pull
 
     mock_docker_pull_not_exist image_name, tag='1.9.3'
-    refute image_pull "#{image_name}:#{tag}"
+    refute image_pull
   end
 
   def mock_docker_pull_not_exist(repo, tag)
@@ -81,7 +79,7 @@ class ImagePullTest < TestBase
 
   test '933',
   'raises when there is no network connectivitity' do
-    image_name = "#{cdf}/gcc_assert"
+    set_image_name "#{cdf}/gcc_assert"
     cmd = "docker pull #{image_name}"
     stdout = [
       'Using default tag: latest',
@@ -93,13 +91,14 @@ class ImagePullTest < TestBase
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
     shell.mock_exec(cmd, stdout, stderr, status=1)
-    error = assert_raises { image_pull image_name }
+    error = assert_raises { image_pull }
     assert_equal stderr, error.message
   end
 
   private
 
   def mock_docker_pull(image_name, stdout, stderr, status)
+    set_image_name(image_name)
     cmd = "docker pull #{image_name}"
     shell.mock_exec(cmd, stdout, stderr, status)
   end

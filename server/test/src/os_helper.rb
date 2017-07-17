@@ -9,7 +9,7 @@ module OsHelper
   def kata_id_env_vars_test
     printenv_cmd = 'printenv CYBER_DOJO_KATA_ID'
     env_kata_id = assert_cyber_dojo_sh(printenv_cmd).strip
-    assert_equal default_kata_id, env_kata_id
+    assert_equal kata_id, env_kata_id
 
     printenv_cmd = 'printenv CYBER_DOJO_AVATAR_NAME'
     env_avatar_name = assert_cyber_dojo_sh(printenv_cmd).strip
@@ -91,6 +91,8 @@ module OsHelper
     assert_equal   0, ulimit(lines, :max_core_size, etc_issue)
     assert_equal 128, ulimit(lines, :max_no_files,  etc_issue)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit(lines, key, etc_issue)
     table = {             # alpine,                       ubuntu
