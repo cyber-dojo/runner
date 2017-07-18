@@ -34,8 +34,8 @@ Asks whether the image with the given image_name has been pulled.
 ```
 - returns true if it has, false if it hasn't.
 ```
-  { "image_pulled?": true   }
-  { "image_pulled?": false  }
+  { "image_pulled?": true  }
+  { "image_pulled?": false }
 ```
 
 # image_pull
@@ -48,8 +48,8 @@ Pull the image with the given image_name.
 ```
 - returns true if the pull succeeded, false if it failed.
 ```
-  { "image_pull": true   }
-  { "image_pull": false  }
+  { "image_pull": true  }
+  { "image_pull": false }
 ```
 
 - - - -
