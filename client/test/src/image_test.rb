@@ -9,7 +9,7 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'B23',
-  'raises when image_name is invalid' do
+  'pull raises when image_name is invalid' do
     error = assert_raises(StandardError) {
       image_pull({ image_name:INVALID_IMAGE_NAME })
     }
@@ -20,7 +20,7 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'B24',
-  'raises when kata_id is invalid' do
+  'pull raises when kata_id is invalid' do
     error = assert_raises(StandardError) {
       image_pull({ kata_id:INVALID_KATA_ID })
     }
@@ -31,14 +31,14 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'B21',
-  'false when image_name is valid but does not exist' do
+  'pull is false when image_name is valid but does not exist' do
     refute image_pull({ image_name:"#{cdf}/lazybox" })
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'B22',
-  'true when image_name is valid and exists' do
+  'pull is true when image_name is valid and exists' do
     assert image_pull({ image_name:"#{cdf}/gcc_assert"} )
   end
 
@@ -47,7 +47,7 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'EF6',
-  'raises when image_name is invalid' do
+  'pulled? raises when image_name is invalid' do
     error = assert_raises(StandardError) {
       image_pulled?({ image_name:INVALID_IMAGE_NAME })
     }
@@ -58,7 +58,7 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'EF7',
-  'raises when kata_id is invalid' do
+  'pulled? raises when kata_id is invalid' do
     error = assert_raises(StandardError) {
       image_pulled?({ kata_id:INVALID_KATA_ID })
     }
@@ -69,16 +69,16 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'EF4',
-  'false when image_name is valid but unpulled' do
+  'pulled? is false when image_name is valid but unpulled' do
     refute image_pulled?({ image_name:'lazybox' })
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'EF5',
-  'true when image_name is valid and pulled' do
-    image_pull
-    assert image_pulled?
+  'pulled? is true when image_name is valid and pulled' do
+    image_pull({ image_name:VALID_IMAGE_NAME })
+    assert image_pulled?({ image_name:VALID_IMAGE_NAME })
   end
 
 end

@@ -7,9 +7,9 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'D71',
-  'raises when image_name is invalid' do
+  'run raises when image_name is invalid' do
     error = assert_raises(StandardError) {
-      sss_run({image_name:INVALID_IMAGE_NAME})
+      sss_run({ image_name:INVALID_IMAGE_NAME })
     }
     expected = 'RunnerService:run:image_name:invalid'
     assert_equal expected, error.message
@@ -18,9 +18,9 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '656',
-  'raises when kata_id is invalid' do
+  'run raises when kata_id is invalid' do
     error = assert_raises(StandardError) {
-      sss_run({kata_id:INVALID_KATA_ID})
+      sss_run({ kata_id:INVALID_KATA_ID })
     }
     expected = 'RunnerService:run:kata_id:invalid'
     assert_equal expected, error.message
@@ -29,9 +29,9 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'A29',
-  'raises when avatar_name is invalid' do
+  'run raises when avatar_name is invalid' do
     error = assert_raises(StandardError) {
-      sss_run({avatar_name:INVALID_AVATAR_NAME})
+      sss_run({ avatar_name:INVALID_AVATAR_NAME })
     }
     expected = 'RunnerService:run:avatar_name:invalid'
     assert_equal expected, error.message
@@ -40,45 +40,28 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '3DF',
-  'valid image_name,kata_id,avatar_name does not raise' do
-    sss_run({
-       image_name:VALID_IMAGE_NAME,
-          kata_id:VALID_KATA_ID,
-      avatar_name:VALID_AVATAR_NAME
-    })
+  'run with valid image_name,kata_id,avatar_name returns red' do
+    sss_run
+    assert_colour 'red'
     assert_equal 'String', stdout.class.name
     assert_equal 'String', stderr.class.name
     assert_equal 'Fixnum', status.class.name
-    refute_status success
-    refute_status timed_out
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'A65', %w(
-  run returns red-amber-green traffic-light colour
-  ) do
-    sss_run({ image_name:"#{cdf}/gcc_assert" })
-    assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '722',
-  'code with extra 500K file is red' do
+  'run with very large file is red' do
     visible_files = default_visible_files
     visible_files['extra'] = 'X'*1023*500
-    sss_run({
-      visible_files:visible_files,
-      image_name:"#{cdf}/gcc_assert"
-    })
+    sss_run({ visible_files:visible_files })
     assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '743',
-  'code with infinite-loop times-out' do
+  'run with infinite-loop times-out' do
     visible_files = default_visible_files
     visible_files['hiker.c'] = [
       '#include "hiker.h"',
