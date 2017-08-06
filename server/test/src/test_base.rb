@@ -140,7 +140,7 @@ class TestBase < HexMiniTest
   def default_max_seconds; 10; end
 
   def read_files(language_dir = language_dir_from_test_name)
-    dir = "/app/start_files/#{language_dir}"
+    dir = "/app/test/start_files/#{language_dir}"
     json = JSON.parse(IO.read("#{dir}/manifest.json"))
     Hash[json['visible_filenames'].collect { |filename|
       [filename, IO.read("#{dir}/#{filename}")]

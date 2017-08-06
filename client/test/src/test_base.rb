@@ -84,7 +84,7 @@ class TestBase < HexMiniTest
   def read_files
     filenames =%w( hiker.c hiker.h hiker.tests.c cyber-dojo.sh makefile )
     Hash[filenames.collect { |filename|
-      [filename, IO.read("/app/start_files/gcc_assert/#{filename}")]
+      [filename, IO.read("/app/test/start_files/gcc_assert/#{filename}")]
     }]
   end
 
