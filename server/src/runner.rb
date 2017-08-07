@@ -59,8 +59,13 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def group; 'cyber-dojo'; end
-  def gid; 5000; end
+  def group
+    'cyber-dojo'
+  end
+
+  def gid
+    5000
+  end
 
   def user_id(avatar_name)
     40000 + all_avatars_names.index(avatar_name)
@@ -74,7 +79,9 @@ class Runner
     "/sandboxes/#{avatar_name}"
   end
 
-  def timed_out; 'timed_out'; end
+  def timed_out
+    'timed_out'
+  end
 
   private
 
@@ -298,9 +305,6 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  include StringCleaner
-  include StringTruncater
-
   def run_timeout(docker_cmd, max_seconds)
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
@@ -336,6 +340,9 @@ class Runner
       r_stderr.close
     end
   end
+
+  include StringCleaner
+  include StringTruncater
 
   # - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - -
@@ -383,11 +390,11 @@ class Runner
     end
   end
 
-  include AllAvatarsNames
-
   def valid_avatar_name?(avatar_name)
     all_avatars_names.include?(avatar_name)
   end
+
+  include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
 
@@ -423,11 +430,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  include NearestAncestors
-
   def shell; nearest_ancestors(:shell); end
   def  disk; nearest_ancestors(:disk); end
   def   log; nearest_ancestors(:log); end
+
+  include NearestAncestors
 
   def space; ' '; end
 
