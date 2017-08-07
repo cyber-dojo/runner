@@ -96,7 +96,7 @@ class Runner
     args = [
       '--detach',                          # get the cid
       '--interactive',                     # for later execs
-      "--name #{name}",                    # for easy clean
+      "--name=#{name}",                    # for easy clean up
       '--net=none',                        # no network
       '--pids-limit=64',                   # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
