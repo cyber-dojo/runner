@@ -4,6 +4,7 @@ require_relative 'nearest_ancestors'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require_relative 'valid_image_name'
+require 'securerandom'
 require 'timeout'
 
 class Runner
@@ -91,9 +92,11 @@ class Runner
   def create_container(avatar_name)
     dir = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
+    name = "test_run__runner_stateless_#{kata_id}_#{avatar_name}_#{uuid}"
     args = [
       '--detach',                          # get the cid
       '--interactive',                     # for later execs
+      "--name #{name}",                    # for easy clean
       '--net=none',                        # no network
       '--pids-limit=64',                   # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
@@ -109,6 +112,10 @@ class Runner
     ].join(space)
     stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
     cid = stdout.strip
+  end
+
+  def uuid
+    SecureRandom.hex[0..10].upcase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
