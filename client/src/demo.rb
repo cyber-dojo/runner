@@ -36,9 +36,17 @@ class Demo < Sinatra::Base
 
   private
 
-  def image_name; 'cyberdojofoundation/gcc_assert'; end
-  def kata_id; '729B652756'; end
-  def avatar_name; 'salmon'; end
+  def image_name
+    'cyberdojofoundation/gcc_assert'
+  end
+
+  def kata_id
+    '729B652756'
+  end
+
+  def avatar_name
+    'salmon'
+  end
 
   def run(visible_files, max_seconds = 10)
     runner.run(image_name, kata_id, avatar_name, visible_files, max_seconds)

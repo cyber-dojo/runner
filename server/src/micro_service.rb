@@ -5,8 +5,13 @@ require 'json'
 
 class MicroService < Sinatra::Base
 
-   get '/image_pulled?' do; getter(__method__); end
-  post '/image_pull'    do; poster(__method__); end
+  get '/image_pulled?' do
+    getter(__method__)
+  end
+
+  post '/image_pull' do
+    poster(__method__)
+  end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
@@ -16,8 +21,13 @@ class MicroService < Sinatra::Base
 
   private
 
-  def getter(name, *args); runner_json( 'GET /', name, *args); end
-  def poster(name, *args); runner_json('POST /', name, *args); end
+  def getter(name, *args)
+    runner_json( 'GET /', name, *args)
+  end
+
+  def poster(name, *args)
+    runner_json('POST /', name, *args)
+  end
 
   def runner_json(prefix, caller, *args)
     name = caller.to_s[prefix.length .. -1]
@@ -31,7 +41,9 @@ class MicroService < Sinatra::Base
 
   include Externals
 
-  def runner; Runner.new(self, image_name, kata_id); end
+  def runner
+    Runner.new(self, image_name, kata_id)
+  end
 
   def self.request_args(*names)
     names.each { |name|
@@ -43,7 +55,9 @@ class MicroService < Sinatra::Base
   request_args :starting_files
   request_args :deleted_filenames, :visible_files, :max_seconds
 
-  def args; @args ||= JSON.parse(request_body); end
+  def args
+    @args ||= JSON.parse(request_body)
+  end
 
   def request_body
     request.body.rewind
