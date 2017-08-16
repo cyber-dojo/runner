@@ -87,9 +87,10 @@ module OsHelper
   def ulimit_test
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
-    assert_equal  64, ulimit(lines, :max_processes, etc_issue)
+    max = 128
+    assert_equal max, ulimit(lines, :max_processes, etc_issue)
     assert_equal   0, ulimit(lines, :max_core_size, etc_issue)
-    assert_equal 128, ulimit(lines, :max_no_files,  etc_issue)
+    assert_equal max, ulimit(lines, :max_no_files,  etc_issue)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

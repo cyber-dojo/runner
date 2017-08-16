@@ -100,16 +100,17 @@ class Runner
     dir = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     name = "test_run__runner_stateless_#{kata_id}_#{avatar_name}_#{uuid}"
+    max = 128
     args = [
       '--detach',                          # get the cid
       '--interactive',                     # for later execs
       "--name=#{name}",                    # for easy clean up
       '--net=none',                        # no network
-      '--pids-limit=64',                   # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
-      '--ulimit nproc=64:64',              # max number processes = 64
+      "--pids-limit=#{max}",               # no fork bombs
+      "--ulimit nproc=#{max}:#{max}",      # max number processes
+      "--ulimit nofile=#{max}:#{max}",     # max number of files
       '--ulimit core=0:0',                 # max core file size = 0 blocks
-      '--ulimit nofile=128:128',           # max number of files = 128
       "--env CYBER_DOJO_KATA_ID=#{kata_id}",
       "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
       "--env CYBER_DOJO_SANDBOX=#{dir}",
