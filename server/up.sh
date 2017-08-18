@@ -1,3 +1,9 @@
 #!/bin/bash
 
-bundle exec rackup --host 0.0.0.0 -p ${PORT}
+bundle exec rackup \
+  --warn \
+  --host 0.0.0.0 \
+  --port ${PORT} \
+  --server thin \
+  --env production \
+    config.ru
