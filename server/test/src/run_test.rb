@@ -2,13 +2,14 @@ require_relative 'test_base'
 
 class RunTest < TestBase
 
-  def self.hex_prefix; '58410'; end
+  def self.hex_prefix
+    '58410'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '27C', %w(
-  valid image_names do not raise
-  ) do
+  test '27C',
+  %w( valid image_names do not raise ) do
     valid_image_names.each do |image_name|
       set_image_name image_name
       runner
@@ -17,9 +18,8 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '1DC', %w(
-  invalid image_name raises
-  ) do
+  test '1DC',
+  %w( invalid image_name raises ) do
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
       error = assert_raises(ArgumentError) { sss_run }
@@ -29,9 +29,8 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '3FF', %w(
-  invalid kata_id raises
-  ) do
+  test '3FF',
+  %w( invalid kata_id raises ) do
     invalid_kata_ids.each do |invalid_kata_id|
       set_kata_id invalid_kata_id
       error = assert_raises(ArgumentError) { sss_run }
@@ -41,9 +40,8 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'C3A', %w(
-  invalid avatar_name raises
-  ) do
+  test 'C3A',
+  %w( invalid avatar_name raises ) do
     error = assert_raises(ArgumentError) {
       sss_run({ avatar_name:'polaroid' })
     }
@@ -52,36 +50,34 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'C2E', %w(
-  [Alpine] run initially red
-  ) do
+  test 'C2E',
+  %w( [Alpine] run initially red ) do
     sss_run
     assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '8A4', %w(
-  [Ubuntu] run initially red
-  ) do
+  test '8A4',
+  %w( [Ubuntu] run initially red ) do
     sss_run
     assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'B82', %w(
-    files can be in sub-dirs of sandbox
-  ) do
-    sss_run( { visible_files: {
+  test 'B82',
+  %w( files can be in sub-dirs of sandbox ) do
+    sss_run({ visible_files: {
       'cyber-dojo.sh' => ls_cmd,
-      'a/hello.txt' => 'hello world'
+      'a/hello.txt'   => 'hello world'
     }})
     ls_files = ls_parse(stdout)
     salmon_uid = runner.user_id('salmon')
     assert_equal_atts('a', 'drwxr-xr-x', salmon_uid, runner.group, 4096, ls_files)
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def valid_image_names
     [ "gcc_assert:#{'x'*127}" ] +

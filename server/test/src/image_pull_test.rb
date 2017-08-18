@@ -3,10 +3,17 @@ require_relative 'shell_mocker'
 
 class ImagePullTest < TestBase
 
-  def self.hex_prefix; '0D5713'; end
+  def self.hex_prefix
+    '0D5713'
+  end
 
-  def hex_setup; @shell ||= ShellMocker.new(nil); end
-  def hex_teardown; shell.teardown if shell.respond_to? :teardown; end
+  def hex_setup
+    @shell ||= ShellMocker.new(nil)
+  end
+
+  def hex_teardown
+    shell.teardown if shell.respond_to? :teardown
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

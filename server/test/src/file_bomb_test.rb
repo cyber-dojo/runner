@@ -5,14 +5,14 @@ class FileBombTest < TestBase
 
   include OsHelper
 
-  def self.hex_prefix; '1988B'; end
+  def self.hex_prefix
+    '1988B'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'DB3', %w( [Alpine]
-  file-bomb in C to exhaust file-handles
-  fails to go off
-  ) do
+  test 'DB3',
+  %w( [Alpine] file-bomb in C to exhaust file-handles fails to go off ) do
     gcc_assert_files['hiker.c'] =
     [
       '#include "hiker.h"',

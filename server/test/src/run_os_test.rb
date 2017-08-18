@@ -5,7 +5,9 @@ class RunAlpineTest < TestBase
 
   include OsHelper
 
-  def self.hex_prefix; '3759D'; end
+  def self.hex_prefix
+    '3759D'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

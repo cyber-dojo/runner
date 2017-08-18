@@ -2,7 +2,9 @@ require_relative 'test_base'
 
 class HexMiniTestTest < TestBase
 
-  def self.hex_prefix; '898'; end
+  def self.hex_prefix
+    '898'
+  end
 
   test 'C80',
   'hex-test-id is available via environment variable' do

@@ -73,8 +73,13 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_pulled?; runner.image_pulled?; end
-  def image_pull   ; runner.image_pull   ; end
+  def image_pulled?
+    runner.image_pulled?
+  end
+
+  def image_pull
+    runner.image_pull
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -84,19 +89,49 @@ class TestBase < HexMiniTest
     [stdout,stderr,status,colour]
   end
 
-  def sss; @sss; end
-  def stdout; sss[:stdout]; end
-  def stderr; sss[:stderr]; end
-  def status; sss[:status]; end
-  def colour; sss[:colour]; end
+  def sss
+    @sss
+  end
 
-  def assert_stdout(expected); assert_equal expected, stdout, sss; end
-  def assert_stderr(expected); assert_equal expected, stderr, sss; end
-  def assert_status(expected); assert_equal expected, status, sss; end
-  def assert_colour(expected); assert_equal expected, colour, sss; end
+  def stdout
+    sss[:stdout]
+  end
 
-  def assert_stdout_include(text); assert stdout.include?(text), sss; end
-  def assert_stderr_include(text); assert stderr.include?(text), sss; end
+  def stderr
+    sss[:stderr]
+  end
+
+  def status
+    sss[:status]
+  end
+
+  def colour
+    sss[:colour]
+  end
+
+  def assert_stdout(expected)
+    assert_equal expected, stdout, sss
+  end
+
+  def assert_stderr(expected)
+    assert_equal expected, stderr, sss
+  end
+
+  def assert_status(expected)
+    assert_equal expected, status, sss
+  end
+
+  def assert_colour(expected)
+    assert_equal expected, colour, sss
+  end
+
+  def assert_stdout_include(text)
+    assert stdout.include?(text), sss
+  end
+
+  def assert_stderr_include(text)
+    assert stderr.include?(text), sss
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -119,8 +154,13 @@ class TestBase < HexMiniTest
     assert_status timed_out
   end
 
-  def timed_out; runner.timed_out; end
-  def success; shell.success; end
+  def timed_out
+    runner.timed_out
+  end
+
+  def success
+    shell.success
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -135,9 +175,17 @@ class TestBase < HexMiniTest
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  def default_avatar_name; 'salmon'; end
-  def default_visible_files; @files ||= read_files; end
-  def default_max_seconds; 10; end
+  def default_avatar_name
+    'salmon'
+  end
+
+  def default_visible_files
+    @files ||= read_files
+  end
+
+  def default_max_seconds
+    10
+  end
 
   def read_files(language_dir = language_dir_from_test_name)
     dir = "/app/test/start_files/#{language_dir}"
@@ -172,7 +220,9 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cdf; 'cyberdojofoundation'; end
+  def cdf
+    'cyberdojofoundation'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

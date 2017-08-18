@@ -2,7 +2,9 @@ require_relative 'test_base'
 
 class LanguageTest < TestBase
 
-  def self.hex_prefix; '9D930'; end
+  def self.hex_prefix
+    '9D930'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

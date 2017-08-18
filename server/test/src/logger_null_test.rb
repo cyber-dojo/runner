@@ -3,7 +3,9 @@ require_relative '../../src/logger_null'
 
 class LoggerNullTest < TestBase
 
-  def self.hex_prefix; 'FA2'; end
+  def self.hex_prefix
+    'FA2'
+  end
 
   test 'F87',
   'logged message is lost' do

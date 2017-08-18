@@ -3,7 +3,9 @@ require_relative '../../src/logger_spy'
 
 class ShellBasherTest < TestBase
 
-  def self.hex_prefix; 'C89'; end
+  def self.hex_prefix
+    'C89'
+  end
 
   def hex_setup
     @log = LoggerSpy.new(self)

@@ -27,7 +27,7 @@ module OsHelper
     entries = stdout.split(':')  # cyber-dojo:x:5000
     ent = {
       group:entries[0],
-      gid:entries[2].to_i
+        gid:entries[2].to_i
     }
     assert_equal runner.group, ent[:group], stdout
     assert_equal runner.gid,   ent[:gid],   stdout

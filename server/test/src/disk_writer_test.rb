@@ -2,7 +2,9 @@ require_relative 'test_base'
 
 class DiskWriterTest < TestBase
 
-  def self.hex_prefix; 'FDF13'; end
+  def self.hex_prefix
+    'FDF13'
+  end
 
   test 'D4C',
   'what gets written gets read back' do

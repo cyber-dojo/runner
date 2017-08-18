@@ -5,13 +5,14 @@ class ForkBombTest < TestBase
 
   include OsHelper
 
-  def self.hex_prefix; '35758'; end
+  def self.hex_prefix
+    '35758'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'CD5', %w( [Alpine]
-  fork-bomb in C fails to go off
-  ) do
+  test 'CD5',
+  %w( [Alpine] fork-bomb in C fails to go off ) do
     gcc_assert_files['hiker.c'] =
     [
       '#include "hiker.h"',
@@ -42,9 +43,8 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '4DE', %w( [Alpine]
-  fork-bomb in shell fails to go off
-  ) do
+  test '4DE',
+  %w( [Alpine] fork-bomb in shell fails to go off ) do
     cyber_dojo_sh = 'bomb() { bomb | bomb & }; bomb'
     sss_run({ visible_files:{'cyber-dojo.sh' => cyber_dojo_sh }})
     assert_status success

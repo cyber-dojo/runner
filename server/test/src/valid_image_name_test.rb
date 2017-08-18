@@ -5,10 +5,13 @@ class ValidImageNameTest < TestBase
 
   include ValidImageName
 
-  def self.hex_prefix; 'AF3'; end
+  def self.hex_prefix
+    'AF3'
+  end
 
-  test '696',
-  'invalid image_names are invalid' do
+  test '696', %w(
+  invalid image_names are invalid
+  ) do
     hex = '9'*32
     [
       '',              # nothing!
@@ -39,8 +42,9 @@ class ValidImageNameTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '697',
-  'valid image_name are valid' do
+  test '697', %w(
+  valid image_name are valid
+  ) do
     [ "gcc_assert:#{'x'*127}" ] +
     %w(
       cdf/gcc_assert
