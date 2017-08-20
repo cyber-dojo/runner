@@ -71,12 +71,12 @@ module OsHelper
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
     assert_equal ls_starting_files.keys.sort, ls_files.keys.sort
-    lion_uid = runner.user_id('lion')
+    uid = runner.user_id('lion')
     group = runner.group
-    assert_equal_atts('empty.txt',     '-rw-r--r--', lion_uid, group,  0, ls_files)
-    assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', lion_uid, group, 29, ls_files)
-    assert_equal_atts('hello.txt',     '-rw-r--r--', lion_uid, group, 11, ls_files)
-    assert_equal_atts('hello.sh',      '-rw-r--r--', lion_uid, group, 16, ls_files)
+    assert_equal_atts('empty.txt',     '-rw-r--r--', uid, group,  0, ls_files)
+    assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', uid, group, 29, ls_files)
+    assert_equal_atts('hello.txt',     '-rw-r--r--', uid, group, 11, ls_files)
+    assert_equal_atts('hello.sh',      '-rw-r--r--', uid, group, 16, ls_files)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
