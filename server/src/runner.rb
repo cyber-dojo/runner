@@ -119,7 +119,7 @@ class Runner
       "--workdir=#{dir}"
     ].join(space)
     stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
-    cid = stdout.strip
+    stdout.strip # cid
   end
 
   def uuid
@@ -227,7 +227,7 @@ class Runner
 
   def etc_issue(cid)
     @ss ||= assert_docker_exec(cid, 'cat /etc/issue')
-    @ss[stdout=0]
+    @ss[0] # 0==stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
