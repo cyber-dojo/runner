@@ -76,7 +76,7 @@ class Runner
   end
 
   def sandbox_dir(avatar_name)
-    "/sandboxes/#{avatar_name}"
+    "/tmp/sandboxes/#{avatar_name}"
   end
 
   def timed_out
