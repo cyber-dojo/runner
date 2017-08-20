@@ -138,10 +138,14 @@ class Runner
     tries = 0
     while !removed && tries < 50
       removed = container_dead?(cid)
-      assert_exec("sleep #{1.0 / 25.0}") unless removed
+      unless removed
+        assert_exec("sleep #{1.0 / 25.0}")
+      end
       tries += 1
     end
-    log << "Failed:remove_container(#{cid})" unless removed
+    unless removed
+      log << "Failed:remove_container(#{cid})"
+    end
   end
 
   def container_dead?(cid)
