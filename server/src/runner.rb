@@ -144,7 +144,7 @@ class Runner
       tries += 1
     end
     unless removed
-      log << "Failed:remove_container(#{cid})"
+      log << "Failed to confirm:remove_container(#{cid})"
     end
   end
 

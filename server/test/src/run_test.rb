@@ -146,7 +146,7 @@ class RunTest < TestBase
       'cyber-dojo.sh' => ls_cmd,
       'a/hello.txt'   => 'hello world'
     }})
-    expected = [ "Failed:remove_container(#{@shell.cid})" ]
+    expected = [ "Failed to confirm:remove_container(#{@shell.cid})" ]
     assert_equal expected, @log.spied
   end
 
