@@ -14,6 +14,11 @@ class ShellMockerTest < TestBase
       when file does not already exist
   )do
     # has to work when it is "re-created" in different threads
+
+    hex_test_id = ENV['CYBER_DOJO_HEX_TEST_ID']
+    filename = Dir.tmpdir + '/cyber_dojo_mock_sheller_' + hex_test_id + '.json'
+    `rm #{filename} 2> /dev/null`
+
     shell_1 = ShellMocker.new(nil)
     shell_1.mock_exec(pwd, wd, stderr='', success)
 
