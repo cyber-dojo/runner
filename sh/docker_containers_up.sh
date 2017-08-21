@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
+
 check_up()
 {
   set +e
@@ -14,7 +16,6 @@ check_up()
   fi
 }
 
-readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
 docker-compose --file ${ROOT_DIR}/docker-compose.yml up -d
 # crude wait for services
 sleep 1
