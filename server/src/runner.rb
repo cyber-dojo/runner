@@ -168,8 +168,12 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - - - -
 
   def add_group_cmd(cid)
-    return alpine_add_group_cmd if alpine? cid
-    return ubuntu_add_group_cmd if ubuntu? cid
+    if alpine? cid
+      return alpine_add_group_cmd
+    end
+    if ubuntu? cid
+      return ubuntu_add_group_cmd
+    end
   end
 
   def alpine_add_group_cmd
@@ -183,8 +187,12 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def add_user_cmd(cid, avatar_name)
-    return alpine_add_user_cmd(avatar_name) if alpine? cid
-    return ubuntu_add_user_cmd(avatar_name) if ubuntu? cid
+    if alpine? cid
+      return alpine_add_user_cmd(avatar_name)
+    end
+    if ubuntu? cid
+      return ubuntu_add_user_cmd(avatar_name)
+    end
   end
 
   def alpine_add_user_cmd(avatar_name)
