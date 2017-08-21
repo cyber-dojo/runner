@@ -15,7 +15,9 @@ class ShellMocker
     if !uncaught_exception?
       mocks = read
       pretty = JSON.pretty_generate(mocks)
-      fail "#{filename}: uncalled mocks(#{pretty})" unless mocks == []
+      unless mocks == []
+        fail "#{filename}: uncalled mocks(#{pretty})"
+      end
     end
   end
 
