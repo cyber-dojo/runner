@@ -24,7 +24,7 @@ API:
 
 - - - -
 
-# image_pulled?
+# GET image_pulled?
 Asks whether the image with the given image_name has been pulled.
 - parameters, eg
 ```
@@ -38,7 +38,7 @@ Asks whether the image with the given image_name has been pulled.
   { "image_pulled?": false }
 ```
 
-# image_pull
+# POST image_pull
 Pull the image with the given image_name.
 - parameters, eg
 ```
@@ -54,7 +54,7 @@ Pull the image with the given image_name.
 
 - - - -
 
-# run
+# POST run
 Saves the visible_files in a container run from image_name and runs cyber-dojo.sh
 - parameters, eg
 ```
