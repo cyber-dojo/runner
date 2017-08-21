@@ -8,7 +8,7 @@ class ImagePullTest < TestBase
   end
 
   def hex_setup
-    @shell ||= ShellMocker.new(nil)
+    @shell = ShellMocker.new(nil)
   end
 
   def hex_teardown
