@@ -12,7 +12,9 @@ class ImagePullTest < TestBase
   end
 
   def hex_teardown
-    shell.teardown if shell.respond_to? :teardown
+    if shell.respond_to? :teardown
+      shell.teardown
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
