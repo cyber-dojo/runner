@@ -91,14 +91,14 @@ will be "red", "amber", or "green". eg
 # build the docker images
 Builds the runner-server image and an example runner-client image.
 ```
-$ ./sh/build_docker_image.sh
+$ ./sh/build_docker_images.sh
 ```
 
 # bring up the docker containers
 Brings up a runner-server container and a runner-client container.
 
 ```
-$ ./sh/docker_container_up.sh
+$ ./sh/docker_containers_up.sh
 ```
 
 # run the tests
