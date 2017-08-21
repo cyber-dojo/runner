@@ -246,7 +246,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def write_files(cid, avatar_name, visible_files)
-    return if visible_files == {}
     sandbox = sandbox_dir(avatar_name)
     chown_sandbox_dir = "chown #{avatar_name}:#{group} #{sandbox}"
     assert_docker_exec(cid, chown_sandbox_dir)
