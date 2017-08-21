@@ -135,4 +135,64 @@ class RunTest < TestBase
     )
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '67B',
+  %w( When container cannot be removed a message is logged ) do
+    @disk = DummyDiskSpy.new(nil)
+    @shell = SimpleShellMocker.new(nil)
+    @log = LoggerSpy.new(self)
+    sss_run({ visible_files: {
+      'cyber-dojo.sh' => ls_cmd,
+      'a/hello.txt'   => 'hello world'
+    }})
+    expected = [ "Failed:remove_container(#{@shell.cid})" ]
+    assert_equal expected, @log.spied
+  end
+
+end
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class DummyDiskSpy
+  def initialize(_)
+  end
+  def method_missing(_name, *_args, &_block)
+  end
+end
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class SimpleShellMocker
+
+  def initialize(_)
+  end
+
+  def assert_exec(command)
+    stderr = ''
+    if command.start_with? 'docker run'
+      stdout = cid
+    elsif command.end_with? "cat /usr/local/bin/red_amber_green.rb'"
+      stdout = red_amber_green
+    else
+      stdout = 'anything'
+    end
+    [ stdout, stderr ]
+  end
+
+  def exec(_command, _ = nil)
+    stdout = 'stdout.anything'
+    stderr = 'stderr.anything'
+    status = 0
+    [ stdout, stderr, status ]
+  end
+
+  def cid
+    ENV['CYBER_DOJO_HEX_TEST_ID']
+  end
+
+  def red_amber_green
+    'lambda { |stdout, stderr, status| :red }'
+  end
+
 end
