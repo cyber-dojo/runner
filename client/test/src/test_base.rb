@@ -9,15 +9,17 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_pulled?(named_args = {})
-    image_name = defaulted_arg(named_args, :image_name,    default_image_name)
-    kata_id    = defaulted_arg(named_args, :kata_id,       default_kata_id)
+  def image_pulled?(named_args={})
+    image_name = defaulted_arg(named_args, :image_name, default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
     runner.image_pulled? image_name, kata_id
   end
 
-  def image_pull(named_args = {})
-    image_name = defaulted_arg(named_args, :image_name,    default_image_name)
-    kata_id    = defaulted_arg(named_args, :kata_id,       default_kata_id)
+  # - - - - - - - - - - - - - - - - - - - - - - -
+
+  def image_pull(named_args={})
+    image_name = defaulted_arg(named_args, :image_name, default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
     runner.image_pull image_name, kata_id
   end
 
@@ -28,33 +30,65 @@ class TestBase < HexMiniTest
     @sss = runner.run *defaulted_args(named_args)
   end
 
-  def status; sss['status']; end
-  def stdout; sss['stdout']; end
-  def stderr; sss['stderr']; end
-  def colour; sss['colour']; end
+  # - - - - - - - - - - - - - - - - - - - - - - -
+
+  def status
+    sss['status']
+  end
+
+  def stdout
+    sss['stdout']
+  end
+
+  def stderr
+    sss['stderr']
+  end
+
+  def colour
+    sss['colour']
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cdf; 'cyberdojofoundation'; end
+  def cdf
+    'cyberdojofoundation'
+  end
 
-  def default_image_name; "#{cdf}/gcc_assert"; end
-  def default_kata_id; hex_test_id + '0' * (10-hex_test_id.length); end
-  def default_avatar_name; 'salmon'; end
-  def default_visible_files; @files ||= read_files; end
-  def default_max_seconds; 10; end
+  def default_image_name
+    "#{cdf}/gcc_assert"
+  end
+
+  def default_kata_id
+    hex_test_id + '0' * (10-hex_test_id.length)
+  end
+
+  def default_avatar_name
+    'salmon'
+  end
+
+  def default_visible_files;
+    @files ||= read_files
+  end
+
+  def default_max_seconds
+    10
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_stdout(expected); assert_equal expected, stdout, sss.to_s; end
-  def assert_stderr(expected); assert_equal expected, stderr, sss.to_s; end
-  def assert_colour(expected); assert_equal expected, colour, sss.to_s; end
-  def assert_status(expected); assert_equal expected, status, sss.to_s; end
-  def refute_status(expected); refute_equal expected, status, sss.to_s; end
+  def assert_colour(expected)
+    assert_equal expected, colour, sss.to_s
+  end
+
+  def assert_status(expected)
+    assert_equal expected, status, sss.to_s
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def timed_out; 'timed_out'; end
-  def success; 0; end
+  def timed_out
+    'timed_out'
+  end
 
   VALID_IMAGE_NAME    = 'cyberdojofoundation/gcc_assert'
   VALID_KATA_ID       = '41135B4F2B'
