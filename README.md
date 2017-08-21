@@ -91,26 +91,26 @@ will be "red", "amber", or "green". eg
 # build the docker images
 Builds the runner-server image and an example runner-client image.
 ```
-$ ./build.sh
+$ ./sh/build_docker_image.sh
 ```
 
 # bring up the docker containers
 Brings up a runner-server container and a runner-client container.
 
 ```
-$ ./up.sh
+$ ./sh/docker_container_up.sh
 ```
 
 # run the tests
 Runs the runner-server's tests from inside a runner-server container
 and then the runner-client's tests from inside the runner-client container.
 ```
-$ ./test.sh
+$ ./sh/run_tests.sh
 ```
 
 # run the demo
 ```
-$ ./demo.sh
+$ ./sh/run_demo.sh
 ```
 Runs inside the runner-client's container.
 Calls the runner-server's micro-service methods
@@ -122,4 +122,4 @@ If the runner-client's IP address is 192.168.99.100 then put
 - green: tests test and passed
 - grey: tests did not complete (in 3 seconds)
 
-![red amber green demo](red_amber_green_demo.png?raw=true "red amber green demo")
+![red amber green demo](img/red_amber_green_demo.png?raw=true "red amber green demo")

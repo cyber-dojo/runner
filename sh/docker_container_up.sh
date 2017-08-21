@@ -14,8 +14,8 @@ check_up()
   fi
 }
 
-readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
-docker-compose --file ${MY_DIR}/docker-compose.yml up -d
+readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
+docker-compose --file ${ROOT_DIR}/docker-compose.yml up -d
 # crude wait for services
 sleep 1
 check_up 'runner_stateless_server'
