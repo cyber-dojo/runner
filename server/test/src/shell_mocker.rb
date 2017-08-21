@@ -4,7 +4,9 @@ class ShellMocker
   def initialize(_parent)
     hex_test_id = ENV['CYBER_DOJO_HEX_TEST_ID']
     @filename = Dir.tmpdir + '/cyber_dojo_mock_sheller_' + hex_test_id + '.json'
-    write([]) unless File.file?(filename)
+    unless File.file?(filename)
+      write([])
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
