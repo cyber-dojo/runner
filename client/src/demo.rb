@@ -5,36 +5,41 @@ require 'sinatra/base'
 class Demo < Sinatra::Base
 
   get '/' do
-    hiker_c = read('hiker.c')
-    files = {
+    html = ''
+
+    duration = timed { @sss = run(files) }
+    html += pre('run', duration, @sss, 'Red')
+
+    files['hiker.c'] = 'sdsdsdsd'
+    duration = timed { @sss = run(files) }
+    html += pre('run', duration, @sss, 'Yellow')
+
+    files['hiker.c'] = hiker_c.sub('6 * 9', '6 * 7')
+    duration = timed { @sss = run(files) }
+    html += pre('run', duration, @sss, 'Lime')
+
+    files['hiker.c'] = hiker_c.sub('return', "for(;;);\n    return")
+    duration = timed { @sss = run(files, 3) }
+    html += pre('run', duration, @sss, 'LightGray')
+
+    "<div style='font-size:0.5em'>#{html}</div>"
+  end
+
+  private
+
+  def files
+    {
       'hiker.c'       => hiker_c,
       'hiker.h'       => read('hiker.h'),
       'hiker.tests.c' => read('hiker.tests.c'),
       'cyber-dojo.sh' => read('cyber-dojo.sh'),
       'makefile'      => read('makefile')
     }
-    sss = nil
-    html = '<div style="font-size:0.5em">'
-
-    duration = timed { sss = run(files) }
-    html += pre('run', duration, sss, 'Red')
-
-    files['hiker.c'] = 'sdsdsdsd'
-    duration = timed { sss = run(files) }
-    html += pre('run', duration, sss, 'Yellow')
-
-    files['hiker.c'] = hiker_c.sub('6 * 9', '6 * 7')
-    duration = timed { sss = run(files) }
-    html += pre('run', duration, sss, 'Lime')
-
-    files['hiker.c'] = hiker_c.sub('return', "for(;;);\n    return")
-    duration = timed { sss = run(files, 3) }
-    html += pre('run', duration, sss, 'LightGray')
-
-    html += '</div>'
   end
 
-  private
+  def hiker_c
+    read('hiker.c')
+  end
 
   def image_name
     'cyberdojofoundation/gcc_assert'
