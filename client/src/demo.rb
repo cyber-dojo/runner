@@ -48,7 +48,7 @@ class Demo < Sinatra::Base
     'salmon'
   end
 
-  def run(visible_files, max_seconds = 10)
+  def run(visible_files, max_seconds=10)
     runner.run(image_name, kata_id, avatar_name, visible_files, max_seconds)
   end
 
@@ -57,7 +57,7 @@ class Demo < Sinatra::Base
   end
 
   def read(filename)
-    IO.read("/app/start_files/gcc_assert/#{filename}")
+    IO.read("/app/test/start_files/gcc_assert/#{filename}")
   end
 
   def timed
