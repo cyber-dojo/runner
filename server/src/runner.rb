@@ -166,6 +166,10 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
+  # Adding a group currently checks if the group exists.
+  # The plan is to add the group to the language images
+  # (using cyber-dojo-languages/image_builder)
+  # and then retire creating the groups in the runner.
 
   def add_group_cmd(cid)
     if alpine? cid
@@ -189,6 +193,10 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # Adding a user currently checks if the user exists.
+  # The plan is to add all the users to the language images
+  # (using cyber-dojo-languages/image_builder)
+  # and then retire creating the user in the runner.
 
   def add_user_cmd(cid, avatar_name)
     if alpine? cid
