@@ -201,23 +201,26 @@ class Runner
     # I have to work round this.
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
-    [ "(deluser #{avatar_name}",
-       ';',
+    user_exists = "[ id -u #{avatar_name} ]"
+    del_user = "deluser #{avatar_name}"
+    add_user = [
        'adduser',
          '-D',             # no password
          "-G #{group}",
          "-h #{home}",
          '-s /bin/sh',     # shell
          "-u #{uid}",
-         avatar_name,
-      ')'
+         avatar_name
     ].join(space)
+    "#{user_exists} || { #{del_user}; #{add_user}; }"
   end
 
   def ubuntu_add_user_cmd(avatar_name)
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
-    [ 'adduser',
+    user_exists = "[ id -u #{avatar_name} ]"
+    add_user = [
+        'adduser',
         '--disabled-password',
         '--gecos ""',          # don't ask for details
         "--home #{home}",
@@ -225,6 +228,7 @@ class Runner
         "--uid #{uid}",
         avatar_name
     ].join(space)
+    "#{user_exists} || #{add_user}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
