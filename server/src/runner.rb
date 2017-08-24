@@ -162,8 +162,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - - - -
   # Adding a group currently checks if the group exists.
   # The plan is to add the group to the language images
-  # (using cyber-dojo-languages/image_builder)
-  # and then retire creating the groups in the runner.
+  # (in cyber-dojo-languages/image_builder)
+  # and then retire creating the group in the runner.
 
   def add_group_cmd(cid)
     if alpine? cid
@@ -195,7 +195,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # Adding a user currently checks if the user exists.
   # The plan is to add all the users to the language images
-  # (using cyber-dojo-languages/image_builder)
+  # (in cyber-dojo-languages/image_builder)
   # and then retire creating the user in the runner.
 
   def add_user_cmd(cid, avatar_name)
@@ -213,25 +213,25 @@ class Runner
     # I have to work round this.
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
-    #user_exists = "[ id -u #{avatar_name} == #{uid} ]"
+    user_exists = "grep -q -E '^#{avatar_name}:x:#{uid}' /etc/passwd"
     del_user = "deluser #{avatar_name}"
     add_user = [
        'adduser',
-         '-D',             # no password
+         '-D',          # no password
          "-G #{group}",
          "-h #{home}",
-         '-s /bin/sh',     # shell
+         '-s /bin/sh',  # shell
          "-u #{uid}",
          avatar_name
     ].join(space)
-    #"{ #{user_exists} || { #{del_user}; #{add_user}; } }"
-    "(#{del_user}; #{add_user})"
+    #"(#{del_user}; #{add_user})"
+    "#{user_exists} || (#{del_user}; #{add_user})"
   end
 
   def ubuntu_add_user_cmd(avatar_name)
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
-    #user_exists = "[ id -u #{avatar_name} == #{uid} ]"
+    user_exists = "grep -q -E '^#{avatar_name}:x:#{uid}' /etc/passwd"
     add_user = [
         'adduser',
         '--disabled-password',
@@ -241,7 +241,7 @@ class Runner
         "--uid #{uid}",
         avatar_name
     ].join(space)
-    #"{ #{user_exists} || #{add_user}; }"
+    "#{user_exists} || #{add_user}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
