@@ -49,7 +49,8 @@ class Runner
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
-      add_user_and_group(cid, avatar_name)
+      assert_docker_exec(cid, add_group_cmd(cid))
+      assert_docker_exec(cid, add_user_cmd(cid, avatar_name))
       write_files(cid, avatar_name, visible_files)
       stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
       colour = red_amber_green(cid, stdout, stderr, status)
@@ -158,13 +159,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def add_user_and_group(cid, avatar_name)
-    assert_docker_exec(cid, [
-      add_group_cmd(cid),
-      add_user_cmd(cid, avatar_name)
-    ].join(' && '))
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - -
   # Adding a group currently checks if the group exists.
   # The plan is to add the group to the language images
@@ -181,15 +175,21 @@ class Runner
   end
 
   def alpine_add_group_cmd
-    #group_exists = "[ id -g #{group} == #{gid} ]"
-    add_group = "addgroup -g #{gid} #{group}"
-    #"{ #{group_exists} || #{add_group}; }"
+    add_group_cmd = "addgroup -g #{gid} #{group}"
+    "#{group_exists_cmd} || #{add_group_cmd}"
   end
 
   def ubuntu_add_group_cmd
-    #group_exists = "[ id -g #{group} == #{gid} ]"
-    add_group = "addgroup --gid #{gid} #{group}"
-    #"{ #{group_exists} || #{add_group}; }"
+    add_group_cmd = "addgroup --gid #{gid} #{group}"
+    "#{group_exists_cmd} || #{add_group_cmd}"
+  end
+
+  def group_exists_cmd
+    [ 'grep',
+      '-q',                      # quiet
+      "-E '^#{group}:x:#{gid}'", # regex
+      '/etc/group'
+    ].join(space)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
