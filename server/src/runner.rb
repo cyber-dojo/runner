@@ -224,7 +224,6 @@ class Runner
          "-u #{uid}",
          avatar_name
     ].join(space)
-    #"(#{del_user}; #{add_user})"
     "#{user_exists} || (#{del_user}; #{add_user})"
   end
 
