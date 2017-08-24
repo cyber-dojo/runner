@@ -201,7 +201,7 @@ class Runner
     # I have to work round this.
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
-    user_exists = "[ id -u #{avatar_name} ]"
+    user_exists = "[ id -u #{avatar_name} == #{uid} ]"
     del_user = "deluser #{avatar_name}"
     add_user = [
        'adduser',
@@ -218,7 +218,7 @@ class Runner
   def ubuntu_add_user_cmd(avatar_name)
     home = home_dir(avatar_name)
     uid = user_id(avatar_name)
-    user_exists = "[ id -u #{avatar_name} ]"
+    user_exists = "[ id -u #{avatar_name} == #{uid} ]"
     add_user = [
         'adduser',
         '--disabled-password',
