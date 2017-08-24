@@ -177,11 +177,15 @@ class Runner
   end
 
   def alpine_add_group_cmd
-    "addgroup -g #{gid} #{group}"
+    group_exists = "[ id -g #{group} == #{gid} ]"
+    add_group = "addgroup -g #{gid} #{group}"
+    "{ #{group_exists} || #{add_group}; }"
   end
 
   def ubuntu_add_group_cmd
-    "addgroup --gid #{gid} #{group}"
+    group_exists = "[ id -g #{group} == #{gid} ]"
+    add_group = "addgroup --gid #{gid} #{group}"
+    "{ #{group_exists} || #{add_group}; }"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -212,7 +216,7 @@ class Runner
          "-u #{uid}",
          avatar_name
     ].join(space)
-    "#{user_exists} || { #{del_user}; #{add_user}; }"
+    "{ #{user_exists} || { #{del_user}; #{add_user}; } }"
   end
 
   def ubuntu_add_user_cmd(avatar_name)
@@ -228,7 +232,7 @@ class Runner
         "--uid #{uid}",
         avatar_name
     ].join(space)
-    "#{user_exists} || #{add_user}"
+    "{ #{user_exists} || #{add_user}; }"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
