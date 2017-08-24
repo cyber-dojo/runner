@@ -442,12 +442,22 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def shell; nearest_ancestors(:shell); end
-  def  disk; nearest_ancestors(:disk); end
-  def   log; nearest_ancestors(:log); end
+  def shell
+    nearest_ancestors(:shell)
+  end
+
+  def disk
+    nearest_ancestors(:disk)
+  end
+
+  def log
+    nearest_ancestors(:log)
+  end
 
   include NearestAncestors
 
-  def space; ' '; end
+  def space
+    ' '
+  end
 
 end
