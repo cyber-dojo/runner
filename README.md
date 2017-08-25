@@ -104,7 +104,7 @@ $ ./sh/docker_containers_up.sh
 Runs the runner-server's tests from inside a runner-server container
 and then the runner-client's tests from inside the runner-client container.
 ```
-$ ./sh/run_tests.sh
+$ ./sh/run_tests_in_containers.sh
 ```
 
 # run the demo
