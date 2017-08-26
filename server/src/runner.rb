@@ -268,8 +268,11 @@ class Runner
 
     Dir.mktmpdir('runner') do |tmp_dir|
       visible_files.each do |pathed_filename, content|
-        src_dir = tmp_dir + '/' + File.dirname(pathed_filename)
-        shell.exec("mkdir -vp #{src_dir}") if src_dir != '.'
+        sub_dir = File.dirname(pathed_filename)
+        src_dir = tmp_dir + '/' + sub_dir
+        if sub_dir != '.'
+          shell.exec("mkdir -vp #{src_dir}")
+        end
         host_filename = tmp_dir + '/' + pathed_filename
         disk.write(host_filename, content)
       end
