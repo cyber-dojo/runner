@@ -271,7 +271,7 @@ class Runner
         sub_dir = File.dirname(pathed_filename)
         src_dir = tmp_dir + '/' + sub_dir
         if sub_dir != '.'
-          shell.exec("mkdir -vp #{src_dir}")
+          shell.exec("mkdir -p #{src_dir}")
         end
         host_filename = tmp_dir + '/' + pathed_filename
         disk.write(host_filename, content)
