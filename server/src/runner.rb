@@ -158,6 +158,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def write_files(cid, avatar_name, visible_files)
+    # chowning requires root permissions and so
+    # cannot be folded into the tar_pipe_cmd.
     sandbox = sandbox_dir(avatar_name)
     chown_sandbox_dir = "chown #{avatar_name}:#{group} #{sandbox}"
     assert_docker_exec(cid, chown_sandbox_dir)
@@ -195,7 +197,7 @@ class Runner
                           '-',    # which is read from stdin
                           '-C',   # save the extracted files to
                           '.',    # the current directory
-                          "'"     # close quote
+                    "'"           # close quote
       ].join(space)
       assert_exec(tar_pipe_cmd)
     end
