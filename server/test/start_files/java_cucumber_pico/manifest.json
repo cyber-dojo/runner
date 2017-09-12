@@ -1,4 +1,6 @@
 {
+  "display_name": "Java, Cucumber",
+
   "visible_filenames": [
     "README",
     "Hiker.feature",
@@ -8,17 +10,9 @@
     "cyber-dojo.sh"
   ],
 
-  "filename_extension" : ".java",
-
-  "display_name": "Java, Cucumber",
-
   "image_name": "cyberdojofoundation/java_cucumber_pico",
 
-  "red_amber_green" : [
-    "lambda { |output|",
-    "  return :red   if /FAILURES!!!/.match(output)",
-    "  return :green if /OK \\((\\d*) tests\\)/.match(output)",
-    "  return :amber",
-    "}"
-  ]
+  "runner_choice": "stateless",
+
+  "filename_extension" : ".java"
 }

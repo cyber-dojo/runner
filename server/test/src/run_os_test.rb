@@ -27,6 +27,13 @@ class RunAlpineTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  os_test '267',
+  'all of the 64 avatar users already exist' do
+    assert_avatar_users_exist
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   os_test '582',
   'has group used for dir/file ownership' do
     assert_group_exists

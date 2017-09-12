@@ -49,8 +49,6 @@ class Runner
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
-      assert_docker_exec(cid, add_group_cmd(cid))
-      assert_docker_exec(cid, add_user_cmd(cid, avatar_name))
       write_files(cid, avatar_name, visible_files)
       stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
       colour = red_amber_green(cid, stdout, stderr, status)
@@ -154,108 +152,6 @@ class Runner
     _,stderr,status = quiet_exec(cmd)
     expected_stderr = "Error: No such image, container or task: #{cid}"
     (status == 1) && (stderr.strip == expected_stderr)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  # - - - - - - - - - - - - - - - - - - - - - - - -
-  # Adding a group currently checks if the group exists.
-  # The plan is to add the group to the language images
-  # (in cyber-dojo-languages/image_builder)
-  # and then retire creating the group in the runner.
-
-  def add_group_cmd(cid)
-    if alpine? cid
-      return alpine_add_group_cmd
-    end
-    if ubuntu? cid
-      return ubuntu_add_group_cmd
-    end
-  end
-
-  def alpine_add_group_cmd
-    add_group_cmd = "addgroup -g #{gid} #{group}"
-    "#{group_exists_cmd} || #{add_group_cmd}"
-  end
-
-  def ubuntu_add_group_cmd
-    add_group_cmd = "addgroup --gid #{gid} #{group}"
-    "#{group_exists_cmd} || #{add_group_cmd}"
-  end
-
-  def group_exists_cmd
-    [ 'grep',
-      '-q',                      # quiet
-      "-E '^#{group}:x:#{gid}'", # regex
-      '/etc/group'
-    ].join(space)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # Adding a user currently checks if the user exists.
-  # The plan is to add all the users to the language images
-  # (in cyber-dojo-languages/image_builder)
-  # and then retire creating the user in the runner.
-
-  def add_user_cmd(cid, avatar_name)
-    if alpine? cid
-      return alpine_add_user_cmd(avatar_name)
-    end
-    if ubuntu? cid
-      return ubuntu_add_user_cmd(avatar_name)
-    end
-  end
-
-  def alpine_add_user_cmd(avatar_name)
-    # Alpine linux has an existing web-proxy user
-    # called squid which is one of the avatars!
-    # I have to work round this.
-    home = home_dir(avatar_name)
-    uid = user_id(avatar_name)
-    user_exists = "grep -q -E '^#{avatar_name}:x:#{uid}' /etc/passwd"
-    del_user = "deluser #{avatar_name}"
-    add_user = [
-       'adduser',
-         '-D',          # no password
-         "-G #{group}",
-         "-h #{home}",
-         '-s /bin/sh',  # shell
-         "-u #{uid}",
-         avatar_name
-    ].join(space)
-    "#{user_exists} || (#{del_user}; #{add_user})"
-  end
-
-  def ubuntu_add_user_cmd(avatar_name)
-    home = home_dir(avatar_name)
-    uid = user_id(avatar_name)
-    user_exists = "grep -q -E '^#{avatar_name}:x:#{uid}' /etc/passwd"
-    add_user = [
-        'adduser',
-        '--disabled-password',
-        '--gecos ""',          # don't ask for details
-        "--home #{home}",
-        "--ingroup #{group}",
-        "--uid #{uid}",
-        avatar_name
-    ].join(space)
-    "#{user_exists} || #{add_user}"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def alpine?(cid)
-    etc_issue(cid).include?('Alpine')
-  end
-
-  def ubuntu?(cid)
-    etc_issue(cid).include?('Ubuntu')
-  end
-
-  def etc_issue(cid)
-    @ss ||= assert_docker_exec(cid, 'cat /etc/issue')
-    @ss[0] # 0==stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

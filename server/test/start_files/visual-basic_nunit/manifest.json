@@ -1,22 +1,16 @@
 
 {
+  "display_name": "VisualBasic, NUnit",
+
   "visible_filenames": [
     "HikerTest.vb",
     "Hiker.vb",
     "cyber-dojo.sh"
   ],
 
-  "filename_extension" : ".vb",
-
-  "display_name": "VisualBasic, NUnit",
-
   "image_name": "cyberdojofoundation/visual-basic_nunit",
 
-  "red_amber_green" : [
-    "lambda { |output|",
-    "  return :red   if /^Errors and Failures:/.match(output)",
-    "  return :green if /^Tests run: (\\d*), Errors: 0, Failures: 0/.match(output)",
-    "  return :amber",
-    "}"
-  ]
+  "runner_choice": "stateless",
+
+  "filename_extension" : ".vb"
 }
