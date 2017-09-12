@@ -49,8 +49,7 @@ class Runner
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
-      write_files(cid, avatar_name, visible_files)
-      stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, max_seconds)
+      stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
       colour = red_amber_green(cid, stdout, stderr, status)
       { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
@@ -157,7 +156,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def write_files(cid, avatar_name, visible_files)
+  def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
     # chowning requires root permissions and so
     # cannot be folded into the tar_pipe_cmd.
     sandbox = sandbox_dir(avatar_name)
@@ -197,29 +196,14 @@ class Runner
                           '-',    # which is read from stdin
                           '-C',   # save the extracted files to
                           '.',    # the current directory
-                    "'"           # close quote
+                    '&& sh ./cyber-dojo.sh',
+                    "'",          # close quote
       ].join(space)
-      assert_exec(tar_pipe_cmd)
+      return run_timeout(tar_pipe_cmd, max_seconds)
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run_cyber_dojo_sh(cid, avatar_name, max_seconds)
-    uid = user_id(avatar_name)
-    sandbox = sandbox_dir(avatar_name)
-    docker_cmd = [
-      'docker exec',
-      "--user=#{uid}:#{gid}",
-      '--interactive',
-      cid,
-      "sh -c 'cd #{sandbox} && sh ./cyber-dojo.sh'"
-    ].join(space)
-
-    run_timeout(docker_cmd, max_seconds)
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
