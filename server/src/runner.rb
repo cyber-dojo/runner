@@ -176,7 +176,7 @@ class Runner
         disk.write(host_filename, content)
       end
       uid = user_id(avatar_name)
-      tar_pipe_cmd = [
+      tar_pipe = [
         "chmod 755 #{tmp_dir}",
         "&& cd #{tmp_dir}",
         '&& tar',
@@ -201,7 +201,7 @@ class Runner
                     '&& sh ./cyber-dojo.sh',
                     "'",          # close quote
       ].join(space)
-      return run_timeout(tar_pipe_cmd, max_seconds)
+      run_timeout(tar_pipe, max_seconds)
     end
   end
 
