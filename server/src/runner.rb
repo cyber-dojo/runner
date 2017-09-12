@@ -146,6 +146,8 @@ class Runner
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - -
+
   def container_dead?(cid)
     cmd = "docker inspect --format='{{ .State.Running }}' #{cid}"
     _,stderr,status = quiet_exec(cmd)
@@ -204,16 +206,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    out,_err = assert_exec("docker exec #{cid} sh -c '#{cmd}'")
-    rag = eval(out)
-    rag.call(stdout_arg, stderr_arg, status_arg).to_s
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_timeout(docker_cmd, max_seconds)
     r_stdout, w_stdout = IO.pipe
@@ -251,11 +243,17 @@ class Runner
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    out,_err = assert_exec("docker exec #{cid} sh -c '#{cmd}'")
+    rag = eval(out)
+    rag.call(stdout_arg, stderr_arg, status_arg).to_s
+  end
+
   include StringCleaner
   include StringTruncater
-
-  # - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - -
 
   def image_names
     cmd = 'docker images --format "{{.Repository}}"'
