@@ -56,7 +56,11 @@ class Runner
       args << max_seconds
       stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
       colour = red_amber_green(cid, stdout, stderr, status)
-      { stdout:stdout, stderr:stderr, status:status, colour:colour }
+      { stdout:stdout,
+        stderr:stderr,
+        status:status,
+        colour:colour
+      }
     end
   end
 
@@ -102,13 +106,13 @@ class Runner
   def create_container(avatar_name)
     sandbox = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
-    name = "test_run__runner_stateless_#{kata_id}_#{avatar_name}_#{uuid}"
+    name = container_name(avatar_name)
     max = 128
     cmd = [
       'docker run',
         '--detach',                          # get the cid
         '--interactive',                     # for later execs
-        "--name=#{name}",                    # for easy clean up
+        "--name=#{name}",
         '--net=none',                        # no network
         '--security-opt=no-new-privileges',  # no escalation
         "--pids-limit=#{max}",               # no fork bombs
@@ -129,6 +133,23 @@ class Runner
     stdout,_ = assert_exec(cmd)
     stdout.strip # cid
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def container_name(avatar_name)
+    # give containers a name with a specific prefix so they
+    # can be cleaned up if any fail to be removed/reaped.
+    [ 'test',
+      'run_',
+      'runner',
+      'stateless',
+      kata_id,
+      avatar_name,
+      uuid
+    ].join('_')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def uuid
     SecureRandom.hex[0..10].upcase
