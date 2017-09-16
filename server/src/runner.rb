@@ -95,28 +95,35 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(avatar_name)
-    dir = sandbox_dir(avatar_name)
+    # chowning requires root permissions so
+    # the user cannot be the avatar
+    sandbox = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     name = "test_run__runner_stateless_#{kata_id}_#{avatar_name}_#{uuid}"
     max = 128
-    args = [
-      '--detach',                          # get the cid
-      '--interactive',                     # for later execs
-      "--name=#{name}",                    # for easy clean up
-      '--net=none',                        # no network
-      '--security-opt=no-new-privileges',  # no escalation
-      "--pids-limit=#{max}",               # no fork bombs
-      "--ulimit nproc=#{max}:#{max}",      # max number processes
-      "--ulimit nofile=#{max}:#{max}",     # max number of files
-      '--ulimit core=0:0',                 # max core file size = 0 blocks
-      "--env CYBER_DOJO_KATA_ID=#{kata_id}",
-      "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
-      "--env CYBER_DOJO_SANDBOX=#{dir}",
-      "--env HOME=#{home}",
-      '--user=root',
-      "--workdir=#{dir}"
+    cmd = [
+      'docker run',
+        '--detach',                          # get the cid
+        '--interactive',                     # for later execs
+        "--name=#{name}",                    # for easy clean up
+        '--net=none',                        # no network
+        '--security-opt=no-new-privileges',  # no escalation
+        "--pids-limit=#{max}",               # no fork bombs
+        "--ulimit nproc=#{max}:#{max}",      # max number processes
+        "--ulimit nofile=#{max}:#{max}",     # max number of files
+        '--ulimit core=0:0',                 # max core file size = 0 blocks
+        "--env CYBER_DOJO_KATA_ID=#{kata_id}",
+        "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
+        "--env CYBER_DOJO_SANDBOX=#{sandbox}",
+        "--env HOME=#{home}",
+        '--user=root',
+        "--workdir=#{sandbox}",
+        image_name,
+        'sh',
+        '-c',
+        "'chown #{avatar_name}:#{group} #{sandbox};sh'"
     ].join(space)
-    stdout,_ = assert_exec("docker run #{args} #{image_name} sh")
+    stdout,_ = assert_exec(cmd)
     stdout.strip # cid
   end
 
@@ -159,12 +166,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
-    # chowning requires root permissions and so
-    # cannot be folded into the tar_pipe_cmd.
-    sandbox = sandbox_dir(avatar_name)
-    chown_sandbox_dir = "chown #{avatar_name}:#{group} #{sandbox}"
-    assert_docker_exec(cid, chown_sandbox_dir)
-
     Dir.mktmpdir('runner') do |tmp_dir|
       visible_files.each do |pathed_filename, content|
         sub_dir = File.dirname(pathed_filename)
@@ -175,6 +176,7 @@ class Runner
         host_filename = tmp_dir + '/' + pathed_filename
         disk.write(host_filename, content)
       end
+      sandbox = sandbox_dir(avatar_name)
       uid = user_id(avatar_name)
       tar_pipe = [
         "chmod 755 #{tmp_dir}",
