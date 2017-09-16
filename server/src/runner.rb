@@ -268,13 +268,13 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
+  include AllAvatarsNames
+
   def assert_valid_avatar_name(avatar_name)
     unless valid_avatar_name?(avatar_name)
       fail_avatar_name('invalid')
     end
   end
-
-  include AllAvatarsNames
 
   def valid_avatar_name?(avatar_name)
     all_avatars_names.include?(avatar_name)
