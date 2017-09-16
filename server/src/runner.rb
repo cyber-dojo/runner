@@ -88,7 +88,7 @@ class Runner
     begin
       block.call(cid)
     ensure
-      remove_container(cid)
+      assert_exec("docker rm --force #{cid}")
     end
   end
 
@@ -127,12 +127,6 @@ class Runner
 
   def uuid
     SecureRandom.hex[0..10].upcase
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def remove_container(cid)
-    assert_exec("docker rm --force #{cid}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
