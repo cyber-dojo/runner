@@ -34,7 +34,8 @@ class Runner
     # on what your running on, eg DockerToolbox or not
     # and where, eg Travis or not. I'm using 'not found'
     # as that always seems to be present.
-    _stdout,stderr,status = quiet_exec("docker pull #{image_name}")
+    docker_pull = "docker pull #{image_name}"
+    _stdout,stderr,status = quiet_exec(docker_pull)
     if status == shell.success
       return true
     elsif stderr.include?('not found') # [1]
@@ -49,7 +50,11 @@ class Runner
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
-      stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
+      args = []
+      args << avatar_name
+      args << visible_files
+      args << max_seconds
+      stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
       colour = red_amber_green(cid, stdout, stderr, status)
       { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
