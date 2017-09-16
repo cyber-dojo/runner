@@ -95,8 +95,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(avatar_name)
-    # chowning requires root permissions so
-    # the user cannot be the avatar
     sandbox = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     name = "test_run__runner_stateless_#{kata_id}_#{avatar_name}_#{uuid}"
@@ -116,7 +114,7 @@ class Runner
         "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
         "--env CYBER_DOJO_SANDBOX=#{sandbox}",
         "--env HOME=#{home}",
-        '--user=root',
+        '--user=root',                       # chown needs permission
         "--workdir=#{sandbox}",
         image_name,
         'sh',
