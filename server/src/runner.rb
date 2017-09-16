@@ -13,8 +13,6 @@ class Runner
     @parent = parent
     @image_name = image_name
     @kata_id = kata_id
-    assert_valid_image_name
-    assert_valid_kata_id
   end
 
   attr_reader :parent # For nearest_ancestors()
@@ -24,12 +22,18 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
+    assert_valid_image_name
+    assert_valid_kata_id
+
     image_names.include? image_name
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   def image_pull
+    assert_valid_image_name
+    assert_valid_kata_id
+
     # [1] The contents of stderr seem to vary depending
     # on what your running on, eg DockerToolbox or not
     # and where, eg Travis or not. I'm using 'not found'
@@ -48,7 +52,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
+    assert_valid_image_name
+    assert_valid_kata_id
     assert_valid_avatar_name avatar_name
+
     in_container(avatar_name) do |cid|
       args = []
       args << avatar_name
