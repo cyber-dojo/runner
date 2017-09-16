@@ -181,6 +181,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  include StringCleaner
+  include StringTruncater
+
   def run_timeout(docker_cmd, max_seconds)
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
@@ -226,8 +229,7 @@ class Runner
     rag.call(stdout_arg, stderr_arg, status_arg).to_s
   end
 
-  include StringCleaner
-  include StringTruncater
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def image_names
     cmd = 'docker images --format "{{.Repository}}"'
@@ -238,13 +240,13 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
+  include ValidImageName
+
   def assert_valid_image_name
     unless valid_image_name?(image_name)
       fail_image_name('invalid')
     end
   end
-
-  include ValidImageName
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -272,11 +274,11 @@ class Runner
     end
   end
 
+  include AllAvatarsNames
+
   def valid_avatar_name?(avatar_name)
     all_avatars_names.include?(avatar_name)
   end
-
-  include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
 
@@ -312,6 +314,8 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
+  include NearestAncestors
+
   def shell
     nearest_ancestors(:shell)
   end
@@ -320,7 +324,7 @@ class Runner
     nearest_ancestors(:disk)
   end
 
-  include NearestAncestors
+  # - - - - - - - - - - - - - - - - - -
 
   def space
     ' '
