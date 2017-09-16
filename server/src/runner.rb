@@ -135,31 +135,6 @@ class Runner
 
   def remove_container(cid)
     assert_exec("docker rm --force #{cid}")
-    # The docker daemon responds to [docker rm] asynchronously...
-    # I'm waiting max 2 seconds for the container to die.
-    # o) no delay if container_dead? is true 1st time.
-    # o) 0.04s delay if container_dead? is true 2nd time, etc
-    removed = false
-    tries = 0
-    while !removed && tries < 50
-      removed = container_dead?(cid)
-      unless removed
-        assert_exec("sleep #{1.0 / 25.0}")
-      end
-      tries += 1
-    end
-    unless removed
-      log << "Failed to confirm:remove_container(#{cid})"
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_dead?(cid)
-    cmd = "docker inspect --format='{{ .State.Running }}' #{cid}"
-    _,stderr,status = quiet_exec(cmd)
-    expected_stderr = "Error: No such image, container or task: #{cid}"
-    (status == 1) && (stderr.strip == expected_stderr)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -346,10 +321,6 @@ class Runner
 
   def disk
     nearest_ancestors(:disk)
-  end
-
-  def log
-    nearest_ancestors(:log)
   end
 
   include NearestAncestors
