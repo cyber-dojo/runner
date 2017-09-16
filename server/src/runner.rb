@@ -247,7 +247,7 @@ class Runner
 
   def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    out,_err = assert_exec("docker exec #{cid} sh -c '#{cmd}'")
+    out,_err = assert_docker_exec(cid, cmd)
     rag = eval(out)
     rag.call(stdout_arg, stderr_arg, status_arg).to_s
   end
