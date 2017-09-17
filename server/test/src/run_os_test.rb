@@ -71,9 +71,7 @@ class RunAlpineTest < TestBase
 
   os_test 'FEA',
   'test-event baseline speed' do
-    if ENV['TRAVIS'] != 'true'
-      baseline_speed_test
-    end
+    baseline_speed_test
   end
 
 end

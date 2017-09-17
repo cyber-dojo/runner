@@ -123,12 +123,14 @@ module OsHelper
       t1 = Time.now
       assert_cyber_dojo_sh('true')
       t2 = Time.now
-      duration = Time.at(t2 - t1).utc
-      assert_equal '00', duration.strftime("%S")
-      millisecs << duration.strftime("%L").to_i
+      diff = Time.at(t2 - t1).utc
+      duration = diff.strftime("%S").to_i * 1000
+      duration += diff.strftime("%L").to_i
+      millisecs << duration
     end
     mean = millisecs.reduce(0, :+) / millisecs.size
-    assert mean < 400, mean
+    max = (ENV['TRAVIS'] == 'true') ? 1500 : 500
+    assert mean < max, "mean=#{mean}, max=#{max}"
   end
 
   private
