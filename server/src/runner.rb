@@ -144,23 +144,15 @@ class Runner
   def container_name(avatar_name)
     # give containers a name with a specific prefix so they
     # can be cleaned up if any fail to be removed/reaped.
+    uuid = SecureRandom.hex[0..10].upcase
     [ 'test',
       'run_',
       'runner',
       'stateless',
-      kata_id,
-      avatar_name,
       uuid
     ].join('_')
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def uuid
-    SecureRandom.hex[0..10].upcase
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
