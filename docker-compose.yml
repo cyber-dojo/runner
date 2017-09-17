@@ -36,6 +36,7 @@ services:
       - runner-stateless-server-coverage-container:rw
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
+      - TRAVIS
     build:
       context: server
       args:
