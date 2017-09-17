@@ -130,6 +130,7 @@ module OsHelper
     end
     mean = millisecs.reduce(0, :+) / millisecs.size
     max = (ENV['TRAVIS'] == 'true') ? 1500 : 500
+    puts mean
     assert mean < max, "mean=#{mean}, max=#{max}"
   end
 
