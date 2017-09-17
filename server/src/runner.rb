@@ -101,7 +101,11 @@ class Runner
     begin
       block.call(cid)
     ensure
-      assert_exec("docker rm --force #{cid}")
+      # This could be done with a trailing & to make it
+      # a background task but it does not appear to make
+      # a test-event discernably faster when measuring
+      # to a 100th of a second.
+      shell.exec("docker rm --force #{cid}")
     end
   end
 
