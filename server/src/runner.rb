@@ -51,7 +51,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
-    assert_valid_image_name
     assert_valid_kata_id
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
@@ -135,8 +134,20 @@ class Runner
         '-c',
         "'chown #{avatar_name}:#{group} #{sandbox};sh'"
     ].join(space)
-    stdout,_ = assert_exec(cmd)
-    stdout.strip # cid
+    stdout,stderr,status = shell.exec(cmd)
+    if status == shell.success
+      stdout.strip # cid
+    elsif status == 125
+      if /docker: Error parsing reference:.* is not a valid repository\/tag/.match(stderr)
+        fail_image_name('invalid')
+      end
+      if /docker: invalid reference format: repository name must be lowercase/.match(stderr)
+        fail_image_name('invalid')
+      end
+      if /Error response from daemon: repository .* not found: does not exist or no pull access/.match(stderr)
+        fail_image_name('invalid')
+      end
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

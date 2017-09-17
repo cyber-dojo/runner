@@ -18,13 +18,82 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '1DC',
-  %w( invalid image_name raises ) do
+  test '1D0',
+  %w( invalid(image_name) raises <not a valid tag> ) do
+    invalid_image_names = [
+      'alpha/name:#',     # tags can't contain # character
+      'alpha/name:-tag',  # tags can't start with a -
+      'alpha/name:.tag'   # tags can't start with a .
+    ]
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
+      @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      assert_equal 'image_name:invalid', error.message
+      re = /STDERR:docker: Error parsing reference:.* is not a valid repository\/tag/
+      assert_log(@log, 125, re)
+      assert_equal 'image_name:invalid', error.message, @log.spied
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '1D1',
+  %w( invalid(image_name) raises <not a valid repository> ) do
+    invalid_image_names = [
+      '_',            # cannot start with separator
+      'name_',        # cannot end with separator
+      'alpha/name_',  # cannot end in separator
+      'alpha/_name',  # cannot begin with separator
+      'alpha/NAME'    # cannot be uppercase
+    ]
+    invalid_image_names.each do |invalid_image_name|
+      set_image_name invalid_image_name
+      @log = LoggerSpy.new(nil)
+      error = assert_raises(ArgumentError) { sss_run }
+      re = /STDERR:docker: Error parsing reference:.* is not a valid repository\/tag/
+      assert_log(@log, 125, re)
+      assert_equal 'image_name:invalid', error.message, @log.spied
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '1D2',
+  %w( invalid(image_name) raises <uppercase repository> ) do
+    invalid_image_names = [
+      'ALPHA/name'
+    ]
+    invalid_image_names.each do |invalid_image_name|
+      set_image_name invalid_image_name
+      @log = LoggerSpy.new(nil)
+      error = assert_raises(ArgumentError) { sss_run }
+      re = /STDERR:docker: invalid reference format: repository name must be lowercase/
+      assert_log(@log, 125, re)
+      assert_equal 'image_name:invalid', error.message, @log.spied
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '1D3',
+  %w( invalid(image_name) raises <does not exist or no pull access> ) do
+    invalid_image_names = [
+      'abc',
+      'sh'
+    ]
+    invalid_image_names.each do |invalid_image_name|
+      set_image_name invalid_image_name
+      @log = LoggerSpy.new(nil)
+      error = assert_raises(ArgumentError) { sss_run }
+      re = /Error response from daemon: repository .* not found: does not exist or no pull access/
+      assert_log(@log, 125, re)
+      assert_equal 'image_name:invalid', error.message, @log.spied
+    end
+  end
+
+  def assert_log(log, status, stderr_re)
+    assert_equal "STATUS:#{status}", log.spied[2]
+    assert stderr_re.match(log.spied[4]), log.spied[4]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

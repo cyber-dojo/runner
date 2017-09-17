@@ -34,7 +34,6 @@ class TestBase < HexMiniTest
 
   def invalid_image_names
     [
-      '',             # nothing!
       '_',            # cannot start with separator
       'name_',        # cannot end with separator
       'ALPHA/name',   # no uppercase
@@ -43,6 +42,7 @@ class TestBase < HexMiniTest
       'n:tag space',  # tags can't contain a space
       'n:-tag',       # tags can't start with a -
       'n:.tag',       # tags can't start with a .
+      ''              # nothing!
     ]
   end
 
