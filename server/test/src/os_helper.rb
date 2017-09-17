@@ -129,8 +129,7 @@ module OsHelper
       millisecs << duration
     end
     mean = millisecs.reduce(0, :+) / millisecs.size
-    max = (ENV['TRAVIS'] == 'true') ? 1500 : 500
-    puts mean
+    max = (ENV['TRAVIS'] == 'true') ? 800 : 500
     assert mean < max, "mean=#{mean}, max=#{max}"
   end
 
