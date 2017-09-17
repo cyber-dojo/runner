@@ -51,6 +51,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
+    # _not_ calling assert_valid_image_name
+    # This is a speed optimization to avoid its
+    # intricate regexs. Instead examine status and
+    # stderr (on failure) in create_container().
     assert_valid_kata_id
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
@@ -101,10 +105,9 @@ class Runner
     begin
       block.call(cid)
     ensure
-      # This could be done with a trailing & to make it
-      # a background task but it does not appear to make
-      # a test-event discernably faster when measuring
-      # to a 100th of a second.
+      # [docker rm] could be backgrounded with a trailing &
+      # but it does not appear to make a test-event
+      # discernably faster when measuring to 100th of a second
       shell.exec("docker rm --force #{cid}")
     end
   end
@@ -140,7 +143,7 @@ class Runner
     ].join(space)
     stdout,stderr,status = shell.exec(cmd)
     if status == shell.success
-      stdout.strip # cid
+      stdout.strip # cid == container-id
     elsif status == 125
       if /docker: Error parsing reference:.* is not a valid repository\/tag/.match(stderr)
         fail_image_name('invalid')
@@ -172,6 +175,7 @@ class Runner
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
     Dir.mktmpdir('runner') do |tmp_dir|
+      # save the files onto the host...
       visible_files.each do |pathed_filename, content|
         sub_dir = File.dirname(pathed_filename)
         if sub_dir != '.'
@@ -181,6 +185,7 @@ class Runner
         host_filename = tmp_dir + '/' + pathed_filename
         disk.write(host_filename, content)
       end
+      # ...and then tar-pipe them into the container
       sandbox = sandbox_dir(avatar_name)
       uid = user_id(avatar_name)
       tar_pipe = [
