@@ -115,6 +115,22 @@ module OsHelper
     line.split[-1].to_i
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def baseline_speed_test
+    millisecs = []
+    (1..5).each do
+      t1 = Time.now
+      assert_cyber_dojo_sh('true')
+      t2 = Time.now
+      duration = Time.at(t2 - t1).utc
+      assert_equal '00', duration.strftime("%S")
+      millisecs << duration.strftime("%L").to_i
+    end
+    mean = millisecs.reduce(0, :+) / millisecs.size
+    assert mean < 400
+  end
+
   private
 
   def ls_starting_files

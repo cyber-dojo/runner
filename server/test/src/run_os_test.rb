@@ -67,4 +67,11 @@ class RunAlpineTest < TestBase
     ulimit_test
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  os_test 'FEA',
+  'test-event baseline speed' do
+    baseline_speed_test
+  end
+
 end
