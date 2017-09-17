@@ -128,7 +128,7 @@ module OsHelper
       millisecs << duration.strftime("%L").to_i
     end
     mean = millisecs.reduce(0, :+) / millisecs.size
-    assert mean < 400
+    assert mean < 100, mean
   end
 
   private
