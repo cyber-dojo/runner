@@ -143,13 +143,13 @@ class Runner
       stdout.strip # cid == container-id
     elsif status == 125
       if /docker: Error parsing reference:.* is not a valid repository\/tag/.match(stderr)
-        fail_image_name('invalid')
+        fail invalid_argument('image_name')
       end
       if /docker: invalid reference format: repository name must be lowercase/.match(stderr)
-        fail_image_name('invalid')
+        fail invalid_argument('image_name')
       end
       if /Error response from daemon: repository .* not found: does not exist or no pull access/.match(stderr)
-        fail_image_name('invalid')
+        fail invalid_argument('image_name')
       end
     end
   end
