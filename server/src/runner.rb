@@ -51,17 +51,14 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
-    # _not_ calling assert_valid_image_name
-    # This is a speed optimization to avoid its
-    # intricate regexs. Instead examine status and
-    # stderr (on failure) in create_container().
+    # _not_ calling assert_valid_image_name()
+    # Å speed optimization to avoid its intricate
+    # regexs. Instead examine status and stderr
+    # (on failure) at the end of create_container().
     assert_valid_kata_id
     assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
-      args = []
-      args << avatar_name
-      args << visible_files
-      args << max_seconds
+      args = [avatar_name, visible_files, max_seconds]
       stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
       colour = red_amber_green(cid, stdout, stderr, status)
       { stdout:stdout,
@@ -185,7 +182,8 @@ class Runner
         host_filename = tmp_dir + '/' + pathed_filename
         disk.write(host_filename, content)
       end
-      # ...and then tar-pipe them into the container
+      # ...then tar-pipe them into the container
+      # and run cyber-dojo.sh
       sandbox = sandbox_dir(avatar_name)
       uid = user_id(avatar_name)
       tar_pipe = [
@@ -282,7 +280,7 @@ class Runner
 
   def assert_valid_image_name
     unless valid_image_name?(image_name)
-      fail_image_name('invalid')
+      fail invalid_argument('image_name')
     end
   end
 
@@ -290,7 +288,7 @@ class Runner
 
   def assert_valid_kata_id
     unless valid_kata_id?
-      fail_kata_id('invalid')
+      fail invalid_argument('kata_id')
     end
   end
 
@@ -310,7 +308,7 @@ class Runner
 
   def assert_valid_avatar_name(avatar_name)
     unless valid_avatar_name?(avatar_name)
-      fail_avatar_name('invalid')
+      fail invalid_argument('avatar_name')
     end
   end
 
@@ -320,20 +318,8 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - -
 
-  def fail_kata_id(message)
-    fail bad_argument("kata_id:#{message}")
-  end
-
-  def fail_image_name(message)
-    fail bad_argument("image_name:#{message}")
-  end
-
-  def fail_avatar_name(message)
-    fail bad_argument("avatar_name:#{message}")
-  end
-
-  def bad_argument(message)
-    ArgumentError.new(message)
+  def invalid_argument(name)
+    ArgumentError.new("#{name}:invalid")
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -347,7 +333,7 @@ class Runner
   end
 
   def quiet_exec(cmd)
-    shell.exec(cmd, LoggerNull.new(self))
+    shell.exec(cmd, LoggerNull.new(nil))
   end
 
   # - - - - - - - - - - - - - - - - - -
