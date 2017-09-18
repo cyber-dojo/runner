@@ -120,20 +120,20 @@ class Runner
     cmd = [
       'docker run',
         '--detach',                          # get the cid
+        "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
+        "--env CYBER_DOJO_KATA_ID=#{kata_id}",
+        "--env CYBER_DOJO_SANDBOX=#{sandbox}",
+        "--env HOME=#{home}",
         '--interactive',                     # for later execs
         "--name=#{name}",
         '--net=none',                        # no network
-        '--security-opt=no-new-privileges',  # no escalation
         "--pids-limit=#{max}",               # no fork bombs
-        "--ulimit nproc=#{max}:#{max}",      # max number processes
-        "--ulimit nofile=#{max}:#{max}",     # max number of files
+        '--security-opt=no-new-privileges',  # no escalation
         '--ulimit core=0:0',                 # max core file size = 0 blocks
-        "--env CYBER_DOJO_KATA_ID=#{kata_id}",
-        "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
-        "--env CYBER_DOJO_SANDBOX=#{sandbox}",
-        "--env HOME=#{home}",
-        '--user=root',                       # chown needs permission
+        "--ulimit nofile=#{max}:#{max}",     # max number of files
+        "--ulimit nproc=#{max}:#{max}",      # max number processes
         "--workdir=#{sandbox}",
+        '--user=root',                       # chown needs permission
         image_name,
         'sh',
         '-c',
