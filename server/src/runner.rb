@@ -56,7 +56,6 @@ class Runner
     # regexs. Instead examine status and stderr
     # (on failure) at the end of create_container().
     assert_valid_kata_id
-    assert_valid_avatar_name avatar_name
     in_container(avatar_name) do |cid|
       args = [avatar_name, visible_files, max_seconds]
       stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
@@ -96,6 +95,8 @@ class Runner
   end
 
   private
+
+  include AllAvatarsNames
 
   def in_container(avatar_name, &block)
     cid = create_container(avatar_name)
@@ -171,6 +172,13 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
+    # get avatar's user-id and validate avatar_nae at the same time
+    begin
+      uid = user_id(avatar_name)
+    rescue
+      fail invalid_argument('avatar_name')
+    end
+
     Dir.mktmpdir('runner') do |tmp_dir|
       # save the files onto the host...
       visible_files.each do |pathed_filename, content|
@@ -185,7 +193,6 @@ class Runner
       # ...then tar-pipe them into the container
       # and run cyber-dojo.sh
       sandbox = sandbox_dir(avatar_name)
-      uid = user_id(avatar_name)
       tar_pipe = [
         "chmod 755 #{tmp_dir}",
         "&& cd #{tmp_dir}",
@@ -300,20 +307,6 @@ class Runner
 
   def hex?(char)
     '0123456789ABCDEF'.include?(char)
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  include AllAvatarsNames
-
-  def assert_valid_avatar_name(avatar_name)
-    unless valid_avatar_name?(avatar_name)
-      fail invalid_argument('avatar_name')
-    end
-  end
-
-  def valid_avatar_name?(avatar_name)
-    all_avatars_names.include?(avatar_name)
   end
 
   # - - - - - - - - - - - - - - - - - -
