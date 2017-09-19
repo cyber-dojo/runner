@@ -172,7 +172,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
-    # get avatar's user-id and validate avatar_nae at the same time
+    # get avatar's user-id and validate avatar_name at the same time
     begin
       uid = user_id(avatar_name)
     rescue
