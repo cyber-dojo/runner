@@ -163,6 +163,20 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  test 'B6F',
+  %w( [Alpine] start-files have time-stamp with microseconds value of zero ) do
+    # This affects runner_stateful's tar-pipeline
+    sss_run({ visible_files:ls_starting_files })
+    ls_parse(stdout).each do |filename,atts|
+      refute_nil atts, filename
+      stamp = atts[:time_stamp] # eg '07:03:14.000000000'
+      microsecs = stamp.split(':')[-1].split('.')[-1]
+      assert_equal '0'*9, microsecs
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def valid_image_names
     [ "gcc_assert:#{'x'*127}" ] +
     %w(
