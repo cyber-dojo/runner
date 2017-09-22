@@ -8,6 +8,20 @@ class ImageTest < TestBase
   # pull
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'B21',
+  'pull is false when image_name repository does not exist' do
+    refute image_pull({ image_name:"#{cdf}/lazybox" })
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'B22',
+  'pull is true when image_name is valid and exists' do
+    assert image_pull({ image_name:"#{cdf}/gcc_assert"} )
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test 'B23',
   'pull raises when image_name is invalid' do
     error = assert_raises(StandardError) {
@@ -26,24 +40,6 @@ class ImageTest < TestBase
     }
     expected = 'RunnerService:image_pull:kata_id:invalid'
     assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'B21',
-  'pull raises when image_name repository does not exist' do
-    error = assert_raises(StandardError) {
-      image_pull({ image_name:"#{cdf}/lazybox" })
-    }
-    expected = 'RunnerService:image_pull:image_name:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'B22',
-  'pull is true when image_name is valid and exists' do
-    assert image_pull({ image_name:"#{cdf}/gcc_assert"} )
   end
 
   # - - - - - - - - - - - - - - - - - - - - -

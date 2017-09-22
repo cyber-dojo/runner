@@ -34,13 +34,12 @@ class Runner
     assert_valid_kata_id
     # [1] The contents of stderr seem to vary depending
     # on what your running on, eg DockerToolbox or not
-    # and where, eg Travis or not. I'm using 'not found'
-    # as that always seems to be present.
+    # and where, eg Travis or not, and what version...
     docker_pull = "docker pull #{image_name}"
     _stdout,stderr,status = shell.exec(docker_pull)
     if status == shell.success
       return true
-    elsif stderr.include?('not found') # [1]
+    elsif stderr.include?('not found') || stderr.include?('not exist')
       return false
     else
       fail invalid_argument('image_name')
