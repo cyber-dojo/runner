@@ -8,7 +8,7 @@ class ShellBasherTest < TestBase
   end
 
   def hex_setup
-    @log = LoggerSpy.new(self)
+    @log = LoggerSpy.new(nil)
   end
 
   attr_reader :log
@@ -115,17 +115,6 @@ class ShellBasherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '6D5',
-  'exec(cmd) failure with LoggerNull turns off logging' do
-    shell_exec('sed salmon', LoggerNull.new(self))
-    assert_status 1
-    assert_stdout ''
-    assert_stderr "sed: unmatched 'a'\n"
-    assert_log []
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   test 'AF6',
   'exec(cmd) raises with verbose output' do
     # some commands fail with simple non-zero exit status...
@@ -142,8 +131,8 @@ class ShellBasherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def shell_exec(command, log = @log)
-    @stdout,@stderr,@status = shell.exec(command, log)
+  def shell_exec(command)
+    @stdout,@stderr,@status = shell.exec(command)
   end
 
   def shell_assert_exec(command)
