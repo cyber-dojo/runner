@@ -29,7 +29,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      assert_log(@log, 125, /docker/)
+      assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -49,7 +49,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      assert_log(@log, 125, /docker/)
+      assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -65,7 +65,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      assert_log(@log, 125, /docker/)
+      assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -82,7 +82,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      assert_log(@log, 125, /docker/)
+      assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -156,7 +156,7 @@ class RunTest < TestBase
 
   test 'B6F',
   %w( [Alpine] start-files have time-stamp with microseconds value of zero ) do
-    # This affects runner_stateful's tar-pipeline
+    # This is an affects of the tar-pipe
     sss_run({ visible_files:ls_starting_files })
     ls_parse(stdout).each do |filename,atts|
       refute_nil atts, filename
@@ -224,9 +224,9 @@ class RunTest < TestBase
     )
   end
 
-  def assert_log(log, status, stderr_re)
-    assert_equal "STATUS:#{status}", log.spied[2]
-    assert stderr_re.match(log.spied[4]), log.spied[4]
+  def assert_log
+    assert_equal "STATUS:125", @log.spied[2]
+    assert /docker/.match(@log.spied[4]), @log.spied[4]
   end
 
 end
