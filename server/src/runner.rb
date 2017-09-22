@@ -32,15 +32,13 @@ class Runner
   def image_pull
     assert_valid_image_name
     assert_valid_kata_id
-    # [1] The contents of stderr seem to vary depending
-    # on what your running on, eg DockerToolbox or not
-    # and where, eg Travis or not, and what version...
+    # [1] The contents of stderr vary depending on Docker version
     docker_pull = "docker pull #{image_name}"
     _stdout,stderr,status = shell.exec(docker_pull)
     if status == shell.success
       return true
     elsif stderr.include?('not found') || stderr.include?('not exist')
-      return false
+      return false # [1]
     else
       fail invalid_argument('image_name')
     end
