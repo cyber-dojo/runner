@@ -43,11 +43,12 @@ else
   echo
   echo "server: cid = ${SERVER_CID}, status = ${server_status}"
   if [ "${server_status}" != "0" ]; then
-    docker logs ${MY_NAME}_server
+    docker logs ${SERVER_CID}
   fi
   echo "client: cid = ${CLIENT_CID}, status = ${client_status}"
   if [ "${client_status}" != "0" ]; then
-    docker logs ${MY_NAME}_client
+    docker logs ${CLIENT_CID}
+    docker logs ${SERVER_CID}
   fi
   echo
   exit 1
