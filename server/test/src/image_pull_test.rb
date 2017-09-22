@@ -100,8 +100,8 @@ class ImagePullTest < TestBase
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
     shell.mock_exec(cmd, stdout, stderr, status=1)
-    error = assert_raises { image_pull }
-    assert_equal stderr, error.message
+    error = assert_raises(ArgumentError) { image_pull }
+    assert_equal 'image_name:invalid', error.message
   end
 
   private

@@ -29,8 +29,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      re = /STDERR:docker: Error parsing reference:.* is not a valid repository\/tag/
-      assert_log(@log, 125, re)
+      assert_log(@log, 125, /docker/)
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -50,8 +49,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      re = /STDERR:docker: Error parsing reference:.* is not a valid repository\/tag/
-      assert_log(@log, 125, re)
+      assert_log(@log, 125, /docker/)
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -67,8 +65,7 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      re = /STDERR:docker: invalid reference format: repository name must be lowercase/
-      assert_log(@log, 125, re)
+      assert_log(@log, 125, /docker/)
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
   end
@@ -85,15 +82,9 @@ class RunTest < TestBase
       set_image_name invalid_image_name
       @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
-      re = /Error response from daemon: repository .* not found: does not exist or no pull access/
-      assert_log(@log, 125, re)
+      assert_log(@log, 125, /docker/)
       assert_equal 'image_name:invalid', error.message, @log.spied
     end
-  end
-
-  def assert_log(log, status, stderr_re)
-    assert_equal "STATUS:#{status}", log.spied[2]
-    assert stderr_re.match(log.spied[4]), log.spied[4]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -175,7 +166,7 @@ class RunTest < TestBase
     end
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  private
 
   def valid_image_names
     [ "gcc_assert:#{'x'*127}" ] +
@@ -231,6 +222,11 @@ class RunTest < TestBase
       quay.io:80/cdf/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
       q.uay.io:80/cdf/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
     )
+  end
+
+  def assert_log(log, status, stderr_re)
+    assert_equal "STATUS:#{status}", log.spied[2]
+    assert stderr_re.match(log.spied[4]), log.spied[4]
   end
 
 end

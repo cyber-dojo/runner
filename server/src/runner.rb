@@ -38,13 +38,13 @@ class Runner
     # and where, eg Travis or not. I'm using 'not found'
     # as that always seems to be present.
     docker_pull = "docker pull #{image_name}"
-    _stdout,stderr,status = quiet_exec(docker_pull)
+    _stdout,stderr,status = shell.exec(docker_pull)
     if status == shell.success
       return true
     elsif stderr.include?('not found') # [1]
       return false
     else
-      fail stderr
+      fail invalid_argument('image_name')
     end
   end
 
@@ -142,16 +142,8 @@ class Runner
     stdout,stderr,status = shell.exec(cmd)
     if status == shell.success
       stdout.strip # cid == container-id
-    elsif status == 125
-      if /docker: Error parsing reference:.* is not a valid repository\/tag/.match(stderr)
-        fail invalid_argument('image_name')
-      end
-      if /docker: invalid reference format: repository name must be lowercase/.match(stderr)
-        fail invalid_argument('image_name')
-      end
-      if /Error response from daemon: repository .* not found: does not exist or no pull access/.match(stderr)
-        fail invalid_argument('image_name')
-      end
+    elsif status == 125 && /docker:/.match(stderr)
+      fail invalid_argument('image_name')
     end
   end
 
@@ -324,10 +316,6 @@ class Runner
 
   def assert_exec(cmd)
     shell.assert_exec(cmd)
-  end
-
-  def quiet_exec(cmd)
-    shell.exec(cmd, LoggerNull.new(nil))
   end
 
   # - - - - - - - - - - - - - - - - - -

@@ -31,8 +31,12 @@ class ImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'B21',
-  'pull is false when image_name is valid but does not exist' do
-    refute image_pull({ image_name:"#{cdf}/lazybox" })
+  'pull raises when image_name repository does not exist' do
+    error = assert_raises(StandardError) {
+      image_pull({ image_name:"#{cdf}/lazybox" })
+    }
+    expected = 'RunnerService:image_pull:image_name:invalid'
+    assert_equal expected, error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
