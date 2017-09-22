@@ -172,8 +172,9 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
-    # get avatar's user-id and validate avatar_name at the same time
+    # See comment at end of file about slower alternative.
     begin
+      # get avatar's user-id and validate avatar_name at the same time
       uid = user_id(avatar_name)
     rescue
       fail invalid_argument('avatar_name')
@@ -348,3 +349,31 @@ class Runner
   end
 
 end
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+# The implementation of run_cyber_dojo_sh is
+#   o) Create copies of all files off /tmp
+#   o) Tar pipe the /tmp files into the container
+#   o) Run cyber-dojo.sh inside the container
+#
+# An alternative implementation is
+#   o) Tar pipe each file's content directly into the container
+#   o) Run cyber-dojo.sh inside the container
+#
+# You might image this is quicker
+# but testing shows its slower.
+#
+# For interest's sake here's how you tar pipe from a string and
+# avoid the intermediate /tmp files:
+#
+# require 'open3'
+# files.each do |name,content|
+#   filename = avatar_dir + '/' + name
+#   dir = File.dirname(filename)
+#   shell_cmd = "mkdir -p #{dir};"
+#   shell_cmd += "cat >#{filename} && chown #{uid}:#{gid} #{filename}"
+#   cmd = "docker exec --interactive --user=root #{cid} sh -c '#{shell_cmd}'"
+#   stdout,stderr,ps = Open3.capture3(cmd, :stdin_data => content)
+#   assert ps.success?
+# end
+# - - - - - - - - - - - - - - - - - - - - - - - -
