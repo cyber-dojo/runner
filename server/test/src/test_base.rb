@@ -205,6 +205,10 @@ class TestBase < HexMiniTest
     @gcc_assert_files ||= read_files('gcc_assert')
   end
 
+  def clangpp_assert_files
+    @gpp_assert_files ||= read_files('clangpp_assert')
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def with_captured_stdout
