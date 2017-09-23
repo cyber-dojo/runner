@@ -70,9 +70,9 @@ class ForkBombTest < TestBase
     # Sometimes, it throws an ArgumentError exception.
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
-    # :nocov:
     begin
       sss_run_shell_fork_bomb
+    # :nocov:
       assert_status success
       assert_stdout ''
       assert_stderr_include "./cyber-dojo.sh: line 1: can't fork"
@@ -83,8 +83,8 @@ class ForkBombTest < TestBase
       assert_equal 'STATUS:2',                      @log.spied[2]
       assert_equal 'STDOUT:',                       @log.spied[3]
       assert_equal "STDERR:sh: can't fork\n",       @log.spied[4]
-    end
     # :nocov:
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -95,9 +95,9 @@ class ForkBombTest < TestBase
     # Sometimes, it throws an ArgumentError exception.
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
-    # :nocov:
     begin
       sss_run_shell_fork_bomb
+    # :nocov:
       assert_status success
       assert_stdout ''
       assert_stderr_include "./cyber-dojo.sh: Cannot fork"
@@ -108,8 +108,8 @@ class ForkBombTest < TestBase
       assert_equal 'STATUS:2',                      @log.spied[2]
       assert_equal 'STDOUT:',                       @log.spied[3]
       assert_equal "STDERR:sh: 1: Cannot fork\n",   @log.spied[4]
-    end
     # :nocov:
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
