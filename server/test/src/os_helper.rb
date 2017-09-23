@@ -4,8 +4,6 @@ module OsHelper
 
   module_function
 
-  include AllAvatarsNames
-
   def kata_id_env_vars_test
     env = {}
     cmd = 'printenv CYBER_DOJO_KATA_ID'
@@ -21,6 +19,8 @@ module OsHelper
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  include AllAvatarsNames
 
   def assert_avatar_users_exist
     etc_passwd = assert_cyber_dojo_sh 'cat /etc/passwd'
