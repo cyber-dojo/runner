@@ -19,9 +19,9 @@ class ShellBasher
 
   def exec(command)
     begin
-      stdout,stderr,rs = Open3.capture3(command)
-      status = rs.exitstatus
-      unless rs.success?
+      stdout,stderr,ps = Open3.capture3(command)
+      status = ps.exitstatus
+      unless ps.success?
         log << line
         log << "COMMAND:#{command}"
         log << "STATUS:#{status}"
