@@ -10,13 +10,39 @@ class ForkBombTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # fork-bombs from the source
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'CD5',
   %w( [Alpine] fork-bomb in C fails to go off ) do
     gcc_assert_files['hiker.c'] =
-    [
-      '#include "hiker.h"',
-      '#include <stdio.h>',
+      '#include "hiker.h"' + "\n" + fork_bomb_definition
+    sss_run({ visible_files:gcc_assert_files })
+    assert_status success
+    assert_stderr ''
+    lines = stdout.split("\n")
+    assert lines.count{ |line| line == 'All tests passed' } > 42
+    assert lines.count{ |line| line == 'fork() => 0' } > 42
+    assert lines.count{ |line| line == 'fork() => -1' } > 42
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test 'CD6',
+  %w( [Ubuntu] fork-bomb in C++ fails to go off ) do
+    clangpp_assert_files['hiker.cpp'] =
+      '#include "hiker.hpp"' + "\n" + fork_bomb_definition
+    sss_run({ visible_files:clangpp_assert_files })
+    assert_status 2
+    lines = stdout.split("\n")
+    assert lines.count{ |line| line == 'fork() => 0' } > 42
+    assert lines.count{ |line| line == 'fork() => -1' } > 42
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def fork_bomb_definition
+    [ '#include <stdio.h>',
       '#include <unistd.h>',
       '',
       'int answer(void)',
@@ -32,46 +58,10 @@ class ForkBombTest < TestBase
       '    return 6 * 7;',
       '}'
     ].join("\n")
-    sss_run({ visible_files:gcc_assert_files })
-    assert_status success
-    assert_stderr ''
-    lines = stdout.split("\n")
-    assert lines.count{ |line| line == 'All tests passed' } > 42
-    assert lines.count{ |line| line == 'fork() => 0' } > 42
-    assert lines.count{ |line| line == 'fork() => -1' } > 42
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test 'CD6',
-  %w( [Ubuntu] fork-bomb in C++ fails to go off ) do
-    clangpp_assert_files['hiker.cpp'] =
-    [
-      '#include "hiker.hpp"',
-      '#include <stdio.h>',
-      '#include <unistd.h>',
-      '',
-      'int answer()',
-      '{',
-      '    for(;;)',
-      '    {',
-      '        int pid = fork();',
-      '        fprintf(stdout, "fork() => %d\n", pid);',
-      '        fflush(stdout);',
-      '        if (pid == -1)',
-      '            break;',
-      '    }',
-      '    return 6 * 7;',
-      '}'
-    ].join("\n")
-    sss_run({ visible_files:clangpp_assert_files })
-    assert_status 2
-    lines = stdout.split("\n")
-    assert lines.count{ |line| line == 'fork() => 0' } > 42
-    assert lines.count{ |line| line == 'fork() => -1' } > 42
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # fork-bombs from the shell
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '4DE',
