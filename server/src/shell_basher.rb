@@ -1,13 +1,10 @@
-require_relative 'nearest_ancestors'
 require 'open3'
 
 class ShellBasher
 
   def initialize(parent)
-    @parent = parent
+    @log = parent.log
   end
-
-  attr_reader :parent
 
   def assert_exec(command)
     stdout,stderr,status = exec(command)
@@ -44,11 +41,7 @@ class ShellBasher
 
   private
 
-  include NearestAncestors
-
-  def log
-    @log ||= nearest_ancestors(:log)
-  end
+  attr_reader :log
 
   def line
     '-' * 40

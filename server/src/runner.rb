@@ -1,5 +1,4 @@
 require_relative 'all_avatars_names'
-require_relative 'nearest_ancestors'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require_relative 'valid_image_name'
@@ -9,15 +8,13 @@ require 'timeout'
 class Runner # stateless
 
   def initialize(parent, image_name, kata_id)
-    @parent = parent
+    @disk = parent.disk
+    @shell = parent.shell
     @image_name = image_name
     @kata_id = kata_id
   end
 
-  attr_reader :parent # For nearest_ancestors()
-
-  attr_reader :image_name
-  attr_reader :kata_id
+  attr_reader :image_name, :kata_id
 
   # - - - - - - - - - - - - - - - - - -
 
@@ -91,6 +88,8 @@ class Runner # stateless
   end
 
   private
+
+  attr_reader :disk, :shell
 
   include AllAvatarsNames
 
@@ -312,18 +311,6 @@ class Runner # stateless
 
   def assert_exec(cmd)
     shell.assert_exec(cmd)
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  include NearestAncestors
-
-  def shell
-    @shell ||= nearest_ancestors(:shell)
-  end
-
-  def disk
-    @disk ||= nearest_ancestors(:disk)
   end
 
   # - - - - - - - - - - - - - - - - - -
