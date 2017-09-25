@@ -6,7 +6,7 @@ require_relative 'valid_image_name'
 require 'securerandom'
 require 'timeout'
 
-class Runner
+class Runner # stateless
 
   def initialize(parent, image_name, kata_id)
     @parent = parent
@@ -319,11 +319,11 @@ class Runner
   include NearestAncestors
 
   def shell
-    nearest_ancestors(:shell)
+    @shell ||= nearest_ancestors(:shell)
   end
 
   def disk
-    nearest_ancestors(:disk)
+    @disk ||= nearest_ancestors(:disk)
   end
 
   # - - - - - - - - - - - - - - - - - -

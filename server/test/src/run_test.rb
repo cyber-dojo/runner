@@ -25,9 +25,9 @@ class RunTest < TestBase
       'alpha/name:-tag',  # tags can't start with a -
       'alpha/name:.tag'   # tags can't start with a .
     ]
+    @log = LoggerSpy.new(nil)
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
-      @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
       assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
@@ -45,9 +45,9 @@ class RunTest < TestBase
       'alpha/_name',  # cannot begin with separator
       'alpha/NAME'    # cannot be uppercase
     ]
+    @log = LoggerSpy.new(nil)
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
-      @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
       assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
@@ -61,9 +61,9 @@ class RunTest < TestBase
     invalid_image_names = [
       'ALPHA/name'
     ]
+    @log = LoggerSpy.new(nil)
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
-      @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
       assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
@@ -78,9 +78,9 @@ class RunTest < TestBase
       'abc',
       'sh'
     ]
+    @log = LoggerSpy.new(nil)
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
-      @log = LoggerSpy.new(nil)
       error = assert_raises(ArgumentError) { sss_run }
       assert_log
       assert_equal 'image_name:invalid', error.message, @log.spied
