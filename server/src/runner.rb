@@ -43,8 +43,9 @@ class Runner # stateless
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) do |cid|
-      stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
-      colour = red_amber_green(cid, avatar_name, stdout, stderr, status)
+      args = [ avatar_name, visible_files, max_seconds ]
+      stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
+      colour = red_amber_green(cid, stdout, stderr, status)
       { stdout:stdout,
         stderr:stderr,
         status:status,
@@ -53,6 +54,8 @@ class Runner # stateless
     end
   end
 
+  # - - - - - - - - - - - - - - - - - -
+  # properties
   # - - - - - - - - - - - - - - - - - -
 
   def group
@@ -98,6 +101,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(avatar_name)
+    # Note no volume-mount; stateless!
     sandbox = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     name = container_name(avatar_name)
@@ -131,9 +135,12 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
-    # See comment at end of file about slower alternative.
+    # See comment at end of file about slower alternative
+    # In a stateless runner _all_ visible_files are
+    # sent to from the browser, and cyber-dojo.sh cannot
+    # be deleted so there must be at least one file.
     Dir.mktmpdir('runner') do |tmp_dir|
-      # save the files onto the host...
+      # Save the files onto the host...
       visible_files.each do |pathed_filename, content|
         sub_dir = File.dirname(pathed_filename)
         if sub_dir != '.'
@@ -220,7 +227,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green(cid, avatar_name, stdout_arg, stderr_arg, status_arg)
+  def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     out,_err = assert_docker_exec(cid, cmd)
     rag = eval(out)
