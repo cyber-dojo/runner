@@ -2,7 +2,6 @@ require_relative 'all_avatars_names'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require_relative 'valid_image_name'
-require 'securerandom'
 require 'timeout'
 
 class Runner # stateless
@@ -49,16 +48,15 @@ class Runner # stateless
     # regexs. Instead examine status and stderr
     # (on failure) at the end of create_container().
     assert_valid_kata_id
-    in_container(avatar_name) do |cid|
-      args = [avatar_name, visible_files, max_seconds]
-      stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
-      colour = red_amber_green(cid, stdout, stderr, status)
+    in_container(avatar_name) {
+      stdout,stderr,status = run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
+      colour = red_amber_green(avatar_name, stdout, stderr, status)
       { stdout:stdout,
         stderr:stderr,
         status:status,
         colour:colour
       }
-    end
+    }
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -94,14 +92,15 @@ class Runner # stateless
   include AllAvatarsNames
 
   def in_container(avatar_name, &block)
-    cid = create_container(avatar_name)
+    create_container(avatar_name)
     begin
-      block.call(cid)
+      block.call
     ensure
       # [docker rm] could be backgrounded with a trailing &
       # but it does not make a test-event discernably
       # faster when measuring to 100th of a second
-      assert_exec("docker rm --force #{cid}")
+      container = container_name(avatar_name)
+      assert_exec("docker rm --force #{container}")
     end
   end
 
@@ -114,7 +113,7 @@ class Runner # stateless
     max = 128
     cmd = [
       'docker run',
-        '--detach',                          # get the cid
+        '--detach',
         "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
         "--env CYBER_DOJO_KATA_ID=#{kata_id}",
         "--env CYBER_DOJO_SANDBOX=#{sandbox}",
@@ -144,21 +143,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def container_name(avatar_name)
-    # give containers a name with a specific prefix so they
-    # can be cleaned up if any fail to be removed/reaped.
-    uuid = SecureRandom.hex[0..10].upcase
-    [ 'test',
-      'run_',
-      'runner',
-      'stateless',
-      uuid
-    ].join('_')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
+  def run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
     # See comment at end of file about slower alternative.
     begin
       # get avatar's user-id and validate avatar_name at the same time
@@ -180,6 +165,7 @@ class Runner # stateless
       end
       # ...then tar-pipe them into the container
       # and run cyber-dojo.sh
+      container = container_name(avatar_name)
       sandbox = sandbox_dir(avatar_name)
       tar_pipe = [
         "chmod 755 #{tmp_dir}",
@@ -194,7 +180,7 @@ class Runner # stateless
                   'docker exec',  # pipe the tarfile into docker container
                     "--user=#{uid}:#{gid}",
                     '--interactive',
-                    cid,
+                    container,
                     'sh -c',
                     "'",          # open quote
                     "cd #{sandbox}",
@@ -253,9 +239,10 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
+  def red_amber_green(avatar_name, stdout_arg, stderr_arg, status_arg)
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    out,_err = assert_docker_exec(cid, cmd)
+    container = container_name(avatar_name)
+    out,_err = assert_docker_exec(container, cmd)
     rag = eval(out)
     rag.call(stdout_arg, stderr_arg, status_arg).to_s
   end
@@ -269,7 +256,13 @@ class Runner # stateless
     names.uniq - ['<none>']
   end
 
-  # - - - - - - - - - - - - - - - - - -
+  def container_name(avatar_name)
+    # give containers a name with a specific prefix so they
+    # can be cleaned up if any fail to be removed/reaped.
+    'test_run__runner_stateless_' + kata_id + '_' + avatar_name
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   include ValidImageName
 

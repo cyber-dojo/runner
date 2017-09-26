@@ -5,7 +5,9 @@
 # I can shell into it (eg for debugging). So I don't do a teardown at the
 # end of each test. Instead I do a big teardown before all the tests run.
 
-readonly UNDEADS=$(docker ps --all --filter "name=test_run__runner_stateless_" --format "{{.Names}}")
-if [ "${UNDEADS}" != "" ]; then
-  docker rm --force ${UNDEADS}
+readonly PREFIX='test_run__runner_stateless_'
+
+readonly ZOMBIE_CONTAINERS=$(docker ps --all --filter "name=${PREFIX}" --format "{{.Names}}")
+if [ "${ZOMBIE_CONTAINERS}" != "" ]; then
+  docker rm --force ${ZOMBIE_CONTAINERS}
 fi
