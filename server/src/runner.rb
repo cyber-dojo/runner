@@ -43,11 +43,9 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
-    # _not_ calling assert_valid_image_name()
-    # Å speed optimization to avoid its intricate
-    # regexs. Instead examine status and stderr
-    # (on failure) at the end of create_container().
+    assert_valid_image_name
     assert_valid_kata_id
+    assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) {
       stdout,stderr,status = run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
       colour = red_amber_green(avatar_name, stdout, stderr, status)
@@ -88,8 +86,6 @@ class Runner # stateless
   private
 
   attr_reader :disk, :shell
-
-  include AllAvatarsNames
 
   def in_container(avatar_name, &block)
     create_container(avatar_name)
@@ -133,25 +129,19 @@ class Runner # stateless
         '-c',
         "'chown #{avatar_name}:#{group} #{sandbox};sh'"
     ].join(space)
-    stdout,stderr,status = shell.exec(cmd)
-    if status == shell.success
-      stdout.strip # cid == container-id
-    elsif status == 125 && /docker:/.match(stderr)
-      fail invalid_argument('image_name')
-    end
+    assert_exec(cmd)
+    #stdout,stderr,status = shell.exec(cmd)
+    #if status == shell.success
+    #  stdout.strip # cid == container-id
+    #elsif status == 125 && /docker:/.match(stderr)
+    #  fail invalid_argument('image_name')
+    #end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
     # See comment at end of file about slower alternative.
-    begin
-      # get avatar's user-id and validate avatar_name at the same time
-      uid = user_id(avatar_name)
-    rescue
-      fail invalid_argument('avatar_name')
-    end
-
     Dir.mktmpdir('runner') do |tmp_dir|
       # save the files onto the host...
       visible_files.each do |pathed_filename, content|
@@ -165,6 +155,7 @@ class Runner # stateless
       end
       # ...then tar-pipe them into the container
       # and run cyber-dojo.sh
+      uid = user_id(avatar_name)
       container = container_name(avatar_name)
       sandbox = sandbox_dir(avatar_name)
       tar_pipe = [
@@ -288,6 +279,20 @@ class Runner # stateless
 
   def hex?(char)
     '0123456789ABCDEF'.include?(char)
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  include AllAvatarsNames
+
+  def assert_valid_avatar_name(avatar_name)
+    unless valid_avatar_name?(avatar_name)
+      fail invalid_argument('avatar_name')
+    end
+  end
+
+  def valid_avatar_name?(avatar_name)
+    all_avatars_names.include?(avatar_name)
   end
 
   # - - - - - - - - - - - - - - - - - -

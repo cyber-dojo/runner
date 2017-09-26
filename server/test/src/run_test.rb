@@ -23,67 +23,18 @@ class RunTest < TestBase
     invalid_image_names = [
       'alpha/name:#',     # tags can't contain # character
       'alpha/name:-tag',  # tags can't start with a -
-      'alpha/name:.tag'   # tags can't start with a .
-    ]
-    @log = LoggerSpy.new(nil)
-    invalid_image_names.each do |invalid_image_name|
-      set_image_name invalid_image_name
-      error = assert_raises(ArgumentError) { sss_run }
-      assert_log
-      assert_equal 'image_name:invalid', error.message, @log.spied
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '1D1',
-  %w( invalid(image_name) raises <not a valid repository> ) do
-    invalid_image_names = [
+      'alpha/name:.tag',   # tags can't start with a .
       '_',            # cannot start with separator
       'name_',        # cannot end with separator
       'alpha/name_',  # cannot end in separator
       'alpha/_name',  # cannot begin with separator
-      'alpha/NAME'    # cannot be uppercase
-    ]
-    @log = LoggerSpy.new(nil)
-    invalid_image_names.each do |invalid_image_name|
-      set_image_name invalid_image_name
-      error = assert_raises(ArgumentError) { sss_run }
-      assert_log
-      assert_equal 'image_name:invalid', error.message, @log.spied
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '1D2',
-  %w( invalid(image_name) raises <uppercase repository> ) do
-    invalid_image_names = [
+      'alpha/NAME',   # cannot be uppercase
       'ALPHA/name'
     ]
-    @log = LoggerSpy.new(nil)
     invalid_image_names.each do |invalid_image_name|
       set_image_name invalid_image_name
       error = assert_raises(ArgumentError) { sss_run }
-      assert_log
-      assert_equal 'image_name:invalid', error.message, @log.spied
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '1D3',
-  %w( invalid(image_name) raises <does not exist or no pull access> ) do
-    invalid_image_names = [
-      'abc',
-      'sh'
-    ]
-    @log = LoggerSpy.new(nil)
-    invalid_image_names.each do |invalid_image_name|
-      set_image_name invalid_image_name
-      error = assert_raises(ArgumentError) { sss_run }
-      assert_log
-      assert_equal 'image_name:invalid', error.message, @log.spied
+      assert_equal 'image_name:invalid', error.message
     end
   end
 
@@ -222,11 +173,6 @@ class RunTest < TestBase
       quay.io:80/cdf/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
       q.uay.io:80/cdf/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
     )
-  end
-
-  def assert_log
-    assert_equal "STATUS:125", @log.spied[2]
-    assert /docker/.match(@log.spied[4]), @log.spied[4]
   end
 
 end
