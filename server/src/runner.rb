@@ -11,6 +11,8 @@ class Runner # stateless
     @shell = parent.shell
     @image_name = image_name
     @kata_id = kata_id
+    assert_valid_image_name
+    assert_valid_kata_id
   end
 
   attr_reader :image_name, :kata_id
@@ -18,16 +20,12 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
-    assert_valid_image_name
-    assert_valid_kata_id
     image_names.include? image_name
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   def image_pull
-    assert_valid_image_name
-    assert_valid_kata_id
     # [1] The contents of stderr vary depending on Docker version
     docker_pull = "docker pull #{image_name}"
     _stdout,stderr,status = shell.exec(docker_pull)
@@ -43,8 +41,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
-    assert_valid_image_name
-    assert_valid_kata_id
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) {
       stdout,stderr,status = run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
