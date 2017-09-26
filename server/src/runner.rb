@@ -206,7 +206,8 @@ class Runner # stateless
       # cyber-dojo.sh process running __inside__
       # the docker container. See
       # https://github.com/docker/docker/issues/9098
-      # The container is killed by remove_container().
+      # The container is killed in the ensure
+      # block of in_container()
       Process.kill(-9, pid)
       Process.detach(pid)
       ['', '', timed_out]
