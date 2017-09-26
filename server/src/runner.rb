@@ -229,6 +229,8 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # images
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def image_names
     cmd = 'docker images --format "{{.Repository}}"'
@@ -236,6 +238,8 @@ class Runner # stateless
     names = stdout.split("\n")
     names.uniq - ['<none>']
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name(avatar_name)
     # give containers a name with a specific prefix so they
@@ -254,6 +258,8 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
+  # kata_id
+  # - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_valid_kata_id
     unless valid_kata_id?
@@ -271,6 +277,8 @@ class Runner # stateless
     '0123456789ABCDEF'.include?(char)
   end
 
+  # - - - - - - - - - - - - - - - - - -
+  # avatar_name
   # - - - - - - - - - - - - - - - - - -
 
   include AllAvatarsNames
