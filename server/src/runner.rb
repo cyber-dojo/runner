@@ -46,11 +46,7 @@ class Runner # stateless
       args = [ avatar_name, visible_files, max_seconds ]
       stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
       colour = red_amber_green(cid, stdout, stderr, status)
-      { stdout:stdout,
-        stderr:stderr,
-        status:status,
-        colour:colour
-      }
+      { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
   end
 
