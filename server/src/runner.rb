@@ -42,15 +42,15 @@ class Runner # stateless
 
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name(avatar_name)
-    in_container(avatar_name) {
-      stdout,stderr,status = run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
-      colour = red_amber_green(avatar_name, stdout, stderr, status)
+    in_container(avatar_name) do |cid|
+      stdout,stderr,status = run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
+      colour = red_amber_green(cid, avatar_name, stdout, stderr, status)
       { stdout:stdout,
         stderr:stderr,
         status:status,
         colour:colour
       }
-    }
+    end
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -84,15 +84,14 @@ class Runner # stateless
   attr_reader :disk, :shell
 
   def in_container(avatar_name, &block)
-    create_container(avatar_name)
+    cid = create_container(avatar_name)
     begin
-      block.call
+      block.call(cid)
     ensure
       # [docker rm] could be backgrounded with a trailing &
       # but it does not make a test-event discernably
       # faster when measuring to 100th of a second
-      container = container_name(avatar_name)
-      assert_exec("docker rm --force #{container}")
+      assert_exec("docker rm --force #{cid}")
     end
   end
 
@@ -125,12 +124,13 @@ class Runner # stateless
         '-c',
         "'chown #{avatar_name}:#{group} #{sandbox};sh'"
     ].join(space)
-    assert_exec(cmd)
+    stdout,_stderr = assert_exec(cmd)
+    stdout.strip # cid
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh(avatar_name, visible_files, max_seconds)
+  def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
     # See comment at end of file about slower alternative.
     Dir.mktmpdir('runner') do |tmp_dir|
       # save the files onto the host...
@@ -146,7 +146,6 @@ class Runner # stateless
       # ...then tar-pipe them into the container
       # and run cyber-dojo.sh
       uid = user_id(avatar_name)
-      container = container_name(avatar_name)
       sandbox = sandbox_dir(avatar_name)
       tar_pipe = [
         "chmod 755 #{tmp_dir}",
@@ -161,7 +160,7 @@ class Runner # stateless
                   'docker exec',  # pipe the tarfile into docker container
                     "--user=#{uid}:#{gid}",
                     '--interactive',
-                    container,
+                    cid,
                     'sh -c',
                     "'",          # open quote
                     "cd #{sandbox}",
@@ -221,10 +220,9 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green(avatar_name, stdout_arg, stderr_arg, status_arg)
+  def red_amber_green(cid, avatar_name, stdout_arg, stderr_arg, status_arg)
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    container = container_name(avatar_name)
-    out,_err = assert_docker_exec(container, cmd)
+    out,_err = assert_docker_exec(cid, cmd)
     rag = eval(out)
     rag.call(stdout_arg, stderr_arg, status_arg).to_s
   end
@@ -243,8 +241,11 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name(avatar_name)
-    # give containers a name with a specific prefix so they
+    # Give containers a name with a specific prefix so they
     # can be cleaned up if any fail to be removed/reaped.
+    # Does not have a trailing uuid. This ensures that
+    # an in_container() call is not accidentally nested inside
+    # another in_container() call.
     'test_run__runner_stateless_' + kata_id + '_' + avatar_name
   end
 
