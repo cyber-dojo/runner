@@ -130,12 +130,6 @@ class Runner # stateless
         "'chown #{avatar_name}:#{group} #{sandbox};sh'"
     ].join(space)
     assert_exec(cmd)
-    #stdout,stderr,status = shell.exec(cmd)
-    #if status == shell.success
-    #  stdout.strip # cid == container-id
-    #elsif status == 125 && /docker:/.match(stderr)
-    #  fail invalid_argument('image_name')
-    #end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
