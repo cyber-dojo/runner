@@ -32,25 +32,7 @@ class TestBase < HexMiniTest
     row ? row[1] : 'gcc_assert'
   end
 
-  def invalid_image_names
-    [
-      '_',            # cannot start with separator
-      'name_',        # cannot end with separator
-      'ALPHA/name',   # no uppercase
-      'alpha/name_',  # cannot end in separator
-      'alpha/_name',  # cannot begin with separator
-      'n:tag space',  # tags can't contain a space
-      'n:-tag',       # tags can't start with a -
-      'n:.tag',       # tags can't start with a .
-      ''              # nothing!
-    ]
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def set_kata_id(kata_id)
-    @kata_id = kata_id
-  end
 
   def kata_id
     @kata_id || kata_id_from_test_id
@@ -58,17 +40,6 @@ class TestBase < HexMiniTest
 
   def kata_id_from_test_id
     hex_test_id + '0' * (10-hex_test_id.length)
-  end
-
-  def invalid_kata_ids
-    [
-      Object.new,   # not string
-      [],           # not string
-      '',           # not 10 chars
-      '123456789',  # not 10 chars
-      '123456789AB',# not 10 chars
-      '123456789G'  # not 10 hex-chars
-    ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
