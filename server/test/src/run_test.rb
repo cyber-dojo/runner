@@ -64,7 +64,7 @@ class RunTest < TestBase
 
   test 'B6F',
   %w( [Alpine] start-files have time-stamp with microseconds value of zero ) do
-    # This is an affects of the tar-pipe
+    # This is an affect of the tar-pipe
     sss_run({ visible_files:ls_starting_files })
     ls_parse(stdout).each do |filename,atts|
       refute_nil atts, filename
