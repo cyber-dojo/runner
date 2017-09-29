@@ -33,8 +33,9 @@ module ValidImageName # mix-in
 
   def valid_hostname?(hostname)
     return true if hostname == ''
+    ch = '[a-zA-Z0-9]'
+    component = "(#{ch}|#{ch}[a-zA-Z0-9-]*#{ch})"
     port = '[\d]+'
-    component = "([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])"
     hostname =~ /^(#{component}(\.#{component})*)(:(#{port}))?$/
   end
 
