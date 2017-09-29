@@ -15,15 +15,6 @@ class ImagePulledTest < TestBase
     shell.teardown if shell.respond_to? :teardown
   end
 
-  test 'D97',
-  'raises when image_name is invalid' do
-    invalid_image_names.each do |invalid_image_name|
-      set_image_name invalid_image_name
-      error = assert_raises(ArgumentError) { image_pulled? }
-      assert_equal 'image_name:invalid', error.message
-    end
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '9C3',

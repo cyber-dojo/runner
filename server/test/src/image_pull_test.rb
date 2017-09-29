@@ -19,17 +19,6 @@ class ImagePullTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '934',
-  'raises when image_name is invalid' do
-    invalid_image_names.each do |invalid_image_name|
-      set_image_name invalid_image_name
-      error = assert_raises(ArgumentError) { image_pull }
-      assert_equal 'image_name:invalid', error.message
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   test '91C',
   'true when image_name is valid and exists' do
     image_name = "#{cdf}/ruby_mini_test"
