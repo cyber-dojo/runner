@@ -108,7 +108,7 @@ class ForkBombTest < TestBase
       assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
       assert_equal 'STATUS:2',                      @log.spied[2]
       assert_equal 'STDOUT:',                       @log.spied[3]
-      assert_equal "STDERR:sh: 1: Cannot fork\n",   @log.spied[4]
+      assert_equal "STDERR:sh: 1: Cannot fork\n",   @log.spied[4].split("\n")[0]
     # :nocov:
     end
   end
