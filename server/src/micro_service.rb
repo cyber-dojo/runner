@@ -60,7 +60,6 @@ class MicroService < Sinatra::Base
   end
 
   def request_body
-    request.body.rewind
     request.body.read
   end
 
