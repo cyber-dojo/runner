@@ -48,9 +48,8 @@ class MicroService < Sinatra::Base
     }
   end
 
-  request_args :image_name, :kata_id, :avatar_name
-  request_args :starting_files
-  request_args :deleted_filenames, :visible_files, :max_seconds
+  request_args :image_name, :kata_id
+  request_args :avatar_name, :visible_files, :max_seconds
 
   def args
     @args ||= JSON.parse(request.body.read)
