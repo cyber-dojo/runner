@@ -4,12 +4,11 @@ LABEL maintainer=jon@jaggersoft.com
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # 1. install ruby
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 RUN apk --update --no-cache add \
     openssl ca-certificates \
     ruby ruby-io-console ruby-dev ruby-irb ruby-bundler ruby-bigdecimal \
     bash tzdata
-
-RUN adduser -D -H -u 19661 cyber-dojo
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # 2. install tini (for pid 1 zombie reaping)
@@ -19,7 +18,6 @@ RUN adduser -D -H -u 19661 cyber-dojo
 #    docker-and-the-pid-1-zombie-reaping-problem/
 
 RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ tini
-ENTRYPOINT ["/sbin/tini", "--"]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # 3. install sinatra
@@ -42,14 +40,11 @@ RUN export RACK_ENV='production'
 
 # tarpipe: Default Alpine tar does not support --owner/--group options
 RUN apk --update add tar
-
-WORKDIR /app
-
 COPY . /app
-
 ARG PORT
 EXPOSE ${PORT}
-
 ENV PORT=${PORT}
+
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD [ "./up.sh" ]
 
