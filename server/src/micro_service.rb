@@ -30,6 +30,7 @@ class MicroService < Sinatra::Base
   end
 
   def runner_json(prefix, caller, *args)
+    runner = Runner.new(self, image_name, kata_id)
     name = caller.to_s[prefix.length .. -1]
     { name => runner.send(name, *args) }.to_json
   rescue Exception => e
@@ -40,10 +41,6 @@ class MicroService < Sinatra::Base
   # - - - - - - - - - - - - - - - -
 
   include Externals
-
-  def runner
-    Runner.new(self, image_name, kata_id)
-  end
 
   def self.request_args(*names)
     names.each { |name|
@@ -56,11 +53,7 @@ class MicroService < Sinatra::Base
   request_args :deleted_filenames, :visible_files, :max_seconds
 
   def args
-    @args ||= JSON.parse(request_body)
-  end
-
-  def request_body
-    request.body.read
+    @args ||= JSON.parse(request.body.read)
   end
 
 end
