@@ -43,9 +43,9 @@ class RunTest < TestBase
   'run with valid image_name,kata_id,avatar_name returns red' do
     sss_run
     assert_colour 'red'
-    assert_equal 'String', stdout.class.name
-    assert_equal 'String', stderr.class.name
-    assert_equal 'Fixnum', status.class.name
+    assert_equal 'String',  stdout.class.name
+    assert_equal 'String',  stderr.class.name
+    assert_equal 'Integer', status.class.name
   end
 
   # - - - - - - - - - - - - - - - - - - - - -

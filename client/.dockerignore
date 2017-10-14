@@ -10,5 +10,6 @@
 
 #-----!Except these files
 
+!Gemfile
 !config.ru
 !up.sh

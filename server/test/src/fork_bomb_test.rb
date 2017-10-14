@@ -83,7 +83,10 @@ class ForkBombTest < TestBase
       assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
       assert_equal 'STATUS:2',                      @log.spied[2]
       assert_equal 'STDOUT:',                       @log.spied[3]
-      assert_equal "STDERR:sh: can't fork\n",       @log.spied[4]
+      fail1 = 'STDERR:sh: 1: Cannot fork'
+      fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
+      line = @log.spied[4].split("\n")[0]
+      assert [ fail1, fail2 ].include?(line), line
     # :nocov:
     end
   end
