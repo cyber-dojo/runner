@@ -20,7 +20,7 @@ RUN apk --update --no-cache add \
 RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ tini
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 3. install sinatra
+# 3. install ruby gems
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 RUN echo 'gem: --no-document' > ~/.gemrc
