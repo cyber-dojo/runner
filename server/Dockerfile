@@ -45,6 +45,6 @@ ARG PORT
 EXPOSE ${PORT}
 ENV PORT=${PORT}
 
-ENTRYPOINT ["/sbin/tini", "--"]
+ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "./up.sh" ]
 
