@@ -76,8 +76,8 @@ module OsHelper
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def new_avatar_starting_files_test
-    sss_run({ avatar_name:'lion', visible_files:ls_starting_files })
-    assert_status success
+    sssc_run({ avatar_name:'lion', visible_files:ls_starting_files })
+    refute_colour timed_out
     assert_stderr ''
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)

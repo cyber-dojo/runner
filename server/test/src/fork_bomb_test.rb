@@ -17,8 +17,8 @@ class ForkBombTest < TestBase
   %w( [Alpine] fork-bomb in C fails to go off ) do
     gcc_assert_files['hiker.c'] =
       '#include "hiker.h"' + "\n" + fork_bomb_definition
-    sss_run({ visible_files:gcc_assert_files })
-    assert_status success
+    sssc_run({ visible_files:gcc_assert_files })
+    refute_colour timed_out
     assert_stderr ''
     lines = stdout.split("\n")
     assert lines.count{ |line| line == 'All tests passed' } > 42
@@ -32,9 +32,8 @@ class ForkBombTest < TestBase
   %w( [Ubuntu] fork-bomb in C++ fails to go off ) do
     clangpp_assert_files['hiker.cpp'] =
       '#include "hiker.hpp"' + "\n" + fork_bomb_definition
-    sss_run({ visible_files:clangpp_assert_files })
+    sssc_run({ visible_files:clangpp_assert_files })
     # It fails in a non-deterministic way.
-    assert status == 2 || status == 'timed_out'
     lines = stdout.split("\n")
     assert stdout == '' || lines.count{ |line| line == 'fork() => 0' } > 42
     assert stdout == '' || lines.count{ |line| line == 'fork() => -1' } > 42
@@ -72,9 +71,9 @@ class ForkBombTest < TestBase
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
     begin
-      sss_run_shell_fork_bomb
+      sssc_run_shell_fork_bomb
     # :nocov:
-      assert_status success
+      refute_colour timed_out
       assert_stdout ''
       assert_stderr_include "./cyber-dojo.sh: line 1: can't fork"
     rescue ArgumentError
@@ -100,9 +99,9 @@ class ForkBombTest < TestBase
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
     begin
-      sss_run_shell_fork_bomb
+      sssc_run_shell_fork_bomb
     # :nocov:
-      assert_status success
+      refute_colour timed_out
       assert_stdout ''
       assert_stderr_include "./cyber-dojo.sh: Cannot fork"
     rescue ArgumentError
@@ -120,9 +119,9 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def sss_run_shell_fork_bomb
+  def sssc_run_shell_fork_bomb
     cyber_dojo_sh = 'bomb() { bomb | bomb & }; bomb'
-    sss_run({ visible_files:{'cyber-dojo.sh' => cyber_dojo_sh }})
+    sssc_run({ visible_files:{'cyber-dojo.sh' => cyber_dojo_sh }})
   end
 
 end

@@ -44,8 +44,7 @@ class Runner # stateless
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) do |cid|
       args = [ avatar_name, visible_files, max_seconds ]
-      stdout,stderr,status = run_cyber_dojo_sh(cid, *args)
-      colour = red_amber_green(cid, stdout, stderr, status)
+      stdout,stderr,status,colour = run_cyber_dojo_sh(cid, *args)
       { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
   end
@@ -175,7 +174,7 @@ class Runner # stateless
                     '&& sh ./cyber-dojo.sh',
                     "'",          # close quote
       ].join(space)
-      run_timeout(tar_pipe, max_seconds)
+      run_timeout(cid, tar_pipe, max_seconds)
     end
   end
 
@@ -184,7 +183,7 @@ class Runner # stateless
   include StringCleaner
   include StringTruncater
 
-  def run_timeout(cmd, max_seconds)
+  def run_timeout(cid, cmd, max_seconds)
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {
@@ -200,7 +199,8 @@ class Runner # stateless
         w_stderr.close
         stdout = truncated(cleaned(r_stdout.read))
         stderr = truncated(cleaned(r_stderr.read))
-        [stdout, stderr, status]
+        colour = red_amber_green(cid, stdout, stderr, status)
+        [stdout, stderr, status, colour]
       end
     rescue Timeout::Error
       # Kill the [docker exec] processes running
@@ -212,7 +212,7 @@ class Runner # stateless
       # block of in_container()
       Process.kill(-9, pid)
       Process.detach(pid)
-      ['', '', timed_out]
+      ['', '', 137, timed_out]
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?

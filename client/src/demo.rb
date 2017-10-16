@@ -7,20 +7,20 @@ class Demo < Sinatra::Base
   get '/' do
     html = ''
 
-    duration = timed { @sss = run(files) }
-    html += pre('run', duration, @sss, 'Red')
+    duration = timed { @sssc = run(files) }
+    html += pre(duration, @sssc, 'Red')
 
     files['hiker.c'] = 'sdsdsdsd'
-    duration = timed { @sss = run(files) }
-    html += pre('run', duration, @sss, 'Yellow')
+    duration = timed { @sssc = run(files) }
+    html += pre(duration, @sssc, 'Yellow')
 
     files['hiker.c'] = hiker_c.sub('6 * 9', '6 * 7')
-    duration = timed { @sss = run(files) }
-    html += pre('run', duration, @sss, 'Lime')
+    duration = timed { @sssc = run(files) }
+    html += pre(duration, @sssc, 'Lime')
 
     files['hiker.c'] = hiker_c.sub('return', "for(;;);\n    return")
-    duration = timed { @sss = run(files, 3) }
-    html += pre('run', duration, @sss, 'LightGray')
+    duration = timed { @sssc = run(files, 3) }
+    html += pre(duration, @sssc, 'LightGray')
 
     "<div style='font-size:0.5em'>#{html}</div>"
   end
@@ -28,7 +28,7 @@ class Demo < Sinatra::Base
   private
 
   def files
-    {
+    @files ||= {
       'hiker.c'       => hiker_c,
       'hiker.h'       => read('hiker.h'),
       'hiker.tests.c' => read('hiker.tests.c'),
@@ -72,13 +72,13 @@ class Demo < Sinatra::Base
     '%.2f' % (finished - started)
   end
 
-  def pre(name, duration, sss, colour = 'white')
+  def pre(duration, sssc, css_colour = 'white')
     border = 'border:1px solid black'
     padding = 'padding:10px'
-    background = "background:#{colour}"
-    "<pre>/#{name}(#{duration}s)</pre>" +
+    background = "background:#{css_colour}"
+    "<pre>/run(#{duration}s)</pre>" +
     "<pre style='#{border};#{padding};#{background}'>" +
-    "#{JSON.pretty_unparse(sss)}" +
+    "#{JSON.pretty_unparse(sssc)}" +
     '</pre>'
   end
 

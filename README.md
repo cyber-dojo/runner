@@ -68,8 +68,9 @@ Saves the visible_files in a container run from image_name and runs cyber-dojo.s
           "max_seconds": 10
   }
 ```
-- returns an integer status, stdout, stderr, and colour, if the run completed in max_seconds.
-The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
+- returns status, stdout, stderr, and colour.
+If the run completed in max_seconds,
+the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
 will be "red", "amber", or "green". eg
 ```
     { "run": {
@@ -79,9 +80,16 @@ will be "red", "amber", or "green". eg
         "colour": "red"
     }
 ```
-- returns the string status "timed_out" if the run did not complete in max_seconds, eg
+If the run did not complete in max_seconds,
+the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
+will be "timed_out". eg
 ```
-    { "run": { "status": "timed_out" } }
+    { "run": {
+        "status": 137,
+        "stdout": "",
+        "stderr": "",
+        "colour": "timed_out"
+    }
 ```
 
 - - - -

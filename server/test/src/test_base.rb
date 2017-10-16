@@ -54,54 +54,58 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def sss_run(named_args = {})
+  def sssc_run(named_args = {})
     # don't name this run() as it clashes with MiniTest
-    @sss = runner.run *defaulted_args(named_args)
+    @sssc = runner.run *defaulted_args(named_args)
     [stdout,stderr,status,colour]
   end
 
-  def sss
-    @sss
+  def sssc
+    @sssc
   end
 
   def stdout
-    sss[:stdout]
+    sssc[:stdout]
   end
 
   def stderr
-    sss[:stderr]
+    sssc[:stderr]
   end
 
   def status
-    sss[:status]
+    sssc[:status]
   end
 
   def colour
-    sss[:colour]
+    sssc[:colour]
   end
 
   def assert_stdout(expected)
-    assert_equal expected, stdout, sss
-  end
-
-  def assert_stderr(expected)
-    assert_equal expected, stderr, sss
-  end
-
-  def assert_status(expected)
-    assert_equal expected, status, sss
-  end
-
-  def assert_colour(expected)
-    assert_equal expected, colour, sss
+    assert_equal expected, stdout, sssc
   end
 
   def assert_stdout_include(text)
-    assert stdout.include?(text), sss
+    assert stdout.include?(text), sssc
+  end
+
+  def assert_stderr(expected)
+    assert_equal expected, stderr, sssc
   end
 
   def assert_stderr_include(text)
-    assert stderr.include?(text), sss
+    assert stderr.include?(text), sssc
+  end
+
+  def assert_status(expected)
+    assert_equal expected, status, sssc
+  end
+
+  def assert_colour(expected)
+    assert_equal expected, colour, sssc
+  end
+
+  def refute_colour(unexpected)
+    refute_equal unexpected, colour, sssc
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -112,25 +116,22 @@ class TestBase < HexMiniTest
   end
 
   def assert_run_succeeds(named_args)
-    stdout,stderr,status = sss_run(named_args)
-    assert_equal success, status, [stdout,stderr]
+    stdout,stderr,_status,_colour = sssc_run(named_args)
+    refute_colour timed_out
     assert_equal '', stderr, stdout
     stdout
   end
 
   def assert_run_times_out(named_args)
-    stdout,stderr,status = sss_run(named_args)
+    stdout,stderr,status,colour = sssc_run(named_args)
+    assert_colour timed_out
+    assert_status 137
     assert_stdout ''
     assert_stderr ''
-    assert_status timed_out
   end
 
   def timed_out
     runner.timed_out
-  end
-
-  def success
-    shell.success
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

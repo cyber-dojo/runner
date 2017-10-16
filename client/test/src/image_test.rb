@@ -2,7 +2,9 @@ require_relative 'test_base'
 
 class ImageTest < TestBase
 
-  def self.hex_prefix; '4CD0A7F'; end
+  def self.hex_prefix
+    '4CD0A7F'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - -
   # pull
