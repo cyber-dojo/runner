@@ -1,41 +1,31 @@
 require_relative 'externals'
 require_relative 'runner'
-require 'sinatra/base'
 require 'json'
 
-class MicroService < Sinatra::Base
+class MicroService
 
-  get '/image_pulled?' do
-    getter(__method__)
-  end
-
-  post '/image_pull' do
-    poster(__method__)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  post '/run' do
-    poster(__method__, avatar_name, visible_files, max_seconds)
+  def call(env)
+    request = Rack::Request.new(env)
+    @args = JSON.parse(request.body.read)
+    case request.path_info
+      when /image_pulled?/
+        response = invoke('image_pulled?')
+      when /image_pull/
+        response = invoke('image_pull')
+      when /run/
+        response = invoke('run', avatar_name, visible_files, max_seconds)
+    end
+    [ 200, { 'Content-Type' => 'application/json' }, [ response.to_json ] ]
   end
 
   private
 
-  def getter(name, *args)
-    runner_json( 'GET /', name, *args)
-  end
-
-  def poster(name, *args)
-    runner_json('POST /', name, *args)
-  end
-
-  def runner_json(prefix, caller, *args)
+  def invoke(name, *args)
     runner = Runner.new(self, image_name, kata_id)
-    name = caller.to_s[prefix.length .. -1]
-    { name => runner.send(name, *args) }.to_json
+    { name => runner.send(name, *args) }
   rescue Exception => e
     log << "EXCEPTION: #{e.class.name}.#{caller} #{e.message}"
-    { 'exception' => e.message }.to_json
+    { 'exception' => e.message }
   end
 
   # - - - - - - - - - - - - - - - -
@@ -44,15 +34,11 @@ class MicroService < Sinatra::Base
 
   def self.request_args(*names)
     names.each { |name|
-      define_method name, &lambda { args[name.to_s] }
+      define_method name, &lambda { @args[name.to_s] }
     }
   end
 
   request_args :image_name, :kata_id
   request_args :avatar_name, :visible_files, :max_seconds
-
-  def args
-    @args ||= JSON.parse(request.body.read)
-  end
 
 end
