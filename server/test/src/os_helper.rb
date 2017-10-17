@@ -76,8 +76,8 @@ module OsHelper
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def new_avatar_starting_files_test
-    sssc_run({ avatar_name:'lion', visible_files:ls_starting_files })
-    refute_colour timed_out
+    run4({ avatar_name:'lion', visible_files:ls_starting_files })
+    assert_colour 'amber' # ???
     assert_stderr ''
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
@@ -134,8 +134,6 @@ module OsHelper
   end
 
   private
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def alpine?(etc_issue)
     etc_issue.include? 'Alpine'

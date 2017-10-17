@@ -11,7 +11,7 @@ class RunTest < TestBase
   test 'C3A',
   %w( invalid avatar_name raises ) do
     error = assert_raises(ArgumentError) {
-      sssc_run({ avatar_name:'polaroid' })
+      run4({ avatar_name:'polaroid' })
     }
     assert_equal 'avatar_name:invalid', error.message
   end
@@ -20,7 +20,7 @@ class RunTest < TestBase
 
   test 'C2E',
   %w( [Alpine] run initially red ) do
-    sssc_run
+    run4
     assert_colour 'red'
   end
 
@@ -28,7 +28,7 @@ class RunTest < TestBase
 
   test '8A4',
   %w( [Ubuntu] run initially red ) do
-    sssc_run
+    run4
     assert_colour 'red'
   end
 
@@ -36,7 +36,7 @@ class RunTest < TestBase
 
   test 'B82',
   %w( files can be in sub-dirs of sandbox ) do
-    sssc_run({ visible_files: {
+    run4({ visible_files: {
       'a/hello.txt'   => 'hello world',
       'cyber-dojo.sh' => ls_cmd
     }})
@@ -50,7 +50,7 @@ class RunTest < TestBase
 
   test 'B83',
   %w( files can be in sub-sub-dirs of sandbox ) do
-    sssc_run({ visible_files: {
+    run4({ visible_files: {
       'a/b/hello.txt'   => 'hello world',
       'cyber-dojo.sh'   => "cd a && #{ls_cmd}"
     }})
@@ -65,7 +65,7 @@ class RunTest < TestBase
   test 'B6F',
   %w( [Alpine] start-files have time-stamp with microseconds value of zero ) do
     # This is an affect of the tar-pipe
-    sssc_run({ visible_files:ls_starting_files })
+    run4({ visible_files:ls_starting_files })
     ls_parse(stdout).each do |filename,atts|
       refute_nil atts, filename
       stamp = atts[:time_stamp] # eg '07:03:14.000000000'

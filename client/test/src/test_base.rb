@@ -25,23 +25,33 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def sssc_run(named_args = {})
+  def run4(named_args = {})
     # don't call this run() as it clashes with MiniTest
-    @sssc = runner.run *defaulted_args(named_args)
+    @quad = runner.run *defaulted_args(named_args)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
-    sssc['stdout']
+    quad['stdout']
   end
 
   def stderr
-    sssc['stderr']
+    quad['stderr']
+  end
+
+  def status
+    quad['status']
   end
 
   def colour
-    sssc['colour']
+    quad['colour']
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_colour(expected)
+    assert_equal expected, colour, quad
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
@@ -72,12 +82,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_colour(expected)
-    assert_equal expected, colour, sssc.to_s
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - -
-
   def timed_out
     'timed_out'
   end
@@ -92,7 +96,7 @@ class TestBase < HexMiniTest
 
   private
 
-  attr_reader :sssc
+  attr_reader :quad
 
   def defaulted_args(named_args)
     image_name    = defaulted_arg(named_args, :image_name,    default_image_name)

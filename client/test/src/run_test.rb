@@ -13,7 +13,7 @@ class RunTest < TestBase
   test 'D71',
   'run raises when image_name is invalid' do
     error = assert_raises(StandardError) {
-      sssc_run({ image_name:INVALID_IMAGE_NAME })
+      run4({ image_name:INVALID_IMAGE_NAME })
     }
     expected = 'RunnerService:run:image_name:invalid'
     assert_equal expected, error.message
@@ -24,7 +24,7 @@ class RunTest < TestBase
   test '656',
   'run raises when kata_id is invalid' do
     error = assert_raises(StandardError) {
-      sssc_run({ kata_id:INVALID_KATA_ID })
+      run4({ kata_id:INVALID_KATA_ID })
     }
     expected = 'RunnerService:run:kata_id:invalid'
     assert_equal expected, error.message
@@ -35,7 +35,7 @@ class RunTest < TestBase
   test 'A29',
   'run raises when avatar_name is invalid' do
     error = assert_raises(StandardError) {
-      sssc_run({ avatar_name:INVALID_AVATAR_NAME })
+      run4({ avatar_name:INVALID_AVATAR_NAME })
     }
     expected = 'RunnerService:run:avatar_name:invalid'
     assert_equal expected, error.message
@@ -47,7 +47,7 @@ class RunTest < TestBase
 
   test '3DF',
   'run with valid image_name,kata_id,avatar_name returning red' do
-    sssc_run
+    run4
     assert_colour 'red'
   end
 
@@ -63,7 +63,7 @@ class RunTest < TestBase
       '    return 6 * 9;sdsd',
       '}'
     ].join("\n")
-    sssc_run({ visible_files:visible_files })
+    run4({ visible_files:visible_files })
     assert_colour 'amber'
   end
 
@@ -79,7 +79,7 @@ class RunTest < TestBase
       '    return 6 * 7;',
       '}'
     ].join("\n")
-    sssc_run({ visible_files:visible_files })
+    run4({ visible_files:visible_files })
     assert_colour 'green'
   end
 
@@ -96,7 +96,7 @@ class RunTest < TestBase
       '    return 6 * 9;',
       '}'
     ].join("\n")
-    sssc_run({ visible_files:visible_files, max_seconds:3 })
+    run4({ visible_files:visible_files, max_seconds:3 })
     assert_colour timed_out
   end
 
@@ -106,7 +106,7 @@ class RunTest < TestBase
   'run with very large file is red' do
     visible_files = default_visible_files
     visible_files['extra'] = 'X'*1023*500
-    sssc_run({ visible_files:visible_files })
+    run4({ visible_files:visible_files })
     assert_colour 'red'
   end
 
@@ -114,10 +114,11 @@ class RunTest < TestBase
 
   test '3DA',
   'run with valid image_name,kata_id,avatar_name returning sssc quad' do
-    sssc_run
-    assert_equal 'String', colour.class.name
-    assert_equal 'String', stdout.class.name
-    assert_equal 'String', stderr.class.name
+    run4
+    assert_equal 'Integer', status.class.name
+    assert_equal 'String',  stdout.class.name
+    assert_equal 'String',  stderr.class.name
+    assert_equal 'String',  colour.class.name
   end
 
 end

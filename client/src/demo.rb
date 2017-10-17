@@ -7,20 +7,20 @@ class Demo < Sinatra::Base
   get '/' do
     html = ''
 
-    duration = timed { @sssc = run(files) }
-    html += pre(duration, @sssc, 'Red')
+    duration = timed { @quad = run(files) }
+    html += pre(duration, @quad, 'Red')
 
     files['hiker.c'] = 'sdsdsdsd'
-    duration = timed { @sssc = run(files) }
-    html += pre(duration, @sssc, 'Yellow')
+    duration = timed { @quad = run(files) }
+    html += pre(duration, @quad, 'Yellow')
 
     files['hiker.c'] = hiker_c.sub('6 * 9', '6 * 7')
-    duration = timed { @sssc = run(files) }
-    html += pre(duration, @sssc, 'Lime')
+    duration = timed { @quad = run(files) }
+    html += pre(duration, @quad, 'Lime')
 
     files['hiker.c'] = hiker_c.sub('return', "for(;;);\n    return")
-    duration = timed { @sssc = run(files, 3) }
-    html += pre(duration, @sssc, 'LightGray')
+    duration = timed { @quad = run(files, 3) }
+    html += pre(duration, @quad, 'LightGray')
 
     "<div style='font-size:0.5em'>#{html}</div>"
   end
@@ -72,13 +72,13 @@ class Demo < Sinatra::Base
     '%.2f' % (finished - started)
   end
 
-  def pre(duration, sssc, css_colour = 'white')
+  def pre(duration, quad, css_colour = 'white')
     border = 'border:1px solid black'
     padding = 'padding:10px'
     background = "background:#{css_colour}"
     "<pre>/run(#{duration}s)</pre>" +
     "<pre style='#{border};#{padding};#{background}'>" +
-    "#{JSON.pretty_unparse(sssc)}" +
+    "#{JSON.pretty_unparse(quad)}" +
     '</pre>'
   end
 

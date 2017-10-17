@@ -13,6 +13,94 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def image_pulled?
+    runner.image_pulled?
+  end
+
+  def image_pull
+    runner.image_pull
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def run4(named_args = {})
+    # don't name this run() as it clashes with MiniTest
+    @quad = runner.run *defaulted_args(named_args)
+    [stdout,stderr,status,colour]
+  end
+
+  def stdout
+    quad[:stdout]
+  end
+
+  def stderr
+    quad[:stderr]
+  end
+
+  def status
+    quad[:status]
+  end
+
+  def colour
+    quad[:colour]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_status(expected)
+    assert_equal expected, status, quad
+  end
+
+  def assert_colour(expected)
+    assert_equal expected, colour, quad
+  end
+
+  def assert_stdout(expected)
+    assert_equal expected, stdout, quad
+  end
+
+  def assert_stderr(expected)
+    assert_equal expected, stderr, quad
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_stdout_include(text)
+    assert stdout.include?(text), quad
+  end
+
+  def assert_stderr_include(text)
+    assert stderr.include?(text), quad
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_cyber_dojo_sh(script, named_args = {})
+    named_args[:visible_files] = { 'cyber-dojo.sh' => script }
+    assert_run_succeeds(named_args)
+  end
+
+  def assert_run_succeeds(named_args)
+    run4(named_args)
+    refute_equal timed_out, colour, quad
+    assert_stderr ''
+    stdout
+  end
+
+  def assert_run_times_out(named_args)
+    run4(named_args)
+    assert_colour timed_out
+    assert_status 137
+    assert_stdout ''
+    assert_stderr ''
+  end
+
+  def timed_out
+    runner.timed_out
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def set_image_name(image_name)
     @image_name = image_name
   end
@@ -40,98 +128,6 @@ class TestBase < HexMiniTest
 
   def kata_id_from_test_id
     hex_test_id + '0' * (10-hex_test_id.length)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def image_pulled?
-    runner.image_pulled?
-  end
-
-  def image_pull
-    runner.image_pull
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def sssc_run(named_args = {})
-    # don't name this run() as it clashes with MiniTest
-    @sssc = runner.run *defaulted_args(named_args)
-    [stdout,stderr,status,colour]
-  end
-
-  def sssc
-    @sssc
-  end
-
-  def stdout
-    sssc[:stdout]
-  end
-
-  def stderr
-    sssc[:stderr]
-  end
-
-  def status
-    sssc[:status]
-  end
-
-  def colour
-    sssc[:colour]
-  end
-
-  def assert_stdout(expected)
-    assert_equal expected, stdout, sssc
-  end
-
-  def assert_stdout_include(text)
-    assert stdout.include?(text), sssc
-  end
-
-  def assert_stderr(expected)
-    assert_equal expected, stderr, sssc
-  end
-
-  def assert_stderr_include(text)
-    assert stderr.include?(text), sssc
-  end
-
-  def assert_status(expected)
-    assert_equal expected, status, sssc
-  end
-
-  def assert_colour(expected)
-    assert_equal expected, colour, sssc
-  end
-
-  def refute_colour(unexpected)
-    refute_equal unexpected, colour, sssc
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_sh(script, named_args = {})
-    named_args[:visible_files] = { 'cyber-dojo.sh' => script }
-    assert_run_succeeds(named_args)
-  end
-
-  def assert_run_succeeds(named_args)
-    stdout,stderr,_status,_colour = sssc_run(named_args)
-    refute_colour timed_out
-    assert_equal '', stderr, stdout
-    stdout
-  end
-
-  def assert_run_times_out(named_args)
-    stdout,stderr,status,colour = sssc_run(named_args)
-    assert_colour timed_out
-    assert_status 137
-    assert_stdout ''
-    assert_stderr ''
-  end
-
-  def timed_out
-    runner.timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -246,6 +242,12 @@ class TestBase < HexMiniTest
     assert_equal group, atts[:group], { filename => atts }
     assert_equal size,  atts[:size ], { filename => atts }
     assert_equal permissions, atts[:permissions], { filename => atts }
+  end
+
+  private
+
+  def quad
+    @quad
   end
 
 end

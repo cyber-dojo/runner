@@ -17,8 +17,8 @@ class ForkBombTest < TestBase
   %w( [Alpine] fork-bomb in C fails to go off ) do
     gcc_assert_files['hiker.c'] =
       '#include "hiker.h"' + "\n" + fork_bomb_definition
-    sssc_run({ visible_files:gcc_assert_files })
-    refute_colour timed_out
+    run4({ visible_files:gcc_assert_files })
+    assert_colour 'green'
     assert_stderr ''
     lines = stdout.split("\n")
     assert lines.count{ |line| line == 'All tests passed' } > 42
@@ -32,7 +32,7 @@ class ForkBombTest < TestBase
   %w( [Ubuntu] fork-bomb in C++ fails to go off ) do
     clangpp_assert_files['hiker.cpp'] =
       '#include "hiker.hpp"' + "\n" + fork_bomb_definition
-    sssc_run({ visible_files:clangpp_assert_files })
+    run4({ visible_files:clangpp_assert_files })
     # It fails in a non-deterministic way.
     lines = stdout.split("\n")
     assert stdout == '' || lines.count{ |line| line == 'fork() => 0' } > 42
@@ -71,9 +71,9 @@ class ForkBombTest < TestBase
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
     begin
-      sssc_run_shell_fork_bomb
+      run4_shell_fork_bomb
     # :nocov:
-      refute_colour timed_out
+      assert_colour 'amber'
       assert_stdout ''
       assert_stderr_include "./cyber-dojo.sh: line 1: can't fork"
     rescue ArgumentError
@@ -99,7 +99,7 @@ class ForkBombTest < TestBase
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
     begin
-      sssc_run_shell_fork_bomb
+      run4_shell_fork_bomb
     # :nocov:
       refute_colour timed_out
       assert_stdout ''
@@ -119,9 +119,9 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def sssc_run_shell_fork_bomb
+  def run4_shell_fork_bomb
     cyber_dojo_sh = 'bomb() { bomb | bomb & }; bomb'
-    sssc_run({ visible_files:{'cyber-dojo.sh' => cyber_dojo_sh }})
+    run4({ visible_files:{'cyber-dojo.sh' => cyber_dojo_sh }})
   end
 
 end

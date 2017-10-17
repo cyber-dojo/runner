@@ -10,8 +10,8 @@ class LanguageTest < TestBase
 
   test '76D',
   '[gcc,assert] runs' do
-    sssc_run({ visible_files: read_files })
-    refute_colour timed_out
+    run4({ visible_files: read_files })
+    assert_colour 'red'
     assert_stderr_include "[makefile:14: test.output] Aborted"
     assert_stderr_include 'Assertion failed: answer() == 42'
   end
@@ -20,8 +20,8 @@ class LanguageTest < TestBase
 
   test '358',
   '[Java,Cucumber] runs' do
-    sssc_run({ visible_files: read_files })
-    refute_colour timed_out
+    run4({ visible_files: read_files })
+    assert_colour 'red'
     assert_stdout_include '1 Scenarios (1 failed)'
     assert_stderr ''
   end

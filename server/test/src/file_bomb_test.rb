@@ -36,8 +36,8 @@ class FileBombTest < TestBase
       '  return 6 * 7;',
       '}'
     ].join("\n")
-    sssc_run({ visible_files:gcc_assert_files })
-    refute_colour timed_out
+    run4({ visible_files:gcc_assert_files })
+    assert_colour 'green'
     assert_stderr ''
     lines = stdout.split("\n")
     assert_equal 1, lines.count{ |line| line == 'All tests passed' }
