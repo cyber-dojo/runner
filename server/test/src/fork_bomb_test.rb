@@ -101,7 +101,7 @@ class ForkBombTest < TestBase
     begin
       run4_shell_fork_bomb
     # :nocov:
-      refute_colour timed_out
+      assert_colour 'amber'
       assert_stdout ''
       assert_stderr_include "./cyber-dojo.sh: Cannot fork"
     rescue ArgumentError
