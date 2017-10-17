@@ -26,7 +26,7 @@ class TestBase < HexMiniTest
   def run4(named_args = {})
     # don't name this run() as it clashes with MiniTest
     @quad = runner.run *defaulted_args(named_args)
-    [stdout,stderr,status,colour]
+    nil
   end
 
   def stdout
