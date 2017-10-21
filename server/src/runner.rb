@@ -100,7 +100,7 @@ class Runner # stateless
     sandbox = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     name = container_name(avatar_name)
-    max = 128
+    k4096 = 4096 * 1024
     cmd = [
       'docker run',
         '--detach',
@@ -111,11 +111,12 @@ class Runner # stateless
         '--interactive',                     # for later execs
         "--name=#{name}",
         '--net=none',                        # no network
-        "--pids-limit=#{max}",               # no fork bombs
+        '--pids-limit=128',                  # no fork bombs
         '--security-opt=no-new-privileges',  # no escalation
         '--ulimit core=0:0',                 # max core file size = 0 blocks
-        "--ulimit nofile=#{max}:#{max}",     # max number of files
-        "--ulimit nproc=#{max}:#{max}",      # max number processes
+        '--ulimit nofile=128:128',           # max number of files = 128
+        '--ulimit nproc=128:128',            # max number processes = 128
+        "--ulimit stack=#{k4096}:#{k4096}",  # max stack size = 4096K
         "--workdir=#{sandbox}",
         '--user=root',                       # chown needs permission
         image_name,
