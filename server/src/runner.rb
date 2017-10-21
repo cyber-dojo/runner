@@ -113,13 +113,13 @@ class Runner # stateless
         '--net=none',                        # no network
         '--pids-limit=128',                  # no fork bombs
         '--security-opt=no-new-privileges',  # no escalation
-        '--ulimit core=0:0',                 # max core file size = 0 blocks
-        '--ulimit nofile=128:128',           # max number of files = 128
-        '--ulimit nproc=128:128',            # max number processes = 128
-        "--ulimit stack=#{k4096}:#{k4096}",  # max stack size = 4096 K
-        '--ulimit cpu=10:10',                # max cpu time = 10 seconds
-        '--ulimit locks=128:128',            # max no of file locks
-        "--ulimit data=#{k4096}:#{k4096}",   # max data segment size = 4096 K
+        "--ulimit data=#{k4096}:#{k4096}",   # max data segment size
+        '--ulimit core=0:0',                 # max core file size in blocks
+        '--ulimit cpu=10:10',                # max cpu time in seconds
+        '--ulimit locks=128:128',            # max number of file locks
+        '--ulimit nofile=128:128',           # max number of files
+        '--ulimit nproc=128:128',            # max number processes
+        "--ulimit stack=#{k4096}:#{k4096}",  # max stack size
         "--workdir=#{sandbox}",
         '--user=root',                       # chown needs permission
         image_name,
