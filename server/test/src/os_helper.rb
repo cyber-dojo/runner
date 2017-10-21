@@ -95,26 +95,28 @@ module OsHelper
   def ulimit_test
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
-    assert_equal  128, ulimit(lines, :max_processes,  etc_issue)
-    assert_equal    0, ulimit(lines, :max_core_size,  etc_issue)
-    assert_equal  128, ulimit(lines, :max_no_files,   etc_issue)
-    assert_equal 4096, ulimit(lines, :max_stack_size, etc_issue) # in KB
-    assert_equal   10, ulimit(lines, :max_cpu_time,   etc_issue) # in seconds
-    assert_equal  128, ulimit(lines, :max_file_locks, etc_issue)
-    assert_equal 4096, ulimit(lines, :max_data_size,  etc_issue) # in KB
+    assert_equal    0, ulimit(lines, :core_size,  etc_issue)
+    assert_equal   10, ulimit(lines, :cpu_time,   etc_issue)
+    assert_equal 4096, ulimit(lines, :data_size,  etc_issue)
+    assert_equal  128, ulimit(lines, :file_locks, etc_issue)
+    assert_equal 8192, ulimit(lines, :file_size,  etc_issue)
+    assert_equal  128, ulimit(lines, :no_files,   etc_issue)
+    assert_equal  128, ulimit(lines, :processes,  etc_issue)
+    assert_equal 4096, ulimit(lines, :stack_size, etc_issue)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit(lines, key, etc_issue)
     table = {             # alpine,                       ubuntu
-      :max_processes  => [ '-p: processes',               'process'         ],
-      :max_core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
-      :max_no_files   => [ '-n: file descriptors',        'nofiles'         ],
-      :max_stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
-      :max_cpu_time   => [ '-t: cpu time (seconds)',      'time(seconds)'   ],
-      :max_file_locks => [ '-w: locks',                   'locks'           ],
-      :max_data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ]
+      :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
+      :cpu_time   => [ '-t: cpu time (seconds)',      'time(seconds)'   ],
+      :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
+      :file_locks => [ '-w: locks',                   'locks'           ],
+      :file_size  => [ '-f: file size (blocks)',      'file(blocks)'    ],
+      :no_files   => [ '-n: file descriptors',        'nofiles'         ],
+      :processes  => [ '-p: processes',               'process'         ],
+      :stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
     }
     if alpine?(etc_issue); txt = table[key][0]; end
     if ubuntu?(etc_issue); txt = table[key][1]; end
