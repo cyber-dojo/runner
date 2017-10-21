@@ -117,7 +117,8 @@ class Runner # stateless
         '--ulimit nofile=128:128',           # max number of files = 128
         '--ulimit nproc=128:128',            # max number processes = 128
         "--ulimit stack=#{k4096}:#{k4096}",  # max stack size = 4096 K
-        "--ulimit cpu=10:10",                # max cpu time = 10 seconds
+        '--ulimit cpu=10:10',                # max cpu time = 10 seconds
+        '--ulimit locks=128:128',            # max no of file locks
         "--workdir=#{sandbox}",
         '--user=root',                       # chown needs permission
         image_name,
