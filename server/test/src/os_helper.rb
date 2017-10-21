@@ -98,9 +98,10 @@ module OsHelper
     assert_equal  128, ulimit(lines, :max_processes,  etc_issue)
     assert_equal    0, ulimit(lines, :max_core_size,  etc_issue)
     assert_equal  128, ulimit(lines, :max_no_files,   etc_issue)
-    assert_equal 4096, ulimit(lines, :max_stack_size, etc_issue)  # in KB
-    assert_equal   10, ulimit(lines, :max_cpu_time,   etc_issue)  # in seconds
+    assert_equal 4096, ulimit(lines, :max_stack_size, etc_issue) # in KB
+    assert_equal   10, ulimit(lines, :max_cpu_time,   etc_issue) # in seconds
     assert_equal  128, ulimit(lines, :max_file_locks, etc_issue)
+    assert_equal 4096, ulimit(lines, :max_data_size,  etc_issue) # in KB
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -113,6 +114,7 @@ module OsHelper
       :max_stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
       :max_cpu_time   => [ '-t: cpu time (seconds)',      'time(seconds)'   ],
       :max_file_locks => [ '-w: locks',                   'locks'           ],
+      :max_data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ]
     }
     if alpine?(etc_issue); txt = table[key][0]; end
     if ubuntu?(etc_issue); txt = table[key][1]; end

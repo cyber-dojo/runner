@@ -119,6 +119,7 @@ class Runner # stateless
         "--ulimit stack=#{k4096}:#{k4096}",  # max stack size = 4096 K
         '--ulimit cpu=10:10',                # max cpu time = 10 seconds
         '--ulimit locks=128:128',            # max no of file locks
+        "--ulimit data=#{k4096}:#{k4096}",   # max data segment size = 4096 K
         "--workdir=#{sandbox}",
         '--user=root',                       # chown needs permission
         image_name,
