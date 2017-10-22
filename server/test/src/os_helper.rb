@@ -96,13 +96,13 @@ module OsHelper
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
     assert_equal    0, ulimit(lines, :core_size,  etc_issue)
-    assert_equal   10, ulimit(lines, :cpu_time,   etc_issue)
-    assert_equal 4096, ulimit(lines, :data_size,  etc_issue)
-    assert_equal  128, ulimit(lines, :file_locks, etc_issue)
-    assert_equal 8192, ulimit(lines, :file_size,  etc_issue)
     assert_equal  128, ulimit(lines, :no_files,   etc_issue)
     assert_equal  128, ulimit(lines, :processes,  etc_issue)
-    assert_equal 4096, ulimit(lines, :stack_size, etc_issue)
+    #assert_equal   10, ulimit(lines, :cpu_time,   etc_issue)
+    #assert_equal 4096, ulimit(lines, :data_size,  etc_issue)
+    #assert_equal  128, ulimit(lines, :file_locks, etc_issue)
+    #assert_equal 8192, ulimit(lines, :file_size,  etc_issue)
+    #assert_equal 4096, ulimit(lines, :stack_size, etc_issue)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -110,13 +110,13 @@ module OsHelper
   def ulimit(lines, key, etc_issue)
     table = {             # alpine,                       ubuntu
       :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
-      :cpu_time   => [ '-t: cpu time (seconds)',      'time(seconds)'   ],
-      :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
-      :file_locks => [ '-w: locks',                   'locks'           ],
-      :file_size  => [ '-f: file size (blocks)',      'file(blocks)'    ],
       :no_files   => [ '-n: file descriptors',        'nofiles'         ],
       :processes  => [ '-p: processes',               'process'         ],
-      :stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
+      #:cpu_time   => [ '-t: cpu time (seconds)',      'time(seconds)'   ],
+      #:data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
+      #:file_locks => [ '-w: locks',                   'locks'           ],
+      #:file_size  => [ '-f: file size (blocks)',      'file(blocks)'    ],
+      #:stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
     }
     if alpine?(etc_issue); txt = table[key][0]; end
     if ubuntu?(etc_issue); txt = table[key][1]; end
