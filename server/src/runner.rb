@@ -100,7 +100,8 @@ class Runner # stateless
     sandbox = sandbox_dir(avatar_name)
     home = home_dir(avatar_name)
     name = container_name(avatar_name)
-    k4096 = 4096 * 1024
+    mb4 = 4 * 1024 * 1024
+    gb4 = mb4 * 1024
     cmd = [
       'docker run',
         '--detach',
@@ -113,14 +114,14 @@ class Runner # stateless
         '--net=none',                        # no network
         '--pids-limit=128',                  # no fork bombs
         '--security-opt=no-new-privileges',  # no escalation
-        #"--ulimit data=#{k4096}:#{k4096}",   # max data segment size in KB
-        '--ulimit core=0:0',                 # max core file size in blocks
-        #'--ulimit cpu=10:10',                # max cpu time in seconds
-        #"--ulimit fsize=#{k4096}:#{k4096}",  # max file size in blocks
-        #'--ulimit locks=128:128',            # max number of file locks
+        "--ulimit data=#{gb4}:#{gb4}",       # max data segment size
+        '--ulimit core=0:0',                 # max core file size
+        '--ulimit cpu=10:10',                # max cpu time (seconds)
+        "--ulimit fsize=#{mb4}:#{mb4}",      # max file size
+        '--ulimit locks=128:128',            # max number of file locks
         '--ulimit nofile=128:128',           # max number of files
         '--ulimit nproc=128:128',            # max number processes
-        #"--ulimit stack=#{k4096}:#{k4096}",  # max stack size in KB
+        "--ulimit stack=#{mb4}:#{mb4}",      # max stack size
         "--workdir=#{sandbox}",
         '--user=root',                       # chown needs permission
         image_name,
