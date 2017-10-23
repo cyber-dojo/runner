@@ -73,7 +73,7 @@ module OsHelper
 
   def new_avatar_starting_files_test
     run4({ avatar_name:'lion', visible_files:ls_starting_files })
-    assert_colour 'amber' # ???
+    assert_colour 'amber' # doing an ls
     assert_stderr ''
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
