@@ -13,6 +13,32 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def timed_out
+    runner.timed_out
+  end
+
+  def home_dir(avatar_name)
+    runner.home_dir(avatar_name)
+  end
+
+  def sandbox_dir(avatar_name)
+    runner.sandbox_dir(avatar_name)
+  end
+
+  def group
+    runner.group
+  end
+
+  def gid
+    runner.gid
+  end
+
+  def user_id(avatar_name)
+    runner.user_id(avatar_name)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def image_pulled?
     runner.image_pulled?
   end
@@ -93,10 +119,6 @@ class TestBase < HexMiniTest
     assert_status 137
     assert_stdout ''
     assert_stderr ''
-  end
-
-  def timed_out
-    runner.timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

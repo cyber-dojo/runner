@@ -41,8 +41,7 @@ class RunTest < TestBase
       'cyber-dojo.sh' => ls_cmd
     }})
     ls_files = ls_parse(stdout)
-    uid = runner.user_id('salmon')
-    group = runner.group
+    uid = user_id(default_avatar_name)
     assert_equal_atts('a', 'drwxr-xr-x', uid, group, 4096, ls_files)
   end
 
@@ -55,8 +54,7 @@ class RunTest < TestBase
       'cyber-dojo.sh'   => "cd a && #{ls_cmd}"
     }})
     ls_files = ls_parse(stdout)
-    uid = runner.user_id('salmon')
-    group = runner.group
+    uid = user_id(default_avatar_name)
     assert_equal_atts('b', 'drwxr-xr-x', uid, group, 4096, ls_files)
   end
 
