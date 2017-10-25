@@ -12,10 +12,13 @@ module OsHelper
     env[:avatar_name] = assert_cyber_dojo_sh(cmd).strip
     cmd = 'printenv CYBER_DOJO_SANDBOX'
     env[:sandbox]     = assert_cyber_dojo_sh(cmd).strip
+    cmd = 'printenv CYBER_DOJO_RUNNER'
+    env[:runner]      = assert_cyber_dojo_sh(cmd).strip
 
     assert_equal kata_id, env[:kata_id]
     assert_equal default_avatar_name, env[:avatar_name]
     assert_equal sandbox_dir(default_avatar_name), env[:sandbox]
+    assert_equal 'stateless', env[:runner]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
