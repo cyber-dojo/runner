@@ -91,14 +91,15 @@ module OsHelper
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit_test
+    #stateless
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
 
-    assert_equal    0, ulimit(lines, :core_size,  etc_issue)
-    assert_equal   10, ulimit(lines, :cpu_time,   etc_issue)
-    assert_equal  128, ulimit(lines, :file_locks, etc_issue)
-    assert_equal  128, ulimit(lines, :no_files,   etc_issue)
-    assert_equal  128, ulimit(lines, :processes,  etc_issue)
+    assert_equal   0, ulimit(lines, :core_size,  etc_issue)
+    assert_equal  10, ulimit(lines, :cpu_time,   etc_issue)
+    assert_equal 128, ulimit(lines, :file_locks, etc_issue)
+    assert_equal 128, ulimit(lines, :no_files,   etc_issue)
+    assert_equal 128, ulimit(lines, :processes,  etc_issue)
 
     expected_data_size = 4 * gb / kb
     assert_equal expected_data_size,  ulimit(lines, :data_size,  etc_issue)
