@@ -106,7 +106,7 @@ module OsHelper
     expected_file_size = 16 * mb / (block_size = 512)
     assert_equal expected_file_size,  ulimit(lines, :file_size,  etc_issue)
 
-    expected_stack_size = 4 * mb / kb
+    expected_stack_size = 8 * mb / kb
     assert_equal expected_stack_size, ulimit(lines, :stack_size, etc_issue)
   end
 
