@@ -28,6 +28,7 @@ COPY Gemfile /app/
 WORKDIR /app
 
 RUN apk --update add --virtual build-dependencies build-base \
+  && bundle config --global silence_root_warning 1 \
   && bundle install && gem clean \
   && apk del build-dependencies \
   && rm -vrf /var/cache/apk/*
