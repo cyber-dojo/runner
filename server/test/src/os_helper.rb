@@ -91,7 +91,6 @@ module OsHelper
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit_test
-    #stateless
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
 
