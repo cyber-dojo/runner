@@ -9,13 +9,13 @@ class MicroService
     @args = JSON.parse(request.body.read)
     case request.path_info
       when /image_pulled?/
-        response = invoke('image_pulled?')
+        body = invoke('image_pulled?')
       when /image_pull/
-        response = invoke('image_pull')
+        body = invoke('image_pull')
       when /run/
-        response = invoke('run', avatar_name, visible_files, max_seconds)
+        body = invoke('run', avatar_name, visible_files, max_seconds)
     end
-    [ 200, { 'Content-Type' => 'application/json' }, [ response.to_json ] ]
+    [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
   end
 
   private
