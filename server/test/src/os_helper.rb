@@ -123,11 +123,13 @@ module OsHelper
       :processes  => [ '-p: processes',               'process'         ],
       :stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
     }
+    row = table[key]
+    refute_nil row, "no ulimit table entry for #{key}"
     if alpine?(etc_issue)
-      txt = table[key][0]
+      txt = row[0]
     end
     if ubuntu?(etc_issue)
-      txt = table[key][1]
+      txt = row[1]
     end
     line = lines.detect { |limit| limit.start_with? txt }
     line.split[-1].to_i
