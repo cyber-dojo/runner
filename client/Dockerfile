@@ -2,7 +2,7 @@ FROM  alpine:latest
 LABEL maintainer=jon@jaggersoft.com
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 1. install ruby
+# install ruby
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 RUN apk --update --no-cache add \
@@ -11,16 +11,7 @@ RUN apk --update --no-cache add \
     bash tzdata
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 2. install tini (for pid 1 zombie reaping)
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# https://github.com/krallin/tini
-# https://blog.phusion.nl/2015/01/20/
-#    docker-and-the-pid-1-zombie-reaping-problem/
-
-RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ tini
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 3. install ruby gems
+# install ruby gems
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 RUN echo 'gem: --no-document' > ~/.gemrc
@@ -29,12 +20,24 @@ WORKDIR /app
 
 RUN apk --update add --virtual build-dependencies build-base \
   && bundle config --global silence_root_warning 1 \
-  && bundle install && gem clean \
+  && bundle install \
+  && gem clean \
   && apk del build-dependencies \
   && rm -vrf /var/cache/apk/*
 
+RUN export RACK_ENV='production'
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 4. setup client
+# install tini (for pid 1 zombie reaping)
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# https://github.com/krallin/tini
+# https://blog.phusion.nl/2015/01/20/
+#    docker-and-the-pid-1-zombie-reaping-problem/
+
+RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ tini
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# setup client
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 COPY . /app
