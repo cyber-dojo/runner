@@ -20,6 +20,13 @@ class RunAlpineTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  os_test 'A88',
+  'container has init process running on pid 1' do
+    pid_1_process_test
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   os_test '997',
   'container has access to cyber-dojo env-vars' do
     kata_id_env_vars_test

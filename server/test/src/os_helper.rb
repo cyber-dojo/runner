@@ -4,6 +4,16 @@ module OsHelper
 
   module_function
 
+  def pid_1_process_test
+    cmd = 'cat /proc/1/cmdline'
+    proc1 = assert_cyber_dojo_sh(cmd).strip
+    # odd, but there _is_ an embedded nul-character
+    expected = '/dev/init' + 0.chr + '--'
+    assert proc1.start_with?(expected), proc1
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def kata_id_env_vars_test
     env = {}
     cmd = 'printenv CYBER_DOJO_KATA_ID'

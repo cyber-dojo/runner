@@ -111,6 +111,7 @@ class Runner # stateless
         '--env CYBER_DOJO_RUNNER=stateless',
         "--env CYBER_DOJO_SANDBOX=#{sandbox}",
         "--env HOME=#{home}",
+        '--init',                            # pid-1 process
         '--interactive',                     # for later execs
         "--name=#{name}",
         '--net=none',                        # no network
