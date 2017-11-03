@@ -12,7 +12,7 @@
 
   "image_name": "cyberdojofoundation/clangpp_assert",
 
-  "runner_choice": "stateful",
+  "runner_choice": "stateless",
 
   "filename_extension" : ".cpp"
 }
