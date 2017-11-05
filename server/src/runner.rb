@@ -119,7 +119,6 @@ class Runner # stateless
         '--security-opt=no-new-privileges',  # no escalation
         "--ulimit data=#{gb4}:#{gb4}",       # max data segment size
         '--ulimit core=0:0',                 # max core file size
-        '--ulimit cpu=10:10',                # max cpu time (seconds)
         "--ulimit fsize=#{mb16}:#{mb16}",    # max file size
         '--ulimit locks=128:128',            # max number of file locks
         '--ulimit nofile=128:128',           # max number of files
@@ -193,6 +192,14 @@ class Runner # stateless
   include StringTruncater
 
   def run_timeout(cid, cmd, max_seconds)
+    # This kills the container from the "outside".
+    # Originally I also time-limited the cpu-time from the "inside"
+    # using the cpu ulimit. However a cpu-limit of 10 seconds could
+    # kill the container after only 5 seconds. This is because the
+    # cpu-ulimit assumes one core. The host system running the docker
+    # container can have multiple cores or use hyperthreading. So a
+    # piece of code running on 2 cores, both 100% utilized could be
+    # killed after 5 seconds. So there is no longer a cpu-ulimit.
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {

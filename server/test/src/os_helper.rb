@@ -105,7 +105,6 @@ module OsHelper
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
 
     assert_equal   0, ulimit(lines, :core_size,  etc_issue)
-    assert_equal  10, ulimit(lines, :cpu_time,   etc_issue)
     assert_equal 128, ulimit(lines, :file_locks, etc_issue)
     assert_equal 128, ulimit(lines, :no_files,   etc_issue)
     assert_equal 128, ulimit(lines, :processes,  etc_issue)
@@ -125,7 +124,6 @@ module OsHelper
   def ulimit(lines, key, etc_issue)
     table = {             # alpine,                       ubuntu
       :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
-      :cpu_time   => [ '-t: cpu time (seconds)',      'time(seconds)'   ],
       :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
       :file_locks => [ '-w: locks',                   'locks'           ],
       :file_size  => [ '-f: file size (blocks)',      'file(blocks)'    ],
