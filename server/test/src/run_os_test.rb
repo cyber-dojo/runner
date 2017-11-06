@@ -1,7 +1,7 @@
 require_relative 'test_base'
 require_relative 'os_helper'
 
-class RunAlpineTest < TestBase
+class RunOSTest < TestBase
 
   include OsHelper
 
