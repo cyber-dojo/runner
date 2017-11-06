@@ -61,14 +61,16 @@ class RunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'B6F',
-  %w( [Alpine] start-files have time-stamp with microseconds value of zero ) do
-    # This is an affect of the tar-pipe
+  %w( [Alpine] start-files have time-stamp with microseconds granularity ) do
+    # On Alpine the default timestamp is to the second granularity.
+    # In other words, the microseconds value is always '000000000'.
+    # Make sure the Alpine package coreutils has been installed to fix this.
     run4({ visible_files:ls_starting_files })
     ls_parse(stdout).each do |filename,atts|
       refute_nil atts, filename
-      stamp = atts[:time_stamp] # eg '07:03:14.000000000'
+      stamp = atts[:time_stamp] # eg '07:03:14.835233538'
       microsecs = stamp.split(':')[-1].split('.')[-1]
-      assert_equal '0'*9, microsecs
+      refute_equal '0'*9, microsecs
     end
   end
 

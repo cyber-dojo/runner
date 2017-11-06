@@ -108,7 +108,7 @@ class ForkBombTest < TestBase
       rag_filename = '/usr/local/bin/red_amber_green.rb'
       cmd = "'cat #{rag_filename}'"
       assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
-      assert_equal 'STATUS:2',                      @log.spied[2]
+      assert [ 'STATUS:2','STATUS:126' ].include? @log.spied[2]
       assert_equal 'STDOUT:',                       @log.spied[3]
       fail1 = 'STDERR:sh: 1: Cannot fork'
       fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
