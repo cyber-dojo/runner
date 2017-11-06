@@ -49,6 +49,26 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def kata_new
+    runner.kata_new
+  end
+
+  def kata_old
+    runner.kata_old
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def avatar_new(avatar_name, starting_files)
+    runner.avatar_new(avatar_name, starting_files)
+  end
+
+  def avatar_old(avatar_name)
+    runner.avatar_old(avatar_name)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def run4(named_args = {})
     # don't name this run() as it clashes with MiniTest
     @quad = runner.run *defaulted_args(named_args)

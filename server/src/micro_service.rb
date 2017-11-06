@@ -12,6 +12,14 @@ class MicroService
         body = invoke('image_pulled?')
       when /image_pull/
         body = invoke('image_pull')
+      when /kata_new/
+        body = invoke('kata_new')
+      when /kata_old/
+        body = invoke('kata_old')
+      when /avatar_new/
+        body = invoke('avatar_new', avatar_name, starting_files)
+      when /avatar_old/
+        body = invoke('avatar_old', avatar_name)
       when /run/
         body = invoke('run', avatar_name, visible_files, max_seconds)
     end
@@ -39,6 +47,7 @@ class MicroService
   end
 
   request_args :image_name, :kata_id
-  request_args :avatar_name, :visible_files, :max_seconds
+  request_args :avatar_name, :starting_files
+  request_args :visible_files, :max_seconds
 
 end

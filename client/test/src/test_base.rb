@@ -25,6 +25,37 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
+  def kata_new(named_args={})
+    image_name = defaulted_arg(named_args, :image_name, default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
+    runner.kata_new image_name, kata_id
+  end
+
+  def kata_old(named_args={})
+    image_name = defaulted_arg(named_args, :image_name, default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
+    runner.kata_old image_name, kata_id
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - -
+
+  def avatar_new(named_args={})
+    image_name = defaulted_arg(named_args, :image_name, default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
+    avatar_name = defaulted_arg(named_args, :avatar_name, default_avatar_name)
+    starting_files = defaulted_arg(named_args, :visible_files, default_visible_files)
+    runner.avatar_new image_name, kata_id, avatar_name, starting_files
+  end
+
+  def avatar_old(named_args={})
+    image_name = defaulted_arg(named_args, :image_name, default_image_name)
+    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
+    avatar_name = defaulted_arg(named_args, :avatar_name, default_avatar_name)
+    runner.avatar_old image_name, kata_id, avatar_name
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - -
+
   def run4(named_args = {})
     # don't call this run() as it clashes with MiniTest
     @quad = runner.run *defaulted_args(named_args)

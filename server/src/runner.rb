@@ -40,6 +40,26 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - -
 
+  def kata_new
+    # no-op to keep API compatibility
+  end
+
+  def kata_old
+    # no-op to keep API compatibility
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  def avatar_new(_avatar_name, _starting_files)
+    # no-op to keep API compatibility
+  end
+
+  def avatar_old(_avatar_name)
+    # no-op to keep API compatibility
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) do |cid|
