@@ -33,12 +33,13 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(avatar_name = salmon, starting_files = files)
-    runner.avatar_new(avatar_name, starting_files)
-    @all_files = starting_files
+  def avatar_new(avatar_name = salmon, files = starting_files)
+    runner.avatar_new(avatar_name, files)
+    @avatar_name = avatar_name
+    @all_files = files
   end
 
-  def avatar_old(avatar_name = salmon)
+  def avatar_old(avatar_name = @avatar_name)
     runner.avatar_old(avatar_name)
   end
 
@@ -61,7 +62,7 @@ class TestBase < HexMiniTest
     end
 
     args = []
-    args << defaulted_arg(named_args, :avatar_name, salmon)
+    args << defaulted_arg(named_args, :avatar_name, @avatar_name)
     args << defaulted_arg(named_args, :deleted_filenames, [])
     args << unchanged_files
     args << changed_files
@@ -70,7 +71,7 @@ class TestBase < HexMiniTest
 
     @quad = runner.run_cyber_dojo_sh(*args)
 
-    @all_files = unchanged_files.merge(changed_files).merge(new_files)
+    @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
   end
 
@@ -80,6 +81,14 @@ class TestBase < HexMiniTest
 
   def salmon
     'salmon'
+  end
+
+  def lion
+    'lion'
+  end
+
+  def squid
+    'squid'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -114,14 +123,13 @@ class TestBase < HexMiniTest
     assert_equal expected, stdout, quad
   end
 
-  def assert_stderr(expected)
-    assert_equal expected, stderr, quad
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def assert_stdout_include(text)
     assert stdout.include?(text), quad
+  end
+
+
+  def assert_stderr(expected)
+    assert_equal expected, stderr, quad
   end
 
   def assert_stderr_include(text)
@@ -212,11 +220,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def files(language_dir = language_dir_from_test_name)
-    @files ||= read_files(language_dir)
+  def starting_files
+    @files ||= read_files
   end
 
-  def read_files(language_dir = language_dir_from_test_name)
+  def read_files
+    language_dir = language_dir_from_test_name
     dir = "/app/test/start_files/#{language_dir}"
     json = JSON.parse(IO.read("#{dir}/manifest.json"))
     Hash[json['visible_filenames'].collect { |filename|
@@ -257,7 +266,7 @@ class TestBase < HexMiniTest
   def ls_cmd;
     # Works on Ubuntu and Alpine
     'stat -c "%n %A %u %G %s %z" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.000000000
+    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
     # |        |           |      |          |    |          |
     # filename permissions user   group      size date       time
     # 0        1           2      3          4    5          6
@@ -300,8 +309,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def as(name, starting_files = files)
-    avatar_new(name, starting_files)
+  def as(name, files = starting_files)
+    avatar_new(name, files)
     yield
   ensure
     avatar_old(name)

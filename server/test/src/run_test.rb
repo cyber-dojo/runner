@@ -49,7 +49,7 @@ class RunTest < TestBase
   test 'B82',
   %w( files can be in sub-dirs of sandbox ) do
     in_kata {
-      as(salmon) {
+      as(lion) {
         run_cyber_dojo_sh({
               new_files: { 'a/hello.txt'   => 'hello world' },
           changed_files: { 'cyber-dojo.sh' => ls_cmd }
@@ -57,7 +57,7 @@ class RunTest < TestBase
       }
     }
     ls_files = ls_parse(stdout)
-    uid = user_id(salmon)
+    uid = user_id(lion)
     assert_equal_atts('a', 'drwxr-xr-x', uid, group, 4096, ls_files)
   end
 
@@ -86,7 +86,7 @@ class RunTest < TestBase
     # In other words, the microseconds value is always '000000000'.
     # Make sure the Alpine packages have been installed to fix this.
     in_kata {
-      as(salmon) {
+      as(squid) {
         run_cyber_dojo_sh({
           changed_files: { 'cyber-dojo.sh' => ls_cmd },
               new_files: ls_starting_files

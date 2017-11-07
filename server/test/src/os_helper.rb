@@ -86,8 +86,8 @@ module OsHelper
 
   def avatar_new_starting_files_test
     files = ls_starting_files.merge({ 'cyber-dojo.sh' => ls_cmd })
-    as('lion', files) {
-      run_cyber_dojo_sh({ avatar_name: 'lion' })
+    as(lion, files) {
+      run_cyber_dojo_sh
     }
     assert_colour 'amber' # doing an ls
     assert_stderr ''
