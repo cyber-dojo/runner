@@ -50,8 +50,7 @@ class RunTest < TestBase
       })
     }
     ls_files = ls_parse(stdout)
-    uid = user_id(lion)
-    assert_equal_atts(filename, '-rw-r--r--', uid, group, content.length, ls_files)
+    assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
   end
 
   test 'B82',
@@ -66,8 +65,7 @@ class RunTest < TestBase
       })
     }
     ls_files = ls_parse(stdout)
-    uid = user_id(lion)
-    assert_equal_atts(filename, '-rw-r--r--', uid, group, content.length, ls_files)
+    assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -84,8 +82,7 @@ class RunTest < TestBase
       })
     }
     ls_files = ls_parse(stdout)
-    uid = user_id(salmon)
-    assert_equal_atts(filename, '-rw-r--r--', uid, group, content.length, ls_files)
+    assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
   end
 
   test 'B84',
@@ -100,8 +97,7 @@ class RunTest < TestBase
       })
     }
     ls_files = ls_parse(stdout)
-    uid = user_id(salmon)
-    assert_equal_atts(filename, '-rw-r--r--', uid, group, content.length, ls_files)
+    assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -21,13 +21,13 @@ module OsHelper
     cmd = 'printenv CYBER_DOJO_AVATAR_NAME'
     env[:avatar_name] = assert_cyber_dojo_sh(cmd).strip
     cmd = 'printenv CYBER_DOJO_SANDBOX'
-    env[:sandbox]     = assert_cyber_dojo_sh(cmd).strip
+    env[:sandbox_dir] = assert_cyber_dojo_sh(cmd).strip
     cmd = 'printenv CYBER_DOJO_RUNNER'
     env[:runner]      = assert_cyber_dojo_sh(cmd).strip
 
     assert_equal kata_id, env[:kata_id]
-    assert_equal salmon, env[:avatar_name]
-    assert_equal sandbox_dir(salmon), env[:sandbox]
+    assert_equal avatar_name, env[:avatar_name]
+    assert_equal sandbox_dir, env[:sandbox_dir]
     assert_equal 'stateless', env[:runner]
   end
 
@@ -38,9 +38,8 @@ module OsHelper
   def assert_avatar_users_exist
     etc_passwd = assert_cyber_dojo_sh 'cat /etc/passwd'
     all_avatars_names.each do |name|
-      uid = user_id(name).to_s
-      assert etc_passwd.include?(uid),
-        "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
+      assert etc_passwd.include?(user_id.to_s),
+        "#{name}:#{user_id}:#{etc_passwd}:#{image_name}"
     end
   end
 
@@ -57,33 +56,33 @@ module OsHelper
 
   def avatar_new_home_test
     home = assert_cyber_dojo_sh('printenv HOME').strip
-    assert_equal home_dir(salmon), home
+    assert_equal home_dir, home
 
     cd_home_pwd = assert_cyber_dojo_sh('cd ~ && pwd').strip
-    assert_equal home_dir(salmon), cd_home_pwd
+    assert_equal home_dir, cd_home_pwd
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new_sandbox_setup_test
-    sandbox = sandbox_dir(salmon)
-    assert_cyber_dojo_sh "[ -d #{sandbox} ]" # sandbox exists
+    assert_cyber_dojo_sh "[ -d #{sandbox_dir} ]" # sandbox exists
 
-    ls = assert_cyber_dojo_sh "ls -A #{sandbox}"
+    ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
     refute_equal '', ls # sandbox is not empty
 
     stat = {}
-    stat[:user]  = assert_cyber_dojo_sh("stat -c '%u' #{sandbox}").strip.to_i
-    stat[:gid]   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox}").strip.to_i
-    stat[:perms] = assert_cyber_dojo_sh("stat -c '%A' #{sandbox}").strip
+    stat[:user]  = assert_cyber_dojo_sh("stat -c '%u' #{sandbox_dir}").strip.to_i
+    stat[:gid]   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox_dir}").strip.to_i
+    stat[:perms] = assert_cyber_dojo_sh("stat -c '%A' #{sandbox_dir}").strip
 
-    assert_equal user_id(salmon), stat[:user]
+    assert_equal user_id, stat[:user]
     assert_equal gid, stat[:gid]
     assert_equal 'drwxr-xr-x', stat[:perms]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def avatar_new_starting_files_test
     files = ls_starting_files.merge({ 'cyber-dojo.sh' => ls_cmd })
     as(lion, files) {
@@ -94,12 +93,13 @@ module OsHelper
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
     assert_equal files.keys.sort, ls_files.keys.sort
-    uid = user_id('lion')
+    uid = user_id(lion)
     assert_equal_atts('empty.txt',     '-rw-r--r--', uid, group,  0, ls_files)
     assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', uid, group, 29, ls_files)
     assert_equal_atts('hello.txt',     '-rw-r--r--', uid, group, 11, ls_files)
     assert_equal_atts('hello.sh',      '-rw-r--r--', uid, group, 16, ls_files)
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

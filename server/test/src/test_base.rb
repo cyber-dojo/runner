@@ -33,14 +33,14 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(avatar_name = salmon, files = starting_files)
-    runner.avatar_new(avatar_name, files)
-    @avatar_name = avatar_name
+  def avatar_new(name = salmon, files = starting_files)
+    runner.avatar_new(name, files)
+    @avatar_name = name
     @all_files = files
   end
 
-  def avatar_old(avatar_name = @avatar_name)
-    runner.avatar_old(avatar_name)
+  def avatar_old(name = avatar_name)
+    runner.avatar_old(name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -62,7 +62,7 @@ class TestBase < HexMiniTest
     end
 
     args = []
-    args << defaulted_arg(named_args, :avatar_name, @avatar_name)
+    args << avatar_name
     args << defaulted_arg(named_args, :deleted_filenames, [])
     args << unchanged_files
     args << changed_files
@@ -194,17 +194,21 @@ class TestBase < HexMiniTest
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
+  def avatar_name
+    @avatar_name
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def timed_out
     runner.timed_out
   end
 
-  def home_dir(avatar_name)
+  def home_dir
     runner.home_dir(avatar_name)
   end
 
-  def sandbox_dir(avatar_name)
+  def sandbox_dir
     runner.sandbox_dir(avatar_name)
   end
 
@@ -216,7 +220,7 @@ class TestBase < HexMiniTest
     runner.gid
   end
 
-  def user_id(avatar_name)
+  def user_id
     runner.user_id(avatar_name)
   end
 
@@ -302,9 +306,9 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def in_kata_as(avatar_name)
+  def in_kata_as(name)
     in_kata {
-      as(avatar_name) {
+      as(name) {
         yield
       }
     }
