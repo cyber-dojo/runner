@@ -33,10 +33,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(name = salmon, files = starting_files)
-    runner.avatar_new(name, files)
-    @avatar_name = name
-    @all_files = files
+  def avatar_new(name = salmon)
+    runner.avatar_new(@avatar_name = name, @all_files = starting_files)
   end
 
   def avatar_old(name = avatar_name)
@@ -314,8 +312,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def as(name, files = starting_files)
-    avatar_new(name, files)
+  def as(name)
+    avatar_new(name)
     yield
   ensure
     avatar_old(name)
