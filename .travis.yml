@@ -1,5 +1,4 @@
 sudo: false
-dist: trusty
 services: docker
 language: node_js
 bundler_args: --retry 5
