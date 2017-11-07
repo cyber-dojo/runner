@@ -122,9 +122,11 @@ class TestBase < HexMiniTest
     assert_equal expected, stderr, quad
   end
 
+  # :nocov:
   def assert_stderr_include(text)
     assert stderr.include?(text), quad
   end
+  # :nocov:
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

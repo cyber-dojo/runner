@@ -20,7 +20,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def pid_1_process_test
+  def pid_1_init_process_test
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd).strip
     # odd, but there _is_ an embedded nul-character
