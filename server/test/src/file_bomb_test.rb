@@ -9,11 +9,32 @@ class FileBombTest < TestBase
     '1988B'
   end
 
+  def hex_setup
+    set_image_name image_for_test
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'DB3',
   %w( [Alpine] file-bomb in C to exhaust file-handles fails to go off ) do
-    gcc_assert_files['hiker.c'] =
+    in_kata {
+      as(salmon) {
+        run_cyber_dojo_sh({
+          changed_files: { 'hiker.c' => c_file_bomb }
+        })
+      }
+    }
+    assert_colour 'green'
+    assert_stderr ''
+    lines = stdout.split("\n")
+    assert_equal 1, lines.count{ |line| line == 'All tests passed' }
+    assert lines.count{ |line| line.start_with? 'fopen() != NULL' } > 42
+    assert_equal 1, lines.count{ |line| line.start_with? 'fopen() == NULL' }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def c_file_bomb
     [
       '#include "hiker.h"',
       '#include <stdio.h>',
@@ -36,13 +57,6 @@ class FileBombTest < TestBase
       '  return 6 * 7;',
       '}'
     ].join("\n")
-    run4({ visible_files:gcc_assert_files })
-    assert_colour 'green'
-    assert_stderr ''
-    lines = stdout.split("\n")
-    assert_equal 1, lines.count{ |line| line == 'All tests passed' }
-    assert lines.count{ |line| line.start_with? 'fopen() != NULL' } > 42
-    assert_equal 1, lines.count{ |line| line.start_with? 'fopen() == NULL' }
   end
 
 end

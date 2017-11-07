@@ -9,6 +9,17 @@ class RunOSTest < TestBase
     '3759D'
   end
 
+  def hex_setup
+    set_image_name image_for_test
+    kata_new
+    avatar_new
+  end
+
+  def hex_teardown
+    avatar_old
+    kata_old
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def self.os_test(hex_suffix, *lines, &test_block)
@@ -49,22 +60,22 @@ class RunOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   os_test '2A0',
-  'new_avatar has HOME set off /home' do
-    new_avatar_home_test
+  'avatar_new has HOME set off /home' do
+    avatar_new_home_test
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   os_test '0C9',
-  'new_avatar has its own sandbox with owner/group/permissions set' do
-    new_avatar_sandbox_setup_test
+  'avatar_new has its own sandbox with owner/group/permissions set' do
+    avatar_new_sandbox_setup_test
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   os_test '1FB',
-  'new_avatar has starting-files in its sandbox with owner/group/permissions set' do
-    new_avatar_starting_files_test
+  'avatar_new has starting-files in its sandbox with owner/group/permissions set' do
+    avatar_new_starting_files_test
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

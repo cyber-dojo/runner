@@ -6,14 +6,22 @@ class AvatarTest < TestBase
     '20A7A'
   end
 
+  def hex_setup
+    set_image_name 'cyberdojofoundation/gcc_assert'
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '75E', %w( avatar_new is a no-op for API compatibility ) do
-    avatar_new(default_avatar_name, default_visible_files)
+    in_kata {
+      avatar_new
+    }
   end
 
   test '75F', %w( avatar_old is a no-op for API compatibility ) do
-    avatar_old(default_avatar_name)
+    in_kata {
+      avatar_old
+    }
   end
 
 end

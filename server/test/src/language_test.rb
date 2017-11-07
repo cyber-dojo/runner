@@ -6,11 +6,19 @@ class LanguageTest < TestBase
     '9D930'
   end
 
+  def hex_setup
+    set_image_name image_for_test
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '76D',
   '[gcc,assert] runs' do
-    run4({ visible_files: read_files })
+    in_kata {
+      as(salmon) {
+        run_cyber_dojo_sh
+      }
+    }
     assert_colour 'red'
     assert_stderr_include "[makefile:14: test.output] Aborted"
     assert_stderr_include 'Assertion failed: answer() == 42'
@@ -20,7 +28,11 @@ class LanguageTest < TestBase
 
   test '358',
   '[Java,Cucumber] runs' do
-    run4({ visible_files: read_files })
+    in_kata {
+      as(salmon) {
+        run_cyber_dojo_sh
+      }
+    }
     assert_colour 'red'
     assert_stdout_include '1 Scenarios (1 failed)'
     assert_stderr ''

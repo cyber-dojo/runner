@@ -26,8 +26,8 @@ module OsHelper
     env[:runner]      = assert_cyber_dojo_sh(cmd).strip
 
     assert_equal kata_id, env[:kata_id]
-    assert_equal default_avatar_name, env[:avatar_name]
-    assert_equal sandbox_dir(default_avatar_name), env[:sandbox]
+    assert_equal salmon, env[:avatar_name]
+    assert_equal sandbox_dir(salmon), env[:sandbox]
     assert_equal 'stateless', env[:runner]
   end
 
@@ -55,18 +55,18 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def new_avatar_home_test
+  def avatar_new_home_test
     home = assert_cyber_dojo_sh('printenv HOME').strip
-    assert_equal home_dir(default_avatar_name), home
+    assert_equal home_dir(salmon), home
 
     cd_home_pwd = assert_cyber_dojo_sh('cd ~ && pwd').strip
-    assert_equal home_dir(default_avatar_name), cd_home_pwd
+    assert_equal home_dir(salmon), cd_home_pwd
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def new_avatar_sandbox_setup_test
-    sandbox = sandbox_dir(default_avatar_name)
+  def avatar_new_sandbox_setup_test
+    sandbox = sandbox_dir(salmon)
     assert_cyber_dojo_sh "[ -d #{sandbox} ]" # sandbox exists
 
     ls = assert_cyber_dojo_sh "ls -A #{sandbox}"
@@ -77,20 +77,23 @@ module OsHelper
     stat[:gid]   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox}").strip.to_i
     stat[:perms] = assert_cyber_dojo_sh("stat -c '%A' #{sandbox}").strip
 
-    assert_equal user_id(default_avatar_name), stat[:user]
+    assert_equal user_id(salmon), stat[:user]
     assert_equal gid, stat[:gid]
     assert_equal 'drwxr-xr-x', stat[:perms]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def new_avatar_starting_files_test
-    run4({ avatar_name:'lion', visible_files:ls_starting_files })
+  def avatar_new_starting_files_test
+    files = ls_starting_files.merge({ 'cyber-dojo.sh' => ls_cmd })
+    as('lion', files) {
+      run_cyber_dojo_sh({ avatar_name: 'lion' })
+    }
     assert_colour 'amber' # doing an ls
     assert_stderr ''
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
-    assert_equal ls_starting_files.keys.sort, ls_files.keys.sort
+    assert_equal files.keys.sort, ls_files.keys.sort
     uid = user_id('lion')
     assert_equal_atts('empty.txt',     '-rw-r--r--', uid, group,  0, ls_files)
     assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', uid, group, 29, ls_files)

@@ -60,6 +60,16 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - -
 
+  def run_cyber_dojo_sh(
+    avatar_name,
+    _deleted_filenames,
+    unchanged_files, changed_files, new_files,
+    max_seconds
+  )
+    all_files = [*unchanged_files, *changed_files, *new_files].to_h
+    run(avatar_name, all_files, max_seconds)
+  end
+
   def run(avatar_name, visible_files, max_seconds)
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) do |cid|

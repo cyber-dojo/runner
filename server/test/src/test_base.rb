@@ -13,32 +13,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def timed_out
-    runner.timed_out
-  end
-
-  def home_dir(avatar_name)
-    runner.home_dir(avatar_name)
-  end
-
-  def sandbox_dir(avatar_name)
-    runner.sandbox_dir(avatar_name)
-  end
-
-  def group
-    runner.group
-  end
-
-  def gid
-    runner.gid
-  end
-
-  def user_id(avatar_name)
-    runner.user_id(avatar_name)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def image_pulled?
     runner.image_pulled?
   end
@@ -59,21 +33,56 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(avatar_name, starting_files)
+  def avatar_new(avatar_name = salmon, starting_files = files)
     runner.avatar_new(avatar_name, starting_files)
+    @all_files = starting_files
   end
 
-  def avatar_old(avatar_name)
+  def avatar_old(avatar_name = salmon)
     runner.avatar_old(avatar_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def run4(named_args = {})
-    # don't name this run() as it clashes with MiniTest
-    @quad = runner.run *defaulted_args(named_args)
+  def run_cyber_dojo_sh(named_args = {})
+
+    unchanged_files = @all_files
+
+    changed_files = defaulted_arg(named_args, :changed_files, {})
+    changed_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a changed_file (it does not already exist)"
+      assert unchanged_files.keys.include?(filename), diagnostic
+      unchanged_files.delete(filename)
+    end
+    new_files = defaulted_arg(named_args, :new_files, {})
+    new_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a new_file (it already exists)"
+      refute unchanged_files.keys.include?(filename), diagnostic
+    end
+
+    args = []
+    args << defaulted_arg(named_args, :avatar_name, salmon)
+    args << defaulted_arg(named_args, :deleted_filenames, [])
+    args << unchanged_files
+    args << changed_files
+    args << new_files
+    args << defaulted_arg(named_args, :max_seconds, 10)
+
+    @quad = runner.run_cyber_dojo_sh(*args)
+
+    @all_files = unchanged_files.merge(changed_files).merge(new_files)
     nil
   end
+
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
+  end
+
+  def salmon
+    'salmon'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
     quad[:stdout]
@@ -122,19 +131,19 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_cyber_dojo_sh(script, named_args = {})
-    named_args[:visible_files] = { 'cyber-dojo.sh' => script }
+    named_args[:changed_files] = { 'cyber-dojo.sh' => script }
     assert_run_succeeds(named_args)
   end
 
   def assert_run_succeeds(named_args)
-    run4(named_args)
+    run_cyber_dojo_sh(named_args)
     refute_equal timed_out, colour, quad
     assert_stderr ''
     stdout
   end
 
   def assert_run_times_out(named_args)
-    run4(named_args)
+    run_cyber_dojo_sh(named_args)
     assert_colour timed_out
     assert_status 137
     assert_stdout ''
@@ -148,18 +157,23 @@ class TestBase < HexMiniTest
   end
 
   def image_name
-    @image_name || "#{cdf}/#{image_from_test_name}"
+    @image_name
   end
 
-  def image_from_test_name
+  def image_for_test
     rows = {
-      '[Java,Cucumber]' => 'java_cucumber_pico',
       '[gcc,assert]'    => 'gcc_assert',
+      '[Java,Cucumber]' => 'java_cucumber_pico',
       '[Alpine]'        => 'gcc_assert',
       '[Ubuntu]'        => 'clangpp_assert'
     }
-    row = rows.detect { |key,_| hex_test_name.include? key }
-    row ? row[1] : 'gcc_assert'
+    row = rows.detect { |key,_| hex_test_name.start_with? key }
+    fail 'cannot find image_name from hex_test_name' if row.nil?
+    "#{cdf}/" + row[1]
+  end
+
+  def cdf
+    'cyberdojofoundation'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -172,29 +186,34 @@ class TestBase < HexMiniTest
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
+  def timed_out
+    runner.timed_out
+  end
+
+  def home_dir(avatar_name)
+    runner.home_dir(avatar_name)
+  end
+
+  def sandbox_dir(avatar_name)
+    runner.sandbox_dir(avatar_name)
+  end
+
+  def group
+    runner.group
+  end
+
+  def gid
+    runner.gid
+  end
+
+  def user_id(avatar_name)
+    runner.user_id(avatar_name)
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def defaulted_args(named_args)
-    avatar_name   = defaulted_arg(named_args, :avatar_name,   default_avatar_name)
-    visible_files = defaulted_arg(named_args, :visible_files, default_visible_files)
-    max_seconds   = defaulted_arg(named_args, :max_seconds,   default_max_seconds)
-    [avatar_name, visible_files, max_seconds]
-  end
-
-  def defaulted_arg(named_args, arg_name, arg_default)
-    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
-  end
-
-  def default_avatar_name
-    'salmon'
-  end
-
-  def default_visible_files
-    @files ||= read_files
-  end
-
-  def default_max_seconds
-    10
+  def files(language_dir = language_dir_from_test_name)
+    @files ||= read_files(language_dir)
   end
 
   def read_files(language_dir = language_dir_from_test_name)
@@ -206,17 +225,8 @@ class TestBase < HexMiniTest
   end
 
   def language_dir_from_test_name
-    image_from_test_name
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def gcc_assert_files
-    @gcc_assert_files ||= read_files('gcc_assert')
-  end
-
-  def clangpp_assert_files
-    @gpp_assert_files ||= read_files('clangpp_assert')
+    fail 'image_name.nil? so cannot set language_dir' if image_name.nil?
+    image_name.split('/')[1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -234,15 +244,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cdf
-    'cyberdojofoundation'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def ls_starting_files
     {
-      'cyber-dojo.sh' => ls_cmd,
       'empty.txt'     => '',
       'hello.txt'     => 'hello world',
       'hello.sh'      => 'echo hello world',
@@ -284,6 +287,24 @@ class TestBase < HexMiniTest
     assert_equal group, atts[:group], { filename => atts }
     assert_equal size,  atts[:size ], { filename => atts }
     assert_equal permissions, atts[:permissions], { filename => atts }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def in_kata
+    kata_new
+    yield
+  ensure
+    kata_old
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def as(name, starting_files = files)
+    avatar_new(name, starting_files)
+    yield
+  ensure
+    avatar_old(name)
   end
 
   private

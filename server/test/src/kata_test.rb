@@ -6,6 +6,10 @@ class KataTest < TestBase
     'FB0D4'
   end
 
+  def hex_setup
+    set_image_name "#{cdf}/gcc_assert"
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'DBC', %w( kata_new is a no-op for API compatibility ) do
