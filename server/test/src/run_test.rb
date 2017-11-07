@@ -22,23 +22,19 @@ class RunTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'C2E',
+  test '8A3',
   %w( [Alpine] run initially red ) do
-    in_kata {
-      as(salmon) {
-        run_cyber_dojo_sh
-        assert_colour 'red'
-      }
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh
+      assert_colour 'red'
     }
   end
 
   test '8A4',
   %w( [Ubuntu] run initially red ) do
-    in_kata {
-      as(salmon) {
-        run_cyber_dojo_sh
-        assert_colour 'red'
-      }
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh
+      assert_colour 'red'
     }
   end
 
@@ -49,13 +45,11 @@ class RunTest < TestBase
     sub_dir = 'z'
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
-    in_kata {
-      as(lion) {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
-              new_files: { "#{sub_dir}/#{filename}" => content }
-        })
-      }
+    in_kata_as(lion) {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
+            new_files: { "#{sub_dir}/#{filename}" => content }
+      })
     }
     ls_files = ls_parse(stdout)
     uid = user_id(lion)
@@ -67,13 +61,11 @@ class RunTest < TestBase
     sub_dir = 'z'
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
-    in_kata {
-      as(lion) {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
-              new_files: { "#{sub_dir}/#{filename}" => content }
-        })
-      }
+    in_kata_as(lion) {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
+            new_files: { "#{sub_dir}/#{filename}" => content }
+      })
     }
     ls_files = ls_parse(stdout)
     uid = user_id(lion)
@@ -87,13 +79,11 @@ class RunTest < TestBase
     sub_sub_dir = 'a/b'
     filename = 'goodbye.txt'
     content = 'goodbye cruel world'
-    in_kata {
-      as(salmon) {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
-              new_files: { "#{sub_sub_dir}/#{filename}" => content }
-        })
-      }
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
+            new_files: { "#{sub_sub_dir}/#{filename}" => content }
+      })
     }
     ls_files = ls_parse(stdout)
     uid = user_id(salmon)
@@ -105,13 +95,11 @@ class RunTest < TestBase
     sub_sub_dir = 'a/b'
     filename = 'goodbye.txt'
     content = 'goodbye cruel world'
-    in_kata {
-      as(salmon) {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
-              new_files: { "#{sub_sub_dir}/#{filename}" => content }
-        })
-      }
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
+            new_files: { "#{sub_sub_dir}/#{filename}" => content }
+      })
     }
     ls_files = ls_parse(stdout)
     uid = user_id(salmon)
@@ -125,13 +113,11 @@ class RunTest < TestBase
     # On _default_ Alpine date-time file-stamps are to the second granularity.
     # In other words, the microseconds value is always '000000000'.
     # Make sure the Alpine packages have been installed to fix this.
-    in_kata {
-      as(squid) {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => ls_cmd },
-              new_files: ls_starting_files
-        })
-      }
+    in_kata_as(squid) {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => ls_cmd },
+            new_files: ls_starting_files
+      })
     }
     ls_parse(stdout).each do |filename,atts|
       refute_nil atts, filename
@@ -144,13 +130,11 @@ class RunTest < TestBase
 
   test 'B6F',
   %w( [Ubuntu] files have time-stamp with microseconds granularity ) do
-    in_kata {
-      as(squid) {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => ls_cmd },
-              new_files: ls_starting_files
-        })
-      }
+    in_kata_as(squid) {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => ls_cmd },
+            new_files: ls_starting_files
+      })
     }
     ls_parse(stdout).each do |filename,atts|
       refute_nil atts, filename

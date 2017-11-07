@@ -1,9 +1,6 @@
 require_relative 'test_base'
-require_relative 'os_helper'
 
 class FileBombTest < TestBase
-
-  include OsHelper
 
   def self.hex_prefix
     '1988B'
@@ -17,12 +14,10 @@ class FileBombTest < TestBase
 
   test 'DB3',
   %w( [Alpine] file-bomb in C to exhaust file-handles fails to go off ) do
-    in_kata {
-      as(salmon) {
-        run_cyber_dojo_sh({
-          changed_files: { 'hiker.c' => c_file_bomb }
-        })
-      }
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => c_file_bomb }
+      })
     }
     assert_colour 'green'
     assert_stderr ''

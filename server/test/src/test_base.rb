@@ -302,6 +302,14 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def in_kata_as(avatar_name)
+    in_kata {
+      as(avatar_name) {
+        yield
+      }
+    }
+  end
+
   def in_kata
     kata_new
     yield

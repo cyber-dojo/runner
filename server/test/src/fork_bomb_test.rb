@@ -1,9 +1,6 @@
 require_relative 'test_base'
-require_relative 'os_helper'
 
 class ForkBombTest < TestBase
-
-  include OsHelper
 
   def self.hex_prefix
     '35758'
@@ -19,13 +16,11 @@ class ForkBombTest < TestBase
 
   test 'CD5',
   %w( [Alpine] fork-bomb in C fails to go off ) do
-    in_kata {
-      as(salmon) {
-        content = '#include "hiker.h"' + "\n" + fork_bomb_definition
-        run_cyber_dojo_sh({
-          changed_files: { 'hiker.c' => content }
-        })
-      }
+    in_kata_as(salmon) {
+      content = '#include "hiker.h"' + "\n" + fork_bomb_definition
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => content }
+      })
     }
     assert_colour 'green'
     assert_stderr ''
@@ -39,13 +34,11 @@ class ForkBombTest < TestBase
 
   test 'CD6',
   %w( [Ubuntu] fork-bomb in C++ fails to go off ) do
-    in_kata {
-      as(salmon) {
-        content = '#include "hiker.hpp"' + "\n" + fork_bomb_definition
-        run_cyber_dojo_sh({
-          changed_files: { 'hiker.cpp' => content }
-        })
-      }
+    in_kata_as(salmon) {
+      content = '#include "hiker.hpp"' + "\n" + fork_bomb_definition
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.cpp' => content }
+      })
     }
     # It fails in a non-deterministic way.
     lines = stdout.split("\n")
@@ -84,27 +77,25 @@ class ForkBombTest < TestBase
     # Sometimes, it throws an ArgumentError exception.
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
-    in_kata {
-      as(salmon) {
-        begin
-          run_shell_fork_bomb
-        # :nocov:
-          assert_colour 'amber'
-          assert_stdout ''
-          assert_stderr_include "./cyber-dojo.sh: line 1: can't fork"
-        rescue ArgumentError
-          rag_filename = '/usr/local/bin/red_amber_green.rb'
-          cmd = "'cat #{rag_filename}'"
-          assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
-          assert_equal 'STATUS:2',                      @log.spied[2]
-          assert_equal 'STDOUT:',                       @log.spied[3]
-          fail1 = "STDERR:sh: can't fork"
-          fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
-          line = @log.spied[4].split("\n")[0]
-          assert [ fail1, fail2 ].include?(line), line
-        # :nocov:
-        end
-      }
+    in_kata_as(salmon) {
+      begin
+        run_shell_fork_bomb
+      # :nocov:
+        assert_colour 'amber'
+        assert_stdout ''
+        assert_stderr_include "./cyber-dojo.sh: line 1: can't fork"
+      rescue ArgumentError
+        rag_filename = '/usr/local/bin/red_amber_green.rb'
+        cmd = "'cat #{rag_filename}'"
+        assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
+        assert_equal 'STATUS:2',                      @log.spied[2]
+        assert_equal 'STDOUT:',                       @log.spied[3]
+        fail1 = "STDERR:sh: can't fork"
+        fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
+        line = @log.spied[4].split("\n")[0]
+        assert [ fail1, fail2 ].include?(line), line
+      # :nocov:
+      end
     }
   end
 
@@ -116,26 +107,24 @@ class ForkBombTest < TestBase
     # Sometimes, it throws an ArgumentError exception.
     # The nocov markers keep coverage at 100%
     @log = LoggerSpy.new(nil)
-    in_kata {
-      as(salmon) {
-        begin
-          run_shell_fork_bomb
-        # :nocov:
-          assert_colour 'amber'
-          assert_stdout ''
-          assert_stderr_include "./cyber-dojo.sh: Cannot fork"
-        rescue ArgumentError
-          rag_filename = '/usr/local/bin/red_amber_green.rb'
-          cmd = "'cat #{rag_filename}'"
-          assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
-          assert [ 'STATUS:2','STATUS:126' ].include? @log.spied[2]
-          assert_equal 'STDOUT:',                       @log.spied[3]
-          fail1 = 'STDERR:sh: 1: Cannot fork'
-          fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
-          assert [ fail1, fail2 ].include? @log.spied[4].split("\n")[0]
-        # :nocov:
-        end
-      }
+    in_kata_as(salmon) {
+      begin
+        run_shell_fork_bomb
+      # :nocov:
+        assert_colour 'amber'
+        assert_stdout ''
+        assert_stderr_include "./cyber-dojo.sh: Cannot fork"
+      rescue ArgumentError
+        rag_filename = '/usr/local/bin/red_amber_green.rb'
+        cmd = "'cat #{rag_filename}'"
+        assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
+        assert [ 'STATUS:2','STATUS:126' ].include? @log.spied[2]
+        assert_equal 'STDOUT:',                       @log.spied[3]
+        fail1 = 'STDERR:sh: 1: Cannot fork'
+        fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
+        assert [ fail1, fail2 ].include? @log.spied[4].split("\n")[0]
+      # :nocov:
+      end
     }
   end
 
