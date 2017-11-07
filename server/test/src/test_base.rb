@@ -227,10 +227,6 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    @files ||= read_files
-  end
-
-  def read_files
     language_dir = language_dir_from_test_name
     dir = "/app/test/start_files/#{language_dir}"
     json = JSON.parse(IO.read("#{dir}/manifest.json"))

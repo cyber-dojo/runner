@@ -90,12 +90,11 @@ module OsHelper
     assert_stderr ''
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
-    #TODO:starting_files does not contain cyber-dojo.sh
-    #assert_equal starting_files.keys.sort, ls_files.keys.sort
+    assert_equal starting_files.keys.sort, ls_files.keys.sort
     starting_files.each do |filename,content|
-      #if filename == 'cyber-dojo.sh'
-      #  content = ls_cmd
-      #end
+      if filename == 'cyber-dojo.sh'
+        content = ls_cmd
+      end
       assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
     end
   end
