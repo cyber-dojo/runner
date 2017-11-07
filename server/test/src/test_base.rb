@@ -118,11 +118,6 @@ class TestBase < HexMiniTest
     assert_equal expected, stdout, quad
   end
 
-  def assert_stdout_include(text)
-    assert stdout.include?(text), quad
-  end
-
-
   def assert_stderr(expected)
     assert_equal expected, stderr, quad
   end
@@ -301,7 +296,6 @@ class TestBase < HexMiniTest
   def image_for_test
     rows = {
       '[gcc,assert]'    => 'gcc_assert',
-      '[Java,Cucumber]' => 'java_cucumber_pico',
       '[Alpine]'        => 'gcc_assert',
       '[Ubuntu]'        => 'clangpp_assert'
     }
