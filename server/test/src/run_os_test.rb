@@ -46,15 +46,15 @@ class RunOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   os_test '267',
-  'all of the 64 avatar users already exist' do
+  'all of the 64 avatar users already exist in the image' do
     assert_avatar_users_exist
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   os_test '582',
-  'has group used for dir/file ownership' do
-    assert_group_exists
+  'the cyber_dojo group already exists in the image' do
+    assert_cyber_dojo_group_exists
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -81,7 +81,7 @@ class RunOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   os_test 'D7C',
-  'is ulimited' do
+  'the container is ulimited' do
     ulimit_test
   end
 

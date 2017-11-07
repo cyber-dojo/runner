@@ -46,7 +46,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_group_exists
+  def assert_cyber_dojo_group_exists
     stdout = assert_cyber_dojo_sh("getent group #{group}").strip
     entries = stdout.split(':')  # cyber-dojo:x:5000
     assert_equal group, entries[0], stdout
