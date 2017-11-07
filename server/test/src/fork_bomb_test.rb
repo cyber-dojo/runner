@@ -84,8 +84,8 @@ class ForkBombTest < TestBase
         rag_filename = '/usr/local/bin/red_amber_green.rb'
         cmd = "'cat #{rag_filename}'"
         assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
-        assert_equal 'STATUS:2',                      @log.spied[2]
-        assert_equal 'STDOUT:',                       @log.spied[3]
+        assert_equal 'STATUS:2', @log.spied[2]
+        assert_equal 'STDOUT:', @log.spied[3]
         fail1 = "STDERR:sh: can't fork"
         fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
         line = @log.spied[4].split("\n")[0]
@@ -115,10 +115,11 @@ class ForkBombTest < TestBase
         cmd = "'cat #{rag_filename}'"
         assert /COMMAND:docker .* sh -c #{cmd}/.match @log.spied[1]
         assert [ 'STATUS:2','STATUS:126' ].include? @log.spied[2]
-        assert_equal 'STDOUT:',                       @log.spied[3]
+        assert_equal 'STDOUT:', @log.spied[3]
         fail1 = 'STDERR:sh: 1: Cannot fork'
         fail2 = 'STDERR:runtime/cgo: pthread_create failed: Resource temporarily unavailable'
-        assert [ fail1, fail2 ].include? @log.spied[4].split("\n")[0]
+        line = @log.spied[4].split("\n")[0]
+        assert [ fail1, fail2 ].include?(line), line
       # :nocov:
       end
     }

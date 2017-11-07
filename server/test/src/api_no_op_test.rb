@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class AvatarTest < TestBase
+class ApiNoOpTest < TestBase
 
   def self.hex_prefix
     '20A7A'
@@ -13,6 +13,14 @@ class AvatarTest < TestBase
       avatar_new
       avatar_old
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test 'DBC', %w( kata_new and kata_old are no-ops for API compatibility ) do
+    set_image_name "#{cdf}/gcc_assert"
+    kata_new
+    kata_old
   end
 
 end
