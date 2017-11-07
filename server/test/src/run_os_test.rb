@@ -20,6 +20,20 @@ class RunOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  os_test 'C3A',
+  'invalid avatar_name raises' do
+    in_kata { invalid_avatar_name_raises }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  os_test '8A3',
+  'run is initially red' do
+    in_kata_as(salmon) { run_is_initially_red }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   os_test 'A88',
   'container has init process running on pid 1' do
     in_kata_as(salmon) { pid_1_process_test }
@@ -79,6 +93,27 @@ class RunOSTest < TestBase
   os_test 'FEA',
   'test-event baseline speed' do
     in_kata_as(squid) { baseline_speed_test }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  os_test 'B81',
+  'files can be in sub-dirs of sandbox' do
+    files_can_be_in_sub_dirs_of_sandbox
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  os_test 'B84',
+  'files can be in sub-sub-dirs of sandbox' do
+    files_can_be_in_sub_sub_dirs_of_sandbox
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  os_test 'B6E',
+  'files have time-stamp with microseconds granularity' do
+    files_have_time_stamp_with_microseconds_granularity
   end
 
 end

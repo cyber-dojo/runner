@@ -53,6 +53,7 @@ class TestBase < HexMiniTest
       assert unchanged_files.keys.include?(filename), diagnostic
       unchanged_files.delete(filename)
     end
+
     new_files = defaulted_arg(named_args, :new_files, {})
     new_files.keys.each do |filename|
       diagnostic = "#{filename} is not a new_file (it already exists)"
@@ -71,10 +72,6 @@ class TestBase < HexMiniTest
 
     @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
-  end
-
-  def defaulted_arg(named_args, arg_name, arg_default)
-    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
   def salmon
@@ -158,6 +155,43 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def assert_equal_atts(filename, permissions, user, group, size, ls_files)
+    atts = ls_files[filename]
+    refute_nil atts, filename
+    assert_equal user,  atts[:user ], { filename => atts }
+    assert_equal group, atts[:group], { filename => atts }
+    assert_equal size,  atts[:size ], { filename => atts }
+    assert_equal permissions, atts[:permissions], { filename => atts }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def ls_parse(ls_stdout)
+    Hash[ls_stdout.split("\n").collect { |line|
+      attr = line.split
+      [attr[0], { # filename
+        permissions: attr[1],
+               user: attr[2].to_i,
+              group: attr[3],
+               size: attr[4].to_i,
+         time_stamp: attr[6],
+      }]
+    }]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def ls_cmd;
+    # Works on Ubuntu and Alpine
+    'stat -c "%n %A %u %G %s %z" *'
+    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
+    # |        |           |      |          |    |          |
+    # filename permissions user   group      size date       time
+    # 0        1           2      3          4    5          6
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def set_image_name(image_name)
     @image_name = image_name
   end
@@ -219,7 +253,7 @@ class TestBase < HexMiniTest
   def with_captured_stdout
     begin
       old_stdout = $stdout
-      $stdout = StringIO.new('','w')
+      $stdout = StringIO.new('', 'w')
       yield
       $stdout.string
     ensure
@@ -228,43 +262,6 @@ class TestBase < HexMiniTest
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def ls_cmd;
-    # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %z" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
-    # |        |           |      |          |    |          |
-    # filename permissions user   group      size date       time
-    # 0        1           2      3          4    5          6
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def ls_parse(ls_stdout)
-    Hash[ls_stdout.split("\n").collect { |line|
-      attr = line.split
-      [filename = attr[0], {
-        permissions: attr[1],
-               user: attr[2].to_i,
-              group: attr[3],
-               size: attr[4].to_i,
-         time_stamp: attr[6],
-      }]
-    }]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_equal_atts(filename, permissions, user, group, size, ls_files)
-    atts = ls_files[filename]
-    refute_nil atts, filename
-    assert_equal user,  atts[:user ], { filename => atts }
-    assert_equal group, atts[:group], { filename => atts }
-    assert_equal size,  atts[:size ], { filename => atts }
-    assert_equal permissions, atts[:permissions], { filename => atts }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def in_kata_as(name)
     in_kata {
@@ -284,6 +281,23 @@ class TestBase < HexMiniTest
     kata_old
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def as(name)
+    avatar_new(name)
+    yield
+  ensure
+    avatar_old(name)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def cdf
+    'cyberdojofoundation'
+  end
+
+  private
+
   def image_for_test
     rows = {
       '[gcc,assert]'    => 'gcc_assert',
@@ -296,20 +310,13 @@ class TestBase < HexMiniTest
     cdf + '/' + row[1]
   end
 
-  def cdf
-    'cyberdojofoundation'
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def as(name)
-    avatar_new(name)
-    yield
-  ensure
-    avatar_old(name)
-  end
-
-  private
 
   def quad
     @quad
