@@ -48,40 +48,46 @@ class RunTest < TestBase
 
   test 'B82',
   %w( files can be in sub-dirs of sandbox ) do
+    sub_dir = 'z'
+    filename = 'hello.txt'
+    content = 'the boy stood on the burning deck'
     in_kata {
       as(lion) {
         run_cyber_dojo_sh({
-              new_files: { 'a/hello.txt'   => 'hello world' },
-          changed_files: { 'cyber-dojo.sh' => ls_cmd }
+          changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
+              new_files: { "#{sub_dir}/#{filename}" => content }
         })
       }
     }
     ls_files = ls_parse(stdout)
     uid = user_id(lion)
-    assert_equal_atts('a', 'drwxr-xr-x', uid, group, 4096, ls_files)
+    assert_equal_atts(filename, '-rw-r--r--', uid, group, content.length, ls_files)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'B83',
   %w( files can be in sub-sub-dirs of sandbox ) do
+    sub_sub_dir = 'a/b'
+    filename = 'goodbye.txt'
+    content = 'goodbye cruel world'
     in_kata {
       as(salmon) {
         run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => "cd a && #{ls_cmd}" },
-              new_files: { 'a/b/hello.txt' => 'hello world' }
+          changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
+              new_files: { "#{sub_sub_dir}/#{filename}" => content }
         })
       }
     }
     ls_files = ls_parse(stdout)
     uid = user_id(salmon)
-    assert_equal_atts('b', 'drwxr-xr-x', uid, group, 4096, ls_files)
+    assert_equal_atts(filename, '-rw-r--r--', uid, group, content.length, ls_files)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'B6F',
-  %w( [Alpine] start-files have time-stamp with microseconds granularity ) do
+  %w( [Alpine] files have time-stamp with microseconds granularity ) do
     # On _default_ Alpine date-time file-stamps are to the second granularity.
     # In other words, the microseconds value is always '000000000'.
     # Make sure the Alpine packages have been installed to fix this.

@@ -194,6 +194,8 @@ class TestBase < HexMiniTest
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def timed_out
     runner.timed_out
   end
