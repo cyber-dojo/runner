@@ -168,29 +168,9 @@ class TestBase < HexMiniTest
     @image_name
   end
 
-  def image_for_test
-    rows = {
-      '[gcc,assert]'    => 'gcc_assert',
-      '[Java,Cucumber]' => 'java_cucumber_pico',
-      '[Alpine]'        => 'gcc_assert',
-      '[Ubuntu]'        => 'clangpp_assert'
-    }
-    row = rows.detect { |key,_| hex_test_name.start_with? key }
-    row ||= [ nil, 'gcc_assert' ] # default
-    cdf + '/' + row[1]
-  end
-
-  def cdf
-    'cyberdojofoundation'
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_id
-    @kata_id || kata_id_from_test_id
-  end
-
-  def kata_id_from_test_id
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
@@ -227,17 +207,13 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    language_dir = language_dir_from_test_name
+    fail 'image_name.nil? so cannot set language_dir' if image_name.nil?
+    language_dir = image_name.split('/')[1]
     dir = "/app/test/start_files/#{language_dir}"
     json = JSON.parse(IO.read("#{dir}/manifest.json"))
     Hash[json['visible_filenames'].collect { |filename|
       [filename, IO.read("#{dir}/#{filename}")]
     }]
-  end
-
-  def language_dir_from_test_name
-    fail 'image_name.nil? so cannot set language_dir' if image_name.nil?
-    image_name.split('/')[1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -310,12 +286,30 @@ class TestBase < HexMiniTest
     }
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def in_kata
     set_image_name image_for_test
     kata_new
     yield
   ensure
     kata_old
+  end
+
+  def image_for_test
+    rows = {
+      '[gcc,assert]'    => 'gcc_assert',
+      '[Java,Cucumber]' => 'java_cucumber_pico',
+      '[Alpine]'        => 'gcc_assert',
+      '[Ubuntu]'        => 'clangpp_assert'
+    }
+    row = rows.detect { |key,_| hex_test_name.start_with? key }
+    row ||= [ nil, 'gcc_assert' ] # default
+    cdf + '/' + row[1]
+  end
+
+  def cdf
+    'cyberdojofoundation'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
