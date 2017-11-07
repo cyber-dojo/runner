@@ -64,7 +64,7 @@ class Runner # stateless
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) do |cid|
       args = [ avatar_name, visible_files, max_seconds ]
-      stdout,stderr,status,colour = run_cyber_dojo_sh(cid, *args)
+      stdout,stderr,status,colour = run_timeout_cyber_dojo_sh(cid, *args)
       { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
   end
@@ -157,7 +157,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
+  def run_timeout_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
     # See comment at end of file about slower alternative
     # In a stateless runner _all_ visible_files are
     # sent to from the browser, and cyber-dojo.sh cannot
@@ -186,8 +186,8 @@ class Runner # stateless
               '-zcf',             # create a compressed tar file
               '-',                # write it to stdout
               '.',                # tar the current directory
-              '|',
-                  'docker exec',  # pipe the tarfile into docker container
+              '|',                # pipe the tarfile...
+                  'docker exec',  # ...into docker container
                     "--user=#{uid}:#{gid}",
                     '--interactive',
                     cid,
@@ -359,7 +359,7 @@ class Runner # stateless
 end
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-# The implementation of run_cyber_dojo_sh is
+# The implementation of run_timeout_cyber_dojo_sh is
 #   o) Create copies of all files off /tmp
 #   o) Tar pipe the /tmp files into the container
 #   o) Run cyber-dojo.sh inside the container
@@ -368,8 +368,8 @@ end
 #   o) Tar pipe each file's content directly into the container
 #   o) Run cyber-dojo.sh inside the container
 #
-# You might image this is quicker
-# but testing shows its slower.
+# If only one file has changed you might image this is quicker
+# but testing shows its actually a bit slower.
 #
 # For interest's sake here's how you tar pipe from a string and
 # avoid the intermediate /tmp files:
