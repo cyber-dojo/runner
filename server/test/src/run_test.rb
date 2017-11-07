@@ -109,17 +109,19 @@ class RunTest < TestBase
     # Make sure the Alpine packages have been installed to fix this.
     in_kata_as(squid) {
       run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => ls_cmd },
-            new_files: ls_starting_files
+        changed_files: { 'cyber-dojo.sh' => ls_cmd }
       })
     }
+    count = 0
     ls_parse(stdout).each do |filename,atts|
+      count += 1
       refute_nil atts, filename
       stamp = atts[:time_stamp] # eg '07:03:14.835233538'
       microsecs = stamp.split((/[\:\.]/))[-1]
       assert_equal 9, microsecs.length
       refute_equal '0'*9, microsecs
     end
+    assert_equal 5, count
   end
 
   test 'B6F',
@@ -127,16 +129,18 @@ class RunTest < TestBase
     in_kata_as(squid) {
       run_cyber_dojo_sh({
         changed_files: { 'cyber-dojo.sh' => ls_cmd },
-            new_files: ls_starting_files
       })
     }
+    count = 0
     ls_parse(stdout).each do |filename,atts|
+      count += 1
       refute_nil atts, filename
       stamp = atts[:time_stamp] # eg '07:03:14.835233538'
       microsecs = stamp.split((/[\:\.]/))[-1]
       assert_equal 9, microsecs.length
       refute_equal '0'*9, microsecs
     end
+    assert_equal 5, count
   end
 
 end

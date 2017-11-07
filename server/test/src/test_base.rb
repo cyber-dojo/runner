@@ -229,16 +229,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ls_starting_files
-    {
-      'empty.txt'     => '',
-      'hello.txt'     => 'hello world',
-      'hello.sh'      => 'echo hello world',
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def ls_cmd;
     # Works on Ubuntu and Alpine
     'stat -c "%n %A %u %G %s %z" *'
