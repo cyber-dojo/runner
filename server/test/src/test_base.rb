@@ -176,8 +176,8 @@ class TestBase < HexMiniTest
       '[Ubuntu]'        => 'clangpp_assert'
     }
     row = rows.detect { |key,_| hex_test_name.start_with? key }
-    fail 'cannot find image_name from hex_test_name' if row.nil?
-    "#{cdf}/" + row[1]
+    row ||= [ nil, 'gcc_assert' ] # default
+    cdf + '/' + row[1]
   end
 
   def cdf
@@ -311,6 +311,7 @@ class TestBase < HexMiniTest
   end
 
   def in_kata
+    set_image_name image_for_test
     kata_new
     yield
   ensure

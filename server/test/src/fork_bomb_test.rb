@@ -6,10 +6,6 @@ class ForkBombTest < TestBase
     '35758'
   end
 
-  def hex_setup
-    set_image_name image_for_test
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # fork-bombs from the source
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

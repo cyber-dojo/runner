@@ -6,18 +6,16 @@ class RunTest < TestBase
     '58410'
   end
 
-  def hex_setup
-    set_image_name "#{cdf}/gcc_assert"
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'C3A',
   %w( invalid avatar_name raises ) do
-    error = assert_raises(ArgumentError) {
-      run_cyber_dojo_sh({ avatar_name:'polaroid' })
+    in_kata {
+      error = assert_raises(ArgumentError) {
+        run_cyber_dojo_sh({ avatar_name:'polaroid' })
+      }
+      assert_equal 'avatar_name:invalid', error.message
     }
-    assert_equal 'avatar_name:invalid', error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
