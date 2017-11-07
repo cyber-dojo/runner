@@ -64,7 +64,7 @@ class RunOSTest < TestBase
 
   os_test '1FB',
   'avatar_new has starting-files in its sandbox with owner/group/permissions set' do
-    #in_kata_as(salmon) { avatar_new_starting_files_test }
+    in_kata_as(salmon) { avatar_new_starting_files_test }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

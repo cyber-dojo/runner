@@ -82,24 +82,23 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   def avatar_new_starting_files_test
-    files = ls_starting_files.merge({ 'cyber-dojo.sh' => ls_cmd })
-    as(lion, files) {
-      run_cyber_dojo_sh
-    }
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => ls_cmd }
+    })
     assert_colour 'amber' # doing an ls
     assert_stderr ''
     ls_stdout = stdout
     ls_files = ls_parse(ls_stdout)
-    assert_equal files.keys.sort, ls_files.keys.sort
-    uid = user_id(lion)
-    assert_equal_atts('empty.txt',     '-rw-r--r--', uid, group,  0, ls_files)
-    assert_equal_atts('cyber-dojo.sh', '-rw-r--r--', uid, group, 29, ls_files)
-    assert_equal_atts('hello.txt',     '-rw-r--r--', uid, group, 11, ls_files)
-    assert_equal_atts('hello.sh',      '-rw-r--r--', uid, group, 16, ls_files)
+    #TODO:starting_files does not contain cyber-dojo.sh
+    #assert_equal starting_files.keys.sort, ls_files.keys.sort
+    starting_files.each do |filename,content|
+      #if filename == 'cyber-dojo.sh'
+      #  content = ls_cmd
+      #end
+      assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
+    end
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
