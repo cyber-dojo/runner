@@ -4,7 +4,7 @@ module OsHelper
 
   module_function
 
-  def invalid_avatar_name_raises
+  def assert_invalid_avatar_name_raises
     error = assert_raises(ArgumentError) {
       run_cyber_dojo_sh({ avatar_name:'polaroid' })
     }
@@ -13,14 +13,14 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_is_initially_red
+  def assert_run_is_initially_red
     run_cyber_dojo_sh
     assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def pid_1_init_process_test
+  def assert_pid_1_is_running_init_process
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd).strip
     # odd, but there _is_ an embedded nul-character
@@ -30,7 +30,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_id_env_vars_test
+  def assert_env_vars_present
     env = {}
     cmd = 'printenv CYBER_DOJO_KATA_ID'
     env[:kata_id]     = assert_cyber_dojo_sh(cmd).strip
@@ -70,7 +70,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new_home_test
+  def assert_avatar_has_home
     home = assert_cyber_dojo_sh('printenv HOME').strip
     assert_equal home_dir, home
 
@@ -80,7 +80,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new_sandbox_setup_test
+  def assert_avatar_sandbox_properties
     assert_cyber_dojo_sh "[ -d #{sandbox_dir} ]" # sandbox exists
 
     ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
@@ -98,7 +98,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new_starting_files_test
+  def assert_starting_files_properties
     run_cyber_dojo_sh({
       changed_files: { 'cyber-dojo.sh' => ls_cmd }
     })
@@ -117,7 +117,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ulimit_test
+  def assert_ulimits
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
 
@@ -149,7 +149,8 @@ module OsHelper
       :stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
     }
     row = table[key]
-    refute_nil row, "no ulimit table entry for #{key}"
+    diagnostic = "no ulimit table entry for #{key}"
+    refute_nil row, diagnostic
     if alpine?(etc_issue)
       txt = row[0]
     end
@@ -162,25 +163,25 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def baseline_speed_test
-    millisecs = []
+  def assert_baseline_speed_test
+    timings = []
     (1..5).each do
-      t1 = Time.now
+      started_at = Time.now
       assert_cyber_dojo_sh('true')
-      t2 = Time.now
-      diff = Time.at(t2 - t1).utc
-      duration = diff.strftime("%S").to_i * 1000
-      duration += diff.strftime("%L").to_i
-      millisecs << duration
+      stopped_at = Time.now
+      diff = Time.at(stopped_at - started_at).utc
+      secs = diff.strftime("%S").to_i
+      millisecs = diff.strftime("%L").to_i
+      timings << (secs * 1000 + millisecs)
     end
-    mean = millisecs.reduce(0, :+) / millisecs.size
+    mean = timings.reduce(0, :+) / timings.size
     max = (ENV['TRAVIS'] == 'true') ? 800 : 500
     assert mean < max, "mean=#{mean}, max=#{max}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def files_can_be_in_sub_dirs_of_sandbox
+  def assert_files_can_be_in_sub_dirs_of_sandbox
     sub_dir = 'z'
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
@@ -196,7 +197,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def files_can_be_in_sub_sub_dirs_of_sandbox
+  def assert_files_can_be_in_sub_sub_dirs_of_sandbox
     sub_sub_dir = 'a/b'
     filename = 'goodbye.txt'
     content = 'goodbye cruel world'
@@ -212,7 +213,7 @@ module OsHelper
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def files_have_time_stamp_with_microseconds_granularity
+  def assert_time_stamp_microseconds_granularity
     # On _default_ Alpine date-time file-stamps are to the second granularity.
     # In other words, the microseconds value is always '000000000'.
     # Make sure the Alpine packages have been installed to fix this.
