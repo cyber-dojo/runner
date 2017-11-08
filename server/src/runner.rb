@@ -191,26 +191,39 @@ class Runner # stateless
         "chmod 755 #{tmp_dir}",
         "&& cd #{tmp_dir}",
         '&& tar',
-              '-zcf',             # create a compressed tar file
-              '-',                # write it to stdout
-              '.',                # tar the current directory
-              '|',                # pipe the tarfile...
-                  'docker exec',  # ...into docker container
-                    "--user=#{uid}:#{gid}",
+              '-zcf',               # create tar file
+              '-',                  # write it to stdout
+              '.',                  # tar the current directory
+              '|',                  # pipe the tarfile...
+                  'docker exec',    # ...into docker container
+                    "--user=#{uid}:#{gid}", # [1]
                     '--interactive',
                     cid,
                     'sh -c',
-                    "'",          # open quote
+                    "'",             # open quote
                     "cd #{sandbox}",
                     '&& tar',
-                          '--touch',
-                          '-zxf', # extract from a compressed tar file
-                          '-',    # which is read from stdin
-                          '-C',   # save the extracted files to
-                          '.',    # the current directory
+                          '--touch', # [2]
+                          '-zxf',    # extract from tar file
+                          '-',       # which is read from stdin
+                          '-C',      # save the extracted files to
+                          '.',       # the current directory
                     '&& sh ./cyber-dojo.sh',
-                    "'",          # close quote
+                    "'",             # close quote
       ].join(space)
+      # The files written into the container need the correct
+      # content, ownership, and date-time file-stamps.
+      # [1] is for the correct ownership.
+      # [2] is for the date-time stamps, in particular the
+      #     modification-date (stat %y). The tar --touch option
+      #     is not available in a default Alpine container.
+      #     So the test-framework container needs to update tar:
+      #        $ apk add --update tar
+      #     Also, in a default Alpine container the date-time
+      #     file-stamps have a granularity of one second. In other
+      #     words the microseconds value is always zero.
+      #     So the test-framework container also needs to fix this:
+      #        $ apk add --update coreutils
       run_timeout(cid, tar_pipe, max_seconds)
     end
   end
