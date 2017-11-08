@@ -30,6 +30,7 @@ class MultiOSTest < TestBase
     in_kata_as(salmon) {
       assert_run_is_initially_red
       assert_pid_1_is_running_init_process
+      assert_time_stamp_microseconds_granularity
       assert_env_vars_exist
       assert_avatar_users_exist
       assert_cyber_dojo_group_exists
@@ -38,9 +39,9 @@ class MultiOSTest < TestBase
       assert_starting_files_properties
       assert_ulimits
       assert_baseline_speed_test
+      # these two create new files
       assert_files_can_be_in_sub_dirs_of_sandbox
       assert_files_can_be_in_sub_sub_dirs_of_sandbox
-      assert_time_stamp_microseconds_granularity
     }
   end
 
@@ -226,12 +227,10 @@ class MultiOSTest < TestBase
     sub_dir = 'z'
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
-    in_kata_as(lion) {
-      run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
-            new_files: { "#{sub_dir}/#{filename}" => content }
-      })
-    }
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
+          new_files: { "#{sub_dir}/#{filename}" => content }
+    })
     ls_files = ls_parse(stdout)
     assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
   end
@@ -242,12 +241,10 @@ class MultiOSTest < TestBase
     sub_sub_dir = 'a/b'
     filename = 'goodbye.txt'
     content = 'goodbye cruel world'
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
-            new_files: { "#{sub_sub_dir}/#{filename}" => content }
-      })
-    }
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
+          new_files: { "#{sub_sub_dir}/#{filename}" => content }
+    })
     ls_files = ls_parse(stdout)
     assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
   end
@@ -258,11 +255,9 @@ class MultiOSTest < TestBase
     # On _default_ Alpine date-time file-stamps are to the second granularity.
     # In other words, the microseconds value is always '000000000'.
     # Make sure the Alpine packages have been installed to fix this.
-    in_kata_as(squid) {
-      run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => ls_cmd }
-      })
-    }
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => ls_cmd }
+    })
     count = 0
     ls_parse(stdout).each do |filename,atts|
       count += 1

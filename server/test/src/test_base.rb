@@ -78,14 +78,6 @@ class TestBase < HexMiniTest
     'salmon'
   end
 
-  def lion
-    'lion'
-  end
-
-  def squid
-    'squid'
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
