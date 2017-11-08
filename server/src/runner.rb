@@ -143,6 +143,7 @@ class Runner # stateless
         "--env HOME=#{home}",
         '--init',                            # pid-1 process
         '--interactive',                     # for later execs
+        '--memory=384m',
         "--name=#{name}",
         '--net=none',                        # no network
         '--pids-limit=128',                  # no fork bombs
