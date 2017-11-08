@@ -40,9 +40,6 @@ RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/comm
 # setup server
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# tarpipe: Default Alpine tar does not support --owner/--group options
-RUN apk --update add tar
-
 COPY . /app
 ARG PORT
 EXPOSE ${PORT}
