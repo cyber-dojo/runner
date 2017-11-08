@@ -128,8 +128,6 @@ class TestBase < HexMiniTest
   end
   # :nocov:
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def assert_cyber_dojo_sh(script, named_args = {})
     named_args[:changed_files] = { 'cyber-dojo.sh' => script }
     assert_run_succeeds(named_args)
@@ -152,52 +150,9 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_equal_atts(filename, permissions, user, group, size, ls_files)
-    atts = ls_files[filename]
-    refute_nil atts, filename
-    assert_equal user,  atts[:user ], { filename => atts }
-    assert_equal group, atts[:group], { filename => atts }
-    assert_equal size,  atts[:size ], { filename => atts }
-    assert_equal permissions, atts[:permissions], { filename => atts }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def ls_parse(ls_stdout)
-    Hash[ls_stdout.split("\n").collect { |line|
-      attr = line.split
-      [attr[0], { # filename
-        permissions: attr[1],
-               user: attr[2].to_i,
-              group: attr[3],
-               size: attr[4].to_i,
-         time_stamp: attr[6],
-      }]
-    }]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def ls_cmd;
-    # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %z" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
-    # |        |           |      |          |    |          |
-    # filename permissions user   group      size date       time
-    # 0        1           2      3          4    5          6
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def set_image_name(image_name)
-    @image_name = image_name
-  end
-
   def image_name
     @image_name
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_id
     hex_test_id + '0' * (10-hex_test_id.length)
@@ -207,10 +162,16 @@ class TestBase < HexMiniTest
     @avatar_name
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def user_id
+    runner.user_id(avatar_name)
+  end
 
-  def timed_out
-    runner.timed_out
+  def group_id
+    runner.gid
+  end
+
+  def group
+    runner.group
   end
 
   def home_dir
@@ -221,16 +182,8 @@ class TestBase < HexMiniTest
     runner.sandbox_dir(avatar_name)
   end
 
-  def group
-    runner.group
-  end
-
-  def group_id
-    runner.gid
-  end
-
-  def user_id
-    runner.user_id(avatar_name)
+  def timed_out
+    runner.timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -291,6 +244,10 @@ class TestBase < HexMiniTest
 
   def cdf
     'cyberdojofoundation'
+  end
+
+  def set_image_name(image_name)
+    @image_name = image_name
   end
 
   private
