@@ -30,16 +30,27 @@ class ForkBombTest < TestBase
 
   test 'CD6',
   %w( [Ubuntu] fork-bomb in C++ fails to go off ) do
+    content = '#include "hiker.hpp"' + "\n" + fork_bomb_definition
     in_kata_as(salmon) {
-      content = '#include "hiker.hpp"' + "\n" + fork_bomb_definition
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.cpp' => content }
-      })
+      run_cyber_dojo_sh({ changed_files: { 'hiker.cpp' => content } })
     }
     # It fails in a non-deterministic way.
     lines = stdout.split("\n")
-    assert stdout == '' || lines.count{ |line| line == 'fork() => 0' } > 42
-    assert stdout == '' || lines.count{ |line| line == 'fork() => -1' } > 42
+
+    msg = 'All tests passed'
+    count = lines.count{ |line| line.include? msg }
+    diagnostic = "#{msg}\ncount==:#{count}:"
+    assert count > 5, diagnostic
+
+    msg = 'fork() => 0'
+    count = lines.count{ |line| line == fork }
+    diagnostic = "#{msg}\ncount==:#{count}:"
+    assert  count > 5, diagnostic
+
+    msg = 'fork() => -1'
+    count = lines.count{ |line| line == msg }
+    diagnostic = "#{msg}\ncount==:#{count}:"
+    assert count > 5, diagnostic
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
