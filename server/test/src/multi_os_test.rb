@@ -1,7 +1,7 @@
 require_relative '../../src/all_avatars_names'
 require_relative 'test_base'
 
-class RunOSTest < TestBase
+class MultiOSTest < TestBase
 
   def self.hex_prefix
     '3759D'
