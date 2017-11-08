@@ -225,7 +225,7 @@ class TestBase < HexMiniTest
     runner.group
   end
 
-  def gid
+  def group_id
     runner.gid
   end
 

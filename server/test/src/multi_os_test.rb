@@ -107,7 +107,7 @@ class MultiOSTest < TestBase
     stdout = assert_cyber_dojo_sh("getent group #{group}").strip
     entries = stdout.split(':')  # cyber-dojo:x:5000
     assert_equal group, entries[0], stdout
-    assert_equal gid,   entries[2].to_i, stdout
+    assert_equal group_id, entries[2].to_i, stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,14 +128,13 @@ class MultiOSTest < TestBase
     ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
     refute_equal '', ls # sandbox is not empty
 
-    stat = {}
-    stat[:user]  = assert_cyber_dojo_sh("stat -c '%u' #{sandbox_dir}").strip.to_i
-    stat[:gid]   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox_dir}").strip.to_i
-    stat[:perms] = assert_cyber_dojo_sh("stat -c '%A' #{sandbox_dir}").strip
+    stat_uid   = assert_cyber_dojo_sh("stat -c '%u' #{sandbox_dir}").strip.to_i
+    stat_gid   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox_dir}").strip.to_i
+    stat_perms = assert_cyber_dojo_sh("stat -c '%A' #{sandbox_dir}").strip
 
-    assert_equal user_id, stat[:user]
-    assert_equal gid, stat[:gid]
-    assert_equal 'drwxr-xr-x', stat[:perms]
+    assert_equal user_id, stat_uid, 'stat <user>'
+    assert_equal group_id, stat_gid, 'stat <gid>'
+    assert_equal 'drwxr-xr-x', stat_perms, 'stat <permissions>'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
