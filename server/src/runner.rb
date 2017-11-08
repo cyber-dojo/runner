@@ -191,11 +191,11 @@ class Runner # stateless
         "chmod 755 #{tmp_dir}",
         "&& cd #{tmp_dir}",
         '&& tar',
-              '-zcf',               # create tar file
-              '-',                  # write it to stdout
-              '.',                  # tar the current directory
-              '|',                  # pipe the tarfile...
-                  'docker exec',    # ...into docker container
+              '-zcf', # create tar file
+              '-',    # write it to stdout
+              '.',    # tar the current directory
+              '|',    # pipe the tarfile...
+                  'docker exec', # ...into docker container
                     "--user=#{uid}:#{gid}", # [1]
                     '--interactive',
                     cid,
@@ -236,7 +236,7 @@ class Runner # stateless
   def run_timeout(cid, cmd, max_seconds)
     # This kills the container from the "outside".
     # Originally I also time-limited the cpu-time from the "inside"
-    # using the cpu ulimit. However a cpu-limit of 10 seconds could
+    # using the cpu ulimit. However a cpu-ulimit of 10 seconds could
     # kill the container after only 5 seconds. This is because the
     # cpu-ulimit assumes one core. The host system running the docker
     # container can have multiple cores or use hyperthreading. So a
