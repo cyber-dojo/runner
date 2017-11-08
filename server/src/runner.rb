@@ -205,6 +205,7 @@ class Runner # stateless
                     "'",          # open quote
                     "cd #{sandbox}",
                     '&& tar',
+                          '--touch',
                           '-zxf', # extract from a compressed tar file
                           '-',    # which is read from stdin
                           '-C',   # save the extracted files to

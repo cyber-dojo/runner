@@ -260,7 +260,8 @@ class MultiOSTest < TestBase
   def assert_time_stamp_microseconds_granularity
     # On _default_ Alpine date-time file-stamps are to the second granularity.
     # In other words, the microseconds value is always '000000000'.
-    # Make sure the Alpine packages have been installed to fix this.
+    # Make sure the tar-piped files have fixed this.
+
     run_cyber_dojo_sh({
       changed_files: { 'cyber-dojo.sh' => ls_cmd }
     })
@@ -307,11 +308,17 @@ class MultiOSTest < TestBase
 
   def ls_cmd;
     # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %z" *'
+    'stat -c "%n %A %u %G %s %y" *'
     # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
     # |        |           |      |          |    |          |
     # filename permissions user   group      size date       time
     # 0        1           2      3          4    5          6
+
+    # Stat
+    #  %z == time of last status change
+    #  %y == time of last data modification <<=====
+    #  %x == time of last access
+    #  %w == time of file birth
   end
 
 end
