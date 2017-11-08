@@ -74,20 +74,19 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_env_vars_exist
-    env = {}
     cmd = 'printenv CYBER_DOJO_KATA_ID'
-    env[:kata_id]     = assert_cyber_dojo_sh(cmd).strip
+    env_kata_id     = assert_cyber_dojo_sh(cmd).strip
     cmd = 'printenv CYBER_DOJO_AVATAR_NAME'
-    env[:avatar_name] = assert_cyber_dojo_sh(cmd).strip
+    env_avatar_name = assert_cyber_dojo_sh(cmd).strip
     cmd = 'printenv CYBER_DOJO_SANDBOX'
-    env[:sandbox_dir] = assert_cyber_dojo_sh(cmd).strip
+    env_sandbox_dir = assert_cyber_dojo_sh(cmd).strip
     cmd = 'printenv CYBER_DOJO_RUNNER'
-    env[:runner]      = assert_cyber_dojo_sh(cmd).strip
+    env_runner      = assert_cyber_dojo_sh(cmd).strip
 
-    assert_equal kata_id, env[:kata_id]
-    assert_equal avatar_name, env[:avatar_name]
-    assert_equal sandbox_dir, env[:sandbox_dir]
-    assert_equal 'stateless', env[:runner]
+    assert_equal kata_id, env_kata_id
+    assert_equal avatar_name, env_avatar_name
+    assert_equal sandbox_dir, env_sandbox_dir
+    assert_equal 'stateless', env_runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -168,14 +167,21 @@ class MultiOSTest < TestBase
     assert_equal 128, ulimit(lines, :no_files,   etc_issue)
     assert_equal 128, ulimit(lines, :processes,  etc_issue)
 
-    expected_data_size = 4 * gb / kb
-    assert_equal expected_data_size,  ulimit(lines, :data_size,  etc_issue)
+    kb = 1024
+    mb = 1024 * kb
+    gb = 1024 * mb
 
-    expected_file_size = 16 * mb / (block_size = 512)
-    assert_equal expected_file_size,  ulimit(lines, :file_size,  etc_issue)
+    expected_max_data_size  =  4 * gb / kb
+    expected_max_file_size  = 16 * mb / (block_size = 512)
+    expected_max_stack_size =  8 * mb / kb
 
-    expected_stack_size = 8 * mb / kb
-    assert_equal expected_stack_size, ulimit(lines, :stack_size, etc_issue)
+    actual_max_data_size  = ulimit(lines, :data_size,  etc_issue)
+    actual_max_file_size  = ulimit(lines, :file_size,  etc_issue)
+    actual_max_stack_size = ulimit(lines, :stack_size, etc_issue)
+
+    assert_equal expected_max_data_size,  actual_max_data_size
+    assert_equal expected_max_file_size,  actual_max_file_size
+    assert_equal expected_max_stack_size, actual_max_stack_size
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -193,10 +199,10 @@ class MultiOSTest < TestBase
     row = table[key]
     diagnostic = "no ulimit table entry for #{key}"
     refute_nil row, diagnostic
-    if alpine?(etc_issue)
+    if etc_issue.include? 'Alpine'
       txt = row[0]
     end
-    if ubuntu?(etc_issue)
+    if etc_issue.include? 'Ubuntu'
       txt = row[1]
     end
     line = lines.detect { |limit| limit.start_with? txt }
@@ -275,10 +281,11 @@ class MultiOSTest < TestBase
   def assert_equal_atts(filename, permissions, user, group, size, ls_files)
     atts = ls_files[filename]
     refute_nil atts, filename
-    assert_equal user,  atts[:user ], { filename => atts }
-    assert_equal group, atts[:group], { filename => atts }
-    assert_equal size,  atts[:size ], { filename => atts }
-    assert_equal permissions, atts[:permissions], { filename => atts }
+    diagnostic = { filename => atts }
+    assert_equal user,  atts[:user ], diagnostic
+    assert_equal group, atts[:group], diagnostic
+    assert_equal size,  atts[:size ], diagnostic
+    assert_equal permissions, atts[:permissions], diagnostic
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -305,30 +312,6 @@ class MultiOSTest < TestBase
     # |        |           |      |          |    |          |
     # filename permissions user   group      size date       time
     # 0        1           2      3          4    5          6
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def alpine?(etc_issue)
-    etc_issue.include? 'Alpine'
-  end
-
-  def ubuntu?(etc_issue)
-    etc_issue.include? 'Ubuntu'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def kb
-    1024
-  end
-
-  def mb
-    kb * 1024
-  end
-
-  def gb
-    mb * 1024
   end
 
 end
