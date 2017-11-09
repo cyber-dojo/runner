@@ -12,12 +12,12 @@ class ForkBombTest < TestBase
 
   test 'CD5',
   %w( [Alpine] fork-bomb does not run indefinitely ) do
-    content = '#include "hiker.h"' + "\n" + fork_bomb_definition
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => content },
-          max_seconds: 5
+        changed_files: { 'hiker.c' => fork_bomb_definition }
       })
+      assert_printed 'All tests passed'
+      assert_printed 'fork()'
     }
   end
 
@@ -25,13 +25,23 @@ class ForkBombTest < TestBase
 
   test 'CD6',
   %w( [Ubuntu] fork-bomb does not run indefinitely ) do
-    content = '#include "hiker.hpp"' + "\n" + fork_bomb_definition
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.cpp' => content },
-          max_seconds: 5
+        changed_files: { 'hiker.cpp' => fork_bomb_definition }
       })
     }
+    assert_printed 'All tests passed'
+    assert_printed 'fork()'
+  end
+
+  def assert_printed(text)
+    tally = 0
+    (stdout+stderr).split("\n").each { |line|
+      if line.include?(text)
+        tally += 1
+      end
+    }
+    assert tally > 0, "#{text}:#{quad}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -88,8 +98,7 @@ class ForkBombTest < TestBase
   def run_shell_fork_bomb
     shell_fork_bomb = 'bomb() { bomb | bomb & }; bomb'
     run_cyber_dojo_sh({
-      changed_files: {'cyber-dojo.sh' => shell_fork_bomb },
-        max_seconds: 5
+      changed_files: {'cyber-dojo.sh' => shell_fork_bomb }
     })
   end
 
