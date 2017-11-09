@@ -61,7 +61,14 @@ class ForkBombTest < TestBase
     cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
     in_kata_as(salmon) {
       begin
-        shell_fork_bomb = 'bomb() { echo "bomb"; bomb | bomb & }; bomb'
+        shell_fork_bomb = [
+          'bomb()',
+          '{',
+          '   echo "bomb"',
+          '   bomb | bomb &',
+          '}',
+          'bomb'
+        ].join("\n")
         run_cyber_dojo_sh({
           changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
         })
@@ -77,13 +84,13 @@ class ForkBombTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_timed_out_or_printed(text)
-    tally = 0
+    count = 0
     (stdout+stderr).split("\n").each { |line|
       if line.include?(text)
-        tally += 1
+        count += 1
       end
     }
-    assert (timed_out? || tally > 0), ":#{text}:#{quad}:"
+    assert (timed_out? || count > 0), ":#{text}:#{quad}:"
   end
 
 end
