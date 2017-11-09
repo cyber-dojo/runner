@@ -40,9 +40,6 @@ RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/comm
 # setup server
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# coreutils is needed to protect against fork-bombs
-RUN apk add --update coreutils
-
 COPY . /app
 ARG PORT
 EXPOSE ${PORT}
