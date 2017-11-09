@@ -97,6 +97,10 @@ class TestBase < HexMiniTest
     quad[:colour]
   end
 
+  def timed_out?
+    colour == 'timed_out'
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_status(expected)
@@ -124,14 +128,14 @@ class TestBase < HexMiniTest
 
   def assert_run_succeeds(named_args)
     run_cyber_dojo_sh(named_args)
-    refute_equal timed_out, colour, quad
+    refute timed_out?, quad
     assert_stderr ''
     stdout.strip
   end
 
   def assert_run_times_out(named_args)
     run_cyber_dojo_sh(named_args)
-    assert_colour timed_out
+    assert timed_out?
     assert_status 137
     assert_stdout ''
     assert_stderr ''
@@ -177,10 +181,6 @@ class TestBase < HexMiniTest
 
   def sandbox_dir
     "/tmp/sandboxes/#{avatar_name}"
-  end
-
-  def timed_out
-    'timed_out'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -83,7 +83,7 @@ class ForkBombTest < TestBase
         tally += 1
       end
     }
-    assert (colour == 'timed_out') || (tally > 0), "#{colour}:#{text}:#{quad}"
+    assert (timed_out? || tally > 0), ":#{text}:#{quad}:"
   end
 
 end
