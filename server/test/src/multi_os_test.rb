@@ -158,12 +158,12 @@ class MultiOSTest < TestBase
 
   def assert_ulimits
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
-    lines = assert_cyber_dojo_sh('ulimit -a').split("\n")
+    assert_cyber_dojo_sh('ulimit -a')
 
-    assert_equal   0, ulimit(lines, :core_size,  etc_issue)
-    assert_equal 128, ulimit(lines, :file_locks, etc_issue)
-    assert_equal 128, ulimit(lines, :no_files,   etc_issue)
-    assert_equal 128, ulimit(lines, :processes,  etc_issue)
+    assert_equal   0, ulimit(:core_size,  etc_issue)
+    assert_equal 128, ulimit(:file_locks, etc_issue)
+    assert_equal 128, ulimit(:no_files,   etc_issue)
+    assert_equal 128, ulimit(:processes,  etc_issue)
 
     kb = 1024
     mb = 1024 * kb
@@ -173,9 +173,9 @@ class MultiOSTest < TestBase
     expected_max_file_size  = 16 * mb / (block_size = 512)
     expected_max_stack_size =  8 * mb / kb
 
-    actual_max_data_size  = ulimit(lines, :data_size,  etc_issue)
-    actual_max_file_size  = ulimit(lines, :file_size,  etc_issue)
-    actual_max_stack_size = ulimit(lines, :stack_size, etc_issue)
+    actual_max_data_size  = ulimit(:data_size,  etc_issue)
+    actual_max_file_size  = ulimit(:file_size,  etc_issue)
+    actual_max_stack_size = ulimit(:stack_size, etc_issue)
 
     assert_equal expected_max_data_size,  actual_max_data_size
     assert_equal expected_max_file_size,  actual_max_file_size
@@ -184,7 +184,7 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ulimit(lines, key, etc_issue)
+  def ulimit(key, etc_issue)
     table = {             # alpine,                       ubuntu
       :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
       :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
@@ -203,7 +203,7 @@ class MultiOSTest < TestBase
     if etc_issue.include? 'Ubuntu'
       txt = row[1]
     end
-    line = lines.detect { |limit| limit.start_with? txt }
+    line = stdout.split("\n").detect { |limit| limit.start_with? txt }
     line.split[-1].to_i
   end
 
