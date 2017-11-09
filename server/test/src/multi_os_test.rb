@@ -141,16 +141,14 @@ class MultiOSTest < TestBase
 
   def assert_starting_files_properties
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => ls_cmd }
+      changed_files: { 'cyber-dojo.sh' => stat_cmd }
     })
-    assert_colour 'amber' # doing an ls
+    assert_colour 'amber' # doing an stat
     assert_stderr ''
-    ls_stdout = stdout
-    ls_files = ls_parse(ls_stdout)
-    assert_equal starting_files.keys.sort, ls_files.keys.sort
+    assert_equal starting_files.keys.sort, stat_parse.keys.sort
     starting_files.each do |filename,content|
       if filename == 'cyber-dojo.sh'
-        content = ls_cmd
+        content = stat_cmd
       end
       assert_stats(filename, '-rw-r--r--', content.length)
     end
@@ -233,7 +231,7 @@ class MultiOSTest < TestBase
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
+      changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{stat_cmd}" },
           new_files: { "#{sub_dir}/#{filename}" => content }
     })
     assert_stats(filename, '-rw-r--r--', content.length)
@@ -246,7 +244,7 @@ class MultiOSTest < TestBase
     filename = 'goodbye.txt'
     content = 'goodbye cruel world'
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
+      changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{stat_cmd}" },
           new_files: { "#{sub_sub_dir}/#{filename}" => content }
     })
     assert_stats(filename, '-rw-r--r--', content.length)
@@ -259,12 +257,11 @@ class MultiOSTest < TestBase
     # the second granularity. In other words, the
     # microseconds value is always '000000000'.
     # Make sure the tar-piped files have fixed this.
-
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => ls_cmd }
+      changed_files: { 'cyber-dojo.sh' => stat_cmd }
     })
     count = 0
-    ls_parse(stdout).each do |filename,atts|
+    stat_parse.each do |filename,atts|
       count += 1
       refute_nil atts, filename
       stamp = atts[:time_stamp] # eg '07:03:14.835233538'
@@ -278,8 +275,7 @@ class MultiOSTest < TestBase
   private
 
   def assert_stats(filename, permissions, size)
-    ls_files = ls_parse(stdout)
-    stats = ls_files[filename]
+    stats = stat_parse[filename]
     refute_nil stats, filename
     diagnostic = { filename => stats }
     assert_equal permissions, stats[:permissions], diagnostic
@@ -290,8 +286,8 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ls_parse(ls_stdout)
-    Hash[ls_stdout.split("\n").collect { |line|
+  def stat_parse
+    Hash[stdout.split("\n").collect { |line|
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],
@@ -305,7 +301,7 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ls_cmd;
+  def stat_cmd;
     # Works on Ubuntu and Alpine
     'stat -c "%n %A %u %G %s %y" *'
     # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
