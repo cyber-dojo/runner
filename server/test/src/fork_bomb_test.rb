@@ -10,6 +10,7 @@ class ForkBombTest < TestBase
 
   test 'CD5',
   %w( [Alpine] fork-bomb does not run indefinitely ) do
+    @log = LoggerSpy.new(nil)
     in_kata_as(salmon) {
       begin
         run_cyber_dojo_sh({
@@ -28,6 +29,7 @@ class ForkBombTest < TestBase
 
   test 'CD6',
   %w( [Ubuntu] fork-bomb does not run indefinitely ) do
+    @log = LoggerSpy.new(nil)
     in_kata_as(salmon) {
       begin
         run_cyber_dojo_sh({
