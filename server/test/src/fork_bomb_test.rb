@@ -15,8 +15,10 @@ class ForkBombTest < TestBase
         run_cyber_dojo_sh({
           changed_files: { 'hiker.c' => fork_bomb_definition }
         })
+        # :nocov:
         assert_printed 'All tests passed'
         assert_printed 'fork()'
+        # :nocov:
       rescue ArgumentError
       end
     }
@@ -31,8 +33,10 @@ class ForkBombTest < TestBase
         run_cyber_dojo_sh({
           changed_files: { 'hiker.cpp' => fork_bomb_definition }
         })
+        # :nocov:
         assert_printed 'All tests passed'
         assert_printed 'fork()'
+        # :nocov:
       rescue ArgumentError
       end
     }
@@ -67,10 +71,11 @@ class ForkBombTest < TestBase
     in_kata_as(salmon) {
       begin
         run_shell_fork_bomb
+        # :nocov:
         assert_printed 'bomb'
         assert_printed "can't fork"
-      rescue
-        ArgumentError
+        # :nocov:
+      rescue ArgumentError
       end
     }
   end
@@ -83,8 +88,10 @@ class ForkBombTest < TestBase
     in_kata_as(salmon) {
       begin
         run_shell_fork_bomb
+        # :nocov:
         assert_printed 'bomb'
         assert_printed "Cannot fork"
+        # :nocov:
       rescue ArgumentError
       end
     }
