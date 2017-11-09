@@ -91,6 +91,9 @@ hits_per_line_test = test_stats[:hits_per_line].to_f
 line_ratio = (test_stats[:line_count].to_f / src_stats[:line_count].to_f)
 
 # - - - - - - - - - - - - - - - - - - - - - - -
+# It is useful to keep these tolerances quite close
+# to their limit. It helps to show large jumps which
+# can be a sign of too much work in progres.
 
 table =
   [
