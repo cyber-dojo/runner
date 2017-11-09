@@ -9,33 +9,36 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def self.os_test(hex_suffix, *lines, &test_block)
+  def self.multi_os_test(hex_suffix, *lines, &block)
     alpine_lines = ['[Alpine]'] + lines
-    test(hex_suffix+'0', *alpine_lines, &test_block)
+    test(hex_suffix+'0', *alpine_lines, &block)
     ubuntu_lines = ['[Ubuntu]'] + lines
-    test(hex_suffix+'1', *ubuntu_lines, &test_block)
+    test(hex_suffix+'1', *ubuntu_lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  os_test 'C3A',
+  multi_os_test 'C3A',
   'invalid avatar_name raises' do
-    in_kata { assert_invalid_avatar_name_raises }
+    in_kata {
+      assert_invalid_avatar_name_raises
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  os_test '8A2',
-  'os image correspondence' do
-    in_kata_as(salmon) { assert_os_image_correspondence }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  os_test '8A3',
-  'in-container tests' do
+  multi_os_test '8A2',
+  'os-image correspondence' do
     in_kata_as(salmon) {
-      assert_run_is_initially_red
+      assert_os_image_correspondence
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '8A3',
+  'container environment properties' do
+    in_kata_as(salmon) {
       assert_pid_1_is_running_init_process
       assert_time_stamp_microseconds_granularity
       assert_env_vars_exist
@@ -45,10 +48,34 @@ class MultiOSTest < TestBase
       assert_avatar_sandbox_properties
       assert_starting_files_properties
       assert_ulimits
-      assert_baseline_speed_test
-      # these two create new files
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '8A4',
+  'files can be created in sandbox sub-dirs' do
+    in_kata_as(salmon) {
       assert_files_can_be_in_sub_dirs_of_sandbox
       assert_files_can_be_in_sub_sub_dirs_of_sandbox
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '8A5',
+  'run is initially red' do
+    in_kata_as(salmon) {
+      assert_run_is_initially_red
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '8A6',
+  'baseline speed' do
+    in_kata_as(salmon) {
+      assert_baseline_speed
     }
   end
 
@@ -57,12 +84,12 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_os_image_correspondence
-    assert_cyber_dojo_sh('cat /etc/issue')
+    etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     case os
     when :Alpine
-      assert stdout.include? 'Alpine'
+      assert etc_issue.include? 'Alpine'
     when :Ubuntu
-      assert stdout.include? 'Ubuntu'
+      assert etc_issue.include? 'Ubuntu'
     end
   end
 
@@ -225,7 +252,7 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_baseline_speed_test
+  def assert_baseline_speed
     timings = []
     (1..5).each do
       started_at = Time.now
