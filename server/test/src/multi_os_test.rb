@@ -122,19 +122,22 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_env_vars_exist
-    cmd = 'printenv CYBER_DOJO_KATA_ID'
-    env_kata_id     = assert_cyber_dojo_sh(cmd)
     cmd = 'printenv CYBER_DOJO_AVATAR_NAME'
     env_avatar_name = assert_cyber_dojo_sh(cmd)
-    cmd = 'printenv CYBER_DOJO_SANDBOX'
-    env_sandbox_dir = assert_cyber_dojo_sh(cmd)
+    cmd = 'printenv CYBER_DOJO_IMAGE_NAME'
+    env_image_name  = assert_cyber_dojo_sh(cmd)
+    cmd = 'printenv CYBER_DOJO_KATA_ID'
+    env_kata_id     = assert_cyber_dojo_sh(cmd)
     cmd = 'printenv CYBER_DOJO_RUNNER'
     env_runner      = assert_cyber_dojo_sh(cmd)
+    cmd = 'printenv CYBER_DOJO_SANDBOX'
+    env_sandbox_dir = assert_cyber_dojo_sh(cmd)
 
-    assert_equal kata_id, env_kata_id
     assert_equal avatar_name, env_avatar_name
-    assert_equal sandbox_dir, env_sandbox_dir
+    assert_equal image_name, env_image_name
+    assert_equal kata_id, env_kata_id
     assert_equal 'stateless', env_runner
+    assert_equal sandbox_dir, env_sandbox_dir
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
