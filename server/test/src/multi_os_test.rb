@@ -165,13 +165,9 @@ class MultiOSTest < TestBase
     assert_equal 128, ulimit(:no_files,   etc_issue)
     assert_equal 128, ulimit(:processes,  etc_issue)
 
-    kb = 1024
-    mb = 1024 * kb
-    gb = 1024 * mb
-
-    expected_max_data_size  =  4 * gb / kb
-    expected_max_file_size  = 16 * mb / (block_size = 512)
-    expected_max_stack_size =  8 * mb / kb
+    expected_max_data_size  =  4 * GB / KB
+    expected_max_file_size  = 16 * MB / (block_size = 512)
+    expected_max_stack_size =  8 * MB / KB
 
     actual_max_data_size  = ulimit(:data_size,  etc_issue)
     actual_max_file_size  = ulimit(:file_size,  etc_issue)
@@ -181,6 +177,10 @@ class MultiOSTest < TestBase
     assert_equal expected_max_file_size,  actual_max_file_size
     assert_equal expected_max_stack_size, actual_max_stack_size
   end
+
+  KB = 1024
+  MB = 1024 * KB
+  GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
