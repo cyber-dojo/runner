@@ -253,10 +253,11 @@ class TestBase < HexMiniTest
   private
 
   def image_for_test
-    if hex_test_name.start_with? '[Ubuntu]'
-      "#{cdf}/clangpp_assert"
-    else # [Alpine] || default
+    case os
+    when :Alpine
       "#{cdf}/gcc_assert"
+    when :Ubuntu
+      "#{cdf}/clangpp_assert"
     end
   end
 

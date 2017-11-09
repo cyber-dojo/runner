@@ -25,6 +25,13 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  os_test '8A2',
+  'os image correspondence' do
+    in_kata_as(salmon) { assert_os_image_correspondence }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   os_test '8A3',
   'in-container tests' do
     in_kata_as(salmon) {
@@ -46,6 +53,20 @@ class MultiOSTest < TestBase
   end
 
   private
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_os_image_correspondence
+    assert_cyber_dojo_sh('cat /etc/issue')
+    case os
+    when :Alpine
+      assert stdout.include? 'Alpine'
+    when :Ubuntu
+      assert stdout.include? 'Ubuntu'
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_invalid_avatar_name_raises
     error = assert_raises(ArgumentError) {
