@@ -157,25 +157,20 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_ulimits
-    etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     assert_cyber_dojo_sh('ulimit -a')
 
-    assert_equal   0, ulimit(:core_size,  etc_issue)
-    assert_equal 128, ulimit(:file_locks, etc_issue)
-    assert_equal 128, ulimit(:no_files,   etc_issue)
-    assert_equal 128, ulimit(:processes,  etc_issue)
+    assert_equal   0, ulimit(:core_size)
+    assert_equal 128, ulimit(:file_locks)
+    assert_equal 128, ulimit(:no_files)
+    assert_equal 128, ulimit(:processes)
 
     expected_max_data_size  =  4 * GB / KB
     expected_max_file_size  = 16 * MB / (block_size = 512)
     expected_max_stack_size =  8 * MB / KB
 
-    actual_max_data_size  = ulimit(:data_size,  etc_issue)
-    actual_max_file_size  = ulimit(:file_size,  etc_issue)
-    actual_max_stack_size = ulimit(:stack_size, etc_issue)
-
-    assert_equal expected_max_data_size,  actual_max_data_size
-    assert_equal expected_max_file_size,  actual_max_file_size
-    assert_equal expected_max_stack_size, actual_max_stack_size
+    assert_equal expected_max_data_size,  ulimit(:data_size)
+    assert_equal expected_max_file_size,  ulimit(:file_size)
+    assert_equal expected_max_stack_size, ulimit(:stack_size)
   end
 
   KB = 1024
@@ -184,7 +179,7 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ulimit(key, etc_issue)
+  def ulimit(key)
     table = {             # alpine,                       ubuntu
       :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
       :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
