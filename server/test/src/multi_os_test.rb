@@ -152,7 +152,7 @@ class MultiOSTest < TestBase
       if filename == 'cyber-dojo.sh'
         content = ls_cmd
       end
-      assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
+      assert_stats(filename, '-rw-r--r--', content.length)
     end
   end
 
@@ -236,8 +236,7 @@ class MultiOSTest < TestBase
       changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{ls_cmd}" },
           new_files: { "#{sub_dir}/#{filename}" => content }
     })
-    ls_files = ls_parse(stdout)
-    assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
+    assert_stats(filename, '-rw-r--r--', content.length)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -250,15 +249,15 @@ class MultiOSTest < TestBase
       changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{ls_cmd}" },
           new_files: { "#{sub_sub_dir}/#{filename}" => content }
     })
-    ls_files = ls_parse(stdout)
-    assert_equal_atts(filename, '-rw-r--r--', user_id, group, content.length, ls_files)
+    assert_stats(filename, '-rw-r--r--', content.length)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_time_stamp_microseconds_granularity
-    # On _default_ Alpine date-time file-stamps are to the second granularity.
-    # In other words, the microseconds value is always '000000000'.
+    # On _default_ Alpine date-time file-stamps are to
+    # the second granularity. In other words, the
+    # microseconds value is always '000000000'.
     # Make sure the tar-piped files have fixed this.
 
     run_cyber_dojo_sh({
@@ -278,14 +277,15 @@ class MultiOSTest < TestBase
 
   private
 
-  def assert_equal_atts(filename, permissions, user, group, size, ls_files)
-    atts = ls_files[filename]
-    refute_nil atts, filename
-    diagnostic = { filename => atts }
-    assert_equal user,  atts[:user ], diagnostic
-    assert_equal group, atts[:group], diagnostic
-    assert_equal size,  atts[:size ], diagnostic
-    assert_equal permissions, atts[:permissions], diagnostic
+  def assert_stats(filename, permissions, size)
+    ls_files = ls_parse(stdout)
+    stats = ls_files[filename]
+    refute_nil stats, filename
+    diagnostic = { filename => stats }
+    assert_equal permissions, stats[:permissions], diagnostic
+    assert_equal user_id, stats[:user ], diagnostic
+    assert_equal group, stats[:group], diagnostic
+    assert_equal size, stats[:size ], diagnostic
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
