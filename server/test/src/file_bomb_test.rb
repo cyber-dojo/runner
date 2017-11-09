@@ -24,12 +24,8 @@ class FileBombTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def seen?(text)
-    count = 0
-    (stdout+stderr).split("\n").each { |line|
-      if line.include?(text)
-        count += 1
-      end
-    }
+    lines = (stdout+stderr).split("\n")
+    count = lines.count { |line| line.include?(text) }
     count > 0
   end
 
