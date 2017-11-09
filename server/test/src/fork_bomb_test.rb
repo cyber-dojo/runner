@@ -7,17 +7,18 @@ class ForkBombTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # fork-bombs from the source
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'CD5',
   %w( [Alpine] fork-bomb does not run indefinitely ) do
     in_kata_as(salmon) {
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => fork_bomb_definition }
-      })
-      assert_printed 'All tests passed'
-      assert_printed 'fork()'
+      begin
+        run_cyber_dojo_sh({
+          changed_files: { 'hiker.c' => fork_bomb_definition }
+        })
+        assert_printed 'All tests passed'
+        assert_printed 'fork()'
+      rescue ArgumentError
+      end
     }
   end
 
@@ -26,22 +27,15 @@ class ForkBombTest < TestBase
   test 'CD6',
   %w( [Ubuntu] fork-bomb does not run indefinitely ) do
     in_kata_as(salmon) {
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.cpp' => fork_bomb_definition }
-      })
-    }
-    assert_printed 'All tests passed'
-    assert_printed 'fork()'
-  end
-
-  def assert_printed(text)
-    tally = 0
-    (stdout+stderr).split("\n").each { |line|
-      if line.include?(text)
-        tally += 1
+      begin
+        run_cyber_dojo_sh({
+          changed_files: { 'hiker.cpp' => fork_bomb_definition }
+        })
+        assert_printed 'All tests passed'
+        assert_printed 'fork()'
+      rescue ArgumentError
       end
     }
-    assert tally > 0, "#{text}:#{quad}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -66,16 +60,17 @@ class ForkBombTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # fork-bombs from the shell
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '4DE',
-  %w( [Alpine] fork-bomb in shell does not run indefinitely ) do
+  %w( [Alpine] shell fork-bomb does not run indefinitely ) do
     @log = LoggerSpy.new(nil)
     in_kata_as(salmon) {
       begin
         run_shell_fork_bomb
-      rescue ArgumentError
+        assert_printed 'bomb'
+        assert_printed "can't fork"
+      rescue
+        ArgumentError
       end
     }
   end
@@ -83,11 +78,13 @@ class ForkBombTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '4DF',
-  %w( [Ubuntu] fork-bomb in shell does not run indefinitely ) do
+  %w( [Ubuntu] shell fork-bomb does not run indefinitely ) do
     @log = LoggerSpy.new(nil)
     in_kata_as(salmon) {
       begin
         run_shell_fork_bomb
+        assert_printed 'bomb'
+        assert_printed "Cannot fork"
       rescue ArgumentError
       end
     }
@@ -96,10 +93,23 @@ class ForkBombTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def run_shell_fork_bomb
-    shell_fork_bomb = 'bomb() { bomb | bomb & }; bomb'
+    shell_fork_bomb = 'bomb() { echo "bomb"; bomb | bomb & }; bomb'
     run_cyber_dojo_sh({
-      changed_files: {'cyber-dojo.sh' => shell_fork_bomb }
+      changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
     })
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_printed(text)
+    tally = 0
+    (stdout+stderr).split("\n").each { |line|
+      if line.include?(text)
+        tally += 1
+      end
+    }
+    assert tally > 0, "#{text}:#{quad}"
+  end
+
 
 end
