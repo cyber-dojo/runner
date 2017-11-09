@@ -84,12 +84,8 @@ class ForkBombTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_timed_out_or_printed(text)
-    count = 0
-    (stdout+stderr).split("\n").each { |line|
-      if line.include?(text)
-        count += 1
-      end
-    }
+    lines = (stdout+stderr).split("\n")
+    count = lines.count { |line| line.include?(text) }
     assert (timed_out? || count > 0), ":#{text}:#{quad}:"
   end
 
