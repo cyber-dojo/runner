@@ -23,7 +23,6 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   test 'CD6',
   %w( [Ubuntu] fork-bomb does not run indefinitely ) do
     content = '#include "hiker.hpp"' + "\n" + fork_bomb_definition
@@ -34,7 +33,6 @@ class ForkBombTest < TestBase
       })
     }
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
