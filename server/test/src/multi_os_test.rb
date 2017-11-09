@@ -86,7 +86,7 @@ class MultiOSTest < TestBase
 
   def assert_pid_1_is_running_init_process
     cmd = 'cat /proc/1/cmdline'
-    proc1 = assert_cyber_dojo_sh(cmd).strip
+    proc1 = assert_cyber_dojo_sh(cmd)
     # odd, but there _is_ an embedded nul-character
     expected = '/dev/init' + 0.chr + '--'
     assert proc1.start_with?(expected), proc1
@@ -96,13 +96,13 @@ class MultiOSTest < TestBase
 
   def assert_env_vars_exist
     cmd = 'printenv CYBER_DOJO_KATA_ID'
-    env_kata_id     = assert_cyber_dojo_sh(cmd).strip
+    env_kata_id     = assert_cyber_dojo_sh(cmd)
     cmd = 'printenv CYBER_DOJO_AVATAR_NAME'
-    env_avatar_name = assert_cyber_dojo_sh(cmd).strip
+    env_avatar_name = assert_cyber_dojo_sh(cmd)
     cmd = 'printenv CYBER_DOJO_SANDBOX'
-    env_sandbox_dir = assert_cyber_dojo_sh(cmd).strip
+    env_sandbox_dir = assert_cyber_dojo_sh(cmd)
     cmd = 'printenv CYBER_DOJO_RUNNER'
-    env_runner      = assert_cyber_dojo_sh(cmd).strip
+    env_runner      = assert_cyber_dojo_sh(cmd)
 
     assert_equal kata_id, env_kata_id
     assert_equal avatar_name, env_avatar_name
@@ -125,7 +125,7 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_cyber_dojo_group_exists
-    assert_cyber_dojo_sh("getent group #{group}").strip
+    assert_cyber_dojo_sh("getent group #{group}")
     entries = stdout.split(':')  # cyber-dojo:x:5000
     assert_equal group, entries[0], stdout
     assert_equal group_id, entries[2].to_i, stdout
@@ -134,10 +134,10 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_avatar_has_home
-    home = assert_cyber_dojo_sh('printenv HOME').strip
+    home = assert_cyber_dojo_sh('printenv HOME')
     assert_equal home_dir, home
 
-    cd_home_pwd = assert_cyber_dojo_sh('cd ~ && pwd').strip
+    cd_home_pwd = assert_cyber_dojo_sh('cd ~ && pwd')
     assert_equal home_dir, cd_home_pwd
   end
 
@@ -149,9 +149,9 @@ class MultiOSTest < TestBase
     ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
     refute_equal '', ls # sandbox is not empty
 
-    stat_uid   = assert_cyber_dojo_sh("stat -c '%u' #{sandbox_dir}").strip.to_i
-    stat_gid   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox_dir}").strip.to_i
-    stat_perms = assert_cyber_dojo_sh("stat -c '%A' #{sandbox_dir}").strip
+    stat_uid   = assert_cyber_dojo_sh("stat -c '%u' #{sandbox_dir}").to_i
+    stat_gid   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox_dir}").to_i
+    stat_perms = assert_cyber_dojo_sh("stat -c '%A' #{sandbox_dir}")
 
     assert_equal user_id, stat_uid, 'stat <user>'
     assert_equal group_id, stat_gid, 'stat <gid>'

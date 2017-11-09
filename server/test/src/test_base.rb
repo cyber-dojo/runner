@@ -129,7 +129,7 @@ class TestBase < HexMiniTest
     run_cyber_dojo_sh(named_args)
     refute_equal timed_out, colour, quad
     assert_stderr ''
-    stdout
+    stdout.strip
   end
 
   def assert_run_times_out(named_args)
