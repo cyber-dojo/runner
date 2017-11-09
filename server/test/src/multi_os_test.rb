@@ -104,7 +104,7 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_cyber_dojo_group_exists
-    stdout = assert_cyber_dojo_sh("getent group #{group}").strip
+    assert_cyber_dojo_sh("getent group #{group}").strip
     entries = stdout.split(':')  # cyber-dojo:x:5000
     assert_equal group, entries[0], stdout
     assert_equal group_id, entries[2].to_i, stdout
