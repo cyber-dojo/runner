@@ -17,8 +17,8 @@ class ForkBombTest < TestBase
           changed_files: { 'hiker.c' => fork_bomb_definition }
         })
         # :nocov:
-        assert_printed 'All tests passed'
-        assert_printed 'fork()'
+        assert_timed_out_or_printed 'All tests passed'
+        assert_timed_out_or_printed 'fork()'
         # :nocov:
       rescue ArgumentError
       end
@@ -36,8 +36,8 @@ class ForkBombTest < TestBase
           changed_files: { 'hiker.cpp' => fork_bomb_definition }
         })
         # :nocov:
-        assert_printed 'All tests passed'
-        assert_printed 'fork()'
+        assert_timed_out_or_printed 'All tests passed'
+        assert_timed_out_or_printed 'fork()'
         # :nocov:
       rescue ArgumentError
       end
@@ -74,8 +74,8 @@ class ForkBombTest < TestBase
       begin
         run_shell_fork_bomb
         # :nocov:
-        assert_printed 'bomb'
-        assert_printed "can't fork"
+        assert_timed_out_or_printed 'bomb'
+        assert_timed_out_or_printed "can't fork"
         # :nocov:
       rescue ArgumentError
       end
@@ -91,8 +91,8 @@ class ForkBombTest < TestBase
       begin
         run_shell_fork_bomb
         # :nocov:
-        assert_printed 'bomb'
-        assert_printed "Cannot fork"
+        assert_timed_out_or_printed 'bomb'
+        assert_timed_out_or_printed "Cannot fork"
         # :nocov:
       rescue ArgumentError
       end
@@ -110,14 +110,14 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_printed(text)
+  def assert_timed_out_or_printed(text)
     tally = 0
     (stdout+stderr).split("\n").each { |line|
       if line.include?(text)
         tally += 1
       end
     }
-    assert tally > 0, "#{text}:#{quad}"
+    assert (colour == 'timed_out') || (tally > 0), "#{colour}:#{text}:#{quad}"
   end
 
 
