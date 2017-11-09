@@ -8,13 +8,18 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'CD5',
-  %w( [Alpine] fork-bomb does not run indefinitely ) do
+  multi_os_test 'CD5',
+  %w( fork-bomb does not run indefinitely ) do
+    fork_bomb_test
+  end
+
+  def fork_bomb_test
     @log = LoggerSpy.new(nil)
+    filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
     in_kata_as(salmon) {
       begin
         run_cyber_dojo_sh({
-          changed_files: { 'hiker.c' => fork_bomb_definition }
+          changed_files: { filename => fork_bomb_definition }
         })
         # :nocov:
         assert_timed_out_or_printed 'All tests passed'
@@ -24,27 +29,6 @@ class ForkBombTest < TestBase
       end
     }
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test 'CD6',
-  %w( [Ubuntu] fork-bomb does not run indefinitely ) do
-    @log = LoggerSpy.new(nil)
-    in_kata_as(salmon) {
-      begin
-        run_cyber_dojo_sh({
-          changed_files: { 'hiker.cpp' => fork_bomb_definition }
-        })
-        # :nocov:
-        assert_timed_out_or_printed 'All tests passed'
-        assert_timed_out_or_printed 'fork()'
-        # :nocov:
-      rescue ArgumentError
-      end
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def fork_bomb_definition
     [ '#include <stdio.h>',
@@ -67,45 +51,27 @@ class ForkBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '4DE',
-  %w( [Alpine] shell fork-bomb does not run indefinitely ) do
+  multi_os_test '4DE',
+  %w( shell fork-bomb does not run indefinitely ) do
+    shell_fork_bomb_test
+  end
+
+  def shell_fork_bomb_test
     @log = LoggerSpy.new(nil)
+    cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
     in_kata_as(salmon) {
       begin
-        run_shell_fork_bomb
+        shell_fork_bomb = 'bomb() { echo "bomb"; bomb | bomb & }; bomb'
+        run_cyber_dojo_sh({
+          changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
+        })
         # :nocov:
         assert_timed_out_or_printed 'bomb'
-        assert_timed_out_or_printed "can't fork"
+        assert_timed_out_or_printed cant_fork
         # :nocov:
       rescue ArgumentError
       end
     }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '4DF',
-  %w( [Ubuntu] shell fork-bomb does not run indefinitely ) do
-    @log = LoggerSpy.new(nil)
-    in_kata_as(salmon) {
-      begin
-        run_shell_fork_bomb
-        # :nocov:
-        assert_timed_out_or_printed 'bomb'
-        assert_timed_out_or_printed "Cannot fork"
-        # :nocov:
-      rescue ArgumentError
-      end
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def run_shell_fork_bomb
-    shell_fork_bomb = 'bomb() { echo "bomb"; bomb | bomb & }; bomb'
-    run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
-    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,6 +85,5 @@ class ForkBombTest < TestBase
     }
     assert (colour == 'timed_out') || (tally > 0), "#{colour}:#{text}:#{quad}"
   end
-
 
 end

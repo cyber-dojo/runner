@@ -9,15 +9,6 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def self.multi_os_test(hex_suffix, *lines, &block)
-    alpine_lines = ['[Alpine]'] + lines
-    test(hex_suffix+'0', *alpine_lines, &block)
-    ubuntu_lines = ['[Ubuntu]'] + lines
-    test(hex_suffix+'1', *ubuntu_lines, &block)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   multi_os_test 'C3A',
   'invalid avatar_name raises' do
     in_kata {
