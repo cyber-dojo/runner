@@ -197,10 +197,10 @@ class MultiOSTest < TestBase
     row = table[key]
     diagnostic = "no ulimit table entry for #{key}"
     refute_nil row, diagnostic
-    if etc_issue.include? 'Alpine'
+    if os == :Alpine
       txt = row[0]
     end
-    if etc_issue.include? 'Ubuntu'
+    if os == :Ubuntu
       txt = row[1]
     end
     line = stdout.split("\n").detect { |limit| limit.start_with? txt }

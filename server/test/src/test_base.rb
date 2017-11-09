@@ -142,6 +142,14 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def os
+    if hex_test_name.start_with? '[Ubuntu]'
+      :Ubuntu
+    else # [Alpine] || default
+      :Alpine
+    end
+  end
+
   def image_name
     @image_name
   end
