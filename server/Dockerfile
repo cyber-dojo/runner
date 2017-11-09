@@ -8,7 +8,7 @@ LABEL maintainer=jon@jaggersoft.com
 RUN apk --update --no-cache add \
     openssl ca-certificates \
     ruby ruby-dev ruby-bundler \
-    bash tzdata
+    bash
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install ruby gems
