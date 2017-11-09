@@ -8,26 +8,35 @@ class FileBombTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'DB3',
-  %w( [Alpine] file-bomb in C to exhaust file-handles fails to go off ) do
+  multi_os_test 'DB3',
+  %w( file-bomb in C to exhaust file-handles fails to go off ) do
+    filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => c_file_bomb }
+        changed_files: { filename => c_file_bomb }
       })
     }
-    assert_colour 'green'
-    assert_stderr ''
-    lines = stdout.split("\n")
-    assert_equal 1, lines.count{ |line| line == 'All tests passed' }
-    assert lines.count{ |line| line.start_with? 'fopen() != NULL' } > 42
-    assert_equal 1, lines.count{ |line| line.start_with? 'fopen() == NULL' }
+    assert seen?('All tests passed'), quad
+    assert seen?('fopen() != NULL'), quad
+    assert seen?('fopen() == NULL'), quad
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def seen?(text)
+    count = 0
+    (stdout+stderr).split("\n").each { |line|
+      if line.include?(text)
+        count += 1
+      end
+    }
+    count
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def c_file_bomb
     [
-      '#include "hiker.h"',
       '#include <stdio.h>',
       '',
       'int answer(void)',
