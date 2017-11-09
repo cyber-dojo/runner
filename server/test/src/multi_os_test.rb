@@ -145,7 +145,7 @@ class MultiOSTest < TestBase
     })
     assert_colour 'amber' # doing an stat
     assert_stderr ''
-    assert_equal starting_files.keys.sort, stat_parse.keys.sort
+    assert_equal starting_files.keys.sort, stdout_stats.keys.sort
     starting_files.each do |filename,content|
       if filename == 'cyber-dojo.sh'
         content = stat_cmd
@@ -261,7 +261,7 @@ class MultiOSTest < TestBase
       changed_files: { 'cyber-dojo.sh' => stat_cmd }
     })
     count = 0
-    stat_parse.each do |filename,atts|
+    stdout_stats.each do |filename,atts|
       count += 1
       refute_nil atts, filename
       stamp = atts[:time_stamp] # eg '07:03:14.835233538'
@@ -275,7 +275,7 @@ class MultiOSTest < TestBase
   private
 
   def assert_stats(filename, permissions, size)
-    stats = stat_parse[filename]
+    stats = stdout_stats[filename]
     refute_nil stats, filename
     diagnostic = { filename => stats }
     assert_equal permissions, stats[:permissions], diagnostic
@@ -286,7 +286,7 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def stat_parse
+  def stdout_stats
     Hash[stdout.split("\n").collect { |line|
       attr = line.split
       [attr[0], { # filename
