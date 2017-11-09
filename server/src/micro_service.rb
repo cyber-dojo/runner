@@ -32,7 +32,7 @@ class MicroService
     runner = Runner.new(self, image_name, kata_id)
     { name => runner.send(name, *args) }
   rescue Exception => e
-    log << "EXCEPTION: #{e.class.name}.#{caller} #{e.message}"
+    log << "EXCEPTION: #{e.class.name}.#{name} #{e.message}"
     { 'exception' => e.message }
   end
 
