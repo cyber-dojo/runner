@@ -223,8 +223,7 @@ class MultiOSTest < TestBase
       timings << (secs * 1000 + millisecs)
     end
     mean = timings.reduce(0, :+) / timings.size
-    max = (ENV['TRAVIS'] == 'true') ? 800 : 500
-    assert mean < max, "mean=#{mean}, max=#{max}"
+    assert mean < max=800, "mean=#{mean}, max=#{max}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
