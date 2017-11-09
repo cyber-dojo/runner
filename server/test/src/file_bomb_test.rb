@@ -30,7 +30,7 @@ class FileBombTest < TestBase
         count += 1
       end
     }
-    count
+    count > 0
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
