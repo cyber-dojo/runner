@@ -245,14 +245,11 @@ class TestBase < HexMiniTest
   private
 
   def image_for_test
-    rows = {
-      '[gcc,assert]'    => 'gcc_assert',
-      '[Alpine]'        => 'gcc_assert',
-      '[Ubuntu]'        => 'clangpp_assert'
-    }
-    row = rows.detect { |key,_| hex_test_name.start_with? key }
-    row ||= [ nil, 'gcc_assert' ] # default
-    cdf + '/' + row[1]
+    if hex_test_name.start_with? '[Ubuntu]'
+      "#{cdf}/clangpp_assert"
+    else # [Alpine] || default
+      "#{cdf}/gcc_assert"
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
