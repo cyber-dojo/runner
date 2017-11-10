@@ -104,9 +104,9 @@ table =
     [ 'duration(test)[s]',      test_duration,      '<=',  55 ],
     [ 'coverage(src)[%]',       src_coverage,       '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,      '==', 100 ],
-    [ 'hits_per_line(src)',     hits_per_line_src,  '<=', 160 ],
-    [ 'hits_per_line(test)',    hits_per_line_test, '<=',  16 ],
-    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=', 2.9 ],
+    [ 'hits_per_line(src)',     hits_per_line_src,  '<=',  86 ],
+    [ 'hits_per_line(test)',    hits_per_line_test, '<=',  14 ],
+    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=',   3 ],
   ]
 
 # - - - - - - - - - - - - - - - - - - - - - - -
