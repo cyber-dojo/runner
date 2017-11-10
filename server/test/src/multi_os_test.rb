@@ -74,21 +74,27 @@ class MultiOSTest < TestBase
 
   multi_os_test 'CD5',
   'fork-bomb does not run indefinitely' do
-    fork_bomb_test
+    in_kata_as(salmon) {
+      fork_bomb_test
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '4DE',
   'shell fork-bomb does not run indefinitely' do
-    shell_fork_bomb_test
+    in_kata_as(salmon) {
+      shell_fork_bomb_test
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'DB3',
   'file-bomb in exhaust file-handles fails to go off' do
-    file_bomb_test
+    in_kata_as(salmon) {
+      file_bomb_test
+    }
   end
 
   private
