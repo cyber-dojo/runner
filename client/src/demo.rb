@@ -1,10 +1,8 @@
 require_relative 'runner_service'
-require 'sinatra'
-require 'sinatra/base'
 
-class Demo < Sinatra::Base
+class Demo
 
-  get '/' do
+  def call(_env)
     html = ''
 
     duration = timed { @quad = run(files) }
@@ -22,7 +20,7 @@ class Demo < Sinatra::Base
     duration = timed { @quad = run(files, 3) }
     html += pre(duration, @quad, 'LightGray')
 
-    "<div style='font-size:0.5em'>#{html}</div>"
+    [ 200, { 'Content-Type' => 'text/html' }, [ html ] ]
   end
 
   private

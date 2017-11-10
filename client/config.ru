@@ -1,3 +1,4 @@
-
+require 'rack'
 require_relative './src/demo'
-run Demo
+
+run Demo.new
