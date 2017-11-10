@@ -22,6 +22,14 @@ class MicroService
         body = invoke('avatar_old', avatar_name)
       when /run/
         body = invoke('run', avatar_name, visible_files, max_seconds)
+      when /run_cyber_dojo_sh/
+        body = invoke('run_cyber_dojo_sh',
+          avatar_name,
+          deleted_filenames,
+          unchanged_files,
+          changed_files,
+          new_files,
+          max_seconds)
     end
     [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
   end
@@ -46,8 +54,16 @@ class MicroService
     }
   end
 
-  request_args :image_name, :kata_id
-  request_args :avatar_name, :starting_files
-  request_args :visible_files, :max_seconds
+  request_args :image_name
+  request_args :kata_id
+  request_args :avatar_name
+  request_args :starting_files
+  request_args :deleted_filenames
+  request_args :unchanged_files
+  request_args :changed_files
+  request_args :new_files
+  request_args :max_seconds
+
+  request_args :visible_files
 
 end

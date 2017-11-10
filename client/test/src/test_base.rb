@@ -56,6 +56,22 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
+  def run_cyber_dojo_sh(named_args={})
+    args = []
+    args << defaulted_arg(named_args, :image_name, default_image_name)
+    args << defaulted_arg(named_args, :kata_id,    default_kata_id)
+    args << defaulted_arg(named_args, :avatar_name, default_avatar_name)
+    args << defaulted_arg(named_args, :deleted_filenames, [])
+    args << defaulted_arg(named_args, :unchanged_files, {})
+    args << defaulted_arg(named_args, :changed_files, {})
+    args << defaulted_arg(named_args, :new_files, [])
+    args << defaulted_arg(named_args, :max_seconds, 10)
+    @quad = runner.run_cyber_dojo_sh *args
+    nil
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - -
+
   def run4(named_args = {})
     # don't call this run() as it clashes with MiniTest
     @quad = runner.run *defaulted_args(named_args)
