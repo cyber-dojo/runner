@@ -87,7 +87,7 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'DB3',
-  'file-bomb in C to exhaust file-handles fails to go off' do
+  'file-bomb in exhaust file-handles fails to go off' do
     file_bomb_test
   end
 
@@ -185,13 +185,13 @@ class MultiOSTest < TestBase
     ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
     refute_equal '', ls # sandbox is not empty
 
-    stat_uid   = assert_cyber_dojo_sh("stat -c '%u' #{sandbox_dir}").to_i
-    stat_gid   = assert_cyber_dojo_sh("stat -c '%g' #{sandbox_dir}").to_i
-    stat_perms = assert_cyber_dojo_sh("stat -c '%A' #{sandbox_dir}")
+    assert_equal user_id.to_s,  stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
+    assert_equal group_id.to_s, stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
+    assert_equal 'drwxr-xr-x',  stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
+  end
 
-    assert_equal user_id, stat_uid, 'stat <user>'
-    assert_equal group_id, stat_gid, 'stat <gid>'
-    assert_equal 'drwxr-xr-x', stat_perms, 'stat <permissions>'
+  def stat_sandbox_dir(ch)
+    assert_cyber_dojo_sh("stat -c '%#{ch}' #{sandbox_dir}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -323,6 +323,8 @@ class MultiOSTest < TestBase
     end
     assert_equal 5, count
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_stats(filename, permissions, size)
     stats = stdout_stats[filename]
