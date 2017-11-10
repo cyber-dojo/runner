@@ -1,45 +1,68 @@
+require_relative 'all_avatars_names'
 require_relative '../hex_mini_test'
-require_relative '../../src/all_avatars_names'
-require_relative '../../src/externals'
-require_relative '../../src/runner'
+require_relative '../../src/runner_service'
 require 'json'
 
-class TestBase < HexMiniTest
-
-  include Externals
+class TestBase2 < HexMiniTest
 
   def runner
-    Runner.new(self, image_name, kata_id)
+    RunnerService.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_pulled?
-    runner.image_pulled?
+=begin
+  def image_pulled?(named_args = {})
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :kata_id,    kata_id)
+    runner.image_pulled? *args
   end
 
-  def image_pull
-    runner.image_pull
+  def image_pull(named_args = {})
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :kata_id,    kata_id)
+    runner.image_pull *args
+  end
+=end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def kata_new(named_args = {})
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :kata_id,    kata_id)
+    runner.kata_new *args
+
+  end
+
+  def kata_old(named_args={})
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :kata_id,    kata_id)
+    runner.kata_old *args
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_new
-    runner.kata_new
+  def avatar_new(named_args = {})
+    args = []
+    args << defaulted_arg(named_args, :image_name,     image_name)
+    args << defaulted_arg(named_args, :kata_id,        kata_id)
+    args << defaulted_arg(named_args, :avatar_name,    salmon)
+    args << defaulted_arg(named_args, :starting_files, starting_files)
+    runner.avatar_new *args
+    @avatar_name = args[-2]
+    @all_files = args[-1]
   end
 
-  def kata_old
-    runner.kata_old
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_new(name = salmon)
-    runner.avatar_new(@avatar_name = name, @all_files = starting_files)
-  end
-
-  def avatar_old(name = avatar_name)
-    runner.avatar_old(name)
+  def avatar_old(named_args = {})
+    args = []
+    args << defaulted_arg(named_args, :image_name,  image_name)
+    args << defaulted_arg(named_args, :kata_id,     kata_id)
+    args << defaulted_arg(named_args, :avatar_name, avatar_name)
+    runner.avatar_old *args
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,8 +84,8 @@ class TestBase < HexMiniTest
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    args = []
-    args << avatar_name
+    args = [ image_name, kata_id ]
+    args << defaulted_arg(named_args, :avatar_name, avatar_name)
     args << defaulted_arg(named_args, :deleted_filenames, [])
     args << unchanged_files
     args << changed_files
@@ -82,19 +105,21 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
-    quad[:stdout]
+    quad['stdout']
   end
 
   def stderr
-    quad[:stderr]
+    quad['stderr']
   end
 
+=begin
   def status
-    quad[:status]
+    quad['status']
   end
+=end
 
   def colour
-    quad[:colour]
+    quad['colour']
   end
 
   def timed_out?
@@ -103,17 +128,21 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def assert_status(expected)
     assert_equal expected, status, "assert_status:#{quad}"
   end
+=end
 
   def assert_colour(expected)
     assert_equal expected, colour, "assert_colour:#{quad}"
   end
 
+=begin
   def assert_stdout(expected)
     assert_equal expected, stdout, "assert_stdout:#{quad}"
   end
+=end
 
   def assert_stderr(expected)
     assert_equal expected, stderr, "assert_stderr:#{quad}"
@@ -133,6 +162,7 @@ class TestBase < HexMiniTest
     stdout.strip
   end
 
+=begin
   def assert_run_times_out(named_args)
     run_cyber_dojo_sh(named_args)
     assert timed_out?
@@ -140,6 +170,7 @@ class TestBase < HexMiniTest
     assert_stdout ''
     assert_stderr ''
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -197,19 +228,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def with_captured_stdout
-    begin
-      old_stdout = $stdout
-      $stdout = StringIO.new('', 'w')
-      yield
-      $stdout.string
-    ensure
-      $stdout = old_stdout
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def in_kata_as(name)
     in_kata {
       as(name) {
@@ -231,10 +249,10 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def as(name)
-    avatar_new(name)
+    avatar_new({ avatar_name: name })
     yield
   ensure
-    avatar_old(name)
+    avatar_old({ avatar_name: name })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

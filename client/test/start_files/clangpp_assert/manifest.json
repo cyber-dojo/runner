@@ -1,0 +1,18 @@
+
+{
+  "display_name": "C++ (clang++), assert",
+
+  "visible_filenames": [
+    "hiker.tests.cpp",
+    "hiker.cpp",
+    "hiker.hpp",
+    "makefile",
+    "cyber-dojo.sh"
+  ],
+
+  "image_name": "cyberdojofoundation/clangpp_assert",
+
+  "runner_choice": "stateless",
+
+  "filename_extension" : ".cpp"
+}

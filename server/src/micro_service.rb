@@ -20,8 +20,6 @@ class MicroService
         body = invoke('avatar_new', avatar_name, starting_files)
       when /avatar_old/
         body = invoke('avatar_old', avatar_name)
-      when /run/
-        body = invoke('run', avatar_name, visible_files, max_seconds)
       when /run_cyber_dojo_sh/
         body = invoke('run_cyber_dojo_sh',
           avatar_name,
@@ -30,6 +28,8 @@ class MicroService
           changed_files,
           new_files,
           max_seconds)
+      when /run/
+        body = invoke('run', avatar_name, visible_files, max_seconds)
     end
     [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
   end

@@ -1,8 +1,7 @@
-require_relative '../../src/all_avatars_names'
-require_relative '../../src/logger_spy'
-require_relative 'test_base'
+require_relative 'all_avatars_names'
+require_relative 'test_base2'
 
-class MultiOSTest < TestBase
+class MultiOSTest < TestBase2
 
   def self.hex_prefix
     '3759D'
@@ -10,12 +9,14 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   multi_os_test 'C3A',
   'invalid avatar_name raises' do
     in_kata {
       assert_invalid_avatar_name_raises
     }
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -114,12 +115,14 @@ class MultiOSTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def assert_invalid_avatar_name_raises
-    error = assert_raises(ArgumentError) {
+    error = assert_raises(StandardError) {
       run_cyber_dojo_sh({ avatar_name:'polaroid' })
     }
     assert_equal 'avatar_name:invalid', error.message
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -378,7 +381,6 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def fork_bomb_test
-    @log = LoggerSpy.new(nil)
     filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
     in_kata_as(salmon) {
       begin
@@ -416,7 +418,6 @@ class MultiOSTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def shell_fork_bomb_test
-    @log = LoggerSpy.new(nil)
     cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
     in_kata_as(salmon) {
       begin
