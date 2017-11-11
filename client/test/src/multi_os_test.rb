@@ -59,8 +59,8 @@ class MultiOSTest < TestBase2
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A5',
-  'run is initially red' do
+  multi_os_test '3DF',
+  'run with initial 6*9 == 42 is red' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert_colour 'red'
@@ -76,6 +76,18 @@ class MultiOSTest < TestBase2
         changed_files: { filename => content.sub('6 * 9', '6 * 9sd') }
       })
       assert_colour 'amber'
+    }
+  end
+
+  multi_os_test '3DD',
+  'run with 6*7 == 42 is green' do
+    in_kata_as(salmon) {
+      filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
+      content = starting_files[filename]
+      run_cyber_dojo_sh({
+        changed_files: { filename => content.sub('6 * 9', '6 * 7') }
+      })
+      assert_colour 'green'
     }
   end
 
