@@ -13,7 +13,6 @@ class RunnerTest < TestBase
     valid_image_names.each do |image_name|
       Runner.new(self, image_name, kata_id)
     end
-
   end
 
   # - - - - - - - - - - - - - - - - -

@@ -62,7 +62,7 @@ class TestBase < HexMiniTest
     end
 
     args = []
-    args << avatar_name
+    args << defaulted_arg(named_args, :avatar_name, avatar_name)
     args << defaulted_arg(named_args, :deleted_filenames, [])
     args << unchanged_files
     args << changed_files
@@ -121,8 +121,10 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_cyber_dojo_sh(script, named_args = {})
-    named_args[:changed_files] = { 'cyber-dojo.sh' => script }
+  def assert_cyber_dojo_sh(script)
+    named_args = {
+      :changed_files => { 'cyber-dojo.sh' => script }
+    }
     assert_run_succeeds(named_args)
   end
 
@@ -143,14 +145,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def os
-    if hex_test_name.start_with? '[Ubuntu]'
-      :Ubuntu
-    else # [Alpine] || default
-      :Alpine
-    end
-  end
-
   def image_name
     @image_name
   end
@@ -167,20 +161,8 @@ class TestBase < HexMiniTest
     40000 + all_avatars_names.index(avatar_name)
   end
 
-  def group_id
-    5000
-  end
-
   def group
     'cyber-dojo'
-  end
-
-  def home_dir
-    "/home/#{avatar_name}"
-  end
-
-  def sandbox_dir
-    "/tmp/sandboxes/#{avatar_name}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -223,9 +205,11 @@ class TestBase < HexMiniTest
   def in_kata
     set_image_name image_for_test
     kata_new
-    yield
-  ensure
-    kata_old
+    begin
+      yield
+    ensure
+      kata_old
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -239,10 +223,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cdf
-    'cyberdojofoundation'
-  end
-
   def set_image_name(image_name)
     @image_name = image_name
   end
@@ -254,16 +234,29 @@ class TestBase < HexMiniTest
     test(hex_suffix+'1', *ubuntu_lines, &block)
   end
 
+  def os
+    if hex_test_name.start_with? '[Ubuntu]'
+      :Ubuntu
+    else # [Alpine] || default
+     :Alpine
+   end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def cdf
+    'cyberdojofoundation'
+  end
+
   private
 
   include AllAvatarsNames
 
   def image_for_test
-    case os
-    when :Alpine
-      "#{cdf}/gcc_assert"
-    when :Ubuntu
+    if hex_test_name.start_with? '[Ubuntu]'
       "#{cdf}/clangpp_assert"
+    else
+      "#{cdf}/gcc_assert"
     end
   end
 
