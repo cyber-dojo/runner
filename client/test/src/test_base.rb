@@ -12,7 +12,7 @@ class TestBase < HexMiniTest
     test(hex_suffix+'1', *ubuntu_lines, &block)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def in_kata_as(name)
     in_kata {
@@ -22,51 +22,36 @@ class TestBase < HexMiniTest
     }
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
     RunnerService.new
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?(named_args = {})
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :kata_id,    kata_id)
-    runner.image_pulled? *args
+    runner.image_pulled? *common_args(named_args)
   end
 
   def image_pull(named_args = {})
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :kata_id,    kata_id)
-    runner.image_pull *args
+    runner.image_pull *common_args(named_args)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new(named_args = {})
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :kata_id,    kata_id)
-    runner.kata_new *args
-
+    runner.kata_new *common_args(named_args)
   end
 
   def kata_old(named_args={})
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :kata_id,    kata_id)
-    runner.kata_old *args
+    runner.kata_old *common_args(named_args)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(named_args = {})
-    args = []
-    args << defaulted_arg(named_args, :image_name,     image_name)
-    args << defaulted_arg(named_args, :kata_id,        kata_id)
+    args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name,    avatar_name)
     args << defaulted_arg(named_args, :starting_files, starting_files)
     runner.avatar_new *args
@@ -75,14 +60,12 @@ class TestBase < HexMiniTest
   end
 
   def avatar_old(named_args = {})
-    args = []
-    args << defaulted_arg(named_args, :image_name,  image_name)
-    args << defaulted_arg(named_args, :kata_id,     kata_id)
+    args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name, avatar_name)
     runner.avatar_old *args
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(named_args = {})
 
@@ -101,9 +84,7 @@ class TestBase < HexMiniTest
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :kata_id, kata_id)
+    args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name, avatar_name)
     args << defaulted_arg(named_args, :deleted_filenames, [])
     args << unchanged_files
@@ -111,13 +92,13 @@ class TestBase < HexMiniTest
     args << new_files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
-    @quad = runner.run_cyber_dojo_sh(*args)
+    @quad = runner.run_cyber_dojo_sh *args
 
     @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
     quad['stdout']
@@ -127,17 +108,7 @@ class TestBase < HexMiniTest
     quad['stderr']
   end
 
-  def colour
-    quad['colour']
-  end
-
-=begin
-  def status
-    quad['status']
-  end
-=end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def red?
     colour == 'red'
@@ -155,30 +126,10 @@ class TestBase < HexMiniTest
     colour == 'timed_out'
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  def assert_status(expected)
-    assert_equal expected, status, "assert_status:#{quad}"
-  end
-
-  def assert_colour(expected)
-    assert_equal expected, colour, "assert_colour:#{quad}"
-  end
-
-  def assert_stdout(expected)
-    assert_equal expected, stdout, "assert_stdout:#{quad}"
-  end
-
-  def assert_stderr(expected)
-    assert_equal expected, stderr, "assert_stderr:#{quad}"
-  end
-=end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_sh(script, named_args = {})
-    named_args[:changed_files] = { 'cyber-dojo.sh' => script }
+  def assert_cyber_dojo_sh(sh_script, named_args = {})
+    named_args[:changed_files] = { 'cyber-dojo.sh' => sh_script }
     assert_run_succeeds(named_args)
   end
 
@@ -189,7 +140,7 @@ class TestBase < HexMiniTest
     stdout.strip
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def os
     if hex_test_name.start_with? '[Ubuntu]'
@@ -207,7 +158,7 @@ class TestBase < HexMiniTest
   INVALID_IMAGE_NAME = '_cantStartWithSeparator'
     VALID_IMAGE_NAME = 'cyberdojofoundation/gcc_assert'
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_id
     hex_test_id + '0' * (10 - hex_test_id.length)
@@ -215,7 +166,7 @@ class TestBase < HexMiniTest
 
   INVALID_KATA_ID = '675'
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   include AllAvatarsNames
 
@@ -229,7 +180,7 @@ class TestBase < HexMiniTest
 
   INVALID_AVATAR_NAME = 'sunglasses'
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def user_id
     40000 + all_avatars_names.index(avatar_name)
@@ -251,7 +202,7 @@ class TestBase < HexMiniTest
     "/tmp/sandboxes/#{avatar_name}"
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
     fail 'image_name.nil? so cannot set language_dir' if image_name.nil?
@@ -263,11 +214,16 @@ class TestBase < HexMiniTest
     }]
   end
 
-  def cdf
-    'cyberdojofoundation'
+  private
+
+  def common_args(named_args)
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :kata_id,    kata_id)
+    args
   end
 
-  private
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def in_kata
     @image_name = image_for_os
@@ -293,6 +249,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_for_os
+    cdf = 'cyberdojofoundation'
     case os
     when :Alpine
       "#{cdf}/gcc_assert"
@@ -311,6 +268,12 @@ class TestBase < HexMiniTest
 
   def quad
     @quad
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def colour
+    quad['colour']
   end
 
 end

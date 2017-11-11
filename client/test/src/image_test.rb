@@ -12,7 +12,7 @@ class ImageTest < TestBase
 
   multi_os_test 'B21',
   'pull is false when image_name repository does not exist' do
-    refute image_pull({ image_name: "#{cdf}/lazybox" })
+    refute image_pull({ image_name: 'docker/lazybox' })
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
