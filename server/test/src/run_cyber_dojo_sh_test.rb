@@ -79,7 +79,7 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout_stats
-    Hash[stdout.split("\n").collect { |line|
+    Hash[stdout.lines.collect { |line|
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],

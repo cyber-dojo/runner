@@ -328,7 +328,7 @@ class RunCyberDojoShTest < TestBase
     if os == :Ubuntu
       txt = row[1]
     end
-    line = stdout.split("\n").detect { |limit| limit.start_with? txt }
+    line = stdout.lines.detect { |limit| limit.start_with? txt }
     line.split[-1].to_i
   end
 
@@ -412,7 +412,7 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout_stats
-    Hash[stdout.split("\n").collect { |line|
+    Hash[stdout.lines.collect { |line|
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],
@@ -504,8 +504,7 @@ class RunCyberDojoShTest < TestBase
   end
 
   def assert_timed_out_or_printed(text)
-    lines = (stdout+stderr).split("\n")
-    count = lines.count { |line| line.include?(text) }
+    count = (stdout+stderr).lines.count { |line| line.include?(text) }
     assert (timed_out? || count > 0), ":#{text}:#{quad}:"
   end
 
@@ -547,8 +546,7 @@ class RunCyberDojoShTest < TestBase
   end
 
   def seen?(text)
-    lines = (stdout+stderr).split("\n")
-    count = lines.count { |line| line.include?(text) }
+    count = (stdout+stderr).lines.count { |line| line.include?(text) }
     count > 0
   end
 
