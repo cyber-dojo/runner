@@ -1,16 +1,14 @@
-require_relative 'test_base'
+require_relative 'test_base2'
 
-class KataTest < TestBase
+class KataTest < TestBase2
 
   def self.hex_prefix
     'D2E7E'
   end
 
-  test 'D87', %w( kata_new is a no-op for API compatibility ) do
+  multi_os_test 'D87',
+  %w( kata_new/kata_old are no-ops for API compatibility ) do
     kata_new
-  end
-
-  test 'D88', %w( kata_old is a no-op for API compatibility ) do
     kata_old
   end
 

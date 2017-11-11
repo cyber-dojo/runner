@@ -185,7 +185,7 @@ class TestBase2 < HexMiniTest
   end
 
   def image_name
-    @image_name
+    @image_name || image_for_test
   end
 
   INVALID_IMAGE_NAME  = '_cantStartWithSeparator'
