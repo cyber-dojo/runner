@@ -52,6 +52,58 @@ Pull the image with the given image_name.
   { "image_pull": false }
 ```
 
+- - - -
+
+# POST kata_new
+A no-op, but arguments must be valid.
+Provided for API compatibility with other runners.
+- parameters, eg
+```
+  { "image_name": "cyberdojofoundation/gcc_assert",
+       "kata_id": "15B9AD6C42"
+  }
+```
+
+# POST kata_old
+A no-op, but arguments must be valid.
+Provided for API compatibility with other runners.
+- parameters, eg
+```
+  { "image_name": "cyberdojofoundation/gcc_assert",
+       "kata_id": "15B9AD6C42"
+  }
+```
+
+- - - -
+
+# POST avatar_new
+A no-op, but arguments must be valid.
+Provided for API compatibility with other runners.
+- parameters, eg
+```
+  {     "image_name": "cyberdojofoundation/gcc_assert",
+           "kata_id": "15B9AD6C42",
+       "avatar_name": "salmon",
+    "starting_files": { "hiker.h": "#ifndef HIKER_INCLUDED...",
+                        "hiker.c": "#include...",
+                        ...
+                      }
+  }
+```
+
+# POST avatar_old
+A no-op, but arguments must be valid.
+Provided for API compatibility with other runners.
+- parameters, eg
+```
+  {  "image_name": "cyberdojofoundation/gcc_assert",
+        "kata_id": "15B9AD6C42",
+    "avatar_name": "salmon"
+  }
+```
+
+- - - -
+
 # POST run_cyber_dojo_sh
 Saves the unchanged, changed, and new files in a docker container run
 from image_name and runs cyber-dojo.sh as the given avatar.
