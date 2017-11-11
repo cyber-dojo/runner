@@ -128,13 +128,10 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_cyber_dojo_sh(sh_script, named_args = {})
-    named_args[:changed_files] = { 'cyber-dojo.sh' => sh_script }
-    assert_run_succeeds(named_args)
-  end
-
-  def assert_run_succeeds(named_args)
-    run_cyber_dojo_sh(named_args)
+  def assert_cyber_dojo_sh(sh_script)
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => sh_script }
+    })
     refute timed_out?, quad
     assert_equal '', stderr
     stdout.strip
