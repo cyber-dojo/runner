@@ -52,17 +52,58 @@ Pull the image with the given image_name.
   { "image_pull": false }
 ```
 
+# POST run_cyber_dojo_sh
+Saves all the files in a container run from image_name and runs cyber-dojo.sh
+- parameters, eg
+```
+  {        "image_name": "cyberdojofoundation/gcc_assert",
+              "kata_id": "15B9AD6C42",
+          "avatar_name": "salmon",
+    "deleted_filenames": [],
+      "unchanged_files": { "cyber-dojo.sh" => "make" },
+        "changed_files": { "fizz_buzz.c" => "#include...",
+                           "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED..."
+                         },
+            "new_files": {},
+          "max_seconds": 10
+  }
+```
+- returns status, stdout, stderr, and colour.
+If the run completed in max_seconds,
+the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
+will be "red", "amber", or "green". eg
+```
+    { "run": {
+        "status": 2,
+        "stdout": "makefile:17: recipe for target 'test' failed\n",
+        "stderr": "invalid suffix sss on integer constant",
+        "colour": "red"
+    }
+```
+If the run did not complete in max_seconds,
+the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
+will be "timed_out". eg
+```
+    { "run": {
+        "status": 137,
+        "stdout": "",
+        "stderr": "",
+        "colour": "timed_out"
+    }
+```
+
 - - - -
 
 # POST run
+Deprecated.
 Saves the visible_files in a container run from image_name and runs cyber-dojo.sh
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
               "kata_id": "15B9AD6C42",
           "avatar_name": "salmon",
-        "visible_files": { "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
-                           "fizz_buzz.c": "#include...",
+        "visible_files": { "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
+                           "fizz_buzz.c" => "#include...",
                            "cyber-dojo.sh": "make",
                            ...
                          },
