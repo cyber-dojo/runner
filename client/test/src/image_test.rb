@@ -1,6 +1,6 @@
-require_relative 'test_base2'
+require_relative 'test_base'
 
-class ImageTest < TestBase2
+class ImageTest < TestBase
 
   def self.hex_prefix
     '4CD0A'

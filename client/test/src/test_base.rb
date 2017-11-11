@@ -3,7 +3,7 @@ require_relative '../hex_mini_test'
 require_relative '../../src/runner_service'
 require 'json'
 
-class TestBase2 < HexMiniTest
+class TestBase < HexMiniTest
 
   def runner
     RunnerService.new

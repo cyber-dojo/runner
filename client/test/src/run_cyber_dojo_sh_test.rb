@@ -1,7 +1,7 @@
 require_relative 'all_avatars_names'
-require_relative 'test_base2'
+require_relative 'test_base'
 
-class RunCyberDojoShTest < TestBase2
+class RunCyberDojoShTest < TestBase
 
   def self.hex_prefix
     '3759D'
