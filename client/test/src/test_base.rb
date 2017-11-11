@@ -5,6 +5,25 @@ require 'json'
 
 class TestBase < HexMiniTest
 
+  def self.multi_os_test(hex_suffix, *lines, &block)
+    alpine_lines = ['[Alpine]'] + lines
+    test(hex_suffix+'0', *alpine_lines, &block)
+    ubuntu_lines = ['[Ubuntu]'] + lines
+    test(hex_suffix+'1', *ubuntu_lines, &block)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def in_kata_as(name)
+    in_kata {
+      as(name) {
+        yield
+      }
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def runner
     RunnerService.new
   end
@@ -108,14 +127,28 @@ class TestBase < HexMiniTest
     quad['stderr']
   end
 
+  def colour
+    quad['colour']
+  end
+
 =begin
   def status
     quad['status']
   end
 =end
 
-  def colour
-    quad['colour']
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def red?
+    colour == 'red'
+  end
+
+  def amber?
+    colour == 'amber'
+  end
+
+  def green?
+    colour == 'green'
   end
 
   def timed_out?
@@ -128,21 +161,19 @@ class TestBase < HexMiniTest
   def assert_status(expected)
     assert_equal expected, status, "assert_status:#{quad}"
   end
-=end
 
   def assert_colour(expected)
     assert_equal expected, colour, "assert_colour:#{quad}"
   end
 
-=begin
   def assert_stdout(expected)
     assert_equal expected, stdout, "assert_stdout:#{quad}"
   end
-=end
 
   def assert_stderr(expected)
     assert_equal expected, stderr, "assert_stderr:#{quad}"
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -154,7 +185,7 @@ class TestBase < HexMiniTest
   def assert_run_succeeds(named_args)
     run_cyber_dojo_sh(named_args)
     refute timed_out?, quad
-    assert_stderr ''
+    assert_equal '', stderr
     stdout.strip
   end
 
@@ -162,14 +193,15 @@ class TestBase < HexMiniTest
 
   def os
     if hex_test_name.start_with? '[Ubuntu]'
-      :Ubuntu
-    else # [Alpine] || default
-      :Alpine
+      return :Ubuntu
+    end
+    if hex_test_name.start_with? '[Alpine]'
+      return :Alpine
     end
   end
 
   def image_name
-    @image_name || image_for_test
+    @image_name || image_for_os
   end
 
   INVALID_IMAGE_NAME = '_cantStartWithSeparator'
@@ -178,12 +210,14 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_id
-    hex_test_id + '0' * (10-hex_test_id.length)
+    hex_test_id + '0' * (10 - hex_test_id.length)
   end
 
   INVALID_KATA_ID = '675'
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  include AllAvatarsNames
 
   def avatar_name
     @avatar_name || salmon
@@ -229,57 +263,36 @@ class TestBase < HexMiniTest
     }]
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def in_kata_as(name)
-    in_kata {
-      as(name) {
-        yield
-      }
-    }
+  def cdf
+    'cyberdojofoundation'
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  private
 
   def in_kata
-    set_image_name image_for_test
+    @image_name = image_for_os
     kata_new
-    yield
-  ensure
-    kata_old
+    begin
+      yield
+    ensure
+      kata_old
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def as(name)
     avatar_new({ avatar_name: name })
-    yield
-  ensure
-    avatar_old({ avatar_name: name })
+    begin
+      yield
+    ensure
+      avatar_old({ avatar_name: name })
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cdf
-    'cyberdojofoundation'
-  end
-
-  def set_image_name(image_name)
-    @image_name = image_name
-  end
-
-  def self.multi_os_test(hex_suffix, *lines, &block)
-    alpine_lines = ['[Alpine]'] + lines
-    test(hex_suffix+'0', *alpine_lines, &block)
-    ubuntu_lines = ['[Ubuntu]'] + lines
-    test(hex_suffix+'1', *ubuntu_lines, &block)
-  end
-
-  private
-
-  include AllAvatarsNames
-
-  def image_for_test
+  def image_for_os
     case os
     when :Alpine
       "#{cdf}/gcc_assert"

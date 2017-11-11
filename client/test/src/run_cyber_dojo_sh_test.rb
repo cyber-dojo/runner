@@ -1,4 +1,3 @@
-require_relative 'all_avatars_names'
 require_relative 'test_base'
 
 class RunCyberDojoShTest < TestBase
@@ -67,7 +66,7 @@ class RunCyberDojoShTest < TestBase
   'run with initial 6*9 == 42 is red' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert_colour 'red'
+      assert red?
     }
   end
 
@@ -79,7 +78,7 @@ class RunCyberDojoShTest < TestBase
       run_cyber_dojo_sh({
         changed_files: { filename => content.sub('6 * 9', '6 * 9sd') }
       })
-      assert_colour 'amber'
+      assert amber?
     }
   end
 
@@ -91,7 +90,7 @@ class RunCyberDojoShTest < TestBase
       run_cyber_dojo_sh({
         changed_files: { filename => content.sub('6 * 9', '6 * 7') }
       })
-      assert_colour 'green'
+      assert green?
     }
   end
 
@@ -110,7 +109,7 @@ class RunCyberDojoShTest < TestBase
         changed_files: { filename => content.sub(from, to) },
           max_seconds: 3
       })
-      assert_colour 'timed_out'
+      assert timed_out?
     }
   end
 
@@ -127,7 +126,7 @@ class RunCyberDojoShTest < TestBase
         new_files: { 'big_file' => 'X'*1023*500 }
       })
     }
-    assert_colour 'red'
+    assert red?
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -224,8 +223,6 @@ class RunCyberDojoShTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  include AllAvatarsNames
-
   def assert_avatar_users_exist
     etc_passwd = assert_cyber_dojo_sh 'cat /etc/passwd'
     all_avatars_names.each do |name|
@@ -276,8 +273,8 @@ class RunCyberDojoShTest < TestBase
     run_cyber_dojo_sh({
       changed_files: { 'cyber-dojo.sh' => stat_cmd }
     })
-    assert_colour 'amber' # doing an stat
-    assert_stderr ''
+    assert amber? # doing an stat
+    assert_equal '', stderr
     assert_equal starting_files.keys.sort, stdout_stats.keys.sort
     starting_files.each do |filename,content|
       if filename == 'cyber-dojo.sh'
