@@ -23,6 +23,8 @@ class MultiOSTest < TestBase2
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # raising
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'D21',
   'run raises when image_name is invalid' do
@@ -58,6 +60,8 @@ class MultiOSTest < TestBase2
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # red-amber-green
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '3DF',
   'run with initial 6*9 == 42 is red' do
@@ -88,6 +92,25 @@ class MultiOSTest < TestBase2
         changed_files: { filename => content.sub('6 * 9', '6 * 7') }
       })
       assert_colour 'green'
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # timing out
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '3DC',
+  'run with infinite loop times out' do
+    in_kata_as(salmon) {
+      filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
+      content = starting_files[filename]
+      from = 'return 6 * 9'
+      to = "    for (;;);\n    return 6 * 7;"
+      run_cyber_dojo_sh({
+        changed_files: { filename => content.sub(from, to) },
+          max_seconds: 3
+      })
+      assert_colour 'timed_out'
     }
   end
 

@@ -10,23 +10,6 @@ class RunTest < TestBase
   # red,amber,green,timed_out
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test '3DC',
-  'run with infinite-loop times-out' do
-    visible_files = default_visible_files
-    visible_files['hiker.c'] = [
-      '#include "hiker.h"',
-      'int answer(void)',
-      '{',
-      '    for(;;);',
-      '    return 6 * 9;',
-      '}'
-    ].join("\n")
-    run4({ visible_files:visible_files, max_seconds:3 })
-    assert_colour timed_out
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test '3DB',
   'run with very large file is red' do
     visible_files = default_visible_files
