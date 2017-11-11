@@ -1,16 +1,14 @@
-require_relative 'test_base'
+require_relative 'test_base2'
 
-class AvatarTest < TestBase
+class AvatarTest < TestBase2
 
   def self.hex_prefix
     '4F725'
   end
 
-  test 'D08', %w( avatar_new is a no-op for API compatibility ) do
+  multi_os_test 'D08',
+  %w( avatar_new/avatar_old are no-ops for API compatibility ) do
     avatar_new
-  end
-
-  test 'D09', %w( avatar_old is a no-op for API compatibility ) do
     avatar_old
   end
 

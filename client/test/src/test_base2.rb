@@ -50,7 +50,7 @@ class TestBase2 < HexMiniTest
     args = []
     args << defaulted_arg(named_args, :image_name,     image_name)
     args << defaulted_arg(named_args, :kata_id,        kata_id)
-    args << defaulted_arg(named_args, :avatar_name,    salmon)
+    args << defaulted_arg(named_args, :avatar_name,    avatar_name)
     args << defaulted_arg(named_args, :starting_files, starting_files)
     runner.avatar_new *args
     @avatar_name = args[-2]
@@ -98,10 +98,6 @@ class TestBase2 < HexMiniTest
 
     @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
-  end
-
-  def salmon
-    'salmon'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -164,16 +160,6 @@ class TestBase2 < HexMiniTest
     stdout.strip
   end
 
-=begin
-  def assert_run_times_out(named_args)
-    run_cyber_dojo_sh(named_args)
-    assert timed_out?
-    assert_status 137
-    assert_stdout ''
-    assert_stderr ''
-  end
-=end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def os
@@ -188,19 +174,29 @@ class TestBase2 < HexMiniTest
     @image_name || image_for_test
   end
 
-  INVALID_IMAGE_NAME  = '_cantStartWithSeparator'
+  INVALID_IMAGE_NAME = '_cantStartWithSeparator'
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_id
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
-  INVALID_KATA_ID     = '675'
+  INVALID_KATA_ID = '675'
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_name
-    @avatar_name
+    @avatar_name || salmon
+  end
+
+  def salmon
+    'salmon'
   end
 
   INVALID_AVATAR_NAME = 'sunglasses'
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def user_id
     40000 + all_avatars_names.index(avatar_name)

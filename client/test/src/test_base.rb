@@ -25,37 +25,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_new(named_args={})
-    image_name = defaulted_arg(named_args, :image_name, default_image_name)
-    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
-    runner.kata_new image_name, kata_id
-  end
-
-  def kata_old(named_args={})
-    image_name = defaulted_arg(named_args, :image_name, default_image_name)
-    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
-    runner.kata_old image_name, kata_id
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_new(named_args={})
-    image_name = defaulted_arg(named_args, :image_name, default_image_name)
-    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
-    avatar_name = defaulted_arg(named_args, :avatar_name, default_avatar_name)
-    starting_files = defaulted_arg(named_args, :visible_files, default_visible_files)
-    runner.avatar_new image_name, kata_id, avatar_name, starting_files
-  end
-
-  def avatar_old(named_args={})
-    image_name = defaulted_arg(named_args, :image_name, default_image_name)
-    kata_id    = defaulted_arg(named_args, :kata_id,    default_kata_id)
-    avatar_name = defaulted_arg(named_args, :avatar_name, default_avatar_name)
-    runner.avatar_old image_name, kata_id, avatar_name
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - -
-
   def cdf
     'cyberdojofoundation'
   end
@@ -66,14 +35,6 @@ class TestBase < HexMiniTest
 
   def default_kata_id
     hex_test_id + '0' * (10-hex_test_id.length)
-  end
-
-  def default_avatar_name
-    'salmon'
-  end
-
-  def default_visible_files;
-    @files ||= read_files
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
@@ -92,13 +53,6 @@ class TestBase < HexMiniTest
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
-  end
-
-  def read_files
-    filenames =%w( hiker.c hiker.h hiker.tests.c cyber-dojo.sh makefile )
-    Hash[filenames.collect { |filename|
-      [filename, IO.read("/app/test/start_files/gcc_assert/#{filename}")]
-    }]
   end
 
 end
