@@ -62,8 +62,7 @@ class Runner # stateless
 
   def run_cyber_dojo_sh(
     avatar_name,
-    _deleted_filenames,
-    unchanged_files, changed_files, new_files,
+    _deleted_files, unchanged_files, changed_files, new_files,
     max_seconds
   )
     all_files = [*unchanged_files, *changed_files, *new_files].to_h

@@ -53,13 +53,14 @@ Pull the image with the given image_name.
 ```
 
 # POST run_cyber_dojo_sh
-Saves all the files in a container run from image_name and runs cyber-dojo.sh
+Saves the unchanged, changed, and new files in a docker container run
+from image_name and runs cyber-dojo.sh as the given avatar.
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
               "kata_id": "15B9AD6C42",
           "avatar_name": "salmon",
-    "deleted_filenames": [],
+        "deleted_files": {},
       "unchanged_files": { "cyber-dojo.sh" => "make" },
         "changed_files": { "fizz_buzz.c" => "#include...",
                            "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED..."

@@ -23,10 +23,7 @@ class MicroService
       when /run_cyber_dojo_sh/
         body = invoke('run_cyber_dojo_sh',
           avatar_name,
-          deleted_filenames,
-          unchanged_files,
-          changed_files,
-          new_files,
+          deleted_files, unchanged_files, changed_files, new_files,
           max_seconds)
       when /run/
         body = invoke('run', avatar_name, visible_files, max_seconds)
@@ -58,7 +55,7 @@ class MicroService
   request_args :kata_id
   request_args :avatar_name
   request_args :starting_files
-  request_args :deleted_filenames
+  request_args :deleted_files
   request_args :unchanged_files
   request_args :changed_files
   request_args :new_files

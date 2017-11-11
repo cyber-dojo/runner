@@ -86,7 +86,7 @@ class TestBase < HexMiniTest
 
     args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name, avatar_name)
-    args << defaulted_arg(named_args, :deleted_filenames, [])
+    args << defaulted_arg(named_args, :deleted_files, {})
     args << unchanged_files
     args << changed_files
     args << new_files
