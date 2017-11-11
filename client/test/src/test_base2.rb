@@ -11,7 +11,6 @@ class TestBase2 < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   def image_pulled?(named_args = {})
     args = []
     args << defaulted_arg(named_args, :image_name, image_name)
@@ -25,7 +24,6 @@ class TestBase2 < HexMiniTest
     args << defaulted_arg(named_args, :kata_id,    kata_id)
     runner.image_pull *args
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -175,6 +173,7 @@ class TestBase2 < HexMiniTest
   end
 
   INVALID_IMAGE_NAME = '_cantStartWithSeparator'
+    VALID_IMAGE_NAME = 'cyberdojofoundation/gcc_assert'
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

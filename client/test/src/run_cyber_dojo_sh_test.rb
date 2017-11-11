@@ -502,7 +502,7 @@ class RunCyberDojoShTest < TestBase2
         assert_timed_out_or_printed 'bomb'
         assert_timed_out_or_printed cant_fork
         # :nocov:
-      rescue ArgumentError
+      rescue StandardError
       end
     }
   end
