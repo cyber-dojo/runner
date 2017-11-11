@@ -7,36 +7,10 @@ class RunCyberDojoShTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
-  # raising
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test '656',
-  'raises when kata_id is invalid' do
-    error = assert_raises(StandardError) {
-      run_cyber_dojo_sh({ kata_id:INVALID_KATA_ID })
-    }
-    expected = 'RunnerService:run_cyber_dojo_sh:kata_id:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-=begin
-  test 'A29',
-  'run raises when avatar_name is invalid' do
-    error = assert_raises(StandardError) {
-      run4({ avatar_name:INVALID_AVATAR_NAME })
-    }
-    expected = 'RunnerService:run:avatar_name:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
   # red,amber,green,timed_out
   # - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   test '3DF',
   'run with valid image_name,kata_id,avatar_name returning red' do
     run4

@@ -20,6 +20,16 @@ class MultiOSTest < TestBase2
     }
   end
 
+  multi_os_test '656',
+  'raises when kata_id is invalid' do
+    in_kata_as(salmon) {
+      error = assert_raises(StandardError) {
+        run_cyber_dojo_sh({ kata_id:INVALID_KATA_ID })
+      }
+      expected = 'RunnerService:run_cyber_dojo_sh:kata_id:invalid'
+      assert_equal expected, error.message
+    }
+  end
 
   multi_os_test 'C3A',
   'invalid avatar_name raises' do

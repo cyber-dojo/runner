@@ -7,30 +7,6 @@ class RunTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
-  # raising
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test '656',
-  'run raises when kata_id is invalid' do
-    error = assert_raises(StandardError) {
-      run4({ kata_id:INVALID_KATA_ID })
-    }
-    expected = 'RunnerService:run:kata_id:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'A29',
-  'run raises when avatar_name is invalid' do
-    error = assert_raises(StandardError) {
-      run4({ avatar_name:INVALID_AVATAR_NAME })
-    }
-    expected = 'RunnerService:run:avatar_name:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
   # red,amber,green,timed_out
   # - - - - - - - - - - - - - - - - - - - - -
 
