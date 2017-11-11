@@ -43,12 +43,6 @@ class RunnerService
     post(__method__, *args)
   end
 
-  def run(image_name, kata_id, avatar_name, visible_files, max_seconds)
-    args = [image_name, kata_id, avatar_name]
-    args += [visible_files, max_seconds]
-    post(__method__, *args)
-  end
-
   private
 
   include HttpJsonService

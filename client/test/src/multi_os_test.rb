@@ -167,6 +167,8 @@ class MultiOSTest < TestBase2
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # fork-bombs
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'CD5',
   'fork-bomb does not run indefinitely' do
@@ -455,7 +457,7 @@ class MultiOSTest < TestBase2
         assert_timed_out_or_printed 'All tests passed'
         assert_timed_out_or_printed 'fork()'
         # :nocov:
-      rescue ArgumentError
+      rescue StandardError
       end
     }
   end
