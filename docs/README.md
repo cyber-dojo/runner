@@ -132,4 +132,4 @@ If the runner-client's IP address is 192.168.99.100 then put
 
 # demo screenshot
 
-![red amber green demo](img/red_amber_green_demo.png?raw=true "red amber green demo")
+![red amber green demo](docs/red_amber_green_demo.png?raw=true "red amber green demo")
