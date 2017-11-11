@@ -9,6 +9,21 @@ class MultiOSTest < TestBase2
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  multi_os_test '8A2',
+  'os-image correspondence' do
+    in_kata_as(salmon) {
+      etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
+      case os
+      when :Alpine
+        assert etc_issue.include? 'Alpine'
+      when :Ubuntu
+        assert etc_issue.include? 'Ubuntu'
+      end
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   multi_os_test 'D21',
   'raises when image_name is invalid' do
     in_kata_as(salmon) {
@@ -44,16 +59,11 @@ class MultiOSTest < TestBase2
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A2',
-  'os-image correspondence' do
+  multi_os_test '8A5',
+  'run is initially red' do
     in_kata_as(salmon) {
-      etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
-      case os
-      when :Alpine
-        assert etc_issue.include? 'Alpine'
-      when :Ubuntu
-        assert etc_issue.include? 'Ubuntu'
-      end
+      run_cyber_dojo_sh
+      assert_colour 'red'
     }
   end
 
@@ -81,16 +91,6 @@ class MultiOSTest < TestBase2
     in_kata_as(salmon) {
       assert_files_can_be_in_sub_dirs_of_sandbox
       assert_files_can_be_in_sub_sub_dirs_of_sandbox
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test '8A5',
-  'run is initially red' do
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh
-      assert_colour 'red'
     }
   end
 

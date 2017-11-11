@@ -10,14 +10,6 @@ class RunTest < TestBase
   # red,amber,green,timed_out
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test '3DF',
-  'run with valid image_name,kata_id,avatar_name returning red' do
-    run4
-    assert_colour 'red'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test '3DE',
   'run with valid image_name,kata_id,avatar_name returning amber' do
     visible_files = default_visible_files
