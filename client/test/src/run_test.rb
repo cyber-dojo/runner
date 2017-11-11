@@ -10,17 +10,6 @@ class RunTest < TestBase
   # raising
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'D71',
-  'run raises when image_name is invalid' do
-    error = assert_raises(StandardError) {
-      run4({ image_name:INVALID_IMAGE_NAME })
-    }
-    expected = 'RunnerService:run:image_name:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test '656',
   'run raises when kata_id is invalid' do
     error = assert_raises(StandardError) {

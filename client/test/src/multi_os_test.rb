@@ -9,6 +9,18 @@ class MultiOSTest < TestBase2
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  multi_os_test 'D21',
+  'raises when image_name is invalid' do
+    in_kata_as(salmon) {
+      error = assert_raises(StandardError) {
+        run_cyber_dojo_sh({ image_name:INVALID_IMAGE_NAME })
+      }
+      expected = 'RunnerService:run_cyber_dojo_sh:image_name:invalid'
+      assert_equal expected, error.message
+    }
+  end
+
+
   multi_os_test 'C3A',
   'invalid avatar_name raises' do
     in_kata_as(salmon) {

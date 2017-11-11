@@ -84,7 +84,9 @@ class TestBase2 < HexMiniTest
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    args = [ image_name, kata_id ]
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << kata_id
     args << defaulted_arg(named_args, :avatar_name, avatar_name)
     args << defaulted_arg(named_args, :deleted_filenames, [])
     args << unchanged_files
@@ -186,13 +188,19 @@ class TestBase2 < HexMiniTest
     @image_name
   end
 
+  INVALID_IMAGE_NAME  = '_cantStartWithSeparator'
+
   def kata_id
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
+  INVALID_KATA_ID     = '675'
+
   def avatar_name
     @avatar_name
   end
+
+  INVALID_AVATAR_NAME = 'sunglasses'
 
   def user_id
     40000 + all_avatars_names.index(avatar_name)
