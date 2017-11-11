@@ -25,7 +25,7 @@ class MultiOSTest < TestBase2
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'D21',
-  'raises when image_name is invalid' do
+  'run raises when image_name is invalid' do
     in_kata_as(salmon) {
       error = assert_raises(StandardError) {
         run_cyber_dojo_sh({ image_name:INVALID_IMAGE_NAME })
@@ -36,7 +36,7 @@ class MultiOSTest < TestBase2
   end
 
   multi_os_test '656',
-  'raises when kata_id is invalid' do
+  'run raises when kata_id is invalid' do
     in_kata_as(salmon) {
       error = assert_raises(StandardError) {
         run_cyber_dojo_sh({ kata_id:INVALID_KATA_ID })
@@ -47,7 +47,7 @@ class MultiOSTest < TestBase2
   end
 
   multi_os_test 'C3A',
-  'invalid avatar_name raises' do
+  'run raises when avatar_name is invalid' do
     in_kata_as(salmon) {
       error = assert_raises(StandardError) {
         run_cyber_dojo_sh({ avatar_name:'polaroid' })
@@ -64,6 +64,18 @@ class MultiOSTest < TestBase2
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert_colour 'red'
+    }
+  end
+
+  multi_os_test '3DE',
+  'run with syntax error is amber' do
+    in_kata_as(salmon) {
+      filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
+      content = starting_files[filename]
+      run_cyber_dojo_sh({
+        changed_files: { filename => content.sub('6 * 9', '6 * 9sd') }
+      })
+      assert_colour 'amber'
     }
   end
 

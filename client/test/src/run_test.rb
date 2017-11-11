@@ -10,22 +10,6 @@ class RunTest < TestBase
   # red,amber,green,timed_out
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test '3DE',
-  'run with valid image_name,kata_id,avatar_name returning amber' do
-    visible_files = default_visible_files
-    visible_files['hiker.c'] = [
-      '#include "hiker.h"',
-      'int answer(void)',
-      '{',
-      '    return 6 * 9;sdsd',
-      '}'
-    ].join("\n")
-    run4({ visible_files:visible_files })
-    assert_colour 'amber'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test '3DD',
   'run with valid image_name,kata_id,avatar_name returning green' do
     visible_files = default_visible_files
