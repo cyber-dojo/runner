@@ -9,21 +9,29 @@ class MultiOSTest < TestBase2
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
   multi_os_test 'C3A',
   'invalid avatar_name raises' do
-    in_kata {
-      assert_invalid_avatar_name_raises
+    in_kata_as(salmon) {
+      error = assert_raises(StandardError) {
+        run_cyber_dojo_sh({ avatar_name:'polaroid' })
+      }
+      expected = 'RunnerService:run_cyber_dojo_sh:avatar_name:invalid'
+      assert_equal expected, error.message
     }
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A2',
   'os-image correspondence' do
     in_kata_as(salmon) {
-      assert_os_image_correspondence
+      etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
+      case os
+      when :Alpine
+        assert etc_issue.include? 'Alpine'
+      when :Ubuntu
+        assert etc_issue.include? 'Ubuntu'
+      end
     }
   end
 
@@ -59,7 +67,8 @@ class MultiOSTest < TestBase2
   multi_os_test '8A5',
   'run is initially red' do
     in_kata_as(salmon) {
-      assert_run_is_initially_red
+      run_cyber_dojo_sh
+      assert_colour 'red'
     }
   end
 
@@ -100,36 +109,6 @@ class MultiOSTest < TestBase2
   end
 
   private
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_os_image_correspondence
-    etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
-    case os
-    when :Alpine
-      assert etc_issue.include? 'Alpine'
-    when :Ubuntu
-      assert etc_issue.include? 'Ubuntu'
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-=begin
-  def assert_invalid_avatar_name_raises
-    error = assert_raises(StandardError) {
-      run_cyber_dojo_sh({ avatar_name:'polaroid' })
-    }
-    assert_equal 'avatar_name:invalid', error.message
-  end
-=end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_run_is_initially_red
-    run_cyber_dojo_sh
-    assert_colour 'red'
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
