@@ -23,7 +23,7 @@ class MultiOSTest < TestBase2
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # raising
+  # argument-error raise
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'D21',
@@ -60,7 +60,7 @@ class MultiOSTest < TestBase2
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # red-amber-green
+  # vanilla red-amber-green
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '3DF',
@@ -112,6 +112,22 @@ class MultiOSTest < TestBase2
       })
       assert_colour 'timed_out'
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # large-files
+  # docker-compose.yml need a tmpfs for this to pass
+  #      tmpfs: /tmp
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '3DB',
+  'run with very large file is red' do
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh({
+        new_files: { 'big_file' => 'X'*1023*500 }
+      })
+    }
+    assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

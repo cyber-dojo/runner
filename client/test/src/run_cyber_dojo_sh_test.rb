@@ -11,17 +11,6 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
 =begin
-
-  test '3DB',
-  'run with very large file is red' do
-    visible_files = default_visible_files
-    visible_files['extra'] = 'X'*1023*500
-    run4({ visible_files:visible_files })
-    assert_colour 'red'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test '3DA',
   'run with valid image_name,kata_id,avatar_name returning sssc quad' do
     run4
