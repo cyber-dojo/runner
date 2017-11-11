@@ -32,7 +32,8 @@ class RunnerService
 
   # - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh(image_name, kata_id, avatar_name,
+  def run_cyber_dojo_sh(
+        image_name, kata_id, avatar_name,
         deleted_files, unchanged_files, changed_files, new_files,
         max_seconds
     )
