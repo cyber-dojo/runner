@@ -13,7 +13,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 # cyberdojo/runner_stateless docker image
 
-- A stateless micro-service for [cyber-dojo](http://cyber-dojo.org)
+- A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org)
 - Runs an avatar's tests.
 
 API:
