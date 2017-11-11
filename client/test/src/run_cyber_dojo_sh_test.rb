@@ -73,7 +73,7 @@ class RunCyberDojoShTest < TestBase
   multi_os_test '3DE',
   'run with syntax error is amber' do
     in_kata_as(salmon) {
-      filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
+      filename = 'hiker.c'
       content = starting_files[filename]
       run_cyber_dojo_sh({
         changed_files: { filename => content.sub('6 * 9', '6 * 9sd') }
@@ -85,7 +85,7 @@ class RunCyberDojoShTest < TestBase
   multi_os_test '3DD',
   'run with 6*7 == 42 is green' do
     in_kata_as(salmon) {
-      filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
+      filename = 'hiker.c'
       content = starting_files[filename]
       run_cyber_dojo_sh({
         changed_files: { filename => content.sub('6 * 9', '6 * 7') }
@@ -101,7 +101,7 @@ class RunCyberDojoShTest < TestBase
   multi_os_test '3DC',
   'run with infinite loop times out' do
     in_kata_as(salmon) {
-      filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
+      filename = 'hiker.c'
       content = starting_files[filename]
       from = 'return 6 * 9'
       to = "    for (;;);\n    return 6 * 7;"
@@ -444,11 +444,10 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def fork_bomb_test
-    filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
     in_kata_as(salmon) {
       begin
         run_cyber_dojo_sh({
-          changed_files: { filename => fork_bomb_definition }
+          changed_files: { 'hiker.c' => fork_bomb_definition }
         })
         # :nocov:
         assert_timed_out_or_printed 'All tests passed'
@@ -513,10 +512,9 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def file_bomb_test
-    filename = (os == :Alpine ? 'hiker.c' : 'hiker.cpp')
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { filename => c_file_bomb }
+        changed_files: { 'hiker.c' => c_file_bomb }
       })
     }
     assert seen?('All tests passed'), quad
