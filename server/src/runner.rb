@@ -107,24 +107,31 @@ class Runner
   def create_container(avatar_name)
     # Note no volume-mount; stateless!
     sandbox = sandbox_dir(avatar_name)
-    name = container_name(avatar_name)
     cmd = [
       'docker run',
-        '--detach',              # for later execs
-        env_vars(avatar_name),
-        '--init',                # pid-1 process
-        '--interactive',         # for later execs
-        "--name=#{name}",
-        limits,
-        '--user=root',           # chown needs permission
-        "--workdir=#{sandbox}",
+        docker_run_options(avatar_name),
         image_name,
-        'sh',
-        '-c',
-        "'chown #{avatar_name}:#{group} #{sandbox};sh'"
+        "sh -c 'chown #{avatar_name}:#{group} #{sandbox};sh'"
     ].join(space)
     stdout,_stderr = assert_exec(cmd)
     stdout.strip # cid
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def docker_run_options(avatar_name)
+    name = container_name(avatar_name)
+    sandbox = sandbox_dir(avatar_name)
+    [
+      '--detach',              # for later execs
+      env_vars(avatar_name),
+      '--init',                # pid-1 process
+      '--interactive',         # for later execs
+      limits,
+      "--name=#{name}",
+      '--user=root',           # chown needs permission
+      "--workdir=#{sandbox}",
+    ].join(space)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -153,7 +160,7 @@ class Runner
       ulimit('fsize',  16*MB), # file size
       ulimit('locks',  128),   # number of file locks
       ulimit('nofile', 128),   # number of files
-      ulimit('nproc',  128),   # number processes
+      ulimit('nproc',  128),   # number of processes
       ulimit('stack',  8*MB),  # stack size
       '--memory=384m',         # ram
       '--net=none',                      # no network
