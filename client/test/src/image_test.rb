@@ -23,51 +23,7 @@ class ImageTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'B23',
-  'pull raises when image_name is invalid' do
-    error = assert_raises(StandardError) {
-      image_pull({ image_name: INVALID_IMAGE_NAME })
-    }
-    expected = 'RunnerService:image_pull:image_name:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'B24',
-  'pull raises when kata_id is invalid' do
-    error = assert_raises(StandardError) {
-      image_pull({ kata_id: INVALID_KATA_ID })
-    }
-    expected = 'RunnerService:image_pull:kata_id:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
   # pulled?
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'EF6',
-  'pulled? raises when image_name is invalid' do
-    error = assert_raises(StandardError) {
-      image_pulled?({ image_name: INVALID_IMAGE_NAME })
-    }
-    expected = 'RunnerService:image_pulled?:image_name:invalid'
-    assert_equal expected, error.message
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'EF7',
-  'pulled? raises when kata_id is invalid' do
-    error = assert_raises(StandardError) {
-      image_pulled?({ kata_id: INVALID_KATA_ID })
-    }
-    expected = 'RunnerService:image_pulled?:kata_id:invalid'
-    assert_equal expected, error.message
-  end
-
   # - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'EF4',

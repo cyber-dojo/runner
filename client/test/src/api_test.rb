@@ -25,7 +25,10 @@ class ApiTest < TestBase
   # all api methods raise if image_name or kata_id is invalid
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  METHOD_NAMES = [ :kata_new, :kata_old, :avatar_new, :avatar_old, :run_cyber_dojo_sh ]
+  METHOD_NAMES = [ :image_pulled?, :image_pull,
+                   :kata_new, :kata_old,
+                   :avatar_new, :avatar_old,
+                   :run_cyber_dojo_sh ]
 
   multi_os_test 'D21',
   'all api methods raise when image_name is invalid' do
