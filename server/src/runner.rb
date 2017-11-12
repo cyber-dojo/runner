@@ -205,7 +205,7 @@ class Runner
             '.',    # tar the current directory
             '|',    # pipe the tarfile...
                 'docker exec',  # ...into docker container
-                  "--user=#{user_id}:#{gid}", # ownership
+                  "--user=#{uid}:#{gid}", # ownership
                   '--interactive',
                   cid,
                   'sh -c',
@@ -223,21 +223,21 @@ class Runner
     # [1] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
     # The tar --touch option is not available in a default Alpine
-    # container. So the test-framework image needs to update tar:
+    # container. To add it:
     #
-    #        $ apk add --update tar
+    #    $ apk add --update tar
     #
     # Also, in a default Alpine container the date-time
     # file-stamps have a granularity of one second. In other
     # words the microseconds value is always zero.
-    # So the test-framework image also needs to fix this:
+    # To add microsecond granularity:
     #
-    #        $ apk add --update coreutils
+    #    $ apk add --update coreutils
     #
     # See the file builder/image_builder.rb on
     # https://github.com/cyber-dojo-languages/image_builder/blob/master/
     # In particular the methods
-    #    o) def update_tar_command
+    #    o) update_tar_command
     #    o) install_coreutils_command
   end
 
@@ -307,7 +307,7 @@ class Runner
     5000
   end
 
-  def user_id
+  def uid
     40000 + all_avatars_names.index(avatar_name)
   end
 
@@ -427,7 +427,7 @@ end
 #   filename = avatar_dir + '/' + name
 #   dir = File.dirname(filename)
 #   shell_cmd = "mkdir -p #{dir};"
-#   shell_cmd += "cat > #{filename} && chown #{user_id}:#{gid} #{filename}"
+#   shell_cmd += "cat > #{filename} && chown #{uid}:#{gid} #{filename}"
 #   cmd = "docker exec --interactive --user=root #{cid} sh -c '#{shell_cmd}'"
 #   stdout,stderr,ps = Open3.capture3(cmd, :stdin_data => content)
 #   assert ps.success?
