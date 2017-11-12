@@ -14,7 +14,8 @@ class HexMiniTestTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '57B',
-  'hex-test-id is available via a method' do
+  'hex-test-id is available via a method',
+  'and is the hex_prefix concatenated with the hex-id' do
     assert_equal '89857B', hex_test_id
   end
 
@@ -47,15 +48,15 @@ class HexMiniTestTest < TestBase
 
   test 'D31', %w(
     hex-test-name can be long
-    and split over many
-    comma separated lines
+    and split over many lines
+    with %w syntax
     and will automatically be
     joined with spaces
   ) do
     expected = [
       'hex-test-name can be long',
-      'and split over many',
-      'comma separated lines',
+      'and split over many lines',
+      'with %w syntax',
       'and will automatically be',
       'joined with spaces'
     ].join(' ')

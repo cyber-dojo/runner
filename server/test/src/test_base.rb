@@ -1,4 +1,4 @@
-require_relative '../hex_mini_test'
+require_relative 'hex_mini_test'
 require_relative '../../src/all_avatars_names'
 require_relative '../../src/externals'
 require_relative '../../src/runner'
