@@ -455,19 +455,19 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def fork_bomb_test
-    in_kata_as(salmon) {
-      begin
-        run_cyber_dojo_sh({
-          changed_files: { 'hiker.c' => fork_bomb_definition }
-        })
-        # :nocov:
-        assert_timed_out_or_printed 'All tests passed'
-        assert_timed_out_or_printed 'fork()'
-        # :nocov:
-      rescue StandardError
-      end
-    }
+    begin
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => fork_bomb_definition }
+      })
+      # :nocov:
+      assert_timed_out_or_printed 'All tests passed'
+      assert_timed_out_or_printed 'fork()'
+    rescue StandardError
+      # :nocov:
+    end
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def fork_bomb_definition
     [ '#include <stdio.h>',
@@ -492,27 +492,27 @@ class ApiTest < TestBase
 
   def shell_fork_bomb_test
     cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
-    in_kata_as(salmon) {
-      begin
-        shell_fork_bomb = [
-          'bomb()',
-          '{',
-          '   echo "bomb"',
-          '   bomb | bomb &',
-          '}',
-          'bomb'
-        ].join("\n")
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
-        })
-        # :nocov:
-        assert_timed_out_or_printed 'bomb'
-        assert_timed_out_or_printed cant_fork
-        # :nocov:
-      rescue StandardError
-      end
-    }
+    begin
+      shell_fork_bomb = [
+        'bomb()',
+        '{',
+        '   echo "bomb"',
+        '   bomb | bomb &',
+        '}',
+        'bomb'
+      ].join("\n")
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
+      })
+      # :nocov:
+      assert_timed_out_or_printed 'bomb'
+      assert_timed_out_or_printed cant_fork
+    rescue StandardError
+      # :nocov:
+    end
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_timed_out_or_printed(text)
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
@@ -522,15 +522,15 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def file_bomb_test
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => c_file_bomb }
-      })
-    }
+    run_cyber_dojo_sh({
+      changed_files: { 'hiker.c' => c_file_bomb }
+    })
     assert seen?('All tests passed'), quad
     assert seen?('fopen() != NULL'), quad
     assert seen?('fopen() == NULL'), quad
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def c_file_bomb
     [
@@ -555,6 +555,8 @@ class ApiTest < TestBase
       '}'
     ].join("\n")
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def seen?(text)
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
