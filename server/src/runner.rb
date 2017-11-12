@@ -4,7 +4,7 @@ require_relative 'string_truncater'
 require_relative 'valid_image_name'
 require 'timeout'
 
-class Runner # stateless
+class Runner
 
   def initialize(parent, image_name, kata_id)
     @disk = parent.disk
@@ -41,23 +41,23 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    # no-op to keep API compatibility
+    # no-op for API compatibility
   end
 
   def kata_old
-    # no-op to keep API compatibility
+    # no-op for API compatibility
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   def avatar_new(avatar_name, _starting_files)
     assert_valid_avatar_name(avatar_name)
-    # no-op to keep API compatibility
+    # no-op for API compatibility
   end
 
   def avatar_old(avatar_name)
     assert_valid_avatar_name(avatar_name)
-    # no-op to keep API compatibility
+    # no-op for API compatibility
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -97,7 +97,7 @@ class Runner # stateless
     ensure
       # [docker rm] could be backgrounded with a trailing &
       # but it did not make a test-event discernably
-      # faster when measuring to 100th of a second
+      # faster when measuring to 100th of a second.
       assert_exec("docker rm --force #{cid}")
     end
   end
@@ -110,18 +110,14 @@ class Runner # stateless
     name = container_name(avatar_name)
     cmd = [
       'docker run',
-        '--detach',
+        '--detach',              # for later execs
         env_vars(avatar_name),
-        '--init',                           # pid-1 process
-        '--interactive',                    # for later execs
-        '--memory=384m',
+        '--init',                # pid-1 process
+        '--interactive',         # for later execs
         "--name=#{name}",
-        '--net=none',                       # no network
-        '--pids-limit=128',                 # no fork bombs
-        '--security-opt=no-new-privileges', # no escalation
-        ulimits,
+        limits,
+        '--user=root',           # chown needs permission
         "--workdir=#{sandbox}",
-        '--user=root',                      # chown needs permission
         image_name,
         'sh',
         '-c',
@@ -131,33 +127,49 @@ class Runner # stateless
     stdout.strip # cid
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def env_vars(avatar_name)
     [
-      "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
-      "--env CYBER_DOJO_IMAGE_NAME=#{image_name}",
-      "--env CYBER_DOJO_KATA_ID=#{kata_id}",
-      '--env CYBER_DOJO_RUNNER=stateless',
-      "--env CYBER_DOJO_SANDBOX=#{sandbox_dir(avatar_name)}",
-      "--env HOME=#{home_dir(avatar_name)}"
+      env_var('CYBER_DOJO_AVATAR_NAME', avatar_name),
+      env_var('CYBER_DOJO_IMAGE_NAME', image_name),
+      env_var('CYBER_DOJO_KATA_ID', kata_id),
+      env_var('CYBER_DOJO_RUNNER', 'stateless'),
+      env_var('CYBER_DOJO_SANDBOX', sandbox_dir(avatar_name)),
+      env_var('HOME', home_dir(avatar_name))
     ].join(space)
   end
 
-  def ulimits
-    # A cpu-ulimit of 10 seconds could kill a container after only
-    # 5 seconds. This is because the cpu-ulimit assumes one core.
-    # The host system running the docker container can have multiple
-    # cores or use hyperthreading. So a piece of code running on 2
-    # cores, both 100% utilized could be killed after 5 seconds.
-    # So there is no longer a cpu-ulimit.
-    [
-      "--ulimit data=#{4*GB}:#{4*GB}",    # max data segment size
-      '--ulimit core=0:0',                # max core file size
-      "--ulimit fsize=#{16*MB}:#{16*MB}", # max file size
-      '--ulimit locks=128:128',           # max number of file locks
-      '--ulimit nofile=128:128',          # max number of files
-      '--ulimit nproc=128:128',           # max number processes
-      "--ulimit stack=#{8*MB}:#{8*MB}"    # max stack size
+  def env_var(name, value)
+    "--env #{name}=#{value}"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def limits
+    [                          # max
+      ulimit('data',   4*GB),  # data segment size
+      ulimit('core',   0),     # core file size
+      ulimit('fsize',  16*MB), # file size
+      ulimit('locks',  128),   # number of file locks
+      ulimit('nofile', 128),   # number of files
+      ulimit('nproc',  128),   # number processes
+      ulimit('stack',  8*MB),  # stack size
+      '--memory=384m',         # ram
+      '--net=none',                      # no network
+      '--pids-limit=128',                # no fork bombs
+      '--security-opt=no-new-privileges' # no escalation
     ].join(space)
+    # There is no cpu-ulimit. This is because a cpu-ulimit of 10
+    # seconds could kill a container after only 5 seconds...
+    # The cpu-ulimit assumes one core. The host system running the
+    # docker container can have multiple cores or use hyperthreading.
+    # So a piece of code running on 2 cores, both 100% utilized could
+    # be killed after 5 seconds.
+  end
+
+  def ulimit(name, limit)
+    "--ulimit #{name}=#{limit}:#{limit}"
   end
 
   KB = 1024
@@ -264,7 +276,7 @@ class Runner # stateless
       # See https://github.com/docker/docker/issues/9098
       Process.kill(-9, pid)
       Process.detach(pid)
-      ['', '', 137, timed_out]
+      ['', '', 137, 'timed_out']
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
@@ -304,10 +316,6 @@ class Runner # stateless
 
   def sandbox_dir(avatar_name)
     "/tmp/sandboxes/#{avatar_name}"
-  end
-
-  def timed_out
-    'timed_out'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -416,14 +424,15 @@ end
 # but testing shows its actually a bit slower.
 #
 # For interest's sake here's how you tar pipe from a string and
-# avoid the intermediate /tmp files:
+# avoid the intermediate /tmp files. I don't know how this
+# would affect the date-time file-stamp granularity (stat %y).
 #
 # require 'open3'
 # files.each do |name,content|
 #   filename = avatar_dir + '/' + name
 #   dir = File.dirname(filename)
 #   shell_cmd = "mkdir -p #{dir};"
-#   shell_cmd += "cat >#{filename} && chown #{uid}:#{gid} #{filename}"
+#   shell_cmd += "cat > #{filename} && chown #{uid}:#{gid} #{filename}"
 #   cmd = "docker exec --interactive --user=root #{cid} sh -c '#{shell_cmd}'"
 #   stdout,stderr,ps = Open3.capture3(cmd, :stdin_data => content)
 #   assert ps.success?
