@@ -51,12 +51,14 @@ class Runner
   # - - - - - - - - - - - - - - - - - -
 
   def avatar_new(avatar_name, _starting_files)
-    assert_valid_avatar_name(avatar_name)
+    @avatar_name = avatar_name
+    assert_valid_avatar_name
     # no-op for API compatibility
   end
 
   def avatar_old(avatar_name)
-    assert_valid_avatar_name(avatar_name)
+    @avatar_name = avatar_name
+    assert_valid_avatar_name
     # no-op for API compatibility
   end
 
@@ -72,26 +74,23 @@ class Runner
   end
 
   def run(avatar_name, visible_files, max_seconds)
-    assert_valid_avatar_name(avatar_name)
-    in_container(avatar_name) do |cid|
-      args = [ avatar_name, visible_files, max_seconds ]
-      # In a stateless runner _all_ files are sent
-      # from the browser, and cyber-dojo.sh cannot
-      # be deleted so there must be at least one file.
-      stdout,stderr,status,colour = Dir.mktmpdir('runner') do |tmp_dir|
-        save_to(visible_files, tmp_dir)
-        run_timeout(cid, tar_pipe_cmd(tmp_dir, cid, avatar_name), max_seconds)
-      end
-      { stdout:stdout, stderr:stderr, status:status, colour:colour }
+    @avatar_name = avatar_name
+    assert_valid_avatar_name
+    stdout,stderr,status,colour = Dir.mktmpdir('runner') do |tmp_dir|
+      save_to(visible_files, tmp_dir)
+      in_container { |cid|
+        run_timeout(cid, tar_pipe_cmd(tmp_dir, cid), max_seconds)
+      }
     end
+    { stdout:stdout, stderr:stderr, status:status, colour:colour }
   end
 
   private
 
-  attr_reader :disk, :shell
+  attr_reader :avatar_name, :disk, :shell
 
-  def in_container(avatar_name, &block)
-    cid = create_container(avatar_name)
+  def in_container(&block)
+    cid = create_container
     begin
       block.call(cid)
     ensure
@@ -104,14 +103,13 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_container(avatar_name)
+  def create_container
     # Note no volume-mount; stateless!
-    sandbox = sandbox_dir(avatar_name)
     cmd = [
       'docker run',
-        docker_run_options(avatar_name),
+        docker_run_options,
         image_name,
-        "sh -c 'chown #{avatar_name}:#{group} #{sandbox};sh'"
+        "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
     ].join(space)
     stdout,_stderr = assert_exec(cmd)
     stdout.strip # cid
@@ -119,31 +117,29 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_options(avatar_name)
-    name = container_name(avatar_name)
-    sandbox = sandbox_dir(avatar_name)
+  def docker_run_options
     [
-      '--detach',              # for later execs
-      env_vars(avatar_name),
+      '--detach',              # for later exec
+      env_vars,
       '--init',                # pid-1 process
-      '--interactive',         # for later execs
+      '--interactive',         # for tar-pipe
       limits,
-      "--name=#{name}",
+      "--name=#{container_name}",
       '--user=root',           # chown needs permission
-      "--workdir=#{sandbox}",
+      "--workdir=#{sandbox_dir}",
     ].join(space)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def env_vars(avatar_name)
+  def env_vars
     [
       env_var('CYBER_DOJO_AVATAR_NAME', avatar_name),
-      env_var('CYBER_DOJO_IMAGE_NAME', image_name),
-      env_var('CYBER_DOJO_KATA_ID', kata_id),
-      env_var('CYBER_DOJO_RUNNER', 'stateless'),
-      env_var('CYBER_DOJO_SANDBOX', sandbox_dir(avatar_name)),
-      env_var('HOME', home_dir(avatar_name))
+      env_var('CYBER_DOJO_IMAGE_NAME',  image_name),
+      env_var('CYBER_DOJO_KATA_ID',     kata_id),
+      env_var('CYBER_DOJO_RUNNER',      'stateless'),
+      env_var('CYBER_DOJO_SANDBOX',     sandbox_dir),
+      env_var('HOME', home_dir)
     ].join(space)
   end
 
@@ -186,6 +182,9 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def save_to(files, tmp_dir)
+    # In a stateless runner _all_ files are sent
+    # from the browser, and cyber-dojo.sh cannot
+    # be deleted so there must be at least one file.
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
       if sub_dir != '.'
@@ -199,9 +198,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_cmd(tmp_dir, cid, avatar_name)
-    uid = user_id(avatar_name)
-    sandbox = sandbox_dir(avatar_name)
+  def tar_pipe_cmd(tmp_dir, cid)
     [
       "chmod 755 #{tmp_dir}",
       "&& cd #{tmp_dir}",
@@ -211,12 +208,12 @@ class Runner
             '.',    # tar the current directory
             '|',    # pipe the tarfile...
                 'docker exec',  # ...into docker container
-                  "--user=#{uid}:#{gid}", # ownership
+                  "--user=#{user_id}:#{gid}", # ownership
                   '--interactive',
                   cid,
                   'sh -c',
                   "'",         # open quote
-                  "cd #{sandbox}",
+                  "cd #{sandbox_dir}",
                   '&& tar',
                         '--touch', # [1]
                         '-zxf',    # extract tar file
@@ -313,15 +310,15 @@ class Runner
     5000
   end
 
-  def user_id(avatar_name)
+  def user_id
     40000 + all_avatars_names.index(avatar_name)
   end
 
-  def home_dir(avatar_name)
+  def home_dir
     "/home/#{avatar_name}"
   end
 
-  def sandbox_dir(avatar_name)
+  def sandbox_dir
     "/tmp/sandboxes/#{avatar_name}"
   end
 
@@ -336,9 +333,7 @@ class Runner
     names.uniq - ['<none>']
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_name(avatar_name)
+  def container_name
     # Give containers a name with a specific prefix so they
     # can be cleaned up if any fail to be removed/reaped.
     # Does not have a trailing uuid. This ensures that
@@ -346,8 +341,6 @@ class Runner
     # another in_container() call.
     'test_run__runner_stateless_' + kata_id + '_' + avatar_name
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   include ValidImageName
 
@@ -383,23 +376,23 @@ class Runner
 
   include AllAvatarsNames
 
-  def assert_valid_avatar_name(avatar_name)
-    unless valid_avatar_name?(avatar_name)
+  def assert_valid_avatar_name
+    unless valid_avatar_name?
       fail invalid_argument('avatar_name')
     end
   end
 
-  def valid_avatar_name?(avatar_name)
+  def valid_avatar_name?
     all_avatars_names.include?(avatar_name)
   end
 
+  # - - - - - - - - - - - - - - - - - -
+  # helpers
   # - - - - - - - - - - - - - - - - - -
 
   def invalid_argument(name)
     ArgumentError.new("#{name}:invalid")
   end
-
-  # - - - - - - - - - - - - - - - - - -
 
   def assert_docker_exec(cid, cmd)
     assert_exec("docker exec #{cid} sh -c '#{cmd}'")
@@ -408,8 +401,6 @@ class Runner
   def assert_exec(cmd)
     shell.assert_exec(cmd)
   end
-
-  # - - - - - - - - - - - - - - - - - -
 
   def space
     ' '
@@ -439,7 +430,7 @@ end
 #   filename = avatar_dir + '/' + name
 #   dir = File.dirname(filename)
 #   shell_cmd = "mkdir -p #{dir};"
-#   shell_cmd += "cat > #{filename} && chown #{uid}:#{gid} #{filename}"
+#   shell_cmd += "cat > #{filename} && chown #{user_id}:#{gid} #{filename}"
 #   cmd = "docker exec --interactive --user=root #{cid} sh -c '#{shell_cmd}'"
 #   stdout,stderr,ps = Open3.capture3(cmd, :stdin_data => content)
 #   assert ps.success?
