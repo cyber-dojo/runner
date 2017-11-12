@@ -13,7 +13,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 # cyberdojo/runner_stateless docker image
 
-- A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org)
+- A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org).
 - Runs an avatar's tests.
 
 API:
@@ -105,8 +105,8 @@ Provided for API compatibility with other runners.
 - - - -
 
 # POST run_cyber_dojo_sh
-Saves the unchanged, changed, and new files in a docker container run
-from image_name and runs cyber-dojo.sh as the given avatar.
+Saves the unchanged files, saves the changed_files, saves the new files, and runs
+cyber-dojo.sh as the avatar with the given avatar_name.
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
