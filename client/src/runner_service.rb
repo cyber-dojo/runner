@@ -48,11 +48,11 @@ class RunnerService
   include HttpJsonService
 
   def hostname
-    'runner_stateless'
+    ENV['CYBER_DOJO_RUNNER_SERVER_NAME']
   end
 
   def port
-    '4597'
+    ENV['CYBER_DOJO_RUNNER_SERVER_PORT']
   end
 
 end
