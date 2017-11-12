@@ -75,7 +75,13 @@ class Runner # stateless
     assert_valid_avatar_name(avatar_name)
     in_container(avatar_name) do |cid|
       args = [ avatar_name, visible_files, max_seconds ]
-      stdout,stderr,status,colour = run_timeout_cyber_dojo_sh(cid, *args)
+      # In a stateless runner _all_ files are sent
+      # from the browser, and cyber-dojo.sh cannot
+      # be deleted so there must be at least one file.
+      stdout,stderr,status,colour = Dir.mktmpdir('runner') do |tmp_dir|
+        save_to(visible_files, tmp_dir)
+        run_timeout(cid, tar_pipe_cmd(tmp_dir, cid, avatar_name), max_seconds)
+      end
       { stdout:stdout, stderr:stderr, status:status, colour:colour }
     end
   end
@@ -90,7 +96,7 @@ class Runner # stateless
       block.call(cid)
     ensure
       # [docker rm] could be backgrounded with a trailing &
-      # but it does not make a test-event discernably
+      # but it did not make a test-event discernably
       # faster when measuring to 100th of a second
       assert_exec("docker rm --force #{cid}")
     end
@@ -137,6 +143,12 @@ class Runner # stateless
   end
 
   def ulimits
+    # A cpu-ulimit of 10 seconds could kill a container after only
+    # 5 seconds. This is because the cpu-ulimit assumes one core.
+    # The host system running the docker container can have multiple
+    # cores or use hyperthreading. So a piece of code running on 2
+    # cores, both 100% utilized could be killed after 5 seconds.
+    # So there is no longer a cpu-ulimit.
     [
       "--ulimit data=#{4*GB}:#{4*GB}",    # max data segment size
       '--ulimit core=0:0',                # max core file size
@@ -151,19 +163,6 @@ class Runner # stateless
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run_timeout_cyber_dojo_sh(cid, avatar_name, visible_files, max_seconds)
-    # See comment at end of file about slower alternative
-    # In a stateless runner _all_ visible_files are
-    # sent to from the browser, and cyber-dojo.sh cannot
-    # be deleted so there must be at least one file.
-    Dir.mktmpdir('runner') do |tmp_dir|
-      save_to(visible_files, tmp_dir)
-      run_timeout(cid, tar_pipe_cmd(tmp_dir, cid, avatar_name), max_seconds)
-    end
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -193,14 +192,14 @@ class Runner # stateless
             '.',    # tar the current directory
             '|',    # pipe the tarfile...
                 'docker exec',  # ...into docker container
-                  "--user=#{uid}:#{gid}", # [1]
+                  "--user=#{uid}:#{gid}", # ownership
                   '--interactive',
                   cid,
                   'sh -c',
                   "'",         # open quote
                   "cd #{sandbox}",
                   '&& tar',
-                        '--touch', # [2]
+                        '--touch', # [1]
                         '-zxf',    # extract tar file
                         '-',       # which is read from stdin
                         '-C',      # save the extracted files to
@@ -208,19 +207,25 @@ class Runner # stateless
                   '&& sh ./cyber-dojo.sh',
                   "'"          # close quote
     ].join(space)
-    # The files written into the container need the correct
-    # content, ownership, and date-time file-stamps.
-    # [1] is for the correct ownership.
-    # [2] is for the date-time stamps, in particular the
-    #     modification-date (stat %y). The tar --touch option
-    #     is not available in a default Alpine container.
-    #     So the test-framework container needs to update tar:
+    # [1] is for file-stamp date-time granularity
+    # This relates to the modification-date (stat %y).
+    # The tar --touch option is not available in a default Alpine
+    # container. So the test-framework image needs to update tar:
+    #
     #        $ apk add --update tar
-    #     Also, in a default Alpine container the date-time
-    #     file-stamps have a granularity of one second. In other
-    #     words the microseconds value is always zero.
-    #     So the test-framework container also needs to fix this:
+    #
+    # Also, in a default Alpine container the date-time
+    # file-stamps have a granularity of one second. In other
+    # words the microseconds value is always zero.
+    # So the test-framework image also needs to fix this:
+    #
     #        $ apk add --update coreutils
+    #
+    # See the file builder/image_builder.rb on
+    # https://github.com/cyber-dojo-languages/image_builder/blob/master/
+    # In particular the methods
+    #    o) def update_tar_command
+    #    o) install_coreutils_command
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -229,14 +234,9 @@ class Runner # stateless
   include StringTruncater
 
   def run_timeout(cid, cmd, max_seconds)
-    # This kills the container from the "outside".
-    # Originally I also time-limited the cpu-time from the "inside"
-    # using the cpu ulimit. However a cpu-ulimit of 10 seconds could
-    # kill the container after only 5 seconds. This is because the
-    # cpu-ulimit assumes one core. The host system running the docker
-    # container can have multiple cores or use hyperthreading. So a
-    # piece of code running on 2 cores, both 100% utilized could be
-    # killed after 5 seconds. So there is no longer a cpu-ulimit.
+    # This kills the container from the "outside". Originally
+    # I also time-limited the cpu-time from the "inside" using
+    # a cpu ulimit. See comment on the ulimit method.
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {
@@ -256,13 +256,12 @@ class Runner # stateless
         [stdout, stderr, status, colour]
       end
     rescue Timeout::Error
-      # Kill the [docker exec] processes running
-      # on the host. This does __not__ kill the
-      # cyber-dojo.sh process running __inside__
-      # the docker container. See
-      # https://github.com/docker/docker/issues/9098
-      # The container is killed in the ensure
-      # block of in_container()
+      # Kill the [docker exec] processes running on the host.
+      # This does __not__ kill the cyber-dojo.sh process running
+      # __inside__ the docker container.
+      # The container is killed in the ensure block of the
+      # in_container method.
+      # See https://github.com/docker/docker/issues/9098
       Process.kill(-9, pid)
       Process.detach(pid)
       ['', '', 137, timed_out]
