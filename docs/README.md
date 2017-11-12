@@ -84,8 +84,8 @@ Provided for API compatibility with other runners.
   {     "image_name": "cyberdojofoundation/gcc_assert",
            "kata_id": "15B9AD6C42",
        "avatar_name": "salmon",
-    "starting_files": { "hiker.h": "#ifndef HIKER_INCLUDED...",
-                        "hiker.c": "#include...",
+    "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
+                        "hiker.c" => "#include...",
                         ...
                       }
   }
@@ -112,12 +112,13 @@ cyber-dojo.sh as the avatar with the given avatar_name.
   {        "image_name": "cyberdojofoundation/gcc_assert",
               "kata_id": "15B9AD6C42",
           "avatar_name": "salmon",
-        "deleted_files": {},
+        "deleted_files": { ... },
       "unchanged_files": { "cyber-dojo.sh" => "make" },
         "changed_files": { "fizz_buzz.c" => "#include...",
-                           "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED..."
+                           "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
+                           ...
                          },
-            "new_files": {},
+            "new_files": { ... },
           "max_seconds": 10
   }
 ```
@@ -157,7 +158,7 @@ Saves the visible_files in a container run from image_name and runs cyber-dojo.s
           "avatar_name": "salmon",
         "visible_files": { "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
                            "fizz_buzz.c" => "#include...",
-                           "cyber-dojo.sh": "make",
+                           "cyber-dojo.sh" => "make",
                            ...
                          },
           "max_seconds": 10
