@@ -160,59 +160,67 @@ class Runner # stateless
     # sent to from the browser, and cyber-dojo.sh cannot
     # be deleted so there must be at least one file.
     Dir.mktmpdir('runner') do |tmp_dir|
-      # Save the files onto the host...
-      visible_files.each do |pathed_filename, content|
-        sub_dir = File.dirname(pathed_filename)
-        if sub_dir != '.'
-          src_dir = tmp_dir + '/' + sub_dir
-          shell.exec("mkdir -p #{src_dir}")
-        end
-        host_filename = tmp_dir + '/' + pathed_filename
-        disk.write(host_filename, content)
-      end
-      # ...then tar-pipe them into the container
-      # and run cyber-dojo.sh
-      uid = user_id(avatar_name)
-      sandbox = sandbox_dir(avatar_name)
-      tar_pipe = [
-        "chmod 755 #{tmp_dir}",
-        "&& cd #{tmp_dir}",
-        '&& tar',
-              '-zcf', # create tar file
-              '-',    # write it to stdout
-              '.',    # tar the current directory
-              '|',    # pipe the tarfile...
-                  'docker exec', # ...into docker container
-                    "--user=#{uid}:#{gid}", # [1]
-                    '--interactive',
-                    cid,
-                    'sh -c',
-                    "'",             # open quote
-                    "cd #{sandbox}",
-                    '&& tar',
-                          '--touch', # [2]
-                          '-zxf',    # extract from tar file
-                          '-',       # which is read from stdin
-                          '-C',      # save the extracted files to
-                          '.',       # the current directory
-                    '&& sh ./cyber-dojo.sh',
-                    "'",             # close quote
-      ].join(space)
-      # The files written into the container need the correct
-      # content, ownership, and date-time file-stamps.
-      # [1] is for the correct ownership.
-      # [2] is for the date-time stamps, in particular the
-      #     modification-date (stat %y). The tar --touch option
-      #     is not available in a default Alpine container.
-      #     So the test-framework container needs to update tar:
-      #        $ apk add --update tar
-      #     Also, in a default Alpine container the date-time
-      #     file-stamps have a granularity of one second. In other
-      #     words the microseconds value is always zero.
-      #     So the test-framework container also needs to fix this:
-      #        $ apk add --update coreutils
-      run_timeout(cid, tar_pipe, max_seconds)
+      save_to(visible_files, tmp_dir)
+      run_timeout(cid, tar_pipe_cmd(tmp_dir, cid, avatar_name), max_seconds)
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def save_to(files, tmp_dir)
+    files.each do |pathed_filename, content|
+      sub_dir = File.dirname(pathed_filename)
+      if sub_dir != '.'
+        src_dir = tmp_dir + '/' + sub_dir
+        shell.exec("mkdir -p #{src_dir}")
+      end
+      host_filename = tmp_dir + '/' + pathed_filename
+      disk.write(host_filename, content)
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tar_pipe_cmd(tmp_dir, cid, avatar_name)
+    uid = user_id(avatar_name)
+    sandbox = sandbox_dir(avatar_name)
+    [
+      "chmod 755 #{tmp_dir}",
+      "&& cd #{tmp_dir}",
+      '&& tar',
+            '-zcf', # create tar file
+            '-',    # write it to stdout
+            '.',    # tar the current directory
+            '|',    # pipe the tarfile...
+                'docker exec',  # ...into docker container
+                  "--user=#{uid}:#{gid}", # [1]
+                  '--interactive',
+                  cid,
+                  'sh -c',
+                  "'",         # open quote
+                  "cd #{sandbox}",
+                  '&& tar',
+                        '--touch', # [2]
+                        '-zxf',    # extract tar file
+                        '-',       # which is read from stdin
+                        '-C',      # save the extracted files to
+                        '.',       # the current directory
+                  '&& sh ./cyber-dojo.sh',
+                  "'"          # close quote
+    ].join(space)
+    # The files written into the container need the correct
+    # content, ownership, and date-time file-stamps.
+    # [1] is for the correct ownership.
+    # [2] is for the date-time stamps, in particular the
+    #     modification-date (stat %y). The tar --touch option
+    #     is not available in a default Alpine container.
+    #     So the test-framework container needs to update tar:
+    #        $ apk add --update tar
+    #     Also, in a default Alpine container the date-time
+    #     file-stamps have a granularity of one second. In other
+    #     words the microseconds value is always zero.
+    #     So the test-framework container also needs to fix this:
+    #        $ apk add --update coreutils
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
