@@ -22,7 +22,7 @@ class ApiTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # all api methods raise if image_name or kata_id is invalid
+  # invalid arguments
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   METHOD_NAMES = [ :image_pulled?, :image_pull,
@@ -34,7 +34,7 @@ class ApiTest < TestBase
   'all api methods raise when image_name is invalid' do
     in_kata_as(salmon) {
       METHOD_NAMES.each { |method_name|
-        error = assert_raises(StandardError) {
+        error = assert_raises(StandardError, method_name.to_s) {
           self.send method_name, { image_name:INVALID_IMAGE_NAME }
         }
         expected = "RunnerService:#{method_name}:image_name:invalid"
@@ -47,7 +47,7 @@ class ApiTest < TestBase
   'all api methods raise when kata_id is invalid' do
     in_kata_as(salmon) {
       METHOD_NAMES.each { |method_name|
-        error = assert_raises(StandardError) {
+        error = assert_raises(StandardError, method_name.to_s) {
           self.send method_name, { kata_id:INVALID_KATA_ID }
         }
         expected = "RunnerService:#{method_name}:kata_id:invalid"
@@ -56,16 +56,16 @@ class ApiTest < TestBase
     }
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   multi_os_test 'C3A',
-  'run_cyber_dojo_sh raises when avatar_name is invalid' do
+  'api methods raise when avatar_name is invalid' do
     in_kata_as(salmon) {
-      error = assert_raises(StandardError) {
-        run_cyber_dojo_sh({ avatar_name:'polaroid' })
+      [ :avatar_new, :avatar_old, :run_cyber_dojo_sh ].each { |method_name|
+        error = assert_raises(StandardError, method_name.to_s) {
+          self.send method_name, { avatar_name:INVALID_AVATAR_NAME }
+        }
+        expected = "RunnerService:#{method_name}:avatar_name:invalid"
+        assert_equal expected, error.message
       }
-      expected = 'RunnerService:run_cyber_dojo_sh:avatar_name:invalid'
-      assert_equal expected, error.message
     }
   end
 

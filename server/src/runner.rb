@@ -50,11 +50,13 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(_avatar_name, _starting_files)
+  def avatar_new(avatar_name, _starting_files)
+    assert_valid_avatar_name(avatar_name)
     # no-op to keep API compatibility
   end
 
-  def avatar_old(_avatar_name)
+  def avatar_old(avatar_name)
+    assert_valid_avatar_name(avatar_name)
     # no-op to keep API compatibility
   end
 
