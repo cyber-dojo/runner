@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class NoOpTest < TestBase
+class ApiNoOpTest < TestBase
 
   def self.hex_prefix
     '4F725'

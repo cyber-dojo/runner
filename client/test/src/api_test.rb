@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class RunCyberDojoShTest < TestBase
+class ApiTest < TestBase
 
   def self.hex_prefix
     '3759D'
