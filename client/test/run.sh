@@ -6,19 +6,16 @@ if [ ! -f /.dockerenv ]; then
   exit 1
 fi
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# client
+readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
+readonly COV_DIR=${CYBER_DOJO_COVERAGE_ROOT}
+readonly TEST_LOG=${COV_DIR}/test.log
 
-cov_dir=${CYBER_DOJO_COVERAGE_ROOT}
-test_log=${cov_dir}/test.log
+cd ${MY_DIR}/src
+readonly FILES=(*_test.rb) # requires bash
+readonly ARGS=(${*})
 
-my_dir="$( cd "$( dirname "${0}" )" && pwd )"
-cd ${my_dir}/src
-files=(*_test.rb)
-args=(${*})
+ruby -e "([ '../coverage.rb' ] + %w(${FILES[*]}).shuffle).each{ |file| require './'+file }" \
+  -- ${ARGS[@]} | tee ${TEST_LOG}
 
-ruby -e "([ '../coverage.rb' ] + %w(${files[*]}).shuffle).each{ |file| require './'+file }" \
-  -- ${args[@]} | tee ${test_log}
-
-cd ${my_dir} \
-  && ruby ./check_test_results.rb ${test_log} ${cov_dir}/index.html > ${cov_dir}/done.txt
+cd ${MY_DIR} \
+  && ruby ./check_test_results.rb ${TEST_LOG} ${COV_DIR}/index.html > ${COV_DIR}/done.txt
