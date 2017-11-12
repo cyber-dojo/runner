@@ -15,15 +15,11 @@ class Runner
     assert_valid_kata_id
   end
 
-  attr_reader :image_name, :kata_id
-
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
     image_names.include? image_name
   end
-
-  # - - - - - - - - - - - - - - - - - -
 
   def image_pull
     # [1] The contents of stderr vary depending on Docker version
@@ -38,7 +34,7 @@ class Runner
     end
   end
 
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
     # no-op for API compatibility
@@ -48,7 +44,7 @@ class Runner
     # no-op for API compatibility
   end
 
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(avatar_name, _starting_files)
     @avatar_name = avatar_name
@@ -62,7 +58,7 @@ class Runner
     # no-op for API compatibility
   end
 
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(
     avatar_name,
@@ -85,9 +81,10 @@ class Runner
     { stdout:stdout, stderr:stderr, status:status, colour:colour }
   end
 
-  private
+  private # = = = = = = = = = = = = = = =
 
-  attr_reader :avatar_name, :disk, :shell
+  attr_reader :image_name, :kata_id, :avatar_name
+  attr_reader :disk, :shell # externals
 
   def in_container(&block)
     cid = create_container
@@ -119,14 +116,14 @@ class Runner
 
   def docker_run_options
     [
-      '--detach',              # for later exec
+      '--detach',                # for later exec
       env_vars,
-      '--init',                # pid-1 process
-      '--interactive',         # for tar-pipe
+      '--init',                  # pid-1 process
+      '--interactive',           # for tar-pipe
       limits,
       "--name=#{container_name}",
-      '--user=root',           # chown needs permission
-      "--workdir=#{sandbox_dir}",
+      '--user=root',             # chown permission
+      "--workdir=#{sandbox_dir}" # creates the dir
     ].join(space)
   end
 
