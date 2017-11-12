@@ -101,33 +101,21 @@ class Runner # stateless
   def create_container(avatar_name)
     # Note no volume-mount; stateless!
     sandbox = sandbox_dir(avatar_name)
-    home = home_dir(avatar_name)
     name = container_name(avatar_name)
     cmd = [
       'docker run',
         '--detach',
-        "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
-        "--env CYBER_DOJO_IMAGE_NAME=#{image_name}",
-        "--env CYBER_DOJO_KATA_ID=#{kata_id}",
-        '--env CYBER_DOJO_RUNNER=stateless',
-        "--env CYBER_DOJO_SANDBOX=#{sandbox}",
-        "--env HOME=#{home}",
-        '--init',                            # pid-1 process
-        '--interactive',                     # for later execs
+        env_vars(avatar_name),
+        '--init',                           # pid-1 process
+        '--interactive',                    # for later execs
         '--memory=384m',
         "--name=#{name}",
-        '--net=none',                        # no network
-        '--pids-limit=128',                  # no fork bombs
-        '--security-opt=no-new-privileges',  # no escalation
-        "--ulimit data=#{4*GB}:#{4*GB}",     # max data segment size
-        '--ulimit core=0:0',                 # max core file size
-        "--ulimit fsize=#{16*MB}:#{16*MB}",  # max file size
-        '--ulimit locks=128:128',            # max number of file locks
-        '--ulimit nofile=128:128',           # max number of files
-        '--ulimit nproc=128:128',            # max number processes
-        "--ulimit stack=#{8*MB}:#{8*MB}",    # max stack size
+        '--net=none',                       # no network
+        '--pids-limit=128',                 # no fork bombs
+        '--security-opt=no-new-privileges', # no escalation
+        ulimits,
         "--workdir=#{sandbox}",
-        '--user=root',                       # chown needs permission
+        '--user=root',                      # chown needs permission
         image_name,
         'sh',
         '-c',
@@ -135,6 +123,29 @@ class Runner # stateless
     ].join(space)
     stdout,_stderr = assert_exec(cmd)
     stdout.strip # cid
+  end
+
+  def env_vars(avatar_name)
+    [
+      "--env CYBER_DOJO_AVATAR_NAME=#{avatar_name}",
+      "--env CYBER_DOJO_IMAGE_NAME=#{image_name}",
+      "--env CYBER_DOJO_KATA_ID=#{kata_id}",
+      '--env CYBER_DOJO_RUNNER=stateless',
+      "--env CYBER_DOJO_SANDBOX=#{sandbox_dir(avatar_name)}",
+      "--env HOME=#{home_dir(avatar_name)}"
+    ].join(space)
+  end
+
+  def ulimits
+    [
+      "--ulimit data=#{4*GB}:#{4*GB}",    # max data segment size
+      '--ulimit core=0:0',                # max core file size
+      "--ulimit fsize=#{16*MB}:#{16*MB}", # max file size
+      '--ulimit locks=128:128',           # max number of file locks
+      '--ulimit nofile=128:128',          # max number of files
+      '--ulimit nproc=128:128',           # max number processes
+      "--ulimit stack=#{8*MB}:#{8*MB}"    # max stack size
+    ].join(space)
   end
 
   KB = 1024
