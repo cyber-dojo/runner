@@ -62,9 +62,10 @@ class Runner # stateless
 
   def run_cyber_dojo_sh(
     avatar_name,
-    _deleted_files, unchanged_files, changed_files, new_files,
+    deleted_files, unchanged_files, changed_files, new_files,
     max_seconds
   )
+    deleted_files = nil # we're stateless
     all_files = [*unchanged_files, *changed_files, *new_files].to_h
     run(avatar_name, all_files, max_seconds)
   end
@@ -291,6 +292,10 @@ class Runner # stateless
     # Not worth creating a new container for this.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
+      # The rag lambda tends to look like this:
+      #   lambda { |stdout, stderr, status| ... }
+      # so avoid using stdout,stderr,status as identifiers
+      # or you'll get shadowing outer local variables warnings.
       out,_err = assert_docker_exec(cid, cmd)
       # :nocov:
       rag = eval(out)
