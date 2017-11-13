@@ -20,6 +20,7 @@ class TimeoutTest < TestBase
           max_seconds: 2
       }
       assert_run_times_out(named_args)
+      assert_equal '', stdout
     }
   end
 
@@ -28,7 +29,7 @@ class TimeoutTest < TestBase
       '#include "hiker.h"',
       'int answer(void)',
       '{',
-      '    for(;;); ',
+      '    for(;;);',
       '    return 6 * 7;',
       '}'
     ].join("\n")
@@ -39,7 +40,7 @@ class TimeoutTest < TestBase
   test '4D7', %w( [gcc,assert]
   when run(test-code) does not complete in max_seconds
   and does produce output
-  the output is nonetheless empty, and
+  the output is not empty, and
   the colour is timed_out
   ) do
     in_kata_as(salmon) {
@@ -48,6 +49,7 @@ class TimeoutTest < TestBase
           max_seconds: 2
       }
       assert_run_times_out(named_args)
+      refute_equal '', stdout
     }
   end
 

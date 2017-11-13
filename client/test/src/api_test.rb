@@ -199,7 +199,20 @@ class ApiTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # fork-bombs
+  # bombs
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test 'CD4',
+  'print-bomb does not run indefinitely and some output is returned' do
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => print_bomb }
+      })
+      assert timed_out?
+      refute_equal '', stdout+stderr
+    }
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'CD5',
@@ -483,6 +496,25 @@ class ApiTest < TestBase
     #  %y == time of last data modification <<=====
     #  %x == time of last access
     #  %w == time of file birth
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def print_bomb
+    [ '#include <stdio.h>',
+      '',
+      'int answer(void)',
+      '{',
+      '    for(;;)',
+      '    {',
+      '        fputs("Hello, world on stdout", stdout);',
+      '        fflush(stdout);',
+      '        fputs("Hello, world on stderr", stderr);',
+      '        fflush(stderr);',
+      '    }',
+      '    return 6 * 7;',
+      '}'
+    ].join("\n")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -221,6 +221,7 @@ class Runner # stateless
   include StringTruncater
 
   def run_timeout(cmd, max_seconds)
+    status = nil
     # This kills the container from the "outside". Originally
     # I also time-limited the cpu-time from the "inside" using
     # a cpu ulimit. See comment on the ulimit method.
@@ -235,12 +236,7 @@ class Runner # stateless
       Timeout::timeout(max_seconds) do
         Process.waitpid(pid)
         status = $?.exitstatus
-        w_stdout.close
-        w_stderr.close
-        stdout = cleaned(r_stdout.read)
-        stderr = cleaned(r_stderr.read)
-        colour = red_amber_green(stdout, stderr, status)
-        [stdout, stderr, status, colour]
+        timed_out = false
       end
     rescue Timeout::Error
       # Kill the [docker exec] processes running on the host.
@@ -251,17 +247,23 @@ class Runner # stateless
       # See https://github.com/docker/docker/issues/9098
       Process.kill(-9, pid)
       Process.detach(pid)
-      stdout = ''
-      stderr = ''
       status = 137
-      colour = 'timed_out'
-      [stdout, stderr, status, colour]
+      timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
+      stdout = cleaned r_stdout.read
+      stderr = cleaned r_stderr.read
       r_stdout.close
       r_stderr.close
     end
+
+    if timed_out
+      colour = 'timed_out'
+    else
+      colour =  red_amber_green(stdout, stderr, status)
+    end
+    [stdout, stderr, status, colour]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -454,7 +456,7 @@ end
 # If only one file has changed you might image this is quicker
 # but testing shows its actually a bit slower.
 #
-# For interest's sake here's how you tar pipe from a string and
+# For interests sake here's how you tar pipe from a string and
 # avoid the intermediate /tmp files. I don't know how this
 # would affect the date-time file-stamp granularity (stat %y).
 #

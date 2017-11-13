@@ -111,14 +111,6 @@ class TestBase < HexMiniTest
     assert_equal expected, colour, "assert_colour:#{quad}"
   end
 
-  def assert_stdout(expected)
-    assert_equal expected, stdout, "assert_stdout:#{quad}"
-  end
-
-  def assert_stderr(expected)
-    assert_equal expected, stderr, "assert_stderr:#{quad}"
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_cyber_dojo_sh(script)
@@ -131,7 +123,7 @@ class TestBase < HexMiniTest
   def assert_run_succeeds(named_args)
     run_cyber_dojo_sh(named_args)
     refute timed_out?, quad
-    assert_stderr ''
+    assert_equal '', stderr
     stdout.strip
   end
 
@@ -139,8 +131,6 @@ class TestBase < HexMiniTest
     run_cyber_dojo_sh(named_args)
     assert timed_out?
     assert_status 137
-    assert_stdout ''
-    assert_stderr ''
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
