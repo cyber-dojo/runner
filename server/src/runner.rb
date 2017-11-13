@@ -4,7 +4,7 @@ require_relative 'string_truncater'
 require_relative 'valid_image_name'
 require 'timeout'
 
-class Runner
+class Runner # stateless
 
   def initialize(parent, image_name, kata_id)
     @disk = parent.disk
@@ -83,9 +83,6 @@ class Runner
 
   private # = = = = = = = = = = = = = = =
 
-  attr_reader :image_name, :kata_id, :avatar_name
-  attr_reader :disk, :shell # externals
-
   def in_container(&block)
     cid = create_container
     begin
@@ -116,14 +113,14 @@ class Runner
 
   def docker_run_options
     [
-      '--detach',                # for later exec
+      '--detach',                 # for later exec
       env_vars,
-      '--init',                  # pid-1 process
-      '--interactive',           # for tar-pipe
+      '--init',                   # pid-1 process
+      '--interactive',            # for tar-pipe
       limits,
-      "--name=#{container_name}",
-      '--user=root',             # chown permission
-      "--workdir=#{sandbox_dir}" # creates the dir
+      "--name=#{container_name}", # for easy cleanup
+      '--user=root',              # chown permission
+      "--workdir=#{sandbox_dir}"  # creates the dir
     ].join(space)
   end
 
@@ -348,7 +345,11 @@ class Runner
     'test_run__runner_stateless_' + kata_id + '_' + avatar_name
   end
 
-  include ValidImageName
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # image_name
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  attr_reader :image_name
 
   def assert_valid_image_name
     unless valid_image_name?(image_name)
@@ -356,9 +357,13 @@ class Runner
     end
   end
 
+  include ValidImageName
+
   # - - - - - - - - - - - - - - - - - - - - - - - -
   # kata_id
   # - - - - - - - - - - - - - - - - - - - - - - - -
+
+  attr_reader :kata_id
 
   def assert_valid_kata_id
     unless valid_kata_id?
@@ -380,7 +385,7 @@ class Runner
   # avatar_name
   # - - - - - - - - - - - - - - - - - -
 
-  include AllAvatarsNames
+  attr_reader :avatar_name
 
   def assert_valid_avatar_name
     unless valid_avatar_name?
@@ -391,6 +396,8 @@ class Runner
   def valid_avatar_name?
     all_avatars_names.include?(avatar_name)
   end
+
+  include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
   # helpers
@@ -411,6 +418,8 @@ class Runner
   def space
     ' '
   end
+
+  attr_reader :disk, :shell # externals
 
 end
 
