@@ -215,9 +215,6 @@ class Runner # stateless
 
   def run_timeout(cmd, max_seconds)
     status = nil
-    # This kills the container from the "outside". Originally
-    # I also time-limited the cpu-time from the "inside" using
-    # a cpu ulimit. See comment on the ulimit method.
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {
