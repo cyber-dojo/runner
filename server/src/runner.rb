@@ -295,10 +295,12 @@ class Runner
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
       out,_err = assert_docker_exec(cid, cmd)
+      # :nocov:
       rag = eval(out)
       rag.call(stdout_arg, stderr_arg, status_arg).to_s
     rescue
       :amber
+      # :nocov:
     end
   end
 
