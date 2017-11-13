@@ -144,12 +144,12 @@ class ApiTest < TestBase
 
   multi_os_test 'ED4',
   'stdout greater than 10K is truncated' do
-    # fold limit is 10000 so I do two smaller folds
+    # [1] fold limit is 10000 so I do two smaller folds
     five_K_plus_1 = 5*1024+1
     command = [
       'cat /dev/urandom',
       "tr -dc 'a-zA-Z0-9'",
-      "fold -w #{five_K_plus_1}",
+      "fold -w #{five_K_plus_1}", # [1]
       'head -n 1'
     ].join('|')
     in_kata_as(salmon) {
@@ -230,15 +230,18 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'DB3',
-  'file-bomb in exhaust file-handles fails to go off' do
+  'file-handles quickly become exhausted' do
     in_kata_as(salmon) {
-      file_bomb_test
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => exhaust_file_handles }
+      })
+      assert seen?('All tests passed'), quad
+      assert seen?('fopen() != NULL'),  quad
+      assert seen?('fopen() == NULL'),  quad
     }
   end
 
-  private
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  private # = = = = = = = = = = = = = = = = = = = = = =
 
   def assert_pid_1_is_running_init_process
     cmd = 'cat /proc/1/cmdline'
@@ -331,11 +334,6 @@ class ApiTest < TestBase
   def assert_ulimits
     assert_cyber_dojo_sh('ulimit -a')
 
-    assert_equal   0, ulimit(:core_size)
-    assert_equal 128, ulimit(:file_locks)
-    assert_equal 128, ulimit(:no_files)
-    assert_equal 128, ulimit(:processes)
-
     expected_max_data_size  =  4 * GB / KB
     expected_max_file_size  = 16 * MB / (block_size = 512)
     expected_max_stack_size =  8 * MB / KB
@@ -343,6 +341,10 @@ class ApiTest < TestBase
     assert_equal expected_max_data_size,  ulimit(:data_size)
     assert_equal expected_max_file_size,  ulimit(:file_size)
     assert_equal expected_max_stack_size, ulimit(:stack_size)
+    assert_equal 0,                       ulimit(:core_size)
+    assert_equal 128,                     ulimit(:file_locks)
+    assert_equal 128,                     ulimit(:no_files)
+    assert_equal 128,                     ulimit(:processes)
   end
 
   KB = 1024
@@ -506,49 +508,28 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def shell_fork_bomb_test
-    cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
-    begin
-      shell_fork_bomb = [
-        'bomb()',
-        '{',
-        '   echo "bomb"',
-        '   bomb | bomb &',
-        '}',
-        'bomb'
-      ].join("\n")
-      run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
-      })
-      # :nocov:
-      assert_timed_out_or_printed 'bomb'
-      assert_timed_out_or_printed cant_fork
-    rescue StandardError
-      # :nocov:
-    end
+  def shell_fork_bomb
+    [
+      'bomb()',
+      '{',
+      '   echo "bomb"',
+      '   bomb | bomb &',
+      '}',
+      'bomb'
+    ].join("\n")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_timed_out_or_printed(text)
+    diagnostic = ":#{text}:#{quad}:"
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
-    assert (timed_out? || count > 0), ":#{text}:#{quad}:"
+    assert (timed_out? || count > 0), diagnostic
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def file_bomb_test
-    run_cyber_dojo_sh({
-      changed_files: { 'hiker.c' => c_file_bomb }
-    })
-    assert seen?('All tests passed'), quad
-    assert seen?('fopen() != NULL'), quad
-    assert seen?('fopen() == NULL'), quad
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def c_file_bomb
+  def exhaust_file_handles
     [
       '#include <stdio.h>',
       '',
