@@ -259,6 +259,7 @@ class ApiTest < TestBase
     assert_equal kata_id,     env_var('KATA_ID')
     assert_equal 'stateless', env_var('RUNNER')
     assert_equal sandbox_dir, env_var('SANDBOX')
+    assert_equal home_dir,    assert_cyber_dojo_sh('printenv HOME')
   end
 
   def env_var(name)
