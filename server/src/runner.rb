@@ -184,12 +184,12 @@ class Runner
     # be deleted so there must be at least one file.
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
-      if sub_dir != '.'
+      unless sub_dir == '.'
         src_dir = tmp_dir + '/' + sub_dir
         shell.exec("mkdir -p #{src_dir}")
       end
-      host_filename = tmp_dir + '/' + pathed_filename
-      disk.write(host_filename, content)
+      src_filename = tmp_dir + '/' + pathed_filename
+      disk.write(src_filename, content)
     end
   end
 
