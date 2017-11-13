@@ -455,8 +455,15 @@ end
 #   filename = avatar_dir + '/' + name
 #   dir = File.dirname(filename)
 #   shell_cmd = "mkdir -p #{dir};"
-#   shell_cmd += "cat > #{filename} && chown #{uid}:#{gid} #{filename}"
-#   cmd = "docker exec --interactive --user=root #{cid} sh -c '#{shell_cmd}'"
+#   shell_cmd += "cat > #{filename}"
+#   shell_cmd += " && chown #{uid}:#{gid} #{filename}"
+#   cmd = [
+#     'docker exec',
+#     '--interactive',
+#     '--user=root',
+#     container_name,
+#     "sh -c '#{shell_cmd}'"
+#   ].join(space)
 #   stdout,stderr,ps = Open3.capture3(cmd, :stdin_data => content)
 #   assert ps.success?
 # end
