@@ -38,6 +38,20 @@ class RunCyberDojoShTest < TestBase
     }
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  # TODO: add test for docker exec to extract red_amber_green.rb failing [1]
+  # TODO: add test for eval of red_amber_green.rb failing
+  # TODO: add test for lambda call of red_amber_green.rb failing
+
+  # [1] The assert_docker_exec call could be stubbed.
+  # The log shows
+  # "COMMAND:docker exec ... sh -c 'cat /usr/local/bin/red_amber_green.rb'"
+  # "STATUS:2"
+  # "STDOUT:"
+  # "STDERR:sh: 1: Cannot fork\n"
+  # "EXCEPTION: ArgumentError.run_cyber_dojo_sh command:docker exec ... sh -c 'cat /usr/local/bin/red_amber_green.rb'"
+
   private
 
   def assert_files_can_be_in_sub_dirs_of_sandbox
