@@ -1,4 +1,4 @@
-FROM  alpine:latest
+FROM  docker:latest
 LABEL maintainer=jon@jaggersoft.com
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
