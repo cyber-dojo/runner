@@ -196,7 +196,7 @@ class TestBase < HexMiniTest
   end
 
   def sandbox_dir
-    "/tmp/sandboxes/#{avatar_name}"
+    "/sandboxes/#{avatar_name}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
