@@ -101,7 +101,7 @@ table =
     [ 'errors',                 error_count,        '==',   0 ],
     [ 'skips',                  skip_count,         '==',   0 ],
     [ 'assertions/s',           assertions_per_sec, '>=',   0 ],
-    [ 'duration(test)[s]',      test_duration,      '<=',  80 ],
+    [ 'duration(test)[s]',      test_duration,      '<=', 120 ],
     [ 'coverage(src)[%]',       src_coverage,       '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,      '==', 100 ],
     [ 'hits_per_line(src)',     hits_per_line_src,  '<=', 120 ],

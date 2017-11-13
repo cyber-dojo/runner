@@ -79,11 +79,7 @@ class Runner # stateless
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
       }
     end
-    { stdout:truncated(stdout),
-      stderr:truncated(stderr),
-      status:status,
-      colour:colour
-    }
+    { stdout:stdout, stderr:stderr, status:status, colour:colour }
   end
 
   private # = = = = = = = = = = = = = = = = = =
@@ -217,9 +213,6 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  include StringCleaner
-  include StringTruncater
-
   def run_timeout(cmd, max_seconds)
     status = nil
     # This kills the container from the "outside". Originally
@@ -252,8 +245,9 @@ class Runner # stateless
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      stdout = cleaned r_stdout.read
-      stderr = cleaned r_stderr.read
+      # truncate and clean before call to red_amber_green [1]
+      stdout = truncated(cleaned(r_stdout.read))
+      stderr = truncated(cleaned(r_stderr.read))
       r_stdout.close
       r_stderr.close
     end
@@ -261,10 +255,13 @@ class Runner # stateless
     if timed_out
       colour = 'timed_out'
     else
-      colour =  red_amber_green(stdout, stderr, status)
+      colour =  red_amber_green(stdout, stderr, status) # [1]
     end
     [stdout, stderr, status, colour]
   end
+
+  include StringCleaner
+  include StringTruncater
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
