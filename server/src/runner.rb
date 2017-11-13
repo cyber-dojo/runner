@@ -86,41 +86,10 @@ class Runner # stateless
     }
   end
 
-  private # = = = = = = = = = = = = = = =
-
-  include StringTruncater
-
-  attr_reader :cid
-
-  def in_container(&block)
-    @cid = create_container
-    begin
-      block.call
-    ensure
-      # [docker rm] could be backgrounded with a trailing &
-      # but it did not make a test-event discernably
-      # faster when measuring to 100th of a second.
-      assert_exec("docker rm --force #{cid}")
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def create_container
-    # Note no volume-mount; stateless!
-    cmd = [
-      'docker run',
-        docker_run_options,
-        image_name,
-        "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
-    ].join(space)
-    stdout,_stderr = assert_exec(cmd)
-    stdout.strip # cid
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
+  private # = = = = = = = = = = = = = = = = = =
 
   def docker_run_options
+    # no volume-mount; stateless!
     [
       '--detach',                 # for later exec
       env_vars,
@@ -213,7 +182,7 @@ class Runner # stateless
                 'docker exec',  # ...into docker container
                   "--user=#{uid}:#{gid}", # ownership
                   '--interactive',
-                  cid,
+                  container_name,
                   'sh -c',
                   "'",         # open quote
                   "cd #{sandbox_dir}",
@@ -250,6 +219,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   include StringCleaner
+  include StringTruncater
 
   def run_timeout(cmd, max_seconds)
     # This kills the container from the "outside". Originally
@@ -307,7 +277,7 @@ class Runner # stateless
       #   lambda { |stdout, stderr, status| ... }
       # so avoid using stdout,stderr,status as identifiers
       # or you'll get shadowing outer local variables warnings.
-      out,_err = assert_exec("docker exec #{cid} sh -c '#{cmd}'")
+      out,_err = assert_exec("docker exec #{container_name} sh -c '#{cmd}'")
       rag = eval(out)
       colour = rag.call(stdout_arg, stderr_arg, status_arg).to_s
       unless ['red','amber','green'].include? colour
@@ -320,7 +290,72 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # properties
+  # images
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def image_names
+    cmd = 'docker images --format "{{.Repository}}"'
+    stdout,_ = assert_exec(cmd)
+    names = stdout.split("\n")
+    names.uniq - [ '<none>' ]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # image_name
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  attr_reader :image_name
+
+  def assert_valid_image_name
+    unless valid_image_name?(image_name)
+      fail invalid_argument('image_name')
+    end
+  end
+
+  include ValidImageName
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # container
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def container_name
+    'test_run__runner_stateless_' + kata_id + '_' + avatar_name
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def in_container
+    create_container
+    begin
+      yield
+    ensure
+      remove_container
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def create_container
+    cmd = [
+      'docker run',
+        docker_run_options,
+        image_name,
+        "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
+    ].join(space)
+    assert_exec(cmd)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def remove_container
+    # [docker rm] could be backgrounded with a trailing &
+    # but it did not make a test-event discernably
+    # faster when measuring to 100th of a second.
+    assert_exec("docker rm --force #{container_name}")
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # container properties
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def group
@@ -342,40 +377,6 @@ class Runner # stateless
   def sandbox_dir
     "/tmp/sandboxes/#{avatar_name}"
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # images
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def image_names
-    cmd = 'docker images --format "{{.Repository}}"'
-    stdout,_ = assert_exec(cmd)
-    names = stdout.split("\n")
-    names.uniq - ['<none>']
-  end
-
-  def container_name
-    # Give containers a name with a specific prefix so they
-    # can be cleaned up if any fail to be removed/reaped.
-    # Does not have a trailing uuid. This ensures that
-    # an in_container() call is not accidentally nested inside
-    # another in_container() call.
-    'test_run__runner_stateless_' + kata_id + '_' + avatar_name
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # image_name
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  attr_reader :image_name
-
-  def assert_valid_image_name
-    unless valid_image_name?(image_name)
-      fail invalid_argument('image_name')
-    end
-  end
-
-  include ValidImageName
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
   # kata_id
