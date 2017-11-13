@@ -184,8 +184,8 @@ class ApiTest < TestBase
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
     in_kata_as(salmon) {
-      assert_files_can_be_in_sub_dirs_of_sandbox
-      assert_files_can_be_in_sub_sub_dirs_of_sandbox
+      assert_files_can_be_created_in_sub_dirs_of_sandbox
+      assert_files_can_be_created_in_sub_sub_dirs_of_sandbox
     }
   end
 
@@ -384,7 +384,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_files_can_be_in_sub_dirs_of_sandbox
+  def assert_files_can_be_created_in_sub_dirs_of_sandbox
     sub_dir = 'z'
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
@@ -397,7 +397,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_files_can_be_in_sub_sub_dirs_of_sandbox
+  def assert_files_can_be_created_in_sub_sub_dirs_of_sandbox
     sub_sub_dir = 'a/b'
     filename = 'goodbye.txt'
     content = 'goodbye cruel world'
@@ -423,7 +423,7 @@ class ApiTest < TestBase
       count += 1
       refute_nil atts, filename
       stamp = atts[:time_stamp] # eg '07:03:14.835233538'
-      microsecs = stamp.split((/[\:\.]/))[-1]
+      microsecs = stamp.split(/[\:\.]/)[-1]
       assert_equal 9, microsecs.length
       refute_equal '0'*9, microsecs
     end
