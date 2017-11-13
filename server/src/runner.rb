@@ -30,7 +30,7 @@ class Runner # stateless
     elsif stderr.include?('not found') || stderr.include?('not exist')
       return false # [1]
     else
-      fail invalid_argument('image_name')
+      argument_error('image_name', 'invalid')
     end
   end
 
@@ -307,7 +307,7 @@ class Runner # stateless
 
   def assert_valid_image_name
     unless valid_image_name?(image_name)
-      fail invalid_argument('image_name')
+      argument_error('image_name', 'invalid')
     end
   end
 
@@ -315,12 +315,6 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_name
-    'test_run__runner_stateless_' + kata_id + '_' + avatar_name
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def in_container
@@ -354,6 +348,16 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def container_name
+    @container_name ||=
+      [ 'test_run__runner_stateless',
+        kata_id,
+        avatar_name
+      ].join('_')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # container properties
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -381,7 +385,7 @@ class Runner # stateless
 
   def assert_valid_kata_id
     unless valid_kata_id?
-      fail invalid_argument('kata_id')
+      argument_error('kata_id', 'invalid')
     end
   end
 
@@ -403,7 +407,7 @@ class Runner # stateless
 
   def assert_valid_avatar_name
     unless valid_avatar_name?
-      fail invalid_argument('avatar_name')
+      argument_error('avatar_name', 'invalid')
     end
   end
 
@@ -414,16 +418,20 @@ class Runner # stateless
   include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
-  # helpers
+  # assertions
   # - - - - - - - - - - - - - - - - - -
-
-  def invalid_argument(name)
-    ArgumentError.new("#{name}:invalid")
-  end
 
   def assert_exec(cmd)
     shell.assert_exec(cmd)
   end
+
+  def argument_error(name, message)
+    fail ArgumentError.new("#{name}:#{message}")
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+  # helpers
+  # - - - - - - - - - - - - - - - - - -
 
   def space
     ' '
