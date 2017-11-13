@@ -73,21 +73,29 @@ class Runner # stateless
   def run(avatar_name, visible_files, max_seconds)
     @avatar_name = avatar_name
     assert_valid_avatar_name
-    stdout,stderr,status,colour = Dir.mktmpdir('runner') do |tmp_dir|
+    stdout,stderr,status,colour = Dir.mktmpdir do |tmp_dir|
       save_to(visible_files, tmp_dir)
-      in_container { |cid|
-        run_timeout(cid, tar_pipe_cmd(tmp_dir, cid), max_seconds)
+      in_container {
+        run_timeout(tar_pipe_from(tmp_dir), max_seconds)
       }
     end
-    { stdout:stdout, stderr:stderr, status:status, colour:colour }
+    { stdout:truncated(stdout),
+      stderr:truncated(stderr),
+      status:status,
+      colour:colour
+    }
   end
 
   private # = = = = = = = = = = = = = = =
 
+  include StringTruncater
+
+  attr_reader :cid
+
   def in_container(&block)
-    cid = create_container
+    @cid = create_container
     begin
-      block.call(cid)
+      block.call
     ensure
       # [docker rm] could be backgrounded with a trailing &
       # but it did not make a test-event discernably
@@ -193,7 +201,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_cmd(tmp_dir, cid)
+  def tar_pipe_from(tmp_dir)
     [
       "chmod 755 #{tmp_dir}",
       "&& cd #{tmp_dir}",
@@ -242,9 +250,8 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   include StringCleaner
-  include StringTruncater
 
-  def run_timeout(cid, cmd, max_seconds)
+  def run_timeout(cmd, max_seconds)
     # This kills the container from the "outside". Originally
     # I also time-limited the cpu-time from the "inside" using
     # a cpu ulimit. See comment on the ulimit method.
@@ -261,9 +268,9 @@ class Runner # stateless
         status = $?.exitstatus
         w_stdout.close
         w_stderr.close
-        stdout = truncated(cleaned(r_stdout.read))
-        stderr = truncated(cleaned(r_stderr.read))
-        colour = red_amber_green(cid, stdout, stderr, status)
+        stdout = cleaned(r_stdout.read)
+        stderr = cleaned(r_stderr.read)
+        colour = red_amber_green(stdout, stderr, status)
         [stdout, stderr, status, colour]
       end
     rescue Timeout::Error
@@ -275,7 +282,11 @@ class Runner # stateless
       # See https://github.com/docker/docker/issues/9098
       Process.kill(-9, pid)
       Process.detach(pid)
-      ['', '', 137, 'timed_out']
+      stdout = ''
+      stderr = ''
+      status = 137
+      colour = 'timed_out'
+      [stdout, stderr, status, colour]
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
@@ -286,7 +297,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
+  def red_amber_green(stdout_arg, stderr_arg, status_arg)
     # If cyber-dojo.sh has crippled the container (eg fork-bomb)
     # then the [docker exec] will mostly likely raise.
     # Not worth creating a new container for this.
@@ -296,7 +307,7 @@ class Runner # stateless
       #   lambda { |stdout, stderr, status| ... }
       # so avoid using stdout,stderr,status as identifiers
       # or you'll get shadowing outer local variables warnings.
-      out,_err = assert_docker_exec(cid, cmd)
+      out,_err = assert_exec("docker exec #{cid} sh -c '#{cmd}'")
       # :nocov:
       rag = eval(out)
       rag.call(stdout_arg, stderr_arg, status_arg).to_s
@@ -410,10 +421,6 @@ class Runner # stateless
 
   def invalid_argument(name)
     ArgumentError.new("#{name}:invalid")
-  end
-
-  def assert_docker_exec(cid, cmd)
-    assert_exec("docker exec #{cid} sh -c '#{cmd}'")
   end
 
   def assert_exec(cmd)
