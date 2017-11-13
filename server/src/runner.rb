@@ -308,12 +308,14 @@ class Runner # stateless
       # so avoid using stdout,stderr,status as identifiers
       # or you'll get shadowing outer local variables warnings.
       out,_err = assert_exec("docker exec #{cid} sh -c '#{cmd}'")
-      # :nocov:
       rag = eval(out)
-      rag.call(stdout_arg, stderr_arg, status_arg).to_s
+      colour = rag.call(stdout_arg, stderr_arg, status_arg).to_s
+      unless ['red','amber','green'].include? colour
+        colour = 'amber'
+      end
+      colour
     rescue
-      :amber
-      # :nocov:
+      'amber'
     end
   end
 
