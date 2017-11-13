@@ -221,31 +221,31 @@ class Runner # stateless
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {
-      pgroup:true,
-         out:w_stdout,
-         err:w_stderr
+      pgroup:true,     # process becomes process leader
+         out:w_stdout, # redirection
+         err:w_stderr  # redirection
     })
     begin
       Timeout::timeout(max_seconds) do
-        Process.waitpid(pid)
-        status = $?.exitstatus
+        _, ps = Process.waitpid2(pid)
+        status = ps.exitstatus
         timed_out = false
       end
     rescue Timeout::Error
       # Kill the [docker exec] processes running on the host.
-      # This does __not__ kill the cyber-dojo.sh process running
-      # __inside__ the docker container.
+      # This does __not__ kill the cyber-dojo.sh process
+      # running __inside__ the docker container.
       # The container is killed in the ensure block of the
       # in_container method.
       # See https://github.com/docker/docker/issues/9098
-      Process.kill(-9, pid)
-      Process.detach(pid)
-      status = 137
+      Process.kill(-9, pid) # -ve means kill process-group
+      Process.detach(pid)   # prevent zombie-child
+      status = 137          # we are not waiting
       timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      # truncate and clean before call to red_amber_green [1]
+      # truncate and clean before call to red_amber_green
       stdout = truncated(cleaned(r_stdout.read))
       stderr = truncated(cleaned(r_stderr.read))
       r_stdout.close
@@ -255,7 +255,7 @@ class Runner # stateless
     if timed_out
       colour = 'timed_out'
     else
-      colour =  red_amber_green(stdout, stderr, status) # [1]
+      colour =  red_amber_green(stdout, stderr, status)
     end
     [stdout, stderr, status, colour]
   end
