@@ -289,10 +289,17 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green(cid, stdout_arg, stderr_arg, status_arg)
+    # If cyber-dojo.sh has crippled the container (eg fork-bomb)
+    # then the [docker exec] will mostly likely raise.
+    # Not worth creating a new container for this.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    out,_err = assert_docker_exec(cid, cmd)
-    rag = eval(out)
-    rag.call(stdout_arg, stderr_arg, status_arg).to_s
+    begin
+      out,_err = assert_docker_exec(cid, cmd)
+      rag = eval(out)
+      rag.call(stdout_arg, stderr_arg, status_arg).to_s
+    rescue
+      :amber
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

@@ -205,7 +205,11 @@ class ApiTest < TestBase
   multi_os_test 'CD5',
   'fork-bomb does not run indefinitely' do
     in_kata_as(salmon) {
-      fork_bomb_test
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => fork_bomb }
+      })
+      assert_timed_out_or_printed 'All tests passed'
+      assert_timed_out_or_printed 'fork()'
     }
   end
 
@@ -214,7 +218,12 @@ class ApiTest < TestBase
   multi_os_test '4DE',
   'shell fork-bomb does not run indefinitely' do
     in_kata_as(salmon) {
-      shell_fork_bomb_test
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
+      })
+      cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
+      assert_timed_out_or_printed cant_fork
+      assert_timed_out_or_printed 'bomb'
     }
   end
 
@@ -476,22 +485,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def fork_bomb_test
-    begin
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => fork_bomb_definition }
-      })
-      # :nocov:
-      assert_timed_out_or_printed 'All tests passed'
-      assert_timed_out_or_printed 'fork()'
-    rescue StandardError
-      # :nocov:
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def fork_bomb_definition
+  def fork_bomb
     [ '#include <stdio.h>',
       '#include <unistd.h>',
       '',
