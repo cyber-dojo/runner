@@ -50,15 +50,15 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(avatar_name, _starting_files)
+    # for API compatibility
     @avatar_name = avatar_name
     assert_valid_avatar_name
-    # no-op for API compatibility
   end
 
   def avatar_old(avatar_name)
+    # for API compatibility
     @avatar_name = avatar_name
     assert_valid_avatar_name
-    # no-op for API compatibility
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -417,8 +417,6 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - -
-  # helpers
-  # - - - - - - - - - - - - - - - - - -
 
   def space
     ' '
@@ -430,20 +428,21 @@ end
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 # The implementation of run_timeout_cyber_dojo_sh is
-#   o) Create copies of all files off /tmp
-#   o) Tar pipe the /tmp files into the container
-#   o) Run cyber-dojo.sh inside the container
+#   o) create copies of all files off /tmp
+#   o) one tar-pipe copying /tmp files into the container
+#   o) run cyber-dojo.sh inside the container
 #
 # An alternative implementation is
-#   o) Tar pipe each file's content directly into the container
-#   o) Run cyber-dojo.sh inside the container
+#   o) don't create copies of files off /tmp
+#   o) N tar-pipes for N files, each copying directly into the container
+#   o) run cyber-dojo.sh inside the container
 #
 # If only one file has changed you might image this is quicker
 # but testing shows its actually a bit slower.
 #
-# For interests sake here's how you tar pipe from a string and
-# avoid the intermediate /tmp files. I don't know how this
-# would affect the date-time file-stamp granularity (stat %y).
+# For interests sake here's how you tar pipe without the
+# intermediate /tmp files. I don't know how this would
+# affect the date-time file-stamp granularity (stat %y).
 #
 # require 'open3'
 # files.each do |name,content|
