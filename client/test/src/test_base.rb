@@ -86,15 +86,15 @@ class TestBase < HexMiniTest
 
     args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name, avatar_name)
+    args << new_files
     args << defaulted_arg(named_args, :deleted_files, {})
     args << unchanged_files
     args << changed_files
-    args << new_files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
     @quad = runner.run_cyber_dojo_sh *args
 
-    @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
+    @all_files = [ *new_files, *unchanged_files, *changed_files ].to_h
     nil
   end
 

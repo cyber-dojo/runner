@@ -40,9 +40,9 @@ class Demo
 
   def as(avatar_name)
     @avatar_name = avatar_name
+    @new_files = starting_files
     @deleted_files = {}
     @changed_files = {}
-    @new_files = starting_files
     duration = timed {
       runner.avatar_new(image_name, kata_id, avatar_name, new_files)
       @unchanged_files = new_files
@@ -60,7 +60,7 @@ class Demo
   end
 
   attr_reader :avatar_name
-  attr_reader :deleted_files, :unchanged_files, :changed_files, :new_files
+  attr_reader :new_files, :deleted_files, :unchanged_files, :changed_files
 
   # - - - - - - - - - - - - - - - - - - - - -
 
@@ -90,8 +90,8 @@ class Demo
 
   def run_cyber_dojo_sh(colour)
     quad = nil
-    args = [ image_name, kata_id, avatar_name ]
-    args += [ deleted_files, unchanged_files, changed_files, new_files ]
+    args  = [ image_name, kata_id, avatar_name ]
+    args += [ new_files, deleted_files, unchanged_files, changed_files ]
     args << 10
     duration = timed {
       quad = runner.run_cyber_dojo_sh(*args)

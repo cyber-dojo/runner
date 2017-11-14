@@ -77,7 +77,7 @@ class ApiTest < TestBase
   'run with initial 6*9 == 42 is red' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert red?
+      assert red?, quad
     }
   end
 
@@ -89,7 +89,7 @@ class ApiTest < TestBase
       run_cyber_dojo_sh({
         changed_files: { filename => content.sub('6 * 9', '6 * 9sd') }
       })
-      assert amber?
+      assert amber?, quad
     }
   end
 
@@ -101,7 +101,7 @@ class ApiTest < TestBase
       run_cyber_dojo_sh({
         changed_files: { filename => content.sub('6 * 9', '6 * 7') }
       })
-      assert green?
+      assert green?, quad
     }
   end
 
@@ -120,7 +120,7 @@ class ApiTest < TestBase
         changed_files: { filename => content.sub(from, to) },
           max_seconds: 3
       })
-      assert timed_out?
+      assert timed_out?, quad
     }
   end
 
@@ -137,7 +137,7 @@ class ApiTest < TestBase
         new_files: { 'big_file' => 'X'*1023*500 }
       })
     }
-    assert red?
+    assert red?, quad
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

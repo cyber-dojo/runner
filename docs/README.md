@@ -112,13 +112,13 @@ cyber-dojo.sh as the avatar with the given avatar_name.
   {        "image_name": "cyberdojofoundation/gcc_assert",
               "kata_id": "15B9AD6C42",
           "avatar_name": "salmon",
+            "new_files": { ... },
         "deleted_files": { ... },
       "unchanged_files": { "cyber-dojo.sh" => "make" },
         "changed_files": { "fizz_buzz.c" => "#include...",
                            "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
                            ...
                          },
-            "new_files": { ... },
           "max_seconds": 10
   }
 ```

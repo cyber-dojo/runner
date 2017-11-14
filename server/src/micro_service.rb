@@ -23,7 +23,7 @@ class MicroService
       when /run_cyber_dojo_sh/
         body = invoke('run_cyber_dojo_sh',
           avatar_name,
-          deleted_files, unchanged_files, changed_files, new_files,
+          new_files, deleted_files, unchanged_files, changed_files,
           max_seconds)
       when /run/
         body = invoke('run', avatar_name, visible_files, max_seconds)
