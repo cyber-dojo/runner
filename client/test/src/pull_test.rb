@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class ImageTest < TestBase
+class PullTest < TestBase
 
   def self.hex_prefix
     '4CD0A'
