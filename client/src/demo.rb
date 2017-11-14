@@ -80,7 +80,7 @@ class Demo
 
   def time_out
     change('hiker.c', hiker_c.sub('return', "for(;;);\n return"))
-    run_cyber_dojo_sh('LightGray')
+    run_cyber_dojo_sh('LightGray', 3)
   end
 
   def change(filename, content)
@@ -88,11 +88,11 @@ class Demo
     unchanged_files.delete(filename)
   end
 
-  def run_cyber_dojo_sh(colour)
+  def run_cyber_dojo_sh(colour, max_seconds = 10)
     quad = nil
     args  = [ image_name, kata_id, avatar_name ]
     args += [ new_files, deleted_files, unchanged_files, changed_files ]
-    args << 10
+    args << max_seconds
     duration = timed {
       quad = runner.run_cyber_dojo_sh(*args)
     }
