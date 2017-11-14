@@ -76,13 +76,14 @@ class Runner # stateless
   def run(avatar_name, visible_files, max_seconds)
     @avatar_name = avatar_name
     assert_valid_avatar_name
-    stdout,stderr,status,colour = Dir.mktmpdir do |tmp_dir|
+    Dir.mktmpdir do |tmp_dir|
       save_to(visible_files, tmp_dir)
       in_container {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
+        set_colour
       }
     end
-    { stdout:stdout, stderr:stderr, status:status, colour:colour }
+    { stdout:@stdout, stderr:@stderr, status:@status, colour:@colour }
   end
 
   private # = = = = = = = = = = = = = = = = = =
@@ -214,7 +215,12 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_timeout(cmd, max_seconds)
-    status = nil
+    # The [docker exec] running on the _host_ is
+    # killed by Process.kill. This does _not_ kill
+    # the cyber-dojo.sh running _inside_ the docker
+    # container. The container is killed in the ensure
+    # block of in_container()
+    # See https://github.com/docker/docker/issues/9098
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {
@@ -225,35 +231,22 @@ class Runner # stateless
     begin
       Timeout::timeout(max_seconds) do
         _, ps = Process.waitpid2(pid)
-        status = ps.exitstatus
-        timed_out = false
+        @status = ps.exitstatus
+        @timed_out = false
       end
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
       Process.detach(pid)   # prevent zombie-child
-      status = 137          # we are not waiting
-      timed_out = true
+      @status = 137         # we are not waiting
+      @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      stdout = truncated(cleaned(r_stdout.read))
-      stderr = truncated(cleaned(r_stderr.read))
+      @stdout = truncated(cleaned(r_stdout.read))
+      @stderr = truncated(cleaned(r_stderr.read))
       r_stdout.close
       r_stderr.close
     end
-
-    if timed_out
-      colour = 'timed_out'
-    else # truncate and clean before here
-      colour =  red_amber_green(stdout, stderr, status)
-    end
-    [stdout, stderr, status, colour]
-    # Process.kill()s the [docker exec] processes running
-    # on the host. It does __not__ kill the cyber-dojo.sh
-    # process running __inside__ the docker container.
-    # The container is killed in the ensure block of the
-    # in_container method.
-    # See https://github.com/docker/docker/issues/9098
   end
 
   include StringCleaner
