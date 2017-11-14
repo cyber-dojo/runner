@@ -12,7 +12,7 @@ class RunColourRegexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  class CustomRaisingShell
+  class ShellRaiser
     def initialize(adaptee)
       @adaptee = adaptee
       @fired = false
@@ -32,7 +32,7 @@ class RunColourRegexTest < TestBase
 
   test 'EAA',
   %w( (cat'ing lambda from file) exception becomes amber ) do
-    @shell = CustomRaisingShell.new(shell)
+    @shell = ShellRaiser.new(shell)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert_becomes_amber
@@ -42,10 +42,10 @@ class RunColourRegexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  class CustomRagLambdaShell
-    def initialize(adaptee, rag_code)
+  class ShellCatRagFileStub
+    def initialize(adaptee, content)
       @adaptee = adaptee
-      @rag_code = rag_code
+      @content = content
       @fired = false
     end
     def fired?
@@ -54,7 +54,7 @@ class RunColourRegexTest < TestBase
     def assert_exec(command)
       if command.end_with? "cat /usr/local/bin/red_amber_green.rb'"
         @fired = true
-        [ @rag_code, '' ]
+        [ @content, '' ]
       else
         @adaptee.assert_exec(command)
       end
@@ -63,8 +63,8 @@ class RunColourRegexTest < TestBase
 
   test 'EAB',
   %w( (lambda syntax-error) exception becomes amber ) do
-    code = 'sdfsdfsdf'
-    @shell = CustomRagLambdaShell.new(shell, code)
+    content = 'sdfsdfsdf'
+    @shell = ShellCatRagFileStub.new(shell, content)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert_becomes_amber
@@ -73,8 +73,8 @@ class RunColourRegexTest < TestBase
 
   test 'EAC',
   %w( (lambda explicit raise) becomes amber ) do
-    code = 'lambda { |stdout, stderr, status| fail ArgumentError.new }'
-    @shell = CustomRagLambdaShell.new(shell, code)
+    content = 'lambda { |stdout, stderr, status| fail ArgumentError.new }'
+    @shell = ShellCatRagFileStub.new(shell, content)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert_becomes_amber
@@ -83,8 +83,8 @@ class RunColourRegexTest < TestBase
 
   test 'EAD',
   %w( (lambda returning non red/amber/green) becomes amber ) do
-    code = 'lambda { |stdout, stderr, status| return :orange }'
-    @shell = CustomRagLambdaShell.new(shell, code)
+    content = 'lambda { |stdout, stderr, status| return :orange }'
+    @shell = ShellCatRagFileStub.new(shell, content)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert_becomes_amber
