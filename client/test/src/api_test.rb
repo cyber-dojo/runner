@@ -7,6 +7,8 @@ class ApiTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # start-files image_name<->os correctness
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A2',
   'os-image correspondence' do
@@ -19,6 +21,57 @@ class ApiTest < TestBase
         assert etc_issue.include? 'Ubuntu'
       end
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # robustness
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '2F1',
+  'call to non existent method becomes exception' do
+    assert_exception('does_not_exist', {})
+  end
+
+  multi_os_test '2F2',
+  'call to existing method with missing argument becomes exception' do
+    in_kata {
+      args = { image_name:image_name, kata_id:kata_id }
+      assert_exception('avatar_new', args)
+    }
+  end
+
+  multi_os_test '2F3',
+  'call to existing method with bad argument type becomes exception' do
+    in_kata_as(salmon) {
+      args = {
+        image_name:image_name,
+        kata_id:kata_id,
+        avatar_name:avatar_name,
+        new_files:2,
+        deleted_files:{},
+        unchanged_files:{},
+        changed_files:{},
+        max_seconds:2
+      }
+      assert_exception('run_cyber_dojo_sh', args)
+    }
+  end
+
+  include HttpJsonService
+
+  def hostname
+    ENV['CYBER_DOJO_RUNNER_SERVER_NAME']
+  end
+
+  def port
+    ENV['CYBER_DOJO_RUNNER_SERVER_PORT']
+  end
+
+  def assert_exception(method_name, args)
+    json = http(method_name, args) { |uri|
+      Net::HTTP::Post.new(uri)
+    }
+    refute_nil json['exception']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -163,6 +216,8 @@ class ApiTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # container properties
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A3',
   'container environment properties' do
@@ -180,6 +235,8 @@ class ApiTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # files crud
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
@@ -189,6 +246,8 @@ class ApiTest < TestBase
     }
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # baseline speed
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A6',
