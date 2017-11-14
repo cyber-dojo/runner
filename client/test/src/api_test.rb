@@ -52,7 +52,7 @@ class ApiTest < TestBase
         image_name:image_name,
         kata_id:kata_id,
         avatar_name:avatar_name,
-        new_files:2,
+        new_files:2, # <=====
         deleted_files:{},
         unchanged_files:{},
         changed_files:{},
@@ -142,10 +142,10 @@ class ApiTest < TestBase
   multi_os_test '3DE',
   'run with syntax error is amber' do
     in_kata_as(salmon) {
-      filename = 'hiker.c'
-      content = starting_files[filename]
       run_cyber_dojo_sh({
-        changed_files: { filename => content.sub('6 * 9', '6 * 9sd') }
+        changed_files: {
+          'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
+        }
       })
       assert amber?, quad
     }
@@ -154,13 +154,17 @@ class ApiTest < TestBase
   multi_os_test '3DD',
   'run with 6*7 == 42 is green' do
     in_kata_as(salmon) {
-      filename = 'hiker.c'
-      content = starting_files[filename]
       run_cyber_dojo_sh({
-        changed_files: { filename => content.sub('6 * 9', '6 * 7') }
+        changed_files: {
+          'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
+        }
       })
       assert green?, quad
     }
+  end
+
+  def hiker_c
+    starting_files['hiker.c']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -170,12 +174,10 @@ class ApiTest < TestBase
   multi_os_test '3DC',
   'run with infinite loop times out' do
     in_kata_as(salmon) {
-      filename = 'hiker.c'
-      content = starting_files[filename]
       from = 'return 6 * 9'
       to = "    for (;;);\n    return 6 * 7;"
       run_cyber_dojo_sh({
-        changed_files: { filename => content.sub(from, to) },
+        changed_files: { 'hiker.c' => hiker_c.sub(from, to) },
           max_seconds: 3
       })
       assert timed_out?, quad
