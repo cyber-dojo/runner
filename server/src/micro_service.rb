@@ -8,25 +8,28 @@ class MicroService
     request = Rack::Request.new(env)
     @args = JSON.parse(request.body.read)
     case @name = request.path_info[1..-1] # lose leading /
-      when /image_pulled?/
+      when /^image_pulled$/
+        @name += '?'
         body = invoke
-      when /image_pull/
+      when /^image_pull$/
         body = invoke
-      when /kata_new/
+      when /^kata_new$/
         body = invoke
-      when /kata_old/
+      when /^kata_old$/
         body = invoke
-      when /avatar_new/
+      when /^avatar_new$/
         body = invoke(avatar_name, starting_files)
-      when /avatar_old/
+      when /^avatar_old$/
         body = invoke(avatar_name)
-      when /run_cyber_dojo_sh/
+      when /^run_cyber_dojo_sh$/
         body = invoke(avatar_name,
           new_files, deleted_files, unchanged_files, changed_files,
           max_seconds
         )
-      when /run/
+      when /^run$/
         body = invoke(avatar_name, visible_files, max_seconds)
+      else
+        body = {}
     end
     [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
   end
