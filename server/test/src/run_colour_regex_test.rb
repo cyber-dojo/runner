@@ -6,6 +6,10 @@ class RunColourRegexTest < TestBase
     'F6D43'
   end
 
+  def hex_teardown
+    assert @shell.fired?
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   class CustomRaisingShell
@@ -27,12 +31,11 @@ class RunColourRegexTest < TestBase
   end
 
   test 'EAA',
-  %w( exception raised when extracting lambda is trapped and becomes amber ) do
+  %w( (cat'ing lambda from file) exception becomes amber ) do
     @shell = CustomRaisingShell.new(shell)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert @shell.fired?
-      assert_red_becomes_amber
+      assert_becomes_amber
        # would like to check log but there is shell-log over-coupling
     }
   end
@@ -59,41 +62,38 @@ class RunColourRegexTest < TestBase
   end
 
   test 'EAB',
-  %w( exception raised when lambda syntax-error is trapped and becomes amber ) do
+  %w( (lambda syntax-error) exception becomes amber ) do
     code = 'sdfsdfsdf'
     @shell = CustomRagLambdaShell.new(shell, code)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert @shell.fired?
-      assert_red_becomes_amber
+      assert_becomes_amber
     }
   end
 
   test 'EAC',
-  %w( exception raised when lambda raises is trapped and becomes amber ) do
+  %w( (lambda explicit raise) becomes amber ) do
     code = 'lambda { |stdout, stderr, status| fail ArgumentError.new }'
     @shell = CustomRagLambdaShell.new(shell, code)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert @shell.fired?
-      assert_red_becomes_amber
+      assert_becomes_amber
     }
   end
 
   test 'EAD',
-  %w( when lambda returns non red/amber/green its trapped and becomes amber ) do
+  %w( (lambda returning non red/amber/green) becomes amber ) do
     code = 'lambda { |stdout, stderr, status| return :orange }'
     @shell = CustomRagLambdaShell.new(shell, code)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert @shell.fired?
-      assert_red_becomes_amber
+      assert_becomes_amber
     }
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_red_becomes_amber
+  def assert_becomes_amber
     assert_equal '', stdout
     assert stderr.start_with? 'Assertion failed: answer() == 42'
     assert_equal 2, status
