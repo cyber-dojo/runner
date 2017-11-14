@@ -5,8 +5,8 @@ require 'json'
 class MicroService
 
   def call(env)
-    @json_request_args = json_request_args
     request = Rack::Request.new(env)
+    @json_args = json_args(request)
     @name = request.path_info[1..-1] # lose leading /
     @args = case @name
       when /^image_pulled$/
@@ -47,9 +47,10 @@ class MicroService
 
   # - - - - - - - - - - - - - - - -
 
-  def json_request_args
+  def json_args(request)
     JSON.parse(request.body.read)
-  rescue
+  rescue StandardError => e
+    log << "EXCEPTION: #{e.class.name}.#{__method__} #{e.message}"
     {}
   end
 
@@ -60,7 +61,7 @@ class MicroService
   def self.request_args(*names)
     names.each { |name|
       define_method name, &lambda {
-        @json_request_args[name.to_s]
+        @json_args[name.to_s]
       }
     }
   end
