@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class ColourRegexTest < TestBase
+class RunColourRegexTest < TestBase
 
   def self.hex_prefix
     'F6D43'

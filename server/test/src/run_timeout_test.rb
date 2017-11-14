@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class TimeoutTest < TestBase
+class RunTimeoutTest < TestBase
 
   def self.hex_prefix
     '45B57'
