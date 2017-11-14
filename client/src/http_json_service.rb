@@ -5,7 +5,7 @@ module HttpJsonService # mix-in
 
   def get(method, *args)
     name = method.to_s
-    json = http(name, args_hash(name, *args)) { |uri|
+    json = http(name, jsoned_args(name, *args)) { |uri|
       Net::HTTP::Get.new(uri)
     }
     result(json, name)
@@ -13,7 +13,7 @@ module HttpJsonService # mix-in
 
   def post(method, *args)
     name = method.to_s
-    json = http(name, args_hash(name, *args)) { |uri|
+    json = http(name, jsoned_args(name, *args)) { |uri|
       Net::HTTP::Post.new(uri)
     }
     result(json, name)
@@ -24,16 +24,16 @@ module HttpJsonService # mix-in
     http = Net::HTTP.new(uri.host, uri.port)
     request = yield uri.request_uri
     request.content_type = 'application/json'
-    request.body = args.to_json
+    request.body = args
     response = http.request(request)
     JSON.parse(response.body)
   end
 
-  def args_hash(method, *args)
+  def jsoned_args(method, *args)
     parameters = self.class.instance_method(method).parameters
     Hash[parameters.map.with_index { |parameter,index|
       [parameter[1], args[index]]
-    }]
+    }].to_json
   end
 
   def result(json, name)
