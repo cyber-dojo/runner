@@ -18,9 +18,9 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 API:
   * All methods receive their named arguments in a json hash.
-  * All methods return a json hash with a single key.
-    * If the method completes, the key equals the method's name.
-    * If the method raises an exception, the key equals "exception".
+  * All methods return a json hash.
+    * If the method completes, a key equals the method's name.
+    * If the method raises an exception, a key equals "exception".
 
 - - - -
 
