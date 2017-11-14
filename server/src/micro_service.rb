@@ -7,37 +7,37 @@ class MicroService
   def call(env)
     request = Rack::Request.new(env)
     @args = JSON.parse(request.body.read)
-    case request.path_info
+    case @name = request.path_info[1..-1] # lose leading /
       when /image_pulled?/
-        body = invoke('image_pulled?')
+        body = invoke
       when /image_pull/
-        body = invoke('image_pull')
+        body = invoke
       when /kata_new/
-        body = invoke('kata_new')
+        body = invoke
       when /kata_old/
-        body = invoke('kata_old')
+        body = invoke
       when /avatar_new/
-        body = invoke('avatar_new', avatar_name, starting_files)
+        body = invoke(avatar_name, starting_files)
       when /avatar_old/
-        body = invoke('avatar_old', avatar_name)
+        body = invoke(avatar_name)
       when /run_cyber_dojo_sh/
-        body = invoke('run_cyber_dojo_sh',
-          avatar_name,
+        body = invoke(avatar_name,
           new_files, deleted_files, unchanged_files, changed_files,
-          max_seconds)
+          max_seconds
+        )
       when /run/
-        body = invoke('run', avatar_name, visible_files, max_seconds)
+        body = invoke(avatar_name, visible_files, max_seconds)
     end
     [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
   end
 
   private
 
-  def invoke(name, *args)
+  def invoke(*args)
     runner = Runner.new(self, image_name, kata_id)
-    { name => runner.send(name, *args) }
+    { @name => runner.send(@name, *args) }
   rescue Exception => e
-    log << "EXCEPTION: #{e.class.name}.#{name} #{e.message}"
+    log << "EXCEPTION: #{e.class.name}.#{@name} #{e.message}"
     { 'exception' => e.message }
   end
 
@@ -55,10 +55,10 @@ class MicroService
   request_args :kata_id
   request_args :avatar_name
   request_args :starting_files
+  request_args :new_files
   request_args :deleted_files
   request_args :unchanged_files
   request_args :changed_files
-  request_args :new_files
   request_args :max_seconds
 
   request_args :visible_files
