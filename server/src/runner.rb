@@ -218,7 +218,7 @@ class Runner # stateless
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     pid = Process.spawn(cmd, {
-      pgroup:true,     # process becomes process leader
+      pgroup:true,     # become process leader
          out:w_stdout, # redirection
          err:w_stderr  # redirection
     })
@@ -229,12 +229,6 @@ class Runner # stateless
         timed_out = false
       end
     rescue Timeout::Error
-      # Kill the [docker exec] processes running on the host.
-      # This does __not__ kill the cyber-dojo.sh process
-      # running __inside__ the docker container.
-      # The container is killed in the ensure block of the
-      # in_container method.
-      # See https://github.com/docker/docker/issues/9098
       Process.kill(-9, pid) # -ve means kill process-group
       Process.detach(pid)   # prevent zombie-child
       status = 137          # we are not waiting
@@ -242,7 +236,6 @@ class Runner # stateless
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      # truncate and clean before call to red_amber_green
       stdout = truncated(cleaned(r_stdout.read))
       stderr = truncated(cleaned(r_stderr.read))
       r_stdout.close
@@ -251,10 +244,16 @@ class Runner # stateless
 
     if timed_out
       colour = 'timed_out'
-    else
+    else # truncate and clean before here
       colour =  red_amber_green(stdout, stderr, status)
     end
     [stdout, stderr, status, colour]
+    # Process.kill()s the [docker exec] processes running
+    # on the host. It does __not__ kill the cyber-dojo.sh
+    # process running __inside__ the docker container.
+    # The container is killed in the ensure block of the
+    # in_container method.
+    # See https://github.com/docker/docker/issues/9098
   end
 
   include StringCleaner
