@@ -18,7 +18,10 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
-    image_names.include? image_name
+    cmd = 'docker images --format "{{.Repository}}"'
+    stdout,_ = assert_exec(cmd)
+    names = stdout.split("\n")
+    (names.uniq - [ '<none>' ]).include? image_name
   end
 
   def image_pull
@@ -281,17 +284,6 @@ class Runner # stateless
     rescue
       'amber'
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # images
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def image_names
-    cmd = 'docker images --format "{{.Repository}}"'
-    stdout,_ = assert_exec(cmd)
-    names = stdout.split("\n")
-    names.uniq - [ '<none>' ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
