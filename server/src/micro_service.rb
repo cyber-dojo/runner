@@ -55,7 +55,7 @@ class MicroService
     }
   end
 
-  request_args :image_name, :kata_id,  :avatar_name
+  request_args :image_name, :kata_id, :avatar_name
   request_args :starting_files
   request_args :new_files, :deleted_files, :unchanged_files, :changed_files
   request_args :max_seconds
