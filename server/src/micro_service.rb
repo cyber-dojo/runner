@@ -12,16 +12,11 @@ class MicroService
       when /^image_pulled$/
         @name += '?'
         []
-      when /^image_pull$/
-        []
-      when /^kata_new$/
-        []
-      when /^kata_old$/
-        []
-      when /^avatar_new$/
-        [avatar_name, starting_files]
-      when /^avatar_old$/
-        [avatar_name]
+      when /^image_pull$/   then []
+      when /^kata_new$/     then []
+      when /^kata_old$/     then []
+      when /^avatar_new$/   then [avatar_name, starting_files]
+      when /^avatar_old$/   then [avatar_name]
       when /^run_cyber_dojo_sh$/
         [avatar_name,
          new_files, deleted_files, unchanged_files, changed_files,
@@ -59,11 +54,11 @@ class MicroService
   include Externals
 
   def self.request_args(*names)
-    names.each { |name|
+    names.each do |name|
       define_method name, &lambda {
         @json_args[name.to_s]
       }
-    }
+    end
   end
 
   request_args :image_name, :kata_id, :avatar_name
