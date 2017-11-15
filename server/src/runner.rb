@@ -255,6 +255,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green
+    # @stdout and @stderr have been truncated and cleaned.
     # In a crippled container (eg fork-bomb)
     # the [docker exec] will mostly likely raise.
     # Not worth creating a new container for this.
