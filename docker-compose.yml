@@ -1,10 +1,11 @@
 
-version: '2'
+version: '2.2'
 
 services:
   runner_stateless_client:
     user: nobody
     image: cyberdojo/runner_stateless_client
+    init: true
     container_name: runner_stateless_client
     read_only: true
     tmpfs: /tmp
@@ -27,6 +28,7 @@ services:
   runner_stateless:
     user: root
     image: cyberdojo/runner_stateless
+    init: true
     container_name: runner_stateless_server
     read_only: true
     tmpfs: /tmp
