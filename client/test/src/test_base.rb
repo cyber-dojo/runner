@@ -54,9 +54,10 @@ class TestBase < HexMiniTest
     args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name,    avatar_name)
     args << defaulted_arg(named_args, :starting_files, starting_files)
-    runner.avatar_new *args
+    result = runner.avatar_new *args
     @avatar_name = args[-2]
     @all_files = args[-1]
+    result
   end
 
   def avatar_old(named_args = {})

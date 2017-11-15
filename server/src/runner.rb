@@ -41,10 +41,12 @@ class Runner # stateless
 
   def kata_new
     # no-op for API compatibility
+    {}
   end
 
   def kata_old
     # no-op for API compatibility
+    {}
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -53,12 +55,14 @@ class Runner # stateless
     # for API compatibility
     @avatar_name = avatar_name
     assert_valid_avatar_name
+    {}
   end
 
   def avatar_old(avatar_name)
     # for API compatibility
     @avatar_name = avatar_name
     assert_valid_avatar_name
+    {}
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

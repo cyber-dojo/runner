@@ -12,7 +12,7 @@ class ShellMocker
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def teardown
-    if !uncaught_exception?
+    unless uncaught_exception?
       mocks = read
       pretty = JSON.pretty_generate(mocks)
       unless mocks == []
@@ -37,7 +37,7 @@ class ShellMocker
 
   def assert_exec(command)
     stdout,stderr,status = exec(command)
-    if status != success
+    unless status == success
       fail ArgumentError.new("command:#{command}")
     end
     [stdout,stderr]
@@ -56,7 +56,7 @@ class ShellMocker
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
-    if command != mock['command']
+    unless command == mock['command']
       raise [
         self.class.name,
         "exec(command) - does not match mock",
