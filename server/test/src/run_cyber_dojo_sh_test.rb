@@ -71,7 +71,7 @@ class RunCyberDojoShTest < TestBase
     refute_nil stats, filename
     diagnostic = { filename => stats }
     assert_equal permissions, stats[:permissions], diagnostic
-    assert_equal user_id, stats[:user ], diagnostic
+    assert_equal uid, stats[:uid ], diagnostic
     assert_equal group, stats[:group], diagnostic
     assert_equal size, stats[:size ], diagnostic
   end
@@ -83,7 +83,7 @@ class RunCyberDojoShTest < TestBase
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],
-               user: attr[2].to_i,
+                uid: attr[2].to_i,
               group: attr[3],
                size: attr[4].to_i,
          time_stamp: attr[6],

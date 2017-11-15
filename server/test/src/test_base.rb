@@ -147,7 +147,7 @@ class TestBase < HexMiniTest
     @avatar_name
   end
 
-  def user_id
+  def uid
     40000 + all_avatars_names.index(avatar_name)
   end
 

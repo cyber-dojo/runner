@@ -180,11 +180,11 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def user_id
+  def uid
     40000 + all_avatars_names.index(avatar_name)
   end
 
-  def group_id
+  def gid
     5000
   end
 

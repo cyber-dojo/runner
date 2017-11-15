@@ -350,8 +350,8 @@ class ApiTest < TestBase
   def assert_avatar_users_exist
     etc_passwd = assert_cyber_dojo_sh 'cat /etc/passwd'
     all_avatars_names.each do |name|
-      assert etc_passwd.include?(user_id.to_s),
-        "#{name}:#{user_id}:#{etc_passwd}:#{image_name}"
+      assert etc_passwd.include?(uid.to_s),
+        "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
     end
   end
 
@@ -361,7 +361,7 @@ class ApiTest < TestBase
     assert_cyber_dojo_sh("getent group #{group}")
     entries = stdout.split(':')  # cyber-dojo:x:5000
     assert_equal group, entries[0], stdout
-    assert_equal group_id, entries[2].to_i, stdout
+    assert_equal gid, entries[2].to_i, stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -382,9 +382,9 @@ class ApiTest < TestBase
     ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
     refute_equal '', ls # sandbox is not empty
 
-    assert_equal user_id.to_s,  stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
-    assert_equal group_id.to_s, stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
-    assert_equal 'drwxr-xr-x',  stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
+    assert_equal uid.to_s,     stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
+    assert_equal gid.to_s,     stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
+    assert_equal 'drwxr-xr-x', stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
   end
 
   def stat_sandbox_dir(ch)
@@ -512,7 +512,7 @@ class ApiTest < TestBase
     stdout_stats.each do |filename,atts|
       count += 1
       refute_nil atts, filename
-      stamp = atts[:time_stamp] # eg '07:03:14.835233538'
+      stamp = atts[:time] # eg '07:03:14.835233538'
       microsecs = stamp.split(/[\:\.]/)[-1]
       assert_equal 9, microsecs.length
       refute_equal '0'*9, microsecs
@@ -527,7 +527,7 @@ class ApiTest < TestBase
     refute_nil stats, filename
     diagnostic = { filename => stats }
     assert_equal permissions, stats[:permissions], diagnostic
-    assert_equal user_id, stats[:user ], diagnostic
+    assert_equal uid, stats[:uid ], diagnostic
     assert_equal group, stats[:group], diagnostic
     assert_equal size, stats[:size ], diagnostic
   end
@@ -539,10 +539,10 @@ class ApiTest < TestBase
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],
-               user: attr[2].to_i,
+                uid: attr[2].to_i,
               group: attr[3],
                size: attr[4].to_i,
-         time_stamp: attr[6],
+               time: attr[6],
       }]
     }]
   end
@@ -554,7 +554,7 @@ class ApiTest < TestBase
     'stat -c "%n %A %u %G %s %y" *'
     # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
     # |        |           |      |          |    |          |
-    # filename permissions user   group      size date       time
+    # filename permissions uid    group      size date       time
     # 0        1           2      3          4    5          6
 
     # Stat
