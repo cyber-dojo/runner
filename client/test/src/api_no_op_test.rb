@@ -22,7 +22,7 @@ class ApiNoOpTest < TestBase
 
   def assert_no_op(method_name)
     result = self.send method_name
-    assert_equal({}, result, method_name)
+    assert_nil result, method_name
   end
 
 end
