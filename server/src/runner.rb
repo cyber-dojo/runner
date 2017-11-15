@@ -80,7 +80,7 @@ class Runner # stateless
       save_to(visible_files, tmp_dir)
       in_container {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
-        set_colour
+        @colour = @timed_out ? 'timed_out' : red_amber_green
       }
     end
     { stdout:@stdout, stderr:@stderr, status:@status, colour:@colour }
@@ -154,9 +154,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def save_to(files, tmp_dir)
-    # In a stateless runner _all_ files are sent
-    # from the browser, and cyber-dojo.sh cannot
-    # be deleted so there must be at least one file.
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
@@ -171,6 +168,9 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_from(tmp_dir)
+    # In a stateless runner _all_ files are sent from the
+    # browser, and cyber-dojo.sh cannot be deleted so there
+    # must be at least one file in tmp_dir.
     # [1] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
     # The tar --touch option is not available in a default Alpine
@@ -237,7 +237,7 @@ class Runner # stateless
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
       Process.detach(pid)   # prevent zombie-child
-      @status = 137         # we are not waiting
+      @status = 137         # don't wait for status from detach
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
@@ -254,22 +254,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def set_colour
-    if @timed_out
-      @colour = 'timed_out'
-    else # truncated and cleaned earlier
-      @colour = red_amber_green(@stdout, @stderr, @status)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def red_amber_green(stdout_arg, stderr_arg, status_arg)
-    # The rag lambda tends to look like this:
-    #   lambda { |stdout, stderr, status| ... }
-    # so avoid using stdout,stderr,status as variable
-    # names or you'll get shadowing warnings.
-    #
+  def red_amber_green
     # In a crippled container (eg fork-bomb)
     # the [docker exec] will mostly likely raise.
     # Not worth creating a new container for this.
@@ -277,7 +262,7 @@ class Runner # stateless
     begin
       out,_err = assert_exec("docker exec #{container_name} sh -c '#{cmd}'")
       rag = eval(out)
-      colour = rag.call(stdout_arg, stderr_arg, status_arg).to_s
+      colour = rag.call(@stdout, @stderr, @status).to_s
       unless ['red','amber','green'].include? colour
         colour = 'amber'
       end
