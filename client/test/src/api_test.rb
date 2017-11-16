@@ -294,7 +294,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '4DE',
+  multi_os_test 'CD6',
   'shell fork-bomb does not run indefinitely' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
@@ -309,7 +309,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'DB3',
+  multi_os_test 'CD7',
   'file-handles quickly become exhausted' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
@@ -562,7 +562,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  C_FORK_BOMB = <<~CODE
+  C_FORK_BOMB = <<~'CODE'
     #include <stdio.h>
     #include <unistd.h>
     int answer(void)
@@ -570,7 +570,7 @@ class ApiTest < TestBase
         for(;;)
         {
             int pid = fork();
-            fprintf(stdout, "fork() => %d\\n", pid);
+            fprintf(stdout, "fork() => %d\n", pid);
             fflush(stdout);
             if (pid == -1)
                 break;
@@ -592,7 +592,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  FILE_HANDLE_BOMB = <<~CODE
+  FILE_HANDLE_BOMB = <<~'CODE'
     #include <stdio.h>
     int answer(void)
     {
@@ -602,10 +602,10 @@ class ApiTest < TestBase
         sprintf(filename, "wibble%d.txt", i);
         FILE * f = fopen(filename, "w");
         if (f)
-          fprintf(stdout, "fopen() != NULL %s\\n", filename);
+          fprintf(stdout, "fopen() != NULL %s\n", filename);
         else
         {
-          fprintf(stdout, "fopen() == NULL %s\\n", filename);
+          fprintf(stdout, "fopen() == NULL %s\n", filename);
           break;
         }
       }
