@@ -208,10 +208,13 @@ class TestBase < HexMiniTest
   private
 
   def common_args(named_args)
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :kata_id,    kata_id)
-    args
+    [ defaulted_arg(named_args, :image_name, image_name),
+      defaulted_arg(named_args, :kata_id,    kata_id)
+    ]
+  end
+
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -247,12 +250,6 @@ class TestBase < HexMiniTest
     when :Ubuntu
       "#{cdf}/clangpp_assert"
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def defaulted_arg(named_args, arg_name, arg_default)
-    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
