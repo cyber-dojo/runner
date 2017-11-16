@@ -334,8 +334,8 @@ class ApiTest < TestBase
 
   def assert_env_vars_exist
     assert_equal avatar_name, env_var('AVATAR_NAME')
-    assert_equal image_name,  env_var('IMAGE_NAME')
-    assert_equal kata_id,     env_var('KATA_ID')
+    assert_equal  image_name, env_var('IMAGE_NAME')
+    assert_equal     kata_id, env_var('KATA_ID')
     assert_equal 'stateless', env_var('RUNNER')
     assert_equal sandbox_dir, env_var('SANDBOX')
   end
@@ -361,29 +361,23 @@ class ApiTest < TestBase
     assert_cyber_dojo_sh("getent group #{group}")
     entries = stdout.split(':')  # cyber-dojo:x:5000
     assert_equal group, entries[0], stdout
-    assert_equal gid, entries[2].to_i, stdout
+    assert_equal   gid, entries[2].to_i, stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_avatar_has_home
-    home = assert_cyber_dojo_sh('printenv HOME')
-    assert_equal home_dir, home
-
-    cd_home_pwd = assert_cyber_dojo_sh('cd ~ && pwd')
-    assert_equal home_dir, cd_home_pwd
+    assert_equal home_dir, assert_cyber_dojo_sh('printenv HOME')
+    assert_equal home_dir, assert_cyber_dojo_sh('cd ~ && pwd')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_avatar_sandbox_properties
     assert_cyber_dojo_sh "[ -d #{sandbox_dir} ]" # sandbox exists
-
-    ls = assert_cyber_dojo_sh "ls -A #{sandbox_dir}"
-    refute_equal '', ls # sandbox is not empty
-
-    assert_equal uid.to_s,     stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
-    assert_equal gid.to_s,     stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
+    refute_equal '', assert_cyber_dojo_sh("ls -A #{sandbox_dir}")
+    assert_equal     uid.to_s, stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
+    assert_equal     gid.to_s, stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
     assert_equal 'drwxr-xr-x', stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
   end
 
@@ -400,7 +394,7 @@ class ApiTest < TestBase
     assert amber? # doing an stat
     assert_equal '', stderr
     assert_equal starting_files.keys.sort, stdout_stats.keys.sort
-    starting_files.each do |filename,content|
+    starting_files.each do |filename, content|
       if filename == 'cyber-dojo.sh'
         content = stat_cmd
       end
@@ -451,7 +445,7 @@ class ApiTest < TestBase
     if os == :Ubuntu
       txt = row[1]
     end
-    line = stdout.lines.detect { |limit| limit.start_with? txt }
+    line = stdout.lines.detect { |line| line.start_with?(txt) }
     line.split[-1].to_i
   end
 
@@ -527,9 +521,9 @@ class ApiTest < TestBase
     refute_nil stats, filename
     diagnostic = { filename => stats }
     assert_equal permissions, stats[:permissions], diagnostic
-    assert_equal uid, stats[:uid ], diagnostic
-    assert_equal group, stats[:group], diagnostic
-    assert_equal size, stats[:size ], diagnostic
+    assert_equal         uid, stats[:uid        ], diagnostic
+    assert_equal       group, stats[:group      ], diagnostic
+    assert_equal        size, stats[:size       ], diagnostic
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -40,7 +40,7 @@ class ShellMocker
     unless status == success
       fail ArgumentError.new("command:#{command}")
     end
-    [stdout,stderr]
+    [stdout, stderr]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -

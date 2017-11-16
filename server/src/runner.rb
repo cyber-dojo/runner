@@ -311,7 +311,7 @@ class Runner # stateless
       'docker run',
         docker_run_options,
         image_name,
-        "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
+          "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
     ].join(space)
     assert_exec(cmd)
   end
