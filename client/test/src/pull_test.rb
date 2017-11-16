@@ -25,4 +25,6 @@ class PullTest < TestBase
     assert image_pulled?({ image_name: VALID_IMAGE_NAME })
   end
 
+  VALID_IMAGE_NAME = 'cyberdojofoundation/gcc_assert'
+
 end

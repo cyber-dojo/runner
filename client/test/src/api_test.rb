@@ -83,60 +83,60 @@ class ApiTest < TestBase
   # invalid arguments
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D22',
-  %w( nil arguments are trapped as argument_name:invalid ) do
-    in_kata {
-      method_name = :avatar_new
-      error = assert_raises(StandardError, method_name.to_s) {
-        self.send method_name, { image_name:nil }
-      }
-      expected = "RunnerService:#{method_name}:image_name:invalid"
-      assert_equal expected, error.message
-    }
-  end
-
   METHOD_NAMES = [ :image_pulled?, :image_pull,
                    :kata_new, :kata_old,
                    :avatar_new, :avatar_old,
                    :run_cyber_dojo_sh ]
 
+ INVALID_IMAGE_NAMES = [ nil, '_cantStartWithSeparator' ]
+
   multi_os_test 'D21',
   'all api methods raise when image_name is invalid' do
-    in_kata_as(salmon) {
-      METHOD_NAMES.each { |method_name|
-        error = assert_raises(StandardError, method_name.to_s) {
-          self.send method_name, { image_name:INVALID_IMAGE_NAME }
-        }
-        expected = "RunnerService:#{method_name}:image_name:invalid"
-        assert_equal expected, error.message
-      }
-    }
+    in_kata_as(salmon) do
+      METHOD_NAMES.each do |method_name|
+        INVALID_IMAGE_NAMES.each do |image_name|
+          error = assert_raises(StandardError, method_name.to_s) do
+            self.send method_name, { image_name:image_name }
+          end
+          expected = "RunnerService:#{method_name}:image_name:invalid"
+          assert_equal expected, error.message
+        end
+      end
+    end
   end
+
+  INVALID_KATA_IDS = [ nil, '675' ]
 
   multi_os_test '656',
   'all api methods raise when kata_id is invalid' do
-    in_kata_as(salmon) {
-      METHOD_NAMES.each { |method_name|
-        error = assert_raises(StandardError, method_name.to_s) {
-          self.send method_name, { kata_id:INVALID_KATA_ID }
-        }
-        expected = "RunnerService:#{method_name}:kata_id:invalid"
-        assert_equal expected, error.message
-      }
-    }
+    in_kata_as(salmon) do
+      METHOD_NAMES.each do |method_name|
+        INVALID_KATA_IDS.each do |kata_id|
+          error = assert_raises(StandardError, method_name.to_s) do
+            self.send method_name, { kata_id:kata_id }
+          end
+          expected = "RunnerService:#{method_name}:kata_id:invalid"
+          assert_equal expected, error.message
+        end
+      end
+    end
   end
+
+  INVALID_AVATAR_NAMES = [ nil, 'sunglasses' ]
 
   multi_os_test 'C3A',
   'api methods raise when avatar_name is invalid' do
-    in_kata_as(salmon) {
-      [ :avatar_new, :avatar_old, :run_cyber_dojo_sh ].each { |method_name|
-        error = assert_raises(StandardError, method_name.to_s) {
-          self.send method_name, { avatar_name:INVALID_AVATAR_NAME }
-        }
-        expected = "RunnerService:#{method_name}:avatar_name:invalid"
-        assert_equal expected, error.message
-      }
-    }
+    in_kata_as(salmon) do
+      [ :avatar_new, :avatar_old, :run_cyber_dojo_sh ].each do |method_name|
+        INVALID_AVATAR_NAMES.each do |avatar_name|
+          error = assert_raises(StandardError, method_name.to_s) do
+            self.send method_name, { avatar_name:avatar_name }
+          end
+          expected = "RunnerService:#{method_name}:avatar_name:invalid"
+          assert_equal expected, error.message
+        end
+      end
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -153,16 +153,11 @@ class TestBase < HexMiniTest
     @image_name || image_for_os
   end
 
-  INVALID_IMAGE_NAME = '_cantStartWithSeparator'
-    VALID_IMAGE_NAME = 'cyberdojofoundation/gcc_assert'
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_id
     hex_test_id + '0' * (10 - hex_test_id.length)
   end
-
-  INVALID_KATA_ID = '675'
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -175,8 +170,6 @@ class TestBase < HexMiniTest
   def salmon
     'salmon'
   end
-
-  INVALID_AVATAR_NAME = 'sunglasses'
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
