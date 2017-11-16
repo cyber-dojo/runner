@@ -214,7 +214,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # image_name
+  # image/container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   attr_reader :image_name
@@ -227,8 +227,6 @@ class Runner # stateless
 
   include ValidImageName
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def in_container
@@ -359,7 +357,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - -
-  # avatar_name
+  # avatar
   # - - - - - - - - - - - - - - - - - -
 
   attr_reader :avatar_name
@@ -375,10 +373,6 @@ class Runner # stateless
   end
 
   include AllAvatarsNames
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # avatar properties
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def group
     'cyber-dojo'
