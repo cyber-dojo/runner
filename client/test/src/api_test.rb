@@ -280,24 +280,12 @@ class ApiTest < TestBase
   # bombs
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'CD4',
-  'print-bomb does not run indefinitely and some output is returned' do
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => print_bomb }
-      })
-      assert timed_out?
-      refute_equal '', stdout+stderr
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   multi_os_test 'CD5',
   'fork-bomb does not run indefinitely' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => fork_bomb }
+        changed_files: { 'hiker.c' => C_FORK_BOMB },
+          max_seconds: 3
       })
       assert_timed_out_or_printed 'All tests passed'
       assert_timed_out_or_printed 'fork()'
@@ -310,7 +298,8 @@ class ApiTest < TestBase
   'shell fork-bomb does not run indefinitely' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => shell_fork_bomb }
+        changed_files: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
+          max_seconds: 3
       })
       cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
       assert_timed_out_or_printed cant_fork
@@ -324,7 +313,8 @@ class ApiTest < TestBase
   'file-handles quickly become exhausted' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => exhaust_file_handles }
+        changed_files: { 'hiker.c' => FILE_HANDLE_BOMB },
+          max_seconds: 3
       })
       assert seen?('All tests passed'), quad
       assert seen?('fopen() != NULL'),  quad
@@ -572,56 +562,56 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def print_bomb
-    [ '#include <stdio.h>',
-      '',
-      'int answer(void)',
-      '{',
-      '    for(;;)',
-      '    {',
-      '        fputs("Hello, world on stdout", stdout);',
-      '        fflush(stdout);',
-      '        fputs("Hello, world on stderr", stderr);',
-      '        fflush(stderr);',
-      '    }',
-      '    return 6 * 7;',
-      '}'
-    ].join("\n")
-  end
+  C_FORK_BOMB = <<~CODE
+    #include <stdio.h>
+    #include <unistd.h>
+    int answer(void)
+    {
+        for(;;)
+        {
+            int pid = fork();
+            fprintf(stdout, "fork() => %d\\n", pid);
+            fflush(stdout);
+            if (pid == -1)
+                break;
+        }
+        return 6 * 7;
+    }
+  CODE
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def fork_bomb
-    [ '#include <stdio.h>',
-      '#include <unistd.h>',
-      '',
-      'int answer(void)',
-      '{',
-      '    for(;;)',
-      '    {',
-      '        int pid = fork();',
-      '        fprintf(stdout, "fork() => %d\n", pid);',
-      '        fflush(stdout);',
-      '        if (pid == -1)',
-      '            break;',
-      '    }',
-      '    return 6 * 7;',
-      '}'
-    ].join("\n")
-  end
+  SHELL_FORK_BOMB = <<~CODE
+    bomb()
+    {
+      echo "bomb"
+      bomb | bomb &
+    }
+    bomb
+  CODE
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def shell_fork_bomb
-    [
-      'bomb()',
-      '{',
-      '   echo "bomb"',
-      '   bomb | bomb &',
-      '}',
-      'bomb'
-    ].join("\n")
-  end
+  FILE_HANDLE_BOMB = <<~CODE
+    #include <stdio.h>
+    int answer(void)
+    {
+      for (int i = 0;;i++)
+      {
+        char filename[42];
+        sprintf(filename, "wibble%d.txt", i);
+        FILE * f = fopen(filename, "w");
+        if (f)
+          fprintf(stdout, "fopen() != NULL %s\\n", filename);
+        else
+        {
+          fprintf(stdout, "fopen() == NULL %s\\n", filename);
+          break;
+        }
+      }
+      return 6 * 7;
+    }
+  CODE
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -630,34 +620,6 @@ class ApiTest < TestBase
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
     assert (timed_out? || count > 0), diagnostic
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def exhaust_file_handles
-    [
-      '#include <stdio.h>',
-      '',
-      'int answer(void)',
-      '{',
-      '  for (int i = 0;;i++)',
-      '  {',
-      '    char filename[42];',
-      '    sprintf(filename, "wibble%d.txt", i);',
-      '    FILE * f = fopen(filename, "w");',
-      '    if (f)',
-      '      fprintf(stdout, "fopen() != NULL %s\n", filename);',
-      '    else',
-      '    {',
-      '      fprintf(stdout, "fopen() == NULL %s\n", filename);',
-      '      break;',
-      '    }',
-      '  }',
-      '  return 6 * 7;',
-      '}'
-    ].join("\n")
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def seen?(text)
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
