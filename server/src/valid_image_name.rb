@@ -8,6 +8,7 @@ module ValidImageName # mix-in
   module_function
 
   def valid_image_name?(s)
+    return false if s.nil?
     hostname,remote_name = split_image_name(s)
     valid_hostname?(hostname) && valid_remote_name?(remote_name)
   end

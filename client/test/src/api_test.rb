@@ -83,6 +83,18 @@ class ApiTest < TestBase
   # invalid arguments
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  multi_os_test 'D22',
+  %w( nil arguments are trapped as argument_name:invalid ) do
+    in_kata {
+      method_name = :avatar_new
+      error = assert_raises(StandardError, method_name.to_s) {
+        self.send method_name, { image_name:nil }
+      }
+      expected = "RunnerService:#{method_name}:image_name:invalid"
+      assert_equal expected, error.message
+    }
+  end
+
   METHOD_NAMES = [ :image_pulled?, :image_pull,
                    :kata_new, :kata_old,
                    :avatar_new, :avatar_old,
