@@ -92,71 +92,6 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  def docker_run_options
-    # no volume-mount; stateless!
-    [
-      '--detach',                 # for later exec
-      env_vars,
-      '--init',                   # pid-1 process
-      '--interactive',            # for tar-pipe
-      limits,
-      "--name=#{container_name}", # for easy cleanup
-      '--user=root',              # chown permission
-      "--workdir=#{sandbox_dir}"  # creates the dir
-    ].join(space)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def env_vars
-    [
-      env_var('AVATAR_NAME', avatar_name),
-      env_var('IMAGE_NAME',  image_name),
-      env_var('KATA_ID',     kata_id),
-      env_var('RUNNER',      'stateless'),
-      env_var('SANDBOX',     sandbox_dir)
-    ].join(space)
-  end
-
-  def env_var(name, value)
-    "--env CYBER_DOJO_#{name}=#{value}"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def limits
-    # There is no cpu-ulimit... a cpu-ulimit of 10
-    # seconds could kill a container after only 5
-    # seconds... The cpu-ulimit assumes one core.
-    # The host system running the docker container
-    # can have multiple cores or use hyperthreading.
-    # So a piece of code running on 2 cores, both 100%
-    # utilized could be killed after 5 seconds.
-    [
-      ulimit('data',   4*GB),  # data segment size
-      ulimit('core',   0),     # core file size
-      ulimit('fsize',  16*MB), # file size
-      ulimit('locks',  128),   # number of file locks
-      ulimit('nofile', 128),   # number of files
-      ulimit('nproc',  128),   # number of processes
-      ulimit('stack',  8*MB),  # stack size
-      '--memory=512m',         # ram
-      '--net=none',                      # no network
-      '--pids-limit=128',                # no fork bombs
-      '--security-opt=no-new-privileges' # no escalation
-    ].join(space)
-  end
-
-  def ulimit(name, limit)
-    "--ulimit #{name}=#{limit}:#{limit}"
-  end
-
-  KB = 1024
-  MB = 1024 * KB
-  GB = 1024 * MB
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def save_to(files, tmp_dir)
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
@@ -175,6 +110,7 @@ class Runner # stateless
     # In a stateless runner _all_ files are sent from the
     # browser, and cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
+    #
     # [1] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
     # The tar --touch option is not available in a default Alpine
@@ -336,24 +272,69 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # container properties
+
+  def docker_run_options
+    # no volume-mount; stateless!
+    [
+      '--detach',                 # for later exec
+      env_vars,
+      '--init',                   # pid-1 process
+      '--interactive',            # for tar-pipe
+      limits,
+      "--name=#{container_name}", # for easy cleanup
+      '--user=root',              # chown permission
+      "--workdir=#{sandbox_dir}"  # creates the dir
+    ].join(space)
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def group
-    'cyber-dojo'
+  def env_vars
+    [
+      env_var('AVATAR_NAME', avatar_name),
+      env_var('IMAGE_NAME',  image_name),
+      env_var('KATA_ID',     kata_id),
+      env_var('RUNNER',      'stateless'),
+      env_var('SANDBOX',     sandbox_dir)
+    ].join(space)
   end
 
-  def gid
-    5000
+  def env_var(name, value)
+    "--env CYBER_DOJO_#{name}=#{value}"
   end
 
-  def uid
-    40000 + all_avatars_names.index(avatar_name)
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def limits
+    # There is no cpu-ulimit... a cpu-ulimit of 10
+    # seconds could kill a container after only 5
+    # seconds... The cpu-ulimit assumes one core.
+    # The host system running the docker container
+    # can have multiple cores or use hyperthreading.
+    # So a piece of code running on 2 cores, both 100%
+    # utilized could be killed after 5 seconds.
+    [
+      ulimit('data',   4*GB),  # data segment size
+      ulimit('core',   0),     # core file size
+      ulimit('fsize',  16*MB), # file size
+      ulimit('locks',  128),   # number of file locks
+      ulimit('nofile', 128),   # number of files
+      ulimit('nproc',  128),   # number of processes
+      ulimit('stack',  8*MB),  # stack size
+      '--memory=512m',         # ram
+      '--net=none',                      # no network
+      '--pids-limit=128',                # no fork bombs
+      '--security-opt=no-new-privileges' # no escalation
+    ].join(space)
   end
 
-  def sandbox_dir
-    "/sandboxes/#{avatar_name}"
+  def ulimit(name, limit)
+    "--ulimit #{name}=#{limit}:#{limit}"
   end
+
+  KB = 1024
+  MB = 1024 * KB
+  GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
   # kata_id
@@ -394,6 +375,26 @@ class Runner # stateless
   end
 
   include AllAvatarsNames
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # avatar properties
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def group
+    'cyber-dojo'
+  end
+
+  def gid
+    5000
+  end
+
+  def uid
+    40000 + all_avatars_names.index(avatar_name)
+  end
+
+  def sandbox_dir
+    "/sandboxes/#{avatar_name}"
+  end
 
   # - - - - - - - - - - - - - - - - - -
   # assertions
