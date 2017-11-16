@@ -14,6 +14,7 @@ class ValidImageNameTest < TestBase
   ) do
     hex = '9'*32
     [
+      nil,
       '',              # nothing!
       '_',             # cannot start with separator
       'name_',         # cannot end with separator
