@@ -399,7 +399,7 @@ class Runner # stateless
   end
 
   def argument_error(name, message)
-    fail ArgumentError.new("#{name}:#{message}")
+    raise ArgumentError.new("#{name}:#{message}")
   end
 
   # - - - - - - - - - - - - - - - - - -
