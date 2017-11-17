@@ -545,7 +545,7 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def stat_cmd;
+  def stat_cmd
     # Works on Ubuntu and Alpine
     'stat -c "%n %A %u %G %s %y" *'
     # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
