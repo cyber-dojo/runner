@@ -278,11 +278,11 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name
-    @container_name ||=
-      [ 'test_run__runner_stateless',
-        kata_id,
-        avatar_name
-      ].join('_')
+    [ name_prefix, kata_id, avatar_name ].join('_')
+  end
+
+  def name_prefix
+    'test_run__runner_stateless'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -351,7 +351,7 @@ class Runner # stateless
   GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - - - -
-  # kata_id
+  # kata
   # - - - - - - - - - - - - - - - - - - - - - - - -
 
   attr_reader :kata_id
