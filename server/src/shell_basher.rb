@@ -2,8 +2,8 @@ require 'open3'
 
 class ShellBasher
 
-  def initialize(parent)
-    @log = parent.log
+  def initialize(external)
+    @log = external.log
   end
 
   def assert(command)
