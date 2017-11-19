@@ -426,14 +426,12 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - -
 
-  attr_reader :external
-
   def disk
-    external.disk
+    @external.disk
   end
 
   def shell
-    external.shell
+    @external.shell
   end
 
 end
