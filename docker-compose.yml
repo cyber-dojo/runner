@@ -2,6 +2,7 @@
 version: '2.2'
 
 services:
+
   runner_stateless_client:
     user: nobody
     image: cyberdojo/runner_stateless_client
@@ -24,6 +25,8 @@ services:
         - PORT=${CYBER_DOJO_RUNNER_CLIENT_PORT}
     ports:
       - ${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   runner_stateless:
     user: root
@@ -55,9 +58,11 @@ services:
       - /${CYBER_DOJO_COVERAGE_ROOT}
     command: "chown nobody:nobody ${CYBER_DOJO_COVERAGE_ROOT}"
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   runner-stateless-server-coverage-container:
     image: cyberdojo/runner_stateless
     container_name: runner-stateless-server-coverage-container
     volumes:
       - /${CYBER_DOJO_COVERAGE_ROOT}
+    command: "chown nobody:nobody ${CYBER_DOJO_COVERAGE_ROOT}"
