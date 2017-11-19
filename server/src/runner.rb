@@ -134,28 +134,28 @@ class Runner # stateless
     #    o) update_tar_command
     #    o) install_coreutils_command
     <<~SHELL.strip
-      chmod 755 #{tmp_dir} \
-      && cd #{tmp_dir} \
-      && tar \
-            -zcf                `# create tar file`             \
-            -                   `# write it to stdout`          \
-            .                   `# tar the current directory`   \
-            |                   `# pipe the tarfile...`         \
-                docker exec     `# ...into docker container`    \
-                  --user=#{uid}:#{gid}                          \
-                  --interactive                                 \
-                  #{container_name}                             \
-                  sh -c                                         \
-                  '             `# open quote`                  \
-                  cd #{sandbox_dir}                             \
-                  && tar                                        \
-                        --touch `# [1]`                         \
-                        -zxf    `# extract tar file`            \
-                        -       `# which is read from stdin`    \
-                        -C      `# save the extracted files to` \
-                        .       `# the current directory`       \
-                  && sh ./cyber-dojo.sh                         \
-                  '             `# close quote`
+      chmod 755 #{tmp_dir} &&                                          \
+      cd #{tmp_dir} &&                                                 \
+      tar                                                              \
+        -zcf                           `# create tar file`             \
+        -                              `# write it to stdout`          \
+        .                              `# tar the current directory`   \
+        |                              `# pipe the tarfile...`         \
+          docker exec                  `# ...into docker container`    \
+            --user=#{uid}:#{gid}                                       \
+            --interactive                                              \
+            #{container_name}                                          \
+            sh -c                                                      \
+              '                        `# open quote`                  \
+              cd #{sandbox_dir} &&                                     \
+              tar                                                      \
+                --touch                `# [1]`                         \
+                -zxf                   `# extract tar file`            \
+                -                      `# which is read from stdin`    \
+                -C                     `# save the extracted files to` \
+                .                      `# the current directory`       \
+                && sh ./cyber-dojo.sh                                  \
+              '                        `# close quote`
     SHELL
   end
 
@@ -287,13 +287,13 @@ class Runner # stateless
   def docker_run_options
     # no volume-mount; stateless!
     <<~SHELL.strip
-      --detach                 `# later exec`       \
-      #{env_vars}                                   \
-      --init                   `# pid-1 process`    \
-      --interactive            `# tar pipe`         \
-      --name=#{container_name} `# easy cleanup`     \
-      --user=root              `# chown permission` \
-      --workdir=#{sandbox_dir} `# creates the dir`
+      --detach                  `# later exec`       \
+      #{env_vars}                                    \
+      --init                    `# pid-1 process`    \
+      --interactive             `# tar pipe`         \
+      --name=#{container_name}  `# easy cleanup`     \
+      --user=root               `# chown permission` \
+      --workdir=#{sandbox_dir}  `# creates the dir`
     SHELL
   end
 
@@ -323,19 +323,19 @@ class Runner # stateless
     # can have multiple cores or use hyperthreading.
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
-    [
-      ulimit('data',   4*GB),  # data segment size
-      ulimit('core',   0),     # core file size
-      ulimit('fsize',  16*MB), # file size
-      ulimit('locks',  128),   # number of file locks
-      ulimit('nofile', 128),   # number of files
-      ulimit('nproc',  128),   # number of processes
-      ulimit('stack',  8*MB),  # stack size
-      '--memory=512m',         # ram
-      '--net=none',                      # no network
-      '--pids-limit=128',                # no fork bombs
-      '--security-opt=no-new-privileges' # no escalation
-    ].join(space)
+    <<~SHELL.strip
+      #{ulimit('data'  ,   4*GB)}      `# data segment size`    \
+      #{ulimit('core'  ,   0   )}      `# core file size`       \
+      #{ulimit('fsize' ,  16*MB)}      `# file size`            \
+      #{ulimit('locks' , 128   )}      `# number of file locks` \
+      #{ulimit('nofile', 128   )}      `# number of files`      \
+      #{ulimit('nproc' , 128   )}      `# number of processes`  \
+      #{ulimit('stack' ,   8*MB)}      `# stack size`           \
+      --memory=512m                    `# ram`                  \
+      --net=none                       `# no network`           \
+      --pids-limit=128                 `# no fork bombs`        \
+      --security-opt=no-new-privileges `# no escalation`
+    SHELL
   end
 
   def ulimit(name, limit)
