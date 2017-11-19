@@ -73,7 +73,7 @@ class RunColourRegexTest < TestBase
 
   test 'EAC',
   %w( (lambda explicit raise) becomes amber ) do
-    content = 'lambda { |stdout, stderr, status| fail ArgumentError.new }'
+    content = 'lambda { |stdout, stderr, status| raise ArgumentError.new }'
     @shell = ShellCatRagFileStub.new(shell, content)
     in_kata_as(salmon) {
       run_cyber_dojo_sh

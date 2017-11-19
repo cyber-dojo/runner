@@ -9,7 +9,7 @@ class ShellBasher
   def assert(command)
     stdout,_stderr,status = exec(command)
     unless status == success
-      fail ArgumentError.new("command:#{command}")
+      raise ArgumentError.new("command:#{command}")
     end
     stdout
   end

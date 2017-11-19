@@ -158,7 +158,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    fail 'image_name.nil? so cannot set language_dir' if image_name.nil?
+    raise 'image_name.nil? so cannot set language_dir' if image_name.nil?
     language_dir = image_name.split('/')[1]
     dir = "/app/test/start_files/#{language_dir}"
     json = JSON.parse(IO.read("#{dir}/manifest.json"))

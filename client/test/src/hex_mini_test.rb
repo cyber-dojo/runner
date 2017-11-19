@@ -32,9 +32,9 @@ class HexMiniTest < MiniTest::Test
     pointer = ' ' * method.index('.') + '!'
     pointee = (['',pointer,method,'','']).join("\n")
     pointer.prepend("\n\n")
-    fail "#{pointer}missing#{pointee}" unless respond_to?(:hex_prefix)
-    fail "#{pointer}empty#{pointee}" if hex_prefix == ''
-    fail "#{pointer}not hex#{pointee}" unless hex_prefix =~ /^[0-9A-F]+$/
+    raise "#{pointer}missing#{pointee}" unless respond_to?(:hex_prefix)
+    raise "#{pointer}empty#{pointee}" if hex_prefix == ''
+    raise "#{pointer}not hex#{pointee}" unless hex_prefix =~ /^[0-9A-F]+$/
 
     method = "test '#{hex_suffix}',"
     pointer = ' ' * method.index("'") + '!'
@@ -42,9 +42,9 @@ class HexMiniTest < MiniTest::Test
     pointee = ['',pointer,method,"'#{proposition}'",'',''].join("\n")
     hex_id = hex_prefix + hex_suffix
     pointer.prepend("\n\n")
-    fail "#{pointer}empty#{pointee}" if hex_suffix == ''
-    fail "#{pointer}not hex#{pointee}" unless hex_suffix =~ /^[0-9A-F]+$/
-    fail "#{pointer}duplicate#{pointee}" if @@seen_hex_ids.include?(hex_id)
+    raise "#{pointer}empty#{pointee}" if hex_suffix == ''
+    raise "#{pointer}not hex#{pointee}" unless hex_suffix =~ /^[0-9A-F]+$/
+    raise "#{pointer}duplicate#{pointee}" if @@seen_hex_ids.include?(hex_id)
     @@seen_hex_ids << hex_id
     hex_id
   end
