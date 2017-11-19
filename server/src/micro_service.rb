@@ -34,7 +34,7 @@ class MicroService
 
   def invoke
     runner = Runner.new(self, image_name, kata_id)
-    { @name => runner.send(@name, *@args) }
+    { @name => runner.public_send(@name, *@args) }
   rescue Exception => e
     log << "EXCEPTION: #{e.class.name}.#{@name} #{e.message}"
     { 'exception' => e.message }
