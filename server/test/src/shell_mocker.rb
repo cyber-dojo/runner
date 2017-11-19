@@ -16,7 +16,7 @@ class ShellMocker
       mocks = read
       pretty = JSON.pretty_generate(mocks)
       unless mocks == []
-        fail "#{filename}: uncalled mocks(#{pretty})"
+        raise "#{filename}: uncalled mocks(#{pretty})"
       end
     end
   end
@@ -35,12 +35,12 @@ class ShellMocker
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_exec(command)
-    stdout,stderr,status = exec(command)
+  def assert(command)
+    stdout,_stderr,status = exec(command)
     unless status == success
-      fail ArgumentError.new("command:#{command}")
+      raise ArgumentError.new("command:#{command}")
     end
-    [stdout, stderr]
+    stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -

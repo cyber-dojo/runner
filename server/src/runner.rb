@@ -18,9 +18,7 @@ class Runner # stateless
 
   def image_pulled?
     cmd = 'docker images --format "{{.Repository}}"'
-    stdout,_ = assert_exec(cmd)
-    names = stdout.split("\n")
-    (names.uniq - [ '<none>' ]).include? image_name
+    shell.assert(cmd).split("\n").include? image_name
   end
 
   def image_pull
@@ -210,7 +208,7 @@ class Runner # stateless
     # Not worth creating a new container for this.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
-      out,_err = assert_exec("docker exec #{container_name} sh -c '#{cmd}'")
+      out = shell.assert("docker exec #{container_name} sh -c '#{cmd}'")
       rag = eval(out)
       colour = rag.call(@stdout, @stderr, @status).to_s
       unless ['red','amber','green'].include? colour
@@ -239,7 +237,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_exists?
-    stdout,_stderr = assert_exec("docker ps --format '{{.Names}}'")
+    stdout = shell.assert("docker ps --format '{{.Names}}'")
     stdout.lines.any? { |line| line.strip == container_name }
   end
 
@@ -263,7 +261,7 @@ class Runner # stateless
         image_name,
           "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
     ].join(space)
-    assert_exec(cmd)
+    shell.assert(cmd)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -272,7 +270,7 @@ class Runner # stateless
     # [docker rm] could be backgrounded with a trailing &
     # but it did not make a test-event discernably
     # faster when measuring to 100th of a second.
-    assert_exec("docker rm --force #{container_name}")
+    shell.assert("docker rm --force #{container_name}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -409,10 +407,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - -
   # assertions
   # - - - - - - - - - - - - - - - - - -
-
-  def assert_exec(cmd)
-    shell.assert_exec(cmd)
-  end
 
   def argument_error(name, message)
     raise ArgumentError.new("#{name}:#{message}")

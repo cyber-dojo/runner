@@ -20,12 +20,12 @@ class RunColourRegexTest < TestBase
     def fired?
       @fired
     end
-    def assert_exec(command)
+    def assert(command)
       if command.end_with? "cat /usr/local/bin/red_amber_green.rb'"
         @fired = true
-        fail ArgumentError.new
+        raise ArgumentError.new
       else
-        @adaptee.assert_exec(command)
+        @adaptee.assert(command)
       end
     end
   end
@@ -51,12 +51,12 @@ class RunColourRegexTest < TestBase
     def fired?
       @fired
     end
-    def assert_exec(command)
+    def assert(command)
       if command.end_with? "cat /usr/local/bin/red_amber_green.rb'"
         @fired = true
-        [ @content, '' ]
+        @content
       else
-        @adaptee.assert_exec(command)
+        @adaptee.assert(command)
       end
     end
   end

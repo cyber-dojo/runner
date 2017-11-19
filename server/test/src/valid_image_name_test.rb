@@ -15,6 +15,7 @@ class ValidImageNameTest < TestBase
     hex = '9'*32
     [
       nil,
+      '<none>',        # [docker images] gives this
       '',              # nothing!
       '_',             # cannot start with separator
       'name_',         # cannot end with separator

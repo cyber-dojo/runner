@@ -16,33 +16,21 @@ class ShellBasherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '243', %w(
-    when assert_exec(cmd) status is zero
-    it returns an array[2] with stdout at [0]
+    when assert(cmd) status is zero
+    it returns stdout
     and logs nothing
   ) do
-    shell_assert_exec('echo Hello')
+    shell_assert('echo Hello')
     assert_stdout "Hello\n"
     assert_log []
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '202', %w(
-    when assert_exec(cmd) status is zero
-    it returns an array[2] with stderr at [1]
-    and logs nothing
-  ) do
-    shell_assert_exec('>&2 echo Hello')
-    assert_stderr "Hello\n"
-    assert_log []
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   test '14B',
-  'assert_exec(cmd) logs and raises when command fails' do
+  'assert(cmd) logs and raises when command fails' do
     error = assert_raises(ArgumentError) {
-      shell.assert_exec('false')
+      shell_assert('false')
     }
     assert_log [
       line,
@@ -52,7 +40,7 @@ class ShellBasherTest < TestBase
       'STDERR:'
     ]
     error = assert_raises(ArgumentError) {
-      shell.assert_exec('sed salmon')
+      shell_assert('sed salmon')
     }
     assert_log [
       line,
@@ -135,9 +123,11 @@ class ShellBasherTest < TestBase
     @stdout,@stderr,@status = shell.exec(command)
   end
 
-  def shell_assert_exec(command)
-    @stdout,@stderr = shell.assert_exec(command)
+  def shell_assert(command)
+    @stdout = shell.assert(command)
   end
+
+  # - - - - - - - - - - - - - - - - -
 
   def assert_status(expected)
     assert_equal expected, @status
