@@ -208,8 +208,7 @@ class Runner # stateless
     # Not worth creating a new container for this.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
-      out = shell.assert("docker exec #{container_name} sh -c '#{cmd}'")
-      rag = eval(out)
+      rag = eval(shell.assert(docker_exec(cmd)))
       colour = rag.call(@stdout, @stderr, @status).to_s
       unless ['red','amber','green'].include? colour
         colour = 'amber'
@@ -408,17 +407,13 @@ class Runner # stateless
   # assertions
   # - - - - - - - - - - - - - - - - - -
 
+  def docker_exec(cmd)
+    "docker exec #{container_name} sh -c '#{cmd}'"
+  end
+
   def argument_error(name, message)
     raise ArgumentError.new("#{name}:#{message}")
   end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  def space
-    ' '
-  end
-
-  # - - - - - - - - - - - - - - - - - -
 
   def disk
     @external.disk
@@ -426,6 +421,12 @@ class Runner # stateless
 
   def shell
     @external.shell
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  def space
+    ' '
   end
 
 end
