@@ -6,9 +6,8 @@ require 'timeout'
 
 class Runner # stateless
 
-  def initialize(parent, image_name, kata_id)
-    @disk = parent.disk
-    @shell = parent.shell
+  def initialize(external, image_name, kata_id)
+    @external = external
     @image_name = image_name
     @kata_id = kata_id
     assert_valid_image_name
@@ -408,7 +407,17 @@ class Runner # stateless
     ' '
   end
 
-  attr_reader :disk, :shell # externals
+  # - - - - - - - - - - - - - - - - - -
+
+  attr_reader :external
+
+  def disk
+    external.disk
+  end
+
+  def shell
+    external.shell
+  end
 
 end
 
