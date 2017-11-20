@@ -15,7 +15,7 @@ cd ${MY_DIR}/src
 readonly FILES=(*_test.rb)
 readonly ARGS=(${*})
 
-ruby -e "([ '../coverage.rb' ] + %w(${FILES[*]}).shuffle).each{ |file| require './'+file }" \
+ruby -e "([ '../coverage.rb' ] + %w(${FILES[*]})).each{ |file| require './'+file }" \
   -- ${ARGS[@]} | tee ${TEST_LOG}
 
 cd ${MY_DIR} \
