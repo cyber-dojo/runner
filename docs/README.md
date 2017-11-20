@@ -122,7 +122,7 @@ cyber-dojo.sh as the avatar with the given avatar_name.
           "max_seconds": 10
   }
 ```
-- returns status, stdout, stderr, timed_out, and colour.
+- returns status, stdout, stderr, timed_out, and rag.
 If the run completed in max_seconds, timed_out will be false.
 eg
 ```
