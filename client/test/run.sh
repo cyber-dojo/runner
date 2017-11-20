@@ -7,9 +7,9 @@ if [ ! -f /.dockerenv ]; then
 fi
 
 readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
-readonly COV_DIR=${CYBER_DOJO_COVERAGE_ROOT}
-readonly TEST_LOG=${COV_DIR}/test.log
+readonly TEST_LOG=${CYBER_DOJO_COVERAGE_ROOT}/test.log
 
+mkdir ${CYBER_DOJO_COVERAGE_ROOT}
 cd ${MY_DIR}/src
 
 readonly FILES=(*_test.rb)
@@ -21,5 +21,5 @@ ruby -e "([ '../coverage.rb' ] + %w(${FILES[*]})).each{ |file| require './'+file
 cd ${MY_DIR} \
   && ruby ./check_test_results.rb \
        ${TEST_LOG} \
-       ${COV_DIR}/index.html \
-         > ${COV_DIR}/done.txt
+       ${CYBER_DOJO_COVERAGE_ROOT}/index.html \
+          > ${CYBER_DOJO_COVERAGE_ROOT}/done.txt

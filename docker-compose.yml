@@ -12,9 +12,6 @@ services:
     tmpfs: /tmp
     depends_on:
       - runner_stateless
-      - runner-stateless-client-coverage-container
-    volumes_from:
-      - runner-stateless-client-coverage-container:rw
     environment:
       - CYBER_DOJO_RUNNER_SERVER_NAME
       - CYBER_DOJO_RUNNER_SERVER_PORT
@@ -35,12 +32,8 @@ services:
     container_name: runner_stateless_server
     read_only: true
     tmpfs: /tmp
-    depends_on:
-      - runner-stateless-server-coverage-container
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
-    volumes_from:
-      - runner-stateless-server-coverage-container:rw
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
       - TRAVIS
@@ -48,21 +41,3 @@ services:
       context: server
       args:
         - PORT=${CYBER_DOJO_RUNNER_SERVER_PORT}
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  runner-stateless-client-coverage-container:
-    image: cyberdojo/runner_stateless_client
-    container_name: runner-stateless-client-coverage-container
-    volumes:
-      - /${CYBER_DOJO_COVERAGE_ROOT}
-    command: "chown nobody:nobody ${CYBER_DOJO_COVERAGE_ROOT}"
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  runner-stateless-server-coverage-container:
-    image: cyberdojo/runner_stateless
-    container_name: runner-stateless-server-coverage-container
-    volumes:
-      - /${CYBER_DOJO_COVERAGE_ROOT}
-    command: "chown nobody:nobody ${CYBER_DOJO_COVERAGE_ROOT}"
