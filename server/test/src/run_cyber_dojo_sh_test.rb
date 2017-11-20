@@ -21,14 +21,65 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A5',
-  'run is initially red' do
+  %w( when run_cyber_dojo_sh completes within max_seconds
+      then timed_out is false
+  ) do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert_colour 'red'
     }
+    refute timed_out?, quint
+    assert_equal status, 2, quint
+    refute_nil rag, quint
+
+    assert_equal 'red', colour, quint # deprecated
   end
 
   # - - - - - - - - - - - - - - - - -
+
+  test 'B2B', %w( [gcc,assert]
+  when run_cyber_dojo_sh does not complete within max_seconds
+  and does not produce output
+  then stdout is empty,
+  and timed_out is true
+  ) do
+    in_kata_as(salmon) {
+      named_args = {
+        changed_files: { 'hiker.c' => quiet_infinite_loop },
+          max_seconds: 2
+      }
+      run_cyber_dojo_sh(named_args)
+    }
+    assert timed_out?, quint
+    assert_equal '', stdout
+    assert_equal '', stderr
+    refute_nil rag, quint
+
+    assert_equal 'timed_out', colour, quint # deprecated
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '4D7', %w( [gcc,assert]
+  when run_cyber_dojo_sh does not complete in max_seconds
+  and produces output
+  then stdout is not empty,
+  and timed_out is true
+  ) do
+    in_kata_as(salmon) {
+      named_args = {
+        changed_files: { 'hiker.c' => loud_infinite_loop },
+          max_seconds: 2
+      }
+      run_cyber_dojo_sh(named_args)
+    }
+    assert timed_out?, quint
+    refute_equal '', stdout
+    refute_nil rag, quint
+
+    assert_equal 'timed_out', colour, quint # deprecated
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
@@ -106,6 +157,34 @@ class RunCyberDojoShTest < TestBase
     #  %y == time of last data modification <<=====
     #  %x == time of last access
     #  %w == time of file birth
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def quiet_infinite_loop
+    <<~SOURCE
+    #include "hiker.h"
+    int answer(void)
+    {
+        for(;;);
+        return 6 * 7;
+    }
+    SOURCE
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def loud_infinite_loop
+    <<~SOURCE
+    #include "hiker.h"
+    #include <stdio.h>
+    int answer(void)
+    {
+        for(;;)
+            puts("Hello");
+        return 6 * 7;
+    }
+    SOURCE
   end
 
 end

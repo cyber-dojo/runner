@@ -69,7 +69,7 @@ class TestBase < HexMiniTest
     args << changed_files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
-    @quad = runner.run_cyber_dojo_sh(*args)
+    @quint = runner.run_cyber_dojo_sh(*args)
 
     @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
@@ -82,33 +82,27 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
-    quad[:stdout]
+    quint[:stdout]
   end
 
   def stderr
-    quad[:stderr]
+    quint[:stderr]
   end
 
   def status
-    quad[:status]
-  end
-
-  def colour
-    quad[:colour]
+    quint[:status]
   end
 
   def timed_out?
-    colour == 'timed_out'
+    quint[:timed_out]
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_status(expected)
-    assert_equal expected, status, "assert_status:#{quad}"
+  def rag
+    quint[:rag]
   end
 
-  def assert_colour(expected)
-    assert_equal expected, colour, "assert_colour:#{quad}"
+  def colour # deprecated
+    quint[:colour]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -117,20 +111,9 @@ class TestBase < HexMiniTest
     named_args = {
       :changed_files => { 'cyber-dojo.sh' => script }
     }
-    assert_run_succeeds(named_args)
-  end
-
-  def assert_run_succeeds(named_args)
     run_cyber_dojo_sh(named_args)
-    refute timed_out?, quad
-    assert_equal '', stderr
+    refute timed_out?, quint
     stdout.strip
-  end
-
-  def assert_run_times_out(named_args)
-    run_cyber_dojo_sh(named_args)
-    assert timed_out?
-    assert_status 137
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -258,8 +241,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def quad
-    @quad
+  def quint
+    @quint
   end
 
 end

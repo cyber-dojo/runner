@@ -82,7 +82,16 @@ class Runner # stateless
     deleted_files = nil # we're stateless
     all_files = [*new_files, *unchanged_files, *changed_files].to_h
     run(avatar_name, all_files, max_seconds)
+    { stdout:@stdout,
+      stderr:@stderr,
+      status:@status,
+      timed_out:@timed_out,
+      rag:@rag,
+      colour:@colour # temporary
+    }
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run(avatar_name, visible_files, max_seconds)
     @avatar_name = avatar_name
@@ -91,7 +100,8 @@ class Runner # stateless
       save_to(visible_files, tmp_dir)
       in_container {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
-        @colour = @timed_out ? 'timed_out' : red_amber_green
+        @rag = rag_lambda
+        @colour = @timed_out ? 'timed_out' : red_amber_green(@rag)
       }
     end
     { stdout:@stdout, stderr:@stderr, status:@status, colour:@colour }
@@ -201,21 +211,31 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green
+  def red_amber_green(rag_lambda)
     # @stdout and @stderr have been truncated and cleaned.
-    # In a crippled container (eg fork-bomb)
-    # the [docker exec] will mostly likely raise.
-    # Not worth creating a new container for this.
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
-      rag = eval(shell.assert(docker_exec(cmd)))
+      rag = eval(rag_lambda)
       colour = rag.call(@stdout, @stderr, @status).to_s
       unless ['red','amber','green'].include? colour
         colour = 'amber'
       end
       colour
     rescue
-      'amber'
+     'amber'
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def rag_lambda
+    # In a crippled container (eg fork-bomb)
+    # the [docker exec] will mostly likely raise.
+    # Not worth creating a new container for this.
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    begin
+      shell.assert(docker_exec(cmd))
+    rescue
+      nil
     end
   end
 
@@ -237,7 +257,7 @@ class Runner # stateless
 
   def container_exists?
     stdout = shell.assert("docker ps --format '{{.Names}}'")
-    stdout.lines.any? { |line| line.strip == container_name }
+    stdout.split("\n").include? container_name
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

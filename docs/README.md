@@ -122,31 +122,37 @@ cyber-dojo.sh as the avatar with the given avatar_name.
           "max_seconds": 10
   }
 ```
-- returns status, stdout, stderr, and colour.
-If the run completed in max_seconds,
-the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-will be "red", "amber", or "green". eg
+- returns status, stdout, stderr, timed_out, and colour.
+If the run completed in max_seconds, timed_out will be false.
+eg
 ```
     { "run": {
-        "status": 2,
-        "stdout": "makefile:17: recipe for target 'test' failed\n",
-        "stderr": "invalid suffix sss on integer constant",
-        "colour": "red"
+           "stdout": "makefile:17: recipe for target 'test' failed\n",
+           "stderr": "invalid suffix sss on integer constant",
+           "status": 2,
+        "timed_out": false,
+              "rag": "lambda { |stdout, stderr, status| ... }"
       }
     }
 ```
-If the run did not complete in max_seconds,
-the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-will be "timed_out". eg
+If the run did not complete in max_seconds, timed_out will be true.
+eg
 ```
     { "run": {
-        "status": 137,
-        "stdout": "",
-        "stderr": "",
-        "colour": "timed_out"
+           "stdout": "...",
+           "stderr": "...",
+           "status": 137,
+        "timed_out": true,
+              "rag": "lambda { |stdout, stderr, status| ... }"
       }
     }
 ```
+rag is the source of a Ruby lambda, taken from the image,
+at /usr/local/bin/red_amber_green.rb,
+which can be eval'd and called to find the
+[traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html).
+rag is nil when the image does not contain a
+/usr/local/bin/red_amber_green.rb file.
 
 - - - -
 
@@ -166,15 +172,15 @@ Saves the visible_files in a container run from image_name and runs cyber-dojo.s
           "max_seconds": 10
   }
 ```
-- returns status, stdout, stderr, and colour.
+- returns stdout, stderr, status, and colour.
 If the run completed in max_seconds,
 the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
 will be "red", "amber", or "green". eg
 ```
     { "run": {
-        "status": 2,
         "stdout": "makefile:17: recipe for target 'test' failed\n",
         "stderr": "invalid suffix sss on integer constant",
+        "status": 2,
         "colour": "red"
       }
     }
@@ -184,9 +190,9 @@ the [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic
 will be "timed_out". eg
 ```
     { "run": {
-        "status": 137,
         "stdout": "",
         "stderr": "",
+        "status": 137,
         "colour": "timed_out"
       }
     }
