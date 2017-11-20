@@ -151,7 +151,7 @@ rag is the source of a Ruby lambda, taken from the image,
 at /usr/local/bin/red_amber_green.rb,
 which can be eval'd and called to find the
 [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html).
-rag is nil when the image does not contain a
+rag is null when the image does not contain a
 /usr/local/bin/red_amber_green.rb file.
 
 - - - -
