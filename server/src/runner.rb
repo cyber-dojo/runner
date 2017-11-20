@@ -292,6 +292,7 @@ class Runner # stateless
       --init                    `# pid-1 process`    \
       --interactive             `# tar pipe`         \
       --name=#{container_name}  `# easy cleanup`     \
+      #{limits}                                      \
       --user=root               `# chown permission` \
       --workdir=#{sandbox_dir}  `# creates the dir`
     SHELL
@@ -323,19 +324,19 @@ class Runner # stateless
     # can have multiple cores or use hyperthreading.
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
-    <<~SHELL.strip
-      #{ulimit('data'  ,   4*GB)}      `# data segment size`    \
-      #{ulimit('core'  ,   0   )}      `# core file size`       \
-      #{ulimit('fsize' ,  16*MB)}      `# file size`            \
-      #{ulimit('locks' , 128   )}      `# number of file locks` \
-      #{ulimit('nofile', 128   )}      `# number of files`      \
-      #{ulimit('nproc' , 128   )}      `# number of processes`  \
-      #{ulimit('stack' ,   8*MB)}      `# stack size`           \
-      --memory=512m                    `# ram`                  \
-      --net=none                       `# no network`           \
-      --pids-limit=128                 `# no fork bombs`        \
-      --security-opt=no-new-privileges `# no escalation`
-    SHELL
+    [
+      ulimit('data'  ,   4*GB), # data segment size
+      ulimit('core'  ,   0   ), # core file size
+      ulimit('fsize' ,  16*MB), # file size
+      ulimit('locks' , 128   ), # number of file locks
+      ulimit('nofile', 128   ), # number of files
+      ulimit('nproc' , 128   ), # number of processes
+      ulimit('stack' ,   8*MB), # stack size
+      '--memory=512m',                     # ram
+      '--net=none',                        # no network
+      '--pids-limit=128',                  # no fork bombs
+      '--security-opt=no-new-privileges',  # no escalation
+    ].join(space)
   end
 
   def ulimit(name, limit)
