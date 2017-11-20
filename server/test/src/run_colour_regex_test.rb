@@ -26,32 +26,55 @@ class RunColourRegexTest < TestBase
 
   test '5A3',
   %w( (rag_lambda syntax-error) exception becomes amber ) do
-    rag = 'sdfsdfsdf'
-    @shell = ShellCatRagFileStub.new(shell, rag)
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh
-      assert_becomes_amber
-    }
+    assert_rag(
+      <<~RUBY
+      sdfsdfsdf
+      RUBY
+    )
   end
 
   test '5A4',
-  %w( (arg_lambda explicit raise) becomes amber ) do
-    rag = 'lambda { |stdout, stderr, status| raise ArgumentError.new }'
-    @shell = ShellCatRagFileStub.new(shell, rag)
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh
-      assert_becomes_amber
-    }
+  %w( (rag_lambda explicit raise) becomes amber ) do
+    assert_rag(
+      <<~RUBY
+      lambda { |stdout, stderr, status|
+        raise ArgumentError.new
+      }
+      RUBY
+    )
   end
 
   test '5A5',
   %w( (rag_lambda returning non red/amber/green) becomes amber ) do
-    rag = 'lambda { |stdout, stderr, status| return :orange }'
-    @shell = ShellCatRagFileStub.new(shell, rag)
-    in_kata_as(salmon) {
-      run_cyber_dojo_sh
-      assert_becomes_amber
-    }
+    assert_rag(
+      <<~RUBY
+      lambda { |stdout, stderr, status|
+        return :orange
+      }
+      RUBY
+    )
+  end
+
+  test '5A6',
+  %w( (rag_lambda with too few parameters) becomes amber ) do
+    assert_rag(
+      <<~RUBY
+      lambda { |stdout, stderr|
+        return :red
+      }
+      RUBY
+    )
+  end
+
+  test '5A7',
+  %w( (rag_lambda with too many parameters) becomes amber ) do
+    assert_rag(
+      <<~RUBY
+      lambda { |stdout, stderr, status, extra|
+        return :red
+      }
+      RUBY
+    )
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -96,6 +119,14 @@ class RunColourRegexTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+
+  def assert_rag(lambda)
+    @shell = ShellCatRagFileStub.new(shell, lambda)
+    in_kata_as(salmon) {
+      run_cyber_dojo_sh
+      assert_becomes_amber
+    }
+  end
 
   def assert_becomes_amber
     assert_equal '', stdout
