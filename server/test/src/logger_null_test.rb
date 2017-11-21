@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative '../../src/logger_null'
+require_relative 'logger_null'
 
 class LoggerNullTest < TestBase
 
