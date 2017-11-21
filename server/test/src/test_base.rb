@@ -118,6 +118,11 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  #TODO?: change to image_name=
+  def set_image_name(image_name)
+    @image_name = image_name
+  end
+
   def image_name
     @image_name ||= manifest['image_name']
   end
@@ -198,11 +203,6 @@ class TestBase < HexMiniTest
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  #TODO: change to image_name=
-  def set_image_name(image_name)
-    @image_name = image_name
-  end
 
   def self.multi_os_test(hex_suffix, *lines, &block)
     alpine_lines = ['[Alpine]'] + lines
