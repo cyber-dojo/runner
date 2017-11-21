@@ -4,8 +4,7 @@ require 'json'
 
 class MicroService
 
-  def call(env)
-    request = Rack::Request.new(env)
+  def call(env, request = Rack::Request.new(env))
     @json_args = json_args(request)
     @name = request.path_info[1..-1] # lose leading /
     @args = case @name
@@ -53,19 +52,44 @@ class MicroService
 
   include Externals
 
-  def self.request_args(*names)
-    names.each do |name|
-      define_method name, &lambda {
-        @json_args[name.to_s]
-      }
-    end
+  def image_name
+    @json_args[__method__.to_s]
   end
 
-  request_args :image_name, :kata_id
-  request_args :avatar_name, :starting_files
-  request_args :new_files, :deleted_files, :unchanged_files, :changed_files
-  request_args :max_seconds
+  def kata_id
+    @json_args[__method__.to_s]
+  end
 
-  request_args :visible_files
+  def avatar_name
+    @json_args[__method__.to_s]
+  end
+
+  def starting_files
+    @json_args[__method__.to_s]
+  end
+
+  def new_files
+    @json_args[__method__.to_s]
+  end
+
+  def deleted_files
+    @json_args[__method__.to_s]
+  end
+
+  def unchanged_files
+    @json_args[__method__.to_s]
+  end
+
+  def changed_files
+    @json_args[__method__.to_s]
+  end
+
+  def max_seconds
+    @json_args[__method__.to_s]
+  end
+
+  def visible_files # deprecated
+    @json_args[__method__.to_s]
+  end
 
 end
