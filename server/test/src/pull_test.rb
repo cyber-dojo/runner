@@ -29,7 +29,6 @@ class PullTest < TestBase
   test 'A44',
   'true when image_name is valid and in [docker images]' do
     mock_docker_images_prints "#{cdf}/gcc_assert"
-    set_image_name "#{cdf}/gcc_assert"
     assert image_pulled?
   end
 
@@ -37,15 +36,12 @@ class PullTest < TestBase
 
   test '91C',
   'true when image_name is valid and exists' do
-    image_name = "#{cdf}/ruby_mini_test"
+    set_image_name "#{cdf}/ruby_mini_test"
 
     mock_docker_pull_success image_name, tag=''
     assert image_pull
 
     mock_docker_pull_success image_name, tag='latest'
-    assert image_pull
-
-    mock_docker_pull_success image_name, tag='1.9.3'
     assert image_pull
   end
 
@@ -66,14 +62,8 @@ class PullTest < TestBase
 
   test 'D80',
   'false when image_name is valid but does not exist' do
-    image_name = "#{cdf}/does_not_exist"
+    set_image_name "#{cdf}/does_not_exist"
     mock_docker_pull_not_exist image_name, tag=''
-    refute image_pull
-
-    mock_docker_pull_not_exist image_name, tag='latest'
-    refute image_pull
-
-    mock_docker_pull_not_exist image_name, tag='1.9.3'
     refute image_pull
   end
 
@@ -112,7 +102,7 @@ class PullTest < TestBase
   private
 
   def mock_docker_pull(image_name, stdout, stderr, status)
-    set_image_name(image_name)
+    set_image_name image_name
     cmd = "docker pull #{image_name}"
     shell.mock_exec(cmd, stdout, stderr, status)
   end

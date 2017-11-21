@@ -10,7 +10,6 @@ class ExistsTest < TestBase
 
   test '4D2',
   %w( kata and avatar exist inside container ) do
-    set_image_name image_for_test
     runner = Runner.new(self, image_name, kata_id)
     runner.kata_new
     runner.avatar_new('lion', starting_files)
@@ -26,7 +25,6 @@ class ExistsTest < TestBase
 
   test '4D3',
   %w( kata and avatar do not exist outside container ) do
-    set_image_name image_for_test
     runner = Runner.new(self, image_name, kata_id)
     runner.kata_new
     runner.avatar_new('rhino', starting_files)

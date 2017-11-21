@@ -119,7 +119,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_name
-    @image_name
+    @image_name ||= manifest['image_name']
   end
 
   def kata_id
@@ -141,13 +141,17 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    raise 'image_name.nil? so cannot set language_dir' if image_name.nil?
-    language_dir = image_name.split('/')[1]
-    dir = "/app/test/start_files/#{language_dir}"
-    json = JSON.parse(IO.read("#{dir}/manifest.json"))
-    Hash[json['visible_filenames'].collect { |filename|
-      [filename, IO.read("#{dir}/#{filename}")]
+    Hash[manifest['visible_filenames'].collect { |filename|
+      [filename, IO.read("#{starting_files_dir}/#{filename}")]
     }]
+  end
+
+  def manifest
+    @manifest ||= JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
+  end
+
+  def starting_files_dir
+    "/app/test/start_files/#{os}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -176,7 +180,6 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def in_kata
-    set_image_name image_for_test
     kata_new
     begin
       yield
@@ -196,6 +199,7 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  #TODO: change to image_name=
   def set_image_name(image_name)
     @image_name = image_name
   end
@@ -211,7 +215,7 @@ class TestBase < HexMiniTest
     if hex_test_name.start_with? '[Ubuntu]'
       :Ubuntu
     else # [Alpine] || default
-     :Alpine
+      :Alpine
    end
   end
 
@@ -224,14 +228,6 @@ class TestBase < HexMiniTest
   private
 
   include AllAvatarsNames
-
-  def image_for_test
-    if hex_test_name.start_with? '[Ubuntu]'
-      "#{cdf}/clangpp_assert"
-    else
-      "#{cdf}/gcc_assert"
-    end
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

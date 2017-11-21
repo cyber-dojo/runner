@@ -18,7 +18,6 @@ class ApiNoOpTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'DBC', %w( kata_new and kata_old are no-ops for API compatibility ) do
-    set_image_name "#{cdf}/gcc_assert"
     kata_new
     kata_old
   end
