@@ -87,13 +87,13 @@ class Runner # stateless
       status:@status,
       timed_out:@timed_out,
       rag:@rag,
-      colour:@colour # temporary
+      colour:@colour # temporary?
     }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run(avatar_name, visible_files, max_seconds)
+  def run(avatar_name, visible_files, max_seconds) # deprecated
     @avatar_name = avatar_name
     assert_valid_avatar_name
     Dir.mktmpdir do |tmp_dir|
@@ -471,7 +471,7 @@ end
 #
 # require 'open3'
 # files.each do |name,content|
-#   filename = avatar_dir + '/' + name
+#   filename = sandbox_dir + '/' + name
 #   dir = File.dirname(filename)
 #   shell_cmd = "mkdir -p #{dir};"
 #   shell_cmd += "cat > #{filename}"

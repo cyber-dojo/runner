@@ -42,7 +42,16 @@ class MicroService
   # - - - - - - - - - - - - - - - -
 
   def json_args(request)
-    JSON.parse(request.body.read)
+    args = JSON.parse(request.body.read)
+    if args.nil? # JSON.parse('null') => nil
+      #TODO: log << ...
+      args = {}
+    end
+    if args.class.name == 'Array' # Hash please
+      #TODO: log << ...
+      args = {}
+    end
+    args
   rescue StandardError => e
     log << "EXCEPTION: #{e.class.name}.#{__method__} #{e.message}"
     {}
