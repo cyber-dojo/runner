@@ -130,14 +130,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def os
-    if hex_test_name.start_with? '[Ubuntu]'
-      return :Ubuntu
-    else # [Alpine] || default
-      :Alpine
-    end
-  end
-
   def image_name
     @image_name || manifest['image_name']
   end
@@ -196,6 +188,14 @@ class TestBase < HexMiniTest
 
   def starting_files_dir
     "/app/test/start_files/#{os}"
+  end
+
+  def os
+    if hex_test_name.start_with? '[Ubuntu]'
+      return :Ubuntu
+    else # [Alpine] || default
+      :Alpine
+    end
   end
 
   private
