@@ -182,7 +182,7 @@ class TestBase < HexMiniTest
     }
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def in_kata
     kata_new
@@ -193,7 +193,7 @@ class TestBase < HexMiniTest
     end
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def as(name)
     avatar_new(name)
@@ -202,7 +202,7 @@ class TestBase < HexMiniTest
     avatar_old(name)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def self.multi_os_test(hex_suffix, *lines, &block)
     alpine_lines = ['[Alpine]'] + lines
@@ -216,10 +216,10 @@ class TestBase < HexMiniTest
       :Ubuntu
     else # [Alpine] || default
       :Alpine
-   end
+    end
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def cdf
     'cyberdojofoundation'
@@ -229,13 +229,13 @@ class TestBase < HexMiniTest
 
   include AllAvatarsNames
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def quint
     @quint

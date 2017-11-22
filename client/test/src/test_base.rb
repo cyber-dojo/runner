@@ -14,16 +14,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def in_kata_as(name)
-    in_kata {
-      as(name) {
-        yield
-      }
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def runner
     RunnerService.new
   end
@@ -143,14 +133,13 @@ class TestBase < HexMiniTest
   def os
     if hex_test_name.start_with? '[Ubuntu]'
       return :Ubuntu
-    end
-    if hex_test_name.start_with? '[Alpine]'
-      return :Alpine
+    else # [Alpine] || default
+      :Alpine
     end
   end
 
   def image_name
-    @image_name || image_for_os
+    @image_name || manifest['image_name']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -196,13 +185,17 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    raise 'image_name.nil? so cannot set language_dir' if image_name.nil?
-    language_dir = image_name.split('/')[1]
-    dir = "/app/test/start_files/#{language_dir}"
-    json = JSON.parse(IO.read("#{dir}/manifest.json"))
-    Hash[json['visible_filenames'].collect { |filename|
-      [filename, IO.read("#{dir}/#{filename}")]
+    Hash[manifest['visible_filenames'].collect { |filename|
+      [filename, IO.read("#{starting_files_dir}/#{filename}")]
     }]
+  end
+
+  def manifest
+    @manifest ||= JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
+  end
+
+  def starting_files_dir
+    "/app/test/start_files/#{os}"
   end
 
   private
@@ -219,8 +212,17 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def in_kata_as(name)
+    in_kata {
+      as(name) {
+        yield
+      }
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def in_kata
-    @image_name = image_for_os
     kata_new
     begin
       yield
@@ -237,18 +239,6 @@ class TestBase < HexMiniTest
       yield
     ensure
       avatar_old({ avatar_name: name })
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def image_for_os
-    cdf = 'cyberdojofoundation'
-    case os
-    when :Alpine
-      "#{cdf}/gcc_assert"
-    when :Ubuntu
-      "#{cdf}/clangpp_assert"
     end
   end
 
