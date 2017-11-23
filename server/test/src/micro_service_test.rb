@@ -82,8 +82,6 @@ class MicroServiceTest < TestBase
           stdout:'',
           stderr:gcc_assert_stderr,
           status:2,
-          timed_out:false,
-          rag:gcc_assert_rag_lambda,
           colour:'red'
         }
       }
@@ -110,6 +108,7 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def gcc_assert_rag_lambda
     "\n"+<<~RUBY
     lambda { |stdout, stderr, status|
@@ -120,6 +119,7 @@ class MicroServiceTest < TestBase
     }
     RUBY
   end
+=end
 
   def gcc_assert_stderr
     "Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)\n" +

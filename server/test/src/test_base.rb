@@ -8,6 +8,15 @@ class TestBase < HexMiniTest
 
   include Externals
 
+  def self.multi_os_test(hex_suffix, *lines, &block)
+    alpine_lines = ['[Alpine]'] + lines
+    test(hex_suffix+'0', *alpine_lines, &block)
+    ubuntu_lines = ['[Ubuntu]'] + lines
+    test(hex_suffix+'1', *ubuntu_lines, &block)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def runner
     Runner.new(self, image_name, kata_id)
   end
@@ -69,7 +78,7 @@ class TestBase < HexMiniTest
     args << changed_files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
-    @quint = runner.run_cyber_dojo_sh(*args)
+    @quad = runner.run_cyber_dojo_sh(*args)
 
     @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
@@ -82,27 +91,23 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
-    quint[:stdout]
+    quad[:stdout]
   end
 
   def stderr
-    quint[:stderr]
+    quad[:stderr]
   end
 
   def status
-    quint[:status]
+    quad[:status]
+  end
+
+  def colour
+    quad[:colour]
   end
 
   def timed_out?
-    quint[:timed_out]
-  end
-
-  def rag
-    quint[:rag]
-  end
-
-  def colour # deprecated
-    quint[:colour]
+    colour == 'timed_out'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -112,7 +117,7 @@ class TestBase < HexMiniTest
       :changed_files => { 'cyber-dojo.sh' => script }
     }
     run_cyber_dojo_sh(named_args)
-    refute timed_out?, quint
+    refute timed_out?, quad
     stdout.strip
   end
 
@@ -157,6 +162,14 @@ class TestBase < HexMiniTest
 
   def starting_files_dir
     "/app/test/start_files/#{os}"
+  end
+
+  def os
+    if hex_test_name.start_with? '[Ubuntu]'
+      :Ubuntu
+    else # [Alpine] || default
+      :Alpine
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -204,23 +217,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def self.multi_os_test(hex_suffix, *lines, &block)
-    alpine_lines = ['[Alpine]'] + lines
-    test(hex_suffix+'0', *alpine_lines, &block)
-    ubuntu_lines = ['[Ubuntu]'] + lines
-    test(hex_suffix+'1', *ubuntu_lines, &block)
-  end
-
-  def os
-    if hex_test_name.start_with? '[Ubuntu]'
-      :Ubuntu
-    else # [Alpine] || default
-      :Alpine
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def cdf
     'cyberdojofoundation'
   end
@@ -237,8 +233,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def quint
-    @quint
+  def quad
+    @quad
   end
 
 end

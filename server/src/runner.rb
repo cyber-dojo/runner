@@ -82,13 +82,6 @@ class Runner # stateless
     deleted_files = nil # we're stateless
     all_files = [*new_files, *unchanged_files, *changed_files].to_h
     run(avatar_name, all_files, max_seconds)
-    { stdout:@stdout,
-      stderr:@stderr,
-      status:@status,
-      timed_out:@timed_out,
-      rag:@rag,
-      colour:@colour # temporary?
-    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
