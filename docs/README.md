@@ -162,7 +162,6 @@ lambda { |stdout, stderr, status|
 - If the contents of this file raises an exception when eval'd or called, the colour is "amber".
 - If the lambda returns anything other than :red, :amber, or :green, the colour is "amber".
 
-
 - - - -
 
 # POST run
