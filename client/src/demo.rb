@@ -127,7 +127,7 @@ class Demo
   end
 
   def read(filename)
-    IO.read("/app/test/start_files/gcc_assert/#{filename}")
+    IO.read("/app/test/start_files/Alpine/#{filename}")
   end
 
   def pre(name, duration, colour = 'white', quad = nil)
