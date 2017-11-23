@@ -124,17 +124,6 @@ cyber-dojo.sh as the avatar with the given avatar_name.
 ```
 - returns stdout, stderr, status, as the results of calling
 cyber-dojo.sh, and colour.
-If the run completed in max_seconds, colour will be "red", "amber", or "green".
-eg
-```
-    { "run": {
-        "stdout": "makefile:17: recipe for target 'test' failed\n",
-        "stderr": "invalid suffix sss on integer constant",
-        "status": 2,
-        "colour": "amber"
-      }
-    }
-```
 If the run did not complete in max_seconds, colour will be "timed_out".
 eg
 ```
@@ -146,12 +135,32 @@ eg
       }
     }
 ```
+If the run completed in max_seconds, colour will be "red", "amber", or "green".
 The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-is determined by passing the stdout, stderr, and status to a Ruby lambda,
+is determined by passing stdout, stderr, and status to a Ruby lambda,
+eg
+```
+lambda { |stdout, stderr, status|
+  output = stdout + stderr
+  return :red   if /(.*)Assertion(.*)failed./.match(output)
+  return :green if /(All|\d+) tests passed/.match(output)
+  return :amber
+}
+```
 taken from the image, at /usr/local/bin/red_amber_green.rb.
 - If this file does not exist, the colour is "amber".
-- If this file raises an exception, when eval'd or called, the colour is "amber",
+- If the contents of this file raises an exception, when eval'd or called, the colour is "amber",
 - If the lambda returns anything other than :red, :amber, or :green, the colour is "amber".
+eg
+```
+    { "run": {
+        "stdout": "makefile:17: recipe for target 'test' failed\n",
+        "stderr": "invalid suffix sss on integer constant",
+        "status": 2,
+        "colour": "amber"
+      }
+    }
+```
 
 
 - - - -
