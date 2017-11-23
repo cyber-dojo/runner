@@ -136,21 +136,6 @@ eg
     }
 ```
 If the run completed in max_seconds, colour will be "red", "amber", or "green".
-The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-is determined by passing stdout, stderr, and status to a Ruby lambda,
-eg
-```
-lambda { |stdout, stderr, status|
-  output = stdout + stderr
-  return :red   if /(.*)Assertion(.*)failed./.match(output)
-  return :green if /(All|\d+) tests passed/.match(output)
-  return :amber
-}
-```
-taken from the image, at /usr/local/bin/red_amber_green.rb.
-- If this file does not exist, the colour is "amber".
-- If the contents of this file raises an exception, when eval'd or called, the colour is "amber",
-- If the lambda returns anything other than :red, :amber, or :green, the colour is "amber".
 eg
 ```
     { "run": {
@@ -161,6 +146,21 @@ eg
       }
     }
 ```
+The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
+is determined by passing stdout, stderr, and status to a Ruby lambda, taken from the
+named image, at /usr/local/bin/red_amber_green.rb.
+eg
+```
+lambda { |stdout, stderr, status|
+  output = stdout + stderr
+  return :red   if /(.*)Assertion(.*)failed./.match(output)
+  return :green if /(All|\d+) tests passed/.match(output)
+  return :amber
+}
+```
+- If this file does not exist in the named image, the colour is "amber".
+- If the contents of this file raises an exception when eval'd or called, the colour is "amber".
+- If the lambda returns anything other than :red, :amber, or :green, the colour is "amber".
 
 
 - - - -
