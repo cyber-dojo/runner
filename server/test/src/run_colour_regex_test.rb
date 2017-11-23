@@ -17,8 +17,8 @@ class RunColourRegexTest < TestBase
     @shell = ShellRaiser.new(shell)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert_becomes_amber
-       # would like to check log but there is shell-log over-coupling
+      assert_colour 'amber'
+      # would like to check log but there is shell-log over-coupling
     }
   end
 
@@ -124,15 +124,8 @@ class RunColourRegexTest < TestBase
     @shell = ShellCatRagFileStub.new(shell, lambda)
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert_becomes_amber
+      assert_colour 'amber'
     }
-  end
-
-  def assert_becomes_amber
-    assert_equal '', stdout
-    assert stderr.start_with? 'Assertion failed: answer() == 42'
-    assert_equal 2, status
-    assert_equal 'amber', colour
   end
 
 end

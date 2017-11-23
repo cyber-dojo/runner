@@ -34,7 +34,7 @@ class RunCyberDojoShTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'B2B', %w( [gcc,assert]
+  test 'B2B', %w( [Alpine]
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
   then stdout is empty,
@@ -55,7 +55,7 @@ class RunCyberDojoShTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '4D7', %w( [gcc,assert]
+  test '4D7', %w( [Alpine]
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output
   then stdout is not empty,
