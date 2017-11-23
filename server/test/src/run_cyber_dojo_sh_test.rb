@@ -27,9 +27,9 @@ class RunCyberDojoShTest < TestBase
     in_kata_as(salmon) {
       run_cyber_dojo_sh
     }
-    refute timed_out?, quad
-    assert_equal status, 2, quad
-    assert_equal 'red', colour, quad
+    refute_timed_out
+    assert_status 2
+    assert_colour 'red'
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -47,10 +47,10 @@ class RunCyberDojoShTest < TestBase
       }
       run_cyber_dojo_sh(named_args)
     }
-    assert timed_out?, quad
-    assert_equal '', stdout
-    assert_equal '', stderr
-    assert_equal 'timed_out', colour, quad
+    assert_timed_out
+    assert_stdout ''
+    assert_stderr ''
+    assert_timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,9 +68,9 @@ class RunCyberDojoShTest < TestBase
       }
       run_cyber_dojo_sh(named_args)
     }
-    assert timed_out?, quad
-    refute_equal '', stdout
-    assert_equal 'timed_out', colour, quad
+    assert_timed_out
+    refute_stdout ''
+    assert_timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -106,8 +106,37 @@ class TestBase < HexMiniTest
     quad[:colour]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_stdout(expected)
+    assert_equal expected, stdout, quad
+  end
+  def refute_stdout(unexpected)
+    refute_equal unexpected, stdout, quad
+  end
+
+  def assert_stderr(expected)
+    assert_equal expected, stderr, quad
+  end
+
+  def assert_status(expected)
+    assert_equal expected, status, quad
+  end
+
   def timed_out?
     colour == 'timed_out'
+  end
+
+  def assert_timed_out
+    assert timed_out?, quad
+  end
+
+  def refute_timed_out
+    refute timed_out?, quad
+  end
+
+  def assert_colour(expected)
+    assert_equal expected, colour, quad
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
