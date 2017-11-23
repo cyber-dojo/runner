@@ -147,7 +147,7 @@ eg
     }
 ```
 The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-is determined by passing stdout, stderr, and status to a Ruby lambda, taken from the
+is determined by passing stdout, stderr, and status to a Ruby lambda, read from the
 named image, at /usr/local/bin/red_amber_green.rb.
 eg
 ```
