@@ -83,6 +83,28 @@ class RunCyberDojoShTest < TestBase
     }
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '12B',
+  %w( files in sub-dirs of sandbox can be deleted ) do
+    in_kata_as('salmon') {
+      sub_dir = 'a'
+      filename = 'goodbye.txt'
+      content = 'goodbye, world'
+      run_cyber_dojo_sh({
+            new_files: { "#{sub_dir}/#{filename}" => content },
+        changed_files: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{stat_cmd}" }
+      })
+      filenames = stdout_stats.keys
+      assert filenames.include?(filename)
+      run_cyber_dojo_sh({
+        deleted_files: { "#{sub_dir}/#{filename}" => content }
+      })
+      filenames = stdout_stats.keys
+      refute filenames.include?(filename)
+    }
+  end
+
   private # = = = = = = = = = = = = = = = = = = = = = =
 
   def assert_files_can_be_in_sub_dirs_of_sandbox

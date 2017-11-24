@@ -44,7 +44,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(name = salmon)
-    runner.avatar_new(@avatar_name = name, @all_files = starting_files)
+    runner.avatar_new(@avatar_name = name, @previous_files = starting_files)
   end
 
   def avatar_old(name = avatar_name)
@@ -55,7 +55,20 @@ class TestBase < HexMiniTest
 
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @all_files
+    unchanged_files = @previous_files
+
+    new_files = defaulted_arg(named_args, :new_files, {})
+    new_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a new_file (it already exists)"
+      refute unchanged_files.keys.include?(filename), diagnostic
+    end
+
+    deleted_files = defaulted_arg(named_args, :deleted_files, {})
+    deleted_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a deleted_file (it does not already exist)"
+      assert unchanged_files.keys.include?(filename), diagnostic
+      unchanged_files.delete(filename)
+    end
 
     changed_files = defaulted_arg(named_args, :changed_files, {})
     changed_files.keys.each do |filename|
@@ -64,23 +77,13 @@ class TestBase < HexMiniTest
       unchanged_files.delete(filename)
     end
 
-    new_files = defaulted_arg(named_args, :new_files, {})
-    new_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a new_file (it already exists)"
-      refute unchanged_files.keys.include?(filename), diagnostic
-    end
+    @quad = runner.run_cyber_dojo_sh(
+      defaulted_arg(named_args, :avatar_name, avatar_name),
+      new_files, deleted_files, unchanged_files, changed_files,
+      defaulted_arg(named_args, :max_seconds, 10)
+    )
 
-    args = []
-    args << defaulted_arg(named_args, :avatar_name, avatar_name)
-    args << new_files
-    args << defaulted_arg(named_args, :deleted_files, {})
-    args << unchanged_files
-    args << changed_files
-    args << defaulted_arg(named_args, :max_seconds, 10)
-
-    @quad = runner.run_cyber_dojo_sh(*args)
-
-    @all_files = [ *unchanged_files, *changed_files, *new_files ].to_h
+    @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
   end
 
