@@ -22,7 +22,7 @@ class RunCyberDojoShTest < TestBase
 
   multi_os_test '8A5',
   %w( when run_cyber_dojo_sh completes within max_seconds
-      then timed_out is false
+      then the colour is 'red'/'amber'/'green'
   ) do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
@@ -38,7 +38,7 @@ class RunCyberDojoShTest < TestBase
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
   then stdout is empty,
-  and timed_out is true
+  and the colour is 'timed_out'
   ) do
     in_kata_as(salmon) {
       named_args = {
@@ -59,7 +59,7 @@ class RunCyberDojoShTest < TestBase
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output
   then stdout is not empty,
-  and timed_out is true
+  and the colour is 'timed_out'
   ) do
     in_kata_as(salmon) {
       named_args = {
@@ -83,7 +83,7 @@ class RunCyberDojoShTest < TestBase
     }
   end
 
-  private
+  private # = = = = = = = = = = = = = = = = = = = = = =
 
   def assert_files_can_be_in_sub_dirs_of_sandbox
     sub_dir = 'z'
