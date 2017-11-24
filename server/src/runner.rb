@@ -36,10 +36,6 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_exists?
-    container_exists?
-  end
-
   def kata_new
     # no-op for API compatibility
     nil
@@ -51,12 +47,6 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_exists?(avatar_name)
-    @avatar_name = avatar_name
-    assert_valid_avatar_name
-    container_exists?
-  end
 
   def avatar_new(avatar_name, _starting_files)
     # for API compatibility
@@ -245,13 +235,6 @@ class Runner # stateless
   end
 
   include ValidImageName
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_exists?
-    stdout = shell.assert("docker ps --format '{{.Names}}'")
-    stdout.split("\n").include? container_name
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
