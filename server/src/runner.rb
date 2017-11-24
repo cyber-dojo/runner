@@ -83,8 +83,7 @@ class Runner # stateless
       save_to(visible_files, tmp_dir)
       in_container {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
-        @rag = rag_lambda
-        @colour = @timed_out ? 'timed_out' : red_amber_green(@rag)
+        @colour = @timed_out ? 'timed_out' : red_amber_green
       }
     end
     { stdout:@stdout, stderr:@stderr, status:@status, colour:@colour }
@@ -194,7 +193,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green(rag_lambda)
+  def red_amber_green
     # @stdout and @stderr have been truncated and cleaned.
     begin
       rag = eval(rag_lambda)
