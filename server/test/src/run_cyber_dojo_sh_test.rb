@@ -10,7 +10,7 @@ class RunCyberDojoShTest < TestBase
 
   multi_os_test '4CC',
   %w( invalid avatar_name raises ) do
-    in_kata_as(salmon) {
+    in_kata_as('salmon') {
       error = assert_raises(ArgumentError) {
         run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
       }
@@ -24,7 +24,7 @@ class RunCyberDojoShTest < TestBase
   %w( when run_cyber_dojo_sh completes within max_seconds
       then the colour is 'red'/'amber'/'green'
   ) do
-    in_kata_as(salmon) {
+    in_kata_as('salmon') {
       run_cyber_dojo_sh
     }
     refute_timed_out
@@ -40,7 +40,7 @@ class RunCyberDojoShTest < TestBase
   then stdout is empty,
   and the colour is 'timed_out'
   ) do
-    in_kata_as(salmon) {
+    in_kata_as('salmon') {
       named_args = {
         changed_files: { 'hiker.c' => quiet_infinite_loop },
           max_seconds: 2
@@ -61,7 +61,7 @@ class RunCyberDojoShTest < TestBase
   then stdout is not empty,
   and the colour is 'timed_out'
   ) do
-    in_kata_as(salmon) {
+    in_kata_as('salmon') {
       named_args = {
         changed_files: { 'hiker.c' => loud_infinite_loop },
           max_seconds: 2

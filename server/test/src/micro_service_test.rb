@@ -48,7 +48,7 @@ class MicroServiceTest < TestBase
 
   test 'BB6', 'avatar_new' do
     assert_call('avatar_new', {
-        avatar_name:salmon,
+        avatar_name:'salmon',
         starting_files:starting_files
         }, {
         'avatar_new':nil
@@ -60,7 +60,7 @@ class MicroServiceTest < TestBase
 
   test 'BB7', 'avatar_old' do
     assert_call('avatar_old', {
-        avatar_name:salmon
+        avatar_name:'salmon'
       }, {
         'avatar_old':nil
       }
@@ -71,7 +71,7 @@ class MicroServiceTest < TestBase
 
   test 'BB8', 'run_cyber_dojo_sh' do
     assert_call('run_cyber_dojo_sh', {
-        avatar_name:salmon,
+        avatar_name:'salmon',
         new_files:starting_files,
         deleted_files:{},
         unchanged_files:{},
@@ -92,7 +92,7 @@ class MicroServiceTest < TestBase
 
   test 'BB9', 'run' do
     assert_call('run', {
-        avatar_name:salmon,
+        avatar_name:'salmon',
         visible_files:starting_files,
         max_seconds:10
       }, {

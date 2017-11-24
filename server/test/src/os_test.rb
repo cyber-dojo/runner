@@ -10,7 +10,7 @@ class OsTest < TestBase
 
   multi_os_test '8A2',
   %w( os-image correspondence ) do
-    in_kata_as(salmon) {
+    in_kata_as('salmon') {
       etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
       assert etc_issue.include?(os.to_s), etc_issue
     }

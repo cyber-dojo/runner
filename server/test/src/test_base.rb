@@ -43,7 +43,7 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(name = salmon)
+  def avatar_new(name = 'salmon')
     runner.avatar_new(@avatar_name = name, @previous_files = starting_files)
   end
 
@@ -85,10 +85,6 @@ class TestBase < HexMiniTest
 
     @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
-  end
-
-  def salmon
-    'salmon'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
