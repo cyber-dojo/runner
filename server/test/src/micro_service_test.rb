@@ -108,19 +108,6 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  def gcc_assert_rag_lambda
-    "\n"+<<~RUBY
-    lambda { |stdout, stderr, status|
-      output = stdout + stderr
-      return :red   if /(.*)Assertion(.*)failed./.match(output)
-      return :green if /(All|\\d+) tests passed/.match(output)
-      return :amber
-    }
-    RUBY
-  end
-=end
-
   def gcc_assert_stderr
     "Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)\n" +
     "make: *** [makefile:13: test.output] Aborted\n"
@@ -143,7 +130,7 @@ class MicroServiceTest < TestBase
     assert_equal 200, tri[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tri[1])
     assert_equal [ expected.to_json ], tri[2]
-    #TODO: assert on content of ms.log
+    #TODO?: assert on content of ms.log
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
