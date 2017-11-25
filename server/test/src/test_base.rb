@@ -1,7 +1,9 @@
 require_relative 'hex_mini_test'
+require_relative 'request_stub'
 require_relative '../../src/all_avatars_names'
 require_relative '../../src/externals'
 require_relative '../../src/runner'
+require_relative '../../src/micro_service'
 require 'json'
 
 class TestBase < HexMiniTest
@@ -34,11 +36,19 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    runner.kata_new
+    args = {
+      image_name:image_name,
+      kata_id:kata_id
+    }.to_json
+    MicroService.new.call(nil, RequestStub.new(args, 'kata_new'))
   end
 
   def kata_old
-    runner.kata_old
+    args = {
+      image_name:image_name,
+      kata_id:kata_id
+    }.to_json
+    MicroService.new.call(nil, RequestStub.new(args, 'kata_old'))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
