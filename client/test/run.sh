@@ -9,7 +9,7 @@ fi
 readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
 readonly TEST_LOG=${CYBER_DOJO_COVERAGE_ROOT}/test.log
 
-mkdir ${CYBER_DOJO_COVERAGE_ROOT}
+mkdir -p ${CYBER_DOJO_COVERAGE_ROOT}
 cd ${MY_DIR}/src
 
 readonly FILES=(*_test.rb)

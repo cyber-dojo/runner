@@ -1,5 +1,7 @@
 require_relative 'test_base'
 require_relative 'logger_spy'
+require_relative '../../src/runner_error'
+require_relative '../../src/logger_stdout'
 
 class ShellBasherTest < TestBase
 
@@ -7,124 +9,112 @@ class ShellBasherTest < TestBase
     'C89'
   end
 
-  def hex_setup
-    @log = LoggerSpy.new(nil)
-  end
-
-  attr_reader :log
-
+  # - - - - - - - - - - - - - - - - -
+  # shell.exec(cmd)
   # - - - - - - - - - - - - - - - - -
 
-  test '243', %w(
-    when assert(cmd) status is zero
-    it returns stdout
-    and logs nothing
+  test '243', %w( when exec(cmd) raises
+    the exception info is in the exception object
+    and is not logged
   ) do
-    stdout = shell.assert('echo Hello')
-    assert_equal "Hello\n", stdout
-    assert_log []
+    error = assert_raises(RunnerError) {
+      shell.exec('xxx Hello')
+    }
+    assert_equal({
+        'command':'shell.exec("xxx Hello")',
+        'message':'No such file or directory - xxx'
+      }, error.info);
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '14B',
-  'assert(cmd) logs and raises when command fails' do
-    error = assert_raises(ArgumentError) {
-      shell.assert('false')
-    }
-    assert_log [
-      line,
-      'COMMAND:false',
-      'STATUS:1',
-      'STDOUT:',
-      'STDERR:'
-    ]
-    error = assert_raises(ArgumentError) {
-      shell.assert('sed salmon')
-    }
-    assert_log [
-      line,
-      'COMMAND:false',
-      'STATUS:1',
-      'STDOUT:',
-      'STDERR:',
-      line,
-      'COMMAND:sed salmon',
-      'STATUS:1',
-      'STDOUT:',
-      "STDERR:sed: unmatched 'a'\n"
-    ]
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'DBB',
-  'exec(cmd) succeeds with output, no logging' do
-    stdout,stderr,status = shell.exec('echo Hello')
+  test '244',
+  %w( when exec(cmd) is zero,
+      it returns [stdout,stderr,status]
+      and does not log ) do
+    stdout,stderr,status = shell.exec('printf Hello')
+    assert_equal 'Hello', stdout
+    assert_equal '', stderr
     assert_equal 0, status
-    assert_equal "Hello\n", stdout
+    assert_nothing_logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '245',
+  %w( when exec(cmd) is non-zero,
+      it returns [stdout,stderr,status]
+      and logs ) do
+    stdout,stderr,status = shell.exec('printf Bye && false')
+    assert_equal 'Bye', stdout
     assert_equal '', stderr
-    assert_log []
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '490',
-  'exec(cmd) failure (no output) is logged' do
-    stdout,stderr,status = shell.exec('false')
     assert_equal 1, status
-    assert_equal '', stdout
-    assert_equal '', stderr
-    assert_log [
-      line,
-      'COMMAND:false',
-      'STATUS:1',
-      'STDOUT:',
-      'STDERR:'
-    ]
+
+    assert_logged({
+      'command':'shell.exec("printf Bye && false")',
+      'stdout':'Bye',
+      'stderr':'',
+      'status':1
+    })
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # shell.assert(cmd)
+  # - - - - - - - - - - - - - - - - -
+
+  test '246',
+  %w( when assert(cmd) raises
+      the exception info is in the exception object
+      and is not logged
+  ) do
+    error = assert_raises(RunnerError) {
+      shell.assert('xxx Hello')
+    }
+    assert_equal({
+        'command':'shell.assert("xxx Hello")',
+        'message':'No such file or directory - xxx'
+      }, error.info);
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '46B',
-  'exec(cmd) failure (with output) is logged' do
-    stdout,stderr,status = shell.exec('sed salmon')
-    assert_equal 1, status
-    assert_equal '', stdout
-    assert_equal "sed: unmatched 'a'\n", stderr
-    assert_log [
-      line,
-      'COMMAND:sed salmon',
-      'STATUS:1',
-      'STDOUT:',
-      "STDERR:sed: unmatched 'a'\n"
-    ]
+  test '247',
+  %w( when assert(cmd) is zero, nothing is logged, stdout is returned ) do
+    stdout = shell.assert('printf Hello')
+    assert_equal 'Hello', stdout
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AF6',
-  'exec(cmd) raises with verbose output' do
-    # some commands fail with simple non-zero exit status...
-    # some commands fail with an exception...
-    error = assert_raises { shell.exec('zzzz') }
-    assert_equal 'Errno::ENOENT', error.class.name
-    assert_log [
-      line,
-      'COMMAND:zzzz',
-      'RAISED-CLASS:Errno::ENOENT',
-      'RAISED-TO_S:No such file or directory - zzzz'
-    ]
+  test '248',
+  %w( when assert(cmd) is non-zero,
+      exception is raised,
+      the exception info is in the exception object
+      and is not logged
+  ) do
+    error = assert_raises(RunnerError) {
+      shell.assert('printf Hello && false')
+    }
+    assert_equal({
+        'command':'shell.assert("printf Hello && false")',
+        'stdout':'Hello',
+        'stderr':'',
+        'status':1
+      }, error.info);
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_log(expected)
-    assert_equal expected, log.spied
+  def assert_nothing_logged
+    assert_equal [], log.messages
   end
 
-  def line
-    '-' * 40
+  def assert_logged(hash)
+    assert_equal [hash], log.messages
   end
 
 end

@@ -3,20 +3,16 @@ require_relative 'test_base'
 class LoggerStdoutTest < TestBase
 
   def self.hex_prefix
-    '1B6'
+    '1B67B'
   end
 
   test '962',
-  '<< writes to stdout with added trailing newline' do
+  '<< appends to messages, does not write to stdout, class needs name change' do
     log = LoggerStdout.new(nil)
-    written = with_captured_stdout { log << "Hello world" }
-    assert_equal quoted('Hello world')+"\n", written
-  end
-
-  private
-
-  def quoted(s)
-    '"' + s + '"'
+    log << "Hello world"
+    assert_equal ['Hello world'], log.messages
+    log << { 'x' => 42 }
+    assert_equal ['Hello world', { 'x' => 42 }], log.messages
   end
 
 end
