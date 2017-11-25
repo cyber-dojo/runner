@@ -19,26 +19,24 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_pulled?
-    args = {
-      image_name:image_name,
-      kata_id:kata_id
-    }.to_json
+  def call(method_name, args)
+    args['image_name'] = image_name
+    args['kata_id'] = kata_id
     ms = MicroService.new
     ms.shell = @shell
-    tuple = ms.call(nil, RequestStub.new(args, 'image_pulled'))
+    ms.call(nil, RequestStub.new(args.to_json, method_name))
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def image_pulled?
+    tuple = call('image_pulled', {})
     json = JSON.parse(tuple[2][0])
     json['image_pulled?']
   end
 
   def image_pull
-    args = {
-      image_name:image_name,
-      kata_id:kata_id
-    }.to_json
-    ms = MicroService.new
-    ms.shell = @shell
-    tuple = ms.call(nil, RequestStub.new(args, 'image_pull'))
+    tuple = call('image_pull', {})
     json = JSON.parse(tuple[2][0])
     json['image_pull']
   end
@@ -46,42 +44,25 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    args = {
-      image_name:image_name,
-      kata_id:kata_id
-    }.to_json
-    MicroService.new.call(nil, RequestStub.new(args, 'kata_new'))
+    call('kata_new', {})
   end
 
   def kata_old
-    args = {
-      image_name:image_name,
-      kata_id:kata_id
-    }.to_json
-    MicroService.new.call(nil, RequestStub.new(args, 'kata_old'))
+    call('kata_old', {})
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(name = 'salmon')
-    args = {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:name,
-      starting_files:starting_files
-    }.to_json
-    MicroService.new.call(nil, RequestStub.new(args, 'avatar_new'))
+    args = { avatar_name:name, starting_files:starting_files }
+    call('avatar_new', args)
     @avatar_name = name
     @previous_files = starting_files
   end
 
   def avatar_old(name = avatar_name)
-    args = {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:name
-    }.to_json
-    MicroService.new.call(nil, RequestStub.new(args, 'avatar_old'))
+    args = { avatar_name:name }
+    call('avatar_old', args)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
