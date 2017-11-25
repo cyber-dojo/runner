@@ -15,12 +15,16 @@ class PullTest < TestBase
     shell.teardown
   end
 
+  def set_image_name(image_name)
+    @image_name = image_name
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '9C3',
   'false when image_name is valid but not in [docker images]' do
-    mock_docker_images_prints 'cdf/gcc_assert'
     set_image_name 'cdf/ruby_mini_test:1.9.3'
+    mock_docker_images_prints 'cdf/gcc_assert'
     refute image_pulled?
   end
 
@@ -28,8 +32,8 @@ class PullTest < TestBase
 
   test 'A44',
   'true when image_name is valid and in [docker images]' do
-    mock_docker_images_prints 'cdf/gcc_assert'
     set_image_name 'cdf/gcc_assert'
+    mock_docker_images_prints 'cdf/gcc_assert'
     assert image_pulled?
   end
 

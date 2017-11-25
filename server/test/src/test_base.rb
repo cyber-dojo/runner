@@ -41,6 +41,7 @@ class TestBase < HexMiniTest
       kata_id:kata_id
     }.to_json
     MicroService.new.call(nil, RequestStub.new(args, 'kata_new'))
+    #TODO: specific exception will be in the log
   end
 
   def kata_old
@@ -169,11 +170,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  #TODO?: change to image_name=
-  def set_image_name(image_name)
-    @image_name = image_name
-  end
-
   def image_name
     @image_name ||= manifest['image_name']
   end
@@ -249,6 +245,5 @@ class TestBase < HexMiniTest
   ensure
     avatar_old(name)
   end
-
 
 end

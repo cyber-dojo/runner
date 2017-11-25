@@ -16,7 +16,6 @@ class MicroServiceTest < TestBase
     assert_call_raw('kata_new', 'sdfsdf', { "exception":"image_name:invalid" })
     assert_call_raw('kata_new', 'null',   { "exception":"image_name:invalid" })
     assert_call_raw('kata_new', '[]',     { "exception":"image_name:invalid" })
-    #TODO: specific exception will be in the log
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
