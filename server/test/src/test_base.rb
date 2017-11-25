@@ -87,7 +87,15 @@ class TestBase < HexMiniTest
     nil
   end
 
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def quad
+    @quad
+  end
 
   def stdout
     quad[:stdout]
@@ -172,6 +180,8 @@ class TestBase < HexMiniTest
     40000 + all_avatars_names.index(avatar_name)
   end
 
+  include AllAvatarsNames
+
   def group
     'cyber-dojo'
   end
@@ -230,26 +240,5 @@ class TestBase < HexMiniTest
     avatar_old(name)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def cdf
-    'cyberdojofoundation'
-  end
-
-  private
-
-  include AllAvatarsNames
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def defaulted_arg(named_args, arg_name, arg_default)
-    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def quad
-    @quad
-  end
 
 end

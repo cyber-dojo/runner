@@ -6,7 +6,7 @@ class AllAvatarsNamesTest < TestBase
   include AllAvatarsNames
 
   def self.hex_prefix
-    '7BE'
+    '7BEBD'
   end
 
   # - - - - - - - - - - - - - - - - -

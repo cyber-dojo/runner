@@ -3,7 +3,7 @@ require_relative 'test_base'
 class HexMiniTestTest < TestBase
 
   def self.hex_prefix
-    '898'
+    '89876'
   end
 
   test 'C80',

@@ -4,7 +4,7 @@ require_relative 'shell_mocker'
 class ShellMockerTest < TestBase
 
   def self.hex_prefix
-    'F03'
+    'F03E2'
   end
 
   # - - - - - - - - - - - - - - -

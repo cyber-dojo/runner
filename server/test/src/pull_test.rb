@@ -4,7 +4,7 @@ require_relative 'shell_mocker'
 class PullTest < TestBase
 
   def self.hex_prefix
-    '0D5713'
+    '0D571'
   end
 
   def hex_setup
@@ -19,8 +19,8 @@ class PullTest < TestBase
 
   test '9C3',
   'false when image_name is valid but not in [docker images]' do
-    mock_docker_images_prints "#{cdf}/gcc_assert"
-    set_image_name "#{cdf}/ruby_mini_test:1.9.3"
+    mock_docker_images_prints 'cdf/gcc_assert'
+    set_image_name 'cdf/ruby_mini_test:1.9.3'
     refute image_pulled?
   end
 
@@ -28,7 +28,8 @@ class PullTest < TestBase
 
   test 'A44',
   'true when image_name is valid and in [docker images]' do
-    mock_docker_images_prints "#{cdf}/gcc_assert"
+    mock_docker_images_prints 'cdf/gcc_assert'
+    set_image_name 'cdf/gcc_assert'
     assert image_pulled?
   end
 
@@ -36,7 +37,7 @@ class PullTest < TestBase
 
   test '91C',
   'true when image_name is valid and exists' do
-    set_image_name "#{cdf}/ruby_mini_test"
+    set_image_name 'cdf/ruby_mini_test'
 
     mock_docker_pull_success image_name, tag=''
     assert image_pull
@@ -62,7 +63,7 @@ class PullTest < TestBase
 
   test 'D80',
   'false when image_name is valid but does not exist' do
-    set_image_name "#{cdf}/does_not_exist"
+    set_image_name 'cdf/does_not_exist'
     mock_docker_pull_not_exist image_name, tag=''
     refute image_pull
   end
@@ -83,7 +84,7 @@ class PullTest < TestBase
 
   test '933',
   'raises when there is no network connectivitity' do
-    set_image_name "#{cdf}/gcc_assert"
+    set_image_name 'cdf/gcc_assert'
     cmd = "docker pull #{image_name}"
     stdout = [
       'Using default tag: latest',

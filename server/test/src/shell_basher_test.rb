@@ -6,7 +6,7 @@ require_relative '../../src/logger_stdout'
 class ShellBasherTest < TestBase
 
   def self.hex_prefix
-    'C89'
+    'C894D'
   end
 
   # - - - - - - - - - - - - - - - - -

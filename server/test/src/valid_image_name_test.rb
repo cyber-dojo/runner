@@ -8,7 +8,7 @@ class ValidImageNameTest < TestBase
   include ImageNames
 
   def self.hex_prefix
-    'AF3'
+    'AF3A5'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
