@@ -8,7 +8,7 @@ class HexMiniTestTest < TestBase
 
   test 'C80',
   'hex-test-id is available via environment variable' do
-    assert_equal '898C80', ENV['CYBER_DOJO_HEX_TEST_ID']
+    assert_equal '89876C80', ENV['CYBER_DOJO_HEX_TEST_ID']
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -16,7 +16,7 @@ class HexMiniTestTest < TestBase
   test '57B',
   'hex-test-id is available via a method',
   'and is the hex_prefix concatenated with the hex-id' do
-    assert_equal '89857B', hex_test_id
+    assert_equal '8987657B', hex_test_id
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
