@@ -40,7 +40,9 @@ class TestBase < HexMiniTest
       image_name:image_name,
       kata_id:kata_id
     }.to_json
-    MicroService.new.call(nil, RequestStub.new(args, 'kata_new'))
+    ms = MicroService.new
+    ms.shell = @shell
+    ms.call(nil, RequestStub.new(args, 'kata_new'))
     #TODO: specific exception will be in the log
   end
 
@@ -55,11 +57,24 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(name = 'salmon')
-    runner.avatar_new(@avatar_name = name, @previous_files = starting_files)
+    args = {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:name,
+      starting_files:starting_files
+    }.to_json
+    MicroService.new.call(nil, RequestStub.new(args, 'avatar_new'))
+    @avatar_name = name
+    @previous_files = starting_files
   end
 
   def avatar_old(name = avatar_name)
-    runner.avatar_old(name)
+    args = {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:name
+    }.to_json
+    MicroService.new.call(nil, RequestStub.new(args, 'avatar_old'))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

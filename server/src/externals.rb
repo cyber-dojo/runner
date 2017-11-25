@@ -7,6 +7,9 @@ module Externals # mix-in
   def shell
     @shell ||= ShellBasher.new(self)
   end
+  def shell=(doppel)
+    @shell = doppel
+  end
 
   def disk
     @disk ||= DiskWriter.new(self)
