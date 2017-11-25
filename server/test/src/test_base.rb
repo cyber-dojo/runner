@@ -2,7 +2,6 @@ require_relative 'hex_mini_test'
 require_relative 'request_stub'
 require_relative '../../src/all_avatars_names'
 require_relative '../../src/externals'
-require_relative '../../src/runner'
 require_relative '../../src/micro_service'
 require 'json'
 
@@ -19,36 +18,35 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def call(method_name, args)
+  def call(method_name, args = {})
     args['image_name'] = image_name
     args['kata_id'] = kata_id
     ms = MicroService.new
     ms.shell = @shell
-    ms.call(nil, RequestStub.new(args.to_json, method_name))
+    result = ms.call(nil, RequestStub.new(args.to_json, method_name))
+    @json = JSON.parse(result[2][0])
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
-    tuple = call('image_pulled', {})
-    json = JSON.parse(tuple[2][0])
-    json['image_pulled?']
+    call('image_pulled')
+    @json['image_pulled?']
   end
 
   def image_pull
-    tuple = call('image_pull', {})
-    json = JSON.parse(tuple[2][0])
-    json['image_pull']
+    call('image_pull')
+    @json['image_pull']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    call('kata_new', {})
+    call('kata_new')
   end
 
   def kata_old
-    call('kata_old', {})
+    call('kata_old')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,12 +61,6 @@ class TestBase < HexMiniTest
   def avatar_old(name = avatar_name)
     args = { avatar_name:name }
     call('avatar_old', args)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def runner
-    Runner.new(self, image_name, kata_id)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -97,11 +89,16 @@ class TestBase < HexMiniTest
       unchanged_files.delete(filename)
     end
 
-    @quad = runner.run_cyber_dojo_sh(
-      defaulted_arg(named_args, :avatar_name, avatar_name),
-      new_files, deleted_files, unchanged_files, changed_files,
-      defaulted_arg(named_args, :max_seconds, 10)
-    )
+    args = {
+      avatar_name:defaulted_arg(named_args, :avatar_name, avatar_name),
+      new_files:new_files,
+      deleted_files:deleted_files,
+      unchanged_files:unchanged_files,
+      changed_files:changed_files,
+      max_seconds:defaulted_arg(named_args, :max_seconds, 10)
+    }
+    call('run_cyber_dojo_sh', args)
+    @quad = @json['run_cyber_dojo_sh']
 
     @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
@@ -118,19 +115,19 @@ class TestBase < HexMiniTest
   end
 
   def stdout
-    quad[:stdout]
+    quad['stdout']
   end
 
   def stderr
-    quad[:stderr]
+    quad['stderr']
   end
 
   def status
-    quad[:status]
+    quad['status']
   end
 
   def colour
-    quad[:colour]
+    quad['colour']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
