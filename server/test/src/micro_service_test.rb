@@ -1,6 +1,7 @@
-require_relative 'test_base'
 require_relative '../../src/micro_service'
 require_relative 'logger_spy'
+require_relative 'request_stub'
+require_relative 'test_base'
 
 class MicroServiceTest < TestBase
 
@@ -124,37 +125,10 @@ class MicroServiceTest < TestBase
   end
 
   def assert_call_raw(path_info, args, expected)
-    ms = MicroService.new
-    tri = ms.call(nil, RequestStub.new(args, path_info))
-    assert_equal 200, tri[0]
-    assert_equal({ 'Content-Type' => 'application/json' }, tri[1])
-    assert_equal [ expected.to_json ], tri[2]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  class RequestStub
-    def initialize(body, path_info)
-      @body = body
-      @path_info = path_info
-    end
-    def body
-      RequestBodyStub.new(@body)
-    end
-    def path_info
-      "/#{@path_info}"
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  class RequestBodyStub
-    def initialize(body)
-      @body = body
-    end
-    def read
-      @body
-    end
+    tuple = MicroService.new.call(nil, RequestStub.new(args, path_info))
+    assert_equal 200, tuple[0]
+    assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
+    assert_equal [ expected.to_json ], tuple[2]
   end
 
 end
