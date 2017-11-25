@@ -100,8 +100,17 @@ class PullTest < TestBase
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
     shell.mock_exec(cmd, stdout, stderr, status=1)
-    error = assert_raises(ArgumentError) { image_pull }
-    assert_equal 'image_name:invalid', error.message
+
+    args = {
+      image_name:image_name,
+      kata_id:kata_id
+    }.to_json
+    ms = MicroService.new
+    ms.shell = @shell
+    tuple = ms.call(nil, RequestStub.new(args, 'image_pull'))
+    json = JSON.parse(tuple[2][0])
+    # TODO: This is a poor message, but its the current behaviour
+    assert_equal 'image_name:invalid', json['exception']
   end
 
   private

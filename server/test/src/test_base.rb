@@ -19,18 +19,28 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def runner
-    Runner.new(self, image_name, kata_id)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def image_pulled?
-    runner.image_pulled?
+    args = {
+      image_name:image_name,
+      kata_id:kata_id
+    }.to_json
+    ms = MicroService.new
+    ms.shell = @shell
+    tuple = ms.call(nil, RequestStub.new(args, 'image_pulled'))
+    json = JSON.parse(tuple[2][0])
+    json['image_pulled?']
   end
 
   def image_pull
-    runner.image_pull
+    args = {
+      image_name:image_name,
+      kata_id:kata_id
+    }.to_json
+    ms = MicroService.new
+    ms.shell = @shell
+    tuple = ms.call(nil, RequestStub.new(args, 'image_pull'))
+    json = JSON.parse(tuple[2][0])
+    json['image_pull']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -40,10 +50,7 @@ class TestBase < HexMiniTest
       image_name:image_name,
       kata_id:kata_id
     }.to_json
-    ms = MicroService.new
-    ms.shell = @shell
-    ms.call(nil, RequestStub.new(args, 'kata_new'))
-    #TODO: specific exception will be in the log
+    MicroService.new.call(nil, RequestStub.new(args, 'kata_new'))
   end
 
   def kata_old
@@ -75,6 +82,12 @@ class TestBase < HexMiniTest
       avatar_name:name
     }.to_json
     MicroService.new.call(nil, RequestStub.new(args, 'avatar_old'))
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def runner
+    Runner.new(self, image_name, kata_id)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
