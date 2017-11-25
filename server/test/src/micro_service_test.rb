@@ -125,12 +125,10 @@ class MicroServiceTest < TestBase
 
   def assert_call_raw(path_info, args, expected)
     ms = MicroService.new
-    ms.log = LoggerSpy.new(nil)
     tri = ms.call(nil, RequestStub.new(args, path_info))
     assert_equal 200, tri[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tri[1])
     assert_equal [ expected.to_json ], tri[2]
-    #TODO?: assert on content of ms.log
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

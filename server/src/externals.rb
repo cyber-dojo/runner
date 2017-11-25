@@ -15,8 +15,5 @@ module Externals # mix-in
   def log
     @log ||= LoggerStdout.new(self)
   end
-  def log=(rhs)
-    @log = rhs
-  end
 
 end
