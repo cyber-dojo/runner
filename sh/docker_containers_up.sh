@@ -20,5 +20,6 @@ wait_till_up()
 }
 
 docker-compose --file ${ROOT_DIR}/docker-compose.yml up -d
+
 wait_till_up 'runner_stateless_server'
 wait_till_up 'runner_stateless_client'
