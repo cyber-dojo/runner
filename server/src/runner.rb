@@ -96,7 +96,7 @@ class Runner # stateless
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
         src_dir = tmp_dir + '/' + sub_dir
-        shell.exec("mkdir -p #{src_dir}")
+        shell.assert("mkdir -p #{src_dir}")
       end
       src_filename = tmp_dir + '/' + pathed_filename
       disk.write(src_filename, content)
