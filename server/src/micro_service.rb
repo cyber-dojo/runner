@@ -22,8 +22,6 @@ class MicroService
         [avatar_name,
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
-      when /^run$/
-        [avatar_name, visible_files, max_seconds]
       else
         @name = nil
         []
@@ -94,10 +92,6 @@ class MicroService
   end
 
   def max_seconds
-    @json_args[__method__.to_s]
-  end
-
-  def visible_files # deprecated
     @json_args[__method__.to_s]
   end
 

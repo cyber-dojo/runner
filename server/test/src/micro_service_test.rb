@@ -90,24 +90,6 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'BB9', 'run' do
-    assert_call('run', {
-        avatar_name:'salmon',
-        visible_files:starting_files,
-        max_seconds:10
-      }, {
-        'run':{
-          stdout:'',
-          stderr:gcc_assert_stderr,
-          status:2,
-          colour:'red'
-        }
-      }
-    )
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def gcc_assert_stderr
     "Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)\n" +
     "make: *** [makefile:13: test.output] Aborted\n"

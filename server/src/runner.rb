@@ -69,18 +69,12 @@ class Runner # stateless
     new_files, deleted_files, unchanged_files, changed_files,
     max_seconds
   )
-    deleted_files = nil # we're stateless
-    all_files = [*new_files, *unchanged_files, *changed_files].to_h
-    run(avatar_name, all_files, max_seconds)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run(avatar_name, visible_files, max_seconds) # deprecated
     @avatar_name = avatar_name
     assert_valid_avatar_name
+    deleted_files = nil # we're stateless
+    all_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |tmp_dir|
-      save_to(visible_files, tmp_dir)
+      save_to(all_files, tmp_dir)
       in_container {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
         @colour = @timed_out ? 'timed_out' : red_amber_green
