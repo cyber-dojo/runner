@@ -43,11 +43,7 @@ class MicroService
 
   def json_args(request)
     args = JSON.parse(request.body.read)
-    if args.nil? # JSON.parse('null') => nil
-      #TODO: log << ...
-      args = {}
-    end
-    if args.class.name == 'Array' # Hash please
+    if args.class.name != 'Hash'
       #TODO: log << ...
       args = {}
     end
