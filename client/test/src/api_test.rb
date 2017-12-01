@@ -287,8 +287,8 @@ class ApiTest < TestBase
         changed_files: { 'hiker.c' => C_FORK_BOMB },
           max_seconds: 3
       })
-      assert_timed_out_or_printed 'All tests passed'
-      assert_timed_out_or_printed 'fork()'
+      assert timed_out? || printed?('All tests passed'), quad
+      assert timed_out? || printed?('fork()'), quad
     }
   end
 
@@ -302,23 +302,24 @@ class ApiTest < TestBase
           max_seconds: 3
       })
       cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
-      assert_timed_out_or_printed cant_fork
-      assert_timed_out_or_printed 'bomb'
+      assert timed_out? ||
+        printed?(cant_fork) ||
+          printed?('bomb'), quad
     }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'CD7',
+  multi_os_test 'DB3',
   'file-handles quickly become exhausted' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: { 'hiker.c' => FILE_HANDLE_BOMB },
           max_seconds: 3
       })
-      assert seen?('All tests passed'), quad
-      assert seen?('fopen() != NULL'),  quad
-      assert seen?('fopen() == NULL'),  quad
+      assert printed?('All tests passed'), quad
+      assert printed?('fopen() != NULL'),  quad
+      assert printed?('fopen() == NULL'),  quad
     }
   end
 
@@ -621,7 +622,9 @@ class ApiTest < TestBase
     assert (timed_out? || count > 0), diagnostic
   end
 
-  def seen?(text)
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def printed?(text)
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
     count > 0
   end
