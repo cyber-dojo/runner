@@ -616,14 +616,6 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_timed_out_or_printed(text)
-    diagnostic = ":#{text}:#{quad}:"
-    count = (stdout+stderr).lines.count { |line| line.include?(text) }
-    assert (timed_out? || count > 0), diagnostic
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def printed?(text)
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
     count > 0
