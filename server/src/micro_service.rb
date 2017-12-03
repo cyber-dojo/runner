@@ -4,6 +4,8 @@ require 'json'
 
 class MicroService
 
+  include Externals
+
   def call(env, request = Rack::Request.new(env))
     @name = request.path_info[1..-1] # lose leading /
     @json_args = json_args(request)
@@ -52,8 +54,6 @@ class MicroService
   end
 
   # - - - - - - - - - - - - - - - -
-
-  include Externals
 
   def image_name
     @json_args[__method__.to_s]

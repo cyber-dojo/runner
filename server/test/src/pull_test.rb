@@ -8,11 +8,11 @@ class PullTest < TestBase
   end
 
   def hex_setup
-    @shell = ShellMocker.new(nil)
+    ms.shell = ShellMocker.new(nil)
   end
 
   def hex_teardown
-    shell.teardown
+    ms.shell.teardown
   end
 
   def set_image_name(image_name)
@@ -99,7 +99,7 @@ class PullTest < TestBase
       "https://index.docker.io/v1/repositories/#{image_name}/images:",
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
-    shell.mock_exec(cmd, stdout, stderr, status=1)
+    ms.shell.mock_exec(cmd, stdout, stderr, status=1)
 
     assert_nil image_pull
     # TODO: This is a poor message, but it is the current behaviour
@@ -111,14 +111,14 @@ class PullTest < TestBase
   def mock_docker_pull(image_name, stdout, stderr, status)
     set_image_name image_name
     cmd = "docker pull #{image_name}"
-    shell.mock_exec(cmd, stdout, stderr, status)
+    ms.shell.mock_exec(cmd, stdout, stderr, status)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def mock_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
-    shell.mock_exec(cmd, stdout=image_name, stderr='', shell.success)
+    ms.shell.mock_exec(cmd, stdout=image_name, stderr='', shell.success)
   end
 
 end

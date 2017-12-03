@@ -1,13 +1,28 @@
 require_relative 'hex_mini_test'
 require_relative 'request_stub'
 require_relative '../../src/all_avatars_names'
-require_relative '../../src/externals'
 require_relative '../../src/micro_service'
 require 'json'
 
 class TestBase < HexMiniTest
 
-  include Externals
+  def ms
+    @ms ||= MicroService.new
+  end
+
+  def disk
+    ms.disk
+  end
+
+  def log
+    ms.log
+  end
+
+  def shell
+    ms.shell
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def self.multi_os_test(hex_suffix, *lines, &block)
     alpine_lines = ['[Alpine]'] + lines
@@ -21,8 +36,6 @@ class TestBase < HexMiniTest
   def call(method_name, args = {})
     args['image_name'] = image_name
     args['kata_id'] = kata_id
-    ms = MicroService.new
-    ms.shell = @shell
     result = ms.call(nil, RequestStub.new(args.to_json, method_name.to_s))
     @json = JSON.parse(result[2][0])
   end
