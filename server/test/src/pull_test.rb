@@ -101,16 +101,9 @@ class PullTest < TestBase
     ].join(' ')
     shell.mock_exec(cmd, stdout, stderr, status=1)
 
-    args = {
-      image_name:image_name,
-      kata_id:kata_id
-    }.to_json
-    ms = MicroService.new
-    ms.shell = @shell
-    tuple = ms.call(nil, RequestStub.new(args, 'image_pull'))
-    json = JSON.parse(tuple[2][0])
-    # TODO: This is a poor message, but its the current behaviour
-    assert_equal 'image_name:invalid', json['exception']
+    assert_nil image_pull
+    # TODO: This is a poor message, but it is the current behaviour
+    assert_equal 'image_name:invalid', @json['exception']
   end
 
   private
@@ -120,6 +113,8 @@ class PullTest < TestBase
     cmd = "docker pull #{image_name}"
     shell.mock_exec(cmd, stdout, stderr, status)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def mock_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
