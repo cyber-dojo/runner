@@ -1,5 +1,4 @@
 require_relative '../../src/micro_service'
-require_relative 'logger_spy'
 require_relative 'request_stub'
 require_relative 'test_base'
 

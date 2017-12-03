@@ -1,5 +1,4 @@
 require_relative 'test_base'
-require_relative 'logger_spy'
 require_relative '../../src/runner_error'
 
 class ShellBasherTest < TestBase
@@ -111,6 +110,8 @@ class ShellBasherTest < TestBase
   def assert_nothing_logged
     assert_equal [], log.messages
   end
+
+  # - - - - - - - - - - - - - - - - -
 
   def assert_logged(hash)
     assert_equal [hash], log.messages
