@@ -7,7 +7,7 @@ class LoggerSpy
 
   attr_reader :spied
 
-  def <<(message)
+  def write(message)
     spied << message
   end
 

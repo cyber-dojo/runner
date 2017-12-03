@@ -22,7 +22,7 @@ class ShellBasher
   def exec(command)
     stdout,stderr,status = open3capture3('exec', command)
     unless status == success
-      @log << info('exec', command, stdout, stderr, status)
+      @log.write(info('exec', command, stdout, stderr, status))
     end
     [stdout, stderr, status]
   end

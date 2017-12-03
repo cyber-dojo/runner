@@ -1,7 +1,6 @@
 require_relative 'test_base'
 require_relative 'logger_spy'
 require_relative '../../src/runner_error'
-require_relative '../../src/logger_stdout'
 
 class ShellBasherTest < TestBase
 

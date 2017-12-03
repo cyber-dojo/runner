@@ -9,12 +9,12 @@ class LoggerSpyTest < TestBase
 
   test '20C',
   'logged message is spied' do
-    logger = LoggerSpy.new(nil)
-    assert_equal [], logger.spied
-    logger << 'hello'
-    assert_equal ['hello'], logger.spied
-    logger << 'world'
-    assert_equal ['hello','world'], logger.spied
+    log = LoggerSpy.new(nil)
+    assert_equal [], log.spied
+    log.write('hello')
+    assert_equal ['hello'], log.spied
+    log.write('world')
+    assert_equal ['hello','world'], log.spied
   end
 
 end

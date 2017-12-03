@@ -33,7 +33,7 @@ class MicroService
     runner = Runner.new(self, image_name, kata_id)
     { @name => runner.public_send(@name, *@args) }
   rescue Exception => e
-    log << "EXCEPTION: #{e.class.name}.#{@name} #{e.message}"
+    log.write("EXCEPTION: #{e.class.name}.#{@name} #{e.message}")
     { 'exception' => e.message }
   end
 
@@ -47,7 +47,7 @@ class MicroService
     end
     args
   rescue StandardError => e
-    log << "EXCEPTION: #{e.class.name}.#{@name} #{e.message}"
+    log.write("EXCEPTION: #{e.class.name}.#{@name} #{e.message}")
     {}
   end
 

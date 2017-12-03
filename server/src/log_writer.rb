@@ -1,5 +1,5 @@
 
-class LoggerStdout
+class LogWriter
 
   def initialize(_parent)
     @messages = []
@@ -7,7 +7,7 @@ class LoggerStdout
 
   attr_reader :messages
 
-  def <<(message)
+  def write(message)
     @messages << message
   end
 

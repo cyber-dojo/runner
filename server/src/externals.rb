@@ -1,6 +1,6 @@
 require_relative 'disk_writer'
 require_relative 'shell_basher'
-require_relative 'logger_stdout'
+require_relative 'log_writer'
 
 module Externals # mix-in
 
@@ -16,7 +16,7 @@ module Externals # mix-in
   end
 
   def log
-    @log ||= LoggerStdout.new(self)
+    @log ||= LogWriter.new(self)
   end
 
 end
