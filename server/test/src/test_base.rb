@@ -23,7 +23,7 @@ class TestBase < HexMiniTest
     args['kata_id'] = kata_id
     ms = MicroService.new
     ms.shell = @shell
-    result = ms.call(nil, RequestStub.new(args.to_json, method_name))
+    result = ms.call(nil, RequestStub.new(args.to_json, method_name.to_s))
     @json = JSON.parse(result[2][0])
   end
 
@@ -35,32 +35,32 @@ class TestBase < HexMiniTest
   end
 
   def image_pull
-    call('image_pull')
+    call(__method__)
     @json['image_pull']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    call('kata_new')
+    call(__method__)
   end
 
   def kata_old
-    call('kata_old')
+    call(__method__)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(name = 'salmon')
     args = { avatar_name:name, starting_files:starting_files }
-    call('avatar_new', args)
+    call(__method__, args)
     @avatar_name = name
     @previous_files = starting_files
   end
 
   def avatar_old(name = avatar_name)
     args = { avatar_name:name }
-    call('avatar_old', args)
+    call(__method__, args)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,15 +90,15 @@ class TestBase < HexMiniTest
     end
 
     args = {
-      avatar_name:defaulted_arg(named_args, :avatar_name, avatar_name),
-      new_files:new_files,
-      deleted_files:deleted_files,
+          avatar_name:defaulted_arg(named_args, :avatar_name, avatar_name),
+            new_files:new_files,
+        deleted_files:deleted_files,
       unchanged_files:unchanged_files,
-      changed_files:changed_files,
-      max_seconds:defaulted_arg(named_args, :max_seconds, 10)
+        changed_files:changed_files,
+          max_seconds:defaulted_arg(named_args, :max_seconds, 10)
     }
-    call('run_cyber_dojo_sh', args)
-    @quad = @json['run_cyber_dojo_sh']
+    call(__method__, args)
+    @quad = @json[__method__.to_s]
 
     @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
@@ -110,24 +110,22 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def quad
-    @quad
-  end
+  attr_reader :quad
 
   def stdout
-    quad['stdout']
+    quad[__method__.to_s]
   end
 
   def stderr
-    quad['stderr']
+    quad[__method__.to_s]
   end
 
   def status
-    quad['status']
+    quad[__method__.to_s]
   end
 
   def colour
-    quad['colour']
+    quad[__method__.to_s]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -170,7 +168,7 @@ class TestBase < HexMiniTest
       :changed_files => { 'cyber-dojo.sh' => script }
     }
     run_cyber_dojo_sh(named_args)
-    refute timed_out?, quad
+    refute_timed_out
     stdout.strip
   end
 
