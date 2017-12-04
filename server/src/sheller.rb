@@ -1,16 +1,15 @@
 require_relative 'runner_error'
-require 'open3'
 
 class Sheller
 
   def initialize(external)
-    @log = external.log
+    @external = external
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   def assert(command)
-    stdout,stderr,status = open3capture3('assert', command)
+    stdout,stderr,status = bash_run('assert', command)
     unless status == success
       raise RunnerError.new(info('assert', command, stdout, stderr, status))
     end
@@ -20,9 +19,9 @@ class Sheller
   # - - - - - - - - - - - - - - - - - - - - -
 
   def exec(command)
-    stdout,stderr,status = open3capture3('exec', command)
+    stdout,stderr,status = bash_run('exec', command)
     unless status == success
-      @log.write(info('exec', command, stdout, stderr, status))
+      log.write(info('exec', command, stdout, stderr, status))
     end
     [stdout, stderr, status]
   end
@@ -35,9 +34,9 @@ class Sheller
 
   private # = = = = = = = = = = = = = = = = =
 
-  def open3capture3(method_name, command)
-    stdout,stderr,r = Open3.capture3(command)
-    [stdout, stderr, r.exitstatus]
+  def bash_run(method_name, command)
+    stdout,stderr,status = bash.run(command)
+    [ stdout, stderr, status ]
   rescue StandardError => error
     raise RunnerError.new({
       'command':shell_call(method_name, command),
@@ -55,8 +54,20 @@ class Sheller
     }
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
   def shell_call(method, command)
     "shell.#{method}(\"#{command}\")"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  def bash
+    @external.bash
+  end
+
+  def log
+    @external.log
   end
 
 end

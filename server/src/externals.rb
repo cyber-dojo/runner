@@ -1,14 +1,14 @@
+require_relative 'basher'
 require_relative 'disk_writer'
-require_relative 'sheller'
 require_relative 'log_writer'
 
 module Externals # mix-in
 
-  def shell
-    @shell ||= Sheller.new(self)
+  def bash
+    @bash ||= Basher.new
   end
-  def shell=(doppel)
-    @shell = doppel
+  def bash=(doppel)
+    @bash = doppel
   end
 
   def disk

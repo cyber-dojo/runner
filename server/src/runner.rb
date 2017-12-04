@@ -1,4 +1,5 @@
 require_relative 'all_avatars_names'
+require_relative 'sheller'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require_relative 'valid_image_name'
@@ -409,7 +410,7 @@ class Runner # stateless
   end
 
   def shell
-    @external.shell
+    Sheller.new(@external)
   end
 
   # - - - - - - - - - - - - - - - - - -
