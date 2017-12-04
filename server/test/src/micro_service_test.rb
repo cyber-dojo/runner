@@ -14,11 +14,11 @@ class MicroServiceTest < TestBase
   test 'A53',
   %w( invalid image_name raises ) do
     invalid_image_names.each do |invalid_image_name|
-      assert_call2('kata_new', {
-          'image_name' => invalid_image_name,
-          'kata_id' => kata_id
-        }, {
-          'exception' => 'image_name:invalid'
+      assert_call_raw('kata_new', {
+          image_name:invalid_image_name,
+          kata_id:kata_id
+        }.to_json, {
+          exception:'image_name:invalid'
         })
     end
   end
@@ -28,11 +28,11 @@ class MicroServiceTest < TestBase
   test '6FD',
   %w( invalid kata_id raises ) do
     invalid_kata_ids.each do |invalid_kata_id|
-      assert_call2('kata_new', {
-          'image_name' => image_name,
-          'kata_id' => invalid_kata_id
-        }, {
-          'exception' => 'kata_id:invalid'
+      assert_call_raw('kata_new', {
+          image_name:image_name,
+          kata_id:invalid_kata_id
+        }.to_json, {
+          exception:'kata_id:invalid'
         })
     end
   end
@@ -42,13 +42,13 @@ class MicroServiceTest < TestBase
   test '685',
   %w( invalid avatar_name raises ) do
     invalid_avatar_names.each do |invalid_avatar_name|
-      assert_call2('avatar_old', {
-          'image_name' => image_name,
-          'kata_id' => kata_id,
-          'avatar_name' => invalid_avatar_name
-          }, {
-            'exception' => 'avatar_name:invalid'
-          })
+      assert_call_raw('avatar_old', {
+          image_name:image_name,
+          kata_id:kata_id,
+          avatar_name:invalid_avatar_name
+        }.to_json, {
+          exception:'avatar_name:invalid'
+        })
     end
   end
 
@@ -56,35 +56,35 @@ class MicroServiceTest < TestBase
 
   test 'BB0',
   %w( invalid json or non-hash json becomes standard-exception ) do
-    assert_call_raw('kata_new', 'sdfsdf', { "exception":"image_name:invalid" })
-    assert_call_raw('kata_new', 'null',   { "exception":"image_name:invalid" })
-    assert_call_raw('kata_new', '[]',     { "exception":"image_name:invalid" })
+    assert_call_raw('kata_new', 'sdfsdf', { exception:'image_name:invalid' })
+    assert_call_raw('kata_new', 'null',   { exception:'image_name:invalid' })
+    assert_call_raw('kata_new', '[]',     { exception:'image_name:invalid' })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'BB1',
   %w( nil nil ) do
-    assert_call(nil, nil, { "exception":"image_name:invalid" })
+    assert_call(nil, nil, { exception:'image_name:invalid' })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'BB2', 'image_pulled' do
-    assert_call('image_pulled', nil, { "exception":"image_name:invalid" })
-    assert_call('image_pull'  , nil, { "exception":"image_name:invalid" })
+    assert_call('image_pulled', nil, { exception:'image_name:invalid' })
+    assert_call('image_pull'  , nil, { exception:'image_name:invalid' })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'BB4', 'kata_new' do
-    assert_call('kata_new', {}, { 'kata_new':nil })
+    assert_call('kata_new', {}, { kata_new:nil })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'BB5', 'kata_old' do
-    assert_call('kata_old', {}, { 'kata_old':nil })
+    assert_call('kata_old', {}, { kata_old:nil })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -93,8 +93,8 @@ class MicroServiceTest < TestBase
     assert_call('avatar_new', {
         avatar_name:'salmon',
         starting_files:starting_files
-        }, {
-        'avatar_new':nil
+      }, {
+        avatar_new:nil
       }
     )
   end
@@ -105,7 +105,7 @@ class MicroServiceTest < TestBase
     assert_call('avatar_old', {
         avatar_name:'salmon'
       }, {
-        'avatar_old':nil
+        avatar_old:nil
       }
     )
   end
@@ -150,13 +150,6 @@ class MicroServiceTest < TestBase
 
   def assert_call_raw(path_info, args, expected)
     tuple = MicroService.new.call(nil, RequestStub.new(args, path_info))
-    assert_equal 200, tuple[0]
-    assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
-    assert_equal [ expected.to_json ], tuple[2]
-  end
-
-  def assert_call2(path_info, args, expected)
-    tuple = MicroService.new.call(nil, RequestStub.new(args.to_json, path_info))
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
     assert_equal [ expected.to_json ], tuple[2]
