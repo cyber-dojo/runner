@@ -1,7 +1,7 @@
 require_relative 'runner_error'
 require 'open3'
 
-class ShellBasher
+class Sheller
 
   def initialize(external)
     @log = external.log

@@ -1,7 +1,7 @@
 require_relative 'test_base'
 require_relative '../../src/runner_error'
 
-class ShellBasherTest < TestBase
+class ShellerTest < TestBase
 
   def self.hex_prefix
     'C894D'
