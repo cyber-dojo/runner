@@ -2,7 +2,6 @@ require_relative 'all_avatars_names'
 require_relative 'sheller'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
-require_relative 'valid_image_name'
 require 'timeout'
 
 class Runner # stateless
@@ -11,8 +10,6 @@ class Runner # stateless
     @external = external
     @image_name = image_name
     @kata_id = kata_id
-    assert_valid_image_name
-    assert_valid_kata_id
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -49,17 +46,13 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(avatar_name, _starting_files)
+  def avatar_new(_avatar_name, _starting_files)
     # for API compatibility
-    @avatar_name = avatar_name
-    assert_valid_avatar_name
     nil
   end
 
-  def avatar_old(avatar_name)
+  def avatar_old(_avatar_name)
     # for API compatibility
-    @avatar_name = avatar_name
-    assert_valid_avatar_name
     nil
   end
 
@@ -71,7 +64,6 @@ class Runner # stateless
     max_seconds
   )
     @avatar_name = avatar_name
-    assert_valid_avatar_name
     deleted_files = nil # we're stateless
     all_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |tmp_dir|
@@ -222,14 +214,6 @@ class Runner # stateless
 
   attr_reader :image_name
 
-  def assert_valid_image_name
-    unless valid_image_name?(image_name)
-      argument_error('image_name', 'invalid')
-    end
-  end
-
-  include ValidImageName
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def in_container
@@ -343,39 +327,11 @@ class Runner # stateless
 
   attr_reader :kata_id
 
-  def assert_valid_kata_id
-    unless valid_kata_id?
-      argument_error('kata_id', 'invalid')
-    end
-  end
-
-  def valid_kata_id?
-    kata_id.class.name == 'String' &&
-      kata_id.length == 10 &&
-        kata_id.chars.all? { |char| hex?(char) }
-  end
-
-  def hex?(char)
-    '0123456789ABCDEF'.include?(char)
-  end
-
   # - - - - - - - - - - - - - - - - - -
   # avatar
   # - - - - - - - - - - - - - - - - - -
 
   attr_reader :avatar_name
-
-  def assert_valid_avatar_name
-    unless valid_avatar_name?
-      argument_error('avatar_name', 'invalid')
-    end
-  end
-
-  def valid_avatar_name?
-    all_avatars_names.include?(avatar_name)
-  end
-
-  include AllAvatarsNames
 
   def group
     'cyber-dojo'
@@ -392,6 +348,8 @@ class Runner # stateless
   def sandbox_dir
     "/sandboxes/#{avatar_name}"
   end
+
+  include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
   # assertions
