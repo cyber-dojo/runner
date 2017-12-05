@@ -25,29 +25,24 @@ class MicroService
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
       else
-        @name = nil
+        @name = nil #TODO: raise
         []
-      end
-    [ 200, { 'Content-Type' => 'application/json' }, [ invoke.to_json ] ]
+    end
+    runner = Runner.new(self, image_name, kata_id)
+    response = runner.public_send(@name, *@args)
+    [ 200,
+      { 'Content-Type' => 'application/json' },
+      [ { @name => response }.to_json ]
+    ]
 
   rescue Exception => e
-    [ 200,
+    [ 200, # TODO: 200?
       { 'Content-Type' => 'application/json' },
       [ { 'exception' => e.message }.to_json ]
     ]
   end
 
   private # = = = = = = = = = = = =
-
-  def invoke
-    runner = Runner.new(self, image_name, kata_id)
-    { @name => runner.public_send(@name, *@args) }
-  rescue Exception => e
-    log.write("EXCEPTION: #{e.class.name}.#{@name} #{e.message}")
-    { 'exception' => e.message }
-  end
-
-  # - - - - - - - - - - - - - - - -
 
   def json_args(request)
     args = JSON.parse(request.body.read)

@@ -9,7 +9,16 @@ class MicroServiceTest < TestBase
     'D06F7'
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BB0',
+  %w( invalid json or non-hash json becomes standard-exception ) do
+    assert_call_raw('kata_new', 'sdfsdf', { exception:'image_name:invalid' })
+    assert_call_raw('kata_new', 'null',   { exception:'image_name:invalid' })
+    assert_call_raw('kata_new', '[]',     { exception:'image_name:invalid' })
+  end
+
+  # - - - - - - - - - - - - - - - - -
 
   test 'A53',
   %w( invalid image_name raises ) do
@@ -54,40 +63,31 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB0',
-  %w( invalid json or non-hash json becomes standard-exception ) do
-    assert_call_raw('kata_new', 'sdfsdf', { exception:'image_name:invalid' })
-    assert_call_raw('kata_new', 'null',   { exception:'image_name:invalid' })
-    assert_call_raw('kata_new', '[]',     { exception:'image_name:invalid' })
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   test 'BB1',
   %w( nil nil ) do
     assert_call(nil, nil, { exception:'image_name:invalid' })
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB2', 'image_pulled' do
     assert_call('image_pulled', nil, { exception:'image_name:invalid' })
     assert_call('image_pull'  , nil, { exception:'image_name:invalid' })
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB4', 'kata_new' do
     assert_call('kata_new', {}, { kata_new:nil })
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB5', 'kata_old' do
     assert_call('kata_old', {}, { kata_old:nil })
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB6', 'avatar_new' do
     assert_call('avatar_new', {
@@ -99,7 +99,7 @@ class MicroServiceTest < TestBase
     )
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB7', 'avatar_old' do
     assert_call('avatar_old', {
@@ -110,7 +110,7 @@ class MicroServiceTest < TestBase
     )
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB8', 'run_cyber_dojo_sh' do
     assert_call('run_cyber_dojo_sh', {
@@ -131,14 +131,14 @@ class MicroServiceTest < TestBase
     )
   end
 
-  private # = = = = = = = = = = = = = = = = = = = = = =
+  private # = = = = = = = = = = = = =
 
   def gcc_assert_stderr
     "Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)\n" +
     "make: *** [makefile:13: test.output] Aborted\n"
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
   def assert_call(path_info, args, expected)
     unless args.nil?
