@@ -34,14 +34,11 @@ class MicroService
     if ledger.key?('red_amber_green')
       hash['red_amber_green'] = ledger['red_amber_green']
     end
-    [ 200, { 'Content-Type' => 'application/json' },
-      [ hash.to_json ]
-    ]
+    [ 200, header_content_json, [ hash.to_json ] ]
   rescue Exception => error
+    hash = { 'exception' => error.message }
     # TODO: 200?
-    [ 200, { 'Content-Type' => 'application/json' },
-      [ { 'exception' => error.message }.to_json ]
-    ]
+    [ 200, header_content_json, [ hash.to_json ] ]
   end
 
   private # = = = = = = = = = = = =
@@ -60,6 +57,12 @@ class MicroService
     raise RunnerError.new('json:invalid')
   end
 
+  def header_content_json
+    { 'Content-Type' => 'application/json' }
+  end
+
+  # - - - - - - - - - - - - - - - -
+  # method arguments
   # - - - - - - - - - - - - - - - -
 
   def image_name
