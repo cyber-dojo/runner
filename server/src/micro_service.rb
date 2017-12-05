@@ -27,15 +27,20 @@ class MicroService
     end
     runner = Runner.new(self, image_name, kata_id)
     response = runner.public_send(@name, *@args)
-    [ 200,
-      { 'Content-Type' => 'application/json' },
-      [ { @name => response }.to_json ]
+    hash = { @name => response }
+    unless log.messages == []
+      hash['log'] = log.messages
+    end
+    if ledger.key?('red_amber_green')
+      hash['red_amber_green'] = ledger['red_amber_green']
+    end
+    [ 200, { 'Content-Type' => 'application/json' },
+      [ hash.to_json ]
     ]
-
-  rescue Exception => e
-    [ 200, # TODO: 200?
-      { 'Content-Type' => 'application/json' },
-      [ { 'exception' => e.message }.to_json ]
+  rescue Exception => error
+    # TODO: 200?
+    [ 200, { 'Content-Type' => 'application/json' },
+      [ { 'exception' => error.message }.to_json ]
     ]
   end
 

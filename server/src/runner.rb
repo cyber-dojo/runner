@@ -184,12 +184,14 @@ class Runner # stateless
     # @stdout and @stderr have been truncated and cleaned.
     begin
       rag = eval(rag_lambda)
-      colour = rag.call(@stdout, @stderr, @status).to_s
-      unless ['red','amber','green'].include? colour
-        colour = 'amber'
+      colour = rag.call(@stdout, @stderr, @status)
+      unless [:red,:amber,:green].include?(colour)
+        ledger.write('red_amber_green', 'must return one of [:red,:amber,:green]')
+        colour = :amber
       end
-      colour
-    rescue
+      colour.to_s
+    rescue Exception => error
+      ledger.write('red_amber_green', error.message)
      'amber'
     end
   end
@@ -203,8 +205,9 @@ class Runner # stateless
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
       shell.assert(docker_exec(cmd))
-    rescue
-      nil
+    rescue Exception => error
+      ledger.write('red_amber_green', error.message)
+      'lambda { |_,_,_| return :amber }'
     end
   end
 
@@ -365,6 +368,10 @@ class Runner # stateless
 
   def disk
     @external.disk
+  end
+
+  def ledger
+    @external.ledger
   end
 
   def shell

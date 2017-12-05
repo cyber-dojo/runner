@@ -1,5 +1,6 @@
 require_relative 'basher'
 require_relative 'disk_writer'
+require_relative 'ledger_writer'
 require_relative 'log_writer'
 
 module Externals # mix-in
@@ -12,11 +13,15 @@ module Externals # mix-in
   end
 
   def disk
-    @disk ||= DiskWriter.new(self)
+    @disk ||= DiskWriter.new
   end
 
   def log
-    @log ||= LogWriter.new(self)
+    @log ||= LogWriter.new
+  end
+
+  def ledger
+    @ledger ||= LedgerWriter.new
   end
 
 end

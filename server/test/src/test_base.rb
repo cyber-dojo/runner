@@ -14,6 +14,10 @@ class TestBase < HexMiniTest
     ms.disk
   end
 
+  def ledger
+    ms.ledger
+  end
+
   def log
     ms.log
   end
@@ -141,37 +145,37 @@ class TestBase < HexMiniTest
     quad[__method__.to_s]
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_stdout(expected)
-    assert_equal expected, stdout, quad
-  end
-  def refute_stdout(unexpected)
-    refute_equal unexpected, stdout, quad
-  end
-
-  def assert_stderr(expected)
-    assert_equal expected, stderr, quad
-  end
-
-  def assert_status(expected)
-    assert_equal expected, status, quad
-  end
-
   def timed_out?
     colour == 'timed_out'
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_stdout(expected)
+    assert_equal expected, stdout, @json
+  end
+  def refute_stdout(unexpected)
+    refute_equal unexpected, stdout, @json
+  end
+
+  def assert_stderr(expected)
+    assert_equal expected, stderr, @json
+  end
+
+  def assert_status(expected)
+    assert_equal expected, status, @json
+  end
+
   def assert_timed_out
-    assert timed_out?, quad
+    assert timed_out?, @json
   end
 
   def refute_timed_out
-    refute timed_out?, quad
+    refute timed_out?, @json
   end
 
   def assert_colour(expected)
-    assert_equal expected, colour, quad
+    assert_equal expected, colour, @json
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -8,7 +8,7 @@ class LogWriterTest < TestBase
 
   test '962',
   'write() appends to messages' do
-    log = LogWriter.new(nil)
+    log = LogWriter.new
     log.write("Hello world")
     assert_equal ['Hello world'], log.messages
     log.write({ 'x' => 42 })

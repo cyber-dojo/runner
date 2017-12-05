@@ -1,7 +1,7 @@
 
 class LogWriter
 
-  def initialize(_parent)
+  def initialize
     @messages = []
   end
 
