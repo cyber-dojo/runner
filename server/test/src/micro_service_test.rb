@@ -12,10 +12,24 @@ class MicroServiceTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB0',
-  %w( invalid json or non-hash json becomes standard-exception ) do
-    assert_call_raw('kata_new', 'sdfsdf', { exception:'image_name:invalid' })
-    assert_call_raw('kata_new', 'null',   { exception:'image_name:invalid' })
-    assert_call_raw('kata_new', '[]',     { exception:'image_name:invalid' })
+  %w( invalid json in http payload becomes exception ) do
+    assert_call_raw('kata_new', 'sdfsdf', { exception:'json:invalid' })
+    assert_call_raw('kata_new', 'nil',    { exception:'json:invalid' })
+
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BB1',
+  %w( non-hash in http payload becomes exception ) do
+    assert_call_raw('kata_new', 'null',   { exception:'json:!Hash' })
+    assert_call_raw('kata_new', '[]',     { exception:'json:!Hash' })
+    # TODO: nil.to_json == 'null'
+    # TODO: double-duty to get image_ method coverage
+    assert_call(nil           , nil,      { exception:'json:!Hash' })
+    assert_call('image_pulled', nil,      { exception:'json:!Hash' })
+    assert_call('image_pull'  , nil,      { exception:'json:!Hash' })
+
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -59,20 +73,6 @@ class MicroServiceTest < TestBase
           exception:'avatar_name:invalid'
         })
     end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB1',
-  %w( nil nil ) do
-    assert_call(nil, nil, { exception:'image_name:invalid' })
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB2', 'image_pulled' do
-    assert_call('image_pulled', nil, { exception:'image_name:invalid' })
-    assert_call('image_pull'  , nil, { exception:'image_name:invalid' })
   end
 
   # - - - - - - - - - - - - - - - - -

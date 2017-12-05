@@ -2,6 +2,7 @@
 class RunnerError < StandardError
 
   def initialize(info)
+    super(info)
     @info = info
   end
 

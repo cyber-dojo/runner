@@ -24,9 +24,6 @@ class MicroService
         [avatar_name,
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
-      else
-        @name = nil #TODO: raise
-        []
     end
     runner = Runner.new(self, image_name, kata_id)
     response = runner.public_send(@name, *@args)
@@ -45,15 +42,17 @@ class MicroService
   private # = = = = = = = = = = = =
 
   def json_args(request)
-    args = JSON.parse(request.body.read)
-    if args.class.name != 'Hash'
-      #TODO: log << ...
-      args = {}
+    args = json_parse(request.body.read)
+    unless args.class.name == 'Hash'
+      raise RunnerError.new('json:!Hash')
     end
     args
-  rescue StandardError => e
-    log.write("EXCEPTION: #{e.class.name}.#{@name} #{e.message}")
-    {}
+  end
+
+  def json_parse(request)
+    JSON.parse(request)
+  rescue
+    raise RunnerError.new('json:invalid')
   end
 
   # - - - - - - - - - - - - - - - -
