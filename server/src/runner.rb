@@ -40,11 +40,11 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    nil # no-op for API compatibility
+    nil # for API compatibility
   end
 
   def kata_old
-    nil # no-op for API compatibility
+    nil # for API compatibility
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

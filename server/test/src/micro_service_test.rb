@@ -33,7 +33,7 @@ class MicroServiceTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB2',
-  %w( invalid image_name raises ) do
+  %w( invalid image_name becomes exception ) do
     invalid_image_names.each do |invalid|
       assert_call_raw('kata_new', {
           image_name:invalid,
@@ -48,7 +48,7 @@ class MicroServiceTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB3',
-  %w( invalid kata_id raises ) do
+  %w( invalid kata_id becomes exception ) do
     invalid_kata_ids.each do |invalid|
       assert_call_raw('kata_new', {
           image_name:image_name,
@@ -63,7 +63,7 @@ class MicroServiceTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB4',
-  %w( invalid starting_files raises ) do
+  %w( invalid starting_files becomes exception ) do
     invalid_files.each do |invalid|
       assert_call_raw('avatar_new', {
           image_name:image_name,
@@ -80,7 +80,7 @@ class MicroServiceTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB5',
-  %w( invalid avatar_name raises ) do
+  %w( invalid avatar_name becomes exception ) do
     invalid_avatar_names.each do |invalid|
       assert_call_raw('avatar_old', {
           image_name:image_name,
@@ -95,22 +95,39 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB6',
-  %w( invalid max_seconds raises ) do
+  test 'BB7',
+  %w( invalid max_seconds becomes exception ) do
     invalid_max_seconds.each do |invalid|
-      assert_call_raw('run_cyber_dojo_sh', {
-        image_name:image_name,
-        kata_id:kata_id,
-        avatar_name:'salmon',
-        new_files:{},
-        deleted_files:{},
-        unchanged_files:{},
-        changed_files:{},
-        max_seconds:invalid
-      }.to_json, {
-        exception:'max_seconds:invalid'
-      })
+      assert_call_run_invalid({max_seconds:invalid})
     end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BB8',
+  %w( invalid files becomes exception ) do
+    invalid_files.each do |invalid|
+      assert_call_run_invalid({new_files:invalid})
+      assert_call_run_invalid({deleted_files:invalid})
+      assert_call_run_invalid({unchanged_files:invalid})
+      assert_call_run_invalid({changed_files:invalid})
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_call_run_invalid(added)
+    expected = { 'exception' => "#{added.keys[0]}:invalid" }
+    assert_call_raw('run_cyber_dojo_sh', {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:'salmon',
+      new_files:{},
+      deleted_files:{},
+      unchanged_files:{},
+      changed_files:{},
+      max_seconds:10
+    }.merge(added).to_json, expected)
   end
 
   # - - - - - - - - - - - - - - - - -

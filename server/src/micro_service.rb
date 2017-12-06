@@ -110,28 +110,26 @@ class MicroService
   # - - - - - - - - - - - - - - - -
 
   def starting_files
-    arg = @json_args[__method__.to_s]
-    unless valid_files?(arg)
-      raise invalid('starting_files')
-    end
-    arg
+    validated_files(__method__)
   end
 
   def new_files
-    @json_args[__method__.to_s]
+    validated_files(__method__)
   end
 
   def deleted_files
-    @json_args[__method__.to_s]
+    validated_files(__method__)
   end
 
   def unchanged_files
-    @json_args[__method__.to_s]
+    validated_files(__method__)
   end
 
   def changed_files
-    @json_args[__method__.to_s]
+    validated_files(__method__)
   end
+
+  # - - - - - - - - - - - - - - - -
 
   def max_seconds
     arg = @json_args[__method__.to_s]
@@ -162,6 +160,15 @@ class MicroService
   end
 
   include AllAvatarsNames
+
+  def validated_files(arg_name)
+    arg_name = arg_name.to_s
+    arg = @json_args[arg_name]
+    unless valid_files?(arg)
+      raise invalid(arg_name)
+    end
+    arg
+  end
 
   def valid_files?(arg)
     arg.is_a?(Hash) &&
