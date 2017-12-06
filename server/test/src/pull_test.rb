@@ -19,7 +19,8 @@ class PullTest < TestBase
     @image_name = image_name
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - -
+  # TODO: add log checks
 
   test '9C3',
   'false when image_name is valid but not in [docker images]' do
@@ -28,7 +29,7 @@ class PullTest < TestBase
     refute image_pulled?
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - -
 
   test 'A44',
   'true when image_name is valid and in [docker images]' do
@@ -37,7 +38,7 @@ class PullTest < TestBase
     assert image_pulled?
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - -
 
   test '91C',
   'true when image_name is valid and exists' do
@@ -63,7 +64,7 @@ class PullTest < TestBase
     stub_docker_pull(image_name, stdout.join("\n"), stderr='', status=shell.success)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - -
 
   test 'D80',
   'false when image_name is valid but does not exist' do
@@ -87,7 +88,7 @@ class PullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '933',
-  'raises when there is no network connectivitity' do
+  'false when there is no network connectivitity, message in log' do
     set_image_name 'cdf/gcc_assert'
     cmd = "docker pull #{image_name}"
     stdout = [
@@ -101,12 +102,17 @@ class PullTest < TestBase
     ].join(' ')
     ms.bash.stub_run(cmd, stdout, stderr, status=1)
 
-    assert_nil image_pull
-    # TODO: This is a poor message, but it is the current behaviour
-    assert_equal 'image_name:invalid', @json['exception']
+    refute image_pull
+
+    assert_log([{
+      "command": "shell.exec(\"#{cmd}\")",
+      "stdout": stdout,
+      "stderr": stderr,
+      "status": status
+    }])
   end
 
-  private
+  private # = = = = = = = = = = = = = = = =
 
   def stub_docker_pull(image_name, stdout, stderr, status)
     set_image_name image_name
@@ -114,11 +120,17 @@ class PullTest < TestBase
     ms.bash.stub_run(cmd, stdout, stderr, status)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - -
 
   def stub_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
     ms.bash.stub_run(cmd, stdout=image_name, stderr='', shell.success)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - -
+
+  def assert_log(expected)
+    assert_equal expected.to_json, @json['log'].to_json, @json
   end
 
 end

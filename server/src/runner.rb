@@ -20,40 +20,29 @@ class Runner # stateless
   end
 
   def image_pull
-    # [1] The contents of stderr vary depending on Docker version
     docker_pull = "docker pull #{image_name}"
-    _stdout,stderr,status = shell.exec(docker_pull)
-    if status == shell.success
-      return true
-    elsif stderr.include?('not found') || stderr.include?('not exist')
-      return false # [1]
-    else
-      argument_error('image_name', 'invalid')
-    end
+    _stdout,_stderr,status = shell.exec(docker_pull)
+    return status == shell.success
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    # no-op for API compatibility
-    nil
+    nil # no-op for API compatibility
   end
 
   def kata_old
-    # no-op for API compatibility
-    nil
+    nil # no-op for API compatibility
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(_avatar_name, _starting_files)
-    # for API compatibility
-    nil
+    nil # for API compatibility
   end
 
   def avatar_old(_avatar_name)
-    # for API compatibility
-    nil
+    nil # for API compatibility
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -186,7 +175,8 @@ class Runner # stateless
       rag = eval(rag_lambda)
       colour = rag.call(@stdout, @stderr, @status)
       unless [:red,:amber,:green].include?(colour)
-        ledger.write('red_amber_green', 'must return one of [:red,:amber,:green]')
+        diagnostic = 'must return one of [:red,:amber,:green]'
+        ledger.write('red_amber_green', diagnostic)
         colour = :amber
       end
       colour.to_s
@@ -238,6 +228,12 @@ class Runner # stateless
           "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
     ].join(space)
     shell.assert(cmd)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def docker_exec(cmd)
+    "docker exec #{container_name} sh -c '#{cmd}'"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -355,16 +351,8 @@ class Runner # stateless
   include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
-  # assertions
+  # externals
   # - - - - - - - - - - - - - - - - - -
-
-  def docker_exec(cmd)
-    "docker exec #{container_name} sh -c '#{cmd}'"
-  end
-
-  def argument_error(name, message)
-    raise ArgumentError.new("#{name}:#{message}")
-  end
 
   def disk
     @external.disk

@@ -1,12 +1,26 @@
 require_relative 'all_avatars_names'
-require_relative 'externals'
+require_relative 'basher'
+require_relative 'disk_writer'
+require_relative 'ledger_writer'
+require_relative 'log_writer'
 require_relative 'runner'
 require_relative 'valid_image_name'
 require 'json'
 
 class MicroService
 
-  include Externals
+  def initialize
+    @bash   = Basher.new
+    @disk   = DiskWriter.new
+    @log    = LogWriter.new
+    @ledger = LedgerWriter.new
+  end
+
+  attr_reader :bash, :disk, :log, :ledger
+
+  def bash=(doppel)
+    @bash = doppel
+  end
 
   def call(env, request = Rack::Request.new(env))
     @name = request.path_info[1..-1] # lose leading /
