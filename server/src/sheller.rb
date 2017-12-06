@@ -1,4 +1,4 @@
-require_relative 'runner_error'
+require_relative 'sheller_error'
 
 class Sheller
 
@@ -9,65 +9,36 @@ class Sheller
   # - - - - - - - - - - - - - - - - - - - - -
 
   def assert(command)
-    stdout,stderr,status = bash_run('assert', command)
+    stdout,stderr,status = bash_run(command)
     unless status == success
-      raise RunnerError.new(info('assert', command, stdout, stderr, status))
+      raise ShellerError.new(stderr, {
+        command:command,
+        stdout:stdout,
+        stderr:stderr,
+        status:status
+      })
     end
     stdout
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def exec(command)
-    stdout,stderr,status = bash_run('exec', command)
-    unless status == success
-      log.write(info('exec', command, stdout, stderr, status))
-    end
-    [stdout, stderr, status]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def success
-    0
-  end
-
   private # = = = = = = = = = = = = = = = = =
 
-  def bash_run(method_name, command)
+  def bash_run(command)
     stdout,stderr,status = bash.run(command)
-    [ stdout, stderr, status ]
-  rescue StandardError => error
-    raise RunnerError.new({
-      'command':shell_call(method_name, command),
-      'message':error.message
+    [stdout, stderr, status]
+  rescue Exception => error
+    raise ShellerError.new(error.message, {
+      command:command,
+      message:error.message
     })
   end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def info(method, command, stdout, stderr, status)
-    { 'command':shell_call(method, command),
-      'stdout':stdout,
-      'stderr':stderr,
-      'status':status
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def shell_call(method, command)
-    "shell.#{method}(\"#{command}\")"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
 
   def bash
     @external.bash
   end
 
-  def log
-    @external.log
+  def success
+    0
   end
 
 end

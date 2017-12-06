@@ -2,7 +2,6 @@ require_relative 'all_avatars_names'
 require_relative 'basher'
 require_relative 'disk_writer'
 require_relative 'ledger_writer'
-require_relative 'log_writer'
 require_relative 'runner'
 require_relative 'valid_image_name'
 require 'json'
@@ -12,11 +11,10 @@ class MicroService
   def initialize
     @bash   = Basher.new
     @disk   = DiskWriter.new
-    @log    = LogWriter.new
     @ledger = LedgerWriter.new
   end
 
-  attr_reader :bash, :disk, :log, :ledger
+  attr_reader :bash, :disk, :ledger
 
   def bash=(doppel)
     @bash = doppel
@@ -41,17 +39,20 @@ class MicroService
     end
     runner = Runner.new(self, image_name, kata_id)
     response = runner.public_send(@name, *@args)
-    hash = { @name => response }
-    unless log.messages == []
-      hash['log'] = log.messages
-    end
+    body = { @name => response }
     if ledger.key?('red_amber_green')
-      hash['red_amber_green'] = ledger['red_amber_green']
+      body['red_amber_green'] = ledger['red_amber_green']
     end
-    [ 200, header_content_is_json, [ hash.to_json ] ]
-  rescue Exception => error
-    hash = { 'exception' => error.message }
-    [ 200, header_content_is_json, [ hash.to_json ] ]
+
+    [ 200, header_content_is_json, [ body.to_json ] ]
+
+  rescue ShellerError => error
+    body = { 'exception' => error.args }
+    [ 200, header_content_is_json, [ body.to_json ] ]
+
+  rescue => error
+    body = { 'exception' => error.message }
+    [ 200, header_content_is_json, [ body.to_json ] ]
   end
 
   private # = = = = = = = = = = = =

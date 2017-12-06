@@ -42,8 +42,6 @@ class RunColourRegexTest < TestBase
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'
-      # would like to check log but there is shell-log over-coupling
-      # OR... here, is the log == []
       rag = 'red_amber_green'
       refute_nil ledger.key?(rag), @json
       assert ledger[rag].include?('fubar'), @json

@@ -18,10 +18,6 @@ class TestBase < HexMiniTest
     ms.ledger
   end
 
-  def log
-    ms.log
-  end
-
   def shell
     Sheller.new(ms)
   end
@@ -187,6 +183,14 @@ class TestBase < HexMiniTest
     run_cyber_dojo_sh(named_args)
     refute_timed_out
     stdout.strip
+  end
+
+  def assert_exception(expected)
+    assert_equal jpg(expected), jpg(@json['exception']), jpg(@json)
+  end
+
+  def jpg(o)
+    JSON.pretty_generate(o)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

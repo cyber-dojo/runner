@@ -20,7 +20,8 @@ class PullTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - -
-  # TODO: add log checks
+  # image_pulled?
+  # - - - - - - - - - - - - - - - - - - - -
 
   test '9C3',
   'false when image_name is valid but not in [docker images]' do
@@ -31,13 +32,30 @@ class PullTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  test 'A44',
+  test '9C4',
   'true when image_name is valid and in [docker images]' do
     set_image_name 'cdf/gcc_assert'
     stub_docker_images_prints 'cdf/gcc_assert'
     assert image_pulled?
   end
 
+  # - - - - - - - - - - - - - - - - - - - -
+
+  test '9C5',
+  'raises when [docker images ...] fails' do
+    cmd = 'docker images --format "{{.Repository}}"'
+    ms.bash.stub_run(cmd, stdout='x', stderr='y', status=1)
+    refute image_pulled?
+    assert_exception({
+      command:cmd,
+      stdout:stdout,
+      stderr:stderr,
+      status:status
+    })
+  end
+
+  # - - - - - - - - - - - - - - - - - - - -
+  # image_pull
   # - - - - - - - - - - - - - - - - - - - -
 
   test '91C',
@@ -51,6 +69,59 @@ class PullTest < TestBase
     assert image_pull
   end
 
+  # - - - - - - - - - - - - - - - - - - - -
+
+  test 'D80',
+  'raises when image_name does not exist or no pull access' do
+    set_image_name 'cdf/does_not_exist'
+    command = "docker pull #{image_name}"
+    stdout = 'Using default tag: latest'
+    stderr = [
+      'Error response from daemon: ',
+      "repository #{image_name} not found: ",
+      'does not exist or no pull access'
+    ].join
+    ms.bash.stub_run(command, stdout, stderr, status=1)
+
+    refute image_pull
+
+    assert_exception({
+      command:command,
+      stdout:stdout,
+      stderr:stderr,
+      status:status
+    })
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '933',
+  'raises when there is no network connectivitity' do
+    set_image_name 'cdf/gcc_assert'
+    command = "docker pull #{image_name}"
+    stdout = [
+      'Using default tag: latest',
+      "Pulling repository docker.io/#{image_name}"
+    ].join("\n")
+    stderr = [
+      'Error while pulling image: Get',
+      "https://index.docker.io/v1/repositories/#{image_name}/images:",
+      'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
+    ].join(' ')
+    ms.bash.stub_run(command, stdout, stderr, status=1)
+
+    refute image_pull
+
+    assert_exception({
+      command:command,
+      stdout:stdout,
+      stderr:stderr,
+      status:status
+    })
+  end
+
+  private # = = = = = = = = = = = = = = = =
+
   def stub_docker_pull_success(image_name, tag)
     stdout = []
     if tag == ''
@@ -61,58 +132,10 @@ class PullTest < TestBase
     stdout << "latest: Pulling from #{image_name}"
     stdout << 'Digest: sha256:2abe11877faf57729d1d010a5ad95764b4d1965f3dc3e93cef2bb07bc9c5c07b'
     stdout << "Status: Image is up to date for #{image_name}:#{tag}"
-    stub_docker_pull(image_name, stdout.join("\n"), stderr='', status=shell.success)
+    stub_docker_pull(image_name, stdout.join("\n"), stderr='', status=0)
   end
 
   # - - - - - - - - - - - - - - - - - - - -
-
-  test 'D80',
-  'false when image_name is valid but does not exist' do
-    set_image_name 'cdf/does_not_exist'
-    stub_docker_pull_not_exist image_name, tag=''
-    refute image_pull
-  end
-
-  def stub_docker_pull_not_exist(repo, tag)
-    stdout = (tag == '') ? 'Using default tag: latest' : ''
-    stderr = [
-      'Error response from daemon: ',
-      "repository #{repo} not found: ",
-      'does not exist or no pull access'
-    ].join
-    image_name = repo
-    image_name += ":#{tag}" unless tag == ''
-    stub_docker_pull(image_name, stdout, stderr, 1)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '933',
-  'false when there is no network connectivitity, message in log' do
-    set_image_name 'cdf/gcc_assert'
-    cmd = "docker pull #{image_name}"
-    stdout = [
-      'Using default tag: latest',
-      "Pulling repository docker.io/#{image_name}"
-    ].join("\n")
-    stderr = [
-      'Error while pulling image: Get',
-      "https://index.docker.io/v1/repositories/#{image_name}/images:",
-      'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
-    ].join(' ')
-    ms.bash.stub_run(cmd, stdout, stderr, status=1)
-
-    refute image_pull
-
-    assert_log([{
-      "command": "shell.exec(\"#{cmd}\")",
-      "stdout": stdout,
-      "stderr": stderr,
-      "status": status
-    }])
-  end
-
-  private # = = = = = = = = = = = = = = = =
 
   def stub_docker_pull(image_name, stdout, stderr, status)
     set_image_name image_name
@@ -124,13 +147,7 @@ class PullTest < TestBase
 
   def stub_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
-    ms.bash.stub_run(cmd, stdout=image_name, stderr='', shell.success)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - -
-
-  def assert_log(expected)
-    assert_equal expected.to_json, @json['log'].to_json, @json
+    ms.bash.stub_run(cmd, stdout=image_name, stderr='', status=0)
   end
 
 end

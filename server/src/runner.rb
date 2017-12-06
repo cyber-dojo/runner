@@ -16,13 +16,13 @@ class Runner # stateless
 
   def image_pulled?
     cmd = 'docker images --format "{{.Repository}}"'
-    shell.assert(cmd).split("\n").include? image_name
+    shell.assert(cmd).split("\n").include?(image_name)
   end
 
   def image_pull
-    docker_pull = "docker pull #{image_name}"
-    _stdout,_stderr,status = shell.exec(docker_pull)
-    return status == shell.success
+    cmd = "docker pull #{image_name}"
+    shell.assert(cmd)
+    true
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -180,7 +180,7 @@ class Runner # stateless
         colour = :amber
       end
       colour.to_s
-    rescue Exception => error
+    rescue => error
       ledger.write('red_amber_green', error.message)
      'amber'
     end
@@ -195,7 +195,7 @@ class Runner # stateless
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
       shell.assert(docker_exec(cmd))
-    rescue Exception => error
+    rescue => error
       ledger.write('red_amber_green', error.message)
       'lambda { |_,_,_| return :amber }'
     end
@@ -355,16 +355,18 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - -
 
   def disk
-    @external.disk
+    external.disk
   end
 
   def ledger
-    @external.ledger
+    external.ledger
   end
 
   def shell
-    Sheller.new(@external)
+    Sheller.new(external)
   end
+
+  attr_reader :external
 
   # - - - - - - - - - - - - - - - - - -
 

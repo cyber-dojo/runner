@@ -1,5 +1,4 @@
 require_relative 'test_base'
-require_relative '../../src/runner_error'
 require_relative 'bash_stubber'
 
 class BashStubberTest < TestBase
@@ -98,16 +97,16 @@ class BashStubberTest < TestBase
     assert_equal 'so', shell.assert('true')
   end
 
+  # - - - - - - - - - - - - - - -
+
   test '4FF',
   %w( shell.assert raises
       when status is non-zero
   ) do
     ms.bash = BashStubber.new
     ms.bash.stub_run('false', '', '', 1)
-    error = assert_raises(RunnerError) { shell.assert('false') }
-    #assert_equal 'command:false', error.message
+    error = assert_raises(ShellerError) { shell.assert('false') }
   end
-
 
   private # = = = = = = = = = = = = = = =
 
