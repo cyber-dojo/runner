@@ -1,5 +1,5 @@
 require_relative 'all_avatars_names'
-require_relative 'sheller'
+require_relative 'shell'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require 'timeout'
@@ -28,7 +28,7 @@ class Runner # stateless
     elsif stderr.include?('not found') || stderr.include?('not exist')
       return false # [1]
     else
-      raise ShellerError.new(stderr, {
+      raise ShellError.new(stderr, {
         command:command,
         stdout:stdout,
         stderr:stderr,
@@ -375,7 +375,7 @@ class Runner # stateless
   end
 
   def shell
-    Sheller.new(external)
+    Shell.new(external)
   end
 
   attr_reader :external

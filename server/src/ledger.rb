@@ -1,5 +1,5 @@
 
-class LedgerWriter # MethodLog ?
+class Ledger
 
   def initialize
     @hash = {}

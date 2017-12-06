@@ -1,6 +1,6 @@
-require_relative 'sheller_error'
+require_relative 'shell_error'
 
-class Sheller
+class Shell
 
   def initialize(external)
     @external = external
@@ -17,7 +17,7 @@ class Sheller
   def assert(command)
     stdout,stderr,status = bash_run(command)
     unless status == success
-      raise ShellerError.new(stderr, {
+      raise ShellError.new(stderr, {
         command:command,
         stdout:stdout,
         stderr:stderr,
@@ -37,7 +37,7 @@ class Sheller
     stdout,stderr,status = bash.run(command)
     [stdout, stderr, status]
   rescue Exception => error
-    raise ShellerError.new(error.message, {
+    raise ShellError.new(error.message, {
       command:command,
       message:error.message
     })

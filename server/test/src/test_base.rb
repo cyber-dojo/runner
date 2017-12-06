@@ -19,7 +19,7 @@ class TestBase < HexMiniTest
   end
 
   def shell
-    Sheller.new(ms)
+    Shell.new(ms)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

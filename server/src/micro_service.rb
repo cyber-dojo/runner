@@ -1,7 +1,7 @@
 require_relative 'all_avatars_names'
-require_relative 'basher'
-require_relative 'disk_writer'
-require_relative 'ledger_writer'
+require_relative 'bash'
+require_relative 'disk'
+require_relative 'ledger'
 require_relative 'runner'
 require_relative 'valid_image_name'
 require 'json'
@@ -9,9 +9,9 @@ require 'json'
 class MicroService
 
   def initialize
-    @bash   = Basher.new
-    @disk   = DiskWriter.new
-    @ledger = LedgerWriter.new
+    @bash   = Bash.new
+    @disk   = Disk.new
+    @ledger = Ledger.new
   end
 
   attr_reader :bash, :disk, :ledger
@@ -46,7 +46,7 @@ class MicroService
 
     [ 200, header_content_is_json, [ body.to_json ] ]
 
-  rescue ShellerError => error
+  rescue ShellError => error
     body = { 'exception' => error.args }
     [ 200, header_content_is_json, [ body.to_json ] ]
 

@@ -1,6 +1,6 @@
 require 'open3'
 
-class Basher
+class Bash
 
   def run(command)
     stdout,stderr,r = Open3.capture3(command)

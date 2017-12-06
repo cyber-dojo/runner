@@ -105,7 +105,7 @@ class BashStubberTest < TestBase
   ) do
     ms.bash = BashStubber.new
     ms.bash.stub_run('false', '', '', 1)
-    error = assert_raises(ShellerError) { shell.assert('false') }
+    error = assert_raises(ShellError) { shell.assert('false') }
   end
 
   private # = = = = = = = = = = = = = = =

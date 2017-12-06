@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class ShellerTest < TestBase
+class ShellTest < TestBase
 
   def self.hex_prefix
     'C894D'
@@ -13,7 +13,7 @@ class ShellerTest < TestBase
   test '243', %w( when exec(command) raises
     a ShellError holding the command and original exception message is raised
   ) do
-    error = assert_raises(ShellerError) {
+    error = assert_raises(ShellError) {
       shell.exec('xxx Hello')
     }
     expected = {
@@ -64,7 +64,7 @@ class ShellerTest < TestBase
   %w( when assert(command) has a status of non-zero,
       a ShellError holding the command,stderr,stderr, and status is raised
   ) do
-    error = assert_raises(ShellerError) {
+    error = assert_raises(ShellError) {
       shell.assert('printf Hello && false')
     }
     expected = {
@@ -82,7 +82,7 @@ class ShellerTest < TestBase
   %w( when assert(command) raises
       a ShellError holding the command and original exception message is raised
   ) do
-    error = assert_raises(ShellerError) {
+    error = assert_raises(ShellError) {
       shell.assert('xxx Hello')
     }
     expected = {
