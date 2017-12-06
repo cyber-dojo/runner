@@ -7,9 +7,53 @@ class ShellerTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # shell.exec(command)
+  # - - - - - - - - - - - - - - - - -
+
+  test '243', %w( when exec(command) raises
+    a ShellError holding the command and original exception message is raised
+  ) do
+    error = assert_raises(ShellerError) {
+      shell.exec('xxx Hello')
+    }
+    expected = {
+      command:'xxx Hello',
+      message:'No such file or directory - xxx'
+    }
+    assert_equal expected, error.args
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '244',
+  %w( when exec(command) is zero,
+      it returns [stdout,stderr,status]
+  ) do
+    stdout,stderr,status = shell.exec('printf Hello')
+    assert_equal 'Hello', stdout
+    assert_equal '', stderr
+    assert_equal 0, status
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '245',
+  %w( when exec(command) is non-zero,
+      it returns [stdout,stderr,status]
+  ) do
+    stdout,stderr,status = shell.exec('printf Bye && false')
+    assert_equal 'Bye', stdout
+    assert_equal '', stderr
+    assert_equal 1, status
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # shell.assert(command)
+  # - - - - - - - - - - - - - - - - -
 
   test '247',
-  %w( when assert(cmd) has zero status, stdout is returned ) do
+  %w( when assert(command) has status of zero,
+      stdout is returned ) do
     stdout = shell.assert('printf Hello')
     assert_equal 'Hello', stdout
   end
@@ -17,36 +61,35 @@ class ShellerTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '248',
-  %w( when assert(cmd) is non-zero,
-      exception is raised,
-      the exception info is put in the ledger
+  %w( when assert(command) has a status of non-zero,
+      a ShellError holding the command,stderr,stderr, and status is raised
   ) do
     error = assert_raises(ShellerError) {
       shell.assert('printf Hello && false')
     }
-    assert_equal({
-        command:'printf Hello && false',
-        stdout:'Hello',
-        stderr:'',
-        status:1
-      }, error.args
-    )
+    expected = {
+      command:'printf Hello && false',
+      stdout:'Hello',
+      stderr:'',
+      status:1
+    }
+    assert_equal expected, error.args
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '246',
-  %w( when assert(cmd) raises
-      the exception info is put in the ledger
+  %w( when assert(command) raises
+      a ShellError holding the command and original exception message is raised
   ) do
     error = assert_raises(ShellerError) {
       shell.assert('xxx Hello')
     }
-    assert_equal({
+    expected = {
       command:'xxx Hello',
       message:'No such file or directory - xxx'
-      }, error.args
-    )
+    }
+    assert_equal expected, error.args
   end
 
 end

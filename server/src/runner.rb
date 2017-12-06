@@ -15,14 +15,26 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
-    cmd = 'docker images --format "{{.Repository}}"'
-    shell.assert(cmd).split("\n").include?(image_name)
+    command = 'docker images --format "{{.Repository}}"'
+    shell.assert(command).split("\n").include?(image_name)
   end
 
   def image_pull
-    cmd = "docker pull #{image_name}"
-    shell.assert(cmd)
-    true
+     # [1] stderr varies depending on the host's Docker version
+    command = "docker pull #{image_name}"
+    stdout,stderr,status = shell.exec(command)
+    if status == shell.success
+      return true
+    elsif stderr.include?('not found') || stderr.include?('not exist')
+      return false # [1]
+    else
+      raise ShellerError.new(stderr, {
+        command:command,
+        stdout:stdout,
+        stderr:stderr,
+        status:status
+      })
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

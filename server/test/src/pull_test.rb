@@ -28,6 +28,7 @@ class PullTest < TestBase
     set_image_name 'cdf/ruby_mini_test:1.9.3'
     stub_docker_images_prints 'cdf/gcc_assert'
     refute image_pulled?
+    assert_no_exception
   end
 
   # - - - - - - - - - - - - - - - - - - - -
@@ -37,6 +38,7 @@ class PullTest < TestBase
     set_image_name 'cdf/gcc_assert'
     stub_docker_images_prints 'cdf/gcc_assert'
     assert image_pulled?
+    assert_no_exception
   end
 
   # - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +47,7 @@ class PullTest < TestBase
   'raises when [docker images ...] fails' do
     cmd = 'docker images --format "{{.Repository}}"'
     ms.bash.stub_run(cmd, stdout='x', stderr='y', status=1)
-    refute image_pulled?
+    assert_nil image_pulled?
     assert_exception({
       command:cmd,
       stdout:stdout,
@@ -64,15 +66,17 @@ class PullTest < TestBase
 
     stub_docker_pull_success image_name, tag=''
     assert image_pull
+    assert_no_exception
 
     stub_docker_pull_success image_name, tag='latest'
     assert image_pull
+    assert_no_exception
   end
 
   # - - - - - - - - - - - - - - - - - - - -
 
   test 'D80',
-  'raises when image_name does not exist or no pull access' do
+  'false when image_name does not exist or no pull access' do
     set_image_name 'cdf/does_not_exist'
     command = "docker pull #{image_name}"
     stdout = 'Using default tag: latest'
@@ -84,13 +88,7 @@ class PullTest < TestBase
     ms.bash.stub_run(command, stdout, stderr, status=1)
 
     refute image_pull
-
-    assert_exception({
-      command:command,
-      stdout:stdout,
-      stderr:stderr,
-      status:status
-    })
+    assert_no_exception
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -110,8 +108,7 @@ class PullTest < TestBase
     ].join(' ')
     ms.bash.stub_run(command, stdout, stderr, status=1)
 
-    refute image_pull
-
+    assert_nil image_pull
     assert_exception({
       command:command,
       stdout:stdout,

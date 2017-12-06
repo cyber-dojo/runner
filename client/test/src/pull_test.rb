@@ -16,10 +16,8 @@ class PullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'B22',
-  %w( pull raises when image_name repository does not exist ) do
-    assert_raises {
-      image_pull({ image_name: 'docker/lazybox' })
-    }
+  %w( pull is false when image_name repository does not exist ) do
+    refute image_pull({ image_name: 'docker/lazybox' })
   end
 
   # - - - - - - - - - - - - - - - - - - - - -

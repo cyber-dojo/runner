@@ -40,6 +40,18 @@ class TestBase < HexMiniTest
     @json = JSON.parse(result[2][0])
   end
 
+  def assert_no_exception
+    assert_exception(nil)
+  end
+
+  def assert_exception(expected)
+    assert_equal jpg(expected), jpg(@json['exception']), jpg(@json)
+  end
+
+  def jpg(o)
+    JSON.pretty_generate(o)
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
@@ -183,14 +195,6 @@ class TestBase < HexMiniTest
     run_cyber_dojo_sh(named_args)
     refute_timed_out
     stdout.strip
-  end
-
-  def assert_exception(expected)
-    assert_equal jpg(expected), jpg(@json['exception']), jpg(@json)
-  end
-
-  def jpg(o)
-    JSON.pretty_generate(o)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

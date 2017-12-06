@@ -8,6 +8,12 @@ class Sheller
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  def exec(command)
+    bash_run(command)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   def assert(command)
     stdout,stderr,status = bash_run(command)
     unless status == success
@@ -19,6 +25,10 @@ class Sheller
       })
     end
     stdout
+  end
+
+  def success
+    0
   end
 
   private # = = = = = = = = = = = = = = = = =
@@ -35,10 +45,6 @@ class Sheller
 
   def bash
     @external.bash
-  end
-
-  def success
-    0
   end
 
 end
