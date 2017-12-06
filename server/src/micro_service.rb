@@ -48,11 +48,10 @@ class MicroService
     if ledger.key?('red_amber_green')
       hash['red_amber_green'] = ledger['red_amber_green']
     end
-    [ 200, header_content_json, [ hash.to_json ] ]
+    [ 200, header_content_is_json, [ hash.to_json ] ]
   rescue Exception => error
     hash = { 'exception' => error.message }
-    # TODO: 200?
-    [ 200, header_content_json, [ hash.to_json ] ]
+    [ 200, header_content_is_json, [ hash.to_json ] ]
   end
 
   private # = = = = = = = = = = = =
@@ -60,7 +59,7 @@ class MicroService
   def json_args(request)
     args = json_parse(request.body.read)
     unless args.class.name == 'Hash'
-      raise RunnerError.new('json:!Hash')
+      raise 'json:!Hash'
     end
     args
   end
@@ -68,10 +67,10 @@ class MicroService
   def json_parse(request)
     JSON.parse(request)
   rescue
-    raise RunnerError.new('json:invalid')
+    raise 'json:invalid'
   end
 
-  def header_content_json
+  def header_content_is_json
     { 'Content-Type' => 'application/json' }
   end
 
