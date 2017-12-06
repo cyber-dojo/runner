@@ -38,8 +38,8 @@ class MicroService
          max_seconds]
     end
     runner = Runner.new(self, image_name, kata_id)
-    response = runner.public_send(@name, *@args)
-    body = { @name => response }
+    result = runner.public_send(@name, *@args)
+    body = { @name => result }
     if ledger.key?('red_amber_green')
       body['red_amber_green'] = ledger['red_amber_green']
     end
@@ -82,31 +82,19 @@ class MicroService
   def image_name
     arg = @json_args[__method__.to_s]
     unless valid_image_name?(arg)
-      argument_error('image_name', 'invalid')
+      raise invalid('image_name')
     end
     arg
   end
-
-  include ValidImageName
 
   # - - - - - - - - - - - - - - - -
 
   def kata_id
     arg = @json_args[__method__.to_s]
     unless valid_kata_id?(arg)
-      argument_error('kata_id', 'invalid')
+      raise invalid('kata_id')
     end
     arg
-  end
-
-  def valid_kata_id?(kata_id)
-    kata_id.class.name == 'String' &&
-      kata_id.length == 10 &&
-        kata_id.chars.all? { |char| hex?(char) }
-  end
-
-  def hex?(char)
-    '0123456789ABCDEF'.include?(char)
   end
 
   # - - - - - - - - - - - - - - - -
@@ -114,16 +102,10 @@ class MicroService
   def avatar_name
     arg = @json_args[__method__.to_s]
     unless valid_avatar_name?(arg)
-      argument_error('avatar_name', 'invalid')
+      raise invalid('avatar_name')
     end
     arg
   end
-
-  def valid_avatar_name?(avatar_name)
-    all_avatars_names.include?(avatar_name)
-  end
-
-  include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - -
 
@@ -148,13 +130,43 @@ class MicroService
   end
 
   def max_seconds
-    @json_args[__method__.to_s]
+    arg = @json_args[__method__.to_s]
+    unless valid_max_seconds?(arg)
+      raise invalid('max_seconds')
+    end
+    arg
+  end
+
+  # - - - - - - - - - - - - - - - -
+  # validations
+  # - - - - - - - - - - - - - - - -
+
+  include ValidImageName
+
+  def valid_kata_id?(kata_id)
+    kata_id.class.name == 'String' &&
+      kata_id.length == 10 &&
+        kata_id.chars.all? { |char| hex?(char) }
+  end
+
+  def hex?(char)
+    '0123456789ABCDEF'.include?(char)
+  end
+
+  def valid_avatar_name?(avatar_name)
+    all_avatars_names.include?(avatar_name)
+  end
+
+  include AllAvatarsNames
+
+  def valid_max_seconds?(arg)
+    arg.class.name == 'Integer' && (1..20).include?(arg)
   end
 
   # - - - - - - - - - - - - - - - -
 
-  def argument_error(name, message)
-    raise ArgumentError.new("#{name}:#{message}")
+  def invalid(name)
+    ArgumentError.new("#{name}:invalid")
   end
 
 end

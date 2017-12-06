@@ -24,8 +24,6 @@ class MicroServiceTest < TestBase
   %w( non-hash in http payload becomes exception ) do
     assert_call_raw('kata_new', 'null',   { exception:'json:!Hash' })
     assert_call_raw('kata_new', '[]',     { exception:'json:!Hash' })
-    # TODO: nil.to_json == 'null'
-    # TODO: double-duty to get image_ method coverage
     assert_call(nil           , nil,      { exception:'json:!Hash' })
     assert_call('image_pulled', nil,      { exception:'json:!Hash' })
     assert_call('image_pull'  , nil,      { exception:'json:!Hash' })
@@ -34,62 +32,86 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'A53',
+  test 'BB2',
   %w( invalid image_name raises ) do
-    invalid_image_names.each do |invalid_image_name|
+    invalid_image_names.each do |invalid|
       assert_call_raw('kata_new', {
-          image_name:invalid_image_name,
+          image_name:invalid,
           kata_id:kata_id
         }.to_json, {
           exception:'image_name:invalid'
-        })
+        }
+      )
     end
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '6FD',
+  test 'BB3',
   %w( invalid kata_id raises ) do
-    invalid_kata_ids.each do |invalid_kata_id|
+    invalid_kata_ids.each do |invalid|
       assert_call_raw('kata_new', {
           image_name:image_name,
-          kata_id:invalid_kata_id
+          kata_id:invalid
         }.to_json, {
           exception:'kata_id:invalid'
-        })
+        }
+      )
     end
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '685',
+  test 'BB4',
   %w( invalid avatar_name raises ) do
-    invalid_avatar_names.each do |invalid_avatar_name|
+    invalid_avatar_names.each do |invalid|
       assert_call_raw('avatar_old', {
           image_name:image_name,
           kata_id:kata_id,
-          avatar_name:invalid_avatar_name
+          avatar_name:invalid
         }.to_json, {
           exception:'avatar_name:invalid'
-        })
+        }
+      )
     end
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB4', 'kata_new' do
+  test 'BB5',
+  %w( invalid max_seconds raises ) do
+    invalid_max_seconds.each do |invalid|
+      assert_call_raw('run_cyber_dojo_sh', {
+        image_name:image_name,
+        kata_id:kata_id,
+        avatar_name:'salmon',
+        new_files:{},
+        deleted_files:{},
+        unchanged_files:{},
+        changed_files:{},
+        max_seconds:invalid
+      }.to_json, {
+        exception:'max_seconds:invalid'
+      })
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB5', 'kata_new' do
     assert_call('kata_new', {}, { kata_new:nil })
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB5', 'kata_old' do
+  test 'AB6', 'kata_old' do
     assert_call('kata_old', {}, { kata_old:nil })
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB6', 'avatar_new' do
+  test 'AB7', 'avatar_new' do
     assert_call('avatar_new', {
         avatar_name:'salmon',
         starting_files:starting_files
@@ -101,7 +123,7 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB7', 'avatar_old' do
+  test 'AB8', 'avatar_old' do
     assert_call('avatar_old', {
         avatar_name:'salmon'
       }, {
@@ -112,7 +134,7 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB8', 'run_cyber_dojo_sh' do
+  test 'AB9', 'run_cyber_dojo_sh' do
     assert_call('run_cyber_dojo_sh', {
         avatar_name:'salmon',
         new_files:starting_files,
@@ -181,6 +203,22 @@ class MicroServiceTest < TestBase
       {},           # not string
       '',           # not avatar name
       'waterbottle' # not avatar name
+    ]
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def invalid_max_seconds
+    [
+      nil,         # not Fixnum
+      Object.new,  # not Fixnum
+      [],          # not Fixnum
+      {},          # not Fixnum
+      '',          # not Fixnum
+      12.45,       # not Fixnum
+      -1,          # not (1..20)
+      0,           # not (1..20)
+      21           # not (1..20)
     ]
   end
 
