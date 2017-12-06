@@ -59,7 +59,7 @@ class MicroService
 
   def json_args(request)
     args = json_parse(request.body.read)
-    unless args.class.name == 'Hash'
+    unless args.is_a?(Hash)
       raise 'json:!Hash'
     end
     args
@@ -110,7 +110,11 @@ class MicroService
   # - - - - - - - - - - - - - - - -
 
   def starting_files
-    @json_args[__method__.to_s]
+    arg = @json_args[__method__.to_s]
+    unless valid_files?(arg)
+      raise invalid('starting_files')
+    end
+    arg
   end
 
   def new_files
@@ -144,7 +148,7 @@ class MicroService
   include ValidImageName
 
   def valid_kata_id?(kata_id)
-    kata_id.class.name == 'String' &&
+    kata_id.is_a?(String) &&
       kata_id.length == 10 &&
         kata_id.chars.all? { |char| hex?(char) }
   end
@@ -159,8 +163,13 @@ class MicroService
 
   include AllAvatarsNames
 
+  def valid_files?(arg)
+    arg.is_a?(Hash) &&
+      arg.all? { |k,v| k.is_a?(String) && v.is_a?(String) }
+  end
+
   def valid_max_seconds?(arg)
-    arg.class.name == 'Integer' && (1..20).include?(arg)
+    arg.is_a?(Integer) && (1..20).include?(arg)
   end
 
   # - - - - - - - - - - - - - - - -

@@ -63,6 +63,23 @@ class MicroServiceTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB4',
+  %w( invalid starting_files raises ) do
+    invalid_files.each do |invalid|
+      assert_call_raw('avatar_new', {
+          image_name:image_name,
+          kata_id:kata_id,
+          avatar_name:'salmon',
+          starting_files:invalid
+        }.to_json, {
+          exception:'starting_files:invalid'
+        }
+      )
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BB5',
   %w( invalid avatar_name raises ) do
     invalid_avatar_names.each do |invalid|
       assert_call_raw('avatar_old', {
@@ -78,7 +95,7 @@ class MicroServiceTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB5',
+  test 'BB6',
   %w( invalid max_seconds raises ) do
     invalid_max_seconds.each do |invalid|
       assert_call_raw('run_cyber_dojo_sh', {
@@ -183,9 +200,9 @@ class MicroServiceTest < TestBase
 
   def invalid_kata_ids
     [
-      nil,          # not string
-      Object.new,   # not string
-      [],           # not string
+      nil,          # not String
+      Object.new,   # not String
+      [],           # not String
       '',           # not 10 chars
       '123456789',  # not 10 chars
       '123456789AB',# not 10 chars
@@ -197,12 +214,25 @@ class MicroServiceTest < TestBase
 
   def invalid_avatar_names
     [
-      nil,          # not string
-      Object.new,   # not string
-      [],           # not string
-      {},           # not string
-      '',           # not avatar name
-      'waterbottle' # not avatar name
+      nil,          # not String
+      Object.new,   # not String
+      [],           # not String
+      {},           # not String
+      '',           # not avatar-name
+      'waterbottle' # not avatar-name
+    ]
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def invalid_files
+    [
+      nil,           # not Hash
+      Object.new,    # not Hash
+      [],            # not Hash
+      '',            # not Hash
+      'waterbottle', # not Hash
+      { 'x' => [] }, # value not String
     ]
   end
 
@@ -210,12 +240,12 @@ class MicroServiceTest < TestBase
 
   def invalid_max_seconds
     [
-      nil,         # not Fixnum
-      Object.new,  # not Fixnum
-      [],          # not Fixnum
-      {},          # not Fixnum
-      '',          # not Fixnum
-      12.45,       # not Fixnum
+      nil,         # not Integer
+      Object.new,  # not Integer
+      [],          # not Integer
+      {},          # not Integer
+      '',          # not Integer
+      12.45,       # not Integer
       -1,          # not (1..20)
       0,           # not (1..20)
       21           # not (1..20)
