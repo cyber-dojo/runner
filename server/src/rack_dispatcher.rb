@@ -6,7 +6,7 @@ require_relative 'runner'
 require_relative 'valid_image_name'
 require 'json'
 
-class MicroService
+class RackDispatcher
 
   def initialize(request = Rack::Request)
     @request = request

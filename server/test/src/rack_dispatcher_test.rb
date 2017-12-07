@@ -1,9 +1,9 @@
-require_relative '../../src/micro_service'
+require_relative '../../src/rack_dispatcher'
 require_relative 'image_names'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 
-class MicroServiceTest < TestBase
+class RackDispatcherTest < TestBase
 
   def self.hex_prefix
     'D06F7'
@@ -206,7 +206,7 @@ class MicroServiceTest < TestBase
 
   def assert_call_raw(path_info, args, expected)
     env = { body:args, path_info:path_info }
-    tuple = MicroService.new(RackRequestStub).call(env)
+    tuple = RackDispatcher.new(RackRequestStub).call(env)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
     assert_equal [ expected.to_json ], tuple[2]

@@ -1,25 +1,25 @@
 require_relative 'hex_mini_test'
 require_relative 'rack_request_stub'
 require_relative '../../src/all_avatars_names'
-require_relative '../../src/micro_service'
+require_relative '../../src/rack_dispatcher'
 require 'json'
 
 class TestBase < HexMiniTest
 
-  def ms
-    @ms ||= MicroService.new(RackRequestStub)
+  def rack
+    @rack ||= RackDispatcher.new(RackRequestStub)
   end
 
   def disk
-    ms.disk
+    rack.disk
   end
 
   def ledger
-    ms.ledger
+    rack.ledger
   end
 
   def shell
-    Shell.new(ms)
+    Shell.new(rack)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,11 +33,11 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def call(method_name, args = {})
+  def rack_call(method_name, args = {})
     args['image_name'] = image_name
     args['kata_id'] = kata_id
     env = { body:args.to_json, path_info:method_name.to_s }
-    result = ms.call(env)
+    result = rack.call(env)
     @json = JSON.parse(result[2][0])
   end
 
@@ -56,37 +56,37 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_pulled?
-    call('image_pulled')
+    rack_call('image_pulled')
     @json['image_pulled?']
   end
 
   def image_pull
-    call(__method__)
+    rack_call(__method__)
     @json['image_pull']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    call(__method__)
+    rack_call(__method__)
   end
 
   def kata_old
-    call(__method__)
+    rack_call(__method__)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(name = 'salmon')
     args = { avatar_name:name, starting_files:starting_files }
-    call(__method__, args)
+    rack_call(__method__, args)
     @avatar_name = name
     @previous_files = starting_files
   end
 
   def avatar_old(name = avatar_name)
     args = { avatar_name:name }
-    call(__method__, args)
+    rack_call(__method__, args)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -123,7 +123,7 @@ class TestBase < HexMiniTest
         changed_files:changed_files,
           max_seconds:defaulted_arg(named_args, :max_seconds, 10)
     }
-    call(__method__, args)
+    rack_call(__method__, args)
     @quad = @json[__method__.to_s]
 
     @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h

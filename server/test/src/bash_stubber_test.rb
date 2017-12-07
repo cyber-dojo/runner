@@ -92,8 +92,8 @@ class BashStubberTest < TestBase
   %w( shell.assert does not raise
       when status is zero
   ) do
-    ms.bash = BashStubber.new
-    ms.bash.stub_run('true', 'so', 'se', 0)
+    rack.bash = BashStubber.new
+    rack.bash.stub_run('true', 'so', 'se', 0)
     assert_equal 'so', shell.assert('true')
   end
 
@@ -103,8 +103,8 @@ class BashStubberTest < TestBase
   %w( shell.assert raises
       when status is non-zero
   ) do
-    ms.bash = BashStubber.new
-    ms.bash.stub_run('false', '', '', 1)
+    rack.bash = BashStubber.new
+    rack.bash.stub_run('false', '', '', 1)
     error = assert_raises(ShellError) { shell.assert('false') }
   end
 

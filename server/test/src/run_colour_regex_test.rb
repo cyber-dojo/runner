@@ -9,8 +9,8 @@ class RunColourRegexTest < TestBase
   end
 
   def hex_teardown
-    if ms.bash.respond_to? :fired?
-      assert ms.bash.fired?
+    if rack.bash.respond_to? :fired?
+      assert rack.bash.fired?
     end
   end
 
@@ -38,7 +38,7 @@ class RunColourRegexTest < TestBase
 
   test '5A2',
   %w( (cat'ing lambda from file) exception becomes amber ) do
-    ms.bash = BashStubRaiser.new('fubar')
+    rack.bash = BashStubRaiser.new('fubar')
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'
@@ -106,7 +106,7 @@ class RunColourRegexTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_rag(expected, lambda)
-    ms.bash = BashStubRagFileCatter.new(lambda)
+    rack.bash = BashStubRagFileCatter.new(lambda)
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'

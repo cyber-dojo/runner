@@ -1,4 +1,4 @@
 require 'rack'
-require_relative './src/micro_service'
+require_relative './src/rack_dispatcher'
 
-run MicroService.new
+run RackDispatcher.new
