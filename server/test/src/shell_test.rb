@@ -92,4 +92,10 @@ class ShellTest < TestBase
     assert_equal expected, error.args
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  def shell
+    Shell.new(external)
+  end
+
 end

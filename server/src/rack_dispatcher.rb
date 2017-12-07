@@ -1,7 +1,5 @@
 require_relative 'all_avatars_names'
-require_relative 'bash'
-require_relative 'disk'
-require_relative 'ledger'
+require_relative 'external'
 require_relative 'runner'
 require_relative 'valid_image_name'
 require 'json'
@@ -10,21 +8,15 @@ class RackDispatcher
 
   def initialize(request = Rack::Request)
     @request = request
-    @bash   = Bash.new
-    @disk   = Disk.new
-    @ledger = Ledger.new
+    @external = External.new
   end
 
-  attr_reader :bash, :disk, :ledger
-
-  def bash=(doppel)
-    @bash = doppel
-  end
+  attr_reader :external
 
   def call(env)
     request = @request.new(env)
     name, args = validated_name_args(request)
-    runner = Runner.new(self, image_name, kata_id)
+    runner = Runner.new(external, image_name, kata_id)
     result = runner.public_send(name, *args)
     body = { name => result }
     if ledger.key?('red_amber_green')
@@ -38,6 +30,10 @@ class RackDispatcher
   end
 
   private # = = = = = = = = = = = =
+
+  def ledger
+    external.ledger
+  end
 
   def validated_name_args(request)
     name = request.path_info[1..-1] # lose leading /
@@ -57,7 +53,9 @@ class RackDispatcher
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
     end
-    name += '?' if name == 'image_pulled'
+    if name == 'image_pulled'
+      name += '?'
+    end
     [name, args]
   end
 

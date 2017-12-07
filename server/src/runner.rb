@@ -8,6 +8,9 @@ class Runner # stateless
 
   def initialize(external, image_name, kata_id)
     @external = external
+    @shell = Shell.new(external)
+    @disk = external.disk
+    @ledger = external.ledger
     @image_name = image_name
     @kata_id = kata_id
   end
@@ -78,6 +81,8 @@ class Runner # stateless
   end
 
   private # = = = = = = = = = = = = = = = = = =
+
+  attr_reader :disk, :ledger, :shell
 
   def save_to(files, tmp_dir)
     files.each do |pathed_filename, content|
@@ -361,24 +366,6 @@ class Runner # stateless
   end
 
   include AllAvatarsNames
-
-  # - - - - - - - - - - - - - - - - - -
-  # externals
-  # - - - - - - - - - - - - - - - - - -
-
-  def disk
-    external.disk
-  end
-
-  def ledger
-    external.ledger
-  end
-
-  def shell
-    Shell.new(external)
-  end
-
-  attr_reader :external
 
   # - - - - - - - - - - - - - - - - - -
 

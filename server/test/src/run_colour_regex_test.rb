@@ -38,7 +38,7 @@ class RunColourRegexTest < TestBase
 
   test '5A2',
   %w( (cat'ing lambda from file) exception becomes amber ) do
-    set_bash BashStubRaiser.new('fubar')
+    external.bash = BashStubRaiser.new('fubar')
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'
@@ -106,7 +106,7 @@ class RunColourRegexTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_rag(expected, lambda)
-    set_bash BashStubRagFileCatter.new(lambda)
+    external.bash = BashStubRagFileCatter.new(lambda)
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'
@@ -114,6 +114,10 @@ class RunColourRegexTest < TestBase
       refute_nil ledger.key?(rag), @json
       assert ledger[rag].include?(expected), @json
     }
+  end
+
+  def ledger
+    external.ledger
   end
 
 end

@@ -8,7 +8,7 @@ class PullTest < TestBase
   end
 
   def hex_setup
-    set_bash BashStub.new
+    external.bash = BashStub.new
   end
 
   def hex_teardown
