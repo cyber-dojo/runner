@@ -25,10 +25,11 @@ class BashStub
 
   def stub_run(command, stdout, stderr, status)
     stubs = read
-    stub = { command:command,
-              stdout:stdout,
-              stderr:stderr,
-              status:status
+    stub = {
+      command:command,
+       stdout:stdout,
+       stderr:stderr,
+       status:status
     }
     write(stubs << stub)
   end

@@ -13,8 +13,8 @@ class RackDispatcherTest < TestBase
 
   test 'BB0',
   %w( invalid json in http payload becomes exception ) do
-    assert_call_raw('kata_new', 'sdfsdf', { exception:'json:invalid' })
-    assert_call_raw('kata_new', 'nil',    { exception:'json:invalid' })
+    assert_rack_call_raw('kata_new', 'sdfsdf', { exception:'json:invalid' })
+    assert_rack_call_raw('kata_new', 'nil',    { exception:'json:invalid' })
 
   end
 
@@ -22,11 +22,11 @@ class RackDispatcherTest < TestBase
 
   test 'BB1',
   %w( non-hash in http payload becomes exception ) do
-    assert_call_raw('kata_new', 'null',   { exception:'json:!Hash' })
-    assert_call_raw('kata_new', '[]',     { exception:'json:!Hash' })
-    assert_call(nil           , nil,      { exception:'json:!Hash' })
-    assert_call('image_pulled', nil,      { exception:'json:!Hash' })
-    assert_call('image_pull'  , nil,      { exception:'json:!Hash' })
+    assert_rack_call_raw('kata_new', 'null',   { exception:'json:!Hash' })
+    assert_rack_call_raw('kata_new', '[]',     { exception:'json:!Hash' })
+    assert_rack_call(nil           , nil,      { exception:'json:!Hash' })
+    assert_rack_call('image_pulled', nil,      { exception:'json:!Hash' })
+    assert_rack_call('image_pull'  , nil,      { exception:'json:!Hash' })
 
   end
 
@@ -35,7 +35,7 @@ class RackDispatcherTest < TestBase
   test 'BB2',
   %w( invalid image_name becomes exception ) do
     invalid_image_names.each do |invalid|
-      assert_call_raw('kata_new', {
+      assert_rack_call_raw('kata_new', {
           image_name:invalid,
           kata_id:kata_id
         }.to_json, {
@@ -50,7 +50,7 @@ class RackDispatcherTest < TestBase
   test 'BB3',
   %w( invalid kata_id becomes exception ) do
     invalid_kata_ids.each do |invalid|
-      assert_call_raw('kata_new', {
+      assert_rack_call_raw('kata_new', {
           image_name:image_name,
           kata_id:invalid
         }.to_json, {
@@ -65,7 +65,7 @@ class RackDispatcherTest < TestBase
   test 'BB4',
   %w( invalid starting_files becomes exception ) do
     invalid_files.each do |invalid|
-      assert_call_raw('avatar_new', {
+      assert_rack_call_raw('avatar_new', {
           image_name:image_name,
           kata_id:kata_id,
           avatar_name:'salmon',
@@ -82,7 +82,7 @@ class RackDispatcherTest < TestBase
   test 'BB5',
   %w( invalid avatar_name becomes exception ) do
     invalid_avatar_names.each do |invalid|
-      assert_call_raw('avatar_old', {
+      assert_rack_call_raw('avatar_old', {
           image_name:image_name,
           kata_id:kata_id,
           avatar_name:invalid
@@ -98,7 +98,7 @@ class RackDispatcherTest < TestBase
   test 'BB7',
   %w( invalid max_seconds becomes exception ) do
     invalid_max_seconds.each do |invalid|
-      assert_call_run_invalid({max_seconds:invalid})
+      assert_rack_call_run_invalid({max_seconds:invalid})
     end
   end
 
@@ -107,18 +107,18 @@ class RackDispatcherTest < TestBase
   test 'BB8',
   %w( invalid files becomes exception ) do
     invalid_files.each do |invalid|
-      assert_call_run_invalid({new_files:invalid})
-      assert_call_run_invalid({deleted_files:invalid})
-      assert_call_run_invalid({unchanged_files:invalid})
-      assert_call_run_invalid({changed_files:invalid})
+      assert_rack_call_run_invalid({new_files:invalid})
+      assert_rack_call_run_invalid({deleted_files:invalid})
+      assert_rack_call_run_invalid({unchanged_files:invalid})
+      assert_rack_call_run_invalid({changed_files:invalid})
     end
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_call_run_invalid(added)
+  def assert_rack_call_run_invalid(added)
     expected = { 'exception' => "#{added.keys[0]}:invalid" }
-    assert_call_raw('run_cyber_dojo_sh', {
+    assert_rack_call_raw('run_cyber_dojo_sh', {
       image_name:image_name,
       kata_id:kata_id,
       avatar_name:'salmon',
@@ -134,19 +134,19 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB5', 'kata_new' do
-    assert_call('kata_new', {}, { kata_new:nil })
+    assert_rack_call('kata_new', {}, { kata_new:nil })
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'AB6', 'kata_old' do
-    assert_call('kata_old', {}, { kata_old:nil })
+    assert_rack_call('kata_old', {}, { kata_old:nil })
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'AB7', 'avatar_new' do
-    assert_call('avatar_new', {
+    assert_rack_call('avatar_new', {
         avatar_name:'salmon',
         starting_files:starting_files
       }, {
@@ -158,7 +158,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB8', 'avatar_old' do
-    assert_call('avatar_old', {
+    assert_rack_call('avatar_old', {
         avatar_name:'salmon'
       }, {
         avatar_old:nil
@@ -169,7 +169,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB9', 'run_cyber_dojo_sh' do
-    assert_call('run_cyber_dojo_sh', {
+    assert_rack_call('run_cyber_dojo_sh', {
         avatar_name:'salmon',
         new_files:starting_files,
         deleted_files:{},
@@ -196,17 +196,18 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_call(path_info, args, expected)
+  def assert_rack_call(path_info, args, expected)
     unless args.nil?
       args['image_name'] ||= image_name
       args['kata_id'] ||= kata_id
     end
-    assert_call_raw(path_info, args.to_json, expected)
+    assert_rack_call_raw(path_info, args.to_json, expected)
   end
 
-  def assert_call_raw(path_info, args, expected)
+  def assert_rack_call_raw(path_info, args, expected)
+    rack = RackDispatcher.new(RackRequestStub)
     env = { body:args, path_info:path_info }
-    tuple = RackDispatcher.new(RackRequestStub).call(env)
+    tuple = rack.call(env)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
     assert_equal [ expected.to_json ], tuple[2]

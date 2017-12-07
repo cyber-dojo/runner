@@ -8,11 +8,11 @@ class PullTest < TestBase
   end
 
   def hex_setup
-    rack.bash = BashStub.new
+    set_bash BashStub.new
   end
 
   def hex_teardown
-    rack.bash.teardown
+    bash.teardown
   end
 
   def set_image_name(image_name)
@@ -46,7 +46,7 @@ class PullTest < TestBase
   test '9C5',
   'raises when [docker images ...] fails' do
     cmd = 'docker images --format "{{.Repository}}"'
-    rack.bash.stub_run(cmd, stdout='x', stderr='y', status=1)
+    bash.stub_run(cmd, stdout='x', stderr='y', status=1)
     assert_nil image_pulled?
     assert_exception({
       command:cmd,
@@ -85,7 +85,7 @@ class PullTest < TestBase
       "repository #{image_name} not found: ",
       'does not exist or no pull access'
     ].join
-    rack.bash.stub_run(command, stdout, stderr, status=1)
+    bash.stub_run(command, stdout, stderr, status=1)
 
     refute image_pull
     assert_no_exception
@@ -106,7 +106,7 @@ class PullTest < TestBase
       "https://index.docker.io/v1/repositories/#{image_name}/images:",
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
-    rack.bash.stub_run(command, stdout, stderr, status=1)
+    bash.stub_run(command, stdout, stderr, status=1)
 
     assert_nil image_pull
     assert_exception({
@@ -137,14 +137,14 @@ class PullTest < TestBase
   def stub_docker_pull(image_name, stdout, stderr, status)
     set_image_name image_name
     cmd = "docker pull #{image_name}"
-    rack.bash.stub_run(cmd, stdout, stderr, status)
+    bash.stub_run(cmd, stdout, stderr, status)
   end
 
   # - - - - - - - - - - - - - - - - - - - -
 
   def stub_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
-    rack.bash.stub_run(cmd, stdout=image_name, stderr='', status=0)
+    bash.stub_run(cmd, stdout=image_name, stderr='', status=0)
   end
 
 end

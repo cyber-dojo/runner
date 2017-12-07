@@ -10,6 +10,13 @@ class TestBase < HexMiniTest
     @rack ||= RackDispatcher.new(RackRequestStub)
   end
 
+  def bash
+    rack.bash
+  end
+  def set_bash(doppel)
+    rack.bash = doppel
+  end
+
   def disk
     rack.disk
   end
