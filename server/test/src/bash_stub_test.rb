@@ -1,14 +1,14 @@
 require_relative 'test_base'
-require_relative 'bash_stubber'
+require_relative 'bash_stub'
 
-class BashStubberTest < TestBase
+class BashStubTest < TestBase
 
   def self.hex_prefix
     'F03E2'
   end
 
   def hex_setup
-    @bash = BashStubber.new
+    @bash = BashStub.new
   end
 
   attr_reader :bash
@@ -17,8 +17,8 @@ class BashStubberTest < TestBase
 
   test '4A5',
   %w( teardown does not raise
-      when no mock_exec's are setup
-      and no exec's are made
+      when no run()s are stubbed
+      and no run()s are made
   ) do
     bash.teardown
   end
@@ -26,9 +26,7 @@ class BashStubberTest < TestBase
   # - - - - - - - - - - - - - - -
 
   test '652',
-  %w( exec(command) raises
-      when an exec is made
-      and there are no mock_exec's
+  %w( run() raises when run() is not stubbed
   ) do
     assert_raises { bash.run(pwd) }
   end
@@ -36,8 +34,7 @@ class BashStubberTest < TestBase
   # - - - - - - - - - - - - - - -
 
   test '181',
-  %w( exec(command) raises
-      when mock_exec is for a different command
+  %w( run() raises when run() is stubbed but for a different command
   ) do
     bash.stub_run(pwd, wd, stderr='', success)
     assert_raises { bash.run(not_pwd = "cd #{wd}") }
@@ -47,8 +44,8 @@ class BashStubberTest < TestBase
 
   test 'B4E',
   %w( teardown does not raise
-      when one mock_exec is setup
-      and a matching exec is made
+      when one run() is stubbed
+      and a matching run() is made
   ) do
     bash.stub_run(pwd, wd, stderr='', success)
     stdout,stderr,status = bash.run('pwd')
@@ -62,8 +59,8 @@ class BashStubberTest < TestBase
 
   test 'D0C',
   %w( teardown raises
-      when one mock_exec setup
-      and no calls are made
+      when a run() is stubbed
+      and no run() is made
   ) do
     bash.stub_run(pwd, wd, stderr='', success)
     assert_raises { bash.teardown }
@@ -84,28 +81,6 @@ class BashStubberTest < TestBase
       end
     }
     assert_equal 'forced', error.message
-  end
-
-  # - - - - - - - - - - - - - - -
-
-  test '4FE',
-  %w( shell.assert does not raise
-      when status is zero
-  ) do
-    rack.bash = BashStubber.new
-    rack.bash.stub_run('true', 'so', 'se', 0)
-    assert_equal 'so', shell.assert('true')
-  end
-
-  # - - - - - - - - - - - - - - -
-
-  test '4FF',
-  %w( shell.assert raises
-      when status is non-zero
-  ) do
-    rack.bash = BashStubber.new
-    rack.bash.stub_run('false', '', '', 1)
-    error = assert_raises(ShellError) { shell.assert('false') }
   end
 
   private # = = = = = = = = = = = = = = =

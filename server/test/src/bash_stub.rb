@@ -1,9 +1,9 @@
 
-class BashStubber
+class BashStub
 
   def initialize
     hex_test_id = ENV['CYBER_DOJO_HEX_TEST_ID']
-    @filename = Dir.tmpdir + '/cyber_dojo_mock_sheller_' + hex_test_id + '.json'
+    @filename = Dir.tmpdir + '/cyber_dojo_bash_stub_' + hex_test_id + '.json'
     unless File.file?(filename)
       write([])
     end
@@ -42,14 +42,14 @@ class BashStubber
     if stub.nil?
       raise [
         self.class.name,
-        "exec(command) - no stub",
+        "run(command) - no stub",
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
     unless command == stub['command']
       raise [
         self.class.name,
-        "exec(command) - does not match stub",
+        "run(command) - does not match stub",
         "actual-command: #{command}",
         "stubbed-command: #{stub['command']}"
       ].join("\n") + "\n"

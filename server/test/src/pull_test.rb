@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative 'bash_stubber'
+require_relative 'bash_stub'
 
 class PullTest < TestBase
 
@@ -8,7 +8,7 @@ class PullTest < TestBase
   end
 
   def hex_setup
-    rack.bash = BashStubber.new
+    rack.bash = BashStub.new
   end
 
   def hex_teardown
