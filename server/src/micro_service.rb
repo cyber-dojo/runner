@@ -8,7 +8,8 @@ require 'json'
 
 class MicroService
 
-  def initialize
+  def initialize(request = Rack::Request)
+    @request = request
     @bash   = Bash.new
     @disk   = Disk.new
     @ledger = Ledger.new
@@ -20,7 +21,8 @@ class MicroService
     @bash = doppel
   end
 
-  def call(env, request = Rack::Request.new(env))
+  def call(env)
+    request = @request.new(env)
     name, args = validated_name_args(request)
     runner = Runner.new(self, image_name, kata_id)
     result = runner.public_send(name, *args)

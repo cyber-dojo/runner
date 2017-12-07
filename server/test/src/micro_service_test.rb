@@ -1,6 +1,6 @@
 require_relative '../../src/micro_service'
 require_relative 'image_names'
-require_relative 'request_stub'
+require_relative 'rack_request_stub'
 require_relative 'test_base'
 
 class MicroServiceTest < TestBase
@@ -205,7 +205,8 @@ class MicroServiceTest < TestBase
   end
 
   def assert_call_raw(path_info, args, expected)
-    tuple = MicroService.new.call(nil, RequestStub.new(args, path_info))
+    env = { body:args, path_info:path_info }
+    tuple = MicroService.new(RackRequestStub).call(env)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
     assert_equal [ expected.to_json ], tuple[2]
