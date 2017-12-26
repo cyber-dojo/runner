@@ -272,7 +272,6 @@ class Runner # stateless
       --detach                  `# later exec`       \
       #{env_vars}                                    \
       --init                    `# pid-1 process`    \
-      --interactive             `# tar pipe`         \
       --name=#{container_name}  `# easy cleanup`     \
       #{limits}                                      \
       --user=root               `# chown permission` \
