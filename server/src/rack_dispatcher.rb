@@ -5,7 +5,7 @@ require_relative 'valid_image_name'
 require 'json'
 require 'rack'
 
-class RackDispatcher
+class RackDispatcher # stateless
 
   def initialize(request = Rack::Request)
     @request = request

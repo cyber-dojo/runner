@@ -7,8 +7,8 @@ require 'timeout'
 class Runner # stateless
 
   def initialize(external, image_name, kata_id)
-    @shell = Shell.new(external)
     @disk = external.disk
+    @shell = Shell.new(external)
     @image_name = image_name
     @kata_id = kata_id
   end
