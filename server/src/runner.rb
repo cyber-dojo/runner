@@ -82,6 +82,8 @@ class Runner # stateless
 
   attr_reader :kata_id, :avatar_name, :image_name
 
+  attr_reader :disk, :shell
+
   def save_to(files, tmp_dir)
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
@@ -340,8 +342,6 @@ class Runner # stateless
   include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
-
-  attr_reader :disk, :shell
 
   def space
     ' '
