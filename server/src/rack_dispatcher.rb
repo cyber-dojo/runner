@@ -151,6 +151,8 @@ class RackDispatcher
 
   include AllAvatarsNames
 
+  # - - - - - - - - - - - - - - - -
+
   def validated_files(arg_name)
     arg_name = arg_name.to_s
     arg = @json_args[arg_name]
@@ -159,8 +161,6 @@ class RackDispatcher
     end
     arg
   end
-
-  # - - - - - - - - - - - - - - - -
 
   def valid_files?(arg)
     arg.is_a?(Hash) &&

@@ -80,7 +80,7 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :disk, :shell
+  attr_reader :kata_id, :avatar_name, :image_name
 
   def save_to(files, tmp_dir)
     files.each do |pathed_filename, content|
@@ -206,8 +206,6 @@ class Runner # stateless
   # image/container
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  attr_reader :image_name
-
   def in_container(max_seconds)
     create_container(max_seconds)
     begin
@@ -319,17 +317,9 @@ class Runner # stateless
   MB = 1024 * KB
   GB = 1024 * MB
 
-  # - - - - - - - - - - - - - - - - - - - - - - - -
-  # kata
-  # - - - - - - - - - - - - - - - - - - - - - - - -
-
-  attr_reader :kata_id
-
   # - - - - - - - - - - - - - - - - - -
   # avatar
   # - - - - - - - - - - - - - - - - - -
-
-  attr_reader :avatar_name
 
   def group
     'cyber-dojo'
@@ -350,6 +340,8 @@ class Runner # stateless
   include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - -
+
+  attr_reader :disk, :shell
 
   def space
     ' '
