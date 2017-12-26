@@ -187,6 +187,10 @@ class Runner # stateless
   def red_amber_green
     # @stdout and @stderr have been truncated and cleaned.
     begin
+      # In a crippled container (eg fork-bomb)
+      # the [docker exec] will mostly likely raise.
+      cmd = 'cat /usr/local/bin/red_amber_green.rb'
+      rag_lambda = shell.assert(docker_exec(cmd))
       rag = eval(rag_lambda)
       colour = rag.call(@stdout, @stderr, @status)
       unless [:red,:amber,:green].include?(colour)
@@ -195,20 +199,6 @@ class Runner # stateless
       colour.to_s
     rescue
      'amber'
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def rag_lambda
-    # In a crippled container (eg fork-bomb)
-    # the [docker exec] will mostly likely raise.
-    # Not worth creating a new container for this.
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    begin
-      shell.assert(docker_exec(cmd))
-    rescue
-      nil
     end
   end
 
