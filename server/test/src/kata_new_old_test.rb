@@ -18,6 +18,7 @@ class KataNewOldTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'DBD', %w( kata_new is idempotent only if runner is stateless ) do
+    # :nocov:
     if stateless?
       kata_new
       kata_new
@@ -30,11 +31,13 @@ class KataNewOldTest < TestBase
         kata_old
       end
     end
+    # :nocov:
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'DBE', %w( kata_old is idempotent only if runner is stateless ) do
+    # :nocov:
     if stateless?
       kata_old
       kata_old
@@ -44,6 +47,7 @@ class KataNewOldTest < TestBase
       error = assert_raises(StandardError) { kata_old }
       assert_equal 'kata_id:!exists', error.message
     end
+    # :nocov:
   end
 
   private
