@@ -230,17 +230,14 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(max_seconds)
-    docker_commands = [
-      "chown #{avatar_name}:#{group} #{sandbox_dir}",
-      "sleep #{max_seconds}"
-    ].join(' && ')
-    command = [
+    chown = "chown #{avatar_name}:#{group} #{sandbox_dir}"
+    docker_run = [
       'docker run',
         docker_run_options,
         image_name,
-          "sh -c '#{docker_commands}'"
+          "sh -c '#{chown} && sleep #{max_seconds}'"
     ].join(space)
-    shell.assert(command)
+    shell.assert(docker_run)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
