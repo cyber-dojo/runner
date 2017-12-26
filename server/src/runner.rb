@@ -31,9 +31,9 @@ class Runner # stateless
     else
       raise ShellError.new(stderr, {
         command:command,
-        stdout:stdout,
-        stderr:stderr,
-        status:status
+         stdout:stdout,
+         stderr:stderr,
+         status:status
       })
     end
   end
