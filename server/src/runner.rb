@@ -105,8 +105,8 @@ class Runner # stateless
     #
     # [1] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
-    # The tar --touch option is not available in a default Alpine
-    # container. To add it:
+    # The tar --touch option is not available in a default
+    # Alpine container. To add it:
     #    $ apk add --update tar
     # Also, in a default Alpine container the date-time
     # file-stamps have a granularity of one second. In other
@@ -119,28 +119,32 @@ class Runner # stateless
     #    o) update_tar_command
     #    o) install_coreutils_command
     <<~SHELL.strip
-      chmod 755 #{tmp_dir} &&                                          \
-      cd #{tmp_dir} &&                                                 \
-      tar                                                              \
-        -zcf                           `# create tar file`             \
-        -                              `# write it to stdout`          \
-        .                              `# tar the current directory`   \
-        |                              `# pipe the tarfile...`         \
-          docker exec                  `# ...into docker container`    \
-            --user=#{uid}:#{gid}                                       \
-            --interactive                                              \
-            #{container_name}                                          \
-            sh -c                                                      \
-              '                        `# open quote`                  \
-              cd #{sandbox_dir} &&                                     \
-              tar                                                      \
-                --touch                `# [1]`                         \
-                -zxf                   `# extract tar file`            \
-                -                      `# which is read from stdin`    \
-                -C                     `# save the extracted files to` \
-                .                      `# the current directory`       \
-                && sh ./cyber-dojo.sh                                  \
-              '                        `# close quote`
+      chmod 755 #{tmp_dir}                                 \
+      &&                                                   \
+      cd #{tmp_dir}                                        \
+      &&                                                   \
+      tar                                                  \
+        -zcf                     `# create tar file`       \
+        -                        `# write it to stdout`    \
+        .                        `# tar current directory` \
+        |                        `# pipe the tarfile`      \
+          docker exec            `# into docker container` \
+            --user=#{uid}:#{gid}                           \
+            --interactive                                  \
+            #{container_name}                              \
+            sh -c                                          \
+              '                  `# open quote`            \
+              cd #{sandbox_dir}                            \
+              &&                                           \
+              tar                                          \
+                --touch          `# [1]`                   \
+                -zxf             `# extract tar file`      \
+                -                `# read from stdin`       \
+                -C               `# save to the`           \
+                .                `# current directory`     \
+              &&                                           \
+              sh ./cyber-dojo.sh                           \
+              '                  `# close quote`
     SHELL
   end
 
@@ -304,7 +308,7 @@ class Runner # stateless
       ulimit('nofile', 128   ), # number of files
       ulimit('nproc' , 128   ), # number of processes
       ulimit('stack' ,   8*MB), # stack size
-      '--memory=512m',                     # ram
+      '--memory=512m',                     # max 512MB ram
       '--net=none',                        # no network
       '--pids-limit=128',                  # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
