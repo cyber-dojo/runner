@@ -10,7 +10,6 @@ class Runner # stateless
     @external = external
     @shell = Shell.new(external)
     @disk = external.disk
-    @ledger = external.ledger
     @image_name = image_name
     @kata_id = kata_id
   end
@@ -82,7 +81,7 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :disk, :ledger, :shell
+  attr_reader :disk, :shell
 
   def save_to(files, tmp_dir)
     files.each do |pathed_filename, content|
@@ -192,13 +191,10 @@ class Runner # stateless
       rag = eval(rag_lambda)
       colour = rag.call(@stdout, @stderr, @status)
       unless [:red,:amber,:green].include?(colour)
-        diagnostic = 'must return one of [:red,:amber,:green]'
-        ledger.write('red_amber_green', diagnostic)
         colour = :amber
       end
       colour.to_s
     rescue => error
-      ledger.write('red_amber_green', error.message)
      'amber'
     end
   end
@@ -213,7 +209,6 @@ class Runner # stateless
     begin
       shell.assert(docker_exec(cmd))
     rescue => error
-      ledger.write('red_amber_green', error.message)
       'lambda { |_,_,_| return :amber }'
     end
   end

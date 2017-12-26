@@ -3,6 +3,7 @@ require_relative 'external'
 require_relative 'runner'
 require_relative 'valid_image_name'
 require 'json'
+require 'rack'
 
 class RackDispatcher
 
@@ -17,12 +18,7 @@ class RackDispatcher
     request = @request.new(env)
     name, args = validated_name_args(request)
     runner = Runner.new(external, image_name, kata_id)
-    result = runner.public_send(name, *args)
-    body = { name => result }
-    if ledger.key?('red_amber_green')
-      body['red_amber_green'] = ledger['red_amber_green']
-    end
-    triple(body)
+    triple({ name => runner.public_send(name, *args) })
   rescue ShellError => error
     triple({ 'exception' => error.args })
   rescue => error
@@ -30,10 +26,6 @@ class RackDispatcher
   end
 
   private # = = = = = = = = = = = =
-
-  def ledger
-    external.ledger
-  end
 
   def validated_name_args(request)
     name = request.path_info[1..-1] # lose leading /

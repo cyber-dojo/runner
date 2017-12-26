@@ -42,9 +42,6 @@ class RunColourRegexTest < TestBase
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'
-      rag = 'red_amber_green'
-      refute_nil ledger.key?(rag), @json
-      assert ledger[rag].include?('fubar'), @json
     }
   end
 
@@ -110,14 +107,7 @@ class RunColourRegexTest < TestBase
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'amber'
-      rag = 'red_amber_green'
-      refute_nil ledger.key?(rag), @json
-      assert ledger[rag].include?(expected), @json
     }
-  end
-
-  def ledger
-    external.ledger
   end
 
 end
