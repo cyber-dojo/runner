@@ -56,7 +56,7 @@ class AvatarNewOldTest < TestBase
   def stateless?
     result = nil
     in_kata_as('lion') {
-      cmd = "printenv CYBER_DOJO_RUNNER"
+      cmd = 'printenv CYBER_DOJO_RUNNER'
       result = assert_cyber_dojo_sh(cmd) == 'stateless'
     }
     result
