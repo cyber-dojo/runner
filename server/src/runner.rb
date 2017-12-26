@@ -72,7 +72,7 @@ class Runner # stateless
     all_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |tmp_dir|
       save_to(all_files, tmp_dir)
-      in_container {
+      in_container(max_seconds) {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
         @colour = @timed_out ? 'timed_out' : red_amber_green
       }
@@ -164,7 +164,7 @@ class Runner # stateless
       Timeout::timeout(max_seconds) do
         _, ps = Process.waitpid2(pid)
         @status = ps.exitstatus
-        @timed_out = false
+        @timed_out = (@status == 137)
       end
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
@@ -224,10 +224,8 @@ class Runner # stateless
 
   attr_reader :image_name
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def in_container
-    create_container
+  def in_container(max_seconds)
+    create_container(max_seconds)
     begin
       yield
     ensure
@@ -237,12 +235,12 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_container
+  def create_container(max_seconds)
     cmd = [
       'docker run',
         docker_run_options,
         image_name,
-          "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sh'"
+          "sh -c 'chown #{avatar_name}:#{group} #{sandbox_dir};sleep #{max_seconds}'"
     ].join(space)
     shell.assert(cmd)
   end
