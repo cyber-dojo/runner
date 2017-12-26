@@ -233,7 +233,7 @@ class Runner # stateless
     docker_commands = [
       "chown #{avatar_name}:#{group} #{sandbox_dir}",
       "sleep #{max_seconds}"
-    ].join(';')
+    ].join(' && ')
     command = [
       'docker run',
         docker_run_options,
