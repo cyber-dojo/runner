@@ -249,12 +249,6 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_exec(cmd)
-    "docker exec #{container_name} sh -c '#{cmd}'"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def remove_container
     # [docker rm] could be backgrounded with a trailing &
     # but it did not make a test-event discernably
@@ -270,6 +264,12 @@ class Runner # stateless
 
   def name_prefix
     'test_run__runner_stateless'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def docker_exec(cmd)
+    "docker exec #{container_name} sh -c '#{cmd}'"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -330,7 +330,7 @@ class Runner # stateless
   end
 
   def ulimit(name, limit)
-    "--ulimit #{name}=#{limit}:#{limit}"
+    "--ulimit #{name}=#{limit}"
   end
 
   KB = 1024
