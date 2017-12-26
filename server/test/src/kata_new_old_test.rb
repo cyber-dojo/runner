@@ -17,16 +17,44 @@ class KataNewOldTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'DBD', %w( kata_new is idempotent because the runner is stateless ) do
-    kata_new
-    kata_new
+  test 'DBD', %w( kata_new is idempotent only if runner is stateless ) do
+    if stateless?
+      kata_new
+      kata_new
+    else
+      kata_new
+      begin
+        error = assert_raises(StandardError) { kata_new }
+        assert_equal 'kata_id:exists', error.message
+      ensure
+        kata_old
+      end
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'DBE', %w( kata_old is idempotent because the runner is stateless ) do
-    kata_old
-    kata_old
+  test 'DBE', %w( kata_old is idempotent only if runner is stateless ) do
+    if stateless?
+      kata_old
+      kata_old
+    else
+      kata_new
+      kata_old
+      error = assert_raises(StandardError) { kata_old }
+      assert_equal 'kata_id:!exists', error.message
+    end
+  end
+
+  private
+
+  def stateless?
+    result = nil
+    in_kata_as('lion') {
+      cmd = 'printenv CYBER_DOJO_RUNNER'
+      result = assert_cyber_dojo_sh(cmd) == 'stateless'
+    }
+    result
   end
 
 end
