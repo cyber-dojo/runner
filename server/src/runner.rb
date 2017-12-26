@@ -193,7 +193,7 @@ class Runner # stateless
         colour = :amber
       end
       colour.to_s
-    rescue => error
+    rescue
      'amber'
     end
   end
@@ -207,8 +207,8 @@ class Runner # stateless
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     begin
       shell.assert(docker_exec(cmd))
-    rescue => error
-      'lambda { |_,_,_| return :amber }'
+    rescue
+      nil
     end
   end
 
