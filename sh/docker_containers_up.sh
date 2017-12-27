@@ -19,7 +19,10 @@ wait_till_up()
   exit 1
 }
 
-docker-compose --file ${ROOT_DIR}/docker-compose.yml up -d
+docker-compose \
+  --file ${ROOT_DIR}/docker-compose.yml \
+  up -d \
+  --force-recreate
 
-wait_till_up 'runner_stateless_server'
-wait_till_up 'runner_stateless_client'
+wait_till_up 'test_runner_stateless_server'
+wait_till_up 'test_runner_stateless_client'
