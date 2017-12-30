@@ -18,7 +18,6 @@ RUN apk --update --no-cache add \
 
 COPY Gemfile /app/
 WORKDIR /app
-
 RUN apk --update add --virtual build-dependencies build-base \
   && bundle config --global silence_root_warning 1 \
   && bundle install \
