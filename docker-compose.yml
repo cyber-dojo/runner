@@ -18,6 +18,8 @@ services:
     restart: 'no'
     depends_on:
       - runner_stateless
+    volumes:
+      - ./client/test:${CYBER_DOJO_RUNNER_HOME}/test:ro
     environment:
       - CYBER_DOJO_RUNNER_SERVICE_NAME
       - CYBER_DOJO_RUNNER_SERVICE_PORT
@@ -41,6 +43,7 @@ services:
     tmpfs: /tmp
     restart: 'no'
     volumes:
+      - ./server/test:${CYBER_DOJO_RUNNER_HOME}/test:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
