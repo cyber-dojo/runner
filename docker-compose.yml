@@ -33,7 +33,7 @@ services:
     read_only: true
     tmpfs: /tmp
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
       - TRAVIS
