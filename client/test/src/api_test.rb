@@ -65,11 +65,11 @@ class ApiTest < TestBase
   include HttpJsonService
 
   def hostname
-    ENV['CYBER_DOJO_RUNNER_SERVER_NAME']
+    ENV['CYBER_DOJO_RUNNER_SERVICE_NAME']
   end
 
   def port
-    ENV['CYBER_DOJO_RUNNER_SERVER_PORT']
+    ENV['CYBER_DOJO_RUNNER_SERVICE_PORT']
   end
 
   def assert_exception(method_name, jsoned_args)
