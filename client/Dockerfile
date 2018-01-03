@@ -16,8 +16,10 @@ RUN apk --update --no-cache add \
 # install ruby gems
 # - - - - - - - - - - - - - - - -
 
-COPY Gemfile /app/
-WORKDIR /app
+ARG            CYBER_DOJO_RUNNER_HOME
+COPY Gemfile ${CYBER_DOJO_RUNNER_HOME}/
+WORKDIR      ${CYBER_DOJO_RUNNER_HOME}
+
 RUN apk --update add --virtual build-dependencies build-base \
   && bundle config --global silence_root_warning 1 \
   && bundle install \
@@ -29,7 +31,7 @@ RUN apk --update add --virtual build-dependencies build-base \
 # setup client
 # - - - - - - - - - - - - - - - -
 
-COPY . /app
+COPY . ${CYBER_DOJO_RUNNER_HOME}
 
 ARG PORT
 EXPOSE ${PORT}

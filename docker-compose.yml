@@ -4,40 +4,44 @@ version: '2.2'
 services:
 
   runner_stateless_client:
+    build:
+      context: client
+      args:
+        - CYBER_DOJO_RUNNER_HOME=${CYBER_DOJO_RUNNER_HOME}
+        - PORT=${CYBER_DOJO_RUNNER_CLIENT_PORT}
     user: nobody
     image: cyberdojo/runner_stateless_client
     init: true
     container_name: test_runner_stateless_client
     read_only: true
     tmpfs: /tmp
+    restart: 'no'
     depends_on:
       - runner_stateless
     environment:
       - CYBER_DOJO_RUNNER_SERVICE_NAME
       - CYBER_DOJO_RUNNER_SERVICE_PORT
       - CYBER_DOJO_COVERAGE_ROOT
-    build:
-      context: client
-      args:
-        - PORT=${CYBER_DOJO_RUNNER_CLIENT_PORT}
     ports:
       - ${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   runner_stateless:
+    build:
+      context: server
+      args:
+        - CYBER_DOJO_RUNNER_HOME=${CYBER_DOJO_RUNNER_HOME}
+        - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
     user: root
     image: cyberdojo/runner_stateless
     init: true
     container_name: test_runner_stateless_server
     read_only: true
     tmpfs: /tmp
+    restart: 'no'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
       - TRAVIS
-    build:
-      context: server
-      args:
-        - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
