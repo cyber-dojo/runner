@@ -39,23 +39,25 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # for API compatibility
 
   def kata_new
-    nil # for API compatibility
+    nil
   end
 
   def kata_old
-    nil # for API compatibility
+    nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # for API compatibility
 
   def avatar_new(_avatar_name, _starting_files)
-    nil # for API compatibility
+    nil
   end
 
   def avatar_old(_avatar_name)
-    nil # for API compatibility
+    nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -255,12 +257,6 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_exec(cmd)
-    "docker exec #{container_name} sh -c '#{cmd}'"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def docker_run_options
     # no volume-mount; stateless!
     <<~SHELL.strip
@@ -344,6 +340,16 @@ class Runner # stateless
   end
 
   include AllAvatarsNames
+
+  # - - - - - - - - - - - - - - - - - -
+  # assertions
+  # - - - - - - - - - - - - - - - - - -
+
+  def docker_exec(cmd)
+    # This is _not_ the main docker-exec
+    # for run_cyber_dojo_sh
+    "docker exec --user=root #{container_name} sh -c '#{cmd}'"
+  end
 
   # - - - - - - - - - - - - - - - - - -
 
