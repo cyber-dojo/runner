@@ -193,7 +193,9 @@ class RackDispatcherTest < TestBase
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
 
     # Careful here...
-    # stderr may or may not have '(core dumped)' appended
+    # stderr may or may not have ' (core dumped)' appended.
+    # Note that --ulimit core=0 is in place in the runner so
+    # no core file is -actually- dumped.
     json = JSON.parse(tuple[2][0])[path_info]
     assert_equal '', json['stdout']
     assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
