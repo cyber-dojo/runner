@@ -169,29 +169,43 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB9', 'run_cyber_dojo_sh' do
-    assert_rack_call('run_cyber_dojo_sh', {
-        avatar_name:'salmon',
-        new_files:starting_files,
-        deleted_files:{},
-        unchanged_files:{},
-        changed_files:{},
-        max_seconds:10
-      }, {
-        'run_cyber_dojo_sh':{
-          stdout:'',
-          stderr:gcc_assert_stderr,
-          status:2,
-          colour:'red'
-        }
+    path_info = 'run_cyber_dojo_sh'
+    args = {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:'salmon',
+      new_files:starting_files,
+      deleted_files:{},
+      unchanged_files:{},
+      changed_files:{},
+      max_seconds:10
+    }
+    expected = {
+      'run_cyber_dojo_sh':{
+        stdout:'',
+        stderr:gcc_assert_stderr,
+        status:2,
+        colour:'red'
       }
-    )
+    }
+    tuple = rack_call(path_info, args.to_json)
+    assert_equal 200, tuple[0]
+    assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
+
+    # Careful here...
+    # stderr may or may not have '(core dumped)' appended
+    json = JSON.parse(tuple[2][0])[path_info]
+    assert_equal '', json['stdout']
+    assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
+    assert_equal 2, json['status']
+    assert_equal 'red', json['colour']
   end
 
   private # = = = = = = = = = = = = =
 
   def gcc_assert_stderr
     "Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)\n" +
-    "make: *** [makefile:13: test.output] Aborted\n"
+    "make: *** [makefile:13: test.output] Aborted"
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -205,12 +219,16 @@ class RackDispatcherTest < TestBase
   end
 
   def assert_rack_call_raw(path_info, args, expected)
-    rack = RackDispatcher.new(RackRequestStub)
-    env = { body:args, path_info:path_info }
-    tuple = rack.call(env)
+    tuple = rack_call(path_info, args)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
     assert_equal [ expected.to_json ], tuple[2]
+  end
+
+  def rack_call(path_info, args)
+    rack = RackDispatcher.new(RackRequestStub)
+    env = { body:args, path_info:path_info }
+    rack.call(env)
   end
 
   # - - - - - - - - - - - - - - - - -
