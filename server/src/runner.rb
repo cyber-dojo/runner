@@ -301,7 +301,7 @@ class Runner # stateless
       ulimit('core'  ,   0   ), # core file size
       ulimit('fsize' ,  16*MB), # file size
       ulimit('locks' , 128   ), # number of file locks
-      ulimit('nofile', 128   ), # number of files
+      ulimit('nofile', 256   ), # number of files
       ulimit('nproc' , 128   ), # number of processes
       ulimit('stack' ,   8*MB), # stack size
       '--memory=512m',                     # max 512MB ram
