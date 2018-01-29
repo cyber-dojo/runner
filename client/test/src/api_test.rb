@@ -317,9 +317,7 @@ class ApiTest < TestBase
         changed_files: { 'hiker.c' => FILE_HANDLE_BOMB },
           max_seconds: 3
       })
-      assert printed?('All tests passed'), quad
       assert printed?('fopen() != NULL'),  quad
-      assert printed?('fopen() == NULL'),  quad
     }
   end
 
@@ -410,7 +408,7 @@ class ApiTest < TestBase
   def assert_ulimits
     assert_cyber_dojo_sh('ulimit -a')
 
-    expected_max_data_size  =  4 * GB / KB
+    expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
     expected_max_file_size  = 16 * MB / (block_size = 512)
     expected_max_stack_size =  8 * MB / KB
 
@@ -426,6 +424,10 @@ class ApiTest < TestBase
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
+
+  def clang?
+    image_name.start_with?('cyberdojofoundation/clang')
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

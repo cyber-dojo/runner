@@ -1,1 +1,1 @@
-make --always-make
+make

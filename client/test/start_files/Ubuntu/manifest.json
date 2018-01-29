@@ -1,5 +1,5 @@
 {
-  "display_name": "C (gcc), assert",
+  "display_name": "C (clang), assert",
 
   "visible_filenames": [
      "hiker.tests.c",
@@ -9,7 +9,7 @@
      "cyber-dojo.sh"
   ],
 
-  "image_name": "cyberdojofoundation/clangpp_assert",
+  "image_name": "cyberdojofoundation/clang_assert",
 
   "runner_choice": "stateless",
 

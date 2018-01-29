@@ -18,7 +18,7 @@ class RunColourRegexTest < TestBase
 
   multi_os_test '6A1',
   %w( red/amber/green progression test ) do
-    filename = (os == :Alpine) ? 'hiker.c' : 'hiker.cpp'
+    filename = 'hiker.c'
     src = starting_files[filename]
     in_kata_as('salmon') {
       run_cyber_dojo_sh

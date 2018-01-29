@@ -259,7 +259,7 @@ class Runner # stateless
 
   def docker_run_options
     # no volume-mount; stateless!
-    <<~SHELL.strip
+    options = <<~SHELL.strip
       --detach                  `# later exec`       \
       #{env_vars}                                    \
       --init                    `# pid-1 process`    \
@@ -268,6 +268,11 @@ class Runner # stateless
       --user=root               `# chown permission` \
       --workdir=#{sandbox_dir}  `# creates the dir`
     SHELL
+    if clang?
+      # For the -fsanitize=address option.
+      options += '--cap-add=SYS_PTRACE'
+    end
+    options
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -296,8 +301,7 @@ class Runner # stateless
     # can have multiple cores or use hyperthreading.
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
-    [
-      ulimit('data'  ,   4*GB), # data segment size
+    options = [
       ulimit('core'  ,   0   ), # core file size
       ulimit('fsize' ,  16*MB), # file size
       ulimit('locks' , 128   ), # number of file locks
@@ -308,7 +312,12 @@ class Runner # stateless
       '--net=none',                        # no network
       '--pids-limit=128',                  # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
-    ].join(space)
+    ]
+    unless clang?
+      # [ulimit data] prevents clang's -fsanitize=address option.
+      options << ulimit('data', 4*GB) # data segment size
+    end
+    options.join(space)
   end
 
   def ulimit(name, limit)
@@ -318,6 +327,10 @@ class Runner # stateless
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
+
+  def clang?
+    image_name.start_with?('cyberdojofoundation/clang')
+  end
 
   # - - - - - - - - - - - - - - - - - -
   # avatar
