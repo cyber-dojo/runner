@@ -468,7 +468,7 @@ class ApiTest < TestBase
       timings << (secs * 1000 + millisecs)
     end
     mean = timings.reduce(0, :+) / timings.size
-    assert mean < max=800, "mean=#{mean}, max=#{max}"
+    assert mean < max=1600, "mean=#{mean}, max=#{max}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
