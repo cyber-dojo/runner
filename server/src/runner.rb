@@ -408,3 +408,5 @@ end
 #   assert ps.success?
 # end
 # - - - - - - - - - - - - - - - - - - - - - - - -
+
+# What ulimits are supported? See https://github.com/docker/go-units/blob/f2145db703495b2e525c59662db69a7344b00bb8/ulimit.go#L46-L62
