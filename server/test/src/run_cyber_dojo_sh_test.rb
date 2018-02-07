@@ -18,21 +18,7 @@ class RunCyberDojoShTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A5',
-  %w( when run_cyber_dojo_sh completes within max_seconds
-      then the colour is 'red'/'amber'/'green'
-  ) do
-    in_kata_as('salmon') {
-      run_cyber_dojo_sh
-    }
-    refute_timed_out
-    assert_status 2
-    assert_colour 'red'
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'B2B', %w( [Alpine]
+  test 'B2B', %w( [C,assert]
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
   then stdout is empty,
@@ -53,7 +39,7 @@ class RunCyberDojoShTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '4D7', %w( [Alpine]
+  test '4D7', %w( [C,assert]
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output
   then stdout is not empty,

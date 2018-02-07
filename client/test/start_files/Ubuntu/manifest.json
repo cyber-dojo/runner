@@ -1,17 +1,18 @@
-{
-  "display_name": "C (clang), assert",
 
+{
   "visible_filenames": [
-     "hiker.tests.c",
-     "hiker.c",
-     "hiker.h",
-     "makefile",
-     "cyber-dojo.sh"
+    "test_hiker.py",
+    "hiker.py",
+    "cyber-dojo.sh"
   ],
 
-  "image_name": "cyberdojofoundation/clang_assert",
+  "filename_extension" : ".py",
 
-  "runner_choice": "stateless",
+  "tab_size": 4,
 
-  "filename_extension" : ".c"
+  "display_name": "Python, py.test",
+
+  "image_name": "cyberdojofoundation/python_pytest",
+
+  "runner_choice": "stateless"
 }

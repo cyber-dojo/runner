@@ -1,17 +1,16 @@
+
 {
-  "display_name": "C (gcc), assert",
+  "display_name": "C#, NUnit",
 
   "visible_filenames": [
-     "hiker.tests.c",
-     "hiker.c",
-     "hiker.h",
-     "makefile",
-     "cyber-dojo.sh"
+    "HikerTest.cs",
+    "Hiker.cs",
+    "cyber-dojo.sh"
   ],
 
-  "image_name": "cyberdojofoundation/gcc_assert",
+  "image_name": "cyberdojofoundation/csharp_nunit",
 
   "runner_choice": "stateless",
 
-  "filename_extension" : ".c"
+  "filename_extension" : ".cs"
 }

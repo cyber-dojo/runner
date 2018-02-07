@@ -43,6 +43,11 @@ run_client_tests()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
+# pull images used by tests
+docker pull cyberdojofoundation/gcc_assert
+docker pull cyberdojofoundation/csharp_nunit
+docker pull cyberdojofoundation/python_pytest
+docker pull cyberdojofoundation/clang_assert
 
 server_status=0
 client_status=0

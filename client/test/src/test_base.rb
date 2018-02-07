@@ -191,7 +191,9 @@ class TestBase < HexMiniTest
   end
 
   def os
-    if hex_test_name.start_with? '[Ubuntu]'
+    if hex_test_name.start_with? '[C,assert]'
+      return :C_assert
+    elsif hex_test_name.start_with? '[Ubuntu]'
       return :Ubuntu
     else # [Alpine] || default
       :Alpine

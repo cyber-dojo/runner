@@ -51,11 +51,10 @@ def get_test_log_stats
 
   stats = {}
 
-  finished_pattern = "Finished in (#{number})s, (#{number}) runs/s, (#{number}) assertions/s"
+  finished_pattern = "Finished in (#{number})s, (#{number}) runs/s"
   m = test_log.match(Regexp.new(finished_pattern))
   stats[:time]               = f2(m[1])
   stats[:tests_per_sec]      = m[2].to_i
-  stats[:assertions_per_sec] = m[3].to_i
 
   summary_pattern = %w(runs assertions failures errors skips).map{ |s| "(#{number}) #{s}" }.join(', ')
   m = test_log.match(Regexp.new(summary_pattern))
@@ -81,13 +80,10 @@ error_count   = log_stats[:error_count]
 skip_count    = log_stats[:skip_count]
 
 test_duration = log_stats[:time].to_f
-#assertions_per_sec = log_stats[:assertions_per_sec].to_i
 
 src_coverage = src_stats[:coverage].to_f
 test_coverage = test_stats[:coverage].to_f
 
-#hits_per_line_src = src_stats[:hits_per_line].to_f
-#hits_per_line_test = test_stats[:hits_per_line].to_f
 line_ratio = (test_stats[:line_count].to_f / src_stats[:line_count].to_f)
 hits_ratio = (src_stats[:hits_per_line].to_f / test_stats[:hits_per_line].to_f)
 
@@ -101,12 +97,9 @@ table =
     [ 'failures',               failure_count,      '==',   0 ],
     [ 'errors',                 error_count,        '==',   0 ],
     [ 'skips',                  skip_count,         '==',   0 ],
-    #[ 'assertions/s',           assertions_per_sec, '>=',   0 ],
     [ 'duration(test)[s]',      test_duration,      '<=', 120 ],
     [ 'coverage(src)[%]',       src_coverage,       '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,      '==', 100 ],
-    #[ 'hits_per_line(src)',     hits_per_line_src,  '<=', 130 ],
-    #[ 'hits_per_line(test)',    hits_per_line_test, '<=',  37 ],
     [ 'lines(test)/lines(src)', f2(line_ratio),     '>=',   6 ],
     [ 'hits(src)/hits(test)',   f2(hits_ratio),     '>=',   3 ],
   ]

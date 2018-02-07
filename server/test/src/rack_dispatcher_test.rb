@@ -168,7 +168,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB9', 'run_cyber_dojo_sh' do
+  test 'AB9', '[C,assert] run_cyber_dojo_sh' do
     path_info = 'run_cyber_dojo_sh'
     args = {
       image_name:image_name,
@@ -197,17 +197,24 @@ class RackDispatcherTest < TestBase
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
     json = JSON.parse(tuple[2][0])[path_info]
-    assert_equal '', json['stdout']
-    assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
+    # C,assert output is compiler-OS dependent. This is gcc,Debian
+    assert_equal gcc_assert_stdout, json['stdout']
+    assert_equal gcc_assert_stderr, json['stderr']
     assert_equal 2, json['status']
     assert_equal 'red', json['colour']
   end
 
   private # = = = = = = = = = = = = =
 
+  def gcc_assert_stdout
+    # gcc,Debian
+    "makefile:14: recipe for target 'test.output' failed\n"
+  end
+
   def gcc_assert_stderr
-    "Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)\n" +
-    "make: *** [makefile:13: test.output] Aborted"
+    # gcc,Debian
+    "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
+    "make: *** [test.output] Aborted (core dumped)\n"
   end
 
   # - - - - - - - - - - - - - - - - -

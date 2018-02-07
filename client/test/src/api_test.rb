@@ -143,16 +143,16 @@ class ApiTest < TestBase
   # vanilla red-amber-green
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '3DF',
-  'run with initial 6*9 == 42 is red' do
+  test '3DF',
+  '[C,assert] run with initial 6*9 == 42 is red' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert red?, quad
     }
   end
 
-  multi_os_test '3DE',
-  'run with syntax error is amber' do
+  test '3DE',
+  '[C,assert] run with syntax error is amber' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: {
@@ -163,8 +163,8 @@ class ApiTest < TestBase
     }
   end
 
-  multi_os_test '3DD',
-  'run with 6*7 == 42 is green' do
+  test '3DD',
+  '[C,assert] run with 6*7 == 42 is green' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: {
@@ -183,8 +183,8 @@ class ApiTest < TestBase
   # timing out
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '3DC',
-  'run with infinite loop times out' do
+  test '3DC',
+  '[C,assert] run with infinite loop times out' do
     in_kata_as(salmon) {
       from = 'return 6 * 9'
       to = "    for (;;);\n    return 6 * 7;"
@@ -280,8 +280,8 @@ class ApiTest < TestBase
   # bombs
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'CD5',
-  'fork-bomb does not run indefinitely' do
+  test 'CD5',
+  '[C,assert] fork-bomb does not run indefinitely' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: { 'hiker.c' => C_FORK_BOMB },
@@ -310,8 +310,8 @@ class ApiTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'DB3',
-  'file-handles quickly become exhausted' do
+  test 'DB3',
+  '[C,assert] file-handles quickly become exhausted' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: { 'hiker.c' => FILE_HANDLE_BOMB },
@@ -516,7 +516,7 @@ class ApiTest < TestBase
       assert_equal 9, microsecs.length
       refute_equal '0'*9, microsecs
     end
-    assert_equal 5, count
+    assert count > 0, count
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -566,6 +566,7 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   C_FORK_BOMB = <<~'CODE'
+    #include "hiker.h"
     #include <stdio.h>
     #include <unistd.h>
     int answer(void)
@@ -596,6 +597,7 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   FILE_HANDLE_BOMB = <<~'CODE'
+    #include "hiker.h"
     #include <stdio.h>
     int answer(void)
     {

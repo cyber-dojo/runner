@@ -142,10 +142,6 @@ class TestBase < HexMiniTest
     quad[__method__.to_s]
   end
 
-  def status
-    quad[__method__.to_s]
-  end
-
   def colour
     quad[__method__.to_s]
   end
@@ -165,10 +161,6 @@ class TestBase < HexMiniTest
 
   def assert_stderr(expected)
     assert_equal expected, stderr, @json
-  end
-
-  def assert_status(expected)
-    assert_equal expected, status, @json
   end
 
   def assert_timed_out
@@ -235,7 +227,11 @@ class TestBase < HexMiniTest
   end
 
   def os
-    if hex_test_name.start_with? '[Ubuntu]'
+    if hex_test_name.start_with? '[C,assert]'
+      :C_assert
+    elsif hex_test_name.start_with? '[clang,assert]'
+        :clang_assert
+    elsif hex_test_name.start_with? '[Ubuntu]'
       :Ubuntu
     else # [Alpine] || default
       :Alpine

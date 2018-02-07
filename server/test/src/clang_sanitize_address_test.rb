@@ -9,7 +9,7 @@ class ClangSanitizeAddressTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '0BB',
-  %w( [Ubuntu] clang sanitize address ) do
+  %w( [clang,assert] clang sanitize address ) do
     in_kata_as('salmon') {
       run_cyber_dojo_sh
       assert_colour 'red'

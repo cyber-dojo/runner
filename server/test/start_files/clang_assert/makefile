@@ -1,8 +1,14 @@
-CFLAGS += -I. -Wall -Wextra -x c -std=c11
+CFLAGS += -I. -Wall -Wextra -Werror -x c -std=c11
+CFLAGS += -Wshadow
+CFLAGS += -Wfloat-equal
+CFLAGS += -O
 CFLAGS += -Wsequence-point
-CFLAGS += -Wmissing-noreturn -Wunreachable-code
-CFLAGS += -Wmissing-prototypes -Wstrict-prototypes
-CFLAGS += -fsanitize=address
+CFLAGS += -Wmissing-noreturn
+CFLAGS += -Wunreachable-code
+CFLAGS += -Wmissing-prototypes
+CFLAGS += -Wstrict-prototypes
+
+CFLAGS += -fsanitize=leak,address
 CFLAGS += -fno-sanitize-recover=undefined
 CFLAGS += -fno-omit-frame-pointer
 
