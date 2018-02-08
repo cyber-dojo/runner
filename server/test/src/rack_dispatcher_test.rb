@@ -199,7 +199,7 @@ class RackDispatcherTest < TestBase
     json = JSON.parse(tuple[2][0])[path_info]
     # C,assert output is compiler-OS dependent. This is gcc,Debian
     assert_equal gcc_assert_stdout, json['stdout']
-    assert_equal gcc_assert_stderr, json['stderr']
+    assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
     assert_equal 2, json['status']
     assert_equal 'red', json['colour']
   end
@@ -212,9 +212,14 @@ class RackDispatcherTest < TestBase
   end
 
   def gcc_assert_stderr
-    # gcc,Debian
+    # This depends partly on the host-OS. For example, when
+    # the host-OS is CoreLinux (in the boot2docker VM
+    # in DockerToolbox for Mac) then the output ends
+    # ...Aborted (core dumped).
+    # But if the host-OS is Debian/Ubuntu (eg on Travis)
+    # then the output does not say "(core dumped)"
     "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
-    "make: *** [test.output] Aborted (core dumped)\n"
+    "make: *** [test.output] Aborted"
   end
 
   # - - - - - - - - - - - - - - - - -
