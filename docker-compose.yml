@@ -7,7 +7,7 @@ services:
     build:
       context: client
       args:
-        - CYBER_DOJO_RUNNER_HOME=${CYBER_DOJO_RUNNER_HOME}
+        - CYBER_DOJO_HOME=${CYBER_DOJO_HOME}
         - PORT=${CYBER_DOJO_RUNNER_CLIENT_PORT}
     user: nobody
     image: cyberdojo/runner_stateless_client
@@ -31,7 +31,7 @@ services:
     build:
       context: server
       args:
-        - CYBER_DOJO_RUNNER_HOME=${CYBER_DOJO_RUNNER_HOME}
+        - CYBER_DOJO_HOME=${CYBER_DOJO_HOME}
         - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
     user: root
     image: cyberdojo/runner_stateless
