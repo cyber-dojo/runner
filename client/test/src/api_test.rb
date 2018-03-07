@@ -10,7 +10,7 @@ class ApiTest < TestBase
   # start-files image_name<->os correctness
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A2',
+  multi_os_test '8A1',
   'os-image correspondence' do
     in_kata_as(salmon) {
       etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
@@ -238,6 +238,15 @@ class ApiTest < TestBase
   # container properties
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  multi_os_test '8A2',
+  'cyber-dojo.sh runs in bash' do
+    in_kata_as(salmon) {
+      assert_shell_is_bash
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   multi_os_test '8A3',
   'container environment properties' do
     in_kata_as(salmon) {
@@ -329,6 +338,17 @@ class ApiTest < TestBase
     # odd, but there _is_ an embedded nul-character
     expected = '/dev/init' + 0.chr + '--'
     assert proc1.start_with?(expected), proc1
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_shell_is_bash
+    assert_equal '/bin/bashy', shell
+  end
+
+  def shell
+    cmd = 'echo ${SHELL}'
+    assert_cyber_dojo_sh(cmd)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
