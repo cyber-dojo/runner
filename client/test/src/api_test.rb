@@ -343,7 +343,7 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_shell_is_bash
-    assert_equal '/bin/bashy', shell
+    assert_equal '/bin/bash', shell
   end
 
   def shell
