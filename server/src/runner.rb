@@ -145,7 +145,7 @@ class Runner # stateless
                 -C               `# save to the`           \
                 .                `# current directory`     \
               &&                                           \
-              sh ./cyber-dojo.sh                           \
+              bash ./cyber-dojo.sh                         \
               '                  `# close quote`
     SHELL
   end

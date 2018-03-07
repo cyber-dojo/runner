@@ -406,7 +406,7 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_ulimits
-    assert_cyber_dojo_sh('ulimit -a')
+    assert_cyber_dojo_sh("sh -c 'ulimit -a'")
 
     expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
     expected_max_file_size  = 16 * MB / (block_size = 512)
@@ -432,7 +432,7 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit(key)
-    table = {             # alpine,                       ubuntu
+    table = {             # alpine (sh),               ubuntu
       :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
       :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
       :file_locks => [ '-w: locks',                   'locks'           ],
