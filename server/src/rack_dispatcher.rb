@@ -1,4 +1,5 @@
 require_relative 'all_avatars_names'
+require_relative 'base58'
 require_relative 'external'
 require_relative 'runner'
 require_relative 'valid_image_name'
@@ -126,13 +127,7 @@ class RackDispatcher # stateless
   end
 
   def valid_kata_id?(kata_id)
-    kata_id.is_a?(String) &&
-      kata_id.length == 10 &&
-        kata_id.chars.all? { |char| hex?(char) }
-  end
-
-  def hex?(char)
-    '0123456789ABCDEF'.include?(char)
+    Base58.string?(kata_id) && kata_id.size == 10
   end
 
   # - - - - - - - - - - - - - - - -

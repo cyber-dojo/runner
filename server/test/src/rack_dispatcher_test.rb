@@ -257,7 +257,7 @@ class RackDispatcherTest < TestBase
       '',           # not 10 chars
       '123456789',  # not 10 chars
       '123456789AB',# not 10 chars
-      '123456789G'  # not 10 hex-chars
+      '123456789='  # not 10 base58-chars
     ]
   end
 
