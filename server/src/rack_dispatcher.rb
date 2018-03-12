@@ -1,7 +1,7 @@
-require_relative 'all_avatars_names'
 require_relative 'base58'
 require_relative 'external'
 require_relative 'runner'
+require_relative 'valid_avatar_name'
 require_relative 'valid_image_name'
 require 'json'
 require 'rack'
@@ -117,7 +117,7 @@ class RackDispatcher # stateless
   def validated_image_name
     arg = @json_args['image_name']
     unless valid_image_name?(arg)
-      raise invalid('image_name')
+      invalid('image_name')
     end
     arg
   end
@@ -129,7 +129,7 @@ class RackDispatcher # stateless
   def validated_kata_id
     arg = @json_args['kata_id']
     unless valid_kata_id?(arg)
-      raise invalid('kata_id')
+      invalid('kata_id')
     end
     arg
   end
@@ -143,16 +143,12 @@ class RackDispatcher # stateless
   def validated_avatar_name
     arg = @json_args['avatar_name']
     unless valid_avatar_name?(arg)
-      raise invalid('avatar_name')
+      invalid('avatar_name')
     end
     arg
   end
 
-  def valid_avatar_name?(avatar_name)
-    all_avatars_names.include?(avatar_name)
-  end
-
-  include AllAvatarsNames
+  include ValidAvatarName
 
   # - - - - - - - - - - - - - - - -
 
@@ -160,7 +156,7 @@ class RackDispatcher # stateless
     arg_name = arg_name.to_s
     arg = @json_args[arg_name]
     unless valid_files?(arg)
-      raise invalid(arg_name)
+      invalid(arg_name)
     end
     arg
   end
@@ -175,7 +171,7 @@ class RackDispatcher # stateless
   def validated_max_seconds
     arg = @json_args['max_seconds']
     unless valid_max_seconds?(arg)
-      raise invalid('max_seconds')
+      invalid('max_seconds')
     end
     arg
   end
@@ -187,7 +183,7 @@ class RackDispatcher # stateless
   # - - - - - - - - - - - - - - - -
 
   def invalid(name)
-    ArgumentError.new("#{name}:invalid")
+    raise ArgumentError.new("#{name}:invalid")
   end
 
 end
