@@ -35,10 +35,10 @@ class RackDispatcher # stateless
       raise 'json:!Hash'
     end
     args = case name
-      when /^image_pulled$/ then []
-      when /^image_pull$/   then []
-      when /^kata_new$/     then []
-      when /^kata_old$/     then []
+      when /^image_pulled$/,
+           /^image_pull$/,
+           /^kata_new$/,
+           /^kata_old$/     then []
       when /^avatar_new$/   then [avatar_name, starting_files]
       when /^avatar_old$/   then [avatar_name]
       when /^run_cyber_dojo_sh$/
@@ -46,17 +46,25 @@ class RackDispatcher # stateless
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
     end
-    if name == 'image_pulled'
-      name += '?'
-    end
+    name += '?' if query?(name)
     [name, args]
   end
+
+  # - - - - - - - - - - - - - - - -
 
   def json_parse(request)
     JSON.parse(request)
   rescue
     raise 'json:invalid'
   end
+
+  # - - - - - - - - - - - - - - - -
+
+  def query?(name)
+    name == 'image_pulled'
+  end
+
+  # - - - - - - - - - - - - - - - -
 
   def triple(body)
     [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
