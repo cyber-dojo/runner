@@ -3,43 +3,43 @@
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
 readonly MY_NAME="${ROOT_DIR##*/}"
 
-readonly SERVER_CID=`docker ps --all --quiet --filter "name=${MY_NAME}_server"`
-readonly CLIENT_CID=`docker ps --all --quiet --filter "name=${MY_NAME}_client"`
+readonly SERVER_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}_server")
+readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}_client")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 run_server_tests()
 {
-  docker exec ${SERVER_CID} sh -c "cd /app/test && ./run.sh ${*}"
+  docker exec "${SERVER_CID}" sh -c "cd /app/test && ./run.sh ${*}"
   server_status=$?
 
   # You can't [docker cp] from a tmpfs, you have to tar-pipe out.
-  docker exec ${SERVER_CID} \
+  docker exec "${SERVER_CID}" \
     tar Ccf \
-      $(dirname ${CYBER_DOJO_COVERAGE_ROOT}) \
-      - $(basename ${CYBER_DOJO_COVERAGE_ROOT}) \
-        | tar Cxf ${ROOT_DIR}/server/ -
+      "$(dirname "${CYBER_DOJO_COVERAGE_ROOT}")" \
+      - "$(basename "${CYBER_DOJO_COVERAGE_ROOT}")" \
+        | tar Cxf "${ROOT_DIR}/server/" -
 
   echo "Coverage report copied to ${MY_NAME}/server/coverage/"
-  cat ${ROOT_DIR}/server/coverage/done.txt
+  cat "${ROOT_DIR}/server/coverage/done.txt"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 run_client_tests()
 {
-  docker exec ${CLIENT_CID} sh -c "cd /app/test && ./run.sh ${*}"
+  docker exec "${CLIENT_CID}" sh -c "cd /app/test && ./run.sh ${*}"
   client_status=$?
 
   # You can't [docker cp] from a tmpfs, you have to tar-pipe out.
-  docker exec ${CLIENT_CID} \
+  docker exec "${CLIENT_CID}" \
     tar Ccf \
-      $(dirname ${CYBER_DOJO_COVERAGE_ROOT}) \
-      - $(basename ${CYBER_DOJO_COVERAGE_ROOT}) \
-        | tar Cxf ${ROOT_DIR}/client/ -
+      "$(dirname "${CYBER_DOJO_COVERAGE_ROOT}")" \
+      - "$(basename "${CYBER_DOJO_COVERAGE_ROOT}")" \
+        | tar Cxf "${ROOT_DIR}/client/" -
 
   echo "Coverage report copied to ${MY_NAME}/client/coverage/"
-  cat ${ROOT_DIR}/client/coverage/done.txt
+  cat "${ROOT_DIR}/client/coverage/done.txt"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,14 +51,15 @@ docker pull cyberdojofoundation/clang_assert
 
 server_status=0
 client_status=0
-. ${ROOT_DIR}/.env
-run_server_tests ${*}
-run_client_tests ${*}
+# shellcheck disable=SC1090
+. "${ROOT_DIR}/.env"
+run_server_tests "$@"
+run_client_tests "$@"
 
 if [[ ( ${server_status} == 0 && ${client_status} == 0 ) ]];  then
   echo "------------------------------------------------------"
   echo "All passed"
-  ${ROOT_DIR}/sh/docker_containers_down.sh
+  "${ROOT_DIR}/sh/docker_containers_down.sh"
   exit 0
 else
   echo
