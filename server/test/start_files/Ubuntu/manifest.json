@@ -1,18 +1,17 @@
-
 {
+  "display_name": "Perl, Test::Simple",
+
   "visible_filenames": [
-    "test_hiker.py",
-    "hiker.py",
+    "hiker.t",
+    "hiker.pl",
     "cyber-dojo.sh"
   ],
 
-  "filename_extension" : ".py",
+  "image_name": "cyberdojofoundation/perl_test_simple",
 
-  "tab_size": 4,
+  "runner_choice": "stateless",
 
-  "display_name": "Python, py.test",
+  "filename_extension": [ ".pl", ".t" ],
 
-  "image_name": "cyberdojofoundation/python_pytest",
-
-  "runner_choice": "stateless"
+  "tab_size": 4
 }

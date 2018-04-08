@@ -14,11 +14,16 @@ class ApiTest < TestBase
   'os-image correspondence' do
     in_kata_as(salmon) {
       etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
+      diagnostic = [
+        "image_name=:#{image_name}:",
+        "did not find #{os} in etc/issue",
+        etc_issue
+      ].join("\n")
       case os
       when :Alpine
-        assert etc_issue.include? 'Alpine'
+        assert etc_issue.include?('Alpine'), diagnostic
       when :Ubuntu
-        assert etc_issue.include? 'Ubuntu'
+        assert etc_issue.include?('Ubuntu'), diagnostic
       end
     }
   end

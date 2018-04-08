@@ -1,1 +1,1 @@
-pytest *test*.py
+perl -I . *.t

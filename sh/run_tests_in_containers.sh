@@ -48,6 +48,8 @@ docker pull cyberdojofoundation/gcc_assert
 docker pull cyberdojofoundation/csharp_nunit
 docker pull cyberdojofoundation/python_pytest
 docker pull cyberdojofoundation/clang_assert
+docker pull cyberdojofoundation/perl_test_simple
+
 
 server_status=0
 client_status=0
