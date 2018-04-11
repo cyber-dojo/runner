@@ -76,8 +76,12 @@ class Runner # stateless
       in_container(max_seconds) {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
         @colour = @timed_out ? 'timed_out' : red_amber_green
-        tar_pipe_to(tmp_dir)
-        @files = read_from(tmp_dir)
+        if @timed_out
+          @files = {}
+        else
+          tar_pipe_to(tmp_dir)
+          @files = read_from(tmp_dir)
+        end
       }
     end
     {
@@ -143,7 +147,6 @@ class Runner # stateless
       create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /tmp/create_tar_list.sh') < #{filename}"
       shell.assert(create_cmd)
     end
-
     shell.assert("docker exec #{container_name} bash /tmp/create_tar_list.sh")
 
     docker_cmd = "docker exec #{container_name} bash -c " +
