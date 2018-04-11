@@ -9,28 +9,34 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '527',
-  %w( sent files are returned in json payload ready to round-trip ) do
+  %w( [Ubuntu] sent files are returned in json payload ready to round-trip ) do
     in_kata_as('salmon') {
       run_cyber_dojo_sh
-      assert_colour 'red'
     }
     files = quad['files']
     refute_nil files
-    files.delete('TestResult.xml')
     assert_hash_equal(@previous_files, files)
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '528',
-  %w( created text files are returned in json payload ) do
-    cyber_dojo_sh = 'echo "xxx" > newfile.txt'
+  %w( [C,assert] created binary files are not returned in json payload
+  but created text files are ) do
+    cyber_dojo_sh = [
+      'make >/dev/null',
+      'file --mime-encoding test',
+      'echo "xxx" > newfile.txt',
+    ].join(';')
+
     in_kata_as('salmon') {
       named_args = {
         changed_files: { 'cyber-dojo.sh' => cyber_dojo_sh }
       }
       run_cyber_dojo_sh(named_args)
     }
+
+    assert stdout.include?('test: binary') # file --mime-encoding
     expected = starting_files
     expected['cyber-dojo.sh'] = cyber_dojo_sh
     expected['newfile.txt'] = "xxx\n"
