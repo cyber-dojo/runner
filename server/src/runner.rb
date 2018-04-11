@@ -3,6 +3,7 @@ require_relative 'shell'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require 'timeout'
+require 'find'
 
 class Runner # stateless
 
@@ -75,9 +76,17 @@ class Runner # stateless
       in_container(max_seconds) {
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
         @colour = @timed_out ? 'timed_out' : red_amber_green
+        tar_pipe_to(tmp_dir)
+        @files = read_from(tmp_dir)
       }
     end
-    { stdout:@stdout, stderr:@stderr, status:@status, colour:@colour }
+    {
+      files:@files,
+      stdout:@stdout,
+      stderr:@stderr,
+      status:@status,
+      colour:@colour
+    }
   end
 
   private # = = = = = = = = = = = = = = = = = =
@@ -96,6 +105,50 @@ class Runner # stateless
       src_filename = tmp_dir + '/' + pathed_filename
       disk.write(src_filename, content)
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def read_from(tmp_dir)
+    tmp_dir += sandbox_dir
+    files = {}
+    Find.find(tmp_dir) do |pathed_filename|
+      unless File.directory?(pathed_filename)
+        raw_content = File.read(pathed_filename)
+        content = raw_content
+        filename = pathed_filename[tmp_dir.size+1..-1]
+        unless filename == 'RunTests.dll'
+          files[filename] = content
+        end
+      end
+    end
+    files
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tar_pipe_to(tmp_dir)
+    sh = <<-SHELL
+      find #{sandbox_dir} -type f -exec sh -c '
+        for filename do
+          if file --mime-encoding ${filename} | grep -qv "${filename}:\sbinary"; then
+            echo ${filename} >> /tmp/tar.list
+          fi
+        done' sh {} +
+    SHELL
+
+    Dir.mktmpdir do |tmp_dir2|
+      filename = "#{tmp_dir2}/create_tar_list.sh"
+      File.write(filename, sh)
+      create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /tmp/create_tar_list.sh') < #{filename}"
+      shell.assert(create_cmd)
+    end
+
+    shell.assert("docker exec #{container_name} bash /tmp/create_tar_list.sh")
+
+    docker_cmd = "docker exec #{container_name} bash -c " +
+      "\"tar -cf - -T /tmp/tar.list\" | tar -xf - -C #{tmp_dir}"
+    shell.assert(docker_cmd)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -208,6 +261,11 @@ class Runner # stateless
     rescue
      'amber'
     end
+  end
+
+  def docker_exec(cmd)
+    # This is _not_ the main docker-exec inside run_cyber_dojo_sh
+    "docker exec --user=root #{container_name} sh -c '#{cmd}'"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -353,16 +411,6 @@ class Runner # stateless
   end
 
   include AllAvatarsNames
-
-  # - - - - - - - - - - - - - - - - - -
-  # assertions
-  # - - - - - - - - - - - - - - - - - -
-
-  def docker_exec(cmd)
-    # This is _not_ the main docker-exec
-    # for run_cyber_dojo_sh
-    "docker exec --user=root #{container_name} sh -c '#{cmd}'"
-  end
 
   # - - - - - - - - - - - - - - - - - -
 

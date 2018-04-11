@@ -21,8 +21,17 @@ class RackDispatcher # stateless
     runner = Runner.new(external, image_name, kata_id)
     triple({ name => runner.public_send(name, *args) })
   rescue ShellError => error
+    p "<<<<<<<<"
+    p error.message
+    print error.backtrace
+    p "<<<<<<<<"
     triple({ 'exception' => error.args })
   rescue => error
+    p "~~~~~~~~"
+    p error.class.name
+    p error.message
+    print error.backtrace
+    p "~~~~~~~~"
     triple({ 'exception' => error.message })
   end
 
