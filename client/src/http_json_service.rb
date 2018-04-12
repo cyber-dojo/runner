@@ -8,7 +8,7 @@ module HttpJsonService # mix-in
     json = http(name, jsoned_args(name, args)) { |uri|
       Net::HTTP::Get.new(uri)
     }
-    result(json, name)
+    es_result(json, name)
   end
 
   def post(args, method)
@@ -16,7 +16,7 @@ module HttpJsonService # mix-in
     json = http(name, jsoned_args(name, args)) { |uri|
       Net::HTTP::Post.new(uri)
     }
-    result(json, name)
+    es_result(json, name)
   end
 
   def http(method, args)
@@ -36,7 +36,7 @@ module HttpJsonService # mix-in
     }].to_json
   end
 
-  def result(json, name)
+  def es_result(json, name)
     raise error(name, 'bad json') unless json.class.name == 'Hash'
     exception = json['exception']
     raise error(name, exception)  unless exception.nil?

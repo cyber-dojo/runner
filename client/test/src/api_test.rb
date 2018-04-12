@@ -152,7 +152,7 @@ class ApiTest < TestBase
   '[C,assert] run with initial 6*9 == 42 is red' do
     in_kata_as(salmon) {
       run_cyber_dojo_sh
-      assert red?, quad
+      assert red?, result
     }
   end
 
@@ -164,7 +164,7 @@ class ApiTest < TestBase
           'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
         }
       })
-      assert amber?, quad
+      assert amber?, result
     }
   end
 
@@ -176,7 +176,7 @@ class ApiTest < TestBase
           'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
         }
       })
-      assert green?, quad
+      assert green?, result
     }
   end
 
@@ -197,7 +197,7 @@ class ApiTest < TestBase
         changed_files: { 'hiker.c' => hiker_c.sub(from, to) },
           max_seconds: 3
       })
-      assert timed_out?, quad
+      assert timed_out?, result
     }
   end
 
@@ -214,7 +214,7 @@ class ApiTest < TestBase
         new_files: { 'big_file' => 'X'*1023*500 }
       })
     }
-    assert red?, quad
+    assert red?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -293,8 +293,8 @@ class ApiTest < TestBase
         changed_files: { 'hiker.c' => C_FORK_BOMB },
           max_seconds: 3
       })
-      assert timed_out? || printed?('All tests passed'), quad
-      assert timed_out? || printed?('fork()'), quad
+      assert timed_out? || printed?('All tests passed'), result
+      assert timed_out? || printed?('fork()'), result
     }
   end
 
@@ -310,7 +310,7 @@ class ApiTest < TestBase
       cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
       assert timed_out? ||
         printed?(cant_fork) ||
-          printed?('bomb'), quad
+          printed?('bomb'), result
     }
   end
 
@@ -323,7 +323,7 @@ class ApiTest < TestBase
         changed_files: { 'hiker.c' => FILE_HANDLE_BOMB },
           max_seconds: 3
       })
-      assert printed?('fopen() != NULL'),  quad
+      assert printed?('fopen() != NULL'),  result
     }
   end
 

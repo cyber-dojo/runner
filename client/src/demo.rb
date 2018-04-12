@@ -89,14 +89,14 @@ class Demo
   end
 
   def run_cyber_dojo_sh(colour, max_seconds = 10)
-    quad = nil
+    result = nil
     args  = [ image_name, kata_id, avatar_name ]
     args += [ new_files, deleted_files, unchanged_files, changed_files ]
     args << max_seconds
     duration = timed {
-      quad = runner.run_cyber_dojo_sh(*args)
+      result = runner.run_cyber_dojo_sh(*args)
     }
-    @html += pre('run_cyber_dojo_sh', duration, colour, quad)
+    @html += pre('run_cyber_dojo_sh', duration, colour, result)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -130,16 +130,16 @@ class Demo
     IO.read("/app/test/start_files/Alpine/#{filename}")
   end
 
-  def pre(name, duration, colour = 'white', quad = nil)
+  def pre(name, duration, colour = 'white', result = nil)
     border = 'border: 1px solid black;'
     padding = 'padding: 5px;'
     margin = 'margin-left: 30px; margin-right: 30px;'
     background = "background: #{colour};"
     whitespace = "white-space: pre-wrap;"
     html = "<pre>/#{name}(#{duration}s)</pre>"
-    unless quad.nil?
+    unless result.nil?
       html += "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
-              "#{JSON.pretty_unparse(quad)}" +
+              "#{JSON.pretty_unparse(result)}" +
               '</pre>'
     end
     html
