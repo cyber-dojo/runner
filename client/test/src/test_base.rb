@@ -93,6 +93,10 @@ class TestBase < HexMiniTest
 
   attr_reader :result
 
+  def files
+    result['files']
+  end
+
   def stdout
     result['stdout']
   end
