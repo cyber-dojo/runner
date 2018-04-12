@@ -10,6 +10,9 @@ class RoundTripTest < TestBase
 
   test '527',
   %w( [Ubuntu] sent files are returned in json payload ready to round-trip ) do
+    # Using [Ubuntu] because that's Perl-testsimple which does
+    # not generated any text files. In contrast, Alpine is
+    # CSharp-NUnit which does generate an .xml text file.
     in_kata_as('salmon') {
       run_cyber_dojo_sh
     }
