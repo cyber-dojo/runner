@@ -120,7 +120,7 @@ class TestBase < HexMiniTest
           max_seconds:defaulted_arg(named_args, :max_seconds, 10)
     }
     rack_call(__method__, args)
-    @quad = @json[__method__.to_s]
+    @result = @json[__method__.to_s]
 
     @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
@@ -132,18 +132,22 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  attr_reader :quad
+  attr_reader :result
+
+  def files
+    result[__method__.to_s]
+  end
 
   def stdout
-    quad[__method__.to_s]
+    result[__method__.to_s]
   end
 
   def stderr
-    quad[__method__.to_s]
+    result[__method__.to_s]
   end
 
   def colour
-    quad[__method__.to_s]
+    result[__method__.to_s]
   end
 
   def timed_out?

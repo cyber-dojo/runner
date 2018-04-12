@@ -16,7 +16,6 @@ class RoundTripTest < TestBase
     in_kata_as('salmon') {
       run_cyber_dojo_sh
     }
-    files = quad['files']
     refute_nil files
     assert_hash_equal(@previous_files, files)
   end
@@ -43,7 +42,7 @@ class RoundTripTest < TestBase
     expected = starting_files
     expected['cyber-dojo.sh'] = cyber_dojo_sh
     expected['newfile.txt'] = "xxx\n"
-    assert_hash_equal(expected, quad['files'])
+    assert_hash_equal(expected, files)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -60,7 +59,7 @@ class RoundTripTest < TestBase
     expected = starting_files
     expected['cyber-dojo.sh'] = cyber_dojo_sh
     expected['sub/newfile.txt'] = "xxx\n"
-    assert_hash_equal(expected, quad['files'])
+    assert_hash_equal(expected, files)
   end
 
   # - - - - - - - - - - - - - - - - -
