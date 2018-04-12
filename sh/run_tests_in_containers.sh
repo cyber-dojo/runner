@@ -10,6 +10,9 @@ readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}_client")
 
 run_server_tests()
 {
+  echo
+  echo 'Running server tests...'
+
   docker exec "${SERVER_CID}" sh -c "cd /app/test && ./run.sh ${*}"
   server_status=$?
 
@@ -28,6 +31,9 @@ run_server_tests()
 
 run_client_tests()
 {
+  echo
+  echo 'Running client tests...'
+
   docker exec "${CLIENT_CID}" sh -c "cd /app/test && ./run.sh ${*}"
   client_status=$?
 
@@ -54,10 +60,21 @@ fi
 
 server_status=0
 client_status=0
+
 # shellcheck disable=SC1090
 . "${ROOT_DIR}/.env"
-run_server_tests "$@"
-run_client_tests "$@"
+
+if [ $1 == "server" ]; then
+  shift
+  run_server_tests "$@"
+elif [ $1 == "client" ]; then
+  shift
+  run_client_tests "$@"
+else
+  run_server_tests "$@"
+  run_client_tests "$@"
+fi
+
 
 if [[ ( ${server_status} == 0 && ${client_status} == 0 ) ]];  then
   echo "------------------------------------------------------"
