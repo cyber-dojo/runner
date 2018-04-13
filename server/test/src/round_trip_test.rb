@@ -8,16 +8,13 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '527',
-  %w( [Ubuntu] sent files are returned in json payload ready to round-trip ) do
-    # Using [Ubuntu] because that's Perl-testsimple which does
-    # not generated any text files. In contrast, Alpine is
-    # CSharp-NUnit which does generate an .xml text file.
-    in_kata_as('salmon') {
-      run_cyber_dojo_sh
-    }
-    refute_nil files
-    assert_hash_equal(@previous_files, files)
+  test '525',
+  %w( sent files are returned in json payload ready to round-trip ) do
+    [ :Alpine, :Ubuntu, :Debian ].each do |name|
+      os = name
+      in_kata_as('salmon') { assert_cyber_dojo_sh('ls') }
+      assert_hash_equal(@previous_files, files)
+    end
   end
 
   # - - - - - - - - - - - - - - - - -

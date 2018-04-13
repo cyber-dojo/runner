@@ -230,14 +230,23 @@ class TestBase < HexMiniTest
     "/app/test/start_files/#{os}"
   end
 
+  def os=(name)
+    @os = name
+  end
+
   def os
+    return @os unless @os.nil?
     if hex_test_name.start_with? '[C,assert]'
       :C_assert
     elsif hex_test_name.start_with? '[clang,assert]'
-        :clang_assert
+      :clang_assert
+    elsif hex_test_name.start_with? '[Alpine]'
+      :Alpine
     elsif hex_test_name.start_with? '[Ubuntu]'
       :Ubuntu
-    else # [Alpine] || default
+    elsif hex_test_name.start_with? '[Debian]'
+      :Debian
+    else # default
       :Alpine
     end
   end
