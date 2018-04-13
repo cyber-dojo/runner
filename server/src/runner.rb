@@ -74,6 +74,7 @@ class Runner # stateless
     Dir.mktmpdir do |tmp_dir|
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
+        inject_tar_script
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
         @colour = @timed_out ? 'timed_out' : red_amber_green
         if @timed_out
@@ -131,9 +132,14 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_to(tmp_dir)
+  def inject_tar_script
+    # TODO: The plan is to install this shell script directly
+    # inside the test-framework images (using image_builder)
+    # and to then extend it so it also creates the tar file.
+    # tar_pipe_to will then need a single docker-exec
+    # to tar-pipe the text files out of the container
     sh = <<-SHELL
-      find #{sandbox_dir} -type f -exec sh -c '
+      find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
         for filename do
           if file --mime-encoding ${filename} | grep -qv "${filename}:\sbinary"; then
             echo ${filename} >> /tmp/tar.list
@@ -147,8 +153,12 @@ class Runner # stateless
       create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /tmp/create_tar_list.sh') < #{filename}"
       shell.assert(create_cmd)
     end
-    shell.assert("docker exec #{container_name} bash /tmp/create_tar_list.sh")
+  end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tar_pipe_to(tmp_dir)
+    shell.assert("docker exec #{container_name} bash /tmp/create_tar_list.sh")
     docker_cmd = "docker exec #{container_name} bash -c " +
       "\"tar -cf - -T /tmp/tar.list\" | tar -xf - -C #{tmp_dir}"
     shell.assert(docker_cmd)
