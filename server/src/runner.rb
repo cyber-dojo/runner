@@ -123,7 +123,7 @@ class Runner # stateless
         content = raw_content
         filename = pathed_filename[tmp_dir.size+1..-1]
         unless filename == 'RunTests.dll'
-          files[filename] = content
+          files[filename] = truncated(content)
         end
       end
     end

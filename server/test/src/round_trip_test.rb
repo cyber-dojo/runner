@@ -62,6 +62,21 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '530',
+  %w( files bigger than 10K are truncated ) do
+    script = 'yes "123456789" | head -n 1042 > large_file.txt'
+    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+      @os = os
+      in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
+      expected = "123456789\n" * 1024
+      expected += "\n"
+      expected += 'output truncated by cyber-dojo'
+      assert_equal files['large_file.txt'], expected
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   def assert_hash_equal(expected, actual)
     assert_equal expected.keys.sort, actual.keys.sort
     expected.keys.each do |key|
