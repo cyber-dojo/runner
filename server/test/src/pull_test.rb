@@ -8,15 +8,12 @@ class PullTest < TestBase
   end
 
   def hex_setup
-    external.bash = BashStub.new
+    @external = External.new
+    @external.bash = BashStub.new
   end
 
   def hex_teardown
-    bash.teardown
-  end
-
-  def set_image_name(image_name)
-    @image_name = image_name
+    @external.bash.teardown
   end
 
   # - - - - - - - - - - - - - - - - - - - -
@@ -25,20 +22,18 @@ class PullTest < TestBase
 
   test '9C3',
   'false when image_name is valid but not in [docker images]' do
-    set_image_name 'cdf/ruby_mini_test:1.9.3'
-    stub_docker_images_prints 'cdf/gcc_assert'
-    refute image_pulled?
-    assert_no_exception
+    stub_docker_images_prints('cdf/gcc_assert')
+    runner = Runner.new(@external, 'cdf/ruby_mini_test:1.9.3', kata_id)
+    refute runner.image_pulled?
   end
 
   # - - - - - - - - - - - - - - - - - - - -
 
   test '9C4',
   'true when image_name is valid and in [docker images]' do
-    set_image_name 'cdf/gcc_assert'
-    stub_docker_images_prints 'cdf/gcc_assert'
-    assert image_pulled?
-    assert_no_exception
+    stub_docker_images_prints('cdf/gcc_assert')
+    runner = Runner.new(@external, 'cdf/gcc_assert', kata_id)
+    assert runner.image_pulled?
   end
 
   # - - - - - - - - - - - - - - - - - - - -
@@ -46,14 +41,10 @@ class PullTest < TestBase
   test '9C5',
   'raises when [docker images ...] fails' do
     cmd = 'docker images --format "{{.Repository}}"'
-    bash.stub_run(cmd, stdout='x', stderr='y', status=1)
-    assert_nil image_pulled?
-    assert_exception({
-      command:cmd,
-      stdout:stdout,
-      stderr:stderr,
-      status:status
-    })
+    @external.bash.stub_run(cmd, stdout='x', stderr='wibble', status=1)
+    runner = Runner.new(@external, 'cdf/gcc_assert', kata_id)
+    error = assert_raises { runner.image_pulled? }
+    assert_equal 'wibble', error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - -
@@ -62,40 +53,37 @@ class PullTest < TestBase
 
   test '91C',
   'true when image_name is valid and exists' do
-    set_image_name 'cdf/ruby_mini_test'
+    stub_docker_pull_success 'cdf/gcc_assert', tag=''
+    runner = Runner.new(@external, 'cdf/gcc_assert', kata_id)
+    assert runner.image_pull
 
-    stub_docker_pull_success image_name, tag=''
-    assert image_pull
-    assert_no_exception
-
-    stub_docker_pull_success image_name, tag='latest'
-    assert image_pull
-    assert_no_exception
+    stub_docker_pull_success 'cdf/gcc_assert', tag='latest'
+    runner = Runner.new(@external, 'cdf/gcc_assert:latest', kata_id)
+    assert runner.image_pull
   end
 
   # - - - - - - - - - - - - - - - - - - - -
 
   test 'D80',
   'false when image_name does not exist or no pull access' do
-    set_image_name 'cdf/does_not_exist'
-    command = "docker pull #{image_name}"
+    command = 'docker pull cdf/gcc_assert'
     stdout = 'Using default tag: latest'
     stderr = [
       'Error response from daemon: ',
-      "repository #{image_name} not found: ",
+      "repository cdf/gcc_assert not found: ",
       'does not exist or no pull access'
     ].join
-    bash.stub_run(command, stdout, stderr, status=1)
+    @external.bash.stub_run(command, stdout, stderr, status=1)
 
-    refute image_pull
-    assert_no_exception
+    runner = Runner.new(@external, 'cdf/gcc_assert', kata_id)
+    refute runner.image_pull
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '933',
   'raises when there is no network connectivitity' do
-    set_image_name 'cdf/gcc_assert'
+    image_name = 'cdf/gcc_assert'
     command = "docker pull #{image_name}"
     stdout = [
       'Using default tag: latest',
@@ -106,15 +94,11 @@ class PullTest < TestBase
       "https://index.docker.io/v1/repositories/#{image_name}/images:",
       'dial tcp: lookup index.docker.io on 10.0.2.3:53: no such host'
     ].join(' ')
-    bash.stub_run(command, stdout, stderr, status=1)
+    @external.bash.stub_run(command, stdout, stderr, status=1)
 
-    assert_nil image_pull
-    assert_exception({
-      command:command,
-      stdout:stdout,
-      stderr:stderr,
-      status:status
-    })
+    runner = Runner.new(@external, 'cdf/gcc_assert', kata_id)
+    error = assert_raises { runner.image_pull }
+    assert_equal stderr, error.message
   end
 
   private # = = = = = = = = = = = = = = = =
@@ -135,16 +119,15 @@ class PullTest < TestBase
   # - - - - - - - - - - - - - - - - - - - -
 
   def stub_docker_pull(image_name, stdout, stderr, status)
-    set_image_name image_name
     cmd = "docker pull #{image_name}"
-    bash.stub_run(cmd, stdout, stderr, status)
+    @external.bash.stub_run(cmd, stdout, stderr, status)
   end
 
   # - - - - - - - - - - - - - - - - - - - -
 
   def stub_docker_images_prints(image_name)
     cmd = 'docker images --format "{{.Repository}}"'
-    bash.stub_run(cmd, stdout=image_name, stderr='', status=0)
+    @external.bash.stub_run(cmd, stdout=image_name, stderr='', status=0)
   end
 
 end

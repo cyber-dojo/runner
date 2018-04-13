@@ -37,30 +37,6 @@ class TestBase < HexMiniTest
     @json = JSON.parse(result[2][0])
   end
 
-  def assert_no_exception
-    assert_exception(nil)
-  end
-
-  def assert_exception(expected)
-    assert_equal jpg(expected), jpg(@json['exception']), jpg(@json)
-  end
-
-  def jpg(o)
-    JSON.pretty_generate(o)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def image_pulled?
-    rack_call('image_pulled')
-    @json['image_pulled?']
-  end
-
-  def image_pull
-    rack_call(__method__)
-    @json['image_pull']
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
@@ -193,7 +169,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_name
-    @image_name ||= manifest['image_name']
+    manifest['image_name']
   end
 
   def kata_id
@@ -223,15 +199,11 @@ class TestBase < HexMiniTest
   end
 
   def manifest
-    @manifest ||= JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
+    JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
   end
 
   def starting_files_dir
     "/app/test/start_files/#{os}"
-  end
-
-  def os=(name)
-    @os = name
   end
 
   def os

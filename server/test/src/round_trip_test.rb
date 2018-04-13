@@ -10,9 +10,10 @@ class RoundTripTest < TestBase
 
   test '525',
   %w( sent files are returned in json payload ready to round-trip ) do
-    [ :Alpine, :Ubuntu, :Debian ].each do |name|
-      os = name
+    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+      @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh('ls') }
+
       assert_hash_equal(@previous_files, files)
     end
   end
@@ -20,21 +21,23 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '528',
-  %w( [C,assert] created binary files are not returned in json payload
-  but created text files are ) do
+  %w( created binary files are not returned in json payload but created text files are ) do
     script = [
-      'make >/dev/null',
-      'file --mime-encoding test',
+      'dd if=/dev/zero of=binary.dat bs=1c count=1',
+      'file --mime-encoding binary.dat',
       'echo "xxx" > newfile.txt',
     ].join(';')
 
-    in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
+    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+      @os = os
+      in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
 
-    assert stdout.include?('test: binary') # file --mime-encoding
-    expected = starting_files
-    expected['cyber-dojo.sh'] = script
-    expected['newfile.txt'] = "xxx\n"
-    assert_hash_equal(expected, files)
+      assert stdout.include?('binary.dat: binary') # file --mime-encoding
+      expected = starting_files
+      expected['cyber-dojo.sh'] = script
+      expected['newfile.txt'] = "xxx\n"
+      assert_hash_equal(expected, files)
+    end
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -46,9 +49,10 @@ class RoundTripTest < TestBase
       'echo "xxx" > sub/newfile.txt'
     ].join(';')
 
-    [ :Alpine, :Ubuntu, :Debian ].each do |name|
-      os = name
+    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+      @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
+
       expected = starting_files
       expected['cyber-dojo.sh'] = script
       expected['sub/newfile.txt'] = "xxx\n"
