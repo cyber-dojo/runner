@@ -216,8 +216,6 @@ class TestBase < HexMiniTest
       :Alpine
     elsif hex_test_name.start_with? '[Ubuntu]'
       :Ubuntu
-    elsif hex_test_name.start_with? '[Debian]'
-      :Debian
     else # default
       :Alpine
     end
