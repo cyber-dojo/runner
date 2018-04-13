@@ -64,10 +64,10 @@ client_status=0
 # shellcheck disable=SC1090
 . "${ROOT_DIR}/.env"
 
-if [ $1 = "server" ]; then
+if [ "$1" = "server" ]; then
   shift
   run_server_tests "$@"
-elif [ $1 = "client" ]; then
+elif [ "$1" = "client" ]; then
   shift
   run_client_tests "$@"
 else
