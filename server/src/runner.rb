@@ -146,9 +146,9 @@ class Runner # stateless
     Dir.mktmpdir do |tmp_dir2|
       filename = "#{tmp_dir2}/create_tar_list.sh"
       File.write(filename, sh)
-      create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /tmp/create_tar_list.sh') < #{filename}"
+      create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /usr/local/bin/create_tar_list.sh') < #{filename}"
       shell.assert(create_cmd)
-      chmod = 'chmod +x /tmp/create_tar_list.sh'
+      chmod = 'chmod +x /usr/local/bin/create_tar_list.sh'
       shell.assert("docker exec #{container_name} bash -c '#{chmod}'")
     end
   end
@@ -161,7 +161,7 @@ class Runner # stateless
     tar_list = '/tmp/tar.list'
     docker_tar_pipe =
       "docker exec --env TAR_LIST=#{tar_list} #{container_name} bash -c " +
-      "'/tmp/create_tar_list.sh && tar -cf - -T #{tar_list}'" +
+      "'/usr/local/bin/create_tar_list.sh && tar -cf - -T #{tar_list}'" +
       '|' +
       "tar -xf - -C #{tmp_dir}"
     shell.assert(docker_tar_pipe)
