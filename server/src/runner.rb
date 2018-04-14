@@ -134,11 +134,11 @@ class Runner # stateless
     # TODO: The plan is to install this shell script directly
     # inside the test-framework images (using image_builder)
     sh = <<-SHELL
-      rm -f /tmp/tar.list | true
+      rm -f ${TAR_LIST} | true
       find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
         for filename do
           if file --mime-encoding ${filename} | grep -qv "${filename}:\sbinary"; then
-            echo ${filename} >> /tmp/tar.list
+            echo ${filename} >> ${TAR_LIST}
           fi
         done' sh {} +
     SHELL
@@ -156,9 +156,14 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_to(tmp_dir)
+    # You cannot pass the tar-list filename as an argument
+    # to create_tar_list.sh because of the bash -c
     tar_list = '/tmp/tar.list'
-    docker_tar_pipe = "docker exec #{container_name} bash -c " +
-      "'/tmp/create_tar_list.sh && tar -cf - -T #{tar_list}' | tar -xf - -C #{tmp_dir}"
+    docker_tar_pipe =
+      "docker exec --env TAR_LIST=#{tar_list} #{container_name} bash -c " +
+      "'/tmp/create_tar_list.sh && tar -cf - -T #{tar_list}'" +
+      '|' +
+      "tar -xf - -C #{tmp_dir}"
     shell.assert(docker_tar_pipe)
   end
 
