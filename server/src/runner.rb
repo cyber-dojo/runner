@@ -135,10 +135,8 @@ class Runner # stateless
   def inject_tar_script
     # TODO: The plan is to install this shell script directly
     # inside the test-framework images (using image_builder)
-    # and to then extend it so it also creates the tar file.
-    # tar_pipe_to will then need a single docker-exec
-    # to tar-pipe the text files out of the container
     sh = <<-SHELL
+      #!/bin/bash
       find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
         for filename do
           if file --mime-encoding ${filename} | grep -qv "${filename}:\sbinary"; then
@@ -152,16 +150,17 @@ class Runner # stateless
       File.write(filename, sh)
       create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /tmp/create_tar_list.sh') < #{filename}"
       shell.assert(create_cmd)
+      chmod = 'chmod +x /tmp/create_tar_list.sh'
+      shell.assert("docker exec #{container_name} bash -c '#{chmod}'")
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_to(tmp_dir)
-    shell.assert("docker exec #{container_name} bash /tmp/create_tar_list.sh")
-    docker_cmd = "docker exec #{container_name} bash -c " +
-      "\"tar -cf - -T /tmp/tar.list\" | tar -xf - -C #{tmp_dir}"
-    shell.assert(docker_cmd)
+    docker_tar_pipe = "docker exec #{container_name} bash -c " +
+      "'/tmp/create_tar_list.sh && tar -cf - -T /tmp/tar.list' | tar -xf - -C #{tmp_dir}"
+    shell.assert(docker_tar_pipe)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
