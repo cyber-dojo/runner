@@ -161,11 +161,18 @@ class Runner # stateless
     # You cannot pass the tar-list filename as an argument
     # to create_tar_list.sh because of the bash -c
     tar_list = '/tmp/tar.list'
-    docker_tar_pipe =
-      "docker exec --env TAR_LIST=#{tar_list} #{container_name} bash -c " +
-      "'/usr/local/bin/create_tar_list.sh && tar -cf - -T #{tar_list}'" +
-      '|' +
-      "tar -xf - -C #{tmp_dir}"
+    docker_tar_pipe = <<~SHELL.strip
+      docker exec                             \
+        --env TAR_LIST=#{tar_list}            \
+        #{container_name}                     \
+        bash -c                               \
+          '                                   \
+          /usr/local/bin/create_tar_list.sh   \
+          &&                                  \
+          tar -cf - -T #{tar_list}            \
+          '                                   \
+            | tar -xf - -C #{tmp_dir}
+    SHELL
     shell.assert(docker_tar_pipe)
   end
 
