@@ -76,10 +76,11 @@ class Runner # stateless
       in_container(max_seconds) {
         inject_tar_script
         run_timeout(tar_pipe_from(tmp_dir), max_seconds)
-        @colour = @timed_out ? 'timed_out' : red_amber_green
         if @timed_out
+          @colour = 'timed_out'
           @files = {}
         else
+          @colour = red_amber_green
           tar_pipe_to(tmp_dir)
           @files = read_from(tmp_dir)
         end
