@@ -156,8 +156,9 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_to(tmp_dir)
+    tar_list = '/tmp/tar.list'
     docker_tar_pipe = "docker exec #{container_name} bash -c " +
-      "'/tmp/create_tar_list.sh && tar -cf - -T /tmp/tar.list' | tar -xf - -C #{tmp_dir}"
+      "'/tmp/create_tar_list.sh && tar -cf - -T #{tar_list}' | tar -xf - -C #{tmp_dir}"
     shell.assert(docker_tar_pipe)
   end
 
