@@ -143,12 +143,14 @@ class Runner # stateless
         done' sh {} +
     SHELL
 
-    Dir.mktmpdir do |tmp_dir2|
-      filename = "#{tmp_dir2}/create_tar_list.sh"
-      File.write(filename, sh)
-      create_cmd = "(docker exec -i #{container_name} bash -c 'cat > /usr/local/bin/create_tar_list.sh') < #{filename}"
-      shell.assert(create_cmd)
-      chmod = 'chmod +x /usr/local/bin/create_tar_list.sh'
+    Dir.mktmpdir do |src_dir|
+      filename = 'create_tar_list.sh'
+      src_filename = "#{src_dir}/#{filename}"
+      File.write(src_filename, sh)
+      dst_filename = "/usr/local/bin/#{filename}"
+      copy_cmd = "(docker exec -i #{container_name} bash -c 'cat > #{dst_filename}') < #{src_filename}"
+      shell.assert(copy_cmd)
+      chmod = "chmod +x #{dst_filename}"
       shell.assert("docker exec #{container_name} bash -c '#{chmod}'")
     end
   end
