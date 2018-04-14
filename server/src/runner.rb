@@ -131,7 +131,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def inject_tar_script
-    # TODO: The plan is to install this shell script directly
+    # TODO: install this shell script directly
     # inside the test-framework images (using image_builder)
     sh = <<-SHELL
       rm -f ${TAR_LIST} | true
@@ -169,9 +169,9 @@ class Runner # stateless
           '                                   \
           /usr/local/bin/create_tar_list.sh   \
           &&                                  \
-          tar -cf - -T #{tar_list}            \
+          tar -zcf - -T #{tar_list}            \
           '                                   \
-            | tar -xf - -C #{tmp_dir}
+            | tar -zxf - -C #{tmp_dir}
     SHELL
     shell.assert(docker_tar_pipe)
   end
