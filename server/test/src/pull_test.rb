@@ -48,6 +48,31 @@ class PullTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - -
+
+  class BashStubAlwaysRaises
+    def run(command)
+      raise ArgumentError.new('always-raising')
+    end
+  end
+
+  test '9C6',
+  'rack-dispatcher raises when [docker pull] fails' do
+    d = RackDispatcher.new(RackRequestStub)
+    d.external.bash = BashStubAlwaysRaises.new
+    args = {
+      'image_name' => image_name,
+      'kata_id' => kata_id
+    }
+    env = { body:args.to_json, path_info:'image_pull' }
+    result = d.call(env)
+    @json = JSON.parse(result[2][0])
+    exception = @json['exception']
+    refute_nil exception
+    assert_equal "docker pull #{image_name}", exception['command']
+    assert_equal 'always-raising', exception['message']
+  end
+
+  # - - - - - - - - - - - - - - - - - - - -
   # image_pull
   # - - - - - - - - - - - - - - - - - - - -
 
