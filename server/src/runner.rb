@@ -134,7 +134,7 @@ class Runner # stateless
     # TODO: The plan is to install this shell script directly
     # inside the test-framework images (using image_builder)
     sh = <<-SHELL
-      #!/bin/bash
+      rm -f /tmp/tar.list | true
       find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
         for filename do
           if file --mime-encoding ${filename} | grep -qv "${filename}:\sbinary"; then
