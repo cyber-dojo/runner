@@ -115,16 +115,13 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_from(tmp_dir)
-    tmp_dir += sandbox_dir
     files = {}
+    tmp_dir += sandbox_dir
     Find.find(tmp_dir) do |pathed_filename|
       unless File.directory?(pathed_filename)
-        raw_content = File.read(pathed_filename)
-        content = raw_content
+        content = File.read(pathed_filename)
         filename = pathed_filename[tmp_dir.size+1..-1]
-        unless filename == 'RunTests.dll'
-          files[filename] = truncated(cleaned(content))
-        end
+        files[filename] = truncated(cleaned(content))
       end
     end
     files
