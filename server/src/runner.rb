@@ -160,8 +160,7 @@ class Runner # stateless
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
-    # inside tar_pipe_to() to fail so cannot
-    # shell.assert() here.
+    # to fail so cannot shell.assert() here.
     _stdout,_stderr,status = shell.exec(docker_tar_pipe)
     if status == 0
       read_from(tmp_dir)
@@ -206,7 +205,9 @@ class Runner # stateless
     # https://github.com/cyber-dojo-languages/image_builder/blob/master/
     # In particular the methods
     #    o) RUN_install_tar
+    #       this adds the --touch option
     #    o) RUN_install_coreutils
+    #       this gives microsecond time-stamp granularity
     <<~SHELL.strip
       chmod 755 #{tmp_dir}                                 \
       &&                                                   \
