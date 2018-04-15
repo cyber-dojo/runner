@@ -205,8 +205,8 @@ class Runner # stateless
     # See the file builder/image_builder.rb on
     # https://github.com/cyber-dojo-languages/image_builder/blob/master/
     # In particular the methods
-    #    o) update_tar_command
-    #    o) install_coreutils_command
+    #    o) RUN_install_tar
+    #    o) RUN_install_coreutils
     <<~SHELL.strip
       chmod 755 #{tmp_dir}                                 \
       &&                                                   \
@@ -297,8 +297,10 @@ class Runner # stateless
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def docker_exec(cmd)
-    # This is _not_ the main docker-exec inside run_cyber_dojo_sh
+    # This is _not_ the main docker-exec running cyber-dojo.sh
     "docker exec --user=root #{container_name} sh -c '#{cmd}'"
   end
 
@@ -455,9 +457,9 @@ class Runner # stateless
 end
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-# The implementation of run_timeout_cyber_dojo_sh is
+# The implementation to run cyber-dojo.sh is
 #   o) create copies of all files off /tmp
-#   o) one tar-pipe copying /tmp files into the container
+#   o) one tar-pipe copies /tmp files into the container
 #   o) run cyber-dojo.sh inside the container
 #
 # An alternative implementation is
