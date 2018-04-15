@@ -8,19 +8,6 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '525',
-  %w( sent files are returned in json payload ready to round-trip ) do
-    all_OSes.each do |os|
-      @os = os
-      in_kata_as('salmon') { assert_cyber_dojo_sh('ls') }
-
-      assert_hash_equal(@previous_files, files)
-    end
-  end
-=end
-
-  # - - - - - - - - - - - - - - - - -
-
   test '528', %w(
   created text files (including dot files) are returned
   but created binary files are not ) do
