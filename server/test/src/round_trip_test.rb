@@ -10,7 +10,7 @@ class RoundTripTest < TestBase
 
   test '525',
   %w( sent files are returned in json payload ready to round-trip ) do
-    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+    all_OSes.each do |os|
       @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh('ls') }
 
@@ -28,7 +28,7 @@ class RoundTripTest < TestBase
       'echo "xxx" > newfile.txt',
     ].join(';')
 
-    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+    all_OSes.each do |os|
       @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
 
@@ -49,7 +49,7 @@ class RoundTripTest < TestBase
       'echo "xxx" > sub/newfile.txt'
     ].join(';')
 
-    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+    all_OSes.each do |os|
       @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
 
@@ -65,7 +65,7 @@ class RoundTripTest < TestBase
   test '530',
   %w( files bigger than 10K are truncated ) do
     script = 'yes "123456789" | head -n 1042 > large_file.txt'
-    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+    all_OSes.each do |os|
       @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
       expected = "123456789\n" * 1024
@@ -79,7 +79,7 @@ class RoundTripTest < TestBase
 
   test '531',
   %w( a crippled container, eg from a fork-bomb, returns no files ) do
-    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+    all_OSes.each do |os|
       @os = os
       in_kata_as('salmon') {
         run_cyber_dojo_sh({
@@ -99,6 +99,12 @@ class RoundTripTest < TestBase
     }
     bomb
   CODE
+
+  # - - - - - - - - - - - - - - - - -
+
+  def all_OSes
+    [ :Alpine, :Ubuntu, :Debian ]
+  end
 
   # - - - - - - - - - - - - - - - - -
 
