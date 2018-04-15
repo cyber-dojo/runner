@@ -118,6 +118,10 @@ class Runner # stateless
     # TODO: install this shell script directly
     # inside the test-framework images (using image_builder)
     sh = <<-SHELL
+      # ensure there is no tar-list file at the start
+      # recursively find all files in avatars sandbox dir
+      # if the file is not a binary file
+      # append the filename to the tar-list
       rm -f ${TAR_LIST} | true
       find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
         for filename do
