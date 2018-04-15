@@ -21,7 +21,7 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '528',
-  %w( created binary files are not returned in json payload but created text files are ) do
+  %w( created text files are returned in json payload but created binary files are not ) do
     script = [
       'dd if=/dev/zero of=binary.dat bs=1c count=1',
       'file --mime-encoding binary.dat',
@@ -43,7 +43,7 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '529',
-  %w( created text files in sub-dirs are returned in json payload ) do
+  %w( text files created in sub-dirs are returned in json payload ) do
     script = [
       'mkdir sub',
       'echo "xxx" > sub/newfile.txt'
