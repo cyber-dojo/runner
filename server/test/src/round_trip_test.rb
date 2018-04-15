@@ -17,15 +17,18 @@ class RoundTripTest < TestBase
       assert_hash_equal(@previous_files, files)
     end
   end
+=end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '528',
-  %w( created text files are returned in json payload but created binary files are not ) do
+  test '528', %w(
+  created text files (including dot files) are returned
+  but created binary files are not ) do
     script = [
       'dd if=/dev/zero of=binary.dat bs=1c count=1',
       'file --mime-encoding binary.dat',
       'echo "xxx" > newfile.txt',
+      'echo "yyy" > .dotfile'
     ].join(';')
 
     all_OSes.each do |os|
@@ -35,7 +38,8 @@ class RoundTripTest < TestBase
       assert stdout.include?('binary.dat: binary') # file --mime-encoding
       expected = starting_files
       expected['cyber-dojo.sh'] = script
-      expected['newfile.txt'] = "xxx\n"
+      expected['newfile.txt'] = 'xxx' + "\n"
+      expected['.dotfile'] = 'yyy' + "\n"
       assert_hash_equal(expected, files)
     end
   end
