@@ -75,13 +75,13 @@ class Runner # stateless
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
         inject_tar_script
-        run_timeout(tar_pipe_from(tmp_dir), max_seconds)
+        run_timeout(tar_pipe_into_container(tmp_dir), max_seconds)
         if @timed_out
           @colour = 'timed_out'
           @files = {}
         else
           @colour = red_amber_green
-          @files = tar_pipe_to(tmp_dir)
+          @files = tar_pipe_out_of_container(tmp_dir)
         end
       }
     end
@@ -141,7 +141,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_to(tmp_dir)
+  def tar_pipe_out_of_container(tmp_dir)
     # Passes the tar-list filename as an environment
     # variable because using bash -c means you
     # cannot pass it as an argument.
@@ -186,7 +186,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_from(tmp_dir)
+  def tar_pipe_into_container(tmp_dir)
     # In a stateless runner _all_ files are sent from the
     # browser, and cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
