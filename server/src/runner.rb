@@ -168,7 +168,7 @@ class Runner # stateless
       # to fail so cannot shell.assert() here.
       _stdout,_stderr,status = shell.exec(docker_tar_pipe)
       if status == 0
-        read_from(tmp_dir)
+        read_from(tmp_dir + sandbox_dir)
       else
         {}
       end
@@ -179,7 +179,6 @@ class Runner # stateless
 
   def read_from(tmp_dir)
     files = {}
-    tmp_dir += sandbox_dir
     Find.find(tmp_dir) do |pathed_filename|
       unless File.directory?(pathed_filename)
         content = File.read(pathed_filename)
