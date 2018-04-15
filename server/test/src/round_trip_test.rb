@@ -77,6 +77,31 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '531',
+  %w( a crippled container, eg from a fork-bomb, returns no files ) do
+    [ :Alpine, :Ubuntu, :Debian ].each do |os|
+      @os = os
+      in_kata_as('salmon') {
+        run_cyber_dojo_sh({
+          changed_files: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
+            max_seconds: 3
+        })
+      }
+      assert_equal({}, files)
+    end
+  end
+
+  SHELL_FORK_BOMB = <<~CODE
+    bomb()
+    {
+      echo "bomb"
+      bomb | bomb &
+    }
+    bomb
+  CODE
+
+  # - - - - - - - - - - - - - - - - -
+
   def assert_hash_equal(expected, actual)
     assert_equal expected.keys.sort, actual.keys.sort
     expected.keys.each do |key|
