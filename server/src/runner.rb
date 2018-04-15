@@ -81,8 +81,7 @@ class Runner # stateless
           @files = {}
         else
           @colour = red_amber_green
-          tar_pipe_to(tmp_dir)
-          @files = read_from(tmp_dir)
+          @files = tar_pipe_to(tmp_dir)
         end
       }
     end
@@ -115,21 +114,6 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_from(tmp_dir)
-    files = {}
-    tmp_dir += sandbox_dir
-    Find.find(tmp_dir) do |pathed_filename|
-      unless File.directory?(pathed_filename)
-        content = File.read(pathed_filename)
-        filename = pathed_filename[tmp_dir.size+1..-1]
-        files[filename] = truncated(cleaned(content))
-      end
-    end
-    files
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def inject_tar_script
     # TODO: install this shell script directly
     # inside the test-framework images (using image_builder)
@@ -158,22 +142,47 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_to(tmp_dir)
-    # You cannot pass the tar-list filename as an argument
-    # to create_tar_list.sh because of the bash -c
+    # Passes the tar-list filename as an environment
+    # variable because using bash -c means you
+    # cannot pass it as an argument.
     tar_list = '/tmp/tar.list'
     docker_tar_pipe = <<~SHELL.strip
-      docker exec                             \
+      docker exec --user=root                 \
         --env TAR_LIST=#{tar_list}            \
         #{container_name}                     \
         bash -c                               \
           '                                   \
           /usr/local/bin/create_tar_list.sh   \
           &&                                  \
-          tar -zcf - -T #{tar_list}            \
+          tar -zcf - -T #{tar_list}           \
           '                                   \
             | tar -zxf - -C #{tmp_dir}
     SHELL
-    shell.assert(docker_tar_pipe)
+    # A crippled container (eg fork-bomb) will
+    # likely not be running causing the [docker exec]
+    # inside tar_pipe_to() to fail so cannot
+    # shell.assert() here.
+    _stdout,_stderr,status = shell.exec(docker_tar_pipe)
+    if status == 0
+      read_from(tmp_dir)
+    else
+      {}
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def read_from(tmp_dir)
+    files = {}
+    tmp_dir += sandbox_dir
+    Find.find(tmp_dir) do |pathed_filename|
+      unless File.directory?(pathed_filename)
+        content = File.read(pathed_filename)
+        filename = pathed_filename[tmp_dir.size+1..-1]
+        files[filename] = truncated(cleaned(content))
+      end
+    end
+    files
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
