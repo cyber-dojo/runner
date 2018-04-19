@@ -220,6 +220,8 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out_of_container
+    # The create_text_file_tar_list.sh file is injected
+    # into container by image_builder.
     # Passes the tar-list filename as an environment
     # variable because using bash -c means you
     # cannot pass it as an argument.
