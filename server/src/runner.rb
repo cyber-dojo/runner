@@ -74,13 +74,13 @@ class Runner # stateless
     Dir.mktmpdir do |tmp_dir|
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
-        run_timeout(tar_pipe_into_container(tmp_dir), max_seconds)
+        run_timeout(tar_pipe_in(tmp_dir), max_seconds)
         if @timed_out
           @colour = 'timed_out'
           @files = {}
         else
           @colour = red_amber_green
-          @files = tar_pipe_out_of_container
+          @files = tar_pipe_out
         end
       }
     end
@@ -167,7 +167,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_into_container(tmp_dir)
+  def tar_pipe_in(tmp_dir)
     # In a stateless runner _all_ files are sent from the
     # browser, and cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
@@ -219,7 +219,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_out_of_container
+  def tar_pipe_out
     # The create_text_file_tar_list.sh file is injected
     # into container by image_builder.
     # Passes the tar-list filename as an environment
