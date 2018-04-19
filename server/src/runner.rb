@@ -74,7 +74,6 @@ class Runner # stateless
     Dir.mktmpdir do |tmp_dir|
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
-        inject_tar_script
         run_timeout(tar_pipe_into_container(tmp_dir), max_seconds)
         if @timed_out
           @colour = 'timed_out'
@@ -114,79 +113,56 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def inject_tar_script
-    # TODO: install this shell script directly
-    # inside the test-framework images (using image_builder)
-    sh = <<-SHELL
-      # o) ensure there is no tar-list file at the start
-      # o) for all files in avatars sandbox dir (recursively)
-      #    if the file is not a binary file
-      #    then append the filename to the tar-list
-      rm -f ${TAR_LIST} | true
-      find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
-        for filename do
-          if file --mime-encoding ${filename} | grep -qv "${filename}:\sbinary"; then
-            echo ${filename} >> ${TAR_LIST}
-          fi
-        done' sh {} +
-    SHELL
-
-    Dir.mktmpdir do |src_dir|
-      filename = 'create_tar_list.sh'
-      src_filename = "#{src_dir}/#{filename}"
-      File.write(src_filename, sh)
-      dst_filename = "/usr/local/bin/#{filename}"
-      copy_cmd = "(docker exec -i #{container_name} bash -c 'cat > #{dst_filename}') < #{src_filename}"
-      shell.assert(copy_cmd)
-      chmod = "chmod +x #{dst_filename}"
-      shell.assert("docker exec #{container_name} bash -c '#{chmod}'")
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def tar_pipe_out_of_container
-    # Passes the tar-list filename as an environment
-    # variable because using bash -c means you
-    # cannot pass it as an argument.
-    Dir.mktmpdir do |tmp_dir|
-      tar_list = '/tmp/tar.list'
-      docker_tar_pipe = <<~SHELL.strip
-        docker exec --user=root                 \
-          --env TAR_LIST=#{tar_list}            \
-          #{container_name}                     \
-          bash -c                               \
-            '                                   \
-            /usr/local/bin/create_tar_list.sh   \
-            &&                                  \
-            tar -zcf - -T #{tar_list}           \
-            '                                   \
-              | tar -zxf - -C #{tmp_dir}
-      SHELL
-      # A crippled container (eg fork-bomb) will
-      # likely not be running causing the [docker exec]
-      # to fail so cannot shell.assert() here.
-      _stdout,_stderr,status = shell.exec(docker_tar_pipe)
-      if status == 0
-        read_from(tmp_dir + sandbox_dir)
-      else
-        {}
-      end
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def read_from(tmp_dir)
+    # eg tmp_dir = /tmp/.../sandboxes/bee
     files = {}
     Find.find(tmp_dir) do |pathed_filename|
+      # eg pathed_filename = '/tmp/.../sandboxes/bee/features/shouty.feature
       unless File.directory?(pathed_filename)
         content = File.read(pathed_filename)
         filename = pathed_filename[tmp_dir.size+1..-1]
-        files[filename] = truncated(cleaned(content))
+        # eg filename = features/shouty.feature
+        files[filename] = sanitized(content)
       end
     end
     files
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def run_timeout(cmd, max_seconds)
+    # The [docker exec] running on the _host_ is
+    # killed by Process.kill. This does _not_ kill
+    # the cyber-dojo.sh running _inside_ the docker
+    # container. The container is killed in the ensure
+    # block of in_container()
+    # See https://github.com/docker/docker/issues/9098
+    r_stdout, w_stdout = IO.pipe
+    r_stderr, w_stderr = IO.pipe
+    pid = Process.spawn(cmd, {
+      pgroup:true,     # become process leader
+         out:w_stdout, # redirection
+         err:w_stderr  # redirection
+    })
+    begin
+      Timeout::timeout(max_seconds) do
+        _, ps = Process.waitpid2(pid)
+        @status = ps.exitstatus
+        @timed_out = (@status == 137)
+      end
+    rescue Timeout::Error
+      Process.kill(-9, pid) # -ve means kill process-group
+      Process.detach(pid)   # prevent zombie-child
+      @status = 137         # don't wait for status from detach
+      @timed_out = true
+    ensure
+      w_stdout.close unless w_stdout.closed?
+      w_stderr.close unless w_stderr.closed?
+      @stdout = sanitized(r_stdout.read)
+      @stderr = sanitized(r_stderr.read)
+      r_stdout.close
+      r_stderr.close
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -243,39 +219,40 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_timeout(cmd, max_seconds)
-    # The [docker exec] running on the _host_ is
-    # killed by Process.kill. This does _not_ kill
-    # the cyber-dojo.sh running _inside_ the docker
-    # container. The container is killed in the ensure
-    # block of in_container()
-    # See https://github.com/docker/docker/issues/9098
-    r_stdout, w_stdout = IO.pipe
-    r_stderr, w_stderr = IO.pipe
-    pid = Process.spawn(cmd, {
-      pgroup:true,     # become process leader
-         out:w_stdout, # redirection
-         err:w_stderr  # redirection
-    })
-    begin
-      Timeout::timeout(max_seconds) do
-        _, ps = Process.waitpid2(pid)
-        @status = ps.exitstatus
-        @timed_out = (@status == 137)
+  def tar_pipe_out_of_container
+    # Passes the tar-list filename as an environment
+    # variable because using bash -c means you
+    # cannot pass it as an argument.
+    Dir.mktmpdir do |tmp_dir|
+      tar_list = '/tmp/tar.list'
+      docker_tar_pipe = <<~SHELL.strip
+        docker exec --user=root                           \
+          --env TAR_LIST=#{tar_list}                      \
+          #{container_name}                               \
+          bash -c                                         \
+            '                                             \
+            /usr/local/bin/create_text_file_tar_list.sh   \
+            &&                                            \
+            tar -zcf - -T #{tar_list}                     \
+            '                                             \
+              | tar -zxf - -C #{tmp_dir}
+      SHELL
+      # A crippled container (eg fork-bomb) will
+      # likely not be running causing the [docker exec]
+      # to fail so you cannot use shell.assert() here.
+      _stdout,_stderr,status = shell.exec(docker_tar_pipe)
+      if status == 0
+        read_from(tmp_dir + sandbox_dir)
+      else
+        {}
       end
-    rescue Timeout::Error
-      Process.kill(-9, pid) # -ve means kill process-group
-      Process.detach(pid)   # prevent zombie-child
-      @status = 137         # don't wait for status from detach
-      @timed_out = true
-    ensure
-      w_stdout.close unless w_stdout.closed?
-      w_stderr.close unless w_stderr.closed?
-      @stdout = truncated(cleaned(r_stdout.read))
-      @stderr = truncated(cleaned(r_stderr.read))
-      r_stdout.close
-      r_stderr.close
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def sanitized(string)
+    truncated(cleaned(string))
   end
 
   include StringCleaner
@@ -461,10 +438,11 @@ class Runner # stateless
 end
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-# The implementation to run cyber-dojo.sh is
-#   o) create copies of all files off /tmp
+# The implementation of run cyber-dojo.sh is
+#   o) create copies of all files in /tmp on host
 #   o) one tar-pipe copies /tmp files into the container
 #   o) run cyber-dojo.sh inside the container
+#   0) ...
 #
 # An alternative implementation is
 #   o) don't create copies of files off /tmp
