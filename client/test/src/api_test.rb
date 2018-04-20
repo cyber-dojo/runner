@@ -88,8 +88,7 @@ class ApiTest < TestBase
   # invalid arguments
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  METHOD_NAMES = [ :image_pulled?, :image_pull,
-                   :kata_new, :kata_old,
+  METHOD_NAMES = [ :kata_new, :kata_old,
                    :avatar_new, :avatar_old,
                    :run_cyber_dojo_sh ]
 

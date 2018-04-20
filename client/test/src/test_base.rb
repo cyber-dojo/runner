@@ -20,16 +20,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_pulled?(named_args = {})
-    runner.image_pulled? *common_args(named_args)
-  end
-
-  def image_pull(named_args = {})
-    runner.image_pull *common_args(named_args)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def kata_new(named_args = {})
     runner.kata_new *common_args(named_args)
   end
