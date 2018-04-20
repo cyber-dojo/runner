@@ -15,9 +15,9 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # for API compatibility
 
   def kata_new(image_name, _kata_id)
-    @rags[image_name] ||= rag_lambda_for(image_name)
     nil
   end
 
@@ -26,6 +26,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # for API compatibility
 
   def avatar_new(_image_name, _kata_id, _avatar_name, _starting_files)
     nil
@@ -71,7 +72,7 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :kata_id, :avatar_name, :image_name
+  attr_reader :image_name, :kata_id, :avatar_name
   attr_reader :disk, :shell
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -236,18 +237,10 @@ class Runner # stateless
   # red-amber-green colour of stdout,stderr,status
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def rag_lambda_for(image_name)
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    docker_cmd = "docker run --rm #{image_name} bash -c '#{cmd}'"
-    rag_lambda = shell.assert(docker_cmd)
-    eval(rag_lambda)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def red_amber_green
     # @stdout and @stderr have been truncated and cleaned.
     begin
+      @rags[image_name] ||= rag_lambda_for(image_name)
       colour = @rags[image_name].call(@stdout, @stderr, @status)
       unless [:red,:amber,:green].include?(colour)
         colour = :amber
@@ -256,6 +249,15 @@ class Runner # stateless
     rescue
      'amber'
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def rag_lambda_for(image_name)
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    docker_cmd = "docker run --rm #{image_name} bash -c '#{cmd}'"
+    rag_lambda = shell.assert(docker_cmd)
+    eval(rag_lambda)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

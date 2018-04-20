@@ -148,8 +148,6 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB9', '[C,assert] run_cyber_dojo_sh' do
-    rack_call('kata_new', { image_name:image_name, kata_id:kata_id }.to_json)
-
     path_info = 'run_cyber_dojo_sh'
     args = {
       image_name:image_name,
@@ -204,16 +202,6 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-
-=begin
-  def assert_rack_call(path_info, args, expected)
-    unless args.nil?
-      args['image_name'] ||= image_name
-      args['kata_id'] ||= kata_id
-    end
-    assert_rack_call_raw(path_info, args.to_json, expected)
-  end
-=end
 
   def assert_rack_call_raw(path_info, args, expected)
     tuple = rack_call(path_info, args)
@@ -289,40 +277,3 @@ class RackDispatcherTest < TestBase
   end
 
 end
-
-
-=begin
-  test 'AB5', 'kata_new' do
-    expected = { 'exception' => 'image_name:malformed' }
-    assert_rack_call_raw('kata_new', {}.to_json, expected)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB6', 'kata_old' do
-    assert_rack_call('kata_old', {}, { kata_old:nil })
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB7', 'avatar_new' do
-    assert_rack_call('avatar_new', {
-        avatar_name:'salmon',
-        starting_files:starting_files
-      }, {
-        avatar_new:nil
-      }
-    )
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB8', 'avatar_old' do
-    assert_rack_call('avatar_old', {
-        avatar_name:'salmon'
-      }, {
-        avatar_old:nil
-      }
-    )
-  end
-=end
