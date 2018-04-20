@@ -2,7 +2,7 @@ module ImageNames # mix-in
 
   module_function
 
-  def valid_image_names
+  def well_formed_image_names
     [ "gcc_assert:#{'x'*127}" ] +
     %w(
       cdf/gcc_assert
@@ -58,7 +58,7 @@ module ImageNames # mix-in
     )
   end
 
-  def invalid_image_names
+  def malformed_image_names
     hex = '9'*32
     [
       nil,

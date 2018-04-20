@@ -12,34 +12,32 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB0',
-  %w( invalid json in http payload becomes exception ) do
-    assert_rack_call_raw('kata_new', 'sdfsdf', { exception:'json:invalid' })
-    assert_rack_call_raw('kata_new', 'nil',    { exception:'json:invalid' })
-
+  %w( malformed json in http payload becomes exception ) do
+    assert_rack_call_raw('kata_new', 'sdfsdf', { exception:'json:malformed' })
+    assert_rack_call_raw('kata_new', 'nil',    { exception:'json:malformed' })
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'BB1',
   %w( non-hash in http payload becomes exception ) do
-    assert_rack_call_raw('kata_new', 'null',   { exception:'json:!Hash' })
-    assert_rack_call_raw('kata_new', '[]',     { exception:'json:!Hash' })
-    assert_rack_call(nil           , nil,      { exception:'json:!Hash' })
-    assert_rack_call('image_pulled', nil,      { exception:'json:!Hash' })
-    assert_rack_call('image_pull'  , nil,      { exception:'json:!Hash' })
-
+    assert_rack_call_raw('kata_new', 'null',   { exception:'json:malformed' })
+    assert_rack_call_raw('kata_new', '[]',     { exception:'json:malformed' })
+    assert_rack_call(nil           , nil,      { exception:'json:malformed' })
+    assert_rack_call('image_pulled', nil,      { exception:'json:malformed' })
+    assert_rack_call('image_pull'  , nil,      { exception:'json:malformed' })
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'BB2',
-  %w( invalid image_name becomes exception ) do
-    invalid_image_names.each do |invalid|
+  %w( malformed image_name becomes exception ) do
+    malformed_image_names.each do |malformed|
       assert_rack_call_raw('kata_new', {
-          image_name:invalid,
+          image_name:malformed,
           kata_id:kata_id
         }.to_json, {
-          exception:'image_name:invalid'
+          exception:'image_name:malformed'
         }
       )
     end
@@ -48,13 +46,13 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB3',
-  %w( invalid kata_id becomes exception ) do
-    invalid_kata_ids.each do |invalid|
+  %w( malformed kata_id becomes exception ) do
+    malformed_kata_ids.each do |malformed|
       assert_rack_call_raw('kata_new', {
           image_name:image_name,
-          kata_id:invalid
+          kata_id:malformed
         }.to_json, {
-          exception:'kata_id:invalid'
+          exception:'kata_id:malformed'
         }
       )
     end
@@ -63,15 +61,15 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB4',
-  %w( invalid starting_files becomes exception ) do
-    invalid_files.each do |invalid|
+  %w( malformed starting_files becomes exception ) do
+    malformed_files.each do |malformed|
       assert_rack_call_raw('avatar_new', {
           image_name:image_name,
           kata_id:kata_id,
           avatar_name:'salmon',
-          starting_files:invalid
+          starting_files:malformed
         }.to_json, {
-          exception:'starting_files:invalid'
+          exception:'starting_files:malformed'
         }
       )
     end
@@ -80,14 +78,14 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB5',
-  %w( invalid avatar_name becomes exception ) do
-    invalid_avatar_names.each do |invalid|
+  %w( malformed avatar_name becomes exception ) do
+    malformed_avatar_names.each do |malformed|
       assert_rack_call_raw('avatar_old', {
           image_name:image_name,
           kata_id:kata_id,
-          avatar_name:invalid
+          avatar_name:malformed
         }.to_json, {
-          exception:'avatar_name:invalid'
+          exception:'avatar_name:malformed'
         }
       )
     end
@@ -96,28 +94,28 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB7',
-  %w( invalid max_seconds becomes exception ) do
-    invalid_max_seconds.each do |invalid|
-      assert_rack_call_run_invalid({max_seconds:invalid})
+  %w( malformed max_seconds becomes exception ) do
+    malformed_max_seconds.each do |malformed|
+      assert_rack_call_run_malformed({max_seconds:malformed})
     end
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'BB8',
-  %w( invalid files becomes exception ) do
-    invalid_files.each do |invalid|
-      assert_rack_call_run_invalid({new_files:invalid})
-      assert_rack_call_run_invalid({deleted_files:invalid})
-      assert_rack_call_run_invalid({unchanged_files:invalid})
-      assert_rack_call_run_invalid({changed_files:invalid})
+  %w( malformed files becomes exception ) do
+    malformed_files.each do |malformed|
+      assert_rack_call_run_malformed({new_files:malformed})
+      assert_rack_call_run_malformed({deleted_files:malformed})
+      assert_rack_call_run_malformed({unchanged_files:malformed})
+      assert_rack_call_run_malformed({changed_files:malformed})
     end
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_rack_call_run_invalid(added)
-    expected = { 'exception' => "#{added.keys[0]}:invalid" }
+  def assert_rack_call_run_malformed(added)
+    expected = { 'exception' => "#{added.keys[0]}:malformed" }
     assert_rack_call_raw('run_cyber_dojo_sh', {
       image_name:image_name,
       kata_id:kata_id,
@@ -249,7 +247,7 @@ class RackDispatcherTest < TestBase
 
   include ImageNames
 
-  def invalid_kata_ids
+  def malformed_kata_ids
     [
       nil,          # not String
       Object.new,   # not String
@@ -263,7 +261,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def invalid_avatar_names
+  def malformed_avatar_names
     [
       nil,          # not String
       Object.new,   # not String
@@ -276,7 +274,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def invalid_files
+  def malformed_files
     [
       nil,           # not Hash
       Object.new,    # not Hash
@@ -289,7 +287,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def invalid_max_seconds
+  def malformed_max_seconds
     [
       nil,         # not Integer
       Object.new,  # not Integer

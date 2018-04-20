@@ -9,10 +9,10 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '4CC',
-  %w( invalid avatar_name raises ) do
+  %w( malformed avatar_name raises ) do
     in_kata_as('salmon') {
       run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
-      assert_equal({ 'exception' => 'avatar_name:invalid' }, @json)
+      assert_equal({ 'exception' => 'avatar_name:malformed' }, @json)
     }
   end
 
