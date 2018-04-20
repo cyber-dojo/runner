@@ -1,5 +1,6 @@
 require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
+require_relative '../../src/runner'
 require_relative 'image_names'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
@@ -12,21 +13,36 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB0',
-  %w( malformed json in http payload becomes exception ) do
-    assert_rack_call_raw('kata_new', 'sdfsdf', { exception:'json:malformed' })
-    assert_rack_call_raw('kata_new', 'nil',    { exception:'json:malformed' })
+  test 'BAF',
+  %w( unknown method becomes exception ) do
+    assert_rack_call_raw(nil,       '{}', { exception:'json:malformed' })
+    assert_rack_call_raw([],        '{}', { exception:'json:malformed' })
+    assert_rack_call_raw({},        '{}', { exception:'json:malformed' })
+    assert_rack_call_raw(true,      '{}', { exception:'json:malformed' })
+    assert_rack_call_raw(42,        '{}', { exception:'json:malformed' })
+    assert_rack_call_raw('unknown', '{}', { exception:'json:malformed' })
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB1',
-  %w( non-hash in http payload becomes exception ) do
-    assert_rack_call_raw('kata_new', 'null',   { exception:'json:malformed' })
-    assert_rack_call_raw('kata_new', '[]',     { exception:'json:malformed' })
-    assert_rack_call(nil           , nil,      { exception:'json:malformed' })
-    assert_rack_call('image_pulled', nil,      { exception:'json:malformed' })
-    assert_rack_call('image_pull'  , nil,      { exception:'json:malformed' })
+  METHOD_NAMES = %w(
+    kata_new Kata_old
+    avatar_new avatar_old
+    run_cyber_dojo_sh
+  )
+
+  test 'BB0',
+  %w( malformed json in http payload becomes exception ) do
+    METHOD_NAMES.each do |method_name|
+      assert_rack_call_raw(method_name, 'sdfsdf', { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, 'nil',    { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, 'null',   { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, nil,      { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, [],       { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, {},       { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, true,     { exception:'json:malformed' })
+      assert_rack_call_raw(method_name, 42,       { exception:'json:malformed' })
+    end
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -130,44 +146,10 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB5', 'kata_new' do
-    assert_rack_call('kata_new', {}, { kata_new:nil })
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB6', 'kata_old' do
-    assert_rack_call('kata_old', {}, { kata_old:nil })
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB7', 'avatar_new' do
-    assert_rack_call('avatar_new', {
-        avatar_name:'salmon',
-        starting_files:starting_files
-      }, {
-        avatar_new:nil
-      }
-    )
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB8', 'avatar_old' do
-    assert_rack_call('avatar_old', {
-        avatar_name:'salmon'
-      }, {
-        avatar_old:nil
-      }
-    )
-  end
-
-  # - - - - - - - - - - - - - - - - -
 
   test 'AB9', '[C,assert] run_cyber_dojo_sh' do
+    rack_call('kata_new', { image_name:image_name, kata_id:kata_id }.to_json)
+
     path_info = 'run_cyber_dojo_sh'
     args = {
       image_name:image_name,
@@ -223,6 +205,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+=begin
   def assert_rack_call(path_info, args, expected)
     unless args.nil?
       args['image_name'] ||= image_name
@@ -230,6 +213,7 @@ class RackDispatcherTest < TestBase
     end
     assert_rack_call_raw(path_info, args.to_json, expected)
   end
+=end
 
   def assert_rack_call_raw(path_info, args, expected)
     tuple = rack_call(path_info, args)
@@ -239,8 +223,9 @@ class RackDispatcherTest < TestBase
   end
 
   def rack_call(path_info, args)
-    external = External.new
-    rack = RackDispatcher.new(external, RackRequestStub)
+    @external ||= External.new
+    @runner ||= Runner.new(@external)
+    rack = RackDispatcher.new(@runner, RackRequestStub)
     env = { body:args, path_info:path_info }
     rack.call(env)
   end
@@ -304,3 +289,40 @@ class RackDispatcherTest < TestBase
   end
 
 end
+
+
+=begin
+  test 'AB5', 'kata_new' do
+    expected = { 'exception' => 'image_name:malformed' }
+    assert_rack_call_raw('kata_new', {}.to_json, expected)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB6', 'kata_old' do
+    assert_rack_call('kata_old', {}, { kata_old:nil })
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB7', 'avatar_new' do
+    assert_rack_call('avatar_new', {
+        avatar_name:'salmon',
+        starting_files:starting_files
+      }, {
+        avatar_new:nil
+      }
+    )
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB8', 'avatar_old' do
+    assert_rack_call('avatar_old', {
+        avatar_name:'salmon'
+      }, {
+        avatar_old:nil
+      }
+    )
+  end
+=end

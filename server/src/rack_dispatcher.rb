@@ -1,21 +1,17 @@
-require_relative 'runner'
 require_relative 'well_formed_args'
 require 'rack'
 
 class RackDispatcher # stateless
 
-  def initialize(external, request = Rack::Request)
+  def initialize(runner, request = Rack::Request)
+    @runner = runner
     @request = request
-    @external = external
   end
-
-  attr_reader :external
 
   def call(env)
     request = @request.new(env)
     name, args = name_args(request)
-    runner = Runner.new(external)
-    triple({ name => runner.public_send(name, *args) })
+    triple({ name => @runner.public_send(name, *args) })
   rescue => error
     #puts error.backtrace
     triple({ 'exception' => error.message })
@@ -35,6 +31,8 @@ class RackDispatcher # stateless
         [image_name, kata_id, avatar_name,
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
+      else
+        raise ArgumentError, 'json:malformed'
     end
     [name, args]
   end

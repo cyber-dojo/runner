@@ -8,14 +8,16 @@ require 'find'
 class Runner # stateless
 
   def initialize(external)
+    @external = external
     @disk = external.disk
     @shell = Shell.new(external)
+    @rags = {}
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # for API compatibility
 
-  def kata_new(_image_name, _kata_id)
+  def kata_new(image_name, _kata_id)
+    @rags[image_name] ||= rag_lambda_for(image_name)
     nil
   end
 
@@ -24,7 +26,6 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # for API compatibility
 
   def avatar_new(_image_name, _kata_id, _avatar_name, _starting_files)
     nil
@@ -71,8 +72,11 @@ class Runner # stateless
   private # = = = = = = = = = = = = = = = = = =
 
   attr_reader :kata_id, :avatar_name, :image_name
-
   attr_reader :disk, :shell
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # read/write to /tmp on host
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def save_to(files, tmp_dir)
     files.each do |pathed_filename, content|
@@ -140,6 +144,8 @@ class Runner # stateless
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # tar-piping in/out of the container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
@@ -227,25 +233,22 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # red-amber-green colour of stdout,stderr,status
+  # - - - - - - - - - - - - - - - - - - - - - -
 
-  def sanitized(string)
-    truncated(cleaned(string))
+  def rag_lambda_for(image_name)
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    docker_cmd = "docker run --rm #{image_name} bash -c '#{cmd}'"
+    rag_lambda = shell.assert(docker_cmd)
+    eval(rag_lambda)
   end
-
-  include StringCleaner
-  include StringTruncater
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green
     # @stdout and @stderr have been truncated and cleaned.
     begin
-      # In a crippled container (eg fork-bomb)
-      # the [docker exec] will mostly likely raise.
-      cmd = 'cat /usr/local/bin/red_amber_green.rb'
-      rag_lambda = shell.assert(docker_exec(cmd))
-      rag = eval(rag_lambda)
-      colour = rag.call(@stdout, @stderr, @status)
+      colour = @rags[image_name].call(@stdout, @stderr, @status)
       unless [:red,:amber,:green].include?(colour)
         colour = :amber
       end
@@ -253,13 +256,6 @@ class Runner # stateless
     rescue
      'amber'
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def docker_exec(cmd)
-    # This is _not_ the main docker-exec running cyber-dojo.sh
-    "docker exec --user=root #{container_name} sh -c '#{cmd}'"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -405,6 +401,17 @@ class Runner # stateless
   end
 
   include AllAvatarsNames
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # helpers
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def sanitized(string)
+    truncated(cleaned(string))
+  end
+
+  include StringCleaner
+  include StringTruncater
 
   # - - - - - - - - - - - - - - - - - -
 

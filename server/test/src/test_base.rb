@@ -7,12 +7,16 @@ require 'json'
 
 class TestBase < HexMiniTest
 
-  def rack
-    @rack ||= RackDispatcher.new(external, RackRequestStub)
-  end
-
   def external
     @external ||= External.new
+  end
+
+  def runner
+    @runner ||= Runner.new(external)
+  end
+
+  def rack
+    @rack ||= RackDispatcher.new(runner, RackRequestStub)
   end
 
   def bash
