@@ -18,7 +18,7 @@ API:
 - - - -
 
 # POST kata_new
-A no-op, but arguments must be valid.
+A no-op, but arguments must be well-formed.
 Provided for API compatibility with other runners.
 - parameters, eg
 ```
@@ -28,7 +28,7 @@ Provided for API compatibility with other runners.
 ```
 
 # POST kata_old
-A no-op, but arguments must be valid.
+A no-op, but arguments must be well-formed.
 Provided for API compatibility with other runners.
 - parameters, eg
 ```
@@ -40,7 +40,7 @@ Provided for API compatibility with other runners.
 - - - -
 
 # POST avatar_new
-A no-op, but arguments must be valid.
+A no-op, but arguments must be well-formed.
 Provided for API compatibility with other runners.
 - parameters, eg
 ```
@@ -55,7 +55,7 @@ Provided for API compatibility with other runners.
 ```
 
 # POST avatar_old
-A no-op, but arguments must be valid.
+A no-op, but arguments must be well-formed.
 Provided for API compatibility with other runners.
 - parameters, eg
 ```
@@ -68,7 +68,7 @@ Provided for API compatibility with other runners.
 - - - -
 
 # POST run_cyber_dojo_sh
-Saves the unchanged files, saves the changed_files, saves the new files, and runs
+Saves the unchanged files, the changed_files, and the new files, and runs
 cyber-dojo.sh as the avatar with the given avatar_name.
 - parameters, eg
 ```
