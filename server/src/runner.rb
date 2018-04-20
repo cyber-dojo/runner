@@ -7,42 +7,42 @@ require 'find'
 
 class Runner # stateless
 
-  def initialize(external, image_name, kata_id)
+  def initialize(external)
     @disk = external.disk
     @shell = Shell.new(external)
-    @image_name = image_name
-    @kata_id = kata_id
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
-  def kata_new
+  def kata_new(_image_name, _kata_id)
     nil
   end
 
-  def kata_old
+  def kata_old(_image_name, _kata_id)
     nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
-  def avatar_new(_avatar_name, _starting_files)
+  def avatar_new(_image_name, _kata_id, _avatar_name, _starting_files)
     nil
   end
 
-  def avatar_old(_avatar_name)
+  def avatar_old(_image_name, _kata_id, _avatar_name)
     nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(
-    avatar_name,
+    image_name, kata_id, avatar_name,
     new_files, deleted_files, unchanged_files, changed_files,
     max_seconds
   )
+    @image_name = image_name
+    @kata_id = kata_id
     @avatar_name = avatar_name
     deleted_files = nil # we're stateless
     all_files = [*new_files, *unchanged_files, *changed_files].to_h

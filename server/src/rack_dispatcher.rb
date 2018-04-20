@@ -18,7 +18,7 @@ class RackDispatcher # stateless
   def call(env)
     request = @request.new(env)
     name, args = validated_name_args(request)
-    runner = Runner.new(external, image_name, kata_id)
+    runner = Runner.new(external)
     triple({ name => runner.public_send(name, *args) })
   rescue => error
     triple({ 'exception' => error.message })
@@ -34,11 +34,11 @@ class RackDispatcher # stateless
     end
     args = case name
       when /^kata_new$/,
-           /^kata_old$/     then []
-      when /^avatar_new$/   then [avatar_name, starting_files]
-      when /^avatar_old$/   then [avatar_name]
+           /^kata_old$/     then [image_name, kata_id]
+      when /^avatar_new$/   then [image_name, kata_id, avatar_name, starting_files]
+      when /^avatar_old$/   then [image_name, kata_id, avatar_name]
       when /^run_cyber_dojo_sh$/
-        [avatar_name,
+        [image_name, kata_id, avatar_name,
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
     end
