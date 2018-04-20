@@ -240,6 +240,8 @@ class Runner # stateless
   def red_amber_green
     # @stdout and @stderr have been truncated and cleaned.
     begin
+      # Caching the rag-lambdas typically saves
+      # about 0.15 seconds per [test] event.
       @rags[image_name] ||= rag_lambda_for(image_name)
       colour = @rags[image_name].call(@stdout, @stderr, @status)
       unless [:red,:amber,:green].include?(colour)
