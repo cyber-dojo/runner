@@ -1,17 +1,18 @@
 require_relative 'hex_mini_test'
 require_relative 'rack_request_stub'
 require_relative '../../src/all_avatars_names'
+require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
 require 'json'
 
 class TestBase < HexMiniTest
 
   def rack
-    @rack ||= RackDispatcher.new(RackRequestStub)
+    @rack ||= RackDispatcher.new(external, RackRequestStub)
   end
 
   def external
-    rack.external
+    @external ||= External.new
   end
 
   def bash

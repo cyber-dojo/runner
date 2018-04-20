@@ -1,3 +1,4 @@
+require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
 require_relative 'image_names'
 require_relative 'rack_request_stub'
@@ -238,7 +239,8 @@ class RackDispatcherTest < TestBase
   end
 
   def rack_call(path_info, args)
-    rack = RackDispatcher.new(RackRequestStub)
+    external = External.new
+    rack = RackDispatcher.new(external, RackRequestStub)
     env = { body:args, path_info:path_info }
     rack.call(env)
   end

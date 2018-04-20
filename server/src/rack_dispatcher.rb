@@ -1,13 +1,12 @@
-require_relative 'external'
 require_relative 'runner'
 require_relative 'well_formed_args'
 require 'rack'
 
 class RackDispatcher # stateless
 
-  def initialize(request = Rack::Request)
+  def initialize(external, request = Rack::Request)
     @request = request
-    @external = External.new
+    @external = external
   end
 
   attr_reader :external
