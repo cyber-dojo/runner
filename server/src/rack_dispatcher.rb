@@ -14,7 +14,7 @@ class RackDispatcher # stateless
 
   def call(env)
     request = @request.new(env)
-    name, args = validated_name_args(request)
+    name, args = name_args(request)
     runner = Runner.new(external)
     triple({ name => runner.public_send(name, *args) })
   rescue => error
@@ -24,7 +24,7 @@ class RackDispatcher # stateless
 
   private # = = = = = = = = = = = =
 
-  def validated_name_args(request)
+  def name_args(request)
     name = request.path_info[1..-1] # lose leading /
     @well_formed_args = WellFormedArgs.new(request.body.read)
     args = case name
@@ -54,9 +54,13 @@ class RackDispatcher # stateless
       end
   end
 
-  well_formed_args :image_name, :kata_id, :avatar_name
-  well_formed_args :starting_files
-  well_formed_args :new_files, :deleted_files, :unchanged_files, :changed_files
-  well_formed_args :max_seconds
-
+  well_formed_args :image_name,
+                   :kata_id,
+                   :avatar_name,
+                   :starting_files,
+                   :new_files,
+                   :deleted_files,
+                   :unchanged_files,
+                   :changed_files,
+                   :max_seconds
 end
