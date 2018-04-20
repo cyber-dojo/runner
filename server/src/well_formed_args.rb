@@ -52,48 +52,23 @@ class WellFormedArgs
   # - - - - - - - - - - - - - - - -
 
   def starting_files
-    name = __method__.to_s
-    arg = @args[name]
-    unless well_formed_files?(arg)
-      malformed(name)
-    end
-    arg
+    well_formed_files(__method__)
   end
 
   def new_files
-    name = __method__.to_s
-    arg = @args[name]
-    unless well_formed_files?(arg)
-      malformed(name)
-    end
-    arg
+    well_formed_files(__method__)
   end
 
   def deleted_files
-    name = __method__.to_s
-    arg = @args[name]
-    unless well_formed_files?(arg)
-      malformed(name)
-    end
-    arg
+    well_formed_files(__method__)
   end
 
   def unchanged_files
-    name = __method__.to_s
-    arg = @args[name]
-    unless well_formed_files?(arg)
-      malformed(name)
-    end
-    arg
+    well_formed_files(__method__)
   end
 
   def changed_files
-    name = __method__.to_s
-    arg = @args[name]
-    unless well_formed_files?(arg)
-      malformed(name)
-    end
-    arg
+    well_formed_files(__method__)
   end
 
   # - - - - - - - - - - - - - - - -
@@ -112,13 +87,17 @@ class WellFormedArgs
   include WellFormedImageName
   include WellFormedAvatarName
 
-  def well_formed_kata_id?(value)
-    Base58.string?(value) && value.size == 10
+  def well_formed_kata_id?(arg)
+    Base58.string?(arg) && arg.size == 10
   end
 
-  def well_formed_files?(arg)
-    arg.is_a?(Hash) &&
-      arg.all? { |k,v| k.is_a?(String) && v.is_a?(String) }
+  def well_formed_files(name)
+    name = name.to_s
+    arg = @args[name]
+    unless arg.is_a?(Hash) && arg.all? { |k,v| k.is_a?(String) && v.is_a?(String) }
+      malformed(name)
+    end
+    arg
   end
 
   def well_formed_max_seconds?(arg)
