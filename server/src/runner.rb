@@ -17,7 +17,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
-  def kata_new(image_name, _kata_id)
+  def kata_new(_image_name, _kata_id)
     nil
   end
 
