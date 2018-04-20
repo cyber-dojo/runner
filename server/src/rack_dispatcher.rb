@@ -20,8 +20,6 @@ class RackDispatcher # stateless
     name, args = validated_name_args(request)
     runner = Runner.new(external, image_name, kata_id)
     triple({ name => runner.public_send(name, *args) })
-  rescue ShellError => error
-    triple({ 'exception' => error.args })
   rescue => error
     triple({ 'exception' => error.message })
   end
@@ -35,9 +33,7 @@ class RackDispatcher # stateless
       raise 'json:!Hash'
     end
     args = case name
-      when /^image_pulled$/,
-           /^image_pull$/,
-           /^kata_new$/,
+      when /^kata_new$/,
            /^kata_old$/     then []
       when /^avatar_new$/   then [avatar_name, starting_files]
       when /^avatar_old$/   then [avatar_name]
@@ -46,7 +42,6 @@ class RackDispatcher # stateless
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
     end
-    name += '?' if query?(name)
     [name, args]
   end
 
@@ -56,12 +51,6 @@ class RackDispatcher # stateless
     JSON.parse(request)
   rescue
     raise 'json:invalid'
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def query?(name)
-    name == 'image_pulled'
   end
 
   # - - - - - - - - - - - - - - - -

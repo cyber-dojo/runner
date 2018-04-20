@@ -15,31 +15,6 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def image_pulled?
-    command = 'docker images --format "{{.Repository}}"'
-    shell.assert(command).split("\n").include?(image_name)
-  end
-
-  def image_pull
-     # [1] stderr varies depending on the host's Docker version
-    command = "docker pull #{image_name}"
-    stdout,stderr,status = shell.exec(command)
-    if status == shell.success
-      return true
-    elsif stderr.include?('not found') || stderr.include?('not exist')
-      return false # [1]
-    else
-      raise ShellError.new(stderr, {
-        command:command,
-         stdout:stdout,
-         stderr:stderr,
-         status:status
-      })
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
   def kata_new
