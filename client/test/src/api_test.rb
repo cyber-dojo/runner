@@ -92,51 +92,51 @@ class ApiTest < TestBase
                    :avatar_new, :avatar_old,
                    :run_cyber_dojo_sh ]
 
- INVALID_IMAGE_NAMES = [ nil, '_cantStartWithSeparator' ]
+  MALFORMED_IMAGE_NAMES = [ nil, '_cantStartWithSeparator' ]
 
   multi_os_test 'D21',
   'all api methods raise when image_name is invalid' do
     in_kata_as(salmon) do
       METHOD_NAMES.each do |method_name|
-        INVALID_IMAGE_NAMES.each do |image_name|
+        MALFORMED_IMAGE_NAMES.each do |image_name|
           error = assert_raises(StandardError, method_name.to_s) do
             self.send method_name, { image_name:image_name }
           end
-          expected = "RunnerService:#{method_name}:image_name:invalid"
+          expected = "RunnerService:#{method_name}:image_name:malformed"
           assert_equal expected, error.message
         end
       end
     end
   end
 
-  INVALID_KATA_IDS = [ nil, '675' ]
+  MALFORMED_KATA_IDS = [ nil, '675' ]
 
   multi_os_test '656',
   'all api methods raise when kata_id is invalid' do
     in_kata_as(salmon) do
       METHOD_NAMES.each do |method_name|
-        INVALID_KATA_IDS.each do |kata_id|
+        MALFORMED_KATA_IDS.each do |kata_id|
           error = assert_raises(StandardError, method_name.to_s) do
             self.send method_name, { kata_id:kata_id }
           end
-          expected = "RunnerService:#{method_name}:kata_id:invalid"
+          expected = "RunnerService:#{method_name}:kata_id:malformed"
           assert_equal expected, error.message
         end
       end
     end
   end
 
-  INVALID_AVATAR_NAMES = [ nil, 'sunglasses' ]
+  MALFORMED_AVATAR_NAMES = [ nil, 'sunglasses' ]
 
   multi_os_test 'C3A',
   'api methods raise when avatar_name is invalid' do
     in_kata_as(salmon) do
       [ :avatar_new, :avatar_old, :run_cyber_dojo_sh ].each do |method_name|
-        INVALID_AVATAR_NAMES.each do |avatar_name|
+        MALFORMED_AVATAR_NAMES.each do |avatar_name|
           error = assert_raises(StandardError, method_name.to_s) do
             self.send method_name, { avatar_name:avatar_name }
           end
-          expected = "RunnerService:#{method_name}:avatar_name:invalid"
+          expected = "RunnerService:#{method_name}:avatar_name:malformed"
           assert_equal expected, error.message
         end
       end
