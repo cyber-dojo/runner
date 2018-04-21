@@ -239,18 +239,16 @@ class Runner # stateless
 
   def red_amber_green
     # @stdout and @stderr have been truncated and cleaned.
-    begin
-      # Caching the rag-lambdas typically saves
-      # about 0.15 seconds per [test] event.
-      @rags[image_name] ||= rag_lambda_for(image_name)
-      colour = @rags[image_name].call(@stdout, @stderr, @status)
-      unless [:red,:amber,:green].include?(colour)
-        colour = :amber
-      end
-      colour.to_s
-    rescue
-     'amber'
+    # Caching the rag-lambdas typically saves
+    # about 0.15 seconds per [test] event.
+    @rags[image_name] ||= rag_lambda_for(image_name)
+    colour = @rags[image_name].call(@stdout, @stderr, @status)
+    unless [:red,:amber,:green].include?(colour)
+      colour = :amber
     end
+    colour.to_s
+  rescue
+    'amber'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -437,8 +435,8 @@ end
 #   o) N tar-pipes for N files, each copying directly into the container
 #   o) run cyber-dojo.sh inside the container
 #
-# If only one file has changed you might image this is quicker
-# but testing shows its actually a bit slower.
+# If only one file has changed you might imagine this is
+# quicker but testing shows its actually a bit slower.
 #
 # For interests sake here's how you tar pipe without the
 # intermediate /tmp files. I don't know how this would
