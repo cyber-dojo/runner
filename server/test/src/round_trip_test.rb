@@ -82,6 +82,8 @@ class RoundTripTest < TestBase
     end
   end
 
+  private # = = = = = = = = = = = = =
+
   SHELL_FORK_BOMB = <<~CODE
     bomb()
     {

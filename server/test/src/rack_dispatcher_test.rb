@@ -131,22 +131,6 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_rack_call_run_malformed(added)
-    expected = { 'exception' => "#{added.keys[0]}:malformed" }
-    assert_rack_call_raw('run_cyber_dojo_sh', {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:'salmon',
-      new_files:{},
-      deleted_files:{},
-      unchanged_files:{},
-      changed_files:{},
-      max_seconds:10
-    }.merge(added).to_json, expected)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   test 'AB9', '[C,assert] run_cyber_dojo_sh' do
     path_info = 'run_cyber_dojo_sh'
     args = {
@@ -185,20 +169,18 @@ class RackDispatcherTest < TestBase
 
   private # = = = = = = = = = = = = =
 
-  def gcc_assert_stdout
-    # gcc,Debian
-    "makefile:14: recipe for target 'test.output' failed\n"
-  end
-
-  def gcc_assert_stderr
-    # This depends partly on the host-OS. For example, when
-    # the host-OS is CoreLinux (in the boot2docker VM
-    # in DockerToolbox for Mac) then the output ends
-    # ...Aborted (core dumped).
-    # But if the host-OS is Debian/Ubuntu (eg on Travis)
-    # then the output does not say "(core dumped)"
-    "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
-    "make: *** [test.output] Aborted"
+  def assert_rack_call_run_malformed(added)
+    expected = { 'exception' => "#{added.keys[0]}:malformed" }
+    assert_rack_call_raw('run_cyber_dojo_sh', {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:'salmon',
+      new_files:{},
+      deleted_files:{},
+      unchanged_files:{},
+      changed_files:{},
+      max_seconds:10
+    }.merge(added).to_json, expected)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -212,8 +194,8 @@ class RackDispatcherTest < TestBase
 
   def rack_call(path_info, args)
     @external ||= External.new
-    @runner ||= Runner.new(@external)
-    rack = RackDispatcher.new(@runner, RackRequestStub)
+    runner = Runner.new(@external)
+    rack = RackDispatcher.new(runner, RackRequestStub)
     env = { body:args, path_info:path_info }
     rack.call(env)
   end
@@ -274,6 +256,24 @@ class RackDispatcherTest < TestBase
       0,           # not (1..20)
       21           # not (1..20)
     ]
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def gcc_assert_stdout
+    # gcc,Debian
+    "makefile:14: recipe for target 'test.output' failed\n"
+  end
+
+  def gcc_assert_stderr
+    # This depends partly on the host-OS. For example, when
+    # the host-OS is CoreLinux (in the boot2docker VM
+    # in DockerToolbox for Mac) then the output ends
+    # ...Aborted (core dumped).
+    # But if the host-OS is Debian/Ubuntu (eg on Travis)
+    # then the output does not say "(core dumped)"
+    "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
+    "make: *** [test.output] Aborted"
   end
 
 end

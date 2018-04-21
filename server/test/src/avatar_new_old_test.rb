@@ -19,7 +19,7 @@ class AvatarNewOldTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '752', %w( avatar_new is idempotent only if runner is stateless ) do
+  test '752', %w( avatar_new is idempotent when runner is stateless ) do
     # :nocov:
     if stateless?
       in_kata_as('squid') {
@@ -36,7 +36,7 @@ class AvatarNewOldTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '753', %w( avatar_old is idempotent only if runner is stateless ) do
+  test '753', %w( avatar_old is idempotent when runner is stateless ) do
     # :nocov:
     if stateless?
       in_kata {
