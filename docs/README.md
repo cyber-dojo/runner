@@ -90,7 +90,7 @@ cyber-dojo.sh, and colour.
 If the run did not complete in max_seconds, colour will be "timed_out".
 eg
 ```
-    { "run": {
+    { "run_cyber_dojo_sh": {
         "stdout": "...",
         "stderr": "...",
         "status": 137,
@@ -101,7 +101,7 @@ eg
 If the run completed in max_seconds, colour will be "red", "amber", or "green".
 eg
 ```
-    { "run": {
+    { "run_cyber_dojo_sh": {
         "stdout": "makefile:17: recipe for target 'test' failed\n",
         "stderr": "invalid suffix sss on integer constant",
         "status": 2,
