@@ -14,19 +14,23 @@ class Base58
     s.is_a?(String) && s.chars.all?{ |char| letter?(char) }
   end
 
-  private_class_method def self.letter
+  private_class_method
+  def self.letter
     alphabet[index]
   end
 
-  private_class_method def self.index
+  private_class_method
+  def self.index
     SecureRandom.random_number(alphabet.size)
   end
 
-  private_class_method def self.letter?(char)
+  private_class_method
+  def self.letter?(char)
     alphabet.include?(char)
   end
 
-  private_class_method def self.alphabet
+  private_class_method
+  def self.alphabet
     @@ALPHABET
   end
 
