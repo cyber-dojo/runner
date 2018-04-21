@@ -1,5 +1,4 @@
 require_relative 'all_avatars_names'
-require_relative 'shell'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require 'timeout'
@@ -9,8 +8,6 @@ class Runner # stateless
 
   def initialize(external)
     @external = external
-    @disk = external.disk
-    @shell = Shell.new(external)
     @rags = {}
   end
 
@@ -73,7 +70,6 @@ class Runner # stateless
   private # = = = = = = = = = = = = = = = = = =
 
   attr_reader :image_name, :kata_id, :avatar_name
-  attr_reader :disk, :shell
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # read/write to /tmp on host
@@ -419,6 +415,18 @@ class Runner # stateless
 
   def space
     ' '
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # externals
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def disk
+    @external.disk
+  end
+
+  def shell
+    @external.shell
   end
 
 end
