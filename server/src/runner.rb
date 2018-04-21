@@ -237,7 +237,7 @@ class Runner # stateless
     # @stdout and @stderr have been truncated and cleaned.
     # Caching the rag-lambdas typically saves
     # about 0.15 seconds per [test] event.
-    @rags[image_name] ||= rag_lambda_for(image_name)
+    @rags[image_name] ||= rag_lambda
     colour = @rags[image_name].call(@stdout, @stderr, @status)
     unless [:red,:amber,:green].include?(colour)
       colour = :amber
@@ -249,9 +249,11 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def rag_lambda_for(image_name)
+  def rag_lambda
+    # In a crippled container (eg fork-bomb)
+    # the [docker exec] will mostly likely raise.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    docker_cmd = "docker run --rm #{image_name} bash -c '#{cmd}'"
+    docker_cmd = "docker exec #{container_name} bash -c '#{cmd}'"
     rag_lambda = shell.assert(docker_cmd)
     eval(rag_lambda)
   end
@@ -404,12 +406,12 @@ class Runner # stateless
   # helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  include StringCleaner
+  include StringTruncater
+
   def sanitized(string)
     truncated(cleaned(string))
   end
-
-  include StringCleaner
-  include StringTruncater
 
   # - - - - - - - - - - - - - - - - - -
 
