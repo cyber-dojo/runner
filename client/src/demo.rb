@@ -2,14 +2,20 @@ require_relative 'runner_service'
 
 class Demo
 
-  def call(_env)
+  def call(env)
+    inner_call(env)
+  rescue => error
+    [ 200, { 'Content-Type' => 'text/html' }, [ error.message ] ]
+  end
+
+  def inner_call(_env)
     @html = ''
     in_kata {
       as('salmon') {
+        timed_out
         red
         amber
         green
-        time_out
       }
     }
     [ 200, { 'Content-Type' => 'text/html' }, [ @html ] ]
@@ -64,7 +70,13 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  def timed_out
+    change('hiker.c', hiker_c.sub('return', "for(;;);\n return"))
+    run_cyber_dojo_sh('LightGray', 3)
+  end
+
   def red
+    change('hiker.c', hiker_c.sub('6 * 9', '6 * 9'))
     run_cyber_dojo_sh('Red')
   end
 
@@ -76,11 +88,6 @@ class Demo
   def green
     change('hiker.c', hiker_c.sub('6 * 9', '6 * 7'))
     run_cyber_dojo_sh('Green')
-  end
-
-  def time_out
-    change('hiker.c', hiker_c.sub('return', "for(;;);\n return"))
-    run_cyber_dojo_sh('LightGray', 3)
   end
 
   def change(filename, content)
@@ -127,7 +134,7 @@ class Demo
   end
 
   def read(filename)
-    IO.read("/app/test/start_files/Alpine/#{filename}")
+    IO.read("/app/test/start_files/C_assert/#{filename}")
   end
 
   def pre(name, duration, colour = 'white', result = nil)
@@ -138,6 +145,7 @@ class Demo
     whitespace = "white-space: pre-wrap;"
     html = "<pre>/#{name}(#{duration}s)</pre>"
     unless result.nil?
+      result.delete('files')
       html += "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
               "#{JSON.pretty_unparse(result)}" +
               '</pre>'
