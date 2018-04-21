@@ -1,7 +1,7 @@
 require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
 require_relative '../../src/runner'
-require_relative 'image_names'
+require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 
@@ -24,12 +24,6 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-
-  METHOD_NAMES = %w(
-    kata_new Kata_old
-    avatar_new avatar_old
-    run_cyber_dojo_sh
-  )
 
   test 'BB0',
   %w( malformed json in http payload becomes exception ) do
@@ -169,6 +163,8 @@ class RackDispatcherTest < TestBase
 
   private # = = = = = = = = = = = = =
 
+  include MalformedData
+
   def assert_rack_call_run_malformed(added)
     expected = { 'exception' => "#{added.keys[0]}:malformed" }
     assert_rack_call_raw('run_cyber_dojo_sh', {
@@ -193,69 +189,8 @@ class RackDispatcherTest < TestBase
   end
 
   def rack_call(path_info, args)
-    @external ||= External.new
-    runner = Runner.new(@external)
-    rack = RackDispatcher.new(runner, RackRequestStub)
     env = { body:args, path_info:path_info }
     rack.call(env)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  include ImageNames
-
-  def malformed_kata_ids
-    [
-      nil,          # not String
-      Object.new,   # not String
-      [],           # not String
-      '',           # not 10 chars
-      '123456789',  # not 10 chars
-      '123456789AB',# not 10 chars
-      '123456789='  # not 10 base58-chars
-    ]
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def malformed_avatar_names
-    [
-      nil,          # not String
-      Object.new,   # not String
-      [],           # not String
-      {},           # not String
-      '',           # not avatar-name
-      'waterbottle' # not avatar-name
-    ]
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def malformed_files
-    [
-      nil,           # not Hash
-      Object.new,    # not Hash
-      [],            # not Hash
-      '',            # not Hash
-      'waterbottle', # not Hash
-      { 'x' => [] }, # value not String
-    ]
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def malformed_max_seconds
-    [
-      nil,         # not Integer
-      Object.new,  # not Integer
-      [],          # not Integer
-      {},          # not Integer
-      '',          # not Integer
-      12.45,       # not Integer
-      -1,          # not (1..20)
-      0,           # not (1..20)
-      21           # not (1..20)
-    ]
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -275,5 +210,13 @@ class RackDispatcherTest < TestBase
     "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
     "make: *** [test.output] Aborted"
   end
+
+  # - - - - - - - - - - - - - - - - -
+
+  METHOD_NAMES = %w(
+    kata_new Kata_old
+    avatar_new avatar_old
+    run_cyber_dojo_sh
+  )
 
 end

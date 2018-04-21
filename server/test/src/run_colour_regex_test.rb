@@ -9,8 +9,8 @@ class RunColourRegexTest < TestBase
   end
 
   def hex_teardown
-    if bash.respond_to? :fired?
-      assert bash.fired?
+    if external.bash.respond_to? :fired?
+      assert external.bash.fired?
     end
   end
 
@@ -102,7 +102,7 @@ class RunColourRegexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_rag(expected, lambda)
+  def assert_rag(_expected, lambda)
     external.bash = BashStubRagFileCatter.new(lambda)
     in_kata_as('salmon') {
       run_cyber_dojo_sh
