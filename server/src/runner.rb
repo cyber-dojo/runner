@@ -234,7 +234,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green
-    # @stdout and @stderr have been truncated and cleaned.
+    # @stdout and @stderr have been sanitized.
     # Caching the rag-lambdas typically saves
     # about 0.15 seconds per [test] event.
     @rags[image_name] ||= rag_lambda
@@ -254,8 +254,8 @@ class Runner # stateless
     # the [docker exec] will mostly likely raise.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     docker_cmd = "docker exec #{container_name} bash -c '#{cmd}'"
-    rag_lambda = shell.assert(docker_cmd)
-    eval(rag_lambda)
+    src = shell.assert(docker_cmd)
+    eval(src)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -384,6 +384,8 @@ class Runner # stateless
   # avatar
   # - - - - - - - - - - - - - - - - - -
 
+  include AllAvatarsNames
+
   def group
     'cyber-dojo'
   end
@@ -399,8 +401,6 @@ class Runner # stateless
   def sandbox_dir
     "/sandboxes/#{avatar_name}"
   end
-
-  include AllAvatarsNames
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # helpers
