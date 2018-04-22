@@ -1,6 +1,8 @@
 require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
 require_relative '../../src/runner'
+require_relative 'log_spy'
+require_relative 'log_raiser'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
@@ -9,6 +11,23 @@ class RackDispatcherTest < TestBase
 
   def self.hex_prefix
     'D06F7'
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BAE',
+  %w( when rack.call fails and logging raises and exception
+  then the logging exception is caught and written to stdout ) do
+    external.log = LogRaiser.new
+    env = { path_info:nil, body:'{}' }
+    tuple = nil
+    written = with_captured_stdout {
+      tuple = rack.call(env)
+    }
+    assert_equal 400, tuple[0]
+    assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
+    refute_nil written
+    assert written.include?('LogRaiser')
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -173,11 +192,15 @@ class RackDispatcherTest < TestBase
 
   def assert_rack_call_exception(expected, path_info, body)
     env = { path_info:path_info, body:body }
+    spy = LogSpy.new
+    external.log = spy
     tuple = rack.call(env)
-    assert_equal 200, tuple[0]
+    assert_equal 400, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
     json = JSON.parse(tuple[2][0])
     assert_equal expected, json['exception']
+    refute_nil json['trace']
+    assert spy.spied.size > 0
   end
 
   # - - - - - - - - - - - - - - - - -

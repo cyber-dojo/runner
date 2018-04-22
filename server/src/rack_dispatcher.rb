@@ -2,7 +2,8 @@ require_relative 'well_formed_args'
 
 class RackDispatcher # stateless
 
-  def initialize(runner, request)
+  def initialize(external, runner, request)
+    @external = external
     @runner = runner
     @request = request
   end
@@ -10,9 +11,12 @@ class RackDispatcher # stateless
   def call(env)
     request = @request.new(env)
     name, args = name_args(request)
-    triple({ name => @runner.public_send(name, *args) })
+    triple(200, {
+      name => @runner.public_send(name, *args)
+    })
   rescue => error
-    triple({
+    log(error)
+    triple(400, {
       'exception' => error.message,
       'trace' => error.backtrace
     })
@@ -42,8 +46,18 @@ class RackDispatcher # stateless
 
   # - - - - - - - - - - - - - - - -
 
-  def triple(body)
-    [ 200, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
+  def triple(code, body)
+    [ code, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
+  end
+
+  # - - - - - - - - - - - - - - - -
+
+  def log(error)
+    @external.log << error.message
+    error.backtrace.each { |line| @external.log << line }
+  rescue => e
+    puts e.class.name
+    puts e.message
   end
 
 end

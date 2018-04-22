@@ -8,4 +8,4 @@ $stderr.sync = true
 
 external = External.new
 runner = Runner.new(external)
-run RackDispatcher.new(runner, Rack::Request)
+run RackDispatcher.new(external, runner, Rack::Request)

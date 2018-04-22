@@ -18,4 +18,8 @@ class External
     @bash = doppel
   end
 
+  def log=(doppel)
+    @log = doppel
+  end
+
 end

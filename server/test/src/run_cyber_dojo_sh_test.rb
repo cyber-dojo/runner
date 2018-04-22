@@ -1,4 +1,5 @@
 require_relative 'test_base'
+require_relative 'log_spy'
 
 class RunCyberDojoShTest < TestBase
 
@@ -10,10 +11,14 @@ class RunCyberDojoShTest < TestBase
 
   multi_os_test '4CC',
   %w( malformed avatar_name raises ) do
+    spy = LogSpy.new
+    external.log = spy
     in_kata_as('salmon') {
       run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
       assert_exception 'avatar_name:malformed'
     }
+    assert_equal 'avatar_name:malformed', spy.spied[0]
+    assert spy.spied.size > 1
   end
 
   # - - - - - - - - - - - - - - - - -
