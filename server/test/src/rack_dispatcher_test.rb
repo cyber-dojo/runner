@@ -15,27 +15,27 @@ class RackDispatcherTest < TestBase
 
   test 'BAF',
   %w( unknown method becomes exception ) do
-    assert_rack_call_raw(nil,       '{}', { exception:'json:malformed' })
-    assert_rack_call_raw([],        '{}', { exception:'json:malformed' })
-    assert_rack_call_raw({},        '{}', { exception:'json:malformed' })
-    assert_rack_call_raw(true,      '{}', { exception:'json:malformed' })
-    assert_rack_call_raw(42,        '{}', { exception:'json:malformed' })
-    assert_rack_call_raw('unknown', '{}', { exception:'json:malformed' })
+    expected = 'json:malformed'
+    assert_rack_call_exception(expected, nil,       '{}')
+    assert_rack_call_exception(expected, [],        '{}')
+    assert_rack_call_exception(expected, {},        '{}')
+    assert_rack_call_exception(expected, true,      '{}')
+    assert_rack_call_exception(expected, 42,        '{}')
+    assert_rack_call_exception(expected, 'unknown', '{}')
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'BB0',
   %w( malformed json in http payload becomes exception ) do
+    expected = 'json:malformed'
     METHOD_NAMES.each do |method_name|
-      assert_rack_call_raw(method_name, 'sdfsdf', { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, 'nil',    { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, 'null',   { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, nil,      { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, [],       { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, {},       { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, true,     { exception:'json:malformed' })
-      assert_rack_call_raw(method_name, 42,       { exception:'json:malformed' })
+      assert_rack_call_exception(expected, method_name, 'sdfsdf')
+      assert_rack_call_exception(expected, method_name, 'nil')
+      assert_rack_call_exception(expected, method_name, 'null')
+      assert_rack_call_exception(expected, method_name, '[]')
+      assert_rack_call_exception(expected, method_name, 'true')
+      assert_rack_call_exception(expected, method_name, '42')
     end
   end
 
@@ -44,13 +44,10 @@ class RackDispatcherTest < TestBase
   test 'BB2',
   %w( malformed image_name becomes exception ) do
     malformed_image_names.each do |malformed|
-      assert_rack_call_raw('kata_new', {
-          image_name:malformed,
-          kata_id:kata_id
-        }.to_json, {
-          exception:'image_name:malformed'
-        }
-      )
+      assert_rack_call_exception('image_name:malformed', 'kata_new', {
+        image_name:malformed,
+        kata_id:kata_id
+      }.to_json)
     end
   end
 
@@ -59,13 +56,10 @@ class RackDispatcherTest < TestBase
   test 'BB3',
   %w( malformed kata_id becomes exception ) do
     malformed_kata_ids.each do |malformed|
-      assert_rack_call_raw('kata_new', {
-          image_name:image_name,
-          kata_id:malformed
-        }.to_json, {
-          exception:'kata_id:malformed'
-        }
-      )
+      assert_rack_call_exception('kata_id:malformed', 'kata_new', {
+        image_name:image_name,
+        kata_id:malformed
+      }.to_json)
     end
   end
 
@@ -74,15 +68,12 @@ class RackDispatcherTest < TestBase
   test 'BB4',
   %w( malformed starting_files becomes exception ) do
     malformed_files.each do |malformed|
-      assert_rack_call_raw('avatar_new', {
-          image_name:image_name,
-          kata_id:kata_id,
-          avatar_name:'salmon',
-          starting_files:malformed
-        }.to_json, {
-          exception:'starting_files:malformed'
-        }
-      )
+      assert_rack_call_exception('starting_files:malformed', 'avatar_new', {
+        image_name:image_name,
+        kata_id:kata_id,
+        avatar_name:'salmon',
+        starting_files:malformed
+      }.to_json)
     end
   end
 
@@ -91,14 +82,11 @@ class RackDispatcherTest < TestBase
   test 'BB5',
   %w( malformed avatar_name becomes exception ) do
     malformed_avatar_names.each do |malformed|
-      assert_rack_call_raw('avatar_old', {
-          image_name:image_name,
-          kata_id:kata_id,
-          avatar_name:malformed
-        }.to_json, {
-          exception:'avatar_name:malformed'
-        }
-      )
+      assert_rack_call_exception('avatar_name:malformed', 'avatar_old', {
+        image_name:image_name,
+        kata_id:kata_id,
+        avatar_name:malformed
+      }.to_json)
     end
   end
 
@@ -138,14 +126,16 @@ class RackDispatcherTest < TestBase
       max_seconds:10
     }
     expected = {
-      'run_cyber_dojo_sh':{
+      'run_cyber_dojo_sh': {
         stdout:'',
         stderr:gcc_assert_stderr,
         status:2,
         colour:'red'
       }
     }
-    tuple = rack_call(path_info, args.to_json)
+
+    env = { path_info:path_info, body:args.to_json }
+    tuple = rack.call(env)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
 
@@ -166,31 +156,28 @@ class RackDispatcherTest < TestBase
   include MalformedData
 
   def assert_rack_call_run_malformed(added)
-    expected = { 'exception' => "#{added.keys[0]}:malformed" }
-    assert_rack_call_raw('run_cyber_dojo_sh', {
+    expected = "#{added.keys[0]}:malformed"
+    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', {
       image_name:image_name,
       kata_id:kata_id,
       avatar_name:'salmon',
       new_files:{},
       deleted_files:{},
       unchanged_files:{},
-      changed_files:{},
+      changed_files:{ 'cyber-dojo.sh' => 'pwd' },
       max_seconds:10
-    }.merge(added).to_json, expected)
+    }.merge(added).to_json)
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_rack_call_raw(path_info, args, expected)
-    tuple = rack_call(path_info, args)
+  def assert_rack_call_exception(expected, path_info, body)
+    env = { path_info:path_info, body:body }
+    tuple = rack.call(env)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
-    assert_equal [ expected.to_json ], tuple[2]
-  end
-
-  def rack_call(path_info, args)
-    env = { body:args, path_info:path_info }
-    rack.call(env)
+    json = JSON.parse(tuple[2][0])
+    assert_equal expected, json['exception']
   end
 
   # - - - - - - - - - - - - - - - - -

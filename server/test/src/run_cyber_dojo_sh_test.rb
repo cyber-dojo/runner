@@ -12,7 +12,7 @@ class RunCyberDojoShTest < TestBase
   %w( malformed avatar_name raises ) do
     in_kata_as('salmon') {
       run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
-      assert_equal({ 'exception' => 'avatar_name:malformed' }, @json)
+      assert_exception 'avatar_name:malformed'
     }
   end
 

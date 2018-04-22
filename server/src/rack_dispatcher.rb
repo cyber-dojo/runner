@@ -13,8 +13,10 @@ class RackDispatcher # stateless
     name, args = name_args(request)
     triple({ name => @runner.public_send(name, *args) })
   rescue => error
-    #puts error.backtrace
-    triple({ 'exception' => error.message })
+    triple({
+      'exception' => error.message,
+      'trace' => error.backtrace
+    })
   end
 
   private # = = = = = = = = = = = =

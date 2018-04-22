@@ -128,6 +128,14 @@ class TestBase < HexMiniTest
     result[__method__.to_s]
   end
 
+  def exception
+    @json[__method__.to_s]
+  end
+
+  def trace
+    @json[__method__.to_s]
+  end
+
   def timed_out?
     colour == 'timed_out'
   end
@@ -155,6 +163,11 @@ class TestBase < HexMiniTest
 
   def assert_colour(expected)
     assert_equal expected, colour, @json
+  end
+
+  def assert_exception(expected)
+    assert_equal expected, exception, @json
+    refute_nil trace
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
