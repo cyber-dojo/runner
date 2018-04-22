@@ -5,9 +5,9 @@ require 'json'
 
 # Checks for arguments synactic correctness
 
-class WellFormedArgs
+module WellFormedArgs
 
-  def initialize(s)
+  def well_formed_args(s)
     @args = JSON.parse(s)
     if @args.nil? || !@args.is_a?(Hash)
       malformed('json')
