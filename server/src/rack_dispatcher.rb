@@ -11,12 +11,12 @@ class RackDispatcher # stateless
   def call(env)
     request = @request.new(env)
     name, args = name_args(request)
-    triple(200, {
+    triple(success, {
       name => @runner.public_send(name, *args)
     })
   rescue => error
     log(error)
-    triple(400, {
+    triple(code(error), {
       'exception' => error.message,
       'trace' => error.backtrace
     })
@@ -39,12 +39,20 @@ class RackDispatcher # stateless
          new_files, deleted_files, unchanged_files, changed_files,
          max_seconds]
       else
-        raise ArgumentError, 'json:malformed'
+        raise ClientError, 'json:malformed'
     end
     [name, args]
   end
 
   # - - - - - - - - - - - - - - - -
+
+  def success
+    200
+  end
+
+  def code(error)
+    error.is_a?(ClientError) ? 400 : 500
+  end
 
   def triple(code, body)
     [ code, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]

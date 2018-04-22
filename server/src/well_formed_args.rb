@@ -1,4 +1,5 @@
 require_relative 'base58'
+require_relative 'client_error'
 require_relative 'well_formed_avatar_name'
 require_relative 'well_formed_image_name'
 require 'json'
@@ -107,7 +108,7 @@ module WellFormedArgs
   # - - - - - - - - - - - - - - - -
 
   def malformed(arg_name)
-    raise ArgumentError.new("#{arg_name}:malformed")
+    raise ClientError, "#{arg_name}:malformed"
   end
 
 end

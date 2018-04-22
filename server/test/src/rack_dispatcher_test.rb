@@ -16,7 +16,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BAE',
-  %w( when rack.call fails and logging raises and exception
+  %w( when rack.call fails and logging raises an exception
   then the logging exception is caught and written to stdout ) do
     external.log = LogRaiser.new
     env = { path_info:nil, body:'{}' }
