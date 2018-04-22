@@ -1,9 +1,8 @@
 require_relative 'well_formed_args'
-require 'rack'
 
 class RackDispatcher # stateless
 
-  def initialize(runner, request = Rack::Request)
+  def initialize(runner, request)
     @runner = runner
     @request = request
   end
