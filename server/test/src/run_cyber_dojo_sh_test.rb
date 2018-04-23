@@ -12,7 +12,7 @@ class RunCyberDojoShTest < TestBase
   multi_os_test '4CC',
   %w( malformed avatar_name raises ) do
     spy = WriterSpy.new
-    external.writer = spy
+    @external = External.new({ 'writer' => spy })
     in_kata_as('salmon') {
       run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
       assert_exception 'avatar_name:malformed'
