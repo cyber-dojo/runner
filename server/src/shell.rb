@@ -15,14 +15,9 @@ class Shell
   # - - - - - - - - - - - - - - - - - - - - -
 
   def assert(command)
-    stdout,stderr,status = bash_run(command)
+    stdout,_stderr,status = bash_run(command)
     unless status == success
-      raise ShellError.new(stderr, {
-        command:command,
-        stdout:stdout,
-        stderr:stderr,
-        status:status
-      })
+      raise ShellError.new(command)
     end
     stdout
   end
@@ -35,16 +30,25 @@ class Shell
 
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
+    unless status == success
+      log << {
+        'command' => command,
+        'stdout'  => stdout,
+        'stderr'  => stderr,
+        'status'  => status
+      }.to_json
+    end
     [stdout, stderr, status]
-  rescue Exception => error
-    raise ShellError.new(error.message, {
-      command:command,
-      message:error.message
-    })
+  rescue => error
+    raise ShellError.new(command, error)
   end
 
   def bash
     @external.bash
+  end
+
+  def log
+    @external.log
   end
 
 end

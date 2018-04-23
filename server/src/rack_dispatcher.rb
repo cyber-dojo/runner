@@ -12,14 +12,17 @@ class RackDispatcher # stateless
     request = @request.new(env)
     name, args = name_args(request)
     triple(success, {
-      name => @runner.public_send(name, *args)
+      name => @runner.public_send(name, *args),
+      'log' => log.messages
     })
   rescue => error
-    log(error)
-    triple(code(error), {
+    info = {
       'exception' => error.message,
-      'trace' => error.backtrace
-    })
+      'trace' => error.backtrace,
+      'log' => log.messages
+    }
+    writer.write(info)
+    triple(code(error), info)
   end
 
   private # = = = = = = = = = = = =
@@ -60,12 +63,12 @@ class RackDispatcher # stateless
 
   # - - - - - - - - - - - - - - - -
 
-  def log(error)
-    @external.log << error.message
-    error.backtrace.each { |line| @external.log << line }
-  rescue => e
-    puts e.class.name
-    puts e.message
+  def writer
+    @external.writer
+  end
+
+  def log
+    @external.log
   end
 
 end
