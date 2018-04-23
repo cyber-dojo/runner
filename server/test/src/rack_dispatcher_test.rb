@@ -4,6 +4,7 @@ require_relative '../../src/runner'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
+require_relative 'writer_spy'
 
 class RackDispatcherTest < TestBase
 
@@ -172,6 +173,8 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_rack_call_exception(expected, path_info, body)
+    spy = WriterSpy.new
+    external.writer = spy
     env = { path_info:path_info, body:body }
     tuple = rack.call(env)
     assert_equal 400, tuple[0]
@@ -181,6 +184,9 @@ class RackDispatcherTest < TestBase
     refute_nil json['trace']
     assert_equal [], external.log.messages
     assert_equal [], json['log']
+    assert_equal expected, spy.spied[0]['exception']
+    assert_equal [], spy.spied[0]['log']
+    refute_nil spy.spied[0]['trace']
   end
 
   # - - - - - - - - - - - - - - - - -

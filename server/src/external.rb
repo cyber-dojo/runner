@@ -20,4 +20,8 @@ class External
     @bash = doppel
   end
 
+  def writer=(doppel)
+    @writer = doppel
+  end
+
 end
