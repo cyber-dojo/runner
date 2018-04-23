@@ -7,17 +7,13 @@ require_relative 'writer'
 class External
 
   def initialize(options = {})
-    @bash   = options['bash']   || Bash.new
-    @disk   = options['disk']   || Disk.new
-    @log    = options['log']    || Log.new
+    @bash = options['bash'] || Bash.new
     @writer = options['writer'] || Writer.new
+    @disk = Disk.new
+    @log = Log.new
     @shell = Shell.new(self)
   end
 
   attr_reader :bash, :disk, :log, :shell, :writer
-
-  def bash=(doppel)
-    @bash = doppel
-  end
 
 end
