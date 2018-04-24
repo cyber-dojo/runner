@@ -1,5 +1,4 @@
 require_relative 'test_base'
-require_relative 'writer_spy'
 
 class RunCyberDojoShTest < TestBase
 
@@ -11,16 +10,17 @@ class RunCyberDojoShTest < TestBase
 
   multi_os_test '4CC',
   %w( malformed avatar_name raises ) do
-    spy = WriterSpy.new
-    @external = External.new({ 'writer' => spy })
-    in_kata_as('salmon') {
-      run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
-      assert_exception 'avatar_name:malformed'
+    written = with_captured_stdout {
+      in_kata_as('salmon') {
+        run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
+        assert_exception 'avatar_name:malformed'
+      }
     }
+    json = JSON.parse(written)
+    assert_equal 'avatar_name:malformed', json['exception']
+    assert_equal [], json['log']
+    assert json['trace'].size > 10
     assert_equal [], external.log.messages
-    assert_equal 'avatar_name:malformed', spy.spied[0]['exception']
-    assert_equal [], spy.spied[0]['log']
-    refute_nil spy.spied[0]['trace']
   end
 
   # - - - - - - - - - - - - - - - - -

@@ -1,14 +1,14 @@
 require_relative 'bash'
 require_relative 'disk'
+require_relative 'json_writer'
 require_relative 'shell'
 require_relative 'log'
-require_relative 'writer'
 
 class External
 
   def initialize(options = {})
     @bash = options['bash'] || Bash.new
-    @writer = options['writer'] || Writer.new
+    @writer = JsonWriter.new
     @disk = Disk.new
     @log = Log.new
     @shell = Shell.new(self)
