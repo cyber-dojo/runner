@@ -1,3 +1,4 @@
+require_relative 'bash_stub_tar_pipe_out'
 require_relative 'test_base'
 
 class RoundTripTest < TestBase
@@ -69,31 +70,23 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '531',
-  %w( a crippled container, eg from a fork-bomb, returns no files ) do
+  %w( a cripple container, eg from a fork-bomb, returns no files ) do
     all_OSes.each do |os|
       @os = os
+      stub = BashStubTarPipeOut.new('fail')
+      @external = External.new({ 'bash' => stub })
       in_kata_as('salmon') {
         run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
+          changed_files: { 'cyber-dojo.sh' => 'pwd' },
             max_seconds: 3
         })
       }
+      assert stub.fired?
       assert_equal({}, files)
     end
   end
 
   private # = = = = = = = = = = = = =
-
-  SHELL_FORK_BOMB = <<~CODE
-    bomb()
-    {
-      echo "bomb"
-      bomb | bomb &
-    }
-    bomb
-  CODE
-
-  # - - - - - - - - - - - - - - - - -
 
   def all_OSes
     [ :Alpine, :Ubuntu, :Debian ]
