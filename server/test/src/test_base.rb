@@ -3,6 +3,7 @@ require_relative 'rack_request_stub'
 require_relative '../../src/all_avatars_names'
 require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
+require_relative '../../src/rag_lambda_cache'
 require_relative '../../src/runner'
 require 'json'
 
@@ -13,7 +14,7 @@ class TestBase < HexMiniTest
   end
 
   def runner
-    Runner.new(external)
+    Runner.new(external, RagLambdaCache.new)
   end
 
   def rack

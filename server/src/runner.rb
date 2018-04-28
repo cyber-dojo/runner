@@ -1,5 +1,4 @@
 require_relative 'all_avatars_names'
-require_relative 'rag_lambda_cache'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require 'timeout'
@@ -7,7 +6,7 @@ require 'find'
 
 class Runner # stateless
 
-  def initialize(external, cache = RagLambdaCache.new)
+  def initialize(external, cache)
     @external = external
     @cache = cache
   end
