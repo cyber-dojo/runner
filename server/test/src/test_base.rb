@@ -23,15 +23,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def self.multi_os_test(hex_suffix, *lines, &block)
-    alpine_lines = ['[Alpine]'] + lines
-    test(hex_suffix+'0', *alpine_lines, &block)
-    ubuntu_lines = ['[Ubuntu]'] + lines
-    test(hex_suffix+'1', *ubuntu_lines, &block)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def rack_call(method_name, args = {})
     args['image_name'] = image_name
     args['kata_id'] = kata_id
@@ -241,6 +232,13 @@ class TestBase < HexMiniTest
     else # default
       :Alpine
     end
+  end
+
+  def self.multi_os_test(hex_suffix, *lines, &block)
+    alpine_lines = ['[Alpine]'] + lines
+    test(hex_suffix+'0', *alpine_lines, &block)
+    ubuntu_lines = ['[Ubuntu]'] + lines
+    test(hex_suffix+'1', *ubuntu_lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
