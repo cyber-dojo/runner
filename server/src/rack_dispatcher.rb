@@ -12,11 +12,9 @@ class RackDispatcher # stateless
     request = @request.new(env)
     name, args = name_args(request)
     result = @runner.public_send(name, *args)
-    body = {
-      name => result,
-      'log' => log.messages
-    }
+    body = { 'log' => log.messages }
     #writer.write(body)
+    body[name] = result
     triple(success, body)
   rescue => error
     body = {
