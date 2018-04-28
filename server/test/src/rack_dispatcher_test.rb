@@ -135,7 +135,7 @@ class RackDispatcherTest < TestBase
     }
 
     env = { path_info:path_info, body:args.to_json }
-    tuple = rack.call(env)
+    tuple = rack.call(env, external, RackRequestStub)
     assert_equal 200, tuple[0]
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
 
@@ -176,10 +176,10 @@ class RackDispatcherTest < TestBase
 
     tuple = nil
     written = with_captured_stdout {
-      tuple = rack.call(env)
+      tuple = rack.call(env, external, RackRequestStub)
     }
 
-    assert_equal 400, tuple[0]
+    assert_equal 400, tuple[0], written
 
     assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
 

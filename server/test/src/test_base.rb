@@ -13,12 +13,16 @@ class TestBase < HexMiniTest
     @external ||= External.new
   end
 
-  def runner
-    Runner.new(external, RagLambdaCache.new)
+  def cache
+    @cache ||= RagLambdaCache.new
   end
 
+  #def runner
+  #  Runner.new(external, cache)
+  #end
+
   def rack
-    RackDispatcher.new(external, runner, RackRequestStub)
+    RackDispatcher.new(cache)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -27,7 +31,7 @@ class TestBase < HexMiniTest
     args['image_name'] = image_name
     args['kata_id'] = kata_id
     env = { body:args.to_json, path_info:method_name.to_s }
-    result = rack.call(env)
+    result = rack.call(env, external, RackRequestStub)
     @json = JSON.parse(result[2][0])
   end
 

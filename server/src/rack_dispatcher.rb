@@ -1,28 +1,29 @@
+require_relative 'external'
+require_relative 'runner'
 require_relative 'well_formed_args'
+require 'rack'
 
 class RackDispatcher # stateless
 
-  def initialize(external, runner, request)
-    @external = external
-    @runner = runner
-    @request = request
+  def initialize(cache)
+    @cache = cache
   end
 
-  def call(env)
-    request = @request.new(env)
-    name, args = name_args(request)
-    result = @runner.public_send(name, *args)
-    body = { 'log' => log.messages }
-    #writer.write(body)
+  def call(env, external = External.new, request = Rack::Request)
+    name, args = name_args(request.new(env))
+    runner = Runner.new(external, @cache)
+    result = runner.public_send(name, *args)
+    body = { 'log' => external.log.messages }
+    #external.writer.write(body)
     body[name] = result
     triple(success, body)
   rescue => error
     body = {
       'exception' => error.message,
       'trace' => error.backtrace,
-      'log' => log.messages
+      'log' => external.log.messages
     }
-    writer.write(body)
+    external.writer.write(body)
     triple(code(error), body)
   end
 
@@ -60,16 +61,6 @@ class RackDispatcher # stateless
 
   def triple(code, body)
     [ code, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def writer
-    @external.writer
-  end
-
-  def log
-    @external.log
   end
 
 end
