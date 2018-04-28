@@ -1,4 +1,5 @@
 require_relative 'all_avatars_names'
+require_relative 'rag_lambda_cache'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require 'timeout'
@@ -8,7 +9,7 @@ class Runner # stateless
 
   def initialize(external)
     @external = external
-    @rags = {}
+    @cache = RagLambdaCache.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -235,10 +236,8 @@ class Runner # stateless
 
   def red_amber_green
     # @stdout and @stderr have been sanitized.
-    # Caching the rag-lambdas typically saves
-    # about 0.15 seconds per [test] event.
-    @rags[image_name] ||= rag_lambda
-    colour = @rags[image_name].call(@stdout, @stderr, @status)
+    rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
+    colour = rag_lambda.call(@stdout, @stderr, @status)
     unless [:red,:amber,:green].include?(colour)
       colour = :amber
     end
@@ -249,7 +248,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def rag_lambda
+  def get_rag_lambda
     # In a crippled container (eg fork-bomb)
     # the [docker exec] will mostly likely raise.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
