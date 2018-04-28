@@ -7,9 +7,9 @@ require 'find'
 
 class Runner # stateless
 
-  def initialize(external)
+  def initialize(external, cache = RagLambdaCache.new)
     @external = external
-    @cache = RagLambdaCache.new
+    @cache = cache
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
