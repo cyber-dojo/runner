@@ -70,16 +70,13 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '531',
-  %w( a cripple container, eg from a fork-bomb, returns no files ) do
+  %w( a crippled container, eg from a fork-bomb, returns no files ) do
     all_OSes.each do |os|
       @os = os
       stub = BashStubTarPipeOut.new('fail')
       @external = External.new({ 'bash' => stub })
       in_kata_as('salmon') {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => 'pwd' },
-            max_seconds: 3
-        })
+        run_cyber_dojo_sh
       }
       assert stub.fired?
       assert_equal({}, files)
