@@ -172,8 +172,6 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_rack_call_exception(expected, path_info, body)
-    #spy = WriterSpy.new
-    #@external = External.new({ 'writer' => spy })
     env = { path_info:path_info, body:body }
 
     tuple = nil
