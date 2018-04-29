@@ -33,8 +33,12 @@ RUN apk --update add --virtual build-dependencies build-base \
 
 COPY . ${CYBER_DOJO_HOME}
 
+# - - - - - - - - - - - - - - - - -
+# git commit sha image is built from
+# - - - - - - - - - - - - - - - - -
+
 ARG SHA
-RUN echo ${SHA} > /app/sha.txt
+RUN echo ${SHA} > ${CYBER_DOJO_HOME}/sha.txt
 
 ARG PORT
 EXPOSE ${PORT}
