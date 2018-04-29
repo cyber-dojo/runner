@@ -10,5 +10,5 @@ readonly PREFIX='test_run__runner_stateless_'
 readonly ZOMBIE_CONTAINERS=$(docker ps --all --filter "name=${PREFIX}" --format "{{.Names}}")
 
 if [ "${ZOMBIE_CONTAINERS}" != "" ]; then
-  docker rm --force ${ZOMBIE_CONTAINERS}
+  docker rm --force "${ZOMBIE_CONTAINERS}"
 fi
