@@ -75,7 +75,6 @@ else
   run_client_tests "$@"
 fi
 
-
 if [[ ( ${server_status} == 0 && ${client_status} == 0 ) ]];  then
   echo "------------------------------------------------------"
   echo "All passed"
