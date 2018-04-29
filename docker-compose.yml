@@ -33,6 +33,7 @@ services:
       args:
         - CYBER_DOJO_HOME=${CYBER_DOJO_HOME}
         - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
+        - SHA=${SHA}
     user: root
     image: cyberdojo/runner-stateless
     init: true

@@ -33,6 +33,9 @@ RUN apk --update add --virtual build-dependencies build-base \
 
 COPY . ${CYBER_DOJO_HOME}
 
+ARG SHA
+RUN echo ${SHA} > /app/sha.txt
+
 ARG PORT
 EXPOSE ${PORT}
 ENV PORT=${PORT}
