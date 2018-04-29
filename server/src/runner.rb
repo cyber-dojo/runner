@@ -12,6 +12,12 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def sha
+    IO.read('/app/sha.txt').strip
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
   def kata_new(_image_name, _kata_id)

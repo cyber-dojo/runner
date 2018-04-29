@@ -37,6 +37,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def sha
+    rack_call(__method__)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def kata_new
     rack_call(__method__)
   end

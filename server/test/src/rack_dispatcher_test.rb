@@ -216,7 +216,8 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   METHOD_NAMES = %w(
-    kata_new Kata_old
+    sha
+    kata_new kata_old
     avatar_new avatar_old
     run_cyber_dojo_sh
   )
