@@ -121,12 +121,14 @@ class RackDispatcherTest < TestBase
     assert_200 code
     assert_sha(json[path_info])
     assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
   end
 
   def assert_sha(string)
     assert_equal 40, string.size
     string.each_char do |ch|
-      assert "0123456789abcdef".include?(ch)
+      assert '0123456789abcdef'.include?(ch)
     end
   end
 
@@ -147,6 +149,8 @@ class RackDispatcherTest < TestBase
     assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -166,6 +170,8 @@ class RackDispatcherTest < TestBase
     assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -187,6 +193,8 @@ class RackDispatcherTest < TestBase
     assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -207,6 +215,8 @@ class RackDispatcherTest < TestBase
     assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -235,19 +245,22 @@ class RackDispatcherTest < TestBase
     }
 
     env = { path_info:path_info, body:args.to_json }
-    code,body = rack_call(env)
+    code,json = rack_call(env)
     assert_200 code
+    assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
 
     # Careful here...
     # stderr may or may not have ' (core dumped)' appended.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    json = body[path_info]
+    result = json[path_info]
     # C,assert output is compiler-OS dependent. This is gcc,Debian
-    assert_equal gcc_assert_stdout, json['stdout']
-    assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
-    assert_equal 2, json['status']
-    assert_equal 'red', json['colour']
+    assert_equal gcc_assert_stdout, result['stdout']
+    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
+    assert_equal 2, result['status']
+    assert_equal 'red', result['colour']
   end
 
   private # = = = = = = = = = = = = =
@@ -280,7 +293,7 @@ class RackDispatcherTest < TestBase
       code,json = rack_call(env)
     }
 
-    assert_equal 400, code, written #triple[0], written
+    assert_equal 400, code, written
     assert_equal expected, json['exception']
     refute_nil json['trace']
     assert_empty_log(json)
@@ -315,6 +328,14 @@ class RackDispatcherTest < TestBase
     assert_equal [], json['log']
   end
 
+  def assert_no_exception(json)
+    refute json.has_key?('exception')
+  end
+
+  def assert_no_trace(json)
+    refute json.has_key?('trace')
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   def gcc_assert_stdout
@@ -345,19 +366,6 @@ class RackDispatcherTest < TestBase
 end
 
 =begin
-  def assert_exception(expected)
-    assert_equal expected, exception, result
-    refute_nil trace
-  end
-
-  def exception
-    @json[__method__.to_s]
-  end
-
-  def trace
-    @json[__method__.to_s]
-  end
-
   multi_os_test '4CC',
   %w( malformed avatar_name raises ) do
     written = with_captured_stdout {
