@@ -235,15 +235,6 @@ class RackDispatcherTest < TestBase
       changed_files:{},
       max_seconds:10
     }
-    expected = {
-      path_info => {
-        stdout:'',
-        stderr:gcc_assert_stderr,
-        status:2,
-        colour:'red'
-      }
-    }
-
     env = { path_info:path_info, body:args.to_json }
     code,json = rack_call(env)
     assert_200 code
