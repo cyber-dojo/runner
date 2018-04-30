@@ -13,9 +13,14 @@ class RackDispatcher # stateless
     name, args = name_args(request.new(env))
     runner = Runner.new(external, @cache)
     result = runner.public_send(name, *args)
-    body = { 'log' => external.log.messages }
-    #external.writer.write(body)
-    body[name] = result
+    messages = external.log.messages
+    body = {
+      name => result,
+      'log' => messages
+    }
+    if messages != []
+      #external.writer.write(body)
+    end
     triple(success, body)
   rescue => error
     body = {
