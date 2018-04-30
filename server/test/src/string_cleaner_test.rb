@@ -9,6 +9,8 @@ class StringCleanerTest < TestBase
     '3D982'
   end
 
+  # - - - - - - - - - - - - - - - - -
+
   test '7FE', %w(
   cleans invalid encodings
   ) do

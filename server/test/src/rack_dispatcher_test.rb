@@ -1,9 +1,8 @@
-require_relative '../../src/external'
 require_relative '../../src/rack_dispatcher'
-require_relative '../../src/runner'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
+require 'json'
 
 class RackDispatcherTest < TestBase
 
@@ -109,6 +108,33 @@ class RackDispatcherTest < TestBase
       assert_rack_call_run_malformed({unchanged_files:malformed})
       assert_rack_call_run_malformed({changed_files:malformed})
     end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_200(triple)
+    assert_equal 200, triple[0]
+  end
+
+  def assert_content_app_json(triple)
+    expected = { 'Content-Type' => 'application/json' }
+    assert_equal(expected, triple[1])
+  end
+
+  def assert_sha(value)
+    assert_equal 40, value.size
+    value.each_char do |ch|
+      assert "0123456789abcdef".include?(ch)
+    end
+  end
+
+  test 'AB0', 'sha' do
+    env = { body:'{}', path_info:'sha' }
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
+    @json = JSON.parse(triple[2][0])
+    assert_sha(@json['sha'])
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -221,5 +247,51 @@ class RackDispatcherTest < TestBase
     avatar_new avatar_old
     run_cyber_dojo_sh
   )
+
+  # - - - - - - - - - - - - - - - - -
+
+  def rack
+    RackDispatcher.new(cache)
+  end
+
+  #def rack_call(method_name, args = {})
+  #  args['image_name'] = image_name
+  #  args['kata_id'] = kata_id
+  #  env = { body:args.to_json, path_info:method_name.to_s }
+  #  result = rack.call(env, external, RackRequestStub)
+  #  @json = JSON.parse(result[2][0])
+  #end
+
+=begin
+  def assert_exception(expected)
+    assert_equal expected, exception, result
+    refute_nil trace
+  end
+
+  def exception
+    @json[__method__.to_s]
+  end
+
+  def trace
+    @json[__method__.to_s]
+  end
+=end
+
+=begin
+  multi_os_test '4CC',
+  %w( malformed avatar_name raises ) do
+    written = with_captured_stdout {
+      in_kata_as('salmon') {
+        run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
+        assert_exception 'avatar_name:malformed'
+      }
+    }
+    json = JSON.parse(written)
+    assert_equal 'avatar_name:malformed', json['exception']
+    assert_equal [], json['log']
+    assert json['trace'].size > 10
+    assert_equal [], external.log.messages
+  end
+=end
 
 end

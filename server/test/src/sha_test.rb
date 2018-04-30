@@ -9,8 +9,6 @@ class ShaTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '190', %w( sha is exposed via API ) do
-    json = sha
-    sha = json['sha']
     assert_equal 40, sha.size
     sha.each_char do |ch|
       assert "0123456789abcdef".include?(ch)

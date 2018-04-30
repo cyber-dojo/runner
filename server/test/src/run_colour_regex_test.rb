@@ -8,6 +8,8 @@ class RunColourRegexTest < TestBase
     'F6D43'
   end
 
+  # - - - - - - - - - - - - - - - - -
+
   def hex_teardown
     if external.bash.respond_to? :fired?
       assert external.bash.fired?

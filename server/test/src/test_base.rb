@@ -1,11 +1,8 @@
 require_relative 'hex_mini_test'
-require_relative 'rack_request_stub'
 require_relative '../../src/all_avatars_names'
 require_relative '../../src/external'
-require_relative '../../src/rack_dispatcher'
 require_relative '../../src/rag_lambda_cache'
 require_relative '../../src/runner'
-require 'json'
 
 class TestBase < HexMiniTest
 
@@ -17,52 +14,36 @@ class TestBase < HexMiniTest
     @cache ||= RagLambdaCache.new
   end
 
-  #def runner
-  #  Runner.new(external, cache)
-  #end
-
-  def rack
-    RackDispatcher.new(cache)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def rack_call(method_name, args = {})
-    args['image_name'] = image_name
-    args['kata_id'] = kata_id
-    env = { body:args.to_json, path_info:method_name.to_s }
-    result = rack.call(env, external, RackRequestStub)
-    @json = JSON.parse(result[2][0])
+  def runner
+    Runner.new(external, cache)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def sha
-    rack_call(__method__)
+    runner.sha
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    rack_call(__method__)
+    runner.kata_new(image_name, kata_id)
   end
 
   def kata_old
-    rack_call(__method__)
+    runner.kata_old(image_name, kata_id)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def avatar_new(name = 'salmon')
-    args = { avatar_name:name, starting_files:starting_files }
-    rack_call(__method__, args)
+    runner.avatar_new(image_name, kata_id, name, starting_files)
     @avatar_name = name
     @previous_files = starting_files
   end
 
   def avatar_old(name = avatar_name)
-    args = { avatar_name:name }
-    rack_call(__method__, args)
+    runner.avatar_old(image_name, kata_id, name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -91,20 +72,22 @@ class TestBase < HexMiniTest
       unchanged_files.delete(filename)
     end
 
-    args = {
-          avatar_name:defaulted_arg(named_args, :avatar_name, avatar_name),
-            new_files:new_files,
-        deleted_files:deleted_files,
-      unchanged_files:unchanged_files,
-        changed_files:changed_files,
-          max_seconds:defaulted_arg(named_args, :max_seconds, 10)
-    }
-    rack_call(__method__, args)
-    @result = @json[__method__.to_s]
+    args = []
+    args << image_name
+    args << kata_id
+    args << defaulted_arg(named_args, :avatar_name, avatar_name)
+    args << new_files
+    args << deleted_files
+    args << unchanged_files
+    args << changed_files
+    args << defaulted_arg(named_args, :max_seconds, 10)
+    @result = runner.run_cyber_dojo_sh(*args)
 
     @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
     nil
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
@@ -115,42 +98,42 @@ class TestBase < HexMiniTest
   attr_reader :result
 
   def files
-    result[__method__.to_s]
+    result[__method__]
   end
 
   def stdout
-    result[__method__.to_s]
+    result[__method__]
   end
 
   def stderr
-    result[__method__.to_s]
+    result[__method__]
   end
 
   def colour
-    result[__method__.to_s]
+    result[__method__]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_stdout(expected)
-    assert_equal expected, stdout, @json
+    assert_equal expected, stdout, result
   end
   def refute_stdout(unexpected)
-    refute_equal unexpected, stdout, @json
+    refute_equal unexpected, stdout, result
   end
 
   def assert_stderr(expected)
-    assert_equal expected, stderr, @json
+    assert_equal expected, stderr, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_timed_out
-    assert timed_out?, @json
+    assert timed_out?, result
   end
 
   def refute_timed_out
-    refute timed_out?, @json
+    refute timed_out?, result
   end
 
   def timed_out?
@@ -160,22 +143,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_colour(expected)
-    assert_equal expected, colour, @json
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_exception(expected)
-    assert_equal expected, exception, @json
-    refute_nil trace
-  end
-
-  def exception
-    @json[__method__.to_s]
-  end
-
-  def trace
-    @json[__method__.to_s]
+    assert_equal expected, colour, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

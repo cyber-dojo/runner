@@ -7,6 +7,8 @@ class RagLambdaCacheTest < TestBase
     '332FC'
   end
 
+  # - - - - - - - - - - - - - - - -
+
   def hex_setup
     @cache = RagLambdaCache.new
   end

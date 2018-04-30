@@ -8,23 +8,6 @@ class RunCyberDojoShTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '4CC',
-  %w( malformed avatar_name raises ) do
-    written = with_captured_stdout {
-      in_kata_as('salmon') {
-        run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
-        assert_exception 'avatar_name:malformed'
-      }
-    }
-    json = JSON.parse(written)
-    assert_equal 'avatar_name:malformed', json['exception']
-    assert_equal [], json['log']
-    assert json['trace'].size > 10
-    assert_equal [], external.log.messages
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   test 'B2B', %w( [C,assert]
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output

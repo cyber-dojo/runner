@@ -7,6 +7,8 @@ class JsonWriterTest < TestBase
     '1B63E'
   end
 
+  # - - - - - - - - - - - - - -
+
   def hex_setup
     @writer = JsonWriter.new
   end

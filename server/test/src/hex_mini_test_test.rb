@@ -6,6 +6,8 @@ class HexMiniTestTest < TestBase
     '89876'
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test 'C80',
   'hex-test-id is available via environment variable' do
     assert_equal '89876C80', ENV['CYBER_DOJO_HEX_TEST_ID']

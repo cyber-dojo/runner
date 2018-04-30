@@ -6,6 +6,8 @@ class DiskTest < TestBase
     'FDF13'
   end
 
+  # - - - - - - - - - - - - - - - - -
+
   test 'D4C',
   'what gets written gets read back' do
     disk = Disk.new
