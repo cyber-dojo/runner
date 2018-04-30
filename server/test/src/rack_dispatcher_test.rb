@@ -111,24 +111,116 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # sha
   # - - - - - - - - - - - - - - - - -
 
   test 'AB0', 'sha' do
-    env = { body:'{}', path_info:'sha' }
+    path_info = 'sha'
+    env = { body:{}.to_json, path_info:path_info }
     triple = rack.call(env, external, RackRequestStub)
     assert_200(triple)
     assert_content_app_json(triple)
-    json = JSON.parse(triple[2][0])
-    assert_sha(json['sha'])
+    json = payload(triple)
+    assert_sha(json[path_info])
+    assert_empty_log(json)
   end
 
-  def assert_sha(value)
-    assert_equal 40, value.size
-    value.each_char do |ch|
+  def assert_sha(string)
+    assert_equal 40, string.size
+    string.each_char do |ch|
       assert "0123456789abcdef".include?(ch)
     end
   end
 
+  # - - - - - - - - - - - - - - - - -
+  # kata_new
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB1', 'kata_new' do
+    path_info = 'kata_new'
+    env = {
+      path_info:path_info,
+      body: {
+        image_name:image_name,
+        kata_id:kata_id
+      }.to_json
+    }
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
+    json = payload(triple)
+    assert json.has_key?(path_info)
+    assert_empty_log(json)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # kata_old
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB2', 'kata_old' do
+    path_info = 'kata_old'
+    env = {
+      path_info:path_info,
+      body: {
+        image_name:image_name,
+        kata_id:kata_id
+      }.to_json
+    }
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
+    json = payload(triple)
+    assert json.has_key?(path_info)
+    assert_empty_log(json)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # avatar_new
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB3', 'avatar_new' do
+    path_info = 'avatar_new'
+    env = {
+      path_info:path_info,
+      body: {
+        image_name:image_name,
+        kata_id:kata_id,
+        avatar_name:'salmon',
+        starting_files:{}
+      }.to_json
+    }
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
+    json = payload(triple)
+    assert json.has_key?(path_info)
+    assert_empty_log(json)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # avatar_old
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB4', 'avatar_old' do
+    path_info = 'avatar_old'
+    env = {
+      path_info:path_info,
+      body: {
+        image_name:image_name,
+        kata_id:kata_id,
+        avatar_name:'salmon'
+      }.to_json
+    }
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
+    json = payload(triple)
+    assert json.has_key?(path_info)
+    assert_empty_log(json)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # run_cyber_dojo_sh
   # - - - - - - - - - - - - - - - - -
 
   test 'AB9', '[C,assert] run_cyber_dojo_sh' do
@@ -144,7 +236,7 @@ class RackDispatcherTest < TestBase
       max_seconds:10
     }
     expected = {
-      'run_cyber_dojo_sh': {
+      path_info => {
         stdout:'',
         stderr:gcc_assert_stderr,
         status:2,
@@ -161,7 +253,7 @@ class RackDispatcherTest < TestBase
     # stderr may or may not have ' (core dumped)' appended.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    json = JSON.parse(triple[2][0])[path_info]
+    json = payload(triple)[path_info]
     # C,assert output is compiler-OS dependent. This is gcc,Debian
     assert_equal gcc_assert_stdout, json['stdout']
     assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
@@ -180,6 +272,14 @@ class RackDispatcherTest < TestBase
   def assert_content_app_json(triple)
     expected = { 'Content-Type' => 'application/json' }
     assert_equal(expected, triple[1])
+  end
+
+  def payload(triple)
+    JSON.parse(triple[2][0])
+  end
+
+  def assert_empty_log(json)
+    assert_equal [], json['log']
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -214,8 +314,8 @@ class RackDispatcherTest < TestBase
     json = JSON.parse(triple[2][0])
     assert_equal expected, json['exception']
     refute_nil json['trace']
-    assert_equal [], external.log.messages
-    assert_equal [], json['log']
+    #assert_equal [], external.log.messages
+    assert_empty_log(json)
 
     out = JSON.parse(written)
     assert_equal expected, out['exception']
