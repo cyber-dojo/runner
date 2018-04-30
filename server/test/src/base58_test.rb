@@ -18,6 +18,8 @@ class Base58Test < TestBase
     assert string?('263VvWwXxYyZz11')
   end
 
+  # - - - - - - - - - - - - - - - - - - -
+
   test '069', %w(
   string?(s) false ) do
     refute string?(nil)
