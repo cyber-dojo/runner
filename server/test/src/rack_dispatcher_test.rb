@@ -111,14 +111,15 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
-  def assert_200(triple)
-    assert_equal 200, triple[0]
-  end
-
-  def assert_content_app_json(triple)
-    expected = { 'Content-Type' => 'application/json' }
-    assert_equal(expected, triple[1])
+  test 'AB0', 'sha' do
+    env = { body:'{}', path_info:'sha' }
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
+    json = JSON.parse(triple[2][0])
+    assert_sha(json['sha'])
   end
 
   def assert_sha(value)
@@ -126,15 +127,6 @@ class RackDispatcherTest < TestBase
     value.each_char do |ch|
       assert "0123456789abcdef".include?(ch)
     end
-  end
-
-  test 'AB0', 'sha' do
-    env = { body:'{}', path_info:'sha' }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
-    @json = JSON.parse(triple[2][0])
-    assert_sha(@json['sha'])
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -161,15 +153,15 @@ class RackDispatcherTest < TestBase
     }
 
     env = { path_info:path_info, body:args.to_json }
-    tuple = rack.call(env, external, RackRequestStub)
-    assert_equal 200, tuple[0]
-    assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
+    triple = rack.call(env, external, RackRequestStub)
+    assert_200(triple)
+    assert_content_app_json(triple)
 
     # Careful here...
     # stderr may or may not have ' (core dumped)' appended.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    json = JSON.parse(tuple[2][0])[path_info]
+    json = JSON.parse(triple[2][0])[path_info]
     # C,assert output is compiler-OS dependent. This is gcc,Debian
     assert_equal gcc_assert_stdout, json['stdout']
     assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
@@ -180,6 +172,17 @@ class RackDispatcherTest < TestBase
   private # = = = = = = = = = = = = =
 
   include MalformedData
+
+  def assert_200(triple)
+    assert_equal 200, triple[0]
+  end
+
+  def assert_content_app_json(triple)
+    expected = { 'Content-Type' => 'application/json' }
+    assert_equal(expected, triple[1])
+  end
+
+  # - - - - - - - - - - - - - - - - -
 
   def assert_rack_call_run_malformed(added)
     expected = "#{added.keys[0]}:malformed"
@@ -200,16 +203,15 @@ class RackDispatcherTest < TestBase
   def assert_rack_call_exception(expected, path_info, body)
     env = { path_info:path_info, body:body }
 
-    tuple = nil
+    triple = nil
     written = with_captured_stdout {
-      tuple = rack.call(env, external, RackRequestStub)
+      triple = rack.call(env, external, RackRequestStub)
     }
 
-    assert_equal 400, tuple[0], written
+    assert_equal 400, triple[0], written
+    assert_content_app_json(triple)
 
-    assert_equal({ 'Content-Type' => 'application/json' }, tuple[1])
-
-    json = JSON.parse(tuple[2][0])
+    json = JSON.parse(triple[2][0])
     assert_equal expected, json['exception']
     refute_nil json['trace']
     assert_equal [], external.log.messages
@@ -254,15 +256,15 @@ class RackDispatcherTest < TestBase
     RackDispatcher.new(cache)
   end
 
-  #def rack_call(method_name, args = {})
-  #  args['image_name'] = image_name
-  #  args['kata_id'] = kata_id
-  #  env = { body:args.to_json, path_info:method_name.to_s }
-  #  result = rack.call(env, external, RackRequestStub)
-  #  @json = JSON.parse(result[2][0])
-  #end
-
 =begin
+  def rack_call(method_name, args = {})
+    args['image_name'] = image_name
+    args['kata_id'] = kata_id
+    env = { body:args.to_json, path_info:method_name.to_s }
+    result = rack.call(env, external, RackRequestStub)
+    @json = JSON.parse(result[2][0])
+  end
+
   def assert_exception(expected)
     assert_equal expected, exception, result
     refute_nil trace
@@ -275,9 +277,7 @@ class RackDispatcherTest < TestBase
   def trace
     @json[__method__.to_s]
   end
-=end
 
-=begin
   multi_os_test '4CC',
   %w( malformed avatar_name raises ) do
     written = with_captured_stdout {
