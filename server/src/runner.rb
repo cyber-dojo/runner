@@ -255,7 +255,7 @@ class Runner # stateless
 
   def get_rag_lambda
     # In a crippled container (eg fork-bomb)
-    # the [docker exec] will mostly likely raise.
+    # the shell.assert will mostly likely raise.
     cmd = 'cat /usr/local/bin/red_amber_green.rb'
     docker_cmd = "docker exec #{container_name} bash -c '#{cmd}'"
     src = shell.assert(docker_cmd)
