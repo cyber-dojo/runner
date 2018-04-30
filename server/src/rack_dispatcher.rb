@@ -21,7 +21,7 @@ class RackDispatcher # stateless
     if messages != []
       #external.writer.write(body)
     end
-    triple(success, body)
+    triple(200, body)
   rescue => error
     body = {
       'exception' => error.message,
@@ -29,7 +29,7 @@ class RackDispatcher # stateless
       'log' => external.log.messages
     }
     external.writer.write(body)
-    triple(code(error), body)
+    triple(code_400_500(error), body)
   end
 
   private # = = = = = = = = = = = =
@@ -57,11 +57,7 @@ class RackDispatcher # stateless
 
   # - - - - - - - - - - - - - - - -
 
-  def success
-    200
-  end
-
-  def code(error)
+  def code_400_500(error)
     error.is_a?(ClientError) ? 400 : 500
   end
 

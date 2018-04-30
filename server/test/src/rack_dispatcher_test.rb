@@ -263,6 +263,10 @@ class RackDispatcherTest < TestBase
     assert_equal 'red', result['colour']
   end
 
+  # - - - - - - - - - - - - - - - - -
+  # TODO: 200 call with log content
+  # - - - - - - - - - - - - - - - - -
+
   private # = = = = = = = = = = = = =
 
   include MalformedData
