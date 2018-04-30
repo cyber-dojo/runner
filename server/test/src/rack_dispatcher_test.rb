@@ -118,7 +118,7 @@ class RackDispatcherTest < TestBase
     path_info = 'sha'
     env = { body:{}.to_json, path_info:path_info }
     code,json = rack_call(env)
-    assert_equal 200, code
+    assert_200 code
     assert_sha(json[path_info])
     assert_empty_log(json)
   end
@@ -144,7 +144,7 @@ class RackDispatcherTest < TestBase
       }.to_json
     }
     code,json = rack_call(env)
-    assert_equal 200, code
+    assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -163,7 +163,7 @@ class RackDispatcherTest < TestBase
       }.to_json
     }
     code,json = rack_call(env)
-    assert_equal 200, code
+    assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -184,7 +184,7 @@ class RackDispatcherTest < TestBase
       }.to_json
     }
     code,json = rack_call(env)
-    assert_equal 200, code
+    assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -204,7 +204,7 @@ class RackDispatcherTest < TestBase
       }.to_json
     }
     code,json = rack_call(env)
-    assert_equal 200, code
+    assert_200 code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -235,15 +235,14 @@ class RackDispatcherTest < TestBase
     }
 
     env = { path_info:path_info, body:args.to_json }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
+    code,body = rack_call(env)
+    assert_200 code
 
     # Careful here...
     # stderr may or may not have ' (core dumped)' appended.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    json = payload(triple)[path_info]
+    json = body[path_info]
     # C,assert output is compiler-OS dependent. This is gcc,Debian
     assert_equal gcc_assert_stdout, json['stdout']
     assert json['stderr'].start_with?(gcc_assert_stderr), json['stderr']
@@ -254,23 +253,6 @@ class RackDispatcherTest < TestBase
   private # = = = = = = = = = = = = =
 
   include MalformedData
-
-  def assert_200(triple)
-    assert_equal 200, triple[0]
-  end
-
-  def assert_content_app_json(triple)
-    expected = { 'Content-Type' => 'application/json' }
-    assert_equal(expected, triple[1])
-  end
-
-  def payload(triple)
-    JSON.parse(triple[2][0])
-  end
-
-  def assert_empty_log(json)
-    assert_equal [], json['log']
-  end
 
   # - - - - - - - - - - - - - - - - -
 
@@ -293,24 +275,44 @@ class RackDispatcherTest < TestBase
   def assert_rack_call_exception(expected, path_info, body)
     env = { path_info:path_info, body:body }
 
-    triple = nil
+    code,json = nil,nil
     written = with_captured_stdout {
-      triple = rack.call(env, external, RackRequestStub)
+      code,json = rack_call(env)
     }
 
-    assert_equal 400, triple[0], written
-    assert_content_app_json(triple)
-
-    json = JSON.parse(triple[2][0])
+    assert_equal 400, code, written #triple[0], written
     assert_equal expected, json['exception']
     refute_nil json['trace']
-    #assert_equal [], external.log.messages
     assert_empty_log(json)
 
     out = JSON.parse(written)
     assert_equal expected, out['exception']
     assert_equal [], out['log']
     assert out['trace'].size > 10
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def rack_call(env)
+    rack = RackDispatcher.new(cache)
+    triple = rack.call(env, external, RackRequestStub)
+    code = triple[0]
+    type = triple[1]
+    json = JSON.parse(triple[2][0])
+
+    expected_type = { 'Content-Type' => 'application/json' }
+    assert_equal expected_type, type
+    return code,json
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_200(code)
+    assert_equal 200, code
+  end
+
+  def assert_empty_log(json)
+    assert_equal [], json['log']
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -340,32 +342,9 @@ class RackDispatcherTest < TestBase
     run_cyber_dojo_sh
   )
 
-  # - - - - - - - - - - - - - - - - -
-
-  def rack
-    RackDispatcher.new(cache)
-  end
-
-  def rack_call(env)
-    triple = rack.call(env, external, RackRequestStub)
-    code = triple[0]
-    type = triple[1]
-    json = JSON.parse(triple[2][0])
-
-    expected_type = { 'Content-Type' => 'application/json' }
-    assert_equal expected_type, type
-    return code,json
-  end
+end
 
 =begin
-  def rack_call(method_name, args = {})
-    args['image_name'] = image_name
-    args['kata_id'] = kata_id
-    env = { body:args.to_json, path_info:method_name.to_s }
-    result = rack.call(env, external, RackRequestStub)
-    @json = JSON.parse(result[2][0])
-  end
-
   def assert_exception(expected)
     assert_equal expected, exception, result
     refute_nil trace
@@ -394,5 +373,3 @@ class RackDispatcherTest < TestBase
     assert_equal [], external.log.messages
   end
 =end
-
-end
