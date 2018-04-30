@@ -117,10 +117,8 @@ class RackDispatcherTest < TestBase
   test 'AB0', 'sha' do
     path_info = 'sha'
     env = { body:{}.to_json, path_info:path_info }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
-    json = payload(triple)
+    code,json = rack_call(env)
+    assert_equal 200, code
     assert_sha(json[path_info])
     assert_empty_log(json)
   end
@@ -145,10 +143,8 @@ class RackDispatcherTest < TestBase
         kata_id:kata_id
       }.to_json
     }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
-    json = payload(triple)
+    code,json = rack_call(env)
+    assert_equal 200, code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -166,10 +162,8 @@ class RackDispatcherTest < TestBase
         kata_id:kata_id
       }.to_json
     }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
-    json = payload(triple)
+    code,json = rack_call(env)
+    assert_equal 200, code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -189,10 +183,8 @@ class RackDispatcherTest < TestBase
         starting_files:{}
       }.to_json
     }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
-    json = payload(triple)
+    code,json = rack_call(env)
+    assert_equal 200, code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -211,10 +203,8 @@ class RackDispatcherTest < TestBase
         avatar_name:'salmon'
       }.to_json
     }
-    triple = rack.call(env, external, RackRequestStub)
-    assert_200(triple)
-    assert_content_app_json(triple)
-    json = payload(triple)
+    code,json = rack_call(env)
+    assert_equal 200, code
     assert json.has_key?(path_info)
     assert_empty_log(json)
   end
@@ -354,6 +344,17 @@ class RackDispatcherTest < TestBase
 
   def rack
     RackDispatcher.new(cache)
+  end
+
+  def rack_call(env)
+    triple = rack.call(env, external, RackRequestStub)
+    code = triple[0]
+    type = triple[1]
+    json = JSON.parse(triple[2][0])
+
+    expected_type = { 'Content-Type' => 'application/json' }
+    assert_equal expected_type, type
+    return code,json
   end
 
 =begin
