@@ -244,10 +244,12 @@ class Runner # stateless
     rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
     colour = rag_lambda.call(@stdout, @stderr, @status)
     unless [:red,:amber,:green].include?(colour)
+      # TODO: add to log?
       colour = :amber
     end
     colour.to_s
   rescue
+    # TODO: add to log?
     'amber'
   end
 

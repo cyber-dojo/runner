@@ -223,7 +223,7 @@ class RackDispatcherTest < TestBase
   # run_cyber_dojo_sh
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB9', '[C,assert] run_cyber_dojo_sh' do
+  test 'AB5', '[C,assert] run_cyber_dojo_sh' do
     path_info = 'run_cyber_dojo_sh'
     args = {
       image_name:image_name,
@@ -255,8 +255,47 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # TODO: 200 call with log content
-  # - - - - - - - - - - - - - - - - -
+
+=begin
+  test 'AB6', 'example of run_cyber_dojo_sh with some logging' do
+    path_info = 'run_cyber_dojo_sh'
+    args = {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:'salmon',
+      new_files:starting_files,
+      deleted_files:{},
+      unchanged_files:{},
+      changed_files:{},
+      max_seconds:10
+    }
+    env = { path_info:path_info, body:args.to_json }
+
+    code,json = nil,nil
+    written = with_captured_stdout {
+      rack = RackDispatcher.new(cache)
+
+      triple = rack.call(env, external, RackRequestStub)
+      code = triple[0]
+      type = triple[1]
+      json = JSON.parse(triple[2][0])
+      expected_type = { 'Content-Type' => 'application/json' }
+      assert_equal expected_type, type
+    }
+
+    assert_200 code
+    assert_empty_log(json)
+    assert_no_exception(json)
+    assert_no_trace(json)
+
+    result = json[path_info]
+    # C,assert output is compiler-OS dependent. This is gcc,Debian
+    assert_equal gcc_assert_stdout, result['stdout']
+    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
+    assert_equal 2, result['status']
+    assert_equal 'red', result['colour']
+  end
+=end
 
   private # = = = = = = = = = = = = =
 
