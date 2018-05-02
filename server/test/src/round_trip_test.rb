@@ -76,7 +76,9 @@ class RoundTripTest < TestBase
       stub = BashStubTarPipeOut.new('fail')
       @external = External.new({ 'bash' => stub })
       in_kata_as('salmon') {
-        run_cyber_dojo_sh
+        with_captured_log {
+          run_cyber_dojo_sh
+        }
       }
       assert stub.fired?
       assert_equal({}, files)

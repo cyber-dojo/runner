@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative '../../src/shell_error'
+require_relative '../../src/shell'
 
 class ShellTest < TestBase
 
@@ -12,34 +12,35 @@ class ShellTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '243',
-  %w( when exec(command) raises an expeption,
-      then the exception is translated into a ShellError,
-      it logs nothing
+  %w( when exec(command) raises an exception,
+      then the exception is untouched
+      then nothing is logged
   ) do
-    error = assert_raises(ShellError) {
-      shell.exec('xxx Hello')
+    with_captured_log {
+      @error = assert_raises(Errno::ENOENT) {
+        shell.exec('xxx Hello')
+      }
     }
-    expected = {
-      'command' => 'xxx Hello',
-      'error' => 'No such file or directory - xxx'
-    }
-    assert_equal expected, JSON.parse(error.message)
-    assert_equal [], log.messages
+    expected = 'No such file or directory - xxx'
+    assert_equal expected, @error.message
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '244',
-  %w( when exec(command) is zero,
+  %w( when exec(command)'s status is zero,
       it does not raise,
       it returns [stdout,stderr,status],
       it logs nothing
   ) do
-    stdout,stderr,status = shell.exec('printf Hello')
-    assert_equal 'Hello', stdout
-    assert_equal '', stderr
-    assert_equal 0, status
-    assert_equal [], log.messages
+    with_captured_log {
+      @stdout,@stderr,@status = shell.exec('printf Hello')
+    }
+    assert_equal 'Hello', @stdout
+    assert_equal '', @stderr
+    assert_equal 0, @status
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -48,20 +49,19 @@ class ShellTest < TestBase
   %w( when exec(command) is non-zero,
       it does not raise,
       it returns [stdout,stderr,status],
-      it logs [command,stdout,stderr,status]
+      it logs [command,stdout,stderr,status] in json format
   ) do
     command = 'printf Bye && false'
-    stdout,stderr,status = shell.exec(command)
-    assert_equal 'Bye', stdout
-    assert_equal '', stderr
-    assert_equal 1, status
-    expected = {
-      'command' => command,
-      'stdout'  => 'Bye',
-      'stderr'  => '',
-      'status'  => 1
+    with_captured_log {
+      @stdout,@stderr,@status = shell.exec(command)
     }
-    assert_equal expected, JSON.parse(log.messages[0])
+    assert_equal 'Bye', @stdout
+    assert_equal '', @stderr
+    assert_equal 1, @status
+    assert_log_contains('command', command)
+    assert_log_contains('stdout', 'Bye')
+    assert_log_contains('stderr', '')
+    assert_log_contains('status', 1)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -73,49 +73,54 @@ class ShellTest < TestBase
       it returns stdout,
       it logs nothing
   ) do
-    stdout = shell.assert('printf Hello')
-    assert_equal 'Hello', stdout
-    assert_equal [], log.messages
+    with_captured_log {
+      @stdout = shell.assert('printf Hello')
+    }
+    assert_equal 'Hello', @stdout
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '248',
   %w( when assert(command) has a status of non-zero,
-      it raises a ShellError holding [command],
+      it raises a ShellAssertError holding [command,stdout,stderr,status],
       it logs [command,stdout,stderr,status]
   ) do
     command = 'printf Hello && false'
-    error = assert_raises(ShellError) {
-      shell.assert(command)
+    with_captured_log {
+      @error = assert_raises(ShellAssertError) {
+        shell.assert(command)
+      }
     }
-    assert_equal "printf Hello && false", error.message
 
-    expected = {
-      'command' => command,
-      'stdout'  => 'Hello',
-      'stderr'  => '',
-      'status'  => 1
-    }
-    assert_equal expected, JSON.parse(log.messages[0])
+    assert_error_contains('command', command)
+    assert_error_contains('stdout', 'Hello')
+    assert_error_contains('stderr', '')
+    assert_error_contains('status', 1)
+
+    assert_log_contains('command', command)
+    assert_log_contains('stdout', 'Hello')
+    assert_log_contains('stderr', '')
+    assert_log_contains('status', 1)
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '249',
   %w( when assert(command) raises
-      it translates the exception into a ShellError with the command and original message,
+      the exception is untouched,
       it logs nothing
   ) do
-    error = assert_raises(ShellError) {
-      shell.assert('xxx Hello')
+    with_captured_log {
+      @error = assert_raises(Errno::ENOENT) {
+        shell.assert('xxx Hello')
+      }
     }
-    expected = {
-      'command' => 'xxx Hello',
-      'error' => 'No such file or directory - xxx'
-    }
-    assert_equal expected, JSON.parse(error.message)
-    assert_equal [], log.messages
+
+    expected = 'No such file or directory - xxx'
+    assert_equal expected, @error.message
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -124,8 +129,39 @@ class ShellTest < TestBase
     external.shell
   end
 
-  def log
-    external.log
+  # - - - - - - - - - - - - - - - - -
+
+  def with_captured_log
+    @log = ''
+    begin
+      old_stdout = $stdout
+      $stdout = StringIO.new('','w')
+      yield
+      @log = $stdout.string
+    ensure
+      $stdout = old_stdout
+    end
+  end
+
+  def assert_nothing_logged
+    assert_equal '', @log
+  end
+
+  def assert_log_contains(key, value)
+    refute_nil @log
+    json = JSON.parse(@log)
+    diagnostic = "log does not contain key:#{key}\n#{@log}"
+    assert json.has_key?(key), diagnostic
+    assert_equal value, json[key], @log
+  end
+
+  def assert_error_contains(key, value)
+    refute_nil @error
+    refute_nil @error.message
+    json = JSON.parse(@error.message)
+    diagnostic = "error.message does not contain key:#{key}\n#{@error.message}"
+    assert json.has_key?(key), diagnostic
+    assert_equal value, json[key], @error.message
   end
 
 end

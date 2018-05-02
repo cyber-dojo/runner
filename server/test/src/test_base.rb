@@ -249,14 +249,15 @@ class TestBase < HexMiniTest
     avatar_old(name)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - -
 
-  def with_captured_stdout
+  def with_captured_log
+    @log = ''
     begin
       old_stdout = $stdout
-      $stdout = StringIO.new('','w')
+      $stdout = StringIO.new('', 'w')
       yield
-      $stdout.string
+      @log = $stdout.string
     ensure
       $stdout = old_stdout
     end

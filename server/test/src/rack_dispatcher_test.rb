@@ -118,12 +118,12 @@ class RackDispatcherTest < TestBase
   test 'AB0', 'sha' do
     path_info = 'sha'
     env = { body:{}.to_json, path_info:path_info }
-    code,json = rack_call(env)
-    assert_200 code
-    assert_sha(json[path_info])
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    rack_call(env)
+    assert_200
+    assert_sha(JSON.parse(@body)[path_info])
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
   end
 
   def assert_sha(string)
@@ -146,12 +146,12 @@ class RackDispatcherTest < TestBase
         kata_id:kata_id
       }.to_json
     }
-    code,json = rack_call(env)
-    assert_200 code
-    assert json.has_key?(path_info)
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    rack_call(env)
+    assert_200
+    assert_body_contains(path_info)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -167,12 +167,12 @@ class RackDispatcherTest < TestBase
         kata_id:kata_id
       }.to_json
     }
-    code,json = rack_call(env)
-    assert_200 code
-    assert json.has_key?(path_info)
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    rack_call(env)
+    assert_200
+    assert_body_contains(path_info)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -190,12 +190,12 @@ class RackDispatcherTest < TestBase
         starting_files:{}
       }.to_json
     }
-    code,json = rack_call(env)
-    assert_200 code
-    assert json.has_key?(path_info)
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    rack_call(env)
+    assert_200
+    assert_body_contains(path_info)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -212,12 +212,12 @@ class RackDispatcherTest < TestBase
         avatar_name:'salmon'
       }.to_json
     }
-    code,json = rack_call(env)
-    assert_200 code
-    assert json.has_key?(path_info)
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    rack_call(env)
+    assert_200
+    assert_body_contains(path_info)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -237,17 +237,18 @@ class RackDispatcherTest < TestBase
       max_seconds:10
     }
     env = { path_info:path_info, body:args.to_json }
-    code,json = rack_call(env)
-    assert_200 code
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    rack_call(env)
+    assert_200
+    assert_body_contains(path_info)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
 
     # Careful here...
     # stderr may or may not have ' (core dumped)' appended.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    result = json[path_info]
+    result = JSON.parse(@body)[path_info]
     # C,assert output is compiler-OS dependent. This is gcc,Debian
     assert_equal gcc_assert_stdout, result['stdout']
     assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
@@ -341,53 +342,68 @@ class RackDispatcherTest < TestBase
 
   def assert_rack_call_exception(expected, path_info, body)
     env = { path_info:path_info, body:body }
-
-    code,json = nil,nil
-    written = with_captured_stdout {
-      code,json = rack_call(env)
-    }
-
-    assert_equal 400, code, written
-    assert_equal expected, json['exception']
-    refute_nil json['trace']
-    assert_empty_log(json)
-
-    out = JSON.parse(written)
-    assert_equal expected, out['exception']
-    assert_equal [], out['log']
-    assert out['trace'].size > 10
+    rack_call(env)
+    assert_400
+    assert_body_contains('exception', expected)
+    assert_body_contains('trace')
+    assert_log_contains('exception', expected)
+    assert_log_contains('trace')
   end
 
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env)
     rack = RackDispatcher.new(cache)
-    triple = rack.call(env, external, RackRequestStub)
-    code = triple[0]
-    type = triple[1]
-    json = JSON.parse(triple[2][0])
-
+    with_captured_log {
+      triple = rack.call(env, external, RackRequestStub)
+      @code = triple[0]
+      @type = triple[1]
+      @body = triple[2][0]
+    }
     expected_type = { 'Content-Type' => 'application/json' }
-    assert_equal expected_type, type
-    return code,json
+    assert_equal expected_type, @type
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_200(code)
-    assert_equal 200, code
+  def assert_200
+    assert_equal 200, @code
   end
 
-  def assert_empty_log(json)
-    assert_equal [], json['log']
+  def assert_400
+    assert_equal 400, @code
   end
 
-  def assert_no_exception(json)
-    refute json.has_key?('exception')
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_body_contains(key, value = nil)
+    refute_nil @body
+    json = JSON.parse(@body)
+    assert json.has_key?(key)
+    unless value.nil?
+      assert_equal value, json[key]
+    end
   end
 
-  def assert_no_trace(json)
-    refute json.has_key?('trace')
+  def refute_body_contains(key)
+    refute_nil @body
+    json = JSON.parse(@body)
+    refute json.has_key?(key)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_log_contains(key, value = nil)
+    refute_nil @log
+    json = JSON.parse(@log)
+    assert json.has_key?(key)
+    unless value.nil?
+      assert_equal value, json[key]
+    end
+  end
+
+  def assert_nothing_logged
+    assert_equal '', @log
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -418,20 +434,3 @@ class RackDispatcherTest < TestBase
   )
 
 end
-
-=begin
-  multi_os_test '4CC',
-  %w( malformed avatar_name raises ) do
-    written = with_captured_stdout {
-      in_kata_as('salmon') {
-        run_cyber_dojo_sh({ avatar_name: 'waterbottle' })
-        assert_exception 'avatar_name:malformed'
-      }
-    }
-    json = JSON.parse(written)
-    assert_equal 'avatar_name:malformed', json['exception']
-    assert_equal [], json['log']
-    assert json['trace'].size > 10
-    assert_equal [], external.log.messages
-  end
-=end

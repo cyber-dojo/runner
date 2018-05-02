@@ -1,4 +1,5 @@
-require_relative 'shell_error'
+require_relative 'shell_assert_error'
+require 'json'
 
 class Shell
 
@@ -15,9 +16,10 @@ class Shell
   # - - - - - - - - - - - - - - - - - - - - -
 
   def assert(command)
-    stdout,_stderr,status = bash_run(command)
+    stdout,stderr,status = bash_run(command)
     unless status == success
-      raise ShellError.new(command)
+      args = [command,stdout,stderr,status]
+      raise ShellAssertError.new(*args)
     end
     stdout
   end
@@ -31,16 +33,14 @@ class Shell
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
     unless status == success
-      log << {
+      log << JSON.pretty_generate({
         'command' => command,
         'stdout'  => stdout,
         'stderr'  => stderr,
         'status'  => status
-      }.to_json
+      })
     end
     [stdout, stderr, status]
-  rescue => error
-    raise ShellError.new(command, error)
   end
 
   def bash

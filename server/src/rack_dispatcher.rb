@@ -13,23 +13,14 @@ class RackDispatcher # stateless
     name, args = name_args(request.new(env))
     runner = Runner.new(external, @cache)
     result = runner.public_send(name, *args)
-    messages = external.log.messages
-    body = {
-      name => result,
-      'log' => messages
-    }
-    if messages != []
-      #external.writer.write(body)
-    end
-    triple(200, body)
+    json_triple(200, { name => result }.to_json)
   rescue => error
-    body = {
+    info = {
       'exception' => error.message,
       'trace' => error.backtrace,
-      'log' => external.log.messages
-    }
-    external.writer.write(body)
-    triple(code_400_500(error), body)
+    }.to_json
+    external.log << info
+    json_triple(code_400_500(error), info)
   end
 
   private # = = = = = = = = = = = =
@@ -61,8 +52,8 @@ class RackDispatcher # stateless
     error.is_a?(ClientError) ? 400 : 500
   end
 
-  def triple(code, body)
-    [ code, { 'Content-Type' => 'application/json' }, [ body.to_json ] ]
+  def json_triple(code, body)
+    [ code, { 'Content-Type' => 'application/json' }, [ body ] ]
   end
 
 end
