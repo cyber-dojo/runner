@@ -2,6 +2,7 @@ require_relative 'external'
 require_relative 'runner'
 require_relative 'well_formed_args'
 require 'rack'
+require 'json'
 
 class RackDispatcher # stateless
 
@@ -13,13 +14,13 @@ class RackDispatcher # stateless
     name, args = name_args(request.new(env))
     runner = Runner.new(external, @cache)
     result = runner.public_send(name, *args)
-    json_triple(200, { name => result }.to_json)
+    json_triple(200, { name => result })
   rescue => error
     info = {
       'exception' => error.message,
       'trace' => error.backtrace,
-    }.to_json
-    external.log << info
+    }
+    external.log << to_json(info)
     json_triple(code_400_500(error), info)
   end
 
@@ -53,7 +54,11 @@ class RackDispatcher # stateless
   end
 
   def json_triple(code, body)
-    [ code, { 'Content-Type' => 'application/json' }, [ body ] ]
+    [ code, { 'Content-Type' => 'application/json' }, [ to_json(body) ] ]
+  end
+
+  def to_json(o)
+    JSON.pretty_generate(o)
   end
 
 end
