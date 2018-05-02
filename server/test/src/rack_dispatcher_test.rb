@@ -1,4 +1,5 @@
 require_relative '../../src/rack_dispatcher'
+#require_relative 'bash_stub_status'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
@@ -271,10 +272,12 @@ class RackDispatcherTest < TestBase
     }
     env = { path_info:path_info, body:args.to_json }
 
+    rack = RackDispatcher.new(cache)
+    stub = BashStubStatus.new(4)
+    external = External.new({ 'bash' => stub })
+
     code,json = nil,nil
     written = with_captured_stdout {
-      rack = RackDispatcher.new(cache)
-
       triple = rack.call(env, external, RackRequestStub)
       code = triple[0]
       type = triple[1]
@@ -283,18 +286,35 @@ class RackDispatcherTest < TestBase
       assert_equal expected_type, type
     }
 
-    assert_200 code
-    assert_empty_log(json)
-    assert_no_exception(json)
-    assert_no_trace(json)
+    #TODO: written is the same as json
 
-    result = json[path_info]
-    # C,assert output is compiler-OS dependent. This is gcc,Debian
-    assert_equal gcc_assert_stdout, result['stdout']
-    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
-    assert_equal 2, result['status']
-    assert_equal 'red', result['colour']
+    assert stub.fired?
+    assert_500 code
+    #assert_empty_log(json)     # summat is logged
+    #assert_no_exception(json)  # there is an exception
+    #assert_no_trace(json)      # there is a trace
+
+    assert_equal ['exception','log','trace'], json.keys.sort
+    refute_nil json['exception']
+    refute_nil json['log']
+    refute_nil json['trace']
+
+    # TODO: too much content in exception
+    #       failed shell command is in log anyway...
+    #       I think the exception should contains its own json data
+    #
+    #puts "exception:#{json['exception']}\n\n"
+
+    #puts "log:#{json['log']}\n\n"
+
+    #puts "trace:#{json['trace']}\n\n"
+
   end
+
+  def assert_500(code)
+    assert_equal 500,code
+  end
+
 =end
 
   private # = = = = = = = = = = = = =
