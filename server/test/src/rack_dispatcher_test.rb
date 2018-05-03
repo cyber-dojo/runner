@@ -1,5 +1,5 @@
 require_relative '../../src/rack_dispatcher'
-#require_relative 'bash_stub_status'
+require_relative 'bash_stub_tar_pipe_out'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
@@ -224,7 +224,7 @@ class RackDispatcherTest < TestBase
   # run_cyber_dojo_sh
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB5', '[C,assert] run_cyber_dojo_sh' do
+  test 'AB5', '[C,assert] run_cyber_dojo_sh with no logging' do
     path_info = 'run_cyber_dojo_sh'
     args = {
       image_name:image_name,
@@ -238,6 +238,7 @@ class RackDispatcherTest < TestBase
     }
     env = { path_info:path_info, body:args.to_json }
     rack_call(env)
+
     assert_200
     assert_body_contains(path_info)
     refute_body_contains('exception')
@@ -245,11 +246,11 @@ class RackDispatcherTest < TestBase
     assert_nothing_logged
 
     # Careful here...
+    # C,assert output is compiler-OS dependent. This is gcc,Debian
     # stderr may or may not have ' (core dumped)' appended.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
     result = JSON.parse(@body)[path_info]
-    # C,assert output is compiler-OS dependent. This is gcc,Debian
     assert_equal gcc_assert_stdout, result['stdout']
     assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
     assert_equal 2, result['status']
@@ -258,8 +259,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-=begin
-  test 'AB6', 'example of run_cyber_dojo_sh with some logging' do
+  test 'AB6', '[C,assert] run_cyber_dojo_sh with some logging' do
     path_info = 'run_cyber_dojo_sh'
     args = {
       image_name:image_name,
@@ -274,55 +274,38 @@ class RackDispatcherTest < TestBase
     env = { path_info:path_info, body:args.to_json }
 
     rack = RackDispatcher.new(cache)
-    stub = BashStubStatus.new(4)
+    stub = BashStubTarPipeOut.new('fail')
     external = External.new({ 'bash' => stub })
 
-    code,json = nil,nil
-    written = with_captured_stdout {
+    with_captured_log {
       triple = rack.call(env, external, RackRequestStub)
-      code = triple[0]
+      @code = triple[0]
       type = triple[1]
-      json = JSON.parse(triple[2][0])
+      @body = triple[2][0]
       expected_type = { 'Content-Type' => 'application/json' }
       assert_equal expected_type, type
     }
 
-    #TODO: written is the same as json
-
     assert stub.fired?
-    assert_500 code
-    #assert_empty_log(json)     # summat is logged
-    #assert_no_exception(json)  # there is an exception
-    #assert_no_trace(json)      # there is a trace
+    assert_200
 
-    assert_equal ['exception','log','trace'], json.keys.sort
-    refute_nil json['exception']
-    refute_nil json['log']
-    refute_nil json['trace']
+    assert_body_contains(path_info)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
 
-    # TODO: too much content in exception
-    #       failed shell command is in log anyway...
-    #       I think the exception should contains its own json data
-    #
-    #puts "exception:#{json['exception']}\n\n"
+    assert_log_contains('command')
+    assert_log_contains('stdout', 'fail')
+    assert_log_contains('stderr', '')
+    assert_log_contains('status', 1)
 
-    #puts "log:#{json['log']}\n\n"
-
-    #puts "trace:#{json['trace']}\n\n"
-
+    result = JSON.parse(@body)[path_info]
+    assert_equal gcc_assert_stdout, result['stdout']
+    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
+    assert_equal 2, result['status']
+    assert_equal 'red', result['colour']
   end
-
-  def assert_500(code)
-    assert_equal 500,code
-  end
-
-=end
 
   private # = = = = = = = = = = = = =
-
-  include MalformedData
-
-  # - - - - - - - - - - - - - - - - -
 
   def assert_rack_call_run_malformed(added)
     expected = "#{added.keys[0]}:malformed"
@@ -432,5 +415,7 @@ class RackDispatcherTest < TestBase
     avatar_new avatar_old
     run_cyber_dojo_sh
   )
+
+  include MalformedData
 
 end
