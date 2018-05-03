@@ -236,16 +236,7 @@ class RackDispatcherTest < TestBase
     refute_body_contains('trace')
     assert_nothing_logged
 
-    # Careful here...
-    # C,assert output is compiler-OS dependent. This is gcc,Debian
-    # stderr may or may not have ' (core dumped)' appended.
-    # Note that --ulimit core=0 is in place in the runner so
-    # no core file is -actually- dumped.
-    result = JSON.parse(@body)[path_info]
-    assert_equal gcc_assert_stdout, result['stdout']
-    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
-    assert_equal 2, result['status']
-    assert_equal 'red', result['colour']
+    assert_gcc_starting_red
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -255,18 +246,8 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
 
-    rack = RackDispatcher.new(cache)
     stub = BashStubTarPipeOut.new('fail')
-    external = External.new({ 'bash' => stub })
-
-    with_captured_log {
-      triple = rack.call(env, external, RackRequestStub)
-      @code = triple[0]
-      type = triple[1]
-      @body = triple[2][0]
-      expected_type = { 'Content-Type' => 'application/json' }
-      assert_equal expected_type, type
-    }
+    rack_call(env, External.new({ 'bash' => stub }))
 
     assert stub.fired?
     assert_200
@@ -280,11 +261,7 @@ class RackDispatcherTest < TestBase
     assert_log_contains('stderr', '')
     assert_log_contains('status', 1)
 
-    result = JSON.parse(@body)[path_info]
-    assert_equal gcc_assert_stdout, result['stdout']
-    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
-    assert_equal 2, result['status']
-    assert_equal 'red', result['colour']
+    assert_gcc_starting_red
   end
 
   private # = = = = = = = = = = = = =
@@ -309,10 +286,10 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def rack_call(env)
+  def rack_call(env, e = external)
     rack = RackDispatcher.new(cache)
     with_captured_log {
-      triple = rack.call(env, external, RackRequestStub)
+      triple = rack.call(env, e, RackRequestStub)
       @code = triple[0]
       @type = triple[1]
       @body = triple[2][0]
@@ -365,20 +342,13 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh_args
-    {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:'salmon',
-      new_files:starting_files,
-      deleted_files:{},
-      unchanged_files:{},
-      changed_files:{},
-      max_seconds:10
-    }
+  def assert_gcc_starting_red
+    result = JSON.parse(@body)['run_cyber_dojo_sh']
+    assert_equal gcc_assert_stdout, result['stdout']
+    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
+    assert_equal 2, result['status']
+    assert_equal 'red', result['colour']
   end
-
-  # - - - - - - - - - - - - - - - - -
 
   def gcc_assert_stdout
     # gcc,Debian
@@ -392,8 +362,25 @@ class RackDispatcherTest < TestBase
     # ...Aborted (core dumped).
     # But if the host-OS is Debian/Ubuntu (eg on Travis)
     # then the output does not say "(core dumped)"
+    # Note that --ulimit core=0 is in place in the runner so
+    # no core file is -actually- dumped.
     "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
     "make: *** [test.output] Aborted"
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def run_cyber_dojo_sh_args
+    {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:'salmon',
+      new_files:starting_files,
+      deleted_files:{},
+      unchanged_files:{},
+      changed_files:{},
+      max_seconds:10
+    }
   end
 
   # - - - - - - - - - - - - - - - - -
