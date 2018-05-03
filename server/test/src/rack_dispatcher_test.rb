@@ -226,16 +226,7 @@ class RackDispatcherTest < TestBase
 
   test 'AB5', '[C,assert] run_cyber_dojo_sh with no logging' do
     path_info = 'run_cyber_dojo_sh'
-    args = {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:'salmon',
-      new_files:starting_files,
-      deleted_files:{},
-      unchanged_files:{},
-      changed_files:{},
-      max_seconds:10
-    }
+    args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
     rack_call(env)
 
@@ -261,16 +252,7 @@ class RackDispatcherTest < TestBase
 
   test 'AB6', '[C,assert] run_cyber_dojo_sh with some logging' do
     path_info = 'run_cyber_dojo_sh'
-    args = {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:'salmon',
-      new_files:starting_files,
-      deleted_files:{},
-      unchanged_files:{},
-      changed_files:{},
-      max_seconds:10
-    }
+    args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
 
     rack = RackDispatcher.new(cache)
@@ -309,16 +291,8 @@ class RackDispatcherTest < TestBase
 
   def assert_rack_call_run_malformed(added)
     expected = "#{added.keys[0]}:malformed"
-    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', {
-      image_name:image_name,
-      kata_id:kata_id,
-      avatar_name:'salmon',
-      new_files:{},
-      deleted_files:{},
-      unchanged_files:{},
-      changed_files:{ 'cyber-dojo.sh' => 'pwd' },
-      max_seconds:10
-    }.merge(added).to_json)
+    args = run_cyber_dojo_sh_args.merge(added).to_json
+    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -387,6 +361,21 @@ class RackDispatcherTest < TestBase
 
   def assert_nothing_logged
     assert_equal '', @log
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def run_cyber_dojo_sh_args
+    {
+      image_name:image_name,
+      kata_id:kata_id,
+      avatar_name:'salmon',
+      new_files:starting_files,
+      deleted_files:{},
+      unchanged_files:{},
+      changed_files:{},
+      max_seconds:10
+    }
   end
 
   # - - - - - - - - - - - - - - - - -
