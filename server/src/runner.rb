@@ -390,9 +390,9 @@ class Runner # stateless
     image_name.start_with?('cyberdojofoundation/clang')
   end
 
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
   # avatar
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   include AllAvatarsNames
 
@@ -423,7 +423,7 @@ class Runner # stateless
     truncated(cleaned(string))
   end
 
-  # - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def space
     ' '
