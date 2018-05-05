@@ -213,6 +213,7 @@ class RackDispatcherTest < TestBase
       }.to_json
     }
     rack_call(env)
+
     assert_200
     assert_body_contains(path_info)
     refute_body_contains('exception')
@@ -235,7 +236,6 @@ class RackDispatcherTest < TestBase
     refute_body_contains('exception')
     refute_body_contains('trace')
     assert_nothing_logged
-
     assert_gcc_starting_red
   end
 
@@ -245,24 +245,24 @@ class RackDispatcherTest < TestBase
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
-
     stub = BashStubTarPipeOut.new('fail')
     rack_call(env, External.new({ 'bash' => stub }))
 
     assert stub.fired?
     assert_200
-
     assert_body_contains(path_info)
     refute_body_contains('exception')
     refute_body_contains('trace')
-
     assert_log_contains('command')
     assert_log_contains('stdout', 'fail')
     assert_log_contains('stderr', '')
     assert_log_contains('status', 1)
-
     assert_gcc_starting_red
   end
+
+  # - - - - - - - - - - - - - - - - -
+
+  #TODO: 500 call
 
   private # = = = = = = = = = = = = =
 
