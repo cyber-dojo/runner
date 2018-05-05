@@ -1,0 +1,32 @@
+
+# what should @files be split into?
+#   :new - yes, this is the primary use case
+#   :deleted - possible, self-modifying code
+#   :changed - possible, self-modifying code
+#   :unchanged - most common outcome
+#
+# what should timed_out return?
+#   :new {}
+#   :deleted {}
+#   :changed {}
+#   :unchanged ALL
+# This is what you get if you pass in all_files
+
+
+def file_delta(was, now)
+  # This modifies now
+  result = { unchanged:{}, changed:{}, deleted:{} }
+  was.each do |filename, content|
+    if now[filename] == content
+      result[:unchanged] << filename
+    elsif !now[filename].nil?
+      result[:changed] << filename
+    else
+      result[:deleted] << filename
+    end
+    now.delete(filename)
+  end
+  result[:new] = now
+  result
+end
+
