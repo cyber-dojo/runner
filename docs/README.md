@@ -18,7 +18,7 @@ API:
 - - - -
 
 ## GET sha
-Returns the git commit sha used to create the docker image.
+Returns the git commit sha used to create the docker service image.
 - parameters, none
 ```
   {}
