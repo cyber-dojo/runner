@@ -244,13 +244,17 @@ class Runner # stateless
     rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
     colour = rag_lambda.call(@stdout, @stderr, @status)
     unless [:red,:amber,:green].include?(colour)
-      # TODO: log
+      log << rag_message(colour.to_s)
       colour = :amber
     end
     colour.to_s
-  rescue
-    # TODO: log
+  rescue => error
+    log << rag_message(error.message)
     'amber'
+  end
+
+  def rag_message(msg)
+    "red_amber_green lambda error mapped to :amber\n#{msg}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -431,6 +435,10 @@ class Runner # stateless
 
   def disk
     @external.disk
+  end
+
+  def log
+    @external.log
   end
 
   def shell

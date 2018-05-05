@@ -1,6 +1,6 @@
 require 'open3'
 
-class BashStubRaiser
+class BashStubRagRaiser
 
   def initialize(message)
     @message = message

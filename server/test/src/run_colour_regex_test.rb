@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative 'bash_stub_raiser'
+require_relative 'bash_stub_rag_raiser'
 require_relative 'bash_stub_rag_file_catter'
 
 class RunColourRegexTest < TestBase
@@ -44,11 +44,14 @@ class RunColourRegexTest < TestBase
 
   test '5A2',
   %w( (cat'ing lambda from file) exception becomes amber ) do
-    raiser = BashStubRaiser.new('fubar')
+    raiser = BashStubRagRaiser.new('fubar')
     @external = External.new({ 'bash' => raiser })
     in_kata_as('salmon') {
-      run_cyber_dojo_sh
+      with_captured_log {
+        run_cyber_dojo_sh
+      }
       assert_colour 'amber'
+      assert_rag_log 'fubar'
     }
   end
 
@@ -76,7 +79,7 @@ class RunColourRegexTest < TestBase
 
   test '5A5',
   %w( (rag_lambda returning non red/amber/green) becomes amber ) do
-    assert_rag('must return one of [:red,:amber,:green]',
+    assert_rag('orange',
       <<~RUBY
       lambda { |stdout, stderr, status|
         return :orange
@@ -109,13 +112,23 @@ class RunColourRegexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_rag(_expected, lambda)
+  def assert_rag(expected_log, lambda)
     cater = BashStubRagFileCatter.new(lambda)
     @external = External.new({ 'bash' => cater })
     in_kata_as('salmon') {
-      run_cyber_dojo_sh
+      with_captured_log {
+        run_cyber_dojo_sh
+      }
+      assert_rag_log expected_log
       assert_colour 'amber'
     }
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_rag_log(msg)
+    expected = "red_amber_green lambda error mapped to :amber\n#{msg}"
+    assert @log.include?(expected), @log
   end
 
 end
