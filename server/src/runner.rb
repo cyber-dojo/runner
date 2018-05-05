@@ -99,7 +99,8 @@ class Runner # stateless
     # eg tmp_dir = /tmp/.../sandboxes/bee
     files = {}
     Find.find(tmp_dir) do |pathed_filename|
-      # eg pathed_filename = '/tmp/.../sandboxes/bee/features/shouty.feature
+      # eg pathed_filename =
+      # '/tmp/.../sandboxes/bee/features/shouty.feature
       unless File.directory?(pathed_filename)
         content = File.read(pathed_filename)
         filename = pathed_filename[tmp_dir.size+1..-1]
@@ -135,7 +136,7 @@ class Runner # stateless
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
       Process.detach(pid)   # prevent zombie-child
-      @status = 137         # don't wait for status from detach
+      @status = 137         # don't wait detach status
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
@@ -171,6 +172,7 @@ class Runner # stateless
     # In particular the methods
     #    o) RUN_install_tar
     #    o) RUN_install_coreutils
+    #    o) RUN_install_bash
     <<~SHELL.strip
       chmod 755 #{tmp_dir}                                 \
       &&                                                   \
@@ -372,7 +374,8 @@ class Runner # stateless
       '--security-opt=no-new-privileges',  # no escalation
     ]
     unless clang?
-      # [ulimit data] prevents clang's -fsanitize=address option.
+      # [ulimit data] prevents clang's
+      # -fsanitize=address option.
       options << ulimit('data', 4*GB) # data segment size
     end
     options.join(space)
