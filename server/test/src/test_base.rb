@@ -97,10 +97,6 @@ class TestBase < HexMiniTest
 
   attr_reader :result
 
-  def files
-    result[__method__]
-  end
-
   def stdout
     result[__method__]
   end
@@ -110,6 +106,22 @@ class TestBase < HexMiniTest
   end
 
   def colour
+    result[__method__]
+  end
+
+  def new_files
+    result[__method__]
+  end
+
+  def deleted_files
+    result[__method__]
+  end
+
+  def changed_files
+    result[__method__]
+  end
+
+  def unchanged_files
     result[__method__]
   end
 

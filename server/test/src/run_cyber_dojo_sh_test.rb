@@ -14,12 +14,14 @@ class RunCyberDojoShTest < TestBase
   then stdout is empty,
   and the colour is 'timed_out'
   ) do
+    named_args = {
+      changed_files: { 'hiker.c' => quiet_infinite_loop },
+        max_seconds: 2
+    }
     in_kata_as('salmon') {
-      named_args = {
-        changed_files: { 'hiker.c' => quiet_infinite_loop },
-          max_seconds: 2
+      with_captured_log {
+        run_cyber_dojo_sh(named_args)
       }
-      run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
     assert_stdout ''
@@ -35,12 +37,14 @@ class RunCyberDojoShTest < TestBase
   then stdout is not empty,
   and the colour is 'timed_out'
   ) do
+    named_args = {
+      changed_files: { 'hiker.c' => loud_infinite_loop },
+        max_seconds: 2
+    }
     in_kata_as('salmon') {
-      named_args = {
-        changed_files: { 'hiker.c' => loud_infinite_loop },
-          max_seconds: 2
+      with_captured_log {
+        run_cyber_dojo_sh(named_args)
       }
-      run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
     refute_stdout ''

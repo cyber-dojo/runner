@@ -1,4 +1,5 @@
 require_relative 'all_avatars_names'
+require_relative 'file_delta'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
 require 'timeout'
@@ -55,21 +56,19 @@ class Runner # stateless
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
         run_timeout(tar_pipe_in(tmp_dir), max_seconds)
-        if @timed_out
-          @colour = 'timed_out'
-          @files = {}
-        else
-          @colour = red_amber_green
-          @files = tar_pipe_out
-        end
+        set_colour
+        set_file_delta(all_files)
       }
     end
     {
-      files:@files,
       stdout:@stdout,
       stderr:@stderr,
       status:@status,
-      colour:@colour
+      colour:@colour,
+      new_files:@new_files,
+      deleted_files:@deleted_files,
+      unchanged_files:@unchanged_files,
+      changed_files:@changed_files
     }
   end
 
@@ -204,6 +203,23 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # tar-pipe text files and look for changes
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  include FileDelta
+
+  def set_file_delta(was_files)
+    now_files = tar_pipe_out
+    if now_files == {} || @timed_out
+      @files = {}
+      @new_files = {}
+      @deleted_files = {}
+      @unchanged_files = was_files
+      @changed_files = {}
+    else
+      file_delta(was_files, now_files)
+    end
+  end
 
   def tar_pipe_out
     # The create_text_file_tar_list.sh file is injected
@@ -241,6 +257,16 @@ class Runner # stateless
   # red-amber-green colour of stdout,stderr,status
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def set_colour
+    if @timed_out
+      @colour = 'timed_out'
+    else
+      @colour = red_amber_green
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def red_amber_green
     # @stdout and @stderr have been sanitized.
     rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
@@ -255,10 +281,6 @@ class Runner # stateless
     'amber'
   end
 
-  def rag_message(msg)
-    "red_amber_green lambda error mapped to :amber\n#{msg}"
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def get_rag_lambda
@@ -268,6 +290,12 @@ class Runner # stateless
     docker_cmd = "docker exec #{container_name} bash -c '#{cmd}'"
     src = shell.assert(docker_cmd)
     eval(src)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def rag_message(msg)
+    "red_amber_green lambda error mapped to :amber\n#{msg}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
