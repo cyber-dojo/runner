@@ -1,3 +1,4 @@
+require_relative 'client_error'
 require_relative 'external'
 require_relative 'runner'
 require_relative 'well_formed_args'
@@ -49,16 +50,16 @@ class RackDispatcher # stateless
 
   # - - - - - - - - - - - - - - - -
 
-  def code_400_500(error)
-    error.is_a?(ClientError) ? 400 : 500
-  end
-
   def json_triple(code, body)
     [ code, { 'Content-Type' => 'application/json' }, [ to_json(body) ] ]
   end
 
   def to_json(o)
     JSON.pretty_generate(o)
+  end
+
+  def code_400_500(error)
+    error.is_a?(ClientError) ? 400 : 500
   end
 
 end
