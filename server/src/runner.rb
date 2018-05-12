@@ -67,7 +67,6 @@ class Runner # stateless
       colour:@colour,
       new_files:@new_files,
       deleted_files:@deleted_files,
-      unchanged_files:@unchanged_files,
       changed_files:@changed_files
     }
   end
@@ -211,10 +210,8 @@ class Runner # stateless
   def set_file_delta(was_files)
     now_files = tar_pipe_out
     if now_files == {} || @timed_out
-      @files = {}
       @new_files = {}
       @deleted_files = {}
-      @unchanged_files = was_files
       @changed_files = {}
     else
       file_delta(was_files, now_files)

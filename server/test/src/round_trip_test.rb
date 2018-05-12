@@ -30,7 +30,6 @@ class RoundTripTest < TestBase
         '.dotfile' => 'yyy' + "\n"
       }, new_files)
       assert_hash_equal({}, deleted_files)
-      assert_hash_equal(@previous_files, unchanged_files)
       assert_hash_equal({}, changed_files)
     end
   end
@@ -52,7 +51,6 @@ class RoundTripTest < TestBase
         'sub/newfile.txt' => "xxx\n"
       }, new_files)
       assert_hash_equal({}, deleted_files)
-      assert_hash_equal(@previous_files, unchanged_files)
       assert_hash_equal({}, changed_files)
     end
   end
@@ -68,8 +66,6 @@ class RoundTripTest < TestBase
 
         assert_hash_equal({}, new_files)
         assert_equal [src_file(os)], deleted_files.keys
-        @previous_files.delete(src_file(os))
-        assert_hash_equal(@previous_files, unchanged_files)
         assert_hash_equal({}, changed_files)
       }
     end
@@ -86,8 +82,6 @@ class RoundTripTest < TestBase
 
         assert_hash_equal({}, new_files)
         assert_hash_equal({}, deleted_files)
-        @previous_files.delete(src_file(os))
-        assert_hash_equal(@previous_files, unchanged_files)
         assert_equal [src_file(os)], changed_files.keys
       }
     end
@@ -109,7 +103,6 @@ class RoundTripTest < TestBase
         'large_file.txt' => expected
       }, new_files)
       assert_hash_equal({}, deleted_files)
-      assert_hash_equal(@previous_files, unchanged_files)
       assert_hash_equal({}, changed_files)
     end
   end
@@ -130,7 +123,6 @@ class RoundTripTest < TestBase
       assert stub.fired?
       assert_hash_equal({}, new_files)
       assert_hash_equal({}, deleted_files)
-      assert_hash_equal(@previous_files, unchanged_files)
       assert_hash_equal({}, changed_files)
     end
   end

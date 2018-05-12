@@ -121,10 +121,6 @@ class TestBase < HexMiniTest
     result[__method__]
   end
 
-  def unchanged_files
-    result[__method__]
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_stdout(expected)
