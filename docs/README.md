@@ -184,7 +184,7 @@ If the runner-client's IP address is 192.168.99.100 then put
 - grey: tests did not complete (in 3 seconds)
 - red: tests ran but failed
 - amber: tests did not run (syntax error)
-- green: tests test and passed
+- green: tests ran and passed
 
 # demo screenshot
 
