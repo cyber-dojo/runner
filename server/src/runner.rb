@@ -134,7 +134,7 @@ class Runner # stateless
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
       Process.detach(pid)   # prevent zombie-child
-      @status = 137         # don't wait detach status
+      @status = 137         # don't wait for detach status
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
@@ -147,7 +147,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping in/out of the container
+  # tar-piping into the container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
@@ -202,7 +202,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # tar-pipe text files and look for changes
+  # tar-piping text files out of the container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   include FileDelta
@@ -220,7 +220,7 @@ class Runner # stateless
 
   def tar_pipe_out
     # The create_text_file_tar_list.sh file is injected
-    # into container by image_builder.
+    # into the test-framework image by image_builder.
     # Passes the tar-list filename as an environment
     # variable because using bash -c means you
     # cannot pass it as an argument.
