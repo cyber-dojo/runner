@@ -29,8 +29,8 @@ class RoundTripTest < TestBase
         'newfile.txt' => 'xxx' + "\n",
         '.dotfile' => 'yyy' + "\n"
       }, new_files)
-      assert_hash_equal({}, deleted_files)
-      assert_hash_equal({}, changed_files)
+      assert_equal({}, deleted_files)
+      assert_equal({}, changed_files)
     end
   end
 
@@ -47,11 +47,9 @@ class RoundTripTest < TestBase
       @os = os
       in_kata_as('salmon') { assert_cyber_dojo_sh(script) }
 
-      assert_hash_equal({
-        'sub/newfile.txt' => "xxx\n"
-      }, new_files)
-      assert_hash_equal({}, deleted_files)
-      assert_hash_equal({}, changed_files)
+      assert_equal({ 'sub/newfile.txt' => "xxx\n" }, new_files)
+      assert_equal({}, deleted_files)
+      assert_equal({}, changed_files)
     end
   end
 
@@ -64,9 +62,9 @@ class RoundTripTest < TestBase
         script = "rm #{src_file(os)}"
         assert_cyber_dojo_sh(script)
 
-        assert_hash_equal({}, new_files)
+        assert_equal({}, new_files)
         assert_equal [src_file(os)], deleted_files.keys
-        assert_hash_equal({}, changed_files)
+        assert_equal({}, changed_files)
       }
     end
   end
@@ -80,8 +78,8 @@ class RoundTripTest < TestBase
         script = "echo 'XXX' >> #{src_file(os)}"
         assert_cyber_dojo_sh(script)
 
-        assert_hash_equal({}, new_files)
-        assert_hash_equal({}, deleted_files)
+        assert_equal({}, new_files)
+        assert_equal({}, deleted_files)
         assert_equal [src_file(os)], changed_files.keys
       }
     end
@@ -99,11 +97,9 @@ class RoundTripTest < TestBase
       expected += "\n"
       expected += 'output truncated by cyber-dojo'
 
-      assert_hash_equal({
-        'large_file.txt' => expected
-      }, new_files)
-      assert_hash_equal({}, deleted_files)
-      assert_hash_equal({}, changed_files)
+      assert_equal({ 'large_file.txt' => expected }, new_files)
+      assert_equal({}, deleted_files)
+      assert_equal({}, changed_files)
     end
   end
 
@@ -121,9 +117,9 @@ class RoundTripTest < TestBase
         }
       }
       assert stub.fired?
-      assert_hash_equal({}, new_files)
-      assert_hash_equal({}, deleted_files)
-      assert_hash_equal({}, changed_files)
+      assert_equal({}, new_files)
+      assert_equal({}, deleted_files)
+      assert_equal({}, changed_files)
     end
   end
 
@@ -146,7 +142,7 @@ class RoundTripTest < TestBase
   def assert_hash_equal(expected, actual)
     assert_equal expected.keys.sort, actual.keys.sort
     expected.keys.each do |key|
-      assert_equal expected[key], actual[key]
+      assert_equal expected[key], actual[key], key
     end
   end
 
