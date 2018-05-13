@@ -144,7 +144,7 @@ class ApiTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # vanilla red-amber-green
+  # red-amber-green
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '3DF',
@@ -152,24 +152,14 @@ class ApiTest < TestBase
     in_kata_as(salmon) {
       run_cyber_dojo_sh
       assert red?, result
-    }
-  end
 
-  test '3DE',
-  '[C,assert] run with syntax error is amber' do
-    in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: {
           'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
         }
       })
       assert amber?, result
-    }
-  end
 
-  test '3DD',
-  '[C,assert] run with 6*7 == 42 is green' do
-    in_kata_as(salmon) {
       run_cyber_dojo_sh({
         changed_files: {
           'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
