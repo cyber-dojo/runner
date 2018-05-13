@@ -101,7 +101,7 @@ cyber-dojo.sh as the avatar with the given avatar_name.
 - returns [stdout, stderr, status, colour] as the results of
 executing cyber-dojo.sh
 - returns [new_files, deleted_files, changed_files] which are text files
-created by executing cyber-dojo.sh
+altered by executing cyber-dojo.sh
 - if the execution completed in max_seconds, colour will be "red", "amber", or "green".
 - if the execution did not complete in max_seconds, colour will be "timed_out".
 
