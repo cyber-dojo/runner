@@ -227,6 +227,10 @@ class TestBase < HexMiniTest
     test(hex_suffix+'1', *ubuntu_lines, &block)
   end
 
+  def all_OSes
+    [ :Alpine, :Ubuntu, :Debian ]
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def in_kata_as(name)

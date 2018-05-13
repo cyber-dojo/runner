@@ -2,8 +2,8 @@ require_relative 'all_avatars_names'
 require_relative 'file_delta'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
-require 'timeout'
 require 'find'
+require 'timeout'
 
 class Runner # stateless
 
@@ -147,7 +147,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping into the container
+  # tar-piping text files into the container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
