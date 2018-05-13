@@ -21,11 +21,11 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new(named_args = {})
-    runner.kata_new *common_args(named_args)
+    runner.kata_new(*common_args(named_args))
   end
 
   def kata_old(named_args={})
-    runner.kata_old *common_args(named_args)
+    runner.kata_old(*common_args(named_args))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -34,7 +34,7 @@ class TestBase < HexMiniTest
     args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name,    avatar_name)
     args << defaulted_arg(named_args, :starting_files, starting_files)
-    result = runner.avatar_new *args
+    result = runner.avatar_new(*args)
     @avatar_name = args[-2]
     @all_files = args[-1]
     result
@@ -43,7 +43,7 @@ class TestBase < HexMiniTest
   def avatar_old(named_args = {})
     args = common_args(named_args)
     args << defaulted_arg(named_args, :avatar_name, avatar_name)
-    runner.avatar_old *args
+    runner.avatar_old(*args)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,7 +73,7 @@ class TestBase < HexMiniTest
     args << changed_files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
-    @result = runner.run_cyber_dojo_sh *args
+    @result = runner.run_cyber_dojo_sh(*args)
 
     @all_files = [ *new_files, *unchanged_files, *changed_files ].to_h
     nil
