@@ -102,21 +102,9 @@ cyber-dojo.sh as the avatar with the given avatar_name.
 executing cyber-dojo.sh
 - returns [new_files, deleted_files, changed_files] which are text files
 created by executing cyber-dojo.sh
-- if the execution did not complete in max_seconds, colour will be "timed_out".
 - if the execution completed in max_seconds, colour will be "red", "amber", or "green".
-eg
-```
-    { "run_cyber_dojo_sh": {
-        "stdout": "...",
-        "stderr": "...",
-        "status": 137,
-        "colour:"timed_out",
-        "new_files":{},
-        "deleted_files":{},
-        "changed_files":{}
-      }
-    }
-```
+- if the execution did not complete in max_seconds, colour will be "timed_out".
+
 eg
 ```
     { "run_cyber_dojo_sh": {
@@ -130,9 +118,24 @@ eg
       }
     }
 ```
+eg
+```
+    { "run_cyber_dojo_sh": {
+        "stdout": "...",
+        "stderr": "...",
+        "status": 137,
+        "colour:"timed_out",
+        "new_files":{},
+        "deleted_files":{},
+        "changed_files":{}
+      }
+    }
+```
+
 The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
 is determined by passing stdout, stderr, and status to a Ruby lambda, read from the
 named image, at /usr/local/bin/red_amber_green.rb.
+
 eg
 ```
 lambda { |stdout, stderr, status|
