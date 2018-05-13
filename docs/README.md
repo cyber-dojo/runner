@@ -11,6 +11,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 API:
   * All methods receive their named arguments in a json hash.
+    * image_name must be an docker image created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * All methods return a json hash.
     * If the method completes, a key equals the method's name.
     * If the method raises an exception, a key equals "exception".
