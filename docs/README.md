@@ -18,7 +18,7 @@ API:
 - - - -
 
 ## GET sha
-Returns the git commit sha used to create the docker service image.
+Returns the git commit sha used to create the docker image.
 - parameters, none
 ```
   {}
@@ -98,27 +98,35 @@ cyber-dojo.sh as the avatar with the given avatar_name.
           "max_seconds": 10
   }
 ```
-- returns stdout, stderr, status, as the results of calling
-cyber-dojo.sh, and colour.
-If the run did not complete in max_seconds, colour will be "timed_out".
+- returns [stdout, stderr, status, colour] as the results of
+executing cyber-dojo.sh
+- returns [new_files, deleted_files, changed_files] which are text files
+created by executing cyber-dojo.sh
+- if the execution did not complete in max_seconds, colour will be "timed_out".
+- if the execution completed in max_seconds, colour will be "red", "amber", or "green".
 eg
 ```
     { "run_cyber_dojo_sh": {
         "stdout": "...",
         "stderr": "...",
         "status": 137,
-        "colour:"timed_out"
+        "colour:"timed_out",
+        "new_files":{},
+        "deleted_files":{},
+        "changed_files":{}
       }
     }
 ```
-If the run completed in max_seconds, colour will be "red", "amber", or "green".
 eg
 ```
     { "run_cyber_dojo_sh": {
         "stdout": "makefile:17: recipe for target 'test' failed\n",
         "stderr": "invalid suffix sss on integer constant",
         "status": 2,
-        "colour": "amber"
+        "colour": "amber",
+        "new_files":{ ... },
+        "deleted_files":{},
+        "changed_files":{ ... }
       }
     }
 ```
