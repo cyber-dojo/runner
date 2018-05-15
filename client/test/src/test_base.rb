@@ -1,4 +1,3 @@
-require_relative 'all_avatars_names'
 require_relative 'hex_mini_test'
 require_relative '../../src/runner_service'
 require 'json'
@@ -150,36 +149,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  include AllAvatarsNames
-
   def avatar_name
     @avatar_name || salmon
   end
 
   def salmon
     'salmon'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def uid
-    40000 + all_avatars_names.index(avatar_name)
-  end
-
-  def gid
-    5000
-  end
-
-  def group
-    'cyber-dojo'
-  end
-
-  def home_dir
-    "/home/#{avatar_name}"
-  end
-
-  def sandbox_dir
-    "/sandboxes/#{avatar_name}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
