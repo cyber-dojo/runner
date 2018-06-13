@@ -87,6 +87,25 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '532', %w( empty files are detected ) do
+    # runner runs create_text_file_tar_list.sh which
+    # uses the file utility to detect non binary files.
+    # However it says empty files are binary files.
+    all_OSes.each do |os|
+      @os = os
+      in_kata_as('salmon') {
+        script = 'touch empty.file'
+        assert_cyber_dojo_sh(script)
+
+        assert_equal({'empty.file' => ''}, new_files)
+        assert_equal({}, deleted_files)
+        assert_equal({}, changed_files)
+      }
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
     all_OSes.each do |os|
