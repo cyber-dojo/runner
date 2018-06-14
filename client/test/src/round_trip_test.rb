@@ -57,6 +57,16 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '164',
+  %w( [C,assert] created empyty text files is returned in json payload ) do
+    in_kata_as_salmon_run('touch empty.file')
+    assert_equal({ 'empty.file' => ''}, new_files)
+    assert_equal({}, deleted_files)
+    assert_equal({}, changed_files)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   def in_kata_as_salmon_run(script)
     in_kata_as('salmon') {
       named_args = {
