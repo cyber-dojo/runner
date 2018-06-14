@@ -53,5 +53,16 @@ class FileDeltaTest < TestBase
     assert_equal({}, @changed_files)
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test 'E80', %w( new empty content ) do
+    was_files = {}
+    now_files = { 'empty.file' => '' }
+    file_delta(was_files, now_files)
+    assert_equal({'empty.file' => ''}, @new_files)
+    assert_equal({}, @deleted_files)
+    assert_equal({}, @changed_files)
+  end
+
 end
 
