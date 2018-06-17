@@ -202,14 +202,12 @@ class Runner # stateless
             #{container_name}                              \
             sh -c                                          \
               '                  `# open quote`            \
-              cd #{sandbox_dir}                            \
-              &&                                           \
               tar                                          \
                 --touch          `# [1]`                   \
                 -zxf             `# extract tar file`      \
                 -                `# read from stdin`       \
                 -C               `# save to the`           \
-                .                `# current directory`     \
+                #{sandbox_dir}   `# sandbox dir`           \
               '                  `# close quote`
     SHELL
 
