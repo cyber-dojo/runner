@@ -114,7 +114,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_timeout(max_seconds)
-
     cmd = <<~SHELL.strip
       docker exec            `# into docker container` \
         --user=#{uid}:#{gid}                           \
