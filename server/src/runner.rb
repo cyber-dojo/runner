@@ -221,18 +221,6 @@ class Runner # stateless
   # tar-piping text files out of the container
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  include FileDelta
-
-  def set_file_delta(was_files, now_files)
-    if now_files == {} || @timed_out
-      @new_files = {}
-      @deleted_files = {}
-      @changed_files = {}
-    else
-      file_delta(was_files, now_files)
-    end
-  end
-
   def tar_pipe_out
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
@@ -309,6 +297,22 @@ class Runner # stateless
 
   def rag_message(msg)
     "red_amber_green lambda error mapped to :amber\n#{msg}"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # difference between before and after cyber-dojo.sh is run
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  include FileDelta
+
+  def set_file_delta(was_files, now_files)
+    if now_files == {} || @timed_out
+      @new_files = {}
+      @deleted_files = {}
+      @changed_files = {}
+    else
+      file_delta(was_files, now_files)
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
