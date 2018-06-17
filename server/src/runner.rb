@@ -210,8 +210,6 @@ class Runner # stateless
                 #{sandbox_dir}   `# sandbox dir`           \
               '                  `# close quote`
     SHELL
-
-
     shell.assert(docker_tar_pipe)
   end
 
