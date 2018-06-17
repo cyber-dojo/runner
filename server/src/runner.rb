@@ -52,10 +52,10 @@ class Runner # stateless
     @avatar_name = avatar_name
     deleted_files = nil # we're stateless
     was_files = [*new_files, *unchanged_files, *changed_files].to_h
-    Dir.mktmpdir do |tmp_dir|
-      save_to(tmp_dir, was_files)
+    Dir.mktmpdir do |src_tmp_dir|
+      save_to(src_tmp_dir, was_files)
       in_container(max_seconds) {
-        tar_pipe_in(tmp_dir)
+        tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
         now_files = tar_pipe_out
         set_file_delta(all_files, now_files)
