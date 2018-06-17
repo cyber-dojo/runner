@@ -89,6 +89,10 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def save_to(tmp_dir, files)
+    mkdir(tmp_dir, 'sandboxes', 'root')
+    mkdir(tmp_dir, sandbox_dir, uid)
+    tmp_dir += sandbox_dir
+
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
@@ -96,8 +100,17 @@ class Runner # stateless
         shell.assert("mkdir -p #{src_dir}")
       end
       src_filename = tmp_dir + '/' + pathed_filename
+      # create file setting ownership and permission
       disk.write(src_filename, content)
+      chmod = "chmod 644 #{src_filename}"
+      chown = "chown #{uid}:#{gid} #{src_filename}"
+      shell.assert(chmod + ' && ' + chown)
     end
+  end
+
+  def mkdir(tmp_dir, name, user)
+    shell.assert("mkdir #{tmp_dir}/#{name}")
+    shell.assert("chown #{user}:#{gid} #{tmp_dir}/#{name}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -210,7 +223,7 @@ class Runner # stateless
         .                        `# tar current directory` \
         |                        `# pipe the tarfile`      \
           docker exec            `# into docker container` \
-            --user=#{uid}:#{gid}                           \
+            --user=root                                    \
             --interactive                                  \
             #{container_name}                              \
             sh -c                                          \
@@ -220,7 +233,7 @@ class Runner # stateless
                 -zxf             `# extract tar file`      \
                 -                `# read from stdin`       \
                 -C               `# save to the`           \
-                #{sandbox_dir}   `# sandbox dir`           \
+                /                `# root dir`              \
               '                  `# close quote`
     SHELL
     shell.assert(docker_tar_pipe)
