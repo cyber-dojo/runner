@@ -53,7 +53,7 @@ class Runner # stateless
     deleted_files = nil # we're stateless
     was_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |src_tmp_dir|
-      save_to(src_tmp_dir, was_files)
+      write_files(src_tmp_dir, was_files)
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
@@ -61,7 +61,7 @@ class Runner # stateless
         Dir.mktmpdir do |dst_tmp_dir|
           status = tar_pipe_out(dst_tmp_dir)
           if status == 0
-            now_files = read_from(dst_tmp_dir + sandbox_dir)
+            now_files = read_files(dst_tmp_dir + sandbox_dir)
           else
             now_files = {}
           end
@@ -85,13 +85,19 @@ class Runner # stateless
   attr_reader :image_name, :kata_id, :avatar_name
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # read/write to /tmp on host
+  # write/read to-from /tmp on host
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def save_to(tmp_dir, files)
+  def write_files(tmp_dir, files)
+    # The tar_pipe_in() method runs as root and so it
+    # will copy the file permissions and ownerships
+    # as set in this method.
     shell.assert("chmod 755 #{tmp_dir}")
-    mkdir(tmp_dir, 'sandboxes', 'root')
-    mkdir(tmp_dir, sandbox_dir, uid)
+    shell.assert("mkdir #{tmp_dir}/sandboxes")
+    shell.assert("chown root:#{gid} #{tmp_dir}/sandboxes")
+    shell.assert("mkdir #{tmp_dir}/#{sandbox_dir}")
+    shell.assert("chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}")
+
     tmp_dir += sandbox_dir
 
     files.each do |pathed_filename, content|
@@ -103,20 +109,14 @@ class Runner # stateless
       src_filename = tmp_dir + '/' + pathed_filename
       # create file setting ownership and permission
       disk.write(src_filename, content)
-      chmod = "chmod 644 #{src_filename}"
-      chown = "chown #{uid}:#{gid} #{src_filename}"
-      shell.assert(chmod + ' && ' + chown)
+      shell.assert("chmod 644 #{src_filename}")
+      shell.assert("chown #{uid}:#{gid} #{src_filename}")
     end
-  end
-
-  def mkdir(tmp_dir, name, user)
-    shell.assert("mkdir #{tmp_dir}/#{name}")
-    shell.assert("chown #{user}:#{gid} #{tmp_dir}/#{name}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_from(tmp_dir)
+  def read_files(tmp_dir)
     # eg tmp_dir = /tmp/.../sandboxes/bee
     files = {}
     Find.find(tmp_dir) do |pathed_filename|
@@ -197,7 +197,10 @@ class Runner # stateless
     # browser, and cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
     #
-    # [1] is for file-stamp date-time granularity
+    # [1] root user is required so that file ownsership and
+    # permissions from save_to() are copied into the container.
+    #
+    # [2] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
     # The tar --touch option is not available in a default
     # Alpine container. To add it:
@@ -222,13 +225,13 @@ class Runner # stateless
         .                        `# tar current directory` \
         |                        `# pipe the tarfile`      \
           docker exec            `# into docker container` \
-            --user=root                                    \
+            --user=root          `# [1]`                   \
             --interactive                                  \
             #{container_name}                              \
             sh -c                                          \
               '                  `# open quote`            \
               tar                                          \
-                --touch          `# [1]`                   \
+                --touch          `# [2]`                   \
                 -zxf             `# extract tar file`      \
                 -                `# read from stdin`       \
                 -C               `# save to the`           \
