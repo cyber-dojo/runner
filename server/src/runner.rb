@@ -311,12 +311,11 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(max_seconds)
-    chown = "chown #{avatar_name}:#{group} #{sandbox_dir}"
     docker_run = [
       'docker run',
         docker_run_options,
         image_name,
-          "sh -c '#{chown} && sleep #{max_seconds}'"
+          "sh -c 'sleep #{max_seconds}'"
     ].join(space)
     shell.assert(docker_run)
   end
@@ -350,12 +349,11 @@ class Runner # stateless
       --init                    `# pid-1 process`    \
       --name=#{container_name}  `# easy cleanup`     \
       #{limits}                                      \
-      --user=root               `# chown permission` \
-      --workdir=#{sandbox_dir}  `# creates the dir`
+      --user=#{uid}:#{gid}
     SHELL
     if clang?
       # For the -fsanitize=address option.
-      options += '--cap-add=SYS_PTRACE'
+      options += space + '--cap-add=SYS_PTRACE'
     end
     options
   end
@@ -423,10 +421,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   include AllAvatarsNames
-
-  def group
-    'cyber-dojo'
-  end
 
   def gid
     5000
