@@ -57,7 +57,8 @@ class Runner # stateless
       in_container(max_seconds) {
         run_timeout(tar_pipe_in(tmp_dir), max_seconds)
         set_colour
-        set_file_delta(all_files)
+        now_files = tar_pipe_out
+        set_file_delta(all_files, now_files)
       }
     end
     {
@@ -207,8 +208,7 @@ class Runner # stateless
 
   include FileDelta
 
-  def set_file_delta(was_files)
-    now_files = tar_pipe_out
+  def set_file_delta(was_files, now_files)
     if now_files == {} || @timed_out
       @new_files = {}
       @deleted_files = {}
