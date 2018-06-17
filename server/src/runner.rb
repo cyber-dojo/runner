@@ -242,7 +242,8 @@ class Runner # stateless
     Dir.mktmpdir do |tmp_dir|
       tar_list = '/tmp/tar.list'
       docker_tar_pipe = <<~SHELL.strip
-        docker exec --user=#{uid}:#{gid}                  \
+        docker exec                                       \
+          --user=#{uid}:#{gid}                            \
           --env TAR_LIST=#{tar_list}                      \
           #{container_name}                               \
           bash -c                                         \
