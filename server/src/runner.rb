@@ -57,8 +57,10 @@ class Runner # stateless
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
-        now_files = tar_pipe_out
-        set_file_delta(all_files, now_files)
+        Dir.mktmpdir do |dst_tmp_dir|
+          now_files = tar_pipe_out(dst_tmp_dir)
+          set_file_delta(was_files, now_files)
+        end
         set_colour
       }
     end
@@ -219,36 +221,34 @@ class Runner # stateless
   # tar-piping text files from the container to the host
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_out
+  def tar_pipe_out(tmp_dir)
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
     # Passes the tar-list filename as an environment
     # variable because using bash -c means you
     # cannot pass it as an argument.
-    Dir.mktmpdir do |tmp_dir|
-      tar_list = '/tmp/tar.list'
-      docker_tar_pipe = <<~SHELL.strip
-        docker exec                                       \
-          --user=#{uid}:#{gid}                            \
-          --env TAR_LIST=#{tar_list}                      \
-          #{container_name}                               \
-          bash -c                                         \
-            '                                             \
-            /usr/local/bin/create_text_file_tar_list.sh   \
-            &&                                            \
-            tar -zcf - -T #{tar_list}                     \
-            '                                             \
-              | tar -zxf - -C #{tmp_dir}
-      SHELL
-      # A crippled container (eg fork-bomb) will
-      # likely not be running causing the [docker exec]
-      # to fail so you cannot use shell.assert() here.
-      _stdout,_stderr,status = shell.exec(docker_tar_pipe)
-      if status == 0
-        read_from(tmp_dir + sandbox_dir)
-      else
-        {}
-      end
+    tar_list = '/tmp/tar.list'
+    docker_tar_pipe = <<~SHELL.strip
+      docker exec                                       \
+        --user=#{uid}:#{gid}                            \
+        --env TAR_LIST=#{tar_list}                      \
+        #{container_name}                               \
+        bash -c                                         \
+          '                                             \
+          /usr/local/bin/create_text_file_tar_list.sh   \
+          &&                                            \
+          tar -zcf - -T #{tar_list}                     \
+          '                                             \
+            | tar -zxf - -C #{tmp_dir}
+    SHELL
+    # A crippled container (eg fork-bomb) will
+    # likely not be running causing the [docker exec]
+    # to fail so you cannot use shell.assert() here.
+    _stdout,_stderr,status = shell.exec(docker_tar_pipe)
+    if status == 0
+      read_from(tmp_dir + sandbox_dir)
+    else
+      {}
     end
   end
 
