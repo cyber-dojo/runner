@@ -57,21 +57,26 @@ class Runner # stateless
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
+        set_colour
         Dir.mktmpdir do |dst_tmp_dir|
-          now_files = tar_pipe_out(dst_tmp_dir)
+          status = tar_pipe_out(dst_tmp_dir)
+          if status == 0
+            now_files = read_from(dst_tmp_dir + sandbox_dir)
+          else
+            now_files = {}
+          end
           set_file_delta(was_files, now_files)
         end
-        set_colour
       }
     end
     {
       stdout:@stdout,
       stderr:@stderr,
       status:@status,
+      colour:@colour,
       new_files:@new_files,
       deleted_files:@deleted_files,
-      changed_files:@changed_files,
-      colour:@colour
+      changed_files:@changed_files
     }
   end
 
@@ -118,19 +123,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh_timeout(max_seconds)
-    cmd = <<~SHELL.strip
-      docker exec            `# into docker container` \
-        --user=#{uid}:#{gid}                           \
-        --interactive                                  \
-        #{container_name}                              \
-        sh -c                                          \
-          '                  `# open quote`            \
-          cd #{sandbox_dir}                            \
-          &&                                           \
-          bash ./cyber-dojo.sh                         \
-          '                  `# close quote`
-    SHELL
-
     # The [docker exec] running on the _host_ is
     # killed by Process.kill. This does _not_ kill
     # the cyber-dojo.sh running _inside_ the docker
@@ -139,7 +131,7 @@ class Runner # stateless
     # See https://github.com/docker/docker/issues/9098
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-    pid = Process.spawn(cmd, {
+    pid = Process.spawn(cyber_dojo_sh_cmd, {
       pgroup:true,     # become process leader
          out:w_stdout, # redirection
          err:w_stderr  # redirection
@@ -163,6 +155,23 @@ class Runner # stateless
       r_stdout.close
       r_stderr.close
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def cyber_dojo_sh_cmd
+    <<~SHELL.strip
+      docker exec            `# into docker container` \
+        --user=#{uid}:#{gid}                           \
+        --interactive                                  \
+        #{container_name}                              \
+        sh -c                                          \
+          '                  `# open quote`            \
+          cd #{sandbox_dir}                            \
+          &&                                           \
+          bash ./cyber-dojo.sh                         \
+          '                  `# close quote`
+    SHELL
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -245,11 +254,7 @@ class Runner # stateless
     # likely not be running causing the [docker exec]
     # to fail so you cannot use shell.assert() here.
     _stdout,_stderr,status = shell.exec(docker_tar_pipe)
-    if status == 0
-      read_from(tmp_dir + sandbox_dir)
-    else
-      {}
-    end
+    status
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -314,7 +319,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # image/container
+  # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def in_container(max_seconds)
@@ -350,23 +355,21 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name
+    name_prefix = 'test_run__runner_stateless'
     [ name_prefix, kata_id, avatar_name ].join('_')
-  end
-
-  def name_prefix
-    'test_run__runner_stateless'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_options
+    # (for create_container)
     # no volume-mount; stateless!
     options = <<~SHELL.strip
-      --detach                  `# later exec`       \
-      #{env_vars}                                    \
-      --init                    `# pid-1 process`    \
-      --name=#{container_name}  `# easy cleanup`     \
-      #{limits}                                      \
+      --detach                  `# later docker exec` \
+      #{env_vars}                                     \
+      --init                    `# pid-1 process`     \
+      --name=#{container_name}  `# easy cleanup`      \
+      #{limits}                                       \
       --user=#{uid}:#{gid}
     SHELL
     if clang?
@@ -374,6 +377,10 @@ class Runner # stateless
       options += space + '--cap-add=SYS_PTRACE'
     end
     options
+  end
+
+  def clang?
+    image_name.start_with?('cyberdojofoundation/clang')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -430,10 +437,6 @@ class Runner # stateless
   MB = 1024 * KB
   GB = 1024 * MB
 
-  def clang?
-    image_name.start_with?('cyberdojofoundation/clang')
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - -
   # avatar
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -463,8 +466,6 @@ class Runner # stateless
     truncated(cleaned(string))
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def space
     ' '
   end
@@ -490,7 +491,7 @@ end
 # - - - - - - - - - - - - - - - - - - - - - - - -
 # The implementation of run cyber-dojo.sh is
 #   o) create copies of all files in /tmp on host
-#   o) one tar-pipe copies /tmp files into the container
+#   o) one tar-pipe copies files from /tmp to the container
 #   o) run cyber-dojo.sh inside the container
 #   0) ...
 #
