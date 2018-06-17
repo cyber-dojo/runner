@@ -112,6 +112,8 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # run cyber-dojo.sh in container with a timeout
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh_timeout(max_seconds)
     cmd = <<~SHELL.strip
