@@ -57,19 +57,19 @@ class Runner # stateless
       in_container(max_seconds) {
         tar_pipe_in(tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
-        set_colour
         now_files = tar_pipe_out
         set_file_delta(all_files, now_files)
+        set_colour
       }
     end
     {
       stdout:@stdout,
       stderr:@stderr,
       status:@status,
-      colour:@colour,
       new_files:@new_files,
       deleted_files:@deleted_files,
-      changed_files:@changed_files
+      changed_files:@changed_files,
+      colour:@colour
     }
   end
 
