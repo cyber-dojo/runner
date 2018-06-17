@@ -163,9 +163,9 @@ class Runner # stateless
     end
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files into the container
-  # - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # tar-piping text files from host to the container
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
     # In a stateless runner _all_ files are sent from the
@@ -215,9 +215,9 @@ class Runner # stateless
     shell.assert(docker_tar_pipe)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files out of the container
-  # - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # tar-piping text files from the container to the host
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out
     # The create_text_file_tar_list.sh file is injected
