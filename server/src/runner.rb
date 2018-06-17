@@ -89,6 +89,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def save_to(tmp_dir, files)
+    shell.assert("chmod 755 #{tmp_dir}")
     mkdir(tmp_dir, 'sandboxes', 'root')
     mkdir(tmp_dir, sandbox_dir, uid)
     tmp_dir += sandbox_dir
@@ -213,8 +214,6 @@ class Runner # stateless
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
     docker_tar_pipe = <<~SHELL.strip
-      chmod 755 #{tmp_dir}                                 \
-      &&                                                   \
       cd #{tmp_dir}                                        \
       &&                                                   \
       tar                                                  \
