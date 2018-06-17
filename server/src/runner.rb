@@ -56,7 +56,7 @@ class Runner # stateless
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
         tar_pipe_in(tmp_dir)
-        run_timeout(max_seconds)
+        run_cyber_dojo_sh_timeout(max_seconds)
         set_colour
         now_files = tar_pipe_out
         set_file_delta(all_files, now_files)
@@ -113,7 +113,7 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_timeout(max_seconds)
+  def run_cyber_dojo_sh_timeout(max_seconds)
     cmd = <<~SHELL.strip
       docker exec            `# into docker container` \
         --user=#{uid}:#{gid}                           \
