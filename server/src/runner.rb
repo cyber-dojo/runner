@@ -51,9 +51,9 @@ class Runner # stateless
     @kata_id = kata_id
     @avatar_name = avatar_name
     deleted_files = nil # we're stateless
-    all_files = [*new_files, *unchanged_files, *changed_files].to_h
+    was_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |tmp_dir|
-      save_to(all_files, tmp_dir)
+      save_to(was_files, tmp_dir)
       in_container(max_seconds) {
         tar_pipe_in(tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
