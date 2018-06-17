@@ -55,7 +55,8 @@ class Runner # stateless
     Dir.mktmpdir do |tmp_dir|
       save_to(all_files, tmp_dir)
       in_container(max_seconds) {
-        run_timeout(tar_pipe_in(tmp_dir), max_seconds)
+        tar_pipe_in(tmp_dir)
+        run_timeout(max_seconds)
         set_colour
         now_files = tar_pipe_out
         set_file_delta(all_files, now_files)
@@ -112,7 +113,21 @@ class Runner # stateless
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_timeout(cmd, max_seconds)
+  def run_timeout(max_seconds)
+
+    cmd = <<~SHELL.strip
+      docker exec            `# into docker container` \
+        --user=#{uid}:#{gid}                           \
+        --interactive                                  \
+        #{container_name}                              \
+        sh -c                                          \
+          '                  `# open quote`            \
+          cd #{sandbox_dir}                            \
+          &&                                           \
+          bash ./cyber-dojo.sh                         \
+          '                  `# close quote`
+    SHELL
+
     # The [docker exec] running on the _host_ is
     # killed by Process.kill. This does _not_ kill
     # the cyber-dojo.sh running _inside_ the docker
@@ -172,7 +187,7 @@ class Runner # stateless
     #    o) RUN_install_tar
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
-    <<~SHELL.strip
+    docker_tar_pipe = <<~SHELL.strip
       chmod 755 #{tmp_dir}                                 \
       &&                                                   \
       cd #{tmp_dir}                                        \
@@ -196,10 +211,11 @@ class Runner # stateless
                 -                `# read from stdin`       \
                 -C               `# save to the`           \
                 .                `# current directory`     \
-              &&                                           \
-              bash ./cyber-dojo.sh                         \
               '                  `# close quote`
     SHELL
+
+
+    shell.assert(docker_tar_pipe)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
