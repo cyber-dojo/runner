@@ -53,7 +53,7 @@ class Runner # stateless
     deleted_files = nil # we're stateless
     was_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |tmp_dir|
-      save_to(was_files, tmp_dir)
+      save_to(tmp_dir, was_files)
       in_container(max_seconds) {
         tar_pipe_in(tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
@@ -81,7 +81,7 @@ class Runner # stateless
   # read/write to /tmp on host
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def save_to(files, tmp_dir)
+  def save_to(tmp_dir, files)
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
