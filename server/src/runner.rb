@@ -85,21 +85,15 @@ class Runner # stateless
   attr_reader :image_name, :kata_id, :avatar_name
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # write/read to-from /tmp on host
+  # write files to /tmp on host
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def write_files(tmp_dir, files)
     # The tar_pipe_in() method runs as root and so it
     # will copy the file permissions and ownerships
-    # as set in this method.
-    shell.assert("chmod 755 #{tmp_dir}")
-    shell.assert("mkdir #{tmp_dir}/sandboxes")
-    shell.assert("chown root:#{gid} #{tmp_dir}/sandboxes")
-    shell.assert("mkdir #{tmp_dir}/#{sandbox_dir}")
-    shell.assert("chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}")
-
+    # of files saved to tmp_dir.
+    setup_sandbox_in(tmp_dir)
     tmp_dir += sandbox_dir
-
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
@@ -114,6 +108,18 @@ class Runner # stateless
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def setup_sandbox_in(tmp_dir)
+    shell.assert("chmod 755 #{tmp_dir}")
+    shell.assert("mkdir #{tmp_dir}/sandboxes")
+    shell.assert("chown root:#{gid} #{tmp_dir}/sandboxes")
+    shell.assert("mkdir #{tmp_dir}/#{sandbox_dir}")
+    shell.assert("chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}")
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # read files from /tmp on host
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_files(tmp_dir)
@@ -189,7 +195,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files from host to container
+  # tar-piping text files from /tmp on host to container
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
@@ -242,7 +248,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files from container to host
+  # tar-piping text files from container to /tmp on host
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out(tmp_dir)
