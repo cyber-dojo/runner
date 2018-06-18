@@ -189,7 +189,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files from host to the container
+  # tar-piping text files from host to container
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
@@ -197,8 +197,8 @@ class Runner # stateless
     # browser, and cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
     #
-    # [1] root user is required so that file ownsership and
-    # permissions from save_to() are copied into the container.
+    # [1] root user is required so that file ownership and
+    # permissions from save_files() are copied into the container.
     #
     # [2] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
@@ -226,7 +226,7 @@ class Runner # stateless
         |                        `# pipe the tarfile`      \
           docker exec            `# into docker container` \
             --user=root          `# [1]`                   \
-            --interactive                                  \
+            --interactive        `# we are piping`         \
             #{container_name}                              \
             sh -c                                          \
               '                  `# open quote`            \
@@ -242,15 +242,15 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files from the container to the host
+  # tar-piping text files from container to host
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out(tmp_dir)
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
-    # Passes the tar-list filename as an environment
-    # variable because using bash -c means you
-    # cannot pass it as an argument.
+    # Pass the tar-list filename as an environment
+    # variable because using bash -c means you cannot
+    # pass it as an argument.
     tar_list = '/tmp/tar.list'
     docker_tar_pipe = <<~SHELL.strip
       docker exec                                       \
@@ -303,10 +303,15 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def get_rag_lambda
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    docker_cmd = <<~SHELL.strip
+      docker exec               \
+        --user=#{uid}:#{gid}    \
+        #{container_name}       \
+          bash -c '#{cmd}'
+    SHELL
     # In a crippled container (eg fork-bomb)
     # the shell.assert will mostly likely raise.
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    docker_cmd = "docker exec #{container_name} bash -c '#{cmd}'"
     src = shell.assert(docker_cmd)
     eval(src)
   end
@@ -394,6 +399,8 @@ class Runner # stateless
     options
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def clang?
     image_name.start_with?('cyberdojofoundation/clang')
   end
@@ -409,6 +416,8 @@ class Runner # stateless
       env_var('SANDBOX',     sandbox_dir)
     ].join(space)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_var(name, value)
     "--env CYBER_DOJO_#{name}=#{value}"
@@ -443,6 +452,8 @@ class Runner # stateless
     end
     options.join(space)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimit(name, limit)
     "--ulimit #{name}=#{limit}"
