@@ -23,6 +23,8 @@ services:
       - RUNNER_STATELESS_SERVICE_NAME=runner-stateless
       - RUNNER_STATELESS_SERVICE_PORT
       - RUNNER_STATELESS_COVERAGE_ROOT
+    ports:
+      - ${RUNNER_STATELESS_CLIENT_PORT}:${RUNNER_STATELESS_CLIENT_PORT}
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
