@@ -16,9 +16,9 @@ RUN apk --update --no-cache add \
 # install ruby gems
 # - - - - - - - - - - - - - - - -
 
-ARG            CYBER_DOJO_HOME
-COPY Gemfile ${CYBER_DOJO_HOME}/
-WORKDIR      ${CYBER_DOJO_HOME}
+ARG            RUNNER_STATELESS_HOME
+COPY Gemfile ${RUNNER_STATELESS_HOME}/
+WORKDIR      ${RUNNER_STATELESS_HOME}
 
 RUN apk --update add --virtual build-dependencies build-base \
   && bundle config --global silence_root_warning 1 \
@@ -31,10 +31,6 @@ RUN apk --update add --virtual build-dependencies build-base \
 # setup client
 # - - - - - - - - - - - - - - - -
 
-COPY . ${CYBER_DOJO_HOME}
-
-ARG PORT
-EXPOSE ${PORT}
-ENV PORT=${PORT}
+COPY . ${RUNNER_STATELESS_HOME}
 
 CMD [ "./up.sh" ]

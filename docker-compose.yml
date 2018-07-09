@@ -7,23 +7,22 @@ services:
     build:
       context: client
       args:
-        - CYBER_DOJO_HOME=${CYBER_DOJO_HOME}
-        - PORT=${CYBER_DOJO_RUNNER_CLIENT_PORT}
+        - RUNNER_STATELESS_HOME
     user: nobody
     image: cyberdojo/runner-stateless-client
     init: true
     container_name: test-runner-stateless-client
+    expose: [ "${RUNNER_STATELESS_CLIENT_PORT}" ]
     read_only: true
     tmpfs: /tmp
     restart: 'no'
     depends_on:
       - runner-stateless
     environment:
-      - CYBER_DOJO_RUNNER_SERVICE_NAME
-      - CYBER_DOJO_RUNNER_SERVICE_PORT
-      - CYBER_DOJO_COVERAGE_ROOT
-    ports:
-      - ${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}
+      - RUNNER_STATELESS_CLIENT_PORT
+      - RUNNER_STATELESS_SERVICE_NAME=runner-stateless
+      - RUNNER_STATELESS_SERVICE_PORT
+      - RUNNER_STATELESS_COVERAGE_ROOT
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -31,18 +30,19 @@ services:
     build:
       context: server
       args:
-        - CYBER_DOJO_HOME=${CYBER_DOJO_HOME}
-        - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
-        - SHA=${SHA}
+        - RUNNER_STATELESS_HOME
+        - SHA
     user: root
     image: cyberdojo/runner-stateless
     init: true
     container_name: test-runner-stateless-server
+    expose: [ "${RUNNER_STATELESS_SERVICE_PORT}" ]
     read_only: true
     tmpfs: /tmp
     restart: 'no'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - CYBER_DOJO_COVERAGE_ROOT
+      - RUNNER_STATELESS_SERVICE_PORT
+      - RUNNER_STATELESS_COVERAGE_ROOT
       - TRAVIS

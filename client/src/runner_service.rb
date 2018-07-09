@@ -2,6 +2,11 @@ require_relative 'http_json_service'
 
 class RunnerService
 
+  def initialize
+    @hostname = ENV['RUNNER_STATELESS_SERVICE_NAME']
+    @port = ENV['RUNNER_STATELESS_SERVICE_PORT'].to_i
+  end
+
   def kata_new(image_name, kata_id)
     args = [image_name, kata_id]
     post(args, __method__)
@@ -41,12 +46,6 @@ class RunnerService
 
   include HttpJsonService
 
-  def hostname
-    ENV['CYBER_DOJO_RUNNER_SERVICE_NAME']
-  end
-
-  def port
-    ENV['CYBER_DOJO_RUNNER_SERVICE_PORT']
-  end
+  attr_reader :hostname, :port
 
 end
