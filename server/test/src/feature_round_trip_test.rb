@@ -13,7 +13,7 @@ class RoundTripTest < TestBase
   created text files (including dot files) are returned
   but created binary files are not ) do
     script = [
-      'dd if=/dev/zero of=binary.dat bs=1c count=1',
+      'dd if=/dev/zero of=binary.dat bs=1c count=42',
       'file --mime-encoding binary.dat',
       'echo "xxx" > newfile.txt',
       'echo "yyy" > .dotfile'
@@ -87,7 +87,7 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '532', %w( empty files are detected ) do
+  test '532', %w( empty new text files are detected ) do
     # runner runs create_text_file_tar_list.sh which
     # uses the file utility to detect non binary files.
     # However it says empty files are binary files.
@@ -98,6 +98,25 @@ class RoundTripTest < TestBase
         assert_cyber_dojo_sh(script)
 
         assert_equal({'empty.file' => ''}, new_files)
+        assert_equal({}, deleted_files)
+        assert_equal({}, changed_files)
+      }
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '533', %w( single-char new text files are detected ) do
+    # runner runs create_text_file_tar_list.sh which
+    # uses the file utility to detect non binary files.
+    # However file says single-char files are binary files!
+    all_OSes.each do |os|
+      @os = os
+      in_kata_as('salmon') {
+        script = 'echo -n x > small.file'
+        assert_cyber_dojo_sh(script)
+
+        assert_equal({'small.file' => 'x'}, new_files)
         assert_equal({}, deleted_files)
         assert_equal({}, changed_files)
       }
