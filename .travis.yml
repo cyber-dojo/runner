@@ -8,5 +8,5 @@ before_script:
     - chmod +x push_and_trigger.sh
 
 script:
-    - ./pipe_build_up_test.sh \
-        && ./push_and_trigger.sh cyber-dojo/web
+    - travis_retry ./pipe_build_up_test.sh
+    - travis_retry ./push_and_trigger.sh cyber-dojo/web
