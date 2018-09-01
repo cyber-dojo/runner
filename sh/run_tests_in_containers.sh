@@ -3,7 +3,7 @@
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
 readonly MY_NAME="${ROOT_DIR##*/}"
 
-readonly COVERAGE_ROOT=/tmp/coverage
+readonly RUNNER_STATELESS_COVERAGE_ROOT=/tmp/coverage
 
 readonly SERVER_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}-server")
 readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}-client")
@@ -16,7 +16,7 @@ run_server_tests()
   echo 'Running server tests...'
 
   docker exec \
-    --env RUNNER_STATELESS_COVERAGE_ROOT=${COVERAGE_ROOT} \
+    --env RUNNER_STATELESS_COVERAGE_ROOT=${RUNNER_STATELESS_COVERAGE_ROOT} \
     "${SERVER_CID}" \
       sh -c "cd /app/test && ./run.sh ${*}"
   server_status=$?
@@ -40,7 +40,7 @@ run_client_tests()
   echo 'Running client tests...'
 
   docker exec \
-    --env RUNNER_STATELESS_COVERAGE_ROOT=${COVERAGE_ROOT} \
+    --env RUNNER_STATELESS_COVERAGE_ROOT=${RUNNER_STATELESS_COVERAGE_ROOT} \
     "${CLIENT_CID}" \
       sh -c "cd /app/test && ./run.sh ${*}"
   client_status=$?
