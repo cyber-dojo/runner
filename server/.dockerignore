@@ -11,4 +11,5 @@
 
 !Gemfile
 !config.ru
+!.env
 !up.sh
