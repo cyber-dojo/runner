@@ -33,4 +33,5 @@ RUN apk --update add --virtual build-dependencies build-base \
 
 COPY . ${RUNNER_STATELESS_HOME}
 
+EXPOSE 4598
 CMD [ "./up.sh" ]

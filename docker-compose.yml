@@ -7,23 +7,18 @@ services:
     build:
       context: client
       args:
-        - RUNNER_STATELESS_HOME
+        - RUNNER_STATELESS_HOME=/app
     user: nobody
     image: cyberdojo/runner-stateless-client
     init: true
     container_name: test-runner-stateless-client
-    expose: [ "${RUNNER_STATELESS_CLIENT_PORT}" ]
     read_only: true
     tmpfs: /tmp
     restart: 'no'
     depends_on:
       - runner-stateless
-    environment:
-      - RUNNER_STATELESS_CLIENT_PORT
-      - RUNNER_STATELESS_SERVICE_NAME=runner-stateless
-      - RUNNER_STATELESS_SERVICE_PORT
     ports:
-      - ${RUNNER_STATELESS_CLIENT_PORT}:${RUNNER_STATELESS_CLIENT_PORT}
+      - 4598:4598
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -31,18 +26,16 @@ services:
     build:
       context: server
       args:
-        - RUNNER_STATELESS_HOME
+        - RUNNER_STATELESS_HOME=/app
         - SHA
     user: root
     image: cyberdojo/runner-stateless
     init: true
     container_name: test-runner-stateless-server
-    expose: [ "${RUNNER_STATELESS_SERVICE_PORT}" ]
     read_only: true
     tmpfs: /tmp
     restart: 'no'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - RUNNER_STATELESS_SERVICE_PORT
       - TRAVIS

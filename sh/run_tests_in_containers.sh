@@ -69,9 +69,6 @@ fi
 server_status=0
 client_status=0
 
-# shellcheck disable=SC1090
-. "${ROOT_DIR}/.env"
-
 if [ "$1" = "server" ]; then
   shift
   run_server_tests "$@"

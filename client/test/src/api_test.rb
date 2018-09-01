@@ -70,11 +70,11 @@ class ApiTest < TestBase
   include HttpJsonService
 
   def hostname
-    ENV['RUNNER_STATELESS_SERVICE_NAME']
+    'runner-stateless'
   end
 
   def port
-    ENV['RUNNER_STATELESS_SERVICE_PORT'].to_i
+    4597
   end
 
   def assert_exception(method_name, jsoned_args)
