@@ -16,7 +16,7 @@ RUN apk --update --no-cache add \
 # install ruby gems
 # - - - - - - - - - - - - - - - -
 
-ARG            RUNNER_STATELESS_HOME
+ARG            RUNNER_STATELESS_HOME=/app
 COPY Gemfile ${RUNNER_STATELESS_HOME}/
 WORKDIR      ${RUNNER_STATELESS_HOME}
 

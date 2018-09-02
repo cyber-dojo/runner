@@ -6,8 +6,6 @@ services:
   runner-stateless-client:
     build:
       context: client
-      args:
-        - RUNNER_STATELESS_HOME=/app
     user: nobody
     image: cyberdojo/runner-stateless-client
     init: true
@@ -26,7 +24,6 @@ services:
     build:
       context: server
       args:
-        - RUNNER_STATELESS_HOME=/app
         - SHA
     user: root
     image: cyberdojo/runner-stateless
