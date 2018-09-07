@@ -99,11 +99,13 @@ class ApiTest < TestBase
     in_kata_as(salmon) do
       METHOD_NAMES.each do |method_name|
         MALFORMED_IMAGE_NAMES.each do |image_name|
-          error = assert_raises(StandardError, method_name.to_s) do
+          error = assert_raises(ServiceError, method_name.to_s) do
             self.send method_name, { image_name:image_name }
           end
-          expected = "RunnerService:#{method_name}:image_name:malformed"
-          assert_equal expected, error.message
+          json = JSON.parse(error.message)
+          assert_equal 'ClientError', json['class']
+          assert_equal 'image_name:malformed', json['message']
+          assert_equal 'Array', json['backtrace'].class.name
         end
       end
     end
@@ -116,11 +118,13 @@ class ApiTest < TestBase
     in_kata_as(salmon) do
       METHOD_NAMES.each do |method_name|
         MALFORMED_KATA_IDS.each do |kata_id|
-          error = assert_raises(StandardError, method_name.to_s) do
+          error = assert_raises(ServiceError, method_name.to_s) do
             self.send method_name, { kata_id:kata_id }
           end
-          expected = "RunnerService:#{method_name}:kata_id:malformed"
-          assert_equal expected, error.message
+          json = JSON.parse(error.message)
+          assert_equal 'ClientError', json['class']
+          assert_equal 'kata_id:malformed', json['message']
+          assert_equal 'Array', json['backtrace'].class.name
         end
       end
     end
@@ -133,11 +137,13 @@ class ApiTest < TestBase
     in_kata_as(salmon) do
       [ :avatar_new, :avatar_old, :run_cyber_dojo_sh ].each do |method_name|
         MALFORMED_AVATAR_NAMES.each do |avatar_name|
-          error = assert_raises(StandardError, method_name.to_s) do
+          error = assert_raises(ServiceError, method_name.to_s) do
             self.send method_name, { avatar_name:avatar_name }
           end
-          expected = "RunnerService:#{method_name}:avatar_name:malformed"
-          assert_equal expected, error.message
+          json = JSON.parse(error.message)
+          assert_equal 'ClientError', json['class']
+          assert_equal 'avatar_name:malformed', json['message']
+          assert_equal 'Array', json['backtrace'].class.name
         end
       end
     end

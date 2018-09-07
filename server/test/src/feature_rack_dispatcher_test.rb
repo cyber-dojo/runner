@@ -252,7 +252,7 @@ class RackDispatcherTest < TestBase
     assert_200
     assert_body_contains(path_info)
     refute_body_contains('exception')
-    refute_body_contains('trace')
+    refute_body_contains('backtrace')
 
     #assert_log_contains('command')
     #assert_log_contains('stdout', 'fail')
@@ -279,10 +279,16 @@ class RackDispatcherTest < TestBase
     env = { path_info:path_info, body:body }
     rack_call(env)
     assert_400
-    assert_body_contains('exception', expected)
-    assert_body_contains('trace')
-    assert_log_contains('exception', expected)
-    assert_log_contains('trace')
+
+    [@body, @stderr].each do |s|
+      refute_nil s
+      json = JSON.parse(s)
+      ex = json['exception']
+      refute_nil ex
+      assert_equal 'ClientError', ex['class']
+      assert_equal expected, ex['message']
+      assert_equal 'Array', ex['backtrace'].class.name
+    end
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -328,13 +334,10 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_body_contains(key, value = nil)
+  def assert_body_contains(key)
     refute_nil @body
     json = JSON.parse(@body)
     assert json.has_key?(key)
-    unless value.nil?
-      assert_equal value, json[key]
-    end
   end
 
   def refute_body_contains(key)
@@ -344,15 +347,6 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-
-  def assert_log_contains(key, value = nil)
-    refute_nil @stderr
-    json = JSON.parse(@stderr)
-    assert json.has_key?(key)
-    unless value.nil?
-      assert_equal value, json[key]
-    end
-  end
 
   def assert_nothing_logged
     assert_equal '', @stdout

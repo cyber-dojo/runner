@@ -18,9 +18,11 @@ class RackDispatcher # stateless
     json_response(200, { name => result })
   rescue => error
     info = {
-      #'class' => error.class.name,
-      'exception' => error.message,
-      'trace' => error.backtrace,
+      'exception' => {
+        'class' => error.class.name,
+        'message' => error.message,
+        'backtrace' => error.backtrace
+      }
     }
     $stderr.puts pretty(info)
     $stderr.flush
@@ -52,8 +54,8 @@ class RackDispatcher # stateless
 
   # - - - - - - - - - - - - - - - -
 
-  def json_response(code, body)
-    [ code, { 'Content-Type' => 'application/json' }, [ pretty(body) ] ]
+  def json_response(status, body)
+    [ status, { 'Content-Type' => 'application/json' }, [ pretty(body) ] ]
   end
 
   def pretty(o)
