@@ -12,17 +12,19 @@ class RackDispatcher # stateless
   end
 
   def call(env, external = External.new, request = Rack::Request)
-    name, args = name_args(request.new(env))
     runner = Runner.new(external, @cache)
+    name, args = name_args(request.new(env))
     result = runner.public_send(name, *args)
-    json_triple(200, { name => result })
+    json_response(200, { name => result })
   rescue => error
     info = {
+      #'class' => error.class.name,
       'exception' => error.message,
       'trace' => error.backtrace,
     }
-    external.log << to_json(info)
-    json_triple(code_400_500(error), info)
+    $stderr.puts pretty(info)
+    $stderr.flush
+    json_response(status(error), info)
   end
 
   private # = = = = = = = = = = = =
@@ -50,15 +52,15 @@ class RackDispatcher # stateless
 
   # - - - - - - - - - - - - - - - -
 
-  def json_triple(code, body)
-    [ code, { 'Content-Type' => 'application/json' }, [ to_json(body) ] ]
+  def json_response(code, body)
+    [ code, { 'Content-Type' => 'application/json' }, [ pretty(body) ] ]
   end
 
-  def to_json(o)
+  def pretty(o)
     JSON.pretty_generate(o)
   end
 
-  def code_400_500(error)
+  def status(error)
     error.is_a?(ClientError) ? 400 : 500
   end
 
