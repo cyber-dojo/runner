@@ -2,13 +2,13 @@ require_relative 'runner_service'
 
 class Demo
 
-  def call(env)
-    inner_call(env)
+  def call(_env)
+    inner_call
   rescue => error
     [ 200, { 'Content-Type' => 'text/html' }, [ error.message ] ]
   end
 
-  def inner_call(_env)
+  def inner_call
     @html = ''
     in_kata {
       as('salmon') {
