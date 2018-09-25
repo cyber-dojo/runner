@@ -97,11 +97,11 @@ table =
     [ 'failures',               failure_count,      '==',   0 ],
     [ 'errors',                 error_count,        '==',   0 ],
     [ 'skips',                  skip_count,         '==',   0 ],
-    [ 'duration(test)[s]',      test_duration,      '<=',  80 ],
+    [ 'duration(test)[s]',      test_duration,      '<=',  40 ],
     [ 'coverage(src)[%]',       src_coverage,       '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,      '==', 100 ],
-    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=',   4 ],
-    [ 'hits(src)/hits(test)',   f2(hits_ratio),     '>=',   4 ],
+    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=', 4.5 ],
+    [ 'hits(src)/hits(test)',   f2(hits_ratio),     '>=', 3.3 ],
   ]
 
 # - - - - - - - - - - - - - - - - - - - - - - -

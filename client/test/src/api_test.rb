@@ -12,7 +12,7 @@ class ApiTest < TestBase
 
   multi_os_test '8A1',
   'os-image correspondence' do
-    in_kata_as(salmon) {
+    in_kata {
       etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
       diagnostic = [
         "image_name=:#{image_name}:",
@@ -37,10 +37,14 @@ class ApiTest < TestBase
     assert_exception('does_not_exist', {}.to_json)
   end
 
+  # - - - - - - - - - - - - - - - - - - -
+
   multi_os_test '2F1',
   'call to existing method with bad json becomes exception' do
     assert_exception('does_not_exist', '{x}')
   end
+
+  # - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '2F2',
   'call to existing method with missing argument becomes exception' do
@@ -50,13 +54,14 @@ class ApiTest < TestBase
     }
   end
 
+  # - - - - - - - - - - - - - - - - - - -
+
   multi_os_test '2F3',
   'call to existing method with bad argument type becomes exception' do
-    in_kata_as(salmon) {
+    in_kata {
       args = {
         image_name:image_name,
         kata_id:kata_id,
-        avatar_name:avatar_name,
         new_files:2, # <=====
         deleted_files:{},
         unchanged_files:{},
@@ -89,14 +94,13 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   METHOD_NAMES = [ :kata_new, :kata_old,
-                   :avatar_new, :avatar_old,
                    :run_cyber_dojo_sh ]
 
   MALFORMED_IMAGE_NAMES = [ nil, '_cantStartWithSeparator' ]
 
   multi_os_test 'D21',
   'all api methods raise when image_name is invalid' do
-    in_kata_as(salmon) do
+    in_kata do
       METHOD_NAMES.each do |method_name|
         MALFORMED_IMAGE_NAMES.each do |image_name|
           error = assert_raises(ServiceError, method_name.to_s) do
@@ -115,7 +119,7 @@ class ApiTest < TestBase
 
   multi_os_test '656',
   'all api methods raise when kata_id is invalid' do
-    in_kata_as(salmon) do
+    in_kata do
       METHOD_NAMES.each do |method_name|
         MALFORMED_KATA_IDS.each do |kata_id|
           error = assert_raises(ServiceError, method_name.to_s) do
@@ -130,32 +134,13 @@ class ApiTest < TestBase
     end
   end
 
-  MALFORMED_AVATAR_NAMES = [ nil, 'sunglasses' ]
-
-  multi_os_test 'C3A',
-  'api methods raise when avatar_name is invalid' do
-    in_kata_as(salmon) do
-      [ :avatar_new, :avatar_old, :run_cyber_dojo_sh ].each do |method_name|
-        MALFORMED_AVATAR_NAMES.each do |avatar_name|
-          error = assert_raises(ServiceError, method_name.to_s) do
-            self.send method_name, { avatar_name:avatar_name }
-          end
-          json = JSON.parse(error.message)
-          assert_equal 'ClientError', json['class']
-          assert_equal 'avatar_name:malformed', json['message']
-          assert_equal 'Array', json['backtrace'].class.name
-        end
-      end
-    end
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # red-amber-green
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '3DF',
   '[C,assert] run with initial 6*9 == 42 is red' do
-    in_kata_as(salmon) {
+    in_kata {
       run_cyber_dojo_sh
       assert red?, result
 
@@ -185,7 +170,7 @@ class ApiTest < TestBase
 
   test '3DC',
   '[C,assert] run with infinite loop times out' do
-    in_kata_as(salmon) {
+    in_kata {
       from = 'return 6 * 9'
       to = "    for (;;);\n    return 6 * 7;"
       run_cyber_dojo_sh({
@@ -204,7 +189,7 @@ class ApiTest < TestBase
 
   multi_os_test '3DB',
   'run with very large file is red' do
-    in_kata_as(salmon) {
+    in_kata {
       run_cyber_dojo_sh({
         new_files: { 'big_file' => 'X'*1023*500 }
       })
@@ -224,7 +209,7 @@ class ApiTest < TestBase
       "fold -w #{five_K_plus_1}", # [1]
       'head -n 1'
     ].join('|')
-    in_kata_as(salmon) {
+    in_kata {
       run_cyber_dojo_sh({
         changed_files: {
           'cyber-dojo.sh' => "seq 2 | xargs -I{} sh -c '#{command}'"

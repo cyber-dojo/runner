@@ -11,12 +11,10 @@ class Demo
   def inner_call
     @html = ''
     in_kata {
-      as('salmon') {
-        timed_out
-        red
-        amber
-        green
-      }
+      timed_out
+      red
+      amber
+      green
     }
     [ 200, { 'Content-Type' => 'text/html' }, [ @html ] ]
   end
@@ -27,7 +25,11 @@ class Demo
     @image_name = 'cyberdojofoundation/gcc_assert'
     @kata_id = '729B652756'
     duration = timed {
-      runner.kata_new(image_name, kata_id)
+      runner.kata_new(image_name, kata_id, starting_files)
+      @new_files = {}
+      @deleted_files = {}
+      @unchanged_files = starting_files
+      @changed_files = {}
     }
     @html += pre('kata_new', duration)
     begin
@@ -44,28 +46,6 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  def as(avatar_name)
-    @avatar_name = avatar_name
-    @new_files = starting_files
-    @deleted_files = {}
-    @changed_files = {}
-    duration = timed {
-      runner.avatar_new(image_name, kata_id, avatar_name, new_files)
-      @unchanged_files = new_files
-      @new_files = {}
-    }
-    @html += pre('avatar_new', duration)
-    begin
-      yield
-    ensure
-      duration = timed {
-        runner.avatar_old(image_name, kata_id, avatar_name)
-      }
-      @html += pre('avatar_old', duration)
-    end
-  end
-
-  attr_reader :avatar_name
   attr_reader :new_files, :deleted_files, :unchanged_files, :changed_files
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -97,7 +77,7 @@ class Demo
 
   def run_cyber_dojo_sh(colour, max_seconds = 10)
     result = nil
-    args  = [ image_name, kata_id, avatar_name ]
+    args  = [ image_name, kata_id ]
     args += [ new_files, deleted_files, unchanged_files, changed_files ]
     args << max_seconds
     duration = timed {

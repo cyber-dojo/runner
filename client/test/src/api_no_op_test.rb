@@ -12,14 +12,6 @@ class ApiNoOpTest < TestBase
     assert_no_op 'kata_old'
   end
 
-  multi_os_test 'D08',
-  %w( avatar_new/avatar_old are no-ops for API compatibility ) do
-    in_kata {
-      assert_no_op 'avatar_new'
-      assert_no_op 'avatar_old'
-    }
-  end
-
   def assert_no_op(method_name)
     result = self.send method_name
     assert_nil result, method_name

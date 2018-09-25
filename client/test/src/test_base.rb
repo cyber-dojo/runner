@@ -20,7 +20,10 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new(named_args = {})
-    runner.kata_new(*common_args(named_args))
+    args = common_args(named_args)
+    args << defaulted_arg(named_args, :starting_files, starting_files)
+    @all_files = args[-1]
+    runner.kata_new(*args)
   end
 
   def kata_old(named_args={})
@@ -29,21 +32,21 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_new(named_args = {})
-    args = common_args(named_args)
-    args << defaulted_arg(named_args, :avatar_name,    avatar_name)
-    args << defaulted_arg(named_args, :starting_files, starting_files)
-    result = runner.avatar_new(*args)
-    @avatar_name = args[-2]
-    @all_files = args[-1]
-    result
-  end
+  #def avatar_new(named_args = {})
+  #  args = common_args(named_args)
+  #  args << defaulted_arg(named_args, :avatar_name,    avatar_name)
+  #  args << defaulted_arg(named_args, :starting_files, starting_files)
+  #  result = runner.avatar_new(*args)
+  #  @avatar_name = args[-2]
+  #  @all_files = args[-1]
+  #  result
+  #end
 
-  def avatar_old(named_args = {})
-    args = common_args(named_args)
-    args << defaulted_arg(named_args, :avatar_name, avatar_name)
-    runner.avatar_old(*args)
-  end
+  #def avatar_old(named_args = {})
+  #  args = common_args(named_args)
+  #  args << defaulted_arg(named_args, :avatar_name, avatar_name)
+  #  runner.avatar_old(*args)
+  #end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -65,7 +68,6 @@ class TestBase < HexMiniTest
     end
 
     args = common_args(named_args)
-    args << defaulted_arg(named_args, :avatar_name, avatar_name)
     args << new_files
     args << defaulted_arg(named_args, :deleted_files, {})
     args << unchanged_files
@@ -149,16 +151,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def avatar_name
-    @avatar_name || salmon
-  end
-
-  def salmon
-    'salmon'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def starting_files
     Hash[manifest['visible_filenames'].collect { |filename|
       [filename, IO.read("#{starting_files_dir}/#{filename}")]
@@ -197,33 +189,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def in_kata_as(name)
-    in_kata {
-      as(name) {
-        yield
-      }
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def in_kata
     kata_new
     begin
       yield
     ensure
       kata_old
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def as(name)
-    avatar_new({ avatar_name: name })
-    begin
-      yield
-    ensure
-      avatar_old({ avatar_name: name })
     end
   end
 
