@@ -18,7 +18,7 @@ class TimedOutTest < TestBase
       changed_files: { 'hiker.c' => quiet_infinite_loop },
         max_seconds: 2
     }
-    in_kata_as('salmon') {
+    in_kata {
       with_captured_log {
         run_cyber_dojo_sh(named_args)
       }
@@ -41,7 +41,7 @@ class TimedOutTest < TestBase
       changed_files: { 'hiker.c' => loud_infinite_loop },
         max_seconds: 2
     }
-    in_kata_as('salmon') {
+    in_kata {
       with_captured_log {
         run_cyber_dojo_sh(named_args)
       }

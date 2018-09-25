@@ -44,7 +44,7 @@ class RackDispatcherTest < TestBase
   test 'BB2',
   %w( malformed image_name becomes exception ) do
     malformed_image_names.each do |malformed|
-      assert_rack_call_exception('image_name:malformed', 'kata_new', {
+      assert_rack_call_exception('image_name:malformed', 'kata_old', {
         image_name:malformed,
         kata_id:kata_id
       }.to_json)
@@ -56,7 +56,7 @@ class RackDispatcherTest < TestBase
   test 'BB3',
   %w( malformed kata_id becomes exception ) do
     malformed_kata_ids.each do |malformed|
-      assert_rack_call_exception('kata_id:malformed', 'kata_new', {
+      assert_rack_call_exception('kata_id:malformed', 'kata_old', {
         image_name:image_name,
         kata_id:malformed
       }.to_json)
@@ -68,24 +68,10 @@ class RackDispatcherTest < TestBase
   test 'BB4',
   %w( malformed starting_files becomes exception ) do
     malformed_files.each do |malformed|
-      assert_rack_call_exception('starting_files:malformed', 'avatar_new', {
+      assert_rack_call_exception('starting_files:malformed', 'kata_new', {
         image_name:image_name,
         kata_id:kata_id,
-        avatar_name:'salmon',
         starting_files:malformed
-      }.to_json)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB5',
-  %w( malformed avatar_name becomes exception ) do
-    malformed_avatar_names.each do |malformed|
-      assert_rack_call_exception('avatar_name:malformed', 'avatar_old', {
-        image_name:image_name,
-        kata_id:kata_id,
-        avatar_name:malformed
       }.to_json)
     end
   end
@@ -143,7 +129,8 @@ class RackDispatcherTest < TestBase
       path_info:path_info,
       body: {
         image_name:image_name,
-        kata_id:kata_id
+        kata_id:kata_id,
+        starting_files:{}
       }.to_json
     }
     rack_call(env)
@@ -168,52 +155,6 @@ class RackDispatcherTest < TestBase
       }.to_json
     }
     rack_call(env)
-    assert_200
-    assert_body_contains(path_info)
-    refute_body_contains('exception')
-    refute_body_contains('trace')
-    assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # avatar_new
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB3', 'avatar_new' do
-    path_info = 'avatar_new'
-    env = {
-      path_info:path_info,
-      body: {
-        image_name:image_name,
-        kata_id:kata_id,
-        avatar_name:'salmon',
-        starting_files:{}
-      }.to_json
-    }
-    rack_call(env)
-    assert_200
-    assert_body_contains(path_info)
-    refute_body_contains('exception')
-    refute_body_contains('trace')
-    assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # avatar_old
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB4', 'avatar_old' do
-    path_info = 'avatar_old'
-    env = {
-      path_info:path_info,
-      body: {
-        image_name:image_name,
-        kata_id:kata_id,
-        avatar_name:'salmon'
-      }.to_json
-    }
-    rack_call(env)
-
     assert_200
     assert_body_contains(path_info)
     refute_body_contains('exception')
@@ -387,7 +328,6 @@ class RackDispatcherTest < TestBase
     {
       image_name:image_name,
       kata_id:kata_id,
-      avatar_name:'salmon',
       new_files:starting_files,
       deleted_files:{},
       unchanged_files:{},
@@ -401,7 +341,6 @@ class RackDispatcherTest < TestBase
   METHOD_NAMES = %w(
     sha
     kata_new kata_old
-    avatar_new avatar_old
     run_cyber_dojo_sh
   )
 

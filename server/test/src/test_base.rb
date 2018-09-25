@@ -1,5 +1,4 @@
 require_relative 'hex_mini_test'
-require_relative '../../src/all_avatars_names'
 require_relative '../../src/external'
 require_relative '../../src/rag_lambda_cache'
 require_relative '../../src/runner'
@@ -27,23 +26,12 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    runner.kata_new(image_name, kata_id)
+    runner.kata_new(image_name, kata_id, starting_files)
+    @previous_files = starting_files
   end
 
   def kata_old
     runner.kata_old(image_name, kata_id)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_new(name = 'salmon')
-    runner.avatar_new(image_name, kata_id, name, starting_files)
-    @avatar_name = name
-    @previous_files = starting_files
-  end
-
-  def avatar_old(name = avatar_name)
-    runner.avatar_old(image_name, kata_id, name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,7 +63,6 @@ class TestBase < HexMiniTest
     args = []
     args << image_name
     args << kata_id
-    args << defaulted_arg(named_args, :avatar_name, avatar_name)
     args << new_files
     args << deleted_files
     args << unchanged_files
@@ -175,18 +162,12 @@ class TestBase < HexMiniTest
     hex_test_id + '0' * (10-hex_test_id.length)
   end
 
-  def avatar_name
-    @avatar_name
-  end
-
   def uid
-    40000 + all_avatars_names.index(avatar_name)
+    41966
   end
-
-  include AllAvatarsNames
 
   def group
-    'cyber-dojo'
+    'sandbox'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -233,16 +214,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def in_kata_as(name)
-    in_kata {
-      as(name) {
-        yield
-      }
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def in_kata
     kata_new
     begin
@@ -253,15 +224,6 @@ class TestBase < HexMiniTest
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def as(name)
-    avatar_new(name)
-    yield
-  ensure
-    avatar_old(name)
-  end
-
-  # - - - - - - - - - - - - - - - - -
 
   def with_captured_log
     @log = ''

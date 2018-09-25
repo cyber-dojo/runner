@@ -10,10 +10,10 @@ class SandboxRightsTest < TestBase
 
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
-    in_kata_as('salmon') {
+    in_kata {
       assert_files_can_be_created_in_sandbox_sub_dir
     }
-    in_kata_as('lion') {
+    in_kata {
       assert_files_can_be_created_in_sandbox_sub_sub_dir
     }
   end
@@ -22,10 +22,10 @@ class SandboxRightsTest < TestBase
 
   multi_os_test '12B',
   %w( files can be deleted from sandbox sub-dir ) do
-    in_kata_as('salmon') {
+    in_kata {
       assert_files_can_be_deleted_from_sandbox_sub_dir
     }
-    in_kata_as('squid') {
+    in_kata {
       assert_files_can_be_deleted_from_sandbox_sub_sub_dir
     }
   end

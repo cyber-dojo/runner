@@ -1,6 +1,5 @@
 require_relative 'base58'
 require_relative 'client_error'
-require_relative 'well_formed_avatar_name'
 require_relative 'well_formed_image_name'
 require 'json'
 
@@ -34,17 +33,6 @@ module WellFormedArgs
     name = __method__.to_s
     arg = @args[name]
     unless well_formed_kata_id?(arg)
-      malformed(name)
-    end
-    arg
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def avatar_name
-    name = __method__.to_s
-    arg = @args[name]
-    unless well_formed_avatar_name?(arg)
       malformed(name)
     end
     arg
@@ -86,7 +74,6 @@ module WellFormedArgs
   private # = = = = = = = = = = = =
 
   include WellFormedImageName
-  include WellFormedAvatarName
 
   def well_formed_kata_id?(arg)
     Base58.string?(arg) && arg.size == 10

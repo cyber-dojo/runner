@@ -36,8 +36,12 @@ A no-op, but arguments must be well-formed.
 Provided for API compatibility with other runners.
 - parameters, eg
 ```
-  { "image_name": "cyberdojofoundation/gcc_assert",
-       "kata_id": "15B9AD6C42"
+  {     "image_name": "cyberdojofoundation/gcc_assert",
+           "kata_id": "15B9AD6C42",
+    "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
+                        "hiker.c" => "#include...",
+                        ...
+                      }
   }
 ```
 
@@ -53,42 +57,13 @@ Provided for API compatibility with other runners.
 
 - - - -
 
-# POST avatar_new
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  {     "image_name": "cyberdojofoundation/gcc_assert",
-           "kata_id": "15B9AD6C42",
-       "avatar_name": "salmon",
-    "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
-                        "hiker.c" => "#include...",
-                        ...
-                      }
-  }
-```
-
-# POST avatar_old
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  {  "image_name": "cyberdojofoundation/gcc_assert",
-        "kata_id": "15B9AD6C42",
-    "avatar_name": "salmon"
-  }
-```
-
-- - - -
-
 # POST run_cyber_dojo_sh
 Saves the unchanged files, the changed_files, and the new files, and runs
-cyber-dojo.sh as the avatar with the given avatar_name.
+cyber-dojo.sh
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
               "kata_id": "15B9AD6C42",
-          "avatar_name": "salmon",
             "new_files": { ... },
         "deleted_files": { ... },
       "unchanged_files": { "cyber-dojo.sh" => "make" },

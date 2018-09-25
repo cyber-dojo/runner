@@ -1,4 +1,3 @@
-require_relative 'all_avatars_names'
 require_relative 'file_delta'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
@@ -21,7 +20,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
-  def kata_new(_image_name, _kata_id)
+  def kata_new(_image_name, _kata_id, _starting_files)
     nil
   end
 
@@ -30,26 +29,14 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # for API compatibility
-
-  def avatar_new(_image_name, _kata_id, _avatar_name, _starting_files)
-    nil
-  end
-
-  def avatar_old(_image_name, _kata_id, _avatar_name)
-    nil
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(
-    image_name, kata_id, avatar_name,
+    image_name, kata_id,
     new_files, deleted_files, unchanged_files, changed_files,
     max_seconds
   )
     @image_name = image_name
     @kata_id = kata_id
-    @avatar_name = avatar_name
     deleted_files = nil # we're stateless
     was_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |src_tmp_dir|
@@ -82,7 +69,7 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :image_name, :kata_id, :avatar_name
+  attr_reader :image_name, :kata_id
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # write files to /tmp on host
@@ -382,7 +369,7 @@ class Runner # stateless
 
   def container_name
     name_prefix = 'test_run__runner_stateless'
-    [ name_prefix, kata_id, avatar_name ].join('_')
+    [ name_prefix, kata_id ].join('_')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -415,7 +402,6 @@ class Runner # stateless
 
   def env_vars
     [
-      env_var('AVATAR_NAME', avatar_name),
       env_var('IMAGE_NAME',  image_name),
       env_var('KATA_ID',     kata_id),
       env_var('RUNNER',      'stateless'),
@@ -470,21 +456,19 @@ class Runner # stateless
   GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # avatar
+  # user
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  include AllAvatarsNames
-
   def gid
-    5000
+    51966 # sandbox group
   end
 
   def uid
-    40000 + all_avatars_names.index(avatar_name)
+    41966 # sandbox user
   end
 
   def sandbox_dir
-    "/sandboxes/#{avatar_name}"
+    "/sandboxes/#{kata_id}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
