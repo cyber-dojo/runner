@@ -7,7 +7,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 # cyberdojo/runner-stateless docker image
 
 - A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org).
-- Runs an avatar's tests.
+- Runs cyber-dojo.sh inside a docker container within a given amount of time.
 
 API:
   * All methods receive their named arguments in a json hash.
