@@ -10,15 +10,15 @@ class ContainerPropertiesTest < TestBase
 
   multi_os_test '8A3',
   'container environment properties' do
-    in_kata_as('salmon') {
+    in_kata {
       assert_pid_1_is_running_init_process
       assert_cyber_dojo_runs_in_bash
       assert_time_stamp_microseconds_granularity
       assert_env_vars_exist
-      assert_avatar_users_exist
-      assert_cyber_dojo_group_exists
-      assert_avatar_has_home
-      assert_avatar_sandbox_properties
+      assert_sandbox_user_exists
+      assert_sandbox_group_exists
+      assert_sandbox_user_has_home
+      assert_sandbox_dir_properties
       assert_starting_files_properties
       assert_ulimits
     }
@@ -48,7 +48,6 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_env_vars_exist
-    assert_equal avatar_name, env_var('AVATAR_NAME')
     assert_equal  image_name, env_var('IMAGE_NAME')
     assert_equal     kata_id, env_var('KATA_ID')
     assert_equal 'stateless', env_var('RUNNER')
@@ -62,33 +61,32 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_avatar_users_exist
+  def assert_sandbox_user_exists
     etc_passwd = assert_cyber_dojo_sh 'cat /etc/passwd'
-    all_avatars_names.each do |name|
-      assert etc_passwd.include?(uid.to_s),
-        "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
-    end
+    name = 'sandbox'
+    diagnostic = "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
+    assert etc_passwd.include?(uid.to_s), diagnostic
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_cyber_dojo_group_exists
+  def assert_sandbox_group_exists
     assert_cyber_dojo_sh("getent group #{group}")
-    entries = stdout.split(':')  # cyber-dojo:x:5000
+    entries = stdout.split(':')  # sandbox:x:51966
     assert_equal group, entries[0], stdout
     assert_equal   gid, entries[2].to_i, stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_avatar_has_home
+  def assert_sandbox_user_has_home
     assert_equal home_dir, assert_cyber_dojo_sh('printenv HOME')
     assert_equal home_dir, assert_cyber_dojo_sh('cd ~ && pwd')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_avatar_sandbox_properties
+  def assert_sandbox_dir_properties
     assert_cyber_dojo_sh "[ -d #{sandbox_dir} ]" # sandbox exists
     refute_equal '', assert_cyber_dojo_sh("ls -A #{sandbox_dir}")
     assert_equal     uid.to_s, stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
@@ -103,19 +101,19 @@ class ContainerPropertiesTest < TestBase
   end
 
   def home_dir
-    "/home/#{avatar_name}"
+    "/home/sandbox"
   end
 
   def sandbox_dir
-    "/sandboxes/#{avatar_name}"
-  end
-
-  def gid
-    5000
+    "/sandboxes/#{kata_id}"
   end
 
   def uid
-    40000 + all_avatars_names.index(avatar_name)
+    41966
+  end
+
+  def gid
+    51966
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

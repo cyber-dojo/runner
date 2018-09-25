@@ -46,19 +46,6 @@ module MalformedData
 
   # - - - - - - - - - - - - - - - - -
 
-  def malformed_avatar_names
-    [
-      nil,          # not String
-      Object.new,   # not String
-      [],           # not String
-      {},           # not String
-      '',           # not avatar-name
-      'waterbottle' # not avatar-name
-    ]
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   def malformed_files
     [
       nil,           # not Hash

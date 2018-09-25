@@ -12,7 +12,7 @@ class RedAmberGreenTest < TestBase
   %w( [C,assert] red/amber/green progression test ) do
     filename = 'hiker.c'
     src = starting_files[filename]
-    in_kata_as('salmon') {
+    in_kata {
       run_cyber_dojo_sh
       assert_colour 'red'
       run_cyber_dojo_sh( {
