@@ -11,10 +11,10 @@ class Demo
   def inner_call
     @html = ''
     in_kata {
-      timed_out
       red
       amber
       green
+      timed_out
     }
     [ 200, { 'Content-Type' => 'text/html' }, [ @html ] ]
   end
@@ -50,11 +50,6 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  def timed_out
-    change('hiker.c', hiker_c.sub('return', "for(;;);\n return"))
-    run_cyber_dojo_sh('LightGray', 3)
-  end
-
   def red
     change('hiker.c', hiker_c.sub('6 * 9', '6 * 9'))
     run_cyber_dojo_sh('Red')
@@ -68,6 +63,11 @@ class Demo
   def green
     change('hiker.c', hiker_c.sub('6 * 9', '6 * 7'))
     run_cyber_dojo_sh('Green')
+  end
+
+  def timed_out
+    change('hiker.c', hiker_c.sub('return', "for(;;);\n return"))
+    run_cyber_dojo_sh('LightGray', 3)
   end
 
   def change(filename, content)
