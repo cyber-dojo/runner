@@ -71,11 +71,8 @@ class Runner # stateless
 
   attr_reader :image_name, :kata_id
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # write files to /tmp on host
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def write_files(tmp_dir, files)
+    # write files to /tmp on host
     # The tar_pipe_in() method runs as root and so it
     # will copy the file permissions and ownerships
     # of files saved to tmp_dir.
@@ -103,19 +100,20 @@ class Runner # stateless
   def setup_sandbox_in(tmp_dir)
     commands = [
       "chmod 755 #{tmp_dir}",
-      "mkdir #{tmp_dir}/sandboxes",
-      "chown root:#{gid} #{tmp_dir}/sandboxes",
-      "mkdir #{tmp_dir}/#{sandbox_dir}",
+      "mkdir -p #{tmp_dir}/#{sandbox_dir}",
       "chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}"
     ]
     shell.assert(commands.join(' && '))
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # read files from /tmp on host
+  def sandbox_dir
+    '/sandbox'
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_files(tmp_dir)
+    # read files from /tmp on host
     # eg tmp_dir = /tmp/.../sandboxes/...
     files = {}
     Find.find(tmp_dir) do |pathed_filename|
@@ -131,8 +129,6 @@ class Runner # stateless
     files
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # run cyber-dojo.sh in container with a timeout
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh_timeout(max_seconds)
@@ -188,10 +184,10 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files from /tmp on host to container
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
+    # tar-piping text files from /tmp on host into container
+    #
     # In a stateless runner _all_ files are sent from the
     # browser, and cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
@@ -241,10 +237,10 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # tar-piping text files from container to /tmp on host
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out(tmp_dir)
+    # tar-piping text files from container to /tmp on host
+    #
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
     # Pass the tar-list filename as an environment
@@ -382,7 +378,7 @@ class Runner # stateless
 
   def docker_run_options
     # (for create_container)
-    # no volume-mount; stateless!
+    # no volume-mount. stateless!
     options = <<~SHELL.strip
       --detach                  `# later docker exec` \
       #{env_vars}                                     \
@@ -471,10 +467,6 @@ class Runner # stateless
 
   def uid
     41966
-  end
-
-  def sandbox_dir
-    "/sandboxes/#{kata_id}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

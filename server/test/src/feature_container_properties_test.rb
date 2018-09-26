@@ -105,7 +105,7 @@ class ContainerPropertiesTest < TestBase
   end
 
   def sandbox_dir
-    "/sandboxes/#{kata_id}"
+    '/sandbox'
   end
 
   def uid
