@@ -90,19 +90,25 @@ class Runner # stateless
       src_filename = tmp_dir + '/' + pathed_filename
       # create file setting ownership and permission
       disk.write(src_filename, content)
-      shell.assert("chmod 644 #{src_filename}")
-      shell.assert("chown #{uid}:#{gid} #{src_filename}")
+      commands = [
+        "chmod 644 #{src_filename}",
+        "chown #{uid}:#{gid} #{src_filename}"
+      ]
+      shell.assert(commands.join(' && '))
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def setup_sandbox_in(tmp_dir)
-    shell.assert("chmod 755 #{tmp_dir}")
-    shell.assert("mkdir #{tmp_dir}/sandboxes")
-    shell.assert("chown root:#{gid} #{tmp_dir}/sandboxes")
-    shell.assert("mkdir #{tmp_dir}/#{sandbox_dir}")
-    shell.assert("chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}")
+    commands = [
+      "chmod 755 #{tmp_dir}",
+      "mkdir #{tmp_dir}/sandboxes",
+      "chown root:#{gid} #{tmp_dir}/sandboxes",
+      "mkdir #{tmp_dir}/#{sandbox_dir}",
+      "chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}"
+    ]
+    shell.assert(commands.join(' && '))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -110,11 +116,11 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_files(tmp_dir)
-    # eg tmp_dir = /tmp/.../sandboxes/bee
+    # eg tmp_dir = /tmp/.../sandboxes/...
     files = {}
     Find.find(tmp_dir) do |pathed_filename|
       # eg pathed_filename =
-      # '/tmp/.../sandboxes/bee/features/shouty.feature
+      # '/tmp/.../sandboxes/.../features/shouty.feature
       unless File.directory?(pathed_filename)
         content = File.read(pathed_filename)
         filename = pathed_filename[tmp_dir.size+1..-1]
