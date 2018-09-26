@@ -3,10 +3,10 @@
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
 readonly MY_NAME="${ROOT_DIR##*/}"
 
-readonly COVERAGE_ROOT=/tmp/coverage
-
 readonly SERVER_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}-server")
 readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}-client")
+
+readonly COVERAGE_ROOT=/tmp/coverage
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -57,6 +57,7 @@ run_client_tests()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 if [ ! -z "${TRAVIS}" ]; then
   # on Travis - pull images used by tests
   docker pull cyberdojofoundation/gcc_assert
