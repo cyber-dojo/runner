@@ -402,10 +402,10 @@ class Runner # stateless
 
   def env_vars
     [
-      env_var('IMAGE_NAME',  image_name),
-      env_var('KATA_ID',     kata_id),
-      env_var('RUNNER',      'stateless'),
-      env_var('SANDBOX',     sandbox_dir)
+      env_var('IMAGE_NAME', image_name),
+      env_var('KATA_ID',    kata_id),
+      env_var('RUNNER',     'stateless'),
+      env_var('SANDBOX',    sandbox_dir)
     ].join(space)
   end
 
@@ -456,15 +456,15 @@ class Runner # stateless
   GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # user
+  # sandbox user/group
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def gid
-    51966 # sandbox group
+    51966
   end
 
   def uid
-    41966 # sandbox user
+    41966
   end
 
   def sandbox_dir
