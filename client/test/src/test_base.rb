@@ -32,24 +32,6 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  #def avatar_new(named_args = {})
-  #  args = common_args(named_args)
-  #  args << defaulted_arg(named_args, :avatar_name,    avatar_name)
-  #  args << defaulted_arg(named_args, :starting_files, starting_files)
-  #  result = runner.avatar_new(*args)
-  #  @avatar_name = args[-2]
-  #  @all_files = args[-1]
-  #  result
-  #end
-
-  #def avatar_old(named_args = {})
-  #  args = common_args(named_args)
-  #  args << defaulted_arg(named_args, :avatar_name, avatar_name)
-  #  runner.avatar_old(*args)
-  #end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def run_cyber_dojo_sh(named_args = {})
 
     unchanged_files = @all_files

@@ -50,7 +50,7 @@ class ApiTest < TestBase
   'call to existing method with missing argument becomes exception' do
     in_kata {
       args = { image_name:image_name, kata_id:kata_id }
-      assert_exception('avatar_new', args.to_json)
+      assert_exception('kata_new', args.to_json)
     }
   end
 
