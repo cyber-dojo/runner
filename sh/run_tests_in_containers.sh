@@ -1,10 +1,13 @@
 #!/bin/bash
 
+server_status=0
+client_status=0
+
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
 readonly MY_NAME="${ROOT_DIR##*/}"
 
-readonly SERVER_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}-server")
-readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=${MY_NAME}-client")
+readonly SERVER_CID=$(docker ps --all --quiet --filter "name=test-${MY_NAME}-server")
+readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=test-${MY_NAME}-client")
 
 readonly COVERAGE_ROOT=/tmp/coverage
 
@@ -67,8 +70,7 @@ if [ ! -z "${TRAVIS}" ]; then
   docker pull cyberdojofoundation/perl_test_simple
 fi
 
-server_status=0
-client_status=0
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if [ "$1" = "server" ]; then
   shift
@@ -80,6 +82,8 @@ else
   run_server_tests "$@"
   run_client_tests "$@"
 fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if [[ ( ${server_status} == 0 && ${client_status} == 0 ) ]];  then
   echo "------------------------------------------------------"
