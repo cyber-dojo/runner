@@ -3,7 +3,7 @@ require_relative 'test_base'
 class DiskTest < TestBase
 
   def self.hex_prefix
-    'FDF13'
+    'FDF'
   end
 
   # - - - - - - - - - - - - - - - - -

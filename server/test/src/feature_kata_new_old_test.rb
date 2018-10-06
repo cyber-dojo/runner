@@ -3,7 +3,7 @@ require_relative 'test_base'
 class KataNewOldTest < TestBase
 
   def self.hex_prefix
-    '20A7A'
+    '20A'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -4,7 +4,7 @@ require_relative '../../src/base58'
 class Base58Test < TestBase
 
   def self.hex_prefix
-    'F3A59'
+    'F3A'
   end
 
   # - - - - - - - - - - - - - - - - - - -

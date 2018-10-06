@@ -6,7 +6,7 @@ class StringTruncaterTest < TestBase
   include StringTruncater
 
   def self.hex_prefix
-    '7677A'
+    '767'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -

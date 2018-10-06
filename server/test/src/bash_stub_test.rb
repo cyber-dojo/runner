@@ -4,7 +4,7 @@ require_relative 'bash_stub'
 class BashStubTest < TestBase
 
   def self.hex_prefix
-    'F03E2'
+    'F03'
   end
 
   def hex_setup

@@ -5,7 +5,7 @@ require_relative 'bash_stub_rag_file_catter'
 class RagRegexLambdaTest < TestBase
 
   def self.hex_prefix
-    'F6D43'
+    'F6D'
   end
 
   # - - - - - - - - - - - - - - - - -

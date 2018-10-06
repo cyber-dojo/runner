@@ -3,7 +3,7 @@ require_relative 'test_base'
 class TimedOutTest < TestBase
 
   def self.hex_prefix
-    '9E9E2'
+    '9E9'
   end
 
   # - - - - - - - - - - - - - - - - -

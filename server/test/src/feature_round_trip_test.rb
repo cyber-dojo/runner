@@ -4,7 +4,7 @@ require_relative 'test_base'
 class RoundTripTest < TestBase
 
   def self.hex_prefix
-    'ECFA3'
+    'ECF'
   end
 
   # - - - - - - - - - - - - - - - - -

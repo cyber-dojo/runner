@@ -8,7 +8,7 @@ require 'json'
 class RackDispatcherTest < TestBase
 
   def self.hex_prefix
-    'D06F7'
+    'D06'
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -46,7 +46,7 @@ class RackDispatcherTest < TestBase
     malformed_image_names.each do |malformed|
       assert_rack_call_exception('image_name:malformed', 'kata_old', {
         image_name:malformed,
-        kata_id:kata_id
+        id:id
       }.to_json)
     end
   end
@@ -54,11 +54,11 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB3',
-  %w( malformed kata_id becomes exception ) do
-    malformed_kata_ids.each do |malformed|
-      assert_rack_call_exception('kata_id:malformed', 'kata_old', {
+  %w( malformed id becomes exception ) do
+    malformed_ids.each do |malformed|
+      assert_rack_call_exception('id:malformed', 'kata_old', {
         image_name:image_name,
-        kata_id:malformed
+        id:malformed
       }.to_json)
     end
   end
@@ -70,7 +70,7 @@ class RackDispatcherTest < TestBase
     malformed_files.each do |malformed|
       assert_rack_call_exception('starting_files:malformed', 'kata_new', {
         image_name:image_name,
-        kata_id:kata_id,
+        id:id,
         starting_files:malformed
       }.to_json)
     end
@@ -129,7 +129,7 @@ class RackDispatcherTest < TestBase
       path_info:path_info,
       body: {
         image_name:image_name,
-        kata_id:kata_id,
+        id:id,
         starting_files:{}
       }.to_json
     }
@@ -151,7 +151,7 @@ class RackDispatcherTest < TestBase
       path_info:path_info,
       body: {
         image_name:image_name,
-        kata_id:kata_id
+        id:id
       }.to_json
     }
     rack_call(env)
@@ -327,7 +327,7 @@ class RackDispatcherTest < TestBase
   def run_cyber_dojo_sh_args
     {
       image_name:image_name,
-      kata_id:kata_id,
+      id:id,
       new_files:starting_files,
       deleted_files:{},
       unchanged_files:{},

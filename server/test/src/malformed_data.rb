@@ -32,15 +32,15 @@ module MalformedData
 
   # - - - - - - - - - - - - - - - - -
 
-  def malformed_kata_ids
+  def malformed_ids
     [
       nil,          # not String
       Object.new,   # not String
       [],           # not String
-      '',           # not 10 chars
-      '123456789',  # not 10 chars
-      '123456789AB',# not 10 chars
-      '123456789='  # not 10 base58-chars
+      '',           # not 6 chars
+      '12345',      # not 6 chars
+      '1234567',    # not 6 chars
+      '12345='      # not 6 base58-chars
     ]
   end
 

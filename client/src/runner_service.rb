@@ -7,24 +7,24 @@ class RunnerService
     @port = 4597
   end
 
-  def kata_new(image_name, kata_id, starting_files)
-    args = [image_name, kata_id, starting_files]
+  def kata_new(image_name, id, starting_files)
+    args = [image_name, id, starting_files]
     post(args, __method__)
   end
 
-  def kata_old(image_name, kata_id)
-    args = [image_name, kata_id]
+  def kata_old(image_name, id)
+    args = [image_name, id]
     post(args, __method__)
   end
 
   # - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(
-    image_name, kata_id,
+    image_name, id,
     new_files, deleted_files, unchanged_files, changed_files,
     max_seconds
   )
-    args  = [image_name, kata_id]
+    args  = [image_name, id]
     args += [new_files, deleted_files, unchanged_files, changed_files]
     args += [max_seconds]
     post(args, __method__)

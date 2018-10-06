@@ -8,7 +8,7 @@ class WellFormedImageNameTest < TestBase
   include WellFormedImageName
 
   def self.hex_prefix
-    'AF3A5'
+    'AF3'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -

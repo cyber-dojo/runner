@@ -20,23 +20,23 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
   # for API compatibility
 
-  def kata_new(_image_name, _kata_id, _starting_files)
+  def kata_new(_image_name, _id, _starting_files)
     nil
   end
 
-  def kata_old(_image_name, _kata_id)
+  def kata_old(_image_name, _id)
     nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(
-    image_name, kata_id,
+    image_name, id,
     new_files, deleted_files, unchanged_files, changed_files,
     max_seconds
   )
     @image_name = image_name
-    @kata_id = kata_id
+    @id = id
     deleted_files = nil # we're stateless
     was_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |src_tmp_dir|
@@ -69,7 +69,7 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :image_name, :kata_id
+  attr_reader :image_name, :id
 
   def write_files(tmp_dir, files)
     # write files to /tmp on host
@@ -371,7 +371,7 @@ class Runner # stateless
 
   def container_name
     name_prefix = 'test_run__runner_stateless'
-    [ name_prefix, kata_id ].join('_')
+    [ name_prefix, id ].join('_')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -405,7 +405,7 @@ class Runner # stateless
   def env_vars
     [
       env_var('IMAGE_NAME', image_name),
-      env_var('KATA_ID',    kata_id),
+      env_var('ID',         id),
       env_var('RUNNER',     'stateless'),
       env_var('SANDBOX',    sandbox_dir)
     ].join(space)

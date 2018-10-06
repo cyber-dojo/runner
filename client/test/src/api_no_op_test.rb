@@ -3,7 +3,7 @@ require_relative 'test_base'
 class ApiNoOpTest < TestBase
 
   def self.hex_prefix
-    '4F725'
+    '4F7'
   end
 
   multi_os_test 'D87',

@@ -4,7 +4,7 @@ require_relative 'test_base'
 class FileDeltaTest < TestBase
 
   def self.hex_prefix
-    '5C2B2'
+    '5C2'
   end
 
   include FileDelta

@@ -26,12 +26,12 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def kata_new
-    runner.kata_new(image_name, kata_id, starting_files)
+    runner.kata_new(image_name, id, starting_files)
     @previous_files = starting_files
   end
 
   def kata_old
-    runner.kata_old(image_name, kata_id)
+    runner.kata_old(image_name, id)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -62,7 +62,7 @@ class TestBase < HexMiniTest
 
     args = []
     args << image_name
-    args << kata_id
+    args << id
     args << new_files
     args << deleted_files
     args << unchanged_files
@@ -158,8 +158,8 @@ class TestBase < HexMiniTest
     manifest['image_name']
   end
 
-  def kata_id
-    hex_test_id + '0' * (10-hex_test_id.length)
+  def id
+    hex_test_id[0..5]
   end
 
   def uid

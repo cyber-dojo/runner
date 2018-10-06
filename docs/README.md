@@ -37,7 +37,7 @@ Provided for API compatibility with other runners.
 - parameters, eg
 ```
   {     "image_name": "cyberdojofoundation/gcc_assert",
-           "kata_id": "15B9AD6C42",
+                "id": "15B9AD",
     "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
                         "hiker.c" => "#include...",
                         ...
@@ -51,7 +51,7 @@ Provided for API compatibility with other runners.
 - parameters, eg
 ```
   { "image_name": "cyberdojofoundation/gcc_assert",
-       "kata_id": "15B9AD6C42"
+       "id": "15B9AD"
   }
 ```
 
@@ -63,7 +63,7 @@ cyber-dojo.sh
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
-              "kata_id": "15B9AD6C42",
+                   "id": "15B9AD",
             "new_files": { ... },
         "deleted_files": { ... },
       "unchanged_files": { "cyber-dojo.sh" => "make" },

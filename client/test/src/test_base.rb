@@ -127,8 +127,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_id
-    hex_test_id + '0' * (10 - hex_test_id.length)
+  def id
+    hex_test_id[0..5]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -161,7 +161,7 @@ class TestBase < HexMiniTest
 
   def common_args(named_args)
     [ defaulted_arg(named_args, :image_name, image_name),
-      defaulted_arg(named_args, :kata_id,    kata_id)
+      defaulted_arg(named_args, :id,         id)
     ]
   end
 

@@ -4,7 +4,7 @@ require_relative '../../src/shell'
 class ShellTest < TestBase
 
   def self.hex_prefix
-    'C894D'
+    'C89'
   end
 
   # - - - - - - - - - - - - - - - - -

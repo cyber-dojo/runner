@@ -3,7 +3,7 @@ require_relative 'test_base'
 class ContainerPropertiesTest < TestBase
 
   def self.hex_prefix
-    '3A867'
+    '3A8'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ class ContainerPropertiesTest < TestBase
 
   def assert_env_vars_exist
     assert_equal  image_name, env_var('IMAGE_NAME')
-    assert_equal     kata_id, env_var('KATA_ID')
+    assert_equal          id, env_var('ID')
     assert_equal 'stateless', env_var('RUNNER')
     assert_equal sandbox_dir, env_var('SANDBOX')
   end

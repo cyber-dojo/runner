@@ -3,7 +3,7 @@ require_relative 'test_base'
 class SandboxRightsTest < TestBase
 
   def self.hex_prefix
-    'D8D88'
+    'D8D'
   end
 
   # - - - - - - - - - - - - - - - - -

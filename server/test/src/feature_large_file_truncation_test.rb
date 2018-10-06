@@ -3,7 +3,7 @@ require_relative 'test_base'
 class LargeFileTruncationTest < TestBase
 
   def self.hex_prefix
-    'E4A95'
+    'E4A'
   end
 
   # - - - - - - - - - - - - - - - - -

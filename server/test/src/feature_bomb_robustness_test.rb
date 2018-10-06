@@ -3,7 +3,7 @@ require_relative 'test_base'
 class BombRobustNessTest < TestBase
 
   def self.hex_prefix
-    '1B5B5'
+    '1B5'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

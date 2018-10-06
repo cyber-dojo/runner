@@ -6,7 +6,7 @@ class StringCleanerTest < TestBase
   include StringCleaner
 
   def self.hex_prefix
-    '3D982'
+    '3D9'
   end
 
   # - - - - - - - - - - - - - - - - -

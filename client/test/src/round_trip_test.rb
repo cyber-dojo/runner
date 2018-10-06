@@ -3,7 +3,7 @@ require_relative 'test_base'
 class RoundTripTest < TestBase
 
   def self.hex_prefix
-    '2D128'
+    '2D1'
   end
 
   # - - - - - - - - - - - - - - - - -

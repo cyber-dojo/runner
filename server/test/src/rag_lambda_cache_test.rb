@@ -4,7 +4,7 @@ require_relative '../../src/rag_lambda_cache'
 class RagLambdaCacheTest < TestBase
 
   def self.hex_prefix
-    '332FC'
+    '332'
   end
 
   # - - - - - - - - - - - - - - - -

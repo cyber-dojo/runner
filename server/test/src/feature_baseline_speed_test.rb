@@ -3,7 +3,7 @@ require_relative 'test_base'
 class BaselineSpeedTest < TestBase
 
   def self.hex_prefix
-    '15964'
+    '159'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

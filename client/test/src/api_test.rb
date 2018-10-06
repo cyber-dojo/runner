@@ -3,7 +3,7 @@ require_relative 'test_base'
 class ApiTest < TestBase
 
   def self.hex_prefix
-    '3759D'
+    '375'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ class ApiTest < TestBase
   multi_os_test '2F2',
   'call to existing method with missing argument becomes exception' do
     in_kata {
-      args = { image_name:image_name, kata_id:kata_id }
+      args = { image_name:image_name, id:id }
       assert_exception('kata_new', args.to_json)
     }
   end
@@ -61,7 +61,7 @@ class ApiTest < TestBase
     in_kata {
       args = {
         image_name:image_name,
-        kata_id:kata_id,
+        id:id,
         new_files:2, # <=====
         deleted_files:{},
         unchanged_files:{},
@@ -115,19 +115,19 @@ class ApiTest < TestBase
     end
   end
 
-  MALFORMED_KATA_IDS = [ nil, '675' ]
+  MALFORMED_IDS = [ nil, '675' ]
 
   multi_os_test '656',
   'all api methods raise when kata_id is invalid' do
     in_kata do
       METHOD_NAMES.each do |method_name|
-        MALFORMED_KATA_IDS.each do |kata_id|
+        MALFORMED_IDS.each do |id|
           error = assert_raises(ServiceError, method_name.to_s) do
-            self.send method_name, { kata_id:kata_id }
+            self.send method_name, { id:id }
           end
           json = JSON.parse(error.message)
           assert_equal 'ClientError', json['class']
-          assert_equal 'kata_id:malformed', json['message']
+          assert_equal 'id:malformed', json['message']
           assert_equal 'Array', json['backtrace'].class.name
         end
       end

@@ -4,7 +4,7 @@ require_relative '../../src/log'
 class LogTest < TestBase
 
   def self.hex_prefix
-    'CD476'
+    'CD4'
   end
 
   # - - - - - - - - - - - - - - - -

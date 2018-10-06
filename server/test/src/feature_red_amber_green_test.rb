@@ -3,7 +3,7 @@ require_relative 'test_base'
 class RedAmberGreenTest < TestBase
 
   def self.hex_prefix
-    'C608A'
+    'C60'
   end
 
   # - - - - - - - - - - - - - - - - -

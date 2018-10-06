@@ -3,7 +3,7 @@ require_relative 'test_base'
 class ClangSanitizeAddressTest < TestBase
 
   def self.hex_prefix
-    'D286B'
+    'D28'
   end
 
   # - - - - - - - - - - - - - - - - -

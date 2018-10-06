@@ -3,7 +3,7 @@ require_relative 'test_base'
 class OsTest < TestBase
 
   def self.hex_prefix
-    '6691F'
+    '669'
   end
 
   # - - - - - - - - - - - - - - - - -
