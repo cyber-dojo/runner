@@ -1,6 +1,7 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
+require 'digest/sha1'
 require 'find'
 require 'timeout'
 
@@ -371,7 +372,17 @@ class Runner # stateless
 
   def container_name
     name_prefix = 'test_run__runner_stateless'
-    [ name_prefix, id ].join('_')
+    [ name_prefix, id_sha ].join('_')
+  end
+
+  def id_sha
+    # the docker container name alphabet is
+    # [a-zA-Z0-9][a-zA-Z0-9_.-]
+    # in practice [docker ps -a] reveals generated
+    # container names use only [0-9a-f] and are
+    # 64 chars long (docker ps only shows 12).
+    # No need to require the id alphabet is a subset.
+    Digest::SHA1.hexdigest(id)[0..11]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
