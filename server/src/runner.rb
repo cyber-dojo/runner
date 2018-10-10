@@ -381,7 +381,9 @@ class Runner # stateless
     # in practice [docker ps -a] reveals generated
     # container names use only [0-9a-f] and are
     # 64 chars long (docker ps only shows 12).
-    # No need to require the id alphabet is a subset.
+    # Forming a sha like this means there is
+    # no need to require the id alphabet is a subset
+    # of the container-name alphabet.
     Digest::SHA1.hexdigest(id)[0..11]
   end
 
