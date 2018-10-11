@@ -1,4 +1,3 @@
-require_relative 'base58'
 require_relative 'client_error'
 require_relative 'well_formed_image_name'
 require 'json'
@@ -76,7 +75,7 @@ module WellFormedArgs
   include WellFormedImageName
 
   def well_formed_id?(arg)
-    Base58.string?(arg) && arg.size == 6
+    arg.is_a?(String) && arg.size == 6
   end
 
   def well_formed_files(name)

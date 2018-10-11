@@ -40,7 +40,6 @@ module MalformedData
       '',           # not 6 chars
       '12345',      # not 6 chars
       '1234567',    # not 6 chars
-      '12345='      # not 6 base58-chars
     ]
   end
 

@@ -376,14 +376,13 @@ class Runner # stateless
   end
 
   def id_sha
-    # the docker container name alphabet is
+    # The docker container name alphabet is
     # [a-zA-Z0-9][a-zA-Z0-9_.-]
-    # in practice [docker ps -a] reveals generated
+    # A [docker ps -a] reveals that generated
     # container names use only [0-9a-f] and are
-    # 64 chars long (docker ps only shows 12).
-    # Forming a sha like this means there is
-    # no need to require the id alphabet is a subset
-    # of the container-name alphabet.
+    # 64 chars long.
+    # Forming a sha like this means the id
+    # only has to be a string.
     Digest::SHA1.hexdigest(id)[0..11]
   end
 
