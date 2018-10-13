@@ -1,7 +1,6 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
 require_relative 'string_truncater'
-require 'digest/sha1'
 require 'find'
 require 'timeout'
 
@@ -19,7 +18,7 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # for API compatibility
+  # for API compatibility with runner-stateful
 
   def kata_new(_image_name, _id, _starting_files)
     nil
@@ -70,7 +69,14 @@ class Runner # stateless
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :image_name, :id
+  attr_reader :image_name
+
+  def id
+    # Already checked to be a Base62.string
+    # which means it can safely form a docker
+    # container name.
+    @id
+  end
 
   def write_files(tmp_dir, files)
     # write files to /tmp on host
@@ -371,19 +377,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name
-    name_prefix = 'test_run__runner_stateless'
-    [ name_prefix, id_sha ].join('_')
-  end
-
-  def id_sha
-    # The docker container name alphabet is
-    # [a-zA-Z0-9][a-zA-Z0-9_.-]
-    # A [docker ps -a] reveals that generated
-    # container names use only [0-9a-f] and are
-    # 64 chars long.
-    # Forming a sha like this means the id
-    # only has to be a string.
-    Digest::SHA1.hexdigest(id)[0..11]
+    [ 'test_run__runner_stateless', id ].join('_')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -426,6 +420,7 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_var(name, value)
+    # Note: value must not contain a single quote
     "--env CYBER_DOJO_#{name}='#{value}'"
   end
 
