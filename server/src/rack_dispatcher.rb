@@ -22,15 +22,16 @@ class RackDispatcher # stateless
   rescue => error
     diagnostic = pretty({
       'exception' => {
-        'class' => error.class.name,
+        'path' => path,
+        'body' => body,
+        'class' => 'RunnerStatelessService',
         'message' => error.message,
-        'args' => body,
         'backtrace' => error.backtrace
       }
     })
     $stderr.puts(diagnostic)
     $stderr.flush
-    json_response(status(error), diagnostic)
+    json_response(code(error), diagnostic)
   end
 
   private # = = = = = = = = = = = =
@@ -70,8 +71,12 @@ class RackDispatcher # stateless
     JSON.pretty_generate(body)
   end
 
-  def status(error)
-    error.is_a?(ClientError) ? 400 : 500
+  def code(error)
+    if error.is_a?(ClientError)
+      400 # client_error
+    else
+      500 # server_error
+    end
   end
 
 end
