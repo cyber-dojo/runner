@@ -3,7 +3,7 @@ require_relative 'client_error'
 require_relative 'well_formed_image_name'
 require 'json'
 
-# Checks for arguments synactic correctness
+# Checks for arguments syntactic correctness
 
 module WellFormedArgs
 
