@@ -37,7 +37,7 @@ Provided for API compatibility with other runners.
 - parameters, eg
 ```
   {     "image_name": "cyberdojofoundation/gcc_assert",
-                "id": "15B9AD",
+                "id": "15B9zD",
     "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
                         "hiker.c" => "#include...",
                         ...
@@ -51,7 +51,7 @@ Provided for API compatibility with other runners.
 - parameters, eg
 ```
   { "image_name": "cyberdojofoundation/gcc_assert",
-       "id": "15B9AD"
+       "id": "15B9zD"
   }
 ```
 
@@ -63,7 +63,7 @@ cyber-dojo.sh
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
-                   "id": "15B9AD",
+                   "id": "15B9zD",
             "new_files": { ... },
         "deleted_files": { ... },
       "unchanged_files": { "cyber-dojo.sh" => "make" },
@@ -159,7 +159,7 @@ If the runner-client's IP address is 192.168.99.100 then put
 192.168.99.100:4598 into your browser to see the output.
 - grey: tests did not complete (in 3 seconds)
 - red: tests ran but failed
-- amber: tests did not run (syntax error)
+- amber: tests did not run (eg syntax error)
 - green: tests ran and passed
 
 # demo screenshot
