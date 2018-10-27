@@ -23,7 +23,7 @@ class Demo
 
   def in_kata
     @image_name = 'cyberdojofoundation/gcc_assert'
-    @kata_id = '729B652756'
+    @kata_id = '729z65'
     duration = timed {
       runner.kata_new(image_name, kata_id, starting_files)
       @new_files = {}
