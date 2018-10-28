@@ -1,0 +1,64 @@
+
+Trying to use a non root user (called runner) when running the container...
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Problem 1. Need permission to run the docker binary
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# there is no sudo command in default Alpine
+RUN  apk --update add sudo
+
+ARG  DOCKER_BINARY=/usr/local/bin/docker
+
+ARG  GETS_DOCKER_SUDO=runner
+ARG  SUDO_FILE=/etc/sudoers.d/${GETS_DOCKER_SUDO}
+# runner user, on all hosts, without a password, can sudo /usr/local/bin/docker
+RUN echo "${GETS_DOCKER_SUDO}  ALL=NOPASSWD: ${DOCKER_BINARY} *" >> ${SUDO_FILE}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Problem 2. Need permission to chmod files in /tmp
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I chmod files so I can control their ownership
+after they've been tar-piped into the java-junit (eg) container.
+I'm cheating this one, by making the runner's uid:gid
+be the same as the uid:gid of the sandbox user inside the java-junit container.
+
+RUN addgroup -g 51966 runner
+RUN adduser \
+  -G runner `# group`       \
+  -D        `# no password` \
+  -H        `# no home dir` \
+  -u 41966  `# user-id`     \
+  runner    `# user-name`
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Problem 3. Need permission to run /var/run/docker.sock
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+On DockerToolbox for Mac, on the default VM
+/etc/group has docker group with gid=100
+This means /var/run/docker.sock has a gid=100
+On an Alpine image (such as this), /etc/group
+has a group called users with gid=100
+There is also a user called guest that has
+the group users as its primary group.
+So I need to delete the user called guest, and the
+group called users, so that I can create a new group
+with a gid of 100. Then I can make my user
+a member of this group, and after all that,
+my user will have access to /var/run/docker.sock
+Obvious problem with this is that the docker group
+has different gids on different OS's.
+For example, on Ubuntu 16.04 (in Google Computer Engine)
+/etc/group also has a group called users with gid=100
+but its docker group has a gid of 999
+But I can solve that by making the user a member
+of multiple groups, each of which has the gid for
+docker on a particular OS
+
+RUN deluser guest
+RUN delgroup users
+RUN addgroup -g 100 docker
+
+RUN adduser runner docker
