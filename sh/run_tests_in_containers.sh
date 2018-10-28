@@ -28,10 +28,10 @@ run_server_tests()
     tar Ccf \
       "$(dirname "${COVERAGE_ROOT}")" \
       - "$(basename "${COVERAGE_ROOT}")" \
-        | tar Cxf "${ROOT_DIR}/server/" -
+        | tar Cxf "${ROOT_DIR}/" -
 
-  echo "Coverage report copied to ${MY_NAME}/server/coverage/"
-  cat "${ROOT_DIR}/server/coverage/done.txt"
+  echo "Coverage report copied to ${MY_NAME}/coverage/"
+  cat "${ROOT_DIR}/coverage/done.txt"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
