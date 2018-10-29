@@ -1,0 +1,37 @@
+
+At the moment the creation of the files in /tmp
+on the host also sets chown for those files.
+This means that when the files are untarred into
+the container they have the permissions set in the chown.
+In particular, the permission of any sub-dir is also set.
+
+However, you need to be root to do the chown.
+I'd like the runner to execute as a non-root user.
+So I am investigating setting the permissions in the
+untar operation. Viz
+
+tar                                          \
+  --touch          `# [2]`                   \
+  --numeric-owner                            \
+  --owner=#{uid}                             \
+  --group=#{gid}                             \
+  -zxf             `# extract tar file`      \
+  -                `# read from stdin`       \
+  -C               `# save to the`           \
+  /
+
+This almost works. It does set the permissions of the
+individual files, but it does not set the permissions of the sub-dirs.
+
+I've been looking at
+https://serverfault.com/questions/877254/tar-does-not-retain-directory-permissions
+
+And trying to create the tar file (in /tmp on the host) using
+
+  find . | sed 's|^\./||' | tail -n +2 | tar -zcf - --no-recursion -T - > /tmp/all.tar
+
+But I can't get it working... It will not set the sub-dir permissions.
+They stubbornly remain as user=0 root.
+
+  cd /tmp
+  tar -zxf all.tar --numeric-owner --owner=65534 --group=65534
