@@ -9,7 +9,7 @@ class LargeFileTruncationTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '62A',
-  %w( files bigger than 10K are truncated ) do
+  %w( generated files bigger than 10K are truncated ) do
     script = 'yes "123456789" | head -n 1042 > large_file.txt'
     all_OSes.each do |os|
       @os = os
@@ -22,6 +22,24 @@ class LargeFileTruncationTest < TestBase
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '62B',
+  %w( source files bigger than 10K are not truncated ) do
+    filename = 'Hiker.cs'
+    src = starting_files[filename]
+    large_comment = "/*#{'x'*10*1024}*/"
+    refute_nil src
+    in_kata {
+      run_cyber_dojo_sh( {
+        changed_files:{
+          filename => (src + large_comment)
+        }
+      })
+      refute changed_files.keys.include?(filename)
+    }
   end
 
 end
