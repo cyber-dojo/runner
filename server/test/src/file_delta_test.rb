@@ -1,4 +1,6 @@
 require_relative '../../src/file_delta'
+require_relative '../../src/string_cleaner'
+require_relative '../../src/string_truncater'
 require_relative 'test_base'
 
 class FileDeltaTest < TestBase
@@ -8,6 +10,12 @@ class FileDeltaTest < TestBase
   end
 
   include FileDelta
+  include StringCleaner
+  include StringTruncater
+
+  def sanitized(string)
+    truncated(cleaned(string))
+  end
 
   # - - - - - - - - - - - - - - - - -
 
@@ -65,4 +73,3 @@ class FileDeltaTest < TestBase
   end
 
 end
-

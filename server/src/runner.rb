@@ -132,7 +132,7 @@ class Runner # stateless
         content = File.read(pathed_filename)
         filename = pathed_filename[tmp_dir.size+1..-1]
         # eg filename = features/shouty.feature
-        files[filename] = sanitized(content)
+        files[filename] = content
       end
     end
     files

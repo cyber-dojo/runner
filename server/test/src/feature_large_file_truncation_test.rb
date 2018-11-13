@@ -24,6 +24,24 @@ class LargeFileTruncationTest < TestBase
     end
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test '62B',
+  %w( source files bigger than 10K are not truncated ) do
+    filename = 'Hiker.cs'
+    src = starting_files[filename]
+    large_comment = "/*#{'x'*10*1024}*/"
+    refute_nil src
+    in_kata_as('salmon') {
+      run_cyber_dojo_sh( {
+        changed_files:{
+          filename => (src + large_comment)
+        }
+      })
+      refute changed_files.keys.include?(filename)
+    }
+  end
+
   private # = = = = = = = = = = = = =
 
   def all_OSes
