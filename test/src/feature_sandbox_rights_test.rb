@@ -8,6 +8,22 @@ class SandboxRightsTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  multi_os_test '296',
+  'new sub-dirs are owned by sandbox' do
+    in_kata {
+      sub_dir = 'z'
+      filename = 'hello.txt'
+      content = 'the boy stood on the burning deck'
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => "#{stat_cmd}" },
+            new_files: { "#{sub_dir}/#{filename}" => content }
+      })
+      assert_stats(sub_dir, 'drwxr-xr-x', 4096)
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
     in_kata {
@@ -112,11 +128,11 @@ class SandboxRightsTest < TestBase
     Hash[stdout.lines.collect { |line|
       attr = line.split
       [attr[0], { # filename
-        permissions: attr[1],
-                uid: attr[2].to_i,
-              group: attr[3],
-               size: attr[4].to_i,
-         time_stamp: attr[6],
+        permissions: attr[1],      # eg drwxr-xr-x
+                uid: attr[2].to_i, # eg 0
+              group: attr[3],      # eg root
+               size: attr[4].to_i, # eg 96
+         time_stamp: attr[6],      # eg 13:35:28.356470616
       }]
     }]
   end

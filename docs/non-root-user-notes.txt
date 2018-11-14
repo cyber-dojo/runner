@@ -43,3 +43,27 @@ of _multiple_ groups, each of which has the gid for
 docker on a particular OS
 
 RUN adduser runner users
+
+# ---------------------
+Notes
+# ---------------------
+At the moment the creation of the files in /tmp
+on the host also sets chown for those files.
+This means that when the files are untarred into
+the container they have the permissions set in the chown.
+In particular, the permission of any sub-dir is also set.
+
+However, you need to be root to do the chown.
+I'd like the _runner_ to execute as a non-root user.
+So I am investigating setting the permissions in the
+untar operation. Viz
+
+tar                                          \
+  --touch          `# [2]`                   \
+  --numeric-owner                            \
+  --owner=#{uid}                             \
+  --group=#{gid}                             \
+  -zxf             `# extract tar file`      \
+  -                `# read from stdin`       \
+  -C               `# save to the`           \
+  /

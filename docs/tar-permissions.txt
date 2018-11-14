@@ -1,27 +1,4 @@
 
-At the moment the creation of the files in /tmp
-on the host also sets chown for those files.
-This means that when the files are untarred into
-the container they have the permissions set in the chown.
-In particular, the permission of any sub-dir is also set.
-
-However, you need to be root to do the chown.
-I'd like the runner to execute as a non-root user.
-So I am investigating setting the permissions in the
-untar operation. Viz
-
-tar                                          \
-  --touch          `# [2]`                   \
-  --numeric-owner                            \
-  --owner=#{uid}                             \
-  --group=#{gid}                             \
-  -zxf             `# extract tar file`      \
-  -                `# read from stdin`       \
-  -C               `# save to the`           \
-  /
-
-This almost works. It does set the permissions of the
-individual files, but it does not set the permissions of the sub-dirs.
 
 I've been looking at
 https://serverfault.com/questions/877254/tar-does-not-retain-directory-permissions
@@ -29,12 +6,6 @@ https://serverfault.com/questions/877254/tar-does-not-retain-directory-permissio
 And trying to create the tar file (in /tmp on the host) using this command.
 This sends an explicit list of what to tar to the tar command.
 This list includes names of dirs...
-
-  cd dir-in-question
-  find . | sed 's|^\./||' | tail -n +2 | tar -zcf - --no-recursion -T - > /tmp/all.tar
-
-But I can't get it working... It will not set the sub-dir permissions.
-They stubbornly remain as user=0 root.
 
   cd /tmp
   tar -zxf all.tar --numeric-owner --owner=65534 --group=65534
@@ -46,11 +17,11 @@ Gives...
   drwxr-xr-x root/root         0 2018-11-14 12:58 d1/
   -rw-r--r-- root/root         4 2018-11-14 12:58 d1/world.txt
 
-which seems to indicate the tar is holding the permissions itself.
+indicates the tar is holding the permissions itself.
+Which of course, it must!
 
   cd dir-in-question
-  chown -R 65534:65534 *
-  chown -R 65534:65534 .*
+  chown -R 65534:65534 .
   find . | sed 's|^\./||' | tail -n +2 | tar -zcf - --no-recursion -T - > /tmp/all.tar
   tar -tvf /tmp.all.tar
 
@@ -62,15 +33,3 @@ More promising...
   tar -zxf all.tar
 
 Yes.
-
-
-
-This explains why the same bug appears in the current runner
-(which does not use an explicit list for tar)
-Suppose, in the browser, you create a file in a nested subdir, eg
-d1/d2/readme.txt
-Then the file is created, and it is owned by sandbox.
-But the subdirs d1 and d2 are not. They are still owned by root.
-
-On the other hand, if you create a subdir in cyber-dojo.sh
-then that is owned by sandbox.

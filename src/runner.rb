@@ -83,6 +83,7 @@ class Runner # stateless
     # The tar_pipe_in() method runs as root and so it
     # will copy the file permissions and ownerships
     # of files saved to tmp_dir.
+    commands = []
     setup_sandbox_in(tmp_dir)
     tmp_dir += sandbox_dir
     files.each do |pathed_filename, content|
@@ -94,12 +95,12 @@ class Runner # stateless
       src_filename = tmp_dir + '/' + pathed_filename
       # create file setting ownership and permission
       disk.write(src_filename, content)
-      commands = [
-        "chmod 644 #{src_filename}",
-        "chown #{uid}:#{gid} #{src_filename}"
-      ]
-      shell.assert(commands.join(' && '))
+      # prepare to set its permission
+      commands << "chmod 644 #{src_filename}"
     end
+    # set ownership of all dirs/files
+    commands << "chown -R #{uid}:#{gid} #{tmp_dir}"
+    shell.assert(commands.join(' && '))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -107,8 +108,7 @@ class Runner # stateless
   def setup_sandbox_in(tmp_dir)
     commands = [
       "chmod 755 #{tmp_dir}",
-      "mkdir -p #{tmp_dir}/#{sandbox_dir}",
-      "chown #{uid}:#{gid} #{tmp_dir}/#{sandbox_dir}"
+      "mkdir -p #{tmp_dir}/#{sandbox_dir}"
     ]
     shell.assert(commands.join(' && '))
   end
@@ -200,7 +200,7 @@ class Runner # stateless
     # must be at least one file in tmp_dir.
     #
     # [1] root user is required so that file ownership and
-    # permissions from save_files() are copied into the container.
+    # permissions from write_files() are copied into the container.
     #
     # [2] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
@@ -219,26 +219,29 @@ class Runner # stateless
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
     docker_tar_pipe = <<~SHELL.strip
-      cd #{tmp_dir}                                        \
-      &&                                                   \
-      tar                                                  \
-        -zcf                     `# create tar file`       \
-        -                        `# write it to stdout`    \
-        .                        `# tar current directory` \
-        |                        `# pipe the tarfile`      \
-          docker exec            `# into docker container` \
-            --user=root          `# [1]`                   \
-            --interactive        `# we are piping`         \
-            #{container_name}                              \
-            sh -c                                          \
-              '                  `# open quote`            \
-              tar                                          \
-                --touch          `# [2]`                   \
-                -zxf             `# extract tar file`      \
-                -                `# read from stdin`       \
-                -C               `# save to the`           \
-                /                `# root dir`              \
-              '                  `# close quote`
+      cd #{tmp_dir}                                   \
+      &&                                              \
+      find .                 `# list tmp-dir`         \
+      | sed 's|^\./||'       `# cut leading slash`    \
+      | tail -n +2           `# ignore lone dot`      \
+      | tar -zcf             `# create tar file`      \
+           -                 `# write it to stdout`   \
+           -T                `# get names to extract` \
+           -                 `# from piped stdin`     \
+      |                      `# pipe the tarfile`     \
+        docker exec          `# into container`       \
+          --user=root        `# [1]`                  \
+          --interactive      `# we are piping`        \
+          #{container_name}                           \
+          sh -c                                       \
+            '                `# open quote`           \
+            tar                                       \
+              --touch        `# [2]`                  \
+              -zxf           `# extract tar file`     \
+              -              `# read from stdin`      \
+              -C             `# save to the`          \
+              /              `# root dir`             \
+            '                `# close quote`
     SHELL
     shell.assert(docker_tar_pipe)
   end
