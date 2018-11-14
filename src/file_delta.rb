@@ -8,13 +8,11 @@ module FileDelta
       if !now.has_key?(filename)
         @deleted_files[filename] = content
       elsif now[filename] != content
-        @changed_files[filename] = sanitized(now[filename])
+        @changed_files[filename] = now[filename]
       end
       now.delete(filename) # destructive
     end
-    @new_files = Hash[now.map { |filename,content|
-      [ filename, sanitized(content) ]
-    }]
+    @new_files = now
   end
 
 end

@@ -61,9 +61,9 @@ class Runner # stateless
       stderr:@stderr,
       status:@status,
       colour:@colour,
-      new_files:@new_files,
-      deleted_files:@deleted_files,
-      changed_files:@changed_files
+          new_files:sanitized_map(@new_files),
+      deleted_files:sanitized_map(@deleted_files),
+      changed_files:sanitized_map(@changed_files)
     }
   end
 
@@ -490,6 +490,12 @@ class Runner # stateless
     truncated(cleaned(string))
   end
 
+  def sanitized_map(files)
+    Hash[files.map { |filename,content|
+      [ filename, sanitized(content) ]
+    }]
+  end
+
   def space
     ' '
   end
@@ -523,9 +529,6 @@ end
 #   o) don't create copies of files off /tmp
 #   o) N tar-pipes for N files, each copying directly into the container
 #   o) run cyber-dojo.sh inside the container
-#
-# If only one file has changed you might imagine this is
-# quicker but testing shows its actually a bit slower.
 #
 # For interests sake here's how you tar pipe without the
 # intermediate /tmp files. I don't know how this would
