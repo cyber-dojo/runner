@@ -57,8 +57,8 @@ class Runner # stateless
       }
     end
     {
-      stdout:@stdout,
-      stderr:@stderr,
+      stdout:sanitized(@stdout),
+      stderr:sanitized(@stderr),
       status:@status,
       colour:@colour,
           new_files:sanitized_map(@new_files),
@@ -72,7 +72,7 @@ class Runner # stateless
   attr_reader :image_name
 
   def id
-    # Already checked to be a Base62.string
+    # Already checked to be a Base58.string
     # which means it can safely form a docker
     # container name.
     @id
@@ -82,7 +82,7 @@ class Runner # stateless
     # write files to /tmp on host
     # The tar_pipe_in() method runs as root and so it
     # will copy the file permissions and ownerships
-    # of files saved to tmp_dir.
+    # of files written to tmp_dir.
     commands = []
     tmp_dir += sandbox_dir
     setup_sandbox_in(tmp_dir)
@@ -160,14 +160,14 @@ class Runner # stateless
       end
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
-      Process.detach(pid)   # prevent zombie-child
+      Process.detach(pid)   # prevent zombie-child but
       @status = 137         # don't wait for detach status
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = sanitized(r_stdout.read)
-      @stderr = sanitized(r_stderr.read)
+      @stdout = r_stdout.read
+      @stderr = r_stderr.read
       r_stdout.close
       r_stderr.close
     end
@@ -292,7 +292,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green
-    # @stdout and @stderr have been sanitized.
     rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
     colour = rag_lambda.call(@stdout, @stderr, @status)
     unless [:red,:amber,:green].include?(colour)
@@ -371,9 +370,6 @@ class Runner # stateless
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def remove_container
-    # [docker rm] could be backgrounded with a trailing &
-    # but it did not make a test-event discernably
-    # faster when measuring to 100th of a second.
     shell.assert("docker rm --force #{container_name}")
   end
 
@@ -387,7 +383,6 @@ class Runner # stateless
 
   def docker_run_options
     # (for create_container)
-    # no volume-mount. stateless!
     options = <<~SHELL.strip
       --detach                  `# later docker exec` \
       #{env_vars}                                     \
