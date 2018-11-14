@@ -84,8 +84,8 @@ class Runner # stateless
     # will copy the file permissions and ownerships
     # of files saved to tmp_dir.
     commands = []
-    setup_sandbox_in(tmp_dir)
     tmp_dir += sandbox_dir
+    setup_sandbox_in(tmp_dir)
     files.each do |pathed_filename, content|
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
@@ -107,8 +107,8 @@ class Runner # stateless
 
   def setup_sandbox_in(tmp_dir)
     commands = [
-      "mkdir -p #{tmp_dir}/#{sandbox_dir}",
-      "chmod 755 #{tmp_dir}/#{sandbox_dir}"
+      "mkdir -p #{tmp_dir}",
+      "chmod 755 #{tmp_dir}"
     ]
     shell.assert(commands.join(' && '))
   end
