@@ -107,8 +107,8 @@ class Runner # stateless
 
   def setup_sandbox_in(tmp_dir)
     commands = [
-      "chmod 755 #{tmp_dir}",
-      "mkdir -p #{tmp_dir}/#{sandbox_dir}"
+      "mkdir -p #{tmp_dir}/#{sandbox_dir}",
+      "chmod 755 #{tmp_dir}/#{sandbox_dir}"
     ]
     shell.assert(commands.join(' && '))
   end
