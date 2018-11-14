@@ -57,13 +57,13 @@ class Runner # stateless
       }
     end
     {
-      stdout:sanitized(@stdout),
-      stderr:sanitized(@stderr),
-      status:@status,
-      colour:@colour,
-          new_files:sanitized_map(@new_files),
-      deleted_files:sanitized_map(@deleted_files),
-      changed_files:sanitized_map(@changed_files)
+             stdout: sanitized(@stdout),
+             stderr: sanitized(@stderr),
+             status: @status,
+             colour: @colour,
+          new_files: sanitized_map(@new_files),
+      deleted_files: sanitized_map(@deleted_files),
+      changed_files: sanitized_map(@changed_files)
     }
   end
 
