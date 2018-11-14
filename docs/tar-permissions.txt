@@ -26,8 +26,11 @@ individual files, but it does not set the permissions of the sub-dirs.
 I've been looking at
 https://serverfault.com/questions/877254/tar-does-not-retain-directory-permissions
 
-And trying to create the tar file (in /tmp on the host) using
+And trying to create the tar file (in /tmp on the host) using this command.
+This sends an explicit list of what to tar to the tar command.
+This list includes names of dirs...
 
+  cd dir-in-question
   find . | sed 's|^\./||' | tail -n +2 | tar -zcf - --no-recursion -T - > /tmp/all.tar
 
 But I can't get it working... It will not set the sub-dir permissions.
@@ -36,9 +39,38 @@ They stubbornly remain as user=0 root.
   cd /tmp
   tar -zxf all.tar --numeric-owner --owner=65534 --group=65534
 
+But...
+  tar -tvf all.tar
+Gives...
+  -rw-r--r-- root/root         4 2018-11-14 12:50 hello.txt
+  drwxr-xr-x root/root         0 2018-11-14 12:58 d1/
+  -rw-r--r-- root/root         4 2018-11-14 12:58 d1/world.txt
 
-This appears to be related to a current bug...
+which seems to indicate the tar is holding the permissions itself.
+
+  cd dir-in-question
+  chown -R 65534:65534 *
+  chown -R 65534:65534 .*
+  find . | sed 's|^\./||' | tail -n +2 | tar -zcf - --no-recursion -T - > /tmp/all.tar
+  tar -tvf /tmp.all.tar
+
+  -rw-r--r-- nobody/nobody     4 2018-11-14 12:50 hello.txt
+  drwxr-xr-x nobody/nobody     0 2018-11-14 12:58 d1/
+  -rw-r--r-- nobody/nobody     4 2018-11-14 12:58 d1/world.txt
+
+More promising...
+  tar -zxf all.tar
+
+Yes.
+
+
+
+This explains why the same bug appears in the current runner
+(which does not use an explicit list for tar)
 Suppose, in the browser, you create a file in a nested subdir, eg
 d1/d2/readme.txt
 Then the file is created, and it is owned by sandbox.
 But the subdirs d1 and d2 are not. They are still owned by root.
+
+On the other hand, if you create a subdir in cyber-dojo.sh
+then that is owned by sandbox.
