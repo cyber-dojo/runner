@@ -93,9 +93,9 @@ class Runner # stateless
         shell.assert("mkdir -p #{src_dir}")
       end
       src_filename = tmp_dir + '/' + pathed_filename
-      # create file setting ownership and permission
+      # create file
       disk.write(src_filename, content)
-      # prepare to set its permission
+      # ensure its permission is set
       commands << "chmod 644 #{src_filename}"
     end
     # set ownership of all dirs/files

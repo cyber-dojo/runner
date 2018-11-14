@@ -11,14 +11,7 @@ class SandboxRightsTest < TestBase
   multi_os_test '296',
   'new sub-dirs are owned by sandbox' do
     in_kata {
-      sub_dir = 'z'
-      filename = 'hello.txt'
-      content = 'the boy stood on the burning deck'
-      run_cyber_dojo_sh({
-        changed_files: { 'cyber-dojo.sh' => "#{stat_cmd}" },
-            new_files: { "#{sub_dir}/#{filename}" => content }
-      })
-      assert_stats(sub_dir, 'drwxr-xr-x', 4096)
+      assert_dirs_can_be_created_in_sandbox_sub_dir
     }
   end
 
@@ -27,10 +20,10 @@ class SandboxRightsTest < TestBase
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
     in_kata {
-      assert_files_can_be_created_in_sandbox_sub_dir
+      assert_files_can_be_created_in_sandbox_sub_dir('s1')
     }
     in_kata {
-      assert_files_can_be_created_in_sandbox_sub_sub_dir
+      assert_files_can_be_created_in_sandbox_sub_dir('s1/s2')
     }
   end
 
@@ -39,17 +32,29 @@ class SandboxRightsTest < TestBase
   multi_os_test '12B',
   %w( files can be deleted from sandbox sub-dir ) do
     in_kata {
-      assert_files_can_be_deleted_from_sandbox_sub_dir
+      assert_files_can_be_deleted_from_sandbox_sub_dir('d1')
     }
     in_kata {
-      assert_files_can_be_deleted_from_sandbox_sub_sub_dir
+      assert_files_can_be_deleted_from_sandbox_sub_dir('d1/d2')
     }
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =
 
-  def assert_files_can_be_created_in_sandbox_sub_dir
+  def assert_dirs_can_be_created_in_sandbox_sub_dir
     sub_dir = 'z'
+    filename = 'hello.txt'
+    content = 'the boy stood on the burning deck'
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => "#{stat_cmd}" },
+          new_files: { "#{sub_dir}/#{filename}" => content }
+    })
+    assert_stats(sub_dir, 'drwxr-xr-x', 4096)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_files_can_be_created_in_sandbox_sub_dir(sub_dir)
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
@@ -61,21 +66,7 @@ class SandboxRightsTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_files_can_be_created_in_sandbox_sub_sub_dir
-    sub_sub_dir = 'a/b'
-    filename = 'goodbye.txt'
-    content = 'goodbye cruel world'
-    run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{stat_cmd}" },
-          new_files: { "#{sub_sub_dir}/#{filename}" => content }
-    })
-    assert_stats(filename, '-rw-r--r--', content.length)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_files_can_be_deleted_from_sandbox_sub_dir
-    sub_dir = 'a'
+  def assert_files_can_be_deleted_from_sandbox_sub_dir(sub_dir)
     filename = 'goodbye.txt'
     content = 'goodbye, world'
     run_cyber_dojo_sh({
@@ -86,25 +77,6 @@ class SandboxRightsTest < TestBase
     assert filenames.include?(filename)
     run_cyber_dojo_sh({
       deleted_files: { "#{sub_dir}/#{filename}" => content }
-    })
-    filenames = stdout_stats.keys
-    refute filenames.include?(filename)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_files_can_be_deleted_from_sandbox_sub_sub_dir
-    sub_sub_dir = 'a/b/c'
-    filename = 'goodbye.txt'
-    content = 'goodbye, world'
-    run_cyber_dojo_sh({
-          new_files: { "#{sub_sub_dir}/#{filename}" => content },
-      changed_files: { 'cyber-dojo.sh' => "cd #{sub_sub_dir} && #{stat_cmd}" }
-    })
-    filenames = stdout_stats.keys
-    assert filenames.include?(filename)
-    run_cyber_dojo_sh({
-      deleted_files: { "#{sub_sub_dir}/#{filename}" => content }
     })
     filenames = stdout_stats.keys
     refute filenames.include?(filename)
@@ -127,12 +99,12 @@ class SandboxRightsTest < TestBase
   def stdout_stats
     Hash[stdout.lines.collect { |line|
       attr = line.split
-      [attr[0], { # filename
-        permissions: attr[1],      # eg drwxr-xr-x
-                uid: attr[2].to_i, # eg 0
-              group: attr[3],      # eg root
-               size: attr[4].to_i, # eg 96
-         time_stamp: attr[6],      # eg 13:35:28.356470616
+      [attr[0], {         # filename eg hiker.h
+        permissions: attr[1],      # eg -rwxr--r--
+                uid: attr[2].to_i, # eg 40045
+              group: attr[3],      # eg cyber-dojo
+               size: attr[4].to_i, # eg 136
+         time_stamp: attr[6],      # eg 07:03:14.539952547
       }]
     }]
   end
