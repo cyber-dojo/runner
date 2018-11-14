@@ -35,3 +35,10 @@ They stubbornly remain as user=0 root.
 
   cd /tmp
   tar -zxf all.tar --numeric-owner --owner=65534 --group=65534
+
+
+This appears to be related to a current bug...
+Suppose, in the browser, you create a file in a nested subdir, eg
+d1/d2/readme.txt
+Then the file is created, and it is owned by sandbox.
+But the subdirs d1 and d2 are not. They are still owned by root.
