@@ -212,7 +212,7 @@ class RackDispatcherTest < TestBase
     rack = RackDispatcher.new(cache)
     raiser = BashStubRaiser.new('fubar')
     external = External.new({ 'bash' => raiser })
-    with_captured_log {
+    with_captured_stdout_stderr {
       response = rack.call(env, external, RackRequestStub)
       assert raiser.fired?
       status = response[0]
