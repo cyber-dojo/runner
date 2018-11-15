@@ -1,4 +1,5 @@
 require_relative '../../src/rack_dispatcher'
+require_relative 'bash_stub_raiser'
 require_relative 'bash_stub_tar_pipe_out'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
@@ -204,7 +205,20 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  #TODO: 500 call
+  test 'AB7', 'server error results in 500 status response' do
+    path_info = 'run_cyber_dojo_sh'
+    args = run_cyber_dojo_sh_args
+    env = { path_info:path_info, body:args.to_json }
+    rack = RackDispatcher.new(cache)
+    raiser = BashStubRaiser.new('fubar')
+    external = External.new({ 'bash' => raiser })
+    with_captured_log {
+      response = rack.call(env, external, RackRequestStub)
+      assert raiser.fired?
+      status = response[0]
+      assert_equal 500, status
+    }
+  end
 
   private # = = = = = = = = = = = = =
 
