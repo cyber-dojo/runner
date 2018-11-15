@@ -1,25 +1,25 @@
 require_relative 'test_base'
-require_relative '../../src/base62'
+require_relative '../../src/base58'
 
-class Base62Test < TestBase
+class Base58Test < TestBase
 
   def self.hex_prefix
     'F3A'
   end
 
   def alphabet
-    Base62.alphabet
+    Base58.alphabet
   end
 
   # - - - - - - - - - - - - - - - - - - -
 
   test '064', %w(
-  alphabet has 62 characters (10+26+26) all of which get used ) do
+  alphabet has 58 characters (10+26+26) all of which get used ) do
     counts = {}
-    Base62.string(5000).chars.each do |ch|
+    Base58.string(5000).chars.each do |ch|
       counts[ch] = true
     end
-    assert_equal 62, counts.keys.size
+    assert_equal 58, counts.keys.size
     assert_equal alphabet.chars.sort.join, counts.keys.sort.join
   end
 
@@ -31,7 +31,7 @@ class Base62Test < TestBase
     ids = {}
     repeats = 25000
     repeats.times do
-      s = Base62.string(6)
+      s = Base58.string(6)
       ids[s] ||= 0
       ids[s] += 1
     end
@@ -43,8 +43,8 @@ class Base62Test < TestBase
   test '068', %w(
   string?(s) true ) do
     assert string?('012456789')
-    assert string?('abcdefghijklmnopqrstuvwxyz')
-    assert string?('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    assert string?('abcdefghjklmnpqrstuvwxyz')
+    assert string?('ABCDEFGHJKLMNPQRSTUVWXYZ')
   end
 
   # - - - - - - - - - - - - - - - - - - -
@@ -60,7 +60,7 @@ class Base62Test < TestBase
   private
 
   def string?(s)
-    Base62.string?(s)
+    Base58.string?(s)
   end
 
 end
