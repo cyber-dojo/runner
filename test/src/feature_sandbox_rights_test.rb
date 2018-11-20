@@ -47,7 +47,7 @@ class SandboxRightsTest < TestBase
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
       changed_files: { 'cyber-dojo.sh' => file(stat_cmd) },
-          new_files: { "#{sub_dir}/#{filename}" => file(content) }
+      created_files: { "#{sub_dir}/#{filename}" => file(content) }
     })
     assert_stats(sub_dir, 'drwxr-xr-x', 4096)
   end
@@ -59,7 +59,7 @@ class SandboxRightsTest < TestBase
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
       changed_files: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") },
-          new_files: { "#{sub_dir}/#{filename}" => file(content) }
+      created_files: { "#{sub_dir}/#{filename}" => file(content) }
     })
     assert_stats(filename, '-rw-r--r--', content.length)
   end
@@ -70,8 +70,8 @@ class SandboxRightsTest < TestBase
     filename = 'goodbye.txt'
     content = 'goodbye, world'
     run_cyber_dojo_sh({
-          new_files: { "#{sub_dir}/#{filename}" => file(content) },
-      changed_files: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") }
+      changed_files: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") },
+      created_files: { "#{sub_dir}/#{filename}" => file(content) }
     })
     filenames = stdout_stats.keys
     assert filenames.include?(filename)

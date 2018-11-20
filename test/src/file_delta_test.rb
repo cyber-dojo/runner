@@ -15,7 +15,7 @@ class FileDeltaTest < TestBase
     was_files = { 'wibble.txt' => file('hello') }
     now_files = { 'wibble.txt' => file('hello') }
     file_delta(was_files, now_files)
-    assert_equal({}, @new_files)
+    assert_equal({}, @created_files)
     assert_equal({}, @deleted_files)
     assert_equal({}, @changed_files)
   end
@@ -26,7 +26,7 @@ class FileDeltaTest < TestBase
     was_files = { 'wibble.txt' => file('hello') }
     now_files = { 'wibble.txt' => file('hello, world') }
     file_delta(was_files, now_files)
-    assert_equal({}, @new_files)
+    assert_equal({}, @created_files)
     assert_equal({}, @deleted_files)
     assert_equal({'wibble.txt' => file('hello, world')}, @changed_files)
   end
@@ -37,7 +37,7 @@ class FileDeltaTest < TestBase
     was_files = { 'wibble.txt' => file('hello') }
     now_files = {}
     file_delta(was_files, now_files)
-    assert_equal({}, @new_files)
+    assert_equal({}, @created_files)
     assert_equal({'wibble.txt' => file('hello')}, @deleted_files)
     assert_equal({}, @changed_files)
   end
@@ -48,7 +48,7 @@ class FileDeltaTest < TestBase
     was_files = {}
     now_files = { 'wibble.txt' => file('hello') }
     file_delta(was_files, now_files)
-    assert_equal({'wibble.txt' => file('hello')}, @new_files)
+    assert_equal({'wibble.txt' => file('hello')}, @created_files)
     assert_equal({}, @deleted_files)
     assert_equal({}, @changed_files)
   end
@@ -59,7 +59,7 @@ class FileDeltaTest < TestBase
     was_files = {}
     now_files = { 'empty.file' => file('') }
     file_delta(was_files, now_files)
-    assert_equal({'empty.file' => file('')}, @new_files)
+    assert_equal({'empty.file' => file('')}, @created_files)
     assert_equal({}, @deleted_files)
     assert_equal({}, @changed_files)
   end

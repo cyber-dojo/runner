@@ -62,7 +62,7 @@ class ApiTest < TestBase
       args = {
         image_name:image_name,
         id:id,
-        new_files:2, # <=====
+        created_files:2, # <=====
         deleted_files:{},
         unchanged_files:{},
         changed_files:{},
@@ -191,7 +191,7 @@ class ApiTest < TestBase
   'run with very large file is red' do
     in_kata {
       run_cyber_dojo_sh({
-        new_files: { 'big_file' => file('X'*1023*500) }
+        created_files: { 'big_file' => file('X'*1023*500) }
       })
     }
     assert red?, result

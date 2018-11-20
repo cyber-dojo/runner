@@ -28,7 +28,7 @@ class RoundTripTest < TestBase
       assert_hash_equal({
         'newfile.txt' => file('xxx' + "\n"),
         '.dotfile' => file('yyy' + "\n")
-      }, new_files)
+      }, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -47,7 +47,7 @@ class RoundTripTest < TestBase
       @os = os
       in_kata { assert_cyber_dojo_sh(script) }
 
-      assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, new_files)
+      assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -62,7 +62,7 @@ class RoundTripTest < TestBase
         script = "rm #{src_file(os)}"
         assert_cyber_dojo_sh(script)
 
-        assert_equal({}, new_files)
+        assert_equal({}, created_files)
         assert_equal [src_file(os)], deleted_files.keys
         assert_equal({}, changed_files)
       }
@@ -78,7 +78,7 @@ class RoundTripTest < TestBase
         script = "echo 'XXX' >> #{src_file(os)}"
         assert_cyber_dojo_sh(script)
 
-        assert_equal({}, new_files)
+        assert_equal({}, created_files)
         assert_equal({}, deleted_files)
         assert_equal [src_file(os)], changed_files.keys
       }
@@ -97,7 +97,7 @@ class RoundTripTest < TestBase
         script = 'touch empty.file'
         assert_cyber_dojo_sh(script)
 
-        assert_equal({'empty.file' => file('')}, new_files)
+        assert_equal({'empty.file' => file('')}, created_files)
         assert_equal({}, deleted_files)
         assert_equal({}, changed_files)
       }
@@ -116,7 +116,7 @@ class RoundTripTest < TestBase
         script = 'echo -n x > small.file'
         assert_cyber_dojo_sh(script)
 
-        assert_equal({'small.file' => file('x')}, new_files)
+        assert_equal({'small.file' => file('x')}, created_files)
         assert_equal({}, deleted_files)
         assert_equal({}, changed_files)
       }
@@ -137,7 +137,7 @@ class RoundTripTest < TestBase
         }
       }
       assert stub.fired?
-      assert_equal({}, new_files)
+      assert_equal({}, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end

@@ -26,7 +26,7 @@ class Demo
     @kata_id = '729z65'
     duration = timed {
       runner.kata_new(image_name, kata_id, starting_files)
-      @new_files = {}
+      @created_files = {}
       @deleted_files = {}
       @unchanged_files = starting_files
       @changed_files = {}
@@ -46,7 +46,7 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  attr_reader :new_files, :deleted_files, :unchanged_files, :changed_files
+  attr_reader :created_files, :deleted_files, :unchanged_files, :changed_files
 
   # - - - - - - - - - - - - - - - - - - - - -
 
@@ -78,7 +78,7 @@ class Demo
   def run_cyber_dojo_sh(colour, max_seconds = 10)
     result = nil
     args  = [ image_name, kata_id ]
-    args += [ new_files, deleted_files, unchanged_files, changed_files ]
+    args += [ created_files, deleted_files, unchanged_files, changed_files ]
     args << max_seconds
     duration = timed {
       result = runner.run_cyber_dojo_sh(*args)

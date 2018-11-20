@@ -60,7 +60,7 @@ class Runner # stateless
              stderr: @stderr,
              status: @status,
              colour: @colour,
-          new_files: @new_files, # TODO: rename to created_files
+      created_files: @created_files,
       deleted_files: @deleted_files,
       changed_files: @changed_files
     }
@@ -363,7 +363,7 @@ class Runner # stateless
 
   def set_file_delta(was_files, now_files)
     if now_files == {} || @timed_out
-      @new_files = {}
+      @created_files = {}
       @deleted_files = {}
       @changed_files = {}
     else

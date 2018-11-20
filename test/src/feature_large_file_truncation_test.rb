@@ -17,7 +17,7 @@ class LargeFileTruncationTest < TestBase
       in_kata { assert_cyber_dojo_sh(script) }
       expected = "#{s}\n" * 1024
 
-      assert_equal({ 'large_file.txt' => file(expected,true) }, new_files)
+      assert_equal({ 'large_file.txt' => file(expected,true) }, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end

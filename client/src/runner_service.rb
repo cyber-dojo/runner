@@ -21,11 +21,11 @@ class RunnerService
 
   def run_cyber_dojo_sh(
     image_name, id,
-    new_files, deleted_files, unchanged_files, changed_files,
+    created_files, deleted_files, unchanged_files, changed_files,
     max_seconds
   )
     args  = [image_name, id]
-    args += [new_files, deleted_files, unchanged_files, changed_files]
+    args += [created_files, deleted_files, unchanged_files, changed_files]
     args += [max_seconds]
     post(args, __method__)
   end

@@ -14,7 +14,7 @@ class RoundTripTest < TestBase
     # not generated any text files. In contrast, Alpine is
     # CSharp-NUnit which does generate an .xml text file.
     in_kata { run_cyber_dojo_sh }
-    assert_equal({}, new_files)
+    assert_equal({}, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
   end
@@ -30,7 +30,7 @@ class RoundTripTest < TestBase
       'echo "xxx" > newfile.txt',
     ].join("\n"))
     assert stdout.include?('test: binary') # file --mime-encoding
-    assert_equal({ 'newfile.txt' => file("xxx\n") }, new_files)
+    assert_equal({ 'newfile.txt' => file("xxx\n") }, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
   end
@@ -40,7 +40,7 @@ class RoundTripTest < TestBase
   test '162',
   %w( created text files in sub-dirs are returned in json payload ) do
     in_kata_run('mkdir sub && echo "xxx" > sub/newfile.txt')
-    assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, new_files)
+    assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
   end
@@ -50,7 +50,7 @@ class RoundTripTest < TestBase
   test '163',
   %w( [C,assert] changed text files are returned in json payload ) do
     in_kata_run('echo "xxx" > hiker.h')
-    assert_equal({}, new_files)
+    assert_equal({}, created_files)
     assert_equal({}, deleted_files)
     assert_equal({ 'hiker.h' => file("xxx\n")}, changed_files)
   end
@@ -60,7 +60,7 @@ class RoundTripTest < TestBase
   test '164',
   %w( [C,assert] created empyty text files is returned in json payload ) do
     in_kata_run('touch empty.file')
-    assert_equal({ 'empty.file' => file('')}, new_files)
+    assert_equal({ 'empty.file' => file('')}, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
   end

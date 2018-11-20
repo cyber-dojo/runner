@@ -44,7 +44,7 @@ module WellFormedArgs
     well_formed_files(__method__)
   end
 
-  def new_files
+  def created_files
     well_formed_files(__method__)
   end
 

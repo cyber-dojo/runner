@@ -45,7 +45,7 @@ class RackDispatcher # stateless
       when /^kata_new$/          then [image_name, id, starting_files]
       when /^kata_old$/          then [image_name, id]
       when /^run_cyber_dojo_sh$/ then [image_name, id,
-                                       new_files, deleted_files,
+                                       created_files, deleted_files,
                                        unchanged_files, changed_files,
                                        max_seconds]
       else

@@ -12,7 +12,7 @@ module FileDelta
       end
       now.delete(filename) # destructive
     end
-    @new_files = now
+    @created_files = now
   end
 
 end

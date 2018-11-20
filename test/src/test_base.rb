@@ -40,9 +40,9 @@ class TestBase < HexMiniTest
 
     unchanged_files = @previous_files
 
-    new_files = defaulted_arg(named_args, :new_files, {})
-    new_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a new_file (it already exists)"
+    created_files = defaulted_arg(named_args, :created_files, {})
+    created_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a created_file (it already exists)"
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
@@ -63,14 +63,14 @@ class TestBase < HexMiniTest
     args = []
     args << image_name
     args << id
-    args << new_files
+    args << created_files
     args << deleted_files
     args << unchanged_files
     args << changed_files
     args << defaulted_arg(named_args, :max_seconds, 10)
     @result = runner.run_cyber_dojo_sh(*args)
 
-    @previous_files = [ *unchanged_files, *changed_files, *new_files ].to_h
+    @previous_files = [ *unchanged_files, *changed_files, *created_files ].to_h
     nil
   end
 
@@ -96,7 +96,7 @@ class TestBase < HexMiniTest
     result[__method__]
   end
 
-  def new_files
+  def created_files
     result[__method__]
   end
 

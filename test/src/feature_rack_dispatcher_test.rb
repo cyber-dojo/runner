@@ -91,7 +91,7 @@ class RackDispatcherTest < TestBase
   test 'BB8',
   %w( malformed files becomes exception ) do
     malformed_files.each do |malformed|
-      assert_rack_call_run_malformed({new_files:malformed})
+      assert_rack_call_run_malformed({created_files:malformed})
       assert_rack_call_run_malformed({deleted_files:malformed})
       assert_rack_call_run_malformed({unchanged_files:malformed})
       assert_rack_call_run_malformed({changed_files:malformed})
@@ -344,7 +344,7 @@ class RackDispatcherTest < TestBase
     {
       image_name:image_name,
       id:id,
-      new_files:starting_files,
+      created_files:starting_files,
       deleted_files:{},
       unchanged_files:{},
       changed_files:{},
