@@ -51,27 +51,27 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def red
-    change('hiker.c', hiker_c.sub('6 * 9', '6 * 9'))
+    change('hiker.c', hiker_c['content'].sub('6 * 9', '6 * 9'))
     run_cyber_dojo_sh('Red')
   end
 
   def amber
-    change('hiker.c', hiker_c.sub('6 * 9', 'syntax-error'))
+    change('hiker.c', hiker_c['content'].sub('6 * 9', 'syntax-error'))
     run_cyber_dojo_sh('Yellow')
   end
 
   def green
-    change('hiker.c', hiker_c.sub('6 * 9', '6 * 7'))
+    change('hiker.c', hiker_c['content'].sub('6 * 9', '6 * 7'))
     run_cyber_dojo_sh('Green')
   end
 
   def timed_out
-    change('hiker.c', hiker_c.sub('return', "for(;;);\n return"))
+    change('hiker.c', hiker_c['content'].sub('return', "for(;;);\n return"))
     run_cyber_dojo_sh('LightGray', 3)
   end
 
   def change(filename, content)
-    changed_files[filename] = content
+    changed_files[filename] = { 'content' => content }
     unchanged_files.delete(filename)
   end
 
@@ -109,12 +109,18 @@ class Demo
     }
   end
 
+  def file(content, truncated = false)
+    { 'content' => content,
+      'truncated' => truncated
+    }
+  end
+
   def hiker_c
     read('hiker.c')
   end
 
   def read(filename)
-    IO.read("/app/test/start_files/C_assert/#{filename}")
+    file(IO.read("/app/test/start_files/C_assert/#{filename}"))
   end
 
   def pre(name, duration, colour = 'white', result = nil)
