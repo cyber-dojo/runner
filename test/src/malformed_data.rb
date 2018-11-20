@@ -52,7 +52,9 @@ module MalformedData
       [],            # not Hash
       '',            # not Hash
       'waterbottle', # not Hash
-      { 'x' => [] }, # value not String
+      { 'x' => [] }, # file is not Hash
+      { 'y' => {}},  # file has no content
+      { 'z' => { 'content' => 42 }} # file content !String
     ]
   end
 

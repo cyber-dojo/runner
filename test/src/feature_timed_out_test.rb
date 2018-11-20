@@ -15,7 +15,7 @@ class TimedOutTest < TestBase
   and the colour is 'timed_out'
   ) do
     named_args = {
-      changed_files: { 'hiker.c' => quiet_infinite_loop },
+      changed_files: { 'hiker.c' => file(quiet_infinite_loop) },
         max_seconds: 2
     }
     in_kata {
@@ -38,7 +38,7 @@ class TimedOutTest < TestBase
   and the colour is 'timed_out'
   ) do
     named_args = {
-      changed_files: { 'hiker.c' => loud_infinite_loop },
+      changed_files: { 'hiker.c' => file(loud_infinite_loop) },
         max_seconds: 2
     }
     in_kata {

@@ -14,7 +14,7 @@ class ClangSanitizeAddressTest < TestBase
       run_cyber_dojo_sh
       assert_colour 'red'
       run_cyber_dojo_sh( {
-        changed_files:{ 'hiker.c' => leaks_memory }
+        changed_files:{ 'hiker.c' => file(leaks_memory) }
       })
       assert_colour 'amber'
       diagnostic = 'AddressSanitizer: heap-use-after-free on address'

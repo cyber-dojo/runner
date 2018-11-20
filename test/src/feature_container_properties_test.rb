@@ -108,10 +108,6 @@ class ContainerPropertiesTest < TestBase
     '/sandbox'
   end
 
-  def uid
-    41966
-  end
-
   def gid
     51966
   end
@@ -120,13 +116,15 @@ class ContainerPropertiesTest < TestBase
 
   def assert_starting_files_properties
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => stat_cmd }
+      changed_files: { 'cyber-dojo.sh' => file(stat_cmd) }
     })
     assert_equal '', stderr
     assert_equal starting_files.keys.sort, stdout_stats.keys.sort
-    starting_files.each do |filename, content|
+    starting_files.each do |filename, file|
       if filename == 'cyber-dojo.sh'
         content = stat_cmd
+      else
+        content = file['content']
       end
       assert_stats(filename, '-rw-r--r--', content.length)
     end
@@ -191,7 +189,7 @@ class ContainerPropertiesTest < TestBase
     # microseconds value is always '000000000'.
     # Make sure the tar-piped files have fixed this.
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => stat_cmd }
+      changed_files: { 'cyber-dojo.sh' => file(stat_cmd) }
     })
     count = 0
     stdout_stats.each do |filename,atts|

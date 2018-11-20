@@ -13,7 +13,7 @@ class BombRobustNessTest < TestBase
     in_kata {
       with_captured_log {
         run_cyber_dojo_sh({
-          changed_files: { 'hiker.c' => C_FORK_BOMB },
+          changed_files: { 'hiker.c' => file(C_FORK_BOMB) },
             max_seconds: 3
         })
       }
@@ -29,7 +29,7 @@ class BombRobustNessTest < TestBase
     in_kata {
       with_captured_log {
         run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
+          changed_files: { 'cyber-dojo.sh' => file(SHELL_FORK_BOMB) },
             max_seconds: 3
         })
       }
@@ -46,7 +46,7 @@ class BombRobustNessTest < TestBase
   '[C,assert] file-handles quickly become exhausted' do
     in_kata {
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => FILE_HANDLE_BOMB },
+        changed_files: { 'hiker.c' => file(FILE_HANDLE_BOMB) },
           max_seconds: 3
       })
       assert printed?('fopen() != NULL'),  result

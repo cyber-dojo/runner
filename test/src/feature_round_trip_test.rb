@@ -26,8 +26,8 @@ class RoundTripTest < TestBase
       assert stdout.include?('binary.dat: binary') # file --mime-encoding
 
       assert_hash_equal({
-        'newfile.txt' => 'xxx' + "\n",
-        '.dotfile' => 'yyy' + "\n"
+        'newfile.txt' => file('xxx' + "\n"),
+        '.dotfile' => file('yyy' + "\n")
       }, new_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
@@ -47,7 +47,7 @@ class RoundTripTest < TestBase
       @os = os
       in_kata { assert_cyber_dojo_sh(script) }
 
-      assert_equal({ 'sub/newfile.txt' => "xxx\n" }, new_files)
+      assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, new_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -97,7 +97,7 @@ class RoundTripTest < TestBase
         script = 'touch empty.file'
         assert_cyber_dojo_sh(script)
 
-        assert_equal({'empty.file' => ''}, new_files)
+        assert_equal({'empty.file' => file('')}, new_files)
         assert_equal({}, deleted_files)
         assert_equal({}, changed_files)
       }
@@ -116,7 +116,7 @@ class RoundTripTest < TestBase
         script = 'echo -n x > small.file'
         assert_cyber_dojo_sh(script)
 
-        assert_equal({'small.file' => 'x'}, new_files)
+        assert_equal({'small.file' => file('x')}, new_files)
         assert_equal({}, deleted_files)
         assert_equal({}, changed_files)
       }

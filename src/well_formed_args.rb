@@ -82,8 +82,17 @@ module WellFormedArgs
   def well_formed_files(name)
     name = name.to_s
     arg = @args[name]
-    unless arg.is_a?(Hash) && arg.all? { |k,v| k.is_a?(String) && v.is_a?(String) }
+    unless arg.is_a?(Hash)
       malformed(name)
+    end
+    arg.each do |_filename,file|
+      unless file.is_a?(Hash)
+        malformed(name)
+      end
+      content = file['content']
+      unless content.is_a?(String)
+        malformed(name)
+      end
     end
     arg
   end

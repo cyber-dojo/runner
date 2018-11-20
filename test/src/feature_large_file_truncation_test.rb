@@ -9,16 +9,15 @@ class LargeFileTruncationTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '62A',
-  %w( generated files bigger than 10K are truncated ) do
-    script = 'yes "123456789" | head -n 1042 > large_file.txt'
+  %w( generated files bigger than 25K are truncated ) do
+    s = '123456789A' + 'BCDEFGHIJK' + '1234'
+    script = "yes '#{s}' | head -n 1025 > large_file.txt"
     all_OSes.each do |os|
       @os = os
       in_kata { assert_cyber_dojo_sh(script) }
-      expected = "123456789\n" * 1024
-      expected += "\n"
-      expected += 'output truncated by cyber-dojo'
+      expected = "#{s}\n" * 1024
 
-      assert_equal({ 'large_file.txt' => expected }, new_files)
+      assert_equal({ 'large_file.txt' => file(expected,true) }, new_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -29,13 +28,13 @@ class LargeFileTruncationTest < TestBase
   test '62B',
   %w( source files bigger than 10K are not truncated ) do
     filename = 'Hiker.cs'
-    src = starting_files[filename]
+    src = starting_files[filename]['content']
     large_comment = "/*#{'x'*10*1024}*/"
     refute_nil src
     in_kata {
       run_cyber_dojo_sh( {
         changed_files:{
-          filename => (src + large_comment)
+          filename => file(src + large_comment)
         }
       })
       refute changed_files.keys.include?(filename)

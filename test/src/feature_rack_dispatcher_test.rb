@@ -312,8 +312,10 @@ class RackDispatcherTest < TestBase
 
   def assert_gcc_starting_red
     result = JSON.parse(@body)['run_cyber_dojo_sh']
-    assert_equal gcc_assert_stdout, result['stdout']
-    assert result['stderr'].start_with?(gcc_assert_stderr), result['stderr']
+    stdout = result['stdout']
+    assert_equal gcc_assert_stdout, stdout['content'], stdout
+    stderr = result['stderr']
+    assert stderr['content'].start_with?(gcc_assert_stderr), stderr
     assert_equal 2, result['status']
     assert_equal 'red', result['colour']
   end
@@ -354,7 +356,8 @@ class RackDispatcherTest < TestBase
 
   METHOD_NAMES = %w(
     sha
-    kata_new kata_old
+    kata_new
+    kata_old
     run_cyber_dojo_sh
   )
 

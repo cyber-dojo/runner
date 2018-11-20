@@ -1,6 +1,5 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
-require_relative 'string_truncater'
 require 'find'
 require 'timeout'
 
@@ -57,17 +56,19 @@ class Runner # stateless
       }
     end
     {
-             stdout: sanitized(@stdout),
-             stderr: sanitized(@stderr),
+             stdout: @stdout,
+             stderr: @stderr,
              status: @status,
              colour: @colour,
-          new_files: sanitized_map(@new_files),
-      deleted_files: sanitized_map(@deleted_files),
-      changed_files: sanitized_map(@changed_files)
+          new_files: @new_files, # TODO: rename to created_files
+      deleted_files: @deleted_files,
+      changed_files: @changed_files
     }
   end
 
   private # = = = = = = = = = = = = = = = = = =
+
+  include StringCleaner
 
   attr_reader :image_name
 
@@ -86,7 +87,8 @@ class Runner # stateless
     commands = []
     tmp_dir += sandbox_dir
     setup_sandbox_in(tmp_dir)
-    files.each do |pathed_filename, content|
+    files.each do |pathed_filename, file|
+      content = file['content']
       sub_dir = File.dirname(pathed_filename)
       unless sub_dir == '.'
         src_dir = tmp_dir + '/' + sub_dir
@@ -121,19 +123,44 @@ class Runner # stateless
 
   def read_files(tmp_dir)
     # read files from /tmp on host
-    # eg tmp_dir = /tmp/.../sandboxes/...
     files = {}
     Find.find(tmp_dir) do |pathed_filename|
       # eg pathed_filename =
-      # '/tmp/.../sandboxes/.../features/shouty.feature
+      # '/tmp/.../features/shouty.feature
       unless File.directory?(pathed_filename)
-        content = File.read(pathed_filename)
         filename = pathed_filename[tmp_dir.size+1..-1]
         # eg filename = features/shouty.feature
-        files[filename] = content
+        files[filename] = File.open(pathed_filename) { |fd|
+          sanitized_read(fd)
+        }
       end
     end
     files
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def sanitized_read(fd)
+    content = fd.read(max_file_size + 1)
+    if content.nil?
+      content = ''
+    end
+    truncate = (content.size == max_file_size + 1)
+    content = cleaned(content)
+    if truncate
+      content = content[0...max_file_size]
+    end
+    {
+        'content' => content,
+      'truncated' => truncate
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def max_file_size
+      # 25K. Also applies to returned stdout/stderr.
+      25 * 1024
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -156,7 +183,7 @@ class Runner # stateless
       Timeout::timeout(max_seconds) do
         _, ps = Process.waitpid2(pid)
         @status = ps.exitstatus
-        @timed_out = (@status == 137)
+        @timed_out = (@status == 137) # 137 == killed
       end
     rescue Timeout::Error
       Process.kill(-9, pid) # -ve means kill process-group
@@ -166,8 +193,8 @@ class Runner # stateless
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = r_stdout.read
-      @stderr = r_stderr.read
+      @stdout = sanitized_read(r_stdout)
+      @stderr = sanitized_read(r_stderr)
       r_stdout.close
       r_stderr.close
     end
@@ -293,7 +320,9 @@ class Runner # stateless
 
   def red_amber_green
     rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
-    colour = rag_lambda.call(@stdout, @stderr, @status)
+    stdout = @stdout['content']
+    stderr = @stderr['content']
+    colour = rag_lambda.call(stdout, stderr, @status)
     unless [:red,:amber,:green].include?(colour)
       log << rag_message(colour.to_s)
       colour = :amber
@@ -475,27 +504,6 @@ class Runner # stateless
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # helpers
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  include StringCleaner
-  include StringTruncater
-
-  def sanitized(string)
-    truncated(cleaned(string))
-  end
-
-  def sanitized_map(files)
-    Hash[files.map { |filename,content|
-      [ filename, sanitized(content) ]
-    }]
-  end
-
-  def space
-    ' '
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -509,6 +517,10 @@ class Runner # stateless
 
   def shell
     @external.shell
+  end
+
+  def space
+    ' '
   end
 
 end
