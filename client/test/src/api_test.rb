@@ -146,14 +146,14 @@ class ApiTest < TestBase
 
       run_cyber_dojo_sh({
         changed_files: {
-          'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
+          'hiker.c' => file(hiker_c.sub('6 * 9', '6 * 9sd'))
         }
       })
       assert amber?, result
 
       run_cyber_dojo_sh({
         changed_files: {
-          'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
+          'hiker.c' => file(hiker_c.sub('6 * 9', '6 * 7'))
         }
       })
       assert green?, result
@@ -161,7 +161,7 @@ class ApiTest < TestBase
   end
 
   def hiker_c
-    starting_files['hiker.c']
+    starting_files['hiker.c']['content']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -174,7 +174,7 @@ class ApiTest < TestBase
       from = 'return 6 * 9'
       to = "    for (;;);\n    return 6 * 7;"
       run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => hiker_c.sub(from, to) },
+        changed_files: { 'hiker.c' => file(hiker_c.sub(from, to)) },
           max_seconds: 3
       })
       assert timed_out?, result
@@ -191,7 +191,7 @@ class ApiTest < TestBase
   'run with very large file is red' do
     in_kata {
       run_cyber_dojo_sh({
-        new_files: { 'big_file' => 'X'*1023*500 }
+        new_files: { 'big_file' => file('X'*1023*500) }
       })
     }
     assert red?, result
@@ -200,8 +200,8 @@ class ApiTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'ED4',
-  'stdout greater than 10K is truncated' do
-    # [1] fold limit is 10000 so I do two smaller folds
+  'stdout greater than 25K is truncated' do
+    # [1] fold limit is 10000 so I do five smaller folds
     five_K_plus_1 = 5*1024+1
     command = [
       'cat /dev/urandom',
@@ -212,11 +212,11 @@ class ApiTest < TestBase
     in_kata {
       run_cyber_dojo_sh({
         changed_files: {
-          'cyber-dojo.sh' => "seq 2 | xargs -I{} sh -c '#{command}'"
+          'cyber-dojo.sh' => file("seq 5 | xargs -I{} sh -c '#{command}'")
         }
       })
     }
-    assert stdout.include? 'output truncated by cyber-dojo'
+    assert result['stdout']['truncated']
   end
 
 end

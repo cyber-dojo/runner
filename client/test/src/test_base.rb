@@ -67,11 +67,11 @@ class TestBase < HexMiniTest
   attr_reader :result
 
   def stdout
-    result['stdout']
+    result['stdout']['content']
   end
 
   def stderr
-    result['stderr']
+    result['stderr']['content']
   end
 
   def colour
@@ -112,7 +112,7 @@ class TestBase < HexMiniTest
 
   def assert_cyber_dojo_sh(sh_script)
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => sh_script }
+      changed_files: { 'cyber-dojo.sh' => file(sh_script) }
     })
     refute timed_out?, result
     assert_equal '', stderr
@@ -135,7 +135,7 @@ class TestBase < HexMiniTest
 
   def starting_files
     Hash[manifest['visible_filenames'].collect { |filename|
-      [filename, IO.read("#{starting_files_dir}/#{filename}")]
+      [filename, file(IO.read("#{starting_files_dir}/#{filename}"))]
     }]
   end
 
@@ -167,6 +167,12 @@ class TestBase < HexMiniTest
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
+  end
+
+  def file(content, truncated = false)
+    { 'content' => content,
+      'truncated' => truncated
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
