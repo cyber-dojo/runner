@@ -38,17 +38,17 @@ cyber-dojo.sh
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
                    "id": "15B9zD",
+          "max_seconds": 10,
                 "files": { "cyber-dojo.sh" => "make",
                            "fizz_buzz.c" => "#include...",
                            "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
                            ...
-                         },
-          "max_seconds": 10
+                         }
   }
 ```
 - returns [stdout, stderr, status, colour] as the results of
 executing cyber-dojo.sh
-- returns [created_files, deleted_files, changed_files] which are text files
+- returns [created, deleted, changed] which are text files
 altered by executing cyber-dojo.sh
 - if the execution completed in max_seconds, colour will be "red", "amber", or "green".
 - if the execution did not complete in max_seconds, colour will be "timed_out".
@@ -64,11 +64,11 @@ eg
           "content" => "invalid suffix sss on integer constant",
           "truncated" => false
         },
-        "status": 2,
-        "colour": "amber",
-        "created_files":{ ... },
-        "deleted_files":{},
-        "changed_files":{ ... }
+         "status": 2,
+         "colour": "amber",
+        "created": { ... },
+        "deleted": {},
+        "changed": { ... }
       }
     }
 ```
@@ -83,11 +83,11 @@ eg
           "content" => "",
           "truncated" => false
         },
-        "status": 137,
-        "colour:"timed_out",
-        "created_files":{},
-        "deleted_files":{},
-        "changed_files":{}
+         "status": 137,
+          "colour: "timed_out",
+        "created": {},
+        "deleted": {},
+        "changed": {}
       }
     }
 ```

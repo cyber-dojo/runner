@@ -65,16 +65,16 @@ class TestBase < HexMiniTest
     result['colour']
   end
 
-  def created_files
-    result['created_files']
+  def created
+    result['created']
   end
 
-  def deleted_files
-    result['deleted_files']
+  def deleted
+    result['deleted']
   end
 
-  def changed_files
-    result['changed_files']
+  def changed
+    result['changed']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

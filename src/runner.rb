@@ -39,13 +39,13 @@ class Runner
       }
     end
     {
-             stdout: @stdout,
-             stderr: @stderr,
-             status: @status,
-             colour: @colour,
-      created_files: @created_files,
-      deleted_files: @deleted_files,
-      changed_files: @changed_files
+       stdout: @stdout,
+       stderr: @stderr,
+       status: @status,
+       colour: @colour,
+      created: @created,
+      deleted: @deleted,
+      changed: @changed
     }
   end
 
@@ -346,9 +346,9 @@ class Runner
 
   def set_file_delta(was_files, now_files)
     if now_files == {} || @timed_out
-      @created_files = {}
-      @deleted_files = {}
-      @changed_files = {}
+      @created = {}
+      @deleted = {}
+      @changed = {}
     else
       file_delta(was_files, now_files)
     end

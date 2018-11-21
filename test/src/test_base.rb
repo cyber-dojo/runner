@@ -83,15 +83,15 @@ class TestBase < HexMiniTest
     result[__method__]
   end
 
-  def created_files
+  def created
     result[__method__]
   end
 
-  def deleted_files
+  def deleted
     result[__method__]
   end
 
-  def changed_files
+  def changed
     result[__method__]
   end
 

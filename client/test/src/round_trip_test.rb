@@ -14,9 +14,9 @@ class RoundTripTest < TestBase
     # not generated any text files. In contrast, Alpine is
     # CSharp-NUnit which does generate an .xml text file.
     run_cyber_dojo_sh
-    assert_equal({}, created_files)
-    assert_equal({}, deleted_files)
-    assert_equal({}, changed_files)
+    assert_equal({}, created)
+    assert_equal({}, deleted)
+    assert_equal({}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -30,9 +30,9 @@ class RoundTripTest < TestBase
       'echo -n "xxx" > newfile.txt',
     ].join("\n"))
     assert stdout.include?('test: binary') # file --mime-encoding
-    assert_equal({ 'newfile.txt' => file('xxx') }, created_files)
-    assert_equal({}, deleted_files)
-    assert_equal({}, changed_files)
+    assert_equal({ 'newfile.txt' => file('xxx') }, created)
+    assert_equal({}, deleted)
+    assert_equal({}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -40,9 +40,9 @@ class RoundTripTest < TestBase
   test '162',
   %w( created text files in sub-dirs are returned in json payload ) do
     exec('mkdir sub && echo -n "yyy" > sub/newfile.txt')
-    assert_equal({ 'sub/newfile.txt' => file('yyy') }, created_files)
-    assert_equal({}, deleted_files)
-    assert_equal({}, changed_files)
+    assert_equal({ 'sub/newfile.txt' => file('yyy') }, created)
+    assert_equal({}, deleted)
+    assert_equal({}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -50,9 +50,9 @@ class RoundTripTest < TestBase
   test '163',
   %w( [C,assert] changed text files are returned in json payload ) do
     exec('echo -n "jjj" > hiker.h')
-    assert_equal({}, created_files)
-    assert_equal({}, deleted_files)
-    assert_equal({ 'hiker.h' => file('jjj')}, changed_files)
+    assert_equal({}, created)
+    assert_equal({}, deleted)
+    assert_equal({ 'hiker.h' => file('jjj')}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -60,9 +60,9 @@ class RoundTripTest < TestBase
   test '164',
   %w( [C,assert] created empyty text files is returned in json payload ) do
     exec('touch empty.file')
-    assert_equal({ 'empty.file' => file('')}, created_files)
-    assert_equal({}, deleted_files)
-    assert_equal({}, changed_files)
+    assert_equal({ 'empty.file' => file('')}, created)
+    assert_equal({}, deleted)
+    assert_equal({}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -

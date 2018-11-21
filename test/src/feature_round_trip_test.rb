@@ -26,9 +26,9 @@ class RoundTripTest < TestBase
       assert_hash_equal({
         'newfile.txt' => file('xxx'),
         '.dotfile' => file('yyy')
-      }, created_files)
-      assert_equal({}, deleted_files)
-      assert_equal({}, changed_files)
+      }, created)
+      assert_equal({}, deleted)
+      assert_equal({}, changed)
     end
   end
 
@@ -47,9 +47,9 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh(script)
-      assert_equal({ path => file(content) }, created_files)
-      assert_equal({}, deleted_files)
-      assert_equal({}, changed_files)
+      assert_equal({ path => file(content) }, created)
+      assert_equal({}, deleted)
+      assert_equal({}, changed)
     end
   end
 
@@ -61,9 +61,9 @@ class RoundTripTest < TestBase
       filename = src_file(os)
       script = "rm #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({}, created_files)
-      assert_equal [filename], deleted_files.keys
-      assert_equal({}, changed_files)
+      assert_equal({}, created)
+      assert_equal [filename], deleted.keys
+      assert_equal({}, changed)
     end
   end
 
@@ -76,9 +76,9 @@ class RoundTripTest < TestBase
       content = 'XXX'
       script = "echo -n '#{content}' > #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({}, created_files)
-      assert_equal({}, deleted_files)
-      assert_equal({filename => file(content)}, changed_files)
+      assert_equal({}, created)
+      assert_equal({}, deleted)
+      assert_equal({filename => file(content)}, changed)
     end
   end
 
@@ -93,9 +93,9 @@ class RoundTripTest < TestBase
       filename = 'empty.txt'
       script = "touch #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({filename => file('')}, created_files)
-      assert_equal({}, deleted_files)
-      assert_equal({}, changed_files)
+      assert_equal({filename => file('')}, created)
+      assert_equal({}, deleted)
+      assert_equal({}, changed)
     end
   end
 
@@ -111,9 +111,9 @@ class RoundTripTest < TestBase
       ch = 'x'
       script = "echo -n '#{ch}' > #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({filename => file(ch)}, created_files)
-      assert_equal({}, deleted_files)
-      assert_equal({}, changed_files)
+      assert_equal({filename => file(ch)}, created)
+      assert_equal({}, deleted)
+      assert_equal({}, changed)
     end
   end
 
@@ -129,9 +129,9 @@ class RoundTripTest < TestBase
         run_cyber_dojo_sh
       }
       assert stub.fired?
-      assert_equal({}, created_files)
-      assert_equal({}, deleted_files)
-      assert_equal({}, changed_files)
+      assert_equal({}, created)
+      assert_equal({}, deleted)
+      assert_equal({}, changed)
     end
   end
 
