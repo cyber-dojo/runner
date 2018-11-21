@@ -22,13 +22,11 @@ class RagRegexLambdaTest < TestBase
   %w( (cat'ing lambda from file) exception becomes amber ) do
     raiser = BashStubRagRaiser.new('fubar')
     @external = External.new({ 'bash' => raiser })
-    in_kata {
-      with_captured_log {
-        run_cyber_dojo_sh
-      }
-      assert_colour 'amber'
-      assert_rag_log 'fubar'
+    with_captured_log {
+      run_cyber_dojo_sh
     }
+    assert_colour 'amber'
+    assert_rag_log 'fubar'
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -91,13 +89,11 @@ class RagRegexLambdaTest < TestBase
   def assert_rag(expected_log, lambda)
     cater = BashStubRagFileCatter.new(lambda)
     @external = External.new({ 'bash' => cater })
-    in_kata {
-      with_captured_log {
-        run_cyber_dojo_sh
-      }
-      assert_rag_log expected_log
-      assert_colour 'amber'
+    with_captured_log {
+      run_cyber_dojo_sh
     }
+    assert_rag_log expected_log
+    assert_colour 'amber'
   end
 
   # - - - - - - - - - - - - - - - - -

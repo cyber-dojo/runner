@@ -10,18 +10,16 @@ class ContainerPropertiesTest < TestBase
 
   multi_os_test '8A3',
   'container environment properties' do
-    in_kata {
-      assert_pid_1_is_running_init_process
-      assert_cyber_dojo_runs_in_bash
-      assert_time_stamp_microseconds_granularity
-      assert_env_vars_exist
-      assert_sandbox_user_exists
-      assert_sandbox_group_exists
-      assert_sandbox_user_has_home
-      assert_sandbox_dir_properties
-      assert_starting_files_properties
-      assert_ulimits
-    }
+    assert_pid_1_is_running_init_process
+    assert_cyber_dojo_runs_in_bash
+    assert_time_stamp_microseconds_granularity
+    assert_env_vars_exist
+    assert_sandbox_user_exists
+    assert_sandbox_group_exists
+    assert_sandbox_user_has_home
+    assert_sandbox_dir_properties
+    assert_starting_files_properties
+    assert_ulimits
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =

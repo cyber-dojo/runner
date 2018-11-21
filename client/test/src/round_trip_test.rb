@@ -13,7 +13,7 @@ class RoundTripTest < TestBase
     # Using [Ubuntu] because that's Perl-testsimple which does
     # not generated any text files. In contrast, Alpine is
     # CSharp-NUnit which does generate an .xml text file.
-    in_kata { run_cyber_dojo_sh }
+    run_cyber_dojo_sh
     assert_equal({}, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
@@ -24,7 +24,7 @@ class RoundTripTest < TestBase
   test '161',
   %w( [C,assert] created binary files are not returned in json payload
   but created text files are ) do
-    in_kata_run([
+    exec([
       'make',
       'file --mime-encoding test',
       'echo "xxx" > newfile.txt',
@@ -39,7 +39,7 @@ class RoundTripTest < TestBase
 
   test '162',
   %w( created text files in sub-dirs are returned in json payload ) do
-    in_kata_run('mkdir sub && echo "xxx" > sub/newfile.txt')
+    exec('mkdir sub && echo "xxx" > sub/newfile.txt')
     assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
@@ -49,7 +49,7 @@ class RoundTripTest < TestBase
 
   test '163',
   %w( [C,assert] changed text files are returned in json payload ) do
-    in_kata_run('echo "xxx" > hiker.h')
+    exec('echo "xxx" > hiker.h')
     assert_equal({}, created_files)
     assert_equal({}, deleted_files)
     assert_equal({ 'hiker.h' => file("xxx\n")}, changed_files)
@@ -59,7 +59,7 @@ class RoundTripTest < TestBase
 
   test '164',
   %w( [C,assert] created empyty text files is returned in json payload ) do
-    in_kata_run('touch empty.file')
+    exec('touch empty.file')
     assert_equal({ 'empty.file' => file('')}, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
@@ -67,15 +67,13 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def in_kata_run(script)
-    in_kata {
-      named_args = {
-        changed_files: {
-          'cyber-dojo.sh' => file(script)
-        }
+  def exec(script)
+    named_args = {
+      changed_files: {
+        'cyber-dojo.sh' => file(script)
       }
-      run_cyber_dojo_sh(named_args)
     }
+    run_cyber_dojo_sh(named_args)
   end
 
 end

@@ -7,16 +7,6 @@ class RunnerService
     @port = 4597
   end
 
-  def kata_new(image_name, id, starting_files)
-    args = [image_name, id, starting_files]
-    post(args, __method__)
-  end
-
-  def kata_old(image_name, id)
-    args = [image_name, id]
-    post(args, __method__)
-  end
-
   # - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(

@@ -40,10 +40,6 @@ module WellFormedArgs
 
   # - - - - - - - - - - - - - - - -
 
-  def starting_files
-    well_formed_files(__method__)
-  end
-
   def created_files
     well_formed_files(__method__)
   end

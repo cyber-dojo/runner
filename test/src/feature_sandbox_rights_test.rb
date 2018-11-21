@@ -10,33 +10,23 @@ class SandboxRightsTest < TestBase
 
   multi_os_test '296',
   'new sub-dirs are owned by sandbox' do
-    in_kata {
-      assert_dirs_can_be_created_in_sandbox_sub_dir
-    }
+    assert_dirs_can_be_created_in_sandbox_sub_dir
   end
 
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A4',
   'files can be created in sandbox sub-dirs' do
-    in_kata {
-      assert_files_can_be_created_in_sandbox_sub_dir('s1')
-    }
-    in_kata {
-      assert_files_can_be_created_in_sandbox_sub_dir('s1/s2')
-    }
+    assert_files_can_be_created_in_sandbox_sub_dir('s1')
+    assert_files_can_be_created_in_sandbox_sub_dir('s1/s2')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '12B',
   %w( files can be deleted from sandbox sub-dir ) do
-    in_kata {
-      assert_files_can_be_deleted_from_sandbox_sub_dir('d1')
-    }
-    in_kata {
-      assert_files_can_be_deleted_from_sandbox_sub_dir('d1/d2')
-    }
+    assert_files_can_be_deleted_from_sandbox_sub_dir('d1')
+    assert_files_can_be_deleted_from_sandbox_sub_dir('d1/d2')
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =

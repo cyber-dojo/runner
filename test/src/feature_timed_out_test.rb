@@ -18,10 +18,8 @@ class TimedOutTest < TestBase
       changed_files: { 'hiker.c' => file(quiet_infinite_loop) },
         max_seconds: 2
     }
-    in_kata {
-      with_captured_log {
-        run_cyber_dojo_sh(named_args)
-      }
+    with_captured_log {
+      run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
     assert_stdout ''
@@ -41,10 +39,8 @@ class TimedOutTest < TestBase
       changed_files: { 'hiker.c' => file(loud_infinite_loop) },
         max_seconds: 2
     }
-    in_kata {
-      with_captured_log {
-        run_cyber_dojo_sh(named_args)
-      }
+    with_captured_log {
+      run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
     refute_stdout ''

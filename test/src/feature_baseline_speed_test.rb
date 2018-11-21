@@ -12,9 +12,7 @@ class BaselineSpeedTest < TestBase
 
   multi_os_test '8A6',
   'baseline speed' do
-    in_kata {
-      assert_baseline_speed
-    }
+    assert_baseline_speed
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

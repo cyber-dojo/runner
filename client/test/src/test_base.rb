@@ -19,22 +19,9 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_new(named_args = {})
-    args = common_args(named_args)
-    args << defaulted_arg(named_args, :starting_files, starting_files)
-    @all_files = args[-1]
-    runner.kata_new(*args)
-  end
-
-  def kata_old(named_args={})
-    runner.kata_old(*common_args(named_args))
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @all_files
+    unchanged_files = @all_files || starting_files
 
     changed_files = defaulted_arg(named_args, :changed_files, {})
     changed_files.keys.each do |filename|
@@ -173,17 +160,6 @@ class TestBase < HexMiniTest
     { 'content' => content,
       'truncated' => truncated
     }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def in_kata
-    kata_new
-    begin
-      yield
-    ensure
-      kata_old
-    end
   end
 
 end

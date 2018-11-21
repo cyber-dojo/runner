@@ -3,7 +3,7 @@ require_relative 'string_cleaner'
 require 'find'
 require 'timeout'
 
-class Runner # stateless
+class Runner
 
   def initialize(external, cache)
     @external = external
@@ -14,17 +14,6 @@ class Runner # stateless
 
   def sha
     IO.read('/app/sha.txt').strip
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # for API compatibility with runner-stateful
-
-  def kata_new(_image_name, _id, _starting_files)
-    nil
-  end
-
-  def kata_old(_image_name, _id)
-    nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

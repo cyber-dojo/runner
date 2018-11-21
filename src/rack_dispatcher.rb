@@ -42,8 +42,6 @@ class RackDispatcher # stateless
     well_formed_args(body)
     args = case name
       when /^sha$/               then []
-      when /^kata_new$/          then [image_name, id, starting_files]
-      when /^kata_old$/          then [image_name, id]
       when /^run_cyber_dojo_sh$/ then [image_name, id,
                                        created_files, deleted_files,
                                        unchanged_files, changed_files,

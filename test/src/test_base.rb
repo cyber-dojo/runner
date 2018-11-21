@@ -25,20 +25,9 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_new
-    runner.kata_new(image_name, id, starting_files)
-    @previous_files = starting_files
-  end
-
-  def kata_old
-    runner.kata_old(image_name, id)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @previous_files
+    unchanged_files = @previous_files || starting_files
 
     created_files = defaulted_arg(named_args, :created_files, {})
     created_files.keys.each do |filename|
@@ -113,6 +102,7 @@ class TestBase < HexMiniTest
   def assert_stdout(expected)
     assert_equal expected, stdout, result
   end
+
   def refute_stdout(unexpected)
     refute_equal unexpected, stdout, result
   end
@@ -210,17 +200,6 @@ class TestBase < HexMiniTest
 
   def all_OSes
     [ :Alpine, :Ubuntu, :Debian ]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def in_kata
-    kata_new
-    begin
-      yield
-    ensure
-      kata_old
-    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

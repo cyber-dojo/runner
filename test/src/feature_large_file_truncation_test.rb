@@ -14,7 +14,7 @@ class LargeFileTruncationTest < TestBase
     script = "yes '#{s}' | head -n 1025 > large_file.txt"
     all_OSes.each do |os|
       @os = os
-      in_kata { assert_cyber_dojo_sh(script) }
+      assert_cyber_dojo_sh(script)
       expected = "#{s}\n" * 1024
 
       assert_equal({ 'large_file.txt' => file(expected,true) }, created_files)
@@ -31,14 +31,12 @@ class LargeFileTruncationTest < TestBase
     src = starting_files[filename]['content']
     large_comment = "/*#{'x'*10*1024}*/"
     refute_nil src
-    in_kata {
-      run_cyber_dojo_sh( {
-        changed_files:{
-          filename => file(src + large_comment)
-        }
-      })
-      refute changed_files.keys.include?(filename)
-    }
+    run_cyber_dojo_sh( {
+      changed_files:{
+        filename => file(src + large_comment)
+      }
+    })
+    refute changed_files.keys.include?(filename)
   end
 
 end

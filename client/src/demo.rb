@@ -25,21 +25,12 @@ class Demo
     @image_name = 'cyberdojofoundation/gcc_assert'
     @kata_id = '729z65'
     duration = timed {
-      runner.kata_new(image_name, kata_id, starting_files)
       @created_files = {}
       @deleted_files = {}
       @unchanged_files = starting_files
       @changed_files = {}
     }
-    @html += pre('kata_new', duration)
-    begin
-      yield
-    ensure
-      duration = timed {
-        runner.kata_old(image_name, kata_id)
-      }
-      @html += pre('kata_old', duration)
-    end
+    yield
   end
 
   attr_reader :image_name, :kata_id

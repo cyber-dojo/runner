@@ -45,10 +45,11 @@ class RackDispatcherTest < TestBase
   test 'BB2',
   %w( malformed image_name becomes exception ) do
     malformed_image_names.each do |malformed|
-      assert_rack_call_exception('image_name:malformed', 'kata_old', {
-        image_name:malformed,
-        id:id
-      }.to_json)
+      assert_rack_call_exception(
+        'image_name:malformed',
+        'run_cyber_dojo_sh',
+        run_cyber_dojo_sh_args.merge({image_name:malformed}).to_json
+      )
     end
   end
 
@@ -57,23 +58,11 @@ class RackDispatcherTest < TestBase
   test 'BB3',
   %w( malformed id becomes exception ) do
     malformed_ids.each do |malformed|
-      assert_rack_call_exception('id:malformed', 'kata_old', {
-        image_name:image_name,
-        id:malformed
-      }.to_json)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB4',
-  %w( malformed starting_files becomes exception ) do
-    malformed_files.each do |malformed|
-      assert_rack_call_exception('starting_files:malformed', 'kata_new', {
-        image_name:image_name,
-        id:id,
-        starting_files:malformed
-      }.to_json)
+      assert_rack_call_exception(
+        'id:malformed',
+        'run_cyber_dojo_sh',
+        run_cyber_dojo_sh_args.merge({id:malformed}).to_json
+      )
     end
   end
 
@@ -118,49 +107,6 @@ class RackDispatcherTest < TestBase
     string.each_char do |ch|
       assert '0123456789abcdef'.include?(ch)
     end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # kata_new
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB1', 'kata_new' do
-    path_info = 'kata_new'
-    env = {
-      path_info:path_info,
-      body: {
-        image_name:image_name,
-        id:id,
-        starting_files:{}
-      }.to_json
-    }
-    rack_call(env)
-    assert_200
-    assert_body_contains(path_info)
-    refute_body_contains('exception')
-    refute_body_contains('trace')
-    assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # kata_old
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB2', 'kata_old' do
-    path_info = 'kata_old'
-    env = {
-      path_info:path_info,
-      body: {
-        image_name:image_name,
-        id:id
-      }.to_json
-    }
-    rack_call(env)
-    assert_200
-    assert_body_contains(path_info)
-    refute_body_contains('exception')
-    refute_body_contains('trace')
-    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -356,8 +302,6 @@ class RackDispatcherTest < TestBase
 
   METHOD_NAMES = %w(
     sha
-    kata_new
-    kata_old
     run_cyber_dojo_sh
   )
 

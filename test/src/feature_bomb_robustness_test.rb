@@ -10,47 +10,41 @@ class BombRobustNessTest < TestBase
 
   test 'CD5',
   '[C,assert] fork-bomb does not run indefinitely' do
-    in_kata {
-      with_captured_log {
-        run_cyber_dojo_sh({
-          changed_files: { 'hiker.c' => file(C_FORK_BOMB) },
-            max_seconds: 3
-        })
-      }
-      assert timed_out? || printed?('All tests passed'), result
-      assert timed_out? || printed?('fork()'), result
+    with_captured_log {
+      run_cyber_dojo_sh({
+        changed_files: { 'hiker.c' => file(C_FORK_BOMB) },
+          max_seconds: 3
+      })
     }
+    assert timed_out? || printed?('All tests passed'), result
+    assert timed_out? || printed?('fork()'), result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'CD6',
   'shell fork-bomb does not run indefinitely' do
-    in_kata {
-      with_captured_log {
-        run_cyber_dojo_sh({
-          changed_files: { 'cyber-dojo.sh' => file(SHELL_FORK_BOMB) },
-            max_seconds: 3
-        })
-      }
-      cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
-      assert timed_out? ||
-        printed?(cant_fork) ||
-          printed?('bomb'), result
+    with_captured_log {
+      run_cyber_dojo_sh({
+        changed_files: { 'cyber-dojo.sh' => file(SHELL_FORK_BOMB) },
+          max_seconds: 3
+      })
     }
+    cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
+    assert timed_out? ||
+      printed?(cant_fork) ||
+        printed?('bomb'), result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'DB3',
   '[C,assert] file-handles quickly become exhausted' do
-    in_kata {
-      run_cyber_dojo_sh({
-        changed_files: { 'hiker.c' => file(FILE_HANDLE_BOMB) },
-          max_seconds: 3
-      })
-      assert printed?('fopen() != NULL'),  result
-    }
+    run_cyber_dojo_sh({
+      changed_files: { 'hiker.c' => file(FILE_HANDLE_BOMB) },
+        max_seconds: 3
+    })
+    assert printed?('fopen() != NULL'),  result
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =
