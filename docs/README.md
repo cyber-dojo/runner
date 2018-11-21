@@ -31,32 +31,6 @@ Returns the git commit sha used to create the docker image.
 
 - - - -
 
-# POST kata_new
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  {     "image_name": "cyberdojofoundation/gcc_assert",
-                "id": "15B9zD",
-    "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
-                        "hiker.c" => "#include...",
-                        ...
-                      }
-  }
-```
-
-# POST kata_old
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  { "image_name": "cyberdojofoundation/gcc_assert",
-       "id": "15B9zD"
-  }
-```
-
-- - - -
-
 # POST run_cyber_dojo_sh
 Saves the unchanged files, the changed_files, and the new files, and runs
 cyber-dojo.sh
