@@ -15,19 +15,19 @@ class RoundTripTest < TestBase
     script = [
       'dd if=/dev/zero of=binary.dat bs=1c count=42',
       'file --mime-encoding binary.dat',
-      'echo "xxx" > newfile.txt',
-      'echo "yyy" > .dotfile'
+      'echo -n "xxx" > newfile.txt',
+      'echo -n "yyy" > .dotfile'
     ].join(';')
 
     all_OSes.each do |os|
-      @os = os
+      set_OS(os)
       assert_cyber_dojo_sh(script)
 
       assert stdout.include?('binary.dat: binary') # file --mime-encoding
 
       assert_hash_equal({
-        'newfile.txt' => file('xxx' + "\n"),
-        '.dotfile' => file('yyy' + "\n")
+        'newfile.txt' => file('xxx'),
+        '.dotfile' => file('yyy')
       }, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
@@ -44,9 +44,8 @@ class RoundTripTest < TestBase
     ].join(';')
 
     all_OSes.each do |os|
-      @os = os
+      set_OS(os)
       assert_cyber_dojo_sh(script)
-
       assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
@@ -73,12 +72,11 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       filename = src_file(os)
-      script = "echo 'XXX' >> #{filename}"
+      script = "echo -n 'XXX' > #{filename}"
       assert_cyber_dojo_sh(script)
-
       assert_equal({}, created_files)
       assert_equal({}, deleted_files)
-      assert_equal [filename], changed_files.keys
+      assert_equal({filename => file('XXX')}, changed_files)
     end
   end
 
@@ -89,11 +87,11 @@ class RoundTripTest < TestBase
     # uses the file utility to detect non binary files.
     # However it says empty files are binary files.
     all_OSes.each do |os|
-      @os = os
-      script = 'touch empty.file'
+      set_OS(os)
+      filename = 'empty.txt'
+      script = "touch #{filename}"
       assert_cyber_dojo_sh(script)
-
-      assert_equal({'empty.file' => file('')}, created_files)
+      assert_equal({filename => file('')}, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -106,11 +104,11 @@ class RoundTripTest < TestBase
     # uses the file utility to detect non binary files.
     # However file says single-char files are binary files!
     all_OSes.each do |os|
-      @os = os
-      script = 'echo -n x > small.file'
+      set_OS(os)
+      filename = 'one-char.txt'
+      script = "echo -n 'x' > #{filename}"
       assert_cyber_dojo_sh(script)
-
-      assert_equal({'small.file' => file('x')}, created_files)
+      assert_equal({filename => file('x')}, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -121,7 +119,7 @@ class RoundTripTest < TestBase
   test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
     all_OSes.each do |os|
-      @os = os
+      set_OS(os)
       stub = BashStubTarPipeOut.new('fail')
       @external = External.new({ 'bash' => stub })
       with_captured_log {
