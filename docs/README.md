@@ -58,8 +58,14 @@ altered by executing cyber-dojo.sh
 eg
 ```
     { "run_cyber_dojo_sh": {
-        "stdout": "makefile:17: recipe for target 'test' failed\n",
-        "stderr": "invalid suffix sss on integer constant",
+        "stdout": {
+          "content" => "makefile:17: recipe for target 'test' failed\n",
+          "truncated" => false
+        },
+        "stderr": {
+          "content" => "invalid suffix sss on integer constant",
+          "truncated" => false
+        },
         "status": 2,
         "colour": "amber",
         "created_files":{ ... },
@@ -71,8 +77,14 @@ eg
 eg
 ```
     { "run_cyber_dojo_sh": {
-        "stdout": "...",
-        "stderr": "...",
+        "stdout": {
+          "content" => "",
+          "truncated" => false
+        },
+        "stderr": {
+          "content" => "",
+          "truncated" => false
+        },
         "status": 137,
         "colour:"timed_out",
         "created_files":{},
