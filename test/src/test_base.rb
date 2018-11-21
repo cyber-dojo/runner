@@ -29,20 +29,20 @@ class TestBase < HexMiniTest
 
     unchanged_files = @files || starting_files
 
-    created_files = defaulted_arg(named_args, :created_files, {})
+    created_files = defaulted_arg(named_args, :created, {})
     created_files.keys.each do |filename|
       diagnostic = "#{filename} is not a created_file (it already exists)"
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    deleted_files = defaulted_arg(named_args, :deleted_files, {})
+    deleted_files = defaulted_arg(named_args, :deleted, {})
     deleted_files.keys.each do |filename|
       diagnostic = "#{filename} is not a deleted_file (it does not already exist)"
       assert unchanged_files.keys.include?(filename), diagnostic
       unchanged_files.delete(filename)
     end
 
-    changed_files = defaulted_arg(named_args, :changed_files, {})
+    changed_files = defaulted_arg(named_args, :changed, {})
     changed_files.keys.each do |filename|
       diagnostic = "#{filename} is not a changed_file (it does not already exist)"
       assert unchanged_files.keys.include?(filename), diagnostic
@@ -131,9 +131,23 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def assert_created(expected)
+    assert_hash_equal(expected, created)
+  end
+
+  def assert_deleted(expected)
+    assert_equal(expected, deleted.keys)
+  end
+
+  def assert_changed(expected)
+    assert_hash_equal(expected, changed)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def assert_cyber_dojo_sh(script)
     named_args = {
-      :changed_files => { 'cyber-dojo.sh' => file(script) }
+      :changed => { 'cyber-dojo.sh' => file(script) }
     }
     run_cyber_dojo_sh(named_args)
     refute_timed_out
@@ -226,6 +240,32 @@ class TestBase < HexMiniTest
     { 'content' => content,
       'truncated' => truncated
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_hash_equal(expected, actual)
+    assert_equal expected.keys.sort, actual.keys.sort
+    expected.keys.each do |key|
+      assert_equal expected[key], actual[key], key
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def stat_cmd
+    # Works on Ubuntu and Alpine
+    'stat -c "%n %A %u %G %s %y" *'
+    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
+    # |        |           |      |          |    |          |
+    # filename permissions uid    group      size date       time
+    # 0        1           2      3          4    5          6
+
+    # Stat
+    #  %z == time of last status change
+    #  %y == time of last data modification <<=====
+    #  %x == time of last access
+    #  %w == time of file birth
   end
 
 end

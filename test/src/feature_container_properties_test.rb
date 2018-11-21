@@ -114,7 +114,7 @@ class ContainerPropertiesTest < TestBase
 
   def assert_starting_files_properties
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => file(stat_cmd) }
+      changed: { 'cyber-dojo.sh' => file(stat_cmd) }
     })
     assert_equal '', stderr
     assert_equal starting_files.keys.sort, stdout_stats.keys.sort
@@ -187,7 +187,7 @@ class ContainerPropertiesTest < TestBase
     # microseconds value is always '000000000'.
     # Make sure the tar-piped files have fixed this.
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => file(stat_cmd) }
+      changed: { 'cyber-dojo.sh' => file(stat_cmd) }
     })
     count = 0
     stdout_stats.each do |filename,atts|
@@ -226,23 +226,6 @@ class ContainerPropertiesTest < TestBase
                time: attr[6],
       }]
     }]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def stat_cmd
-    # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %y" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
-    # |        |           |      |          |    |          |
-    # filename permissions uid    group      size date       time
-    # 0        1           2      3          4    5          6
-
-    # Stat
-    #  %z == time of last status change
-    #  %y == time of last data modification <<=====
-    #  %x == time of last access
-    #  %w == time of file birth
   end
 
 end

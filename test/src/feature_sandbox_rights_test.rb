@@ -36,8 +36,8 @@ class SandboxRightsTest < TestBase
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => file(stat_cmd) },
-      created_files: { "#{sub_dir}/#{filename}" => file(content) }
+      changed: { 'cyber-dojo.sh' => file(stat_cmd) },
+      created: { "#{sub_dir}/#{filename}" => file(content) }
     })
     assert_stats(sub_dir, 'drwxr-xr-x', 4096)
   end
@@ -48,8 +48,8 @@ class SandboxRightsTest < TestBase
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") },
-      created_files: { "#{sub_dir}/#{filename}" => file(content) }
+      changed: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") },
+      created: { "#{sub_dir}/#{filename}" => file(content) }
     })
     assert_stats(filename, '-rw-r--r--', content.length)
   end
@@ -60,13 +60,13 @@ class SandboxRightsTest < TestBase
     filename = 'goodbye.txt'
     content = 'goodbye, world'
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") },
-      created_files: { "#{sub_dir}/#{filename}" => file(content) }
+      changed: { 'cyber-dojo.sh' => file("cd #{sub_dir} && #{stat_cmd}") },
+      created: { "#{sub_dir}/#{filename}" => file(content) }
     })
     filenames = stdout_stats.keys
     assert filenames.include?(filename)
     run_cyber_dojo_sh({
-      deleted_files: { "#{sub_dir}/#{filename}" => file(content) }
+      deleted: { "#{sub_dir}/#{filename}" => file(content) }
     })
     filenames = stdout_stats.keys
     refute filenames.include?(filename)
@@ -97,23 +97,6 @@ class SandboxRightsTest < TestBase
          time_stamp: attr[6],      # eg 07:03:14.539952547
       }]
     }]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def stat_cmd;
-    # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %y" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
-    # |        |           |      |          |    |          |
-    # filename permissions user   group      size date       time
-    # 0        1           2      3          4    5          6
-
-    # Stat
-    #  %z == time of last status change
-    #  %y == time of last data modification <<=====
-    #  %x == time of last access
-    #  %w == time of file birth
   end
 
 end

@@ -17,9 +17,9 @@ class LargeFileTruncationTest < TestBase
       assert_cyber_dojo_sh(script)
       expected = "#{s}\n" * 1024
 
-      assert_equal({ 'large_file.txt' => file(expected,true) }, created)
-      assert_equal({}, deleted)
-      assert_equal({}, changed)
+      assert_created({ 'large_file.txt' => file(expected,true) })
+      assert_deleted([])
+      assert_changed({})
     end
   end
 
@@ -32,7 +32,7 @@ class LargeFileTruncationTest < TestBase
     large_comment = "/*#{'x'*10*1024}*/"
     refute_nil src
     run_cyber_dojo_sh( {
-      changed_files:{
+      changed:{
         filename => file(src + large_comment)
       }
     })

@@ -23,12 +23,12 @@ class RoundTripTest < TestBase
       set_OS(os)
       assert_cyber_dojo_sh(script)
       assert stdout.include?('binary.dat: binary') # file --mime-encoding
-      assert_hash_equal({
+      assert_created({
         'newfile.txt' => file('xxx'),
         '.dotfile' => file('yyy')
-      }, created)
-      assert_equal({}, deleted)
-      assert_equal({}, changed)
+      })
+      assert_deleted([])
+      assert_changed({})
     end
   end
 
@@ -47,9 +47,9 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh(script)
-      assert_equal({ path => file(content) }, created)
-      assert_equal({}, deleted)
-      assert_equal({}, changed)
+      assert_created({ path => file(content) })
+      assert_deleted([])
+      assert_changed({})
     end
   end
 
@@ -61,9 +61,9 @@ class RoundTripTest < TestBase
       filename = src_file(os)
       script = "rm #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({}, created)
-      assert_equal [filename], deleted.keys
-      assert_equal({}, changed)
+      assert_created({})
+      assert_deleted([filename])
+      assert_changed({})
     end
   end
 
@@ -76,9 +76,9 @@ class RoundTripTest < TestBase
       content = 'XXX'
       script = "echo -n '#{content}' > #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({}, created)
-      assert_equal({}, deleted)
-      assert_equal({filename => file(content)}, changed)
+      assert_created({})
+      assert_deleted([])
+      assert_changed({filename => file(content)})
     end
   end
 
@@ -93,9 +93,9 @@ class RoundTripTest < TestBase
       filename = 'empty.txt'
       script = "touch #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({filename => file('')}, created)
-      assert_equal({}, deleted)
-      assert_equal({}, changed)
+      assert_created({filename => file('')})
+      assert_deleted([])
+      assert_changed({})
     end
   end
 
@@ -111,9 +111,9 @@ class RoundTripTest < TestBase
       ch = 'x'
       script = "echo -n '#{ch}' > #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({filename => file(ch)}, created)
-      assert_equal({}, deleted)
-      assert_equal({}, changed)
+      assert_created({filename => file(ch)})
+      assert_deleted([])
+      assert_changed({})
     end
   end
 
@@ -129,9 +129,9 @@ class RoundTripTest < TestBase
         run_cyber_dojo_sh
       }
       assert stub.fired?
-      assert_equal({}, created)
-      assert_equal({}, deleted)
-      assert_equal({}, changed)
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
     end
   end
 
@@ -142,15 +142,6 @@ class RoundTripTest < TestBase
     when :Alpine then 'Hiker.cs'
     when :Ubuntu then 'hiker.pl'
     when :Debian then 'hiker.py'
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def assert_hash_equal(expected, actual)
-    assert_equal expected.keys.sort, actual.keys.sort
-    expected.keys.each do |key|
-      assert_equal expected[key], actual[key], key
     end
   end
 

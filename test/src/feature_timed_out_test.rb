@@ -15,8 +15,8 @@ class TimedOutTest < TestBase
   and the colour is 'timed_out'
   ) do
     named_args = {
-      changed_files: { 'hiker.c' => file(quiet_infinite_loop) },
-        max_seconds: 2
+      changed: { 'hiker.c' => file(quiet_infinite_loop) },
+      max_seconds: 2
     }
     with_captured_log {
       run_cyber_dojo_sh(named_args)
@@ -36,8 +36,8 @@ class TimedOutTest < TestBase
   and the colour is 'timed_out'
   ) do
     named_args = {
-      changed_files: { 'hiker.c' => file(loud_infinite_loop) },
-        max_seconds: 2
+      changed: { 'hiker.c' => file(loud_infinite_loop) },
+      max_seconds: 2
     }
     with_captured_log {
       run_cyber_dojo_sh(named_args)
