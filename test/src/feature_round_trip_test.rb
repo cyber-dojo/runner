@@ -22,9 +22,7 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh(script)
-
       assert stdout.include?('binary.dat: binary') # file --mime-encoding
-
       assert_hash_equal({
         'newfile.txt' => file('xxx'),
         '.dotfile' => file('yyy')
@@ -38,15 +36,18 @@ class RoundTripTest < TestBase
 
   test '529',
   %w( text files created in sub-dirs are returned in json payload ) do
+    dirname = 'sub'
+    path = "#{dirname}/newfile.txt"
+    content = 'jjj'
     script = [
-      'mkdir sub',
-      'echo "xxx" > sub/newfile.txt'
+      "mkdir #{dirname}",
+      "echo -n '#{content}' > #{path}"
     ].join(';')
 
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh(script)
-      assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, created_files)
+      assert_equal({ path => file(content) }, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
@@ -72,11 +73,12 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       filename = src_file(os)
-      script = "echo -n 'XXX' > #{filename}"
+      content = 'XXX'
+      script = "echo -n '#{content}' > #{filename}"
       assert_cyber_dojo_sh(script)
       assert_equal({}, created_files)
       assert_equal({}, deleted_files)
-      assert_equal({filename => file('XXX')}, changed_files)
+      assert_equal({filename => file(content)}, changed_files)
     end
   end
 
@@ -106,9 +108,10 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       filename = 'one-char.txt'
-      script = "echo -n 'x' > #{filename}"
+      ch = 'x'
+      script = "echo -n '#{ch}' > #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_equal({filename => file('x')}, created_files)
+      assert_equal({filename => file(ch)}, created_files)
       assert_equal({}, deleted_files)
       assert_equal({}, changed_files)
     end
