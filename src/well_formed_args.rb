@@ -40,19 +40,7 @@ module WellFormedArgs
 
   # - - - - - - - - - - - - - - - -
 
-  def created_files
-    well_formed_files(__method__)
-  end
-
-  def deleted_files
-    well_formed_files(__method__)
-  end
-
-  def unchanged_files
-    well_formed_files(__method__)
-  end
-
-  def changed_files
+  def files
     well_formed_files(__method__)
   end
 

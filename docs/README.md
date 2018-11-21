@@ -38,10 +38,8 @@ cyber-dojo.sh
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
                    "id": "15B9zD",
-            "new_files": { ... },
-        "deleted_files": { ... },
-      "unchanged_files": { "cyber-dojo.sh" => "make" },
-        "changed_files": { "fizz_buzz.c" => "#include...",
+                "files": { "cyber-dojo.sh" => "make",
+                           "fizz_buzz.c" => "#include...",
                            "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
                            ...
                          },

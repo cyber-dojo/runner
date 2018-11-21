@@ -57,10 +57,7 @@ class ApiTest < TestBase
     args = {
       image_name:image_name,
       id:id,
-      created_files:2, # <=====
-      deleted_files:{},
-      unchanged_files:{},
-      changed_files:{},
+      files:2, # <=====
       max_seconds:2
     }
     assert_exception('run_cyber_dojo_sh', args.to_json)

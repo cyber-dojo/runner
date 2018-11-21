@@ -42,10 +42,7 @@ class RackDispatcher # stateless
     well_formed_args(body)
     args = case name
       when /^sha$/               then []
-      when /^run_cyber_dojo_sh$/ then [image_name, id,
-                                       created_files, deleted_files,
-                                       unchanged_files, changed_files,
-                                       max_seconds]
+      when /^run_cyber_dojo_sh$/ then [image_name, id, files, max_seconds]
       else
         raise ClientError, 'json:malformed'
     end

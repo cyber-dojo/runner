@@ -18,17 +18,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh(
-    image_name, id,
-    new_files, deleted_files, unchanged_files, changed_files,
-    max_seconds
-  )
+  def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    deleted_files = nil # we're stateless
-    was_files = [*new_files, *unchanged_files, *changed_files].to_h
     Dir.mktmpdir do |src_tmp_dir|
-      write_files(src_tmp_dir, was_files)
+      write_files(src_tmp_dir, files)
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
@@ -40,7 +34,7 @@ class Runner
           else
             now_files = {}
           end
-          set_file_delta(was_files, now_files)
+          set_file_delta(files, now_files)
         end
       }
     end

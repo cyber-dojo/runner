@@ -27,10 +27,10 @@ class RoundTripTest < TestBase
     exec([
       'make',
       'file --mime-encoding test',
-      'echo "xxx" > newfile.txt',
+      'echo -n "xxx" > newfile.txt',
     ].join("\n"))
     assert stdout.include?('test: binary') # file --mime-encoding
-    assert_equal({ 'newfile.txt' => file("xxx\n") }, created_files)
+    assert_equal({ 'newfile.txt' => file('xxx') }, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
   end
@@ -39,8 +39,8 @@ class RoundTripTest < TestBase
 
   test '162',
   %w( created text files in sub-dirs are returned in json payload ) do
-    exec('mkdir sub && echo "xxx" > sub/newfile.txt')
-    assert_equal({ 'sub/newfile.txt' => file("xxx\n") }, created_files)
+    exec('mkdir sub && echo -n "yyy" > sub/newfile.txt')
+    assert_equal({ 'sub/newfile.txt' => file('yyy') }, created_files)
     assert_equal({}, deleted_files)
     assert_equal({}, changed_files)
   end
@@ -49,10 +49,10 @@ class RoundTripTest < TestBase
 
   test '163',
   %w( [C,assert] changed text files are returned in json payload ) do
-    exec('echo "xxx" > hiker.h')
+    exec('echo -n "jjj" > hiker.h')
     assert_equal({}, created_files)
     assert_equal({}, deleted_files)
-    assert_equal({ 'hiker.h' => file("xxx\n")}, changed_files)
+    assert_equal({ 'hiker.h' => file('jjj')}, changed_files)
   end
 
   # - - - - - - - - - - - - - - - - -

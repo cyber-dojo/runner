@@ -21,7 +21,7 @@ class TestBase < HexMiniTest
 
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @all_files || starting_files
+    unchanged_files = @files || starting_files
 
     changed_files = defaulted_arg(named_args, :changed_files, {})
     changed_files.keys.each do |filename|
@@ -36,16 +36,16 @@ class TestBase < HexMiniTest
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    args = common_args(named_args)
-    args << created_files
-    args << defaulted_arg(named_args, :deleted_files, {})
-    args << unchanged_files
-    args << changed_files
+    @files = [ *created_files, *unchanged_files, *changed_files ].to_h
+
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :id,         id)
+    args << @files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
     @result = runner.run_cyber_dojo_sh(*args)
 
-    @all_files = [ *created_files, *unchanged_files, *changed_files ].to_h
     nil
   end
 
@@ -145,12 +145,6 @@ class TestBase < HexMiniTest
   end
 
   private
-
-  def common_args(named_args)
-    [ defaulted_arg(named_args, :image_name, image_name),
-      defaulted_arg(named_args, :id,         id)
-    ]
-  end
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default

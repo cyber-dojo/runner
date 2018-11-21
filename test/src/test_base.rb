@@ -27,7 +27,7 @@ class TestBase < HexMiniTest
 
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @previous_files || starting_files
+    unchanged_files = @files || starting_files
 
     created_files = defaulted_arg(named_args, :created_files, {})
     created_files.keys.each do |filename|
@@ -49,17 +49,15 @@ class TestBase < HexMiniTest
       unchanged_files.delete(filename)
     end
 
+    @files = [ *unchanged_files, *changed_files, *created_files ].to_h
+
     args = []
     args << image_name
     args << id
-    args << created_files
-    args << deleted_files
-    args << unchanged_files
-    args << changed_files
+    args << @files
     args << defaulted_arg(named_args, :max_seconds, 10)
     @result = runner.run_cyber_dojo_sh(*args)
 
-    @previous_files = [ *unchanged_files, *changed_files, *created_files ].to_h
     nil
   end
 
@@ -178,7 +176,7 @@ class TestBase < HexMiniTest
 
   def set_OS(os)
     @os = os
-    @previous_files = nil
+    @files = nil
   end
 
   def os

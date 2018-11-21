@@ -100,7 +100,7 @@ table =
     [ 'duration(test)[s]',      test_duration,      '<=',  120 ],
     [ 'coverage(src)[%]',       src_coverage,       '==',  100 ],
     [ 'coverage(test)[%]',      test_coverage,      '==',  100 ],
-    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=',  2.9 ],
+    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=',  2.8 ],
     [ 'hits(src)/hits(test)',   f2(hits_ratio),     '>=',   20 ],
   ]
 
