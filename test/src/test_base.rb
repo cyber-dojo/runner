@@ -176,9 +176,15 @@ class TestBase < HexMiniTest
     "/app/test/start_files/#{os}"
   end
 
+  def set_OS(os)
+    @os = os
+    @previous_files = nil
+  end
+
   def os
-    return @os unless @os.nil?
-    if hex_test_name.start_with? '[C,assert]'
+    if !@os.nil?
+      return @os
+    elsif hex_test_name.start_with? '[C,assert]'
       :C_assert
     elsif hex_test_name.start_with? '[clang,assert]'
       :clang_assert

@@ -57,12 +57,12 @@ class RoundTripTest < TestBase
 
   test '530', %w( deleted files are detected ) do
     all_OSes.each do |os|
-      @os = os
-      script = "rm #{src_file(os)}"
+      set_OS(os)
+      filename = src_file(os)
+      script = "rm #{filename}"
       assert_cyber_dojo_sh(script)
-
       assert_equal({}, created_files)
-      assert_equal [src_file(os)], deleted_files.keys # FAILS
+      assert_equal [filename], deleted_files.keys
       assert_equal({}, changed_files)
     end
   end
@@ -71,13 +71,14 @@ class RoundTripTest < TestBase
 
   test '531', %w( changed files are detected ) do
     all_OSes.each do |os|
-      @os = os
-      script = "echo 'XXX' >> #{src_file(os)}"
+      set_OS(os)
+      filename = src_file(os)
+      script = "echo 'XXX' >> #{filename}"
       assert_cyber_dojo_sh(script)
 
       assert_equal({}, created_files)
       assert_equal({}, deleted_files)
-      assert_equal [src_file(os)], changed_files.keys
+      assert_equal [filename], changed_files.keys
     end
   end
 
