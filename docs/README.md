@@ -50,7 +50,7 @@ cyber-dojo.sh
 ```
 - returns [stdout, stderr, status, colour] as the results of
 executing cyber-dojo.sh
-- returns [new_files, deleted_files, changed_files] which are text files
+- returns [created_files, deleted_files, changed_files] which are text files
 altered by executing cyber-dojo.sh
 - if the execution completed in max_seconds, colour will be "red", "amber", or "green".
 - if the execution did not complete in max_seconds, colour will be "timed_out".
@@ -62,7 +62,7 @@ eg
         "stderr": "invalid suffix sss on integer constant",
         "status": 2,
         "colour": "amber",
-        "new_files":{ ... },
+        "created_files":{ ... },
         "deleted_files":{},
         "changed_files":{ ... }
       }
@@ -75,7 +75,7 @@ eg
         "stderr": "...",
         "status": 137,
         "colour:"timed_out",
-        "new_files":{},
+        "created_files":{},
         "deleted_files":{},
         "changed_files":{}
       }
