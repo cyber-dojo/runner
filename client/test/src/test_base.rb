@@ -19,37 +19,9 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_new(named_args = {})
-    runner.kata_new(*common_args(named_args))
-  end
-
-  def kata_old(named_args={})
-    runner.kata_old(*common_args(named_args))
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_new(named_args = {})
-    args = common_args(named_args)
-    args << defaulted_arg(named_args, :avatar_name,    avatar_name)
-    args << defaulted_arg(named_args, :starting_files, starting_files)
-    result = runner.avatar_new(*args)
-    @avatar_name = args[-2]
-    @all_files = args[-1]
-    result
-  end
-
-  def avatar_old(named_args = {})
-    args = common_args(named_args)
-    args << defaulted_arg(named_args, :avatar_name, avatar_name)
-    runner.avatar_old(*args)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @all_files
+    unchanged_files = @files || starting_files
 
     changed_files = defaulted_arg(named_args, :changed_files, {})
     changed_files.keys.each do |filename|
@@ -58,23 +30,22 @@ class TestBase < HexMiniTest
       unchanged_files.delete(filename)
     end
 
-    new_files = defaulted_arg(named_args, :new_files, {})
-    new_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a new_file (it already exists)"
+    created_files = defaulted_arg(named_args, :created_files, {})
+    created_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a created_file (it already exists)"
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    args = common_args(named_args)
-    args << defaulted_arg(named_args, :avatar_name, avatar_name)
-    args << new_files
-    args << defaulted_arg(named_args, :deleted_files, {})
-    args << unchanged_files
-    args << changed_files
+    @files = [ *created_files, *unchanged_files, *changed_files ].to_h
+
+    args = []
+    args << defaulted_arg(named_args, :image_name, image_name)
+    args << defaulted_arg(named_args, :id,         id)
+    args << @files
     args << defaulted_arg(named_args, :max_seconds, 10)
 
     @result = runner.run_cyber_dojo_sh(*args)
 
-    @all_files = [ *new_files, *unchanged_files, *changed_files ].to_h
     nil
   end
 
@@ -83,27 +54,27 @@ class TestBase < HexMiniTest
   attr_reader :result
 
   def stdout
-    result['stdout']
+    result['stdout']['content']
   end
 
   def stderr
-    result['stderr']
+    result['stderr']['content']
   end
 
   def colour
     result['colour']
   end
 
-  def new_files
-    result['new_files']
+  def created
+    result['created']
   end
 
-  def deleted_files
-    result['deleted_files']
+  def deleted
+    result['deleted']
   end
 
-  def changed_files
-    result['changed_files']
+  def changed
+    result['changed']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,7 +99,7 @@ class TestBase < HexMiniTest
 
   def assert_cyber_dojo_sh(sh_script)
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => sh_script }
+      changed_files: { 'cyber-dojo.sh' => file(sh_script) }
     })
     refute timed_out?, result
     assert_equal '', stderr
@@ -143,25 +114,15 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def kata_id
-    hex_test_id + '0' * (10 - hex_test_id.length)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def avatar_name
-    @avatar_name || salmon
-  end
-
-  def salmon
-    'salmon'
+  def id
+    hex_test_id[0..5]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
     Hash[manifest['visible_filenames'].collect { |filename|
-      [filename, IO.read("#{starting_files_dir}/#{filename}")]
+      [filename, file(IO.read("#{starting_files_dir}/#{filename}"))]
     }]
   end
 
@@ -185,46 +146,14 @@ class TestBase < HexMiniTest
 
   private
 
-  def common_args(named_args)
-    [ defaulted_arg(named_args, :image_name, image_name),
-      defaulted_arg(named_args, :kata_id,    kata_id)
-    ]
-  end
-
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def in_kata_as(name)
-    in_kata {
-      as(name) {
-        yield
-      }
+  def file(content, truncated = false)
+    { 'content' => content,
+      'truncated' => truncated
     }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def in_kata
-    kata_new
-    begin
-      yield
-    ensure
-      kata_old
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def as(name)
-    avatar_new({ avatar_name: name })
-    begin
-      yield
-    ensure
-      avatar_old({ avatar_name: name })
-    end
   end
 
 end

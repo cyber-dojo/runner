@@ -7,7 +7,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 # cyberdojo/runner-stateless docker image
 
 - A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org).
-- Runs an avatar's tests.
+- Runs cyber-dojo.sh inside a docker container within a given amount of time.
 
 API:
   * All methods receive their named arguments in a json hash.
@@ -31,77 +31,24 @@ Returns the git commit sha used to create the docker image.
 
 - - - -
 
-# POST kata_new
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  { "image_name": "cyberdojofoundation/gcc_assert",
-       "kata_id": "15B9AD6C42"
-  }
-```
-
-# POST kata_old
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  { "image_name": "cyberdojofoundation/gcc_assert",
-       "kata_id": "15B9AD6C42"
-  }
-```
-
-- - - -
-
-# POST avatar_new
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  {     "image_name": "cyberdojofoundation/gcc_assert",
-           "kata_id": "15B9AD6C42",
-       "avatar_name": "salmon",
-    "starting_files": { "hiker.h" => "#ifndef HIKER_INCLUDED...",
-                        "hiker.c" => "#include...",
-                        ...
-                      }
-  }
-```
-
-# POST avatar_old
-A no-op, but arguments must be well-formed.
-Provided for API compatibility with other runners.
-- parameters, eg
-```
-  {  "image_name": "cyberdojofoundation/gcc_assert",
-        "kata_id": "15B9AD6C42",
-    "avatar_name": "salmon"
-  }
-```
-
-- - - -
-
 # POST run_cyber_dojo_sh
 Saves the unchanged files, the changed_files, and the new files, and runs
-cyber-dojo.sh as the avatar with the given avatar_name.
+cyber-dojo.sh
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
-              "kata_id": "15B9AD6C42",
-          "avatar_name": "salmon",
-            "new_files": { ... },
-        "deleted_files": { ... },
-      "unchanged_files": { "cyber-dojo.sh" => "make" },
-        "changed_files": { "fizz_buzz.c" => "#include...",
+                   "id": "15B9zD",
+          "max_seconds": 10,
+                "files": { "cyber-dojo.sh" => "make",
+                           "fizz_buzz.c" => "#include...",
                            "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
                            ...
-                         },
-          "max_seconds": 10
+                         }
   }
 ```
 - returns [stdout, stderr, status, colour] as the results of
 executing cyber-dojo.sh
-- returns [new_files, deleted_files, changed_files] which are text files
+- returns [created, deleted, changed] which are text files
 altered by executing cyber-dojo.sh
 - if the execution completed in max_seconds, colour will be "red", "amber", or "green".
 - if the execution did not complete in max_seconds, colour will be "timed_out".
@@ -109,26 +56,38 @@ altered by executing cyber-dojo.sh
 eg
 ```
     { "run_cyber_dojo_sh": {
-        "stdout": "makefile:17: recipe for target 'test' failed\n",
-        "stderr": "invalid suffix sss on integer constant",
-        "status": 2,
-        "colour": "amber",
-        "new_files":{ ... },
-        "deleted_files":{},
-        "changed_files":{ ... }
+        "stdout": {
+          "content" => "makefile:17: recipe for target 'test' failed\n",
+          "truncated" => false
+        },
+        "stderr": {
+          "content" => "invalid suffix sss on integer constant",
+          "truncated" => false
+        },
+         "status": 2,
+         "colour": "amber",
+        "created": { ... },
+        "deleted": {},
+        "changed": { ... }
       }
     }
 ```
 eg
 ```
     { "run_cyber_dojo_sh": {
-        "stdout": "...",
-        "stderr": "...",
-        "status": 137,
-        "colour:"timed_out",
-        "new_files":{},
-        "deleted_files":{},
-        "changed_files":{}
+        "stdout": {
+          "content" => "",
+          "truncated" => false
+        },
+        "stderr": {
+          "content" => "",
+          "truncated" => false
+        },
+         "status": 137,
+          "colour: "timed_out",
+        "created": {},
+        "deleted": {},
+        "changed": {}
       }
     }
 ```
@@ -184,7 +143,7 @@ If the runner-client's IP address is 192.168.99.100 then put
 192.168.99.100:4598 into your browser to see the output.
 - grey: tests did not complete (in 3 seconds)
 - red: tests ran but failed
-- amber: tests did not run (syntax error)
+- amber: tests did not run (eg syntax error)
 - green: tests ran and passed
 
 # demo screenshot

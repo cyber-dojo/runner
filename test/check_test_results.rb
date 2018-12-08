@@ -35,12 +35,12 @@ def get_index_stats(flat, name)
   \s*<b>#{number}<\/b> files in total.
   \s*<b>(#{number})<\/b> relevant lines./m
   r = html.match(pattern)
-  h = {}
-  h[:coverage]      = f2(r[1])
-  h[:hits_per_line] = f2(r[2])
-  h[:line_count]    = r[3].to_i
-  h[:name] = name
-  h
+  {
+    :coverage      => f2(r[1]),
+    :hits_per_line => f2(r[2]),
+    :line_count    => r[3].to_i,
+    :name          => name
+  }
 end
 
 # - - - - - - - - - - - - - - - - - - - - - - -
@@ -94,14 +94,14 @@ hits_ratio = (src_stats[:hits_per_line].to_f / test_stats[:hits_per_line].to_f)
 
 table =
   [
-    [ 'failures',               failure_count,      '==',   0 ],
-    [ 'errors',                 error_count,        '==',   0 ],
-    [ 'skips',                  skip_count,         '==',   0 ],
-    [ 'duration(test)[s]',      test_duration,      '<=',  40 ],
-    [ 'coverage(src)[%]',       src_coverage,       '==', 100 ],
-    [ 'coverage(test)[%]',      test_coverage,      '==', 100 ],
-    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=', 4.4 ],
-    [ 'hits(src)/hits(test)',   f2(hits_ratio),     '>=', 1.5 ],
+    [ 'failures',               failure_count,      '==',    0 ],
+    [ 'errors',                 error_count,        '==',    0 ],
+    [ 'skips',                  skip_count,         '==',    0 ],
+    [ 'duration(test)[s]',      test_duration,      '<=',  120 ],
+    [ 'coverage(src)[%]',       src_coverage,       '==',  100 ],
+    [ 'coverage(test)[%]',      test_coverage,      '==',  100 ],
+    [ 'lines(test)/lines(src)', f2(line_ratio),     '>=',  2.8 ],
+    [ 'hits(src)/hits(test)',   f2(hits_ratio),     '>=',   20 ],
   ]
 
 # - - - - - - - - - - - - - - - - - - - - - - -

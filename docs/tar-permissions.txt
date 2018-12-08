@@ -1,0 +1,35 @@
+
+
+I've been looking at
+https://serverfault.com/questions/877254/tar-does-not-retain-directory-permissions
+
+And trying to create the tar file (in /tmp on the host) using this command.
+This sends an explicit list of what to tar to the tar command.
+This list includes names of dirs...
+
+  cd /tmp
+  tar -zxf all.tar --numeric-owner --owner=65534 --group=65534
+
+But...
+  tar -tvf all.tar
+Gives...
+  -rw-r--r-- root/root         4 2018-11-14 12:50 hello.txt
+  drwxr-xr-x root/root         0 2018-11-14 12:58 d1/
+  -rw-r--r-- root/root         4 2018-11-14 12:58 d1/world.txt
+
+indicates the tar is holding the permissions itself.
+Which of course, it must!
+
+  cd dir-in-question
+  chown -R 65534:65534 .
+  find . | sed 's|^\./||' | tail -n +2 | tar -zcf - --no-recursion -T - > /tmp/all.tar
+  tar -tvf /tmp.all.tar
+
+  -rw-r--r-- nobody/nobody     4 2018-11-14 12:50 hello.txt
+  drwxr-xr-x nobody/nobody     0 2018-11-14 12:58 d1/
+  -rw-r--r-- nobody/nobody     4 2018-11-14 12:58 d1/world.txt
+
+More promising...
+  tar -zxf all.tar
+
+Yes.

@@ -22,7 +22,7 @@ services:
 
   runner-stateless:
     build:
-      context: server
+      context: .
       args:
         - SHA
     user: root
