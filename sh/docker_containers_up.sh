@@ -2,7 +2,7 @@
 set -e
 
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
-readonly MY_NAME="${ROOT_DIR##*/}"
+readonly MY_NAME=runner-stateless
 
 # - - - - - - - - - - - - - - - - - - - -
 
