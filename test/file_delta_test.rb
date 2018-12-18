@@ -1,4 +1,4 @@
-require_relative '../../src/file_delta'
+require_relative '../src/file_delta'
 require_relative 'test_base'
 
 class FileDeltaTest < TestBase

@@ -19,7 +19,7 @@ run_server_tests()
     --env root \
     --env COVERAGE_ROOT=${COVERAGE_ROOT} \
     "${SERVER_CID}" \
-      sh -c "cd /app/test && ./run.sh ${*}"
+      sh -c "/app/test/util/run.sh ${*}"
 
   server_status=$?
 
@@ -42,7 +42,7 @@ run_client_tests()
     --user nobody \
     --env COVERAGE_ROOT=${COVERAGE_ROOT} \
     "${CLIENT_CID}" \
-      sh -c "cd /app/test && ./run.sh ${*}"
+      sh -c "/app/test/util/run.sh ${*}"
 
   client_status=$?
 
@@ -59,6 +59,7 @@ run_client_tests()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# TODO: this should go into .travis.yml
 if [ ! -z "${TRAVIS}" ]; then
   # on Travis - pull images used by tests
   docker pull cyberdojofoundation/gcc_assert

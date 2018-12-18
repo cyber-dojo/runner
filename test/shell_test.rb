@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative '../../src/shell'
+require_relative '../src/shell'
 
 class ShellTest < TestBase
 

@@ -1,5 +1,5 @@
 require_relative 'hex_mini_test'
-require_relative '../../src/runner_service'
+require_relative '../src/runner_service'
 require 'json'
 
 class TestBase < HexMiniTest

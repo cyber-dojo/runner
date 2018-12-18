@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative '../../src/rag_lambda_cache'
+require_relative '../src/rag_lambda_cache'
 
 class RagLambdaCacheTest < TestBase
 

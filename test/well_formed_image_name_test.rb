@@ -1,6 +1,6 @@
 require_relative 'test_base'
 require_relative 'malformed_data'
-require_relative '../../src/well_formed_image_name'
+require_relative '../src/well_formed_image_name'
 
 class WellFormedImageNameTest < TestBase
 

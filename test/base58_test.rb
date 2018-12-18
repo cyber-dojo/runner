@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative '../../src/base58'
+require_relative '../src/base58'
 
 class Base58Test < TestBase
 

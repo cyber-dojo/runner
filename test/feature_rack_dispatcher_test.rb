@@ -1,4 +1,4 @@
-require_relative '../../src/rack_dispatcher'
+require_relative '../src/rack_dispatcher'
 require_relative 'bash_stub_raiser'
 require_relative 'bash_stub_tar_pipe_out'
 require_relative 'malformed_data'

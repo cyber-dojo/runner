@@ -1,7 +1,7 @@
 require_relative 'hex_mini_test'
-require_relative '../../src/external'
-require_relative '../../src/rag_lambda_cache'
-require_relative '../../src/runner'
+require_relative '../src/external'
+require_relative '../src/rag_lambda_cache'
+require_relative '../src/runner'
 
 class TestBase < HexMiniTest
 
