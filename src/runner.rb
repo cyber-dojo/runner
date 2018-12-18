@@ -13,7 +13,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def sha
-    IO.read('/app/sha.txt').strip
+    ENV['SHA']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
