@@ -23,8 +23,6 @@ services:
   runner-stateless:
     build:
       context: .
-      args:
-        - SHA
     user: root
     image: cyberdojo/runner-stateless
     init: true

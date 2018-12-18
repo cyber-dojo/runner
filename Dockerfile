@@ -1,11 +1,5 @@
-FROM  cyberdojo/docker-base
+FROM cyberdojo/docker-base
 LABEL maintainer=jon@jaggersoft.com
-
-ARG HOME=/app
-COPY . ${HOME}
-
-ARG SHA
-RUN echo ${SHA} > ${HOME}/sha.txt
-
+COPY . /app
 EXPOSE 4597
 CMD [ "./up.sh" ]
