@@ -1,7 +1,8 @@
 FROM cyberdojo/docker-base
 LABEL maintainer=jon@jaggersoft.com
 
-COPY . /app
+WORKDIR /app
+COPY . .
 
 ARG SHA
 ENV SHA=${SHA}
