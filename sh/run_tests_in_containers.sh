@@ -59,18 +59,6 @@ run_client_tests()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# TODO: this should go into .travis.yml
-if [ ! -z "${TRAVIS}" ]; then
-  # on Travis - pull images used by tests
-  docker pull cyberdojofoundation/gcc_assert
-  docker pull cyberdojofoundation/csharp_nunit
-  docker pull cyberdojofoundation/python_pytest
-  docker pull cyberdojofoundation/clang_assert
-  docker pull cyberdojofoundation/perl_test_simple
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 if [ "$1" = "server" ]; then
   shift
   run_server_tests "$@"
