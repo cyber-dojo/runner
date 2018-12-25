@@ -14,6 +14,12 @@ jobs:
           command: |
             set -e
             echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+            # prepull images to mitigate pulls in speed tests
+            docker pull cyberdojofoundation/gcc_assert
+            docker pull cyberdojofoundation/csharp_nunit
+            docker pull cyberdojofoundation/python_pytest
+            docker pull cyberdojofoundation/clang_assert
+            docker pull cyberdojofoundation/perl_test_simple
             ./pipe_build_up_test.sh
             readonly project=${CIRCLE_PROJECT_REPONAME}
             docker tag  cyberdojo/${project}:latest cyberdojo/${project}:${CIRCLE_SHA1:0:7}
