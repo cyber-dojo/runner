@@ -29,6 +29,8 @@ services:
     image: cyberdojo/runner-stateless
     init: true
     container_name: test-runner-stateless-server
+    ports:
+      - 4597:4597
     read_only: true
     tmpfs: /tmp
     restart: 'no'
