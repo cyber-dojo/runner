@@ -13,7 +13,8 @@ wait_until_ready()
     cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
   fi
   echo -n "Waiting until ${name} is ready"
-  while [ $(( max_tries -= 1 )) -ge 0 ] ; do
+  for _ in $(seq ${max_tries})
+  do
     echo -n '.'
     if eval ${cmd} ; then
       echo 'OK'
