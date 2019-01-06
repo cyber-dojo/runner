@@ -11,3 +11,7 @@
 
 !config.ru
 !up.sh
+
+#----- but do ignore...
+
+test/start_files
