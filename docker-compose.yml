@@ -5,7 +5,7 @@ services:
 
   runner-stateless-client:
     build:
-      context: client
+      context: test_client
     user: nobody
     image: cyberdojo/runner-stateless-client
     init: true
@@ -35,7 +35,7 @@ services:
     tmpfs: /tmp
     restart: 'no'
     volumes:
-      - ./test/start_files:/app/test/start_files:ro
+      - ./test_server:/app/test:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TRAVIS
