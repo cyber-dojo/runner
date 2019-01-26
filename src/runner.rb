@@ -388,7 +388,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name
-    [ 'test_run__runner_stateless', id ].join('_')
+    [ 'test_run__runner', id ].join('_')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -422,7 +422,6 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('RUNNER',     'stateless'),
       env_var('SANDBOX',    sandbox_dir)
     ].join(space)
   end

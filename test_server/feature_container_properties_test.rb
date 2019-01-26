@@ -48,7 +48,6 @@ class ContainerPropertiesTest < TestBase
   def assert_env_vars_exist
     assert_equal  image_name, env_var('IMAGE_NAME')
     assert_equal          id, env_var('ID')
-    assert_equal 'stateless', env_var('RUNNER')
     assert_equal sandbox_dir, env_var('SANDBOX')
   end
 
