@@ -10,7 +10,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: build docker image and push to docker hub
+          name: build docker image
           command: |
             set -ev
             # prepull images to avoid doing pulls in speed tests
@@ -21,7 +21,7 @@ jobs:
             docker pull cyberdojofoundation/perl_test_simple
             ./pipe_build_up_test.sh
       - run:
-          name: publish tagged docker image to dockerhub
+          name: publish tagged docker image on dockerhub
           command: |
             set -ev
             readonly project=${CIRCLE_PROJECT_REPONAME}
