@@ -24,6 +24,7 @@ class ContainerPropertiesTest < TestBase
 
   private # = = = = = = = = = = = = = = = = = = = = = =
 
+=begin
   def assert_pid_1_is_running_init_process
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd)
@@ -31,6 +32,7 @@ class ContainerPropertiesTest < TestBase
     expected = '/dev/init' + 0.chr + '--'
     assert proc1.start_with?(expected), proc1
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
