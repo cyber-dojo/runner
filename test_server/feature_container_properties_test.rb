@@ -10,7 +10,7 @@ class ContainerPropertiesTest < TestBase
 
   multi_os_test '8A3',
   'container environment properties' do
-    assert_pid_1_is_running_init_process
+    #assert_pid_1_is_running_init_process
     assert_cyber_dojo_runs_in_bash
     assert_time_stamp_microseconds_granularity
     assert_env_vars_exist

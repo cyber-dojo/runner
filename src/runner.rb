@@ -398,7 +398,6 @@ class Runner
     options = <<~SHELL.strip
       --detach                  `# later docker exec` \
       #{env_vars}                                     \
-      --init                    `# pid-1 process`     \
       --name=#{container_name}  `# easy cleanup`      \
       #{limits}                                       \
       --user=#{uid}:#{gid}
