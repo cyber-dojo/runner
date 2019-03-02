@@ -21,13 +21,13 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    Dir.mktmpdir do |src_tmp_dir|
+    Dir.mktmpdir(nil, '/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
         set_colour
-        Dir.mktmpdir do |dst_tmp_dir|
+        Dir.mktmpdir(nil, '/tmp') do |dst_tmp_dir|
           status = tar_pipe_out(dst_tmp_dir)
           if status == 0
             now_files = read_files(dst_tmp_dir + sandbox_dir)
