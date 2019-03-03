@@ -21,25 +21,25 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    # Readonly file-system so make Dir.mktmpdir is off /tmp
+    # Readonly file-system; ensure Dir.mktmpdir is off /tmp
     # Dir.mktmpdir docs says 1st argument (prefix) must be
-    # no-nil to use 2nd argument.
-    Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
-      write_files(src_tmp_dir, files)
-      in_container(max_seconds) {
-        tar_pipe_in(src_tmp_dir)
-        run_cyber_dojo_sh_timeout(max_seconds)
-        set_colour
-        Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
-          status = tar_pipe_out(dst_tmp_dir)
-          if status == 0
-            now_files = read_files(dst_tmp_dir + sandbox_dir)
-          else
-            now_files = {}
-          end
-          set_file_delta(files, now_files)
-        end
-      }
+    # non-nil to use 2nd argument.
+    # Use non-block form of Dir.mktmpdir for speed as it
+    # avoids the unneeded /tmp cleanup.
+    src_tmp_dir = Dir.mktmpdir(id, '/tmp')
+    write_files(src_tmp_dir, files)
+    in_container(max_seconds) do
+      tar_pipe_in(src_tmp_dir)
+      run_cyber_dojo_sh_timeout(max_seconds)
+      set_colour
+      dst_tmp_dir = Dir.mktmpdir(id, '/tmp')
+      status = tar_pipe_out(dst_tmp_dir)
+      if status == 0
+        now_files = read_files(dst_tmp_dir + sandbox_dir)
+      else
+        now_files = {}
+      end
+      set_file_delta(files, now_files)
     end
     {
        stdout: @stdout,
