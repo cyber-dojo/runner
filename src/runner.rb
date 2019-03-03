@@ -205,8 +205,8 @@ class Runner
   def tar_pipe_in(tmp_dir)
     # tar-piping text files from /tmp on host into container
     #
-    # In a stateless runner _all_ files are sent from the
-    # browser, and cyber-dojo.sh cannot be deleted so there
+    # All files are sent from the browser, and
+    # cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
     #
     # [1] root user is required so that file ownership and
