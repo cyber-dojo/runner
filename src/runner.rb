@@ -21,14 +21,7 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    # On a Mac+minikube this Dir.mktmpdir is failing
-    # because it tries to write to /app rather than /tmp
-    # Changing it to Dir.mktmpdir(nil,'/tmp') gets it to
-    # try /tmp but then I get a failure on prod saying
-    # /tmp/... is world writable but not sticky.
-    # I think this is due to recent tmp-dir changes
-    # in runner-deployment.yaml
-    # For now I'm putting it back to plain Dir.mktmpdir
+    # Readonly file-system so make Dir.mktmpdir is off /tmp
     Dir.mktmpdir(nil,'/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       in_container(max_seconds) {
