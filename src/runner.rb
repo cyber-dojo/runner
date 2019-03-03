@@ -1,5 +1,6 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
+require 'securerandom'
 require 'find'
 require 'timeout'
 
@@ -21,6 +22,13 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
+    # We do [docker run --rm --detach] so the docker daemon
+    # does the [docker rm]. This means the container-name
+    # must be unique. If the container name is based on just
+    # the id then a 2nd run started within max_seconds of the
+    # previous run (with the same id) would fail.
+    # Happens a lot in tests.
+    @container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
     # Readonly file-system; ensure Dir.mktmpdir is off /tmp
     # Dir.mktmpdir docs says 1st argument (prefix) must be
     # non-nil to use 2nd argument.
@@ -28,19 +36,18 @@ class Runner
     # avoids the unneeded /tmp cleanup.
     src_tmp_dir = Dir.mktmpdir(id, '/tmp')
     write_files(src_tmp_dir, files)
-    in_container(max_seconds) do
-      tar_pipe_in(src_tmp_dir)
-      run_cyber_dojo_sh_timeout(max_seconds)
-      set_colour
-      dst_tmp_dir = Dir.mktmpdir(id, '/tmp')
-      status = tar_pipe_out(dst_tmp_dir)
-      if status == 0
-        now_files = read_files(dst_tmp_dir + sandbox_dir)
-      else
-        now_files = {}
-      end
-      set_file_delta(files, now_files)
+    create_container(max_seconds)
+    tar_pipe_in(src_tmp_dir)
+    run_cyber_dojo_sh_timeout(max_seconds)
+    set_colour
+    dst_tmp_dir = Dir.mktmpdir(id, '/tmp')
+    status = tar_pipe_out(dst_tmp_dir)
+    if status == 0
+      now_files = read_files(dst_tmp_dir + sandbox_dir)
+    else
+      now_files = {}
     end
+    set_file_delta(files, now_files)
     {
        stdout: @stdout,
        stderr: @stderr,
@@ -56,14 +63,7 @@ class Runner
 
   include StringCleaner
 
-  attr_reader :image_name
-
-  def id
-    # Already checked to be a Base58.string
-    # which means it can safely form a docker
-    # container name.
-    @id
-  end
+  attr_reader :image_name, :id, :container_name
 
   def write_files(tmp_dir, files)
     # write files to /tmp on host
@@ -155,12 +155,11 @@ class Runner
     # The [docker exec] running on the _host_ is
     # killed by Process.kill. This does _not_ kill
     # the cyber-dojo.sh running _inside_ the docker
-    # container. The container is killed in the ensure
-    # block of in_container()
-    # See https://github.com/docker/docker/issues/9098
+    # container. The container is killed by the
+    # docker daemon via [docker run --rm]
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-    pid = Process.spawn(cyber_dojo_sh_cmd, {
+    pid = Process.spawn(exec_cyber_dojo_sh_cmd, {
       pgroup:true,     # become process leader
          out:w_stdout, # redirection
          err:w_stderr  # redirection
@@ -188,7 +187,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cyber_dojo_sh_cmd
+  def exec_cyber_dojo_sh_cmd
     <<~SHELL.strip
       docker exec            `# into docker container` \
         --user=#{uid}:#{gid}                           \
@@ -361,20 +360,6 @@ class Runner
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def in_container(max_seconds)
-    create_container(max_seconds)
-    begin
-      yield
-    ensure
-      # Doing [docker run --rm --detach] break 2nd test
-      # within max_seconds of the 1st container starting
-      # (with the same id). Happens a lot in tests.
-      remove_container
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def create_container(max_seconds)
     docker_run = [
       'docker run',
@@ -387,21 +372,10 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def remove_container
-    shell.assert("docker rm --force #{container_name}")
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_name
-    [ 'test_run__runner', id ].join('_')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def docker_run_options
     # (for create_container)
     options = <<~SHELL.strip
+      --rm                      `# auto rm on exit`   \
       --detach                  `# later docker exec` \
       #{env_vars}                                     \
       --init                    `# pid-1 process`     \
