@@ -366,6 +366,9 @@ class Runner
     begin
       yield
     ensure
+      # Doing [docker run --rm --detach] break 2nd test
+      # within max_seconds of the 1st container starting
+      # (with the same id). Happens a lot in tests.
       remove_container
     end
   end
