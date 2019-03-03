@@ -22,13 +22,15 @@ class Runner
     @image_name = image_name
     @id = id
     # Readonly file-system so make Dir.mktmpdir is off /tmp
-    Dir.mktmpdir(nil,'/tmp') do |src_tmp_dir|
+    # Dir.mktmpdir docs says 1st argument (prefix) must be
+    # no-nil to use 2nd argument.
+    Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
         set_colour
-        Dir.mktmpdir(nil,'/tmp') do |dst_tmp_dir|
+        Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
           status = tar_pipe_out(dst_tmp_dir)
           if status == 0
             now_files = read_files(dst_tmp_dir + sandbox_dir)
