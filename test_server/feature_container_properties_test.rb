@@ -10,7 +10,7 @@ class ContainerPropertiesTest < TestBase
 
   multi_os_test '8A3',
   'container environment properties' do
-    #assert_pid_1_is_running_init_process
+    assert_pid_1_is_running_init_process
     assert_cyber_dojo_runs_in_bash
     assert_time_stamp_microseconds_granularity
     assert_env_vars_exist
@@ -24,7 +24,6 @@ class ContainerPropertiesTest < TestBase
 
   private # = = = = = = = = = = = = = = = = = = = = = =
 
-=begin
   def assert_pid_1_is_running_init_process
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd)
@@ -32,7 +31,6 @@ class ContainerPropertiesTest < TestBase
     expected = '/dev/init' + 0.chr + '--'
     assert proc1.start_with?(expected), proc1
   end
-=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
