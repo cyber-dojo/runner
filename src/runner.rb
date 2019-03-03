@@ -29,13 +29,13 @@ class Runner
     # I think this is due to recent tmp-dir changes
     # in runner-deployment.yaml
     # For now I'm putting it back to plain Dir.mktmpdir
-    Dir.mktmpdir do |src_tmp_dir|
+    Dir.mktmpdir(nil,'/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       in_container(max_seconds) {
         tar_pipe_in(src_tmp_dir)
         run_cyber_dojo_sh_timeout(max_seconds)
         set_colour
-        Dir.mktmpdir do |dst_tmp_dir|
+        Dir.mktmpdir(nil,'/tmp') do |dst_tmp_dir|
           status = tar_pipe_out(dst_tmp_dir)
           if status == 0
             now_files = read_files(dst_tmp_dir + sandbox_dir)
