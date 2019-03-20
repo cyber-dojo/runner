@@ -19,6 +19,10 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def ready?
+    runner.ready?
+  end
+
   def sha
     runner.sha
   end

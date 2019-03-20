@@ -18,9 +18,9 @@ class RackDispatcher # stateless
     body = request.body.read
     name, args = name_args(path, body)
     result = runner.public_send(name, *args)
-    json_response(200, plain({ name => result }))
+    json_response(200, json_plain({ name => result }))
   rescue => error
-    diagnostic = pretty({
+    diagnostic = json_pretty({
       'exception' => {
         'path' => path,
         'body' => body,
@@ -41,15 +41,25 @@ class RackDispatcher # stateless
   def name_args(name, body)
     well_formed_args(body)
     args = case name
+      when /^ready?$/            then []
       when /^sha$/               then []
       when /^run_cyber_dojo_sh$/ then [image_name, id, files, max_seconds]
       else
         raise ClientError, 'json:malformed'
     end
+    name += '?' if query?(name)
     [name, args]
   end
 
   # - - - - - - - - - - - - - - - -
+
+  def json_plain(body)
+    JSON.generate(body)
+  end
+
+  def json_pretty(body)
+    JSON.pretty_generate(body)
+  end
 
   def json_response(status, body)
     [ status,
@@ -58,13 +68,13 @@ class RackDispatcher # stateless
     ]
   end
 
-  def plain(body)
-    JSON.generate(body)
+  # - - - - - - - - - - - - - - - -
+
+  def query?(name)
+    ['ready'].include?(name)
   end
 
-  def pretty(body)
-    JSON.pretty_generate(body)
-  end
+  # - - - - - - - - - - - - - - - -
 
   def code(error)
     if error.is_a?(ClientError)

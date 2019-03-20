@@ -18,6 +18,19 @@ API:
 
 - - - -
 
+## GET ready?()
+- parameters, none
+```
+  {}
+```
+- returns true if the service is ready, otherwise false, eg
+```
+  { "ready?": true }
+  { "ready?": false }
+```
+
+- - - -
+
 ## GET sha
 Returns the git commit sha used to create the docker image.
 - parameters, none
