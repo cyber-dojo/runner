@@ -41,7 +41,7 @@ class RackDispatcher # stateless
   def name_args(name, body)
     well_formed_args(body)
     args = case name
-      when /^ready?$/            then []
+      when /^ready$/             then []
       when /^sha$/               then []
       when /^run_cyber_dojo_sh$/ then [image_name, id, files, max_seconds]
       else

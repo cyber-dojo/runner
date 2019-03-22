@@ -85,6 +85,21 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # ready?
+  # - - - - - - - - - - - - - - - - -
+
+  test 'A9E', 'its ready' do
+    path_info = 'ready'
+    env = { body:{}.to_json, path_info:path_info }
+    rack_call(env)
+    assert_200
+    assert_equal true, JSON.parse(@body)[path_info+'?']
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    assert_nothing_logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
   # sha
   # - - - - - - - - - - - - - - - - -
 
