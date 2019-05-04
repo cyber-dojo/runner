@@ -377,16 +377,15 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_options
-    # (for create_container)
     options = <<~SHELL.strip
-      --rm                      `# auto rm on exit`   \
-      --detach                  `# later docker exec` \
       #{env_vars}                                     \
+      #{tmp_fs_sandbox_dir}                           \
+      #{ulimits}                                      \
+      --detach                  `# later docker exec` \
       --init                    `# pid-1 process`     \
-      --name=#{container_name}  `# easy cleanup`      \
-      #{limits}                                       \
-      #{tmp_fs}                                       \
-      --user=#{uid}:#{gid}
+      --name=#{container_name}  `# later access`      \
+      --rm                      `# auto rm on exit`   \
+      --user=#{uid}:#{gid}      `# not root`
     SHELL
     if clang?
       # For the -fsanitize=address option.
@@ -403,7 +402,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tmp_fs
+  def tmp_fs_sandbox_dir
     # Note:1 the docker documention says --tmpfs is only available on
     # Docker for Linux. Empirically it works on DockerToolbox (Mac) too.
     # Note:2 Making the sandbox dir a tmpfs should improve speed.
@@ -437,7 +436,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def limits
+  def ulimits
     # There is no cpu-ulimit... a cpu-ulimit of 10
     # seconds could kill a container after only 5
     # seconds... The cpu-ulimit assumes one core.
