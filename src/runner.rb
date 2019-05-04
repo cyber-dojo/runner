@@ -407,13 +407,14 @@ class Runner
     # Note:1 the docker documention says --tmpfs is only available on
     # Docker for Linux. Empirically it works on DockerToolbox (Mac) too.
     # Note:2 Making the sandbox dir a tmpfs should improve speed.
-    # Note:3 temp-fs's are setup as secure mountpoints.
+    # Note:3 tmp-fs's are setup as secure mountpoints.
     # If you use only '--tmpfs #{sandboxdir}'
     # then a [cat /etc/mtab] will reveal something like
     # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
-    # and the noexec will prevent a binary (eg in a C/C++ kata) or a
-    # script (eg in a bash-bats kata) from running.
+    # and the noexec will prevent a binary or a script from running.
     # So set exec to make binaries and scripts executable.
+    # Note:4 Also set ownership as default permission on docker is 755.
+    # Note:5 Also limit size of tmp-fs
     "--tmpfs #{sandbox_dir}:exec,size=50M,uid=#{uid},gid=#{gid}"
   end
 
