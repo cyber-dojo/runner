@@ -39,8 +39,8 @@ class Runner
     Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       create_container(max_seconds)
-      shell.assert(tar_pipe_in_cmd(src_tmp_dir))
-      run_timeout(exec_cyber_dojo_sh_cmd, max_seconds)
+      cmd = tar_pipe_in_and_run_cyber_dojo_sh_cmd(src_tmp_dir)
+      run_timeout(cmd, max_seconds)
       set_colour
       Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
         status = tar_pipe_out(dst_tmp_dir)
@@ -178,24 +178,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_cyber_dojo_sh_cmd
-    <<~SHELL.strip
-      docker exec            `# into docker container` \
-        --user=#{uid}:#{gid}                           \
-        --interactive                                  \
-        #{container_name}                              \
-        sh -c                                          \
-          '                  `# open quote`            \
-          cd #{sandbox_dir}                            \
-          &&                                           \
-          bash ./cyber-dojo.sh                         \
-          '                  `# close quote`
-    SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def tar_pipe_in_cmd(tmp_dir)
+  def tar_pipe_in_and_run_cyber_dojo_sh_cmd(tmp_dir)
     # tar-pipe text files from /tmp on host to /sandbox in container
     #
     # All files are sent from the browser, and
@@ -230,8 +213,8 @@ class Runner
            -                 `# from piped stdin`     \
       |                      `# pipe the tarfile`     \
         docker exec          `# into container`       \
-          --user=#{uid}:#{gid}                        \
           --interactive      `# we are piping`        \
+          --user=#{uid}:#{gid}                        \
           #{container_name}                           \
           sh -c                                       \
             '                `# open quote`           \
@@ -241,6 +224,10 @@ class Runner
               -              `# read from stdin`      \
               -C             `# save to the`          \
               /              `# root dir`             \
+            &&                                        \
+            cd #{sandbox_dir}                         \
+            &&                                        \
+            bash ./cyber-dojo.sh                      \
             '                `# close quote`
     SHELL
   end
