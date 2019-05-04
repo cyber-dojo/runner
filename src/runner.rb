@@ -71,9 +71,6 @@ class Runner
 
   def write_files(tmp_dir, files)
     # write files to /tmp on host
-    # The tar_pipe_in() method runs as root and so it
-    # will copy the file permissions and ownerships
-    # of files written to tmp_dir.
     commands = []
     tmp_dir += sandbox_dir
     setup_sandbox_in(tmp_dir)
@@ -85,14 +82,8 @@ class Runner
         shell.assert("mkdir -p #{src_dir}")
       end
       src_filename = tmp_dir + '/' + pathed_filename
-      # create file
       disk.write(src_filename, content)
-      # ensure its permission is set
-      commands << "chmod 644 #{src_filename}"
     end
-    # set ownership of all dirs/files
-    commands << "chown -R #{uid}:#{gid} #{tmp_dir}"
-    shell.assert(commands.join(' && '))
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -209,16 +200,13 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_in(tmp_dir)
-    # tar-piping text files from /tmp on host into container
+    # tar-pipe text files from /tmp on host to /sandbox in container
     #
     # All files are sent from the browser, and
     # cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
     #
-    # [1] root user is required so that file ownership and
-    # permissions from write_files() are copied into the container.
-    #
-    # [2] is for file-stamp date-time granularity
+    # [1] is for file-stamp date-time granularity
     # This relates to the modification-date (stat %y).
     # The tar --touch option is not available in a default
     # Alpine container. To add it:
@@ -246,13 +234,13 @@ class Runner
            -                 `# from piped stdin`     \
       |                      `# pipe the tarfile`     \
         docker exec          `# into container`       \
-          --user=root        `# [1]`                  \
+          --user=#{uid}:#{gid}                        \
           --interactive      `# we are piping`        \
           #{container_name}                           \
           sh -c                                       \
             '                `# open quote`           \
             tar                                       \
-              --touch        `# [2]`                  \
+              --touch        `# [1]`                  \
               -zxf           `# extract tar file`     \
               -              `# read from stdin`      \
               -C             `# save to the`          \
@@ -265,7 +253,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out(tmp_dir)
-    # tar-piping text files from container to /tmp on host
+    # tar-pipe text files from /sandbox in container to /tmp on host
     #
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
