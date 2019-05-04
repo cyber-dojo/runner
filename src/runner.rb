@@ -385,6 +385,7 @@ class Runner
       --init                    `# pid-1 process`     \
       --name=#{container_name}  `# easy cleanup`      \
       #{limits}                                       \
+      #{tmp_fs}                                       \
       --user=#{uid}:#{gid}
     SHELL
     if clang?
@@ -398,6 +399,19 @@ class Runner
 
   def clang?
     image_name.start_with?('cyberdojofoundation/clang')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tmp_fs
+    # temp-fs's are setup as secure mountpoints.
+    # If you use only '--tmpfs #{sandboxdir}'
+    # then a [cat /etc/mtab] will reveal something like
+    # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
+    # and the noexec will prevent a binary (eg in a C/C++ kata) or a
+    # script (eg in a bash-bats kata) from running.
+    # So set exec to make binaries and scripts executable.
+    "--tmpfs #{sandbox_dir}:exec,size=50M,uid=#{uid},gid=#{gid}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

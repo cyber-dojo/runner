@@ -39,7 +39,7 @@ class SandboxRightsTest < TestBase
       changed: { 'cyber-dojo.sh' => file(stat_cmd) },
       created: { "#{sub_dir}/#{filename}" => file(content) }
     })
-    assert_stats(sub_dir, 'drwxr-xr-x', 4096)
+    assert_stats(sub_dir, 'drwxr-xr-x', 60)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
