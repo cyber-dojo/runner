@@ -471,6 +471,14 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # misc
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def space
+    ' '
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -484,10 +492,6 @@ class Runner
 
   def shell
     @external.shell
-  end
-
-  def space
-    ' '
   end
 
 end
