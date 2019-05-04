@@ -39,8 +39,8 @@ class Runner
     Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       create_container(max_seconds)
-      tar_pipe_in(src_tmp_dir)
-      run_cyber_dojo_sh_timeout(max_seconds)
+      shell.assert(tar_pipe_in_cmd(src_tmp_dir))
+      run_timeout(exec_cyber_dojo_sh_cmd, max_seconds)
       set_colour
       Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
         status = tar_pipe_out(dst_tmp_dir)
@@ -138,7 +138,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh_timeout(max_seconds)
+  def run_timeout(cmd, max_seconds)
     # The [docker exec] running on the _host_ is
     # killed by Process.kill. This does _not_ kill
     # the cyber-dojo.sh running _inside_ the docker
@@ -146,7 +146,7 @@ class Runner
     # docker daemon via [docker run --rm]
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-    pid = Process.spawn(exec_cyber_dojo_sh_cmd, {
+    pid = Process.spawn(cmd, {
       pgroup:true,     # become process leader
          out:w_stdout, # redirection
          err:w_stderr  # redirection
@@ -195,7 +195,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_in(tmp_dir)
+  def tar_pipe_in_cmd(tmp_dir)
     # tar-pipe text files from /tmp on host to /sandbox in container
     #
     # All files are sent from the browser, and
@@ -218,7 +218,7 @@ class Runner
     #    o) RUN_install_tar
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
-    docker_tar_pipe = <<~SHELL.strip
+    <<~SHELL.strip
       cd #{tmp_dir}                                   \
       &&                                              \
       find .                 `# list tmp-dir`         \
@@ -243,7 +243,6 @@ class Runner
               /              `# root dir`             \
             '                `# close quote`
     SHELL
-    shell.assert(docker_tar_pipe)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
