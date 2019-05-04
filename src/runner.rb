@@ -71,7 +71,6 @@ class Runner
 
   def write_files(tmp_dir, files)
     # write files to /tmp/.../sandbox on host
-    commands = []
     tmp_dir += sandbox_dir
     shell.assert("mkdir -p #{tmp_dir}")
     files.each do |pathed_filename, file|
