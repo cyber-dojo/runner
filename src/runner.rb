@@ -499,7 +499,7 @@ end
 # - - - - - - - - - - - - - - - - - - - - - - - -
 # The implementation of run cyber-dojo.sh is
 #   o) create copies of all files in /tmp on host
-#   o) one tar-pipe copies files from /tmp to the container
+#   o) one tar-pipe copies files from /tmp on hot to /sandbox in container
 #   o) run cyber-dojo.sh inside the container
 #   0) ...
 #
