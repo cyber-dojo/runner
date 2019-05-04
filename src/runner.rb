@@ -70,10 +70,10 @@ class Runner
   attr_reader :image_name, :id, :container_name
 
   def write_files(tmp_dir, files)
-    # write files to /tmp on host
+    # write files to /tmp/.../sandbox on host
     commands = []
     tmp_dir += sandbox_dir
-    setup_sandbox_in(tmp_dir)
+    shell.assert("mkdir -p #{tmp_dir}")
     files.each do |pathed_filename, file|
       content = file['content']
       sub_dir = File.dirname(pathed_filename)
@@ -87,14 +87,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def setup_sandbox_in(tmp_dir)
-    commands = [
-      "mkdir -p #{tmp_dir}",
-      "chmod 755 #{tmp_dir}"
-    ]
-    shell.assert(commands.join(' && '))
-  end
 
   def sandbox_dir
     '/sandbox'
