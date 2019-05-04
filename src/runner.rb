@@ -155,12 +155,12 @@ class Runner
       Timeout::timeout(max_seconds) do
         _, ps = Process.waitpid2(pid)
         @status = ps.exitstatus
-        @timed_out = (@status == 137) # 137 == killed
+        @timed_out = (@status == killed_status)
       end
     rescue Timeout::Error
-      Process.kill(-9, pid) # -ve means kill process-group
-      Process.detach(pid)   # prevent zombie-child but
-      @status = 137         # don't wait for detach status
+      Process.kill(-9, pid)   # -ve means kill process-group
+      Process.detach(pid)     # prevent zombie-child but
+      @status = killed_status # don't wait for detach status
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
@@ -170,6 +170,10 @@ class Runner
       r_stdout.close
       r_stderr.close
     end
+  end
+
+  def killed_status
+    137 # 128+9
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
