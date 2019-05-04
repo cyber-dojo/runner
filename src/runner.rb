@@ -404,7 +404,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tmp_fs
-    # temp-fs's are setup as secure mountpoints.
+    # Note:1 the docker documention says --tmpfs is only available on
+    # Docker for Linux. Empirically it works on DockerToolbox (Mac) too.
+    # Note:2 Making the sandbox dir a tmpfs should improve speed.
+    # Note:3 temp-fs's are setup as secure mountpoints.
     # If you use only '--tmpfs #{sandboxdir}'
     # then a [cat /etc/mtab] will reveal something like
     # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
