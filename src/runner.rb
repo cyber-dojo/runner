@@ -98,7 +98,6 @@ class Runner
   def read_files(tmp_dir)
     # read files from /tmp on host
     files = {}
-    shell.exec("mkdir -p #{tmp_dir}")
     Find.find(tmp_dir) do |pathed_filename|
       # eg pathed_filename =
       # '/tmp/.../features/shouty.feature
