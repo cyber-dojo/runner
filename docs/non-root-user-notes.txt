@@ -2,29 +2,7 @@
 Trying to use a non root user (called runner) when running the container...
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Problem 1. Need permission to chown files in /tmp
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-In runner.rb I chown files so I can control their ownership
-after they've been tar-piped into the, eg, java-junit container.
-I'm cheating here, by making the runner's uid:gid be the same
-as the uid:gid of the sandbox user inside the java-junit container.
-This approach won't work if I want to create readonly files
-since runner.rb would then need to set the uid:gid of the readony
-file to something other than its own uid:gid
-Of course, I could avoid that by tar-piping all the files in and
-then doing a [docker exec --user root] to chown the readonly files.
-
-RUN addgroup -g 51966 runner
-RUN adduser \
-  -G runner `# group`       \
-  -D        `# no password` \
-  -H        `# no home dir` \
-  -u 41966  `# user-id`     \
-  runner    `# user-name`
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Problem 2. Need permission to run /var/run/docker.sock
+Problem. Need permission to run /var/run/docker.sock
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 On DockerToolbox for Mac, on the default VM
@@ -43,27 +21,3 @@ of _multiple_ groups, each of which has the gid for
 docker on a particular OS
 
 RUN adduser runner users
-
-# ---------------------
-Notes
-# ---------------------
-At the moment the creation of the files in /tmp
-on the host also sets chown for those files.
-This means that when the files are untarred into
-the container they have the permissions set in the chown.
-In particular, the permission of any sub-dir is also set.
-
-However, you need to be root to do the chown.
-I'd like the _runner_ to execute as a non-root user.
-So I am investigating setting the permissions in the
-untar operation. Viz
-
-tar                                          \
-  --touch          `# [2]`                   \
-  --numeric-owner                            \
-  --owner=#{uid}                             \
-  --group=#{gid}                             \
-  -zxf             `# extract tar file`      \
-  -                `# read from stdin`       \
-  -C               `# save to the`           \
-  /
