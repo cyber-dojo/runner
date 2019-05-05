@@ -184,9 +184,9 @@ class Runner
     # tar-pipe text files from /tmp on host to /sandbox in container
     # and run /sandbox/cyber-dojo.sh
     #
-    # How to ensure /sandbox files have correct ownership?
-    # 1) untar as root; tar will try to match ownership of the source files.
-    # 2) untar as non-root; ownership based on the running user.
+    # [1] How to ensure /sandbox files have correct ownership?
+    # o) untar as root; tar will try to match ownership of the source files.
+    # o) untar as non-root; ownership based on the running user.
     # The latter is better:
     # o) it's faster - no need to set ownership on the source files.
     # o) it's safer - no need to run as root.
@@ -196,7 +196,7 @@ class Runner
     # cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
     #
-    # [1] is for file-stamp date-time granularity.
+    # [2] is for file-stamp date-time granularity.
     # This relates to the files modification-date (stat %y).
     # Without it the untarred files may all end up with the
     # same modification date and this can break some makefiles.
@@ -217,33 +217,38 @@ class Runner
     #    o) RUN_install_tar
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
+    #
+    # [3] Don't use --workdir as that requires API version 1.35 but
+    # CircleCI is currently using Docker Daemon API 1.32
+
     <<~SHELL.strip
       cd #{tmp_dir}                                   \
       &&                                              \
-      find .                 `# list tmp-dir`         \
-      | sed 's|^\./||'       `# cut leading slash`    \
-      | tail -n +2           `# ignore lone dot`      \
-      | tar -zcf             `# create tar file`      \
-           -                 `# write it to stdout`   \
-           -T                `# get names to extract` \
-           -                 `# from piped stdin`     \
-      |                      `# pipe the tarfile`     \
-        docker exec          `# into container`       \
-          --interactive      `# we are piping`        \
-          --user=#{uid}:#{gid}                        \
-          --workdir=#{sandbox_dir}                    \
+      find .                   `# list tmp-dir`       \
+      | sed 's|^\./||'         `# cut leading slash`  \
+      | tail -n +2             `# ignore lone dot`    \
+      | tar -zcf               `# create tar file`    \
+           -                   `# write it to stdout` \
+           -T                  `# get names`          \
+           -                   `# from piped stdin`   \
+      |                        `# pipe the tarfile`   \
+        docker exec            `# into container`     \
+          --interactive        `# we are piping`      \
+          --user=#{uid}:#{gid} `# [1]`                \
           #{container_name}                           \
           sh -c                                       \
-            '                `# open quote`           \
+            '                  `# open quote`         \
             tar                                       \
-              --touch        `# [1]`                  \
-              -zxf           `# extract tar file`     \
-              -              `# read from stdin`      \
-              -C             `# save to the`          \
-              /              `# root dir`             \
+              --touch          `# [2]`                \
+              -zxf             `# extract tar file`   \
+              -                `# read from stdin`    \
+              -C               `# save to the`        \
+              /                `# root dir`           \
+            &&                                        \
+            cd #{sandbox_dir}  `# [3]`                \
             &&                                        \
             bash ./cyber-dojo.sh                      \
-            '                `# close quote`
+            '                  `# close quote`
     SHELL
   end
 
