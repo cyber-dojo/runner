@@ -228,7 +228,7 @@ class Runner
       | tail -n +2             `# ignore lone dot`    \
       | tar -zcf               `# create tar file`    \
            -                   `# write it to stdout` \
-           -T                  `# get names`          \
+           -T                  `# get filenames`      \
            -                   `# from piped stdin`   \
       |                        `# pipe the tarfile`   \
         docker exec            `# into container`     \
