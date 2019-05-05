@@ -98,6 +98,7 @@ class Runner
   def read_files(tmp_dir)
     # read files from /tmp on host
     files = {}
+    shell.exec("mkdir -p #{tmp_dir}")
     Find.find(tmp_dir) do |pathed_filename|
       # eg pathed_filename =
       # '/tmp/.../features/shouty.feature
@@ -258,8 +259,6 @@ class Runner
     # pass it as an argument.
     tar_list = '/tmp/tar.list'
     docker_tar_pipe = <<~SHELL.strip
-      mkdir -p #{tmp_dir}                               \
-      &&                                                \
       docker exec                                       \
         --user=#{uid}:#{gid}                            \
         --env TAR_LIST=#{tar_list}                      \
