@@ -71,6 +71,7 @@ class Runner
 
   def write_files(tmp_dir, files)
     # write files to /tmp/.../sandbox on host
+    # ready to be tar-piped into container
     made_dirs = []
     tmp_dir += sandbox_dir
     files.each do |pathed_filename, file|
@@ -180,6 +181,7 @@ class Runner
 
   def tar_pipe_in_and_run_cyber_dojo_sh_cmd(tmp_dir)
     # tar-pipe text files from /tmp on host to /sandbox in container
+    # and run /sandbox/cyber-dojo.sh
     #
     # All files are sent from the browser, and
     # cyber-dojo.sh cannot be deleted so there
@@ -215,6 +217,7 @@ class Runner
         docker exec          `# into container`       \
           --interactive      `# we are piping`        \
           --user=#{uid}:#{gid}                        \
+          --workdir=#{sandbox_dir}                    \
           #{container_name}                           \
           sh -c                                       \
             '                `# open quote`           \
@@ -224,8 +227,6 @@ class Runner
               -              `# read from stdin`      \
               -C             `# save to the`          \
               /              `# root dir`             \
-            &&                                        \
-            cd #{sandbox_dir}                         \
             &&                                        \
             bash ./cyber-dojo.sh                      \
             '                `# close quote`
