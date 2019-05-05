@@ -258,6 +258,8 @@ class Runner
     # pass it as an argument.
     tar_list = '/tmp/tar.list'
     docker_tar_pipe = <<~SHELL.strip
+      mkdir -p #{tmp_dir}                               \
+      &&                                                \
       docker exec                                       \
         --user=#{uid}:#{gid}                            \
         --env TAR_LIST=#{tar_list}                      \
