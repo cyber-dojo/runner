@@ -39,8 +39,8 @@ class Runner
     Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
       write_files(src_tmp_dir, files)
       create_container(max_seconds)
-      cmd = tar_pipe_in_and_run_cyber_dojo_sh_cmd(src_tmp_dir)
-      run_timeout(cmd, max_seconds)
+      command = tar_pipe_in_and_run_cyber_dojo_sh_cmd(src_tmp_dir)
+      run_timeout(command, max_seconds)
       set_colour
       Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
         status = tar_pipe_out(dst_tmp_dir)
@@ -139,7 +139,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_timeout(cmd, max_seconds)
+  def run_timeout(command, max_seconds)
     # The [docker exec] running on the _host_ is
     # killed by Process.kill. This does _not_ kill
     # the cyber-dojo.sh running _inside_ the docker
@@ -147,7 +147,7 @@ class Runner
     # docker daemon via [docker run --rm]
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-    pid = Process.spawn(cmd, {
+    pid = Process.spawn(command, {
       pgroup:true,     # become process leader
          out:w_stdout, # redirection
          err:w_stderr  # redirection
