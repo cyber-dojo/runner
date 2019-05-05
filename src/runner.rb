@@ -399,7 +399,11 @@ class Runner
     # If you use only '--tmpfs #{sandboxdir}'
     # then a [cat /etc/mtab] will reveal something like
     # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
-    # and the noexec will prevent a binary or a script from running.
+    #   o) rw = Mount the filesystem read-write.
+    #   o) nosuid = Do not allow set-user-identifier or set-group-identifier bits to take effect.
+    #   o) nodev = Do not interpret character or block special devices.
+    #   o) noexec = Do not allow direct execution of any binaries.
+    #   o) relatime = Update inode access times relative to modify or change time.
     # So set exec to make binaries and scripts executable.
     # Note:4 Also set ownership as default permission on docker is 755.
     # Note:5 Also limit size of tmp-fs
