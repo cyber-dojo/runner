@@ -183,20 +183,33 @@ class Runner
     # tar-pipe text files from /tmp on host to /sandbox in container
     # and run /sandbox/cyber-dojo.sh
     #
+    # How to ensure /sandbox files have correct ownership?
+    # 1) untar as root; tar will try to match ownership of the source files.
+    # 2) untar as non-root; ownership based on the running user.
+    # The latter is better:
+    # o) it's faster - no need to set ownership on the source files.
+    # o) it's safer - no need to run as root.
+    # o) it's simpler - let the OS do it, not untar.
+    #
     # All files are sent from the browser, and
     # cyber-dojo.sh cannot be deleted so there
     # must be at least one file in tmp_dir.
     #
-    # [1] is for file-stamp date-time granularity
-    # This relates to the modification-date (stat %y).
+    # [1] is for file-stamp date-time granularity.
+    # This relates to the files modification-date (stat %y).
+    # Without it the untarred files may all end up with the
+    # same modification date and this can break some makefiles.
     # The tar --touch option is not available in a default
-    # Alpine container. To add it:
+    # Alpine container. To add it the image needs to run:
     #    $ apk add --update tar
-    # Also, in a default Alpine container the date-time
+    # Further, in a default Alpine container the date-time
     # file-stamps have a granularity of one second. In other
-    # words the microseconds value is always zero.
-    # To add microsecond granularity:
+    # words the microseconds value is always zero. Again, this
+    # can break some makefiles.
+    # To add microsecond granularity the image also needs to run:
     #    $ apk add --update coreutils
+    # Obviously, the image needs to have tar installed.
+    # These image requirements are satisified by the image_builder.
     # See the file builder/image_builder.rb on
     # https://github.com/cyber-dojo-languages/image_builder/blob/master/
     # In particular the methods
