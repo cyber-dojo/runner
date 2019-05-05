@@ -72,14 +72,15 @@ class Runner
   def write_files(tmp_dir, files)
     # write files to /tmp/.../sandbox on host
     # ready to be tar-piped into container
+    made_dirs = []
     tmp_dir += sandbox_dir
-    shell.assert("mkdir -p #{tmp_dir}")
     files.each do |pathed_filename, file|
       content = file['content']
       sub_dir = File.dirname(pathed_filename)
-      unless sub_dir == '.'
-        src_dir = tmp_dir + '/' + sub_dir
+      src_dir = tmp_dir + '/' + sub_dir
+      unless made_dirs.include?(src_dir)
         shell.assert("mkdir -p #{src_dir}")
+        made_dirs << src_dir
       end
       src_filename = tmp_dir + '/' + pathed_filename
       disk.write(src_filename, content)
