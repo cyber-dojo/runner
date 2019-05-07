@@ -32,12 +32,11 @@ API:
 - - - -
 
 ## GET sha
-Returns the git commit sha used to create the docker image.
 - parameters, none
 ```
   {}
 ```
-- returns the sha, eg
+- returns the git commit sha used to create the docker image, eg
 ```
   { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
 ```
@@ -47,6 +46,7 @@ Returns the git commit sha used to create the docker image.
 # POST run_cyber_dojo_sh
 Creates a container from image_name,
 saves the files into it, and runs cyber-dojo.sh
+for at most max_seconds.
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
