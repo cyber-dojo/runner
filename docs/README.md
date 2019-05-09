@@ -18,7 +18,7 @@ API:
 
 - - - -
 
-## GET ready?()
+## GET ready?
 - parameters, none
 ```
   {}
