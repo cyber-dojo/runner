@@ -52,9 +52,9 @@ for at most max_seconds.
   {        "image_name": "cyberdojofoundation/gcc_assert",
                    "id": "15B9zD",
           "max_seconds": 10,
-                "files": { "cyber-dojo.sh" => "make",
-                           "fizz_buzz.c" => "#include...",
-                           "fizz_buzz.h" => "#ifndef FIZZ_BUZZ_INCLUDED...",
+                "files": { "cyber-dojo.sh": "make",
+                             "fizz_buzz.c": "#include...",
+                             "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
                            ...
                          }
   }
@@ -70,12 +70,12 @@ eg
 ```
     { "run_cyber_dojo_sh": {
         "stdout": {
-          "content" => "makefile:17: recipe for target 'test' failed\n",
-          "truncated" => false
+            "content": "makefile:17: recipe for target 'test' failed\n",
+          "truncated": false
         },
         "stderr": {
-          "content" => "invalid suffix sss on integer constant",
-          "truncated" => false
+            "content": "invalid suffix sss on integer constant",
+          "truncated": false
         },
          "status": 2,
          "colour": "amber",
@@ -89,12 +89,12 @@ eg
 ```
     { "run_cyber_dojo_sh": {
         "stdout": {
-          "content" => "",
-          "truncated" => false
+            "content": "",
+          "truncated": false
         },
         "stderr": {
-          "content" => "",
-          "truncated" => false
+            "content": "",
+          "truncated": false
         },
          "status": 137,
           "colour: "timed_out",
