@@ -3,6 +3,15 @@ Idea is to create tar.gz file in memory and save that directly
 to /tmp on the host and then simply cat the tar.gz file into
 the docker exec.
 
+This should mean the filenames can be created with their
+correct name directly (/sandbox/...) and not off tmp
+
+The name of the created tar file needs to be unique to the specific
+run invocation as it runs on the runner service.
+
+The tar file created needs to be disposed of somehow or /tmp on
+the host will fill up.
+
 .........................
 
 require ‘archive/tar/minitar’
