@@ -88,7 +88,7 @@ class ContainerPropertiesTest < TestBase
     refute_equal '', assert_cyber_dojo_sh("ls -A #{sandbox_dir}")
     assert_equal     uid.to_s, stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
     assert_equal     gid.to_s, stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
-    assert_equal 'drwxr-xr-t', stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
+    assert_equal 'drwxrwxrwt', stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

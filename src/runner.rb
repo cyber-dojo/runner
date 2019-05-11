@@ -1,7 +1,8 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
-require 'securerandom'
 require 'find'
+require 'gzipped_tar'
+require 'securerandom'
 require 'timeout'
 
 class Runner
@@ -37,15 +38,14 @@ class Runner
     # Dir.mktmpdir docs says 1st argument (prefix) must be
     # non-nil to use 2nd argument.
     Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
-      write_files(src_tmp_dir, files)
+      write_tarfile(src_tmp_dir, files)
       create_container(max_seconds)
-      command = tar_pipe_in_and_run_cyber_dojo_sh_cmd(src_tmp_dir)
-      run_timeout(command, max_seconds)
+      run_timeout(run_cyber_dojo_sh_cmd(src_tmp_dir), max_seconds)
       set_colour
       Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
         status = tar_pipe_out(dst_tmp_dir)
         if status == 0
-          now_files = read_files(dst_tmp_dir + sandbox_dir)
+          now_files = read_files(dst_tmp_dir + '/' + sandbox_dir)
         else
           now_files = {}
         end
@@ -69,28 +69,24 @@ class Runner
 
   attr_reader :image_name, :id, :container_name
 
-  def write_files(tmp_dir, files)
-    # write files to /tmp/.../sandbox on host
-    # ready to be tar-piped into container
-    made_dirs = []
-    tmp_dir += sandbox_dir
+  def write_tarfile(tmp_dir, files)
+    # write files to tar.gz file in tmp_dir on
+    # host ready to be tar-piped into container
+    writer = GZippedTar::Writer.new
     files.each do |pathed_filename, file|
-      content = file['content']
-      sub_dir = File.dirname(pathed_filename)
-      src_dir = tmp_dir + '/' + sub_dir
-      unless made_dirs.include?(src_dir)
-        shell.assert("mkdir -p #{src_dir}")
-        made_dirs << src_dir
-      end
-      src_filename = tmp_dir + '/' + pathed_filename
-      disk.write(src_filename, content)
+      writer.add(sandbox_dir + '/' + pathed_filename, file['content'])
     end
+    disk.write(tmp_dir + '/' + tarfile_name, writer.output)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def sandbox_dir
-    '/sandbox'
+    'sandbox'
+  end
+
+  def tarfile_name
+    'sandbox.tar.gz'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -179,17 +175,17 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_in_and_run_cyber_dojo_sh_cmd(tmp_dir)
-    # tar-pipe text files from /tmp on host to /sandbox in container
-    # and run /sandbox/cyber-dojo.sh
+  def run_cyber_dojo_sh_cmd(tmp_dir)
+    # tar-pipe previously created tar.gz file in tmp_dir on host
+    # to /sandbox in container and run /sandbox/cyber-dojo.sh
     #
-    # [1] How to ensure /sandbox files have correct ownership?
+    # [1] Ways to ensure /sandbox files have correct ownership...
     # o) untar as root; tar will try to match ownership of the source files.
     # o) untar as non-root; ownership based on the running user.
     # The latter is better:
     # o) it's faster - no need to set ownership on the source files.
     # o) it's safer - no need to run as root.
-    # o) it's simpler - let the OS do it, not untar.
+    # o) it's simpler - let the OS do it, not the tar -x
     #
     # All files are sent from the browser, and
     # cyber-dojo.sh cannot be deleted so there
@@ -217,36 +213,26 @@ class Runner
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
     #
-    # [3] Don't use --workdir as that requires API version 1.35 but
-    # CircleCI is currently using Docker Daemon API 1.32
-
+    # [3] Don't use docker exec --workdir as that requires API version
+    # 1.35 but CircleCI is currently using Docker Daemon API 1.32
     <<~SHELL.strip
-      cd #{tmp_dir}                                   \
-      &&                                              \
-      find .                   `# list tmp-dir`       \
-      | sed 's|^\./||'         `# cut leading slash`  \
-      | tail -n +2             `# ignore lone dot`    \
-      | tar -zcf               `# create tar file`    \
-           -                   `# write it to stdout` \
-           -T                  `# get filenames`      \
-           -                   `# from piped stdin`   \
-      |                        `# pipe the tarfile`   \
-        docker exec            `# into container`     \
-          --interactive        `# we are piping`      \
-          --user=#{uid}:#{gid} `# [1]`                \
-          #{container_name}                           \
-          sh -c                                       \
-            '                  `# open quote`         \
-            tar                                       \
-              --touch          `# [2]`                \
-              -zxf             `# extract tar file`   \
-              -                `# read from stdin`    \
-              -C               `# save to the`        \
-              /                `# root dir`           \
-            &&                                        \
-            cd #{sandbox_dir}  `# [3]`                \
-            &&                                        \
-            bash ./cyber-dojo.sh                      \
+      cat #{tmp_dir}/#{tarfile_name}                \
+      | docker exec                                 \
+          --interactive        `# we're piping`     \
+          --user=#{uid}:#{gid} `# [1]`              \
+          #{container_name}                         \
+          sh -c                                     \
+            '                  `# open quote`       \
+            tar                                     \
+              --touch          `# [2]`              \
+              -zxf             `# extract tar file` \
+              -                `# read from stdin`  \
+              -C               `# save to the`      \
+              /                `# root dir`         \
+            &&                                      \
+            cd /#{sandbox_dir} `# [3]`              \
+            &&                                      \
+            bash ./cyber-dojo.sh                    \
             '                  `# close quote`
     SHELL
   end
@@ -407,7 +393,7 @@ class Runner
     # So set exec to make binaries and scripts executable.
     # Note:4 Also set ownership as default permission on docker is 755.
     # Note:5 Also limit size of tmp-fs
-    "--tmpfs #{sandbox_dir}:exec,size=50M,uid=#{uid},gid=#{gid}"
+    "--tmpfs /#{sandbox_dir}:exec,size=50M,uid=#{uid},gid=#{gid}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -416,7 +402,7 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('SANDBOX',    sandbox_dir)
+      env_var('SANDBOX',    '/' + sandbox_dir)
     ].join(space)
   end
 

@@ -3,6 +3,8 @@ LABEL maintainer=jon@jaggersoft.com
 
 WORKDIR /app
 COPY . .
+RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
+  && bundle install
 
 ARG SHA
 ENV SHA=${SHA}
