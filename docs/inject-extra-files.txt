@@ -1,0 +1,6 @@
+
+Once the tar file is created in memory I could also inject extra files
+Specifically the create_text_file_tar_list.sh script
+
+Note that I cannot inject the /usr/local/bin/red_amber_green.rb
+since this is specific to each image.
