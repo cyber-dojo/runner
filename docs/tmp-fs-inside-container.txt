@@ -1,0 +1,5 @@
+runner.rb does this...
+
+"--tmpfs #{sandbox_dir}:exec,size=50M,uid=#{uid},gid=#{gid}"
+
+It may be worth adding another tmpfs on /tmp
