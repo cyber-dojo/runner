@@ -1,7 +1,6 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
-require 'find'
-require 'gzipped_tar'
+require 'gzipped_tar'   # https://github.com/pat/gzipped_tar
 require 'securerandom'
 require 'timeout'
 
@@ -36,15 +35,7 @@ class Runner
     @container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
     run_cyber_dojo_sh_in_container(files, max_seconds)
     set_colour
-    Dir.mktmpdir(id, '/tmp') do |tmp_dir|
-      status = tar_pipe_out(tmp_dir)
-      if status == 0
-        now_files = read_files(tmp_dir + '/' + sandbox_dirname)
-      else
-        now_files = {}
-      end
-      set_file_delta(files, now_files)
-    end
+    set_file_delta(files, files_now)
     {
        stdout: @stdout,
        stderr: @stderr,
@@ -96,8 +87,8 @@ class Runner
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = sanitized_read(r_stdout)
-      @stderr = sanitized_read(r_stderr)
+      @stdout = sanitized(max_read(r_stdout))
+      @stderr = sanitized(max_read(r_stderr))
       r_stdout.close
       r_stderr.close
     end
@@ -119,7 +110,7 @@ class Runner
     # in-memory creation of tarfile.
     writer = GZippedTar::Writer.new
     files.each do |pathed_filename, file|
-      # important 1st argument does not have leading /
+      # 1st argument must not have leading /
       writer.add(sandbox_dirname + '/' + pathed_filename, file['content'])
     end
     writer.output
@@ -192,31 +183,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_files(tmp_dir)
-    # read files from /tmp on host
-    files = {}
-    Find.find(tmp_dir) do |pathed_filename|
-      # eg pathed_filename =
-      # '/tmp/.../features/shouty.feature
-      unless File.directory?(pathed_filename)
-        filename = pathed_filename[tmp_dir.size+1..-1]
-        # eg filename = features/shouty.feature
-        files[filename] = File.open(pathed_filename) { |fd|
-          sanitized_read(fd)
-        }
-      end
-    end
-    files
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def sanitized_read(fd)
-    content = fd.read(max_file_size + 1)
+  def sanitized(content)
     if content.nil?
       content = ''
     end
-    truncate = (content.size == max_file_size + 1)
+    truncate = (content.size > max_file_size)
     content = cleaned(content)
     if truncate
       content = content[0...max_file_size]
@@ -229,15 +200,19 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def max_read(fd)
+    fd.read(max_file_size + 1)
+  end
+
   def max_file_size
-      # 25K. Also applies to returned stdout/stderr.
-      25 * 1024
+    # 25K. Also applies to returned stdout/stderr.
+    25 * 1024
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_out(tmp_dir)
-    # tar-pipe text files from /sandbox in container to /tmp on host
+  def files_now
+    # get text files from /sandbox (in container)
     #
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
@@ -255,14 +230,22 @@ class Runner
           /usr/local/bin/create_text_file_tar_list.sh   \
           &&                                            \
           tar -zcf - -T #{tar_list}                     \
-          '                                             \
-            | tar -zxf - -C #{tmp_dir}
+          '
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
     # to fail so you cannot use shell.assert() here.
-    _stdout,_stderr,status = shell.exec(docker_tar_pipe)
-    status
+    stdout,_stderr,status = shell.exec(docker_tar_pipe)
+    if status == 0
+      unzipped = Zlib::GzipReader.new(StringIO.new(stdout, 'r+b'))
+      reader = GZippedTar::Tar::Reader.new(unzipped)
+      Hash[reader.map { |entry|
+        filename = entry.full_name[sandbox_dirname.size+1..-1]
+        [filename, sanitized(entry.read)]
+      }]
+    else
+      {}
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
