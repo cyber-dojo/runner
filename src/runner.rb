@@ -52,16 +52,14 @@ class Runner
   attr_reader :image_name, :id, :container_name
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
-    # The [docker exec] process running on the _host_ is
-    # killed by Process.kill. This does _not_ kill the
-    # cyber-dojo.sh process running _inside_ the docker
-    # container. The container is killed by the
-    # docker daemon via [docker run --rm]
+    writer = tgz_file_writer(files)
+    writer.add(create_text_file_tar_list_filename, create_text_file_tar_list_content)
+
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
 
-    w_stdin.write(create_tar_file(files))
+    w_stdin.write(writer.output)
     w_stdin.close
 
     create_container(max_seconds)
@@ -154,11 +152,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def files_now
-    # gets text files in /sandbox (in container) after
-    # /sandbox/cyber-dojo.sh has run.
-    #
-    # The create_text_file_tar_list.sh file is injected
-    # into the test-framework image by image_builder.
+    # After /sandbox/cyber-dojo.sh has run
+    # get text files in /sandbox (in container).
+    # The create_text_file_tar_list.sh file has already been
+    # tar-piped into the container.
     # Pass the tar-list filename as an environment
     # variable because using bash -c means you cannot
     # pass it as an argument.
@@ -168,9 +165,9 @@ class Runner
         --user=#{uid}:#{gid}                            \
         --env TAR_LIST=#{tar_list}                      \
         #{container_name}                               \
-        bash -c                                         \
+        sh -c                                           \
           '                                             \
-          /usr/local/bin/create_text_file_tar_list.sh   \
+          bash /#{create_text_file_tar_list_filename}   \
           &&                                            \
           tar -zcf - -T #{tar_list}                     \
           '
@@ -180,51 +177,64 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe)
     if status == 0
-      read_tar_file(stdout)
+      read_tgz_file(stdout)
     else
       {}
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def create_text_file_tar_list_filename
+    'tmp/create_text_file_tar_list.sh'
+  end
+
+  def create_text_file_tar_list_content
+    <<~SHELL.strip
+      # o) ensure there is no tar-list file at the start
+      # o) for all files in sandbox dir (recursively)
+      #    if the file is not a binary file
+      #    then append the filename to the tar-list
+      rm -f ${TAR_LIST} | true
+      find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
+        for filename do
+          if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
+            echo ${filename} >> ${TAR_LIST}
+          fi
+          if [ $(stat -c%s "${filename}") -eq 0 ]; then
+            # handle empty files which file reports are binary
+            echo ${filename} >> ${TAR_LIST}
+          fi
+          if [ $(stat -c%s "${filename}") -eq 1 ]; then
+            # handle file with one char which file reports are binary!
+            echo ${filename} >> ${TAR_LIST}
+          fi
+        done' sh {} +
+    SHELL
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # in-memory tar-file creation/reading
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_tar_file(files)
-    # returns in-memory-created tar-file of files.
+  def tgz_file_writer(files)
     writer = GZippedTar::Writer.new
     files.each do |pathed_filename, file|
       # 1st argument must not have leading /
       writer.add(sandbox_dirname + '/' + pathed_filename, file['content'])
     end
-    writer.output
+    writer
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_tar_file(tarfile)
-    unzipped = Zlib::GzipReader.new(StringIO.new(tarfile, 'r+b'))
+  def read_tgz_file(tgz_file)
+    unzipped = Zlib::GzipReader.new(StringIO.new(tgz_file, 'r+b'))
     reader = GZippedTar::Tar::Reader.new(unzipped)
-    Hash[reader.map { |entry|
+    Hash[reader.map do |entry|
       filename = entry.full_name[sandbox_dirname.size+1..-1]
       [filename, sanitized(entry.read)]
-    }]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # difference between before and after cyber-dojo.sh is run
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  include FileDelta
-
-  def set_file_delta(was_files, now_files)
-    if now_files == {} || @timed_out
-      @created = {}
-      @deleted = {}
-      @changed = {}
-    else
-      file_delta(was_files, now_files)
-    end
+    end]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -272,7 +282,7 @@ class Runner
 
   def tmp_fs_sandbox_dir
     # Note:1 the docker documention says --tmpfs is only available on
-    # Docker for Linux. Empirically it works on DockerToolbox (Mac) too.
+    # Docker for Linux. It works on DockerToolbox too (Mac).
     # Note:2 Making the sandbox dir a tmpfs should improve speed.
     # Note:3 tmp-fs's are setup as secure mountpoints.
     # If you use only '--tmpfs #{sandboxdir}'
@@ -290,6 +300,8 @@ class Runner
   end
 
   def tmp_fs_tmp_dir
+    # A place to save the create_text_file_tar_list.sh script.
+    # May also improve speed of /sandbox/cyber-dojo.sh execution.
     '--tmpfs /tmp:exec,size=100M'
   end
 
@@ -353,6 +365,22 @@ class Runner
   GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # difference before-after /sandbox/cyber-dojo.sh is run
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  include FileDelta
+
+  def set_file_delta(was_files, now_files)
+    if now_files == {} || @timed_out
+      @created = {}
+      @deleted = {}
+      @changed = {}
+    else
+      file_delta(was_files, now_files)
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # sandbox user/group
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -375,6 +403,11 @@ class Runner
   def Process_kill(signal, pid)
     # There is a race. There may no longer be a process at pid.
     # If not, you get an exception Errno::ESRCH: No such process
+    # The [docker run] process running on the _host_ is
+    # killed by this Process.kill. This does _not_ kill the
+    # cyber-dojo.sh process running _inside_ the docker
+    # container. The container is killed by the
+    # docker daemon via [docker run --rm]
     Process.kill(signal, pid)
   rescue Errno::ESRCH
   end
