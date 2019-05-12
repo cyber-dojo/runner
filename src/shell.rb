@@ -24,11 +24,13 @@ class Shell
     stdout
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
   def success
     0
   end
 
-  private # = = = = = = = = = = = = = = = = =
+  private
 
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
@@ -52,4 +54,3 @@ class Shell
   end
 
 end
-

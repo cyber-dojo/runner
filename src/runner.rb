@@ -34,23 +34,18 @@ class Runner
     # previous run (with the same id) would fail.
     # Happens a lot in tests.
     @container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
-    # Readonly file-system; ensure Dir.mktmpdir is off /tmp
-    # Dir.mktmpdir docs says 1st argument (prefix) must be
-    # non-nil to use 2nd argument.
-    Dir.mktmpdir(id, '/tmp') do |src_tmp_dir|
-      write_tarfile(src_tmp_dir, files)
-      create_container(max_seconds)
-      run_timeout(run_cyber_dojo_sh_cmd(src_tmp_dir), max_seconds)
-      set_colour
-      Dir.mktmpdir(id, '/tmp') do |dst_tmp_dir|
-        status = tar_pipe_out(dst_tmp_dir)
-        if status == 0
-          now_files = read_files(dst_tmp_dir + '/' + sandbox_dir)
-        else
-          now_files = {}
-        end
-        set_file_delta(files, now_files)
+    tarfile = create_tarfile(files)
+    create_container(max_seconds)
+    run_timeout(run_cyber_dojo_sh_cmd, tarfile, max_seconds)
+    set_colour
+    Dir.mktmpdir(id, '/tmp') do |tmp_dir|
+      status = tar_pipe_out(tmp_dir)
+      if status == 0
+        now_files = read_files(tmp_dir + '/' + sandbox_dir)
+      else
+        now_files = {}
       end
+      set_file_delta(files, now_files)
     end
     {
        stdout: @stdout,
@@ -69,24 +64,22 @@ class Runner
 
   attr_reader :image_name, :id, :container_name
 
-  def write_tarfile(tmp_dir, files)
-    # write files to tar.gz file in tmp_dir on
-    # host ready to be tar-piped into container
+  def create_tarfile(files)
+    # in-memory creation of tarfile.
+    # All files are sent from the browser, and
+    # cyber-dojo.sh cannot be deleted so there
+    # must be at least one file.
     writer = GZippedTar::Writer.new
     files.each do |pathed_filename, file|
       writer.add(sandbox_dir + '/' + pathed_filename, file['content'])
     end
-    disk.write(tmp_dir + '/' + tarfile_name, writer.output)
+    writer.output
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def sandbox_dir
     'sandbox'
-  end
-
-  def tarfile_name
-    'sandbox.tar.gz'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -135,16 +128,22 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_timeout(command, max_seconds)
+  def run_timeout(command, tarfile, max_seconds)
     # The [docker exec] running on the _host_ is
     # killed by Process.kill. This does _not_ kill
     # the cyber-dojo.sh running _inside_ the docker
     # container. The container is killed by the
     # docker daemon via [docker run --rm]
+    r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
+
+    w_stdin.write(tarfile)
+    w_stdin.close
+
     pid = Process.spawn(command, {
       pgroup:true,     # become process leader
+          in:r_stdin,  # redirection
          out:w_stdout, # redirection
          err:w_stderr  # redirection
     })
@@ -175,21 +174,17 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh_cmd(tmp_dir)
-    # tar-pipe previously created tar.gz file in tmp_dir on host
-    # to /sandbox in container and run /sandbox/cyber-dojo.sh
+  def run_cyber_dojo_sh_cmd
+    # Assumes a tarfile of files is on stdin. Untars this into
+    # /sandbox inside the container and runs cyber-dojo.sh
     #
     # [1] Ways to ensure /sandbox files have correct ownership...
-    # o) untar as root; tar will try to match ownership of the source files.
+    # o) untar as root; tar will try to match ownership.
     # o) untar as non-root; ownership based on the running user.
     # The latter is better:
     # o) it's faster - no need to set ownership on the source files.
     # o) it's safer - no need to run as root.
     # o) it's simpler - let the OS do it, not the tar -x
-    #
-    # All files are sent from the browser, and
-    # cyber-dojo.sh cannot be deleted so there
-    # must be at least one file in tmp_dir.
     #
     # [2] is for file-stamp date-time granularity.
     # This relates to the files modification-date (stat %y).
@@ -216,24 +211,23 @@ class Runner
     # [3] Don't use docker exec --workdir as that requires API version
     # 1.35 but CircleCI is currently using Docker Daemon API 1.32
     <<~SHELL.strip
-      cat #{tmp_dir}/#{tarfile_name}                \
-      | docker exec                                 \
-          --interactive        `# we're piping`     \
-          --user=#{uid}:#{gid} `# [1]`              \
-          #{container_name}                         \
-          sh -c                                     \
-            '                  `# open quote`       \
-            tar                                     \
-              --touch          `# [2]`              \
-              -zxf             `# extract tar file` \
-              -                `# read from stdin`  \
-              -C               `# save to the`      \
-              /                `# root dir`         \
-            &&                                      \
-            cd /#{sandbox_dir} `# [3]`              \
-            &&                                      \
-            bash ./cyber-dojo.sh                    \
-            '                  `# close quote`
+      docker exec                                 \
+        --interactive        `# we're piping`     \
+        --user=#{uid}:#{gid} `# [1]`              \
+        #{container_name}                         \
+        sh -c                                     \
+          '                  `# open quote`       \
+          tar                                     \
+            --touch          `# [2]`              \
+            -zxf             `# extract tar file` \
+            -                `# read from stdin`  \
+            -C               `# save to the`      \
+            /                `# root dir`         \
+          &&                                      \
+          cd /#{sandbox_dir} `# [3]`              \
+          &&                                      \
+          bash ./cyber-dojo.sh                    \
+          '                  `# close quote`
     SHELL
   end
 
@@ -423,6 +417,8 @@ class Runner
     # can have multiple cores or use hyperthreading.
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
+    # What ulimits are supported?
+    # See https://github.com/docker/go-units/blob/f2145db703495b2e525c59662db69a7344b00bb8/ulimit.go#L46-L62
     options = [
       ulimit('core'  ,   0   ), # core file size
       ulimit('fsize' ,  16*MB), # file size
@@ -477,10 +473,6 @@ class Runner
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def disk
-    @external.disk
-  end
-
   def log
     @external.log
   end
@@ -490,41 +482,3 @@ class Runner
   end
 
 end
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-# The implementation of run cyber-dojo.sh is
-#   o) create copies of all files in /tmp on host
-#   o) one tar-pipe copies files from /tmp on hot to /sandbox in container
-#   o) run cyber-dojo.sh inside the container
-#   0) ...
-#
-# An alternative implementation is
-#   o) don't create copies of files off /tmp
-#   o) N tar-pipes for N files, each copying directly into the container
-#   o) run cyber-dojo.sh inside the container
-#
-# For interests sake here's how you tar pipe without the
-# intermediate /tmp files. I don't know how this would
-# affect the date-time file-stamp granularity (stat %y).
-#
-# require 'open3'
-# files.each do |name,content|
-#   filename = sandbox_dir + '/' + name
-#   dir = File.dirname(filename)
-#   shell_cmd = "mkdir -p #{dir};"
-#   shell_cmd += "cat > #{filename}"
-#   shell_cmd += " && chown #{uid}:#{gid} #{filename}"
-#   cmd = [
-#     'docker exec',
-#     '--interactive',
-#     '--user=root',
-#     container_name,
-#     "sh -c '#{shell_cmd}'"
-#   ].join(space)
-#   stdout,stderr,ps = Open3.capture3(cmd, :stdin_data => content)
-#   assert ps.success?
-# end
-# - - - - - - - - - - - - - - - - - - - - - - - -
-
-# What ulimits are supported?
-# See https://github.com/docker/go-units/blob/f2145db703495b2e525c59662db69a7344b00bb8/ulimit.go#L46-L62
