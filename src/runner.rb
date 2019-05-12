@@ -255,6 +255,7 @@ class Runner
     options = <<~SHELL.strip
       #{env_vars}                                     \
       #{tmp_fs_sandbox_dir}                           \
+      #{tmp_fs_tmp_dir}                               \
       #{ulimits}                                      \
       --detach                  `# later docker exec` \
       --init                    `# pid-1 process`     \
@@ -294,6 +295,10 @@ class Runner
     # Note:4 Also set ownership as default permission on docker is 755.
     # Note:5 Also limit size of tmp-fs
     "--tmpfs /#{sandbox_dirname}:exec,size=50M,uid=#{uid},gid=#{gid}"
+  end
+
+  def tmp_fs_tmp_dir
+    '--tmpfs /tmp:exec,size=100M'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
