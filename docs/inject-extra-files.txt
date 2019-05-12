@@ -1,6 +1,7 @@
 
-Once the tar file is created in memory I could also inject extra files
+Add extra (non /sandbox) files to the tar-file.
 Specifically the create_text_file_tar_list.sh script
+This could go into a --tmpfs mounted dir.
 
-Note that I cannot inject the /usr/local/bin/red_amber_green.rb
+Note: I cannot inject the /usr/local/bin/red_amber_green.rb
 since this is specific to each image.
