@@ -34,14 +34,12 @@ class Runner
     # previous run (with the same id) would fail.
     # Happens a lot in tests.
     @container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
-    tarfile = create_tarfile(files)
-    create_container(max_seconds)
-    run_timeout(run_cyber_dojo_sh_cmd, tarfile, max_seconds)
+    run_cyber_dojo_sh_in_container(files, max_seconds)
     set_colour
     Dir.mktmpdir(id, '/tmp') do |tmp_dir|
       status = tar_pipe_out(tmp_dir)
       if status == 0
-        now_files = read_files(tmp_dir + '/' + sandbox_dir)
+        now_files = read_files(tmp_dir + '/' + sandbox_dirname)
       else
         now_files = {}
       end
@@ -64,21 +62,131 @@ class Runner
 
   attr_reader :image_name, :id, :container_name
 
-  def create_tarfile(files)
+  def run_cyber_dojo_sh_in_container(files, max_seconds)
+    # The [docker exec] process running on the _host_ is
+    # killed by Process.kill. This does _not_ kill the
+    # cyber-dojo.sh process running _inside_ the docker
+    # container. The container is killed by the
+    # docker daemon via [docker run --rm]
+    r_stdin,  w_stdin  = IO.pipe
+    r_stdout, w_stdout = IO.pipe
+    r_stderr, w_stderr = IO.pipe
+
+    w_stdin.write(tar_file(files))
+    w_stdin.close
+
+    create_container(max_seconds)
+    pid = Process.spawn(run_cyber_dojo_sh_cmd, {
+      pgroup:true,     # become process leader
+          in:r_stdin,  # redirection
+         out:w_stdout, # redirection
+         err:w_stderr  # redirection
+    })
+    begin
+      Timeout::timeout(max_seconds) do
+        _, ps = Process.waitpid2(pid)
+        @status = ps.exitstatus
+        @timed_out = killed?(@status)
+      end
+    rescue Timeout::Error
+      Process.kill(-9, pid)   # -ve means kill process-group
+      Process.detach(pid)     # prevent zombie-child but
+      @status = killed_status # don't wait for detach status
+      @timed_out = true
+    ensure
+      w_stdout.close unless w_stdout.closed?
+      w_stderr.close unless w_stderr.closed?
+      @stdout = sanitized_read(r_stdout)
+      @stderr = sanitized_read(r_stderr)
+      r_stdout.close
+      r_stderr.close
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def killed?(status)
+    status == killed_status
+  end
+
+  def killed_status
+    128 + 9
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def tar_file(files)
     # in-memory creation of tarfile.
-    # All files are sent from the browser, and
-    # cyber-dojo.sh cannot be deleted so there
-    # must be at least one file.
     writer = GZippedTar::Writer.new
     files.each do |pathed_filename, file|
-      writer.add(sandbox_dir + '/' + pathed_filename, file['content'])
+      # important 1st argument does not have leading /
+      writer.add(sandbox_dirname + '/' + pathed_filename, file['content'])
     end
     writer.output
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def sandbox_dir
+  def run_cyber_dojo_sh_cmd
+    # Assumes a tarfile of files is on stdin. Untars this into
+    # /sandbox inside the container and runs cyber-dojo.sh
+    #
+    # [1] Ways to ensure /sandbox files have correct ownership...
+    # o) untar as root; tar will try to match ownership.
+    # o) untar as non-root; ownership based on the running user.
+    # The latter is better:
+    # o) it's faster - no need to set ownership on the source files.
+    # o) it's safer - no need to run as root.
+    # o) it's simpler - let the OS do it, not the tar -x
+    #
+    # [2] is for file-stamp date-time granularity.
+    # This relates to the files modification-date (stat %y).
+    # Without it the untarred files may all end up with the
+    # same modification date and this can break some makefiles.
+    # The tar --touch option is not available in a default
+    # Alpine container. To add it the image needs to run:
+    #    $ apk add --update tar
+    # Further, in a default Alpine container the date-time
+    # file-stamps have a granularity of one second. In other
+    # words the microseconds value is always zero. Again, this
+    # can break some makefiles.
+    # To add microsecond granularity the image also needs to run:
+    #    $ apk add --update coreutils
+    # Obviously, the image needs to have tar installed.
+    # These image requirements are satisified by the image_builder.
+    # See the file builder/image_builder.rb on
+    # https://github.com/cyber-dojo-languages/image_builder/blob/master/
+    # In particular the methods
+    #    o) RUN_install_tar
+    #    o) RUN_install_coreutils
+    #    o) RUN_install_bash
+    #
+    # [3] Don't use docker exec --workdir as that requires API version
+    # 1.35 but CircleCI is currently using Docker Daemon API 1.32
+    <<~SHELL.strip
+      docker exec                                     \
+        --interactive            `# piping stdin`     \
+        --user=#{uid}:#{gid}     `# [1]`              \
+        #{container_name}                             \
+        sh -c                                         \
+          '                      `# open quote`       \
+          tar                                         \
+            --touch              `# [2]`              \
+            -zxf                 `# extract tar file` \
+            -                    `# read from stdin`  \
+            -C                   `# save to the`      \
+            /                    `# root dir`         \
+          &&                                          \
+          cd /#{sandbox_dirname} `# [3]`              \
+          &&                                          \
+          bash ./cyber-dojo.sh                        \
+          '                      `# close quote`
+    SHELL
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def sandbox_dirname
     'sandbox'
   end
 
@@ -127,111 +235,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run_timeout(command, tarfile, max_seconds)
-    # The [docker exec] running on the _host_ is
-    # killed by Process.kill. This does _not_ kill
-    # the cyber-dojo.sh running _inside_ the docker
-    # container. The container is killed by the
-    # docker daemon via [docker run --rm]
-    r_stdin,  w_stdin  = IO.pipe
-    r_stdout, w_stdout = IO.pipe
-    r_stderr, w_stderr = IO.pipe
-
-    w_stdin.write(tarfile)
-    w_stdin.close
-
-    pid = Process.spawn(command, {
-      pgroup:true,     # become process leader
-          in:r_stdin,  # redirection
-         out:w_stdout, # redirection
-         err:w_stderr  # redirection
-    })
-    begin
-      Timeout::timeout(max_seconds) do
-        _, ps = Process.waitpid2(pid)
-        @status = ps.exitstatus
-        @timed_out = (@status == killed_status)
-      end
-    rescue Timeout::Error
-      Process.kill(-9, pid)   # -ve means kill process-group
-      Process.detach(pid)     # prevent zombie-child but
-      @status = killed_status # don't wait for detach status
-      @timed_out = true
-    ensure
-      w_stdout.close unless w_stdout.closed?
-      w_stderr.close unless w_stderr.closed?
-      @stdout = sanitized_read(r_stdout)
-      @stderr = sanitized_read(r_stderr)
-      r_stdout.close
-      r_stderr.close
-    end
-  end
-
-  def killed_status
-    137 # 128+9
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def run_cyber_dojo_sh_cmd
-    # Assumes a tarfile of files is on stdin. Untars this into
-    # /sandbox inside the container and runs cyber-dojo.sh
-    #
-    # [1] Ways to ensure /sandbox files have correct ownership...
-    # o) untar as root; tar will try to match ownership.
-    # o) untar as non-root; ownership based on the running user.
-    # The latter is better:
-    # o) it's faster - no need to set ownership on the source files.
-    # o) it's safer - no need to run as root.
-    # o) it's simpler - let the OS do it, not the tar -x
-    #
-    # [2] is for file-stamp date-time granularity.
-    # This relates to the files modification-date (stat %y).
-    # Without it the untarred files may all end up with the
-    # same modification date and this can break some makefiles.
-    # The tar --touch option is not available in a default
-    # Alpine container. To add it the image needs to run:
-    #    $ apk add --update tar
-    # Further, in a default Alpine container the date-time
-    # file-stamps have a granularity of one second. In other
-    # words the microseconds value is always zero. Again, this
-    # can break some makefiles.
-    # To add microsecond granularity the image also needs to run:
-    #    $ apk add --update coreutils
-    # Obviously, the image needs to have tar installed.
-    # These image requirements are satisified by the image_builder.
-    # See the file builder/image_builder.rb on
-    # https://github.com/cyber-dojo-languages/image_builder/blob/master/
-    # In particular the methods
-    #    o) RUN_install_tar
-    #    o) RUN_install_coreutils
-    #    o) RUN_install_bash
-    #
-    # [3] Don't use docker exec --workdir as that requires API version
-    # 1.35 but CircleCI is currently using Docker Daemon API 1.32
-    <<~SHELL.strip
-      docker exec                                 \
-        --interactive        `# we're piping`     \
-        --user=#{uid}:#{gid} `# [1]`              \
-        #{container_name}                         \
-        sh -c                                     \
-          '                  `# open quote`       \
-          tar                                     \
-            --touch          `# [2]`              \
-            -zxf             `# extract tar file` \
-            -                `# read from stdin`  \
-            -C               `# save to the`      \
-            /                `# root dir`         \
-          &&                                      \
-          cd /#{sandbox_dir} `# [3]`              \
-          &&                                      \
-          bash ./cyber-dojo.sh                    \
-          '                  `# close quote`
-    SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_out(tmp_dir)
     # tar-pipe text files from /sandbox in container to /tmp on host
@@ -387,7 +390,7 @@ class Runner
     # So set exec to make binaries and scripts executable.
     # Note:4 Also set ownership as default permission on docker is 755.
     # Note:5 Also limit size of tmp-fs
-    "--tmpfs /#{sandbox_dir}:exec,size=50M,uid=#{uid},gid=#{gid}"
+    "--tmpfs /#{sandbox_dirname}:exec,size=50M,uid=#{uid},gid=#{gid}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -396,7 +399,7 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('SANDBOX',    '/' + sandbox_dir)
+      env_var('SANDBOX',    '/' + sandbox_dirname)
     ].join(space)
   end
 
