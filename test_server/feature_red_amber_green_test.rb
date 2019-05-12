@@ -16,13 +16,13 @@ class RedAmberGreenTest < TestBase
     assert_colour 'red'
     run_cyber_dojo_sh( {
       changed:{
-        filename => file(src.sub('6 * 9', '6 * 7'))
+        filename => intact(src.sub('6 * 9', '6 * 7'))
       }
     })
     assert_colour 'green'
     run_cyber_dojo_sh( {
       changed:{
-        filename => file(src.sub('6 * 9', '6 * 9sdsd'))
+        filename => intact(src.sub('6 * 9', '6 * 9sdsd'))
       }
     })
     assert_colour 'amber'

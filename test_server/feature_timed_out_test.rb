@@ -15,7 +15,7 @@ class TimedOutTest < TestBase
   and the colour is 'timed_out'
   ) do
     named_args = {
-      changed: { 'hiker.c' => file(quiet_infinite_loop) },
+      changed: { 'hiker.c' => intact(quiet_infinite_loop) },
       max_seconds: 2
     }
     with_captured_log {
@@ -36,7 +36,7 @@ class TimedOutTest < TestBase
   and the colour is 'timed_out'
   ) do
     named_args = {
-      changed: { 'hiker.c' => file(loud_infinite_loop) },
+      changed: { 'hiker.c' => intact(loud_infinite_loop) },
       max_seconds: 2
     }
     with_captured_log {

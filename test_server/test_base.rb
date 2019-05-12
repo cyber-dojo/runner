@@ -151,7 +151,7 @@ class TestBase < HexMiniTest
 
   def assert_cyber_dojo_sh(script)
     named_args = {
-      :changed => { 'cyber-dojo.sh' => file(script) }
+      :changed => { 'cyber-dojo.sh' => intact(script) }
     }
     run_cyber_dojo_sh(named_args)
     refute_timed_out
@@ -180,7 +180,7 @@ class TestBase < HexMiniTest
 
   def starting_files
     Hash[manifest['visible_filenames'].collect { |filename|
-      [filename, file(IO.read("#{starting_files_dir}/#{filename}"))]
+      [filename, intact(IO.read("#{starting_files_dir}/#{filename}"))]
     }]
   end
 
@@ -240,10 +240,12 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def file(content, truncated = false)
-    { 'content' => content,
-      'truncated' => truncated
-    }
+  def intact(content)
+    { 'content' => content, 'truncated' => false }
+  end
+
+  def truncated(content)
+    { 'content' => content, 'truncated' => true }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

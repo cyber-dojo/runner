@@ -24,8 +24,8 @@ class RoundTripTest < TestBase
       assert_cyber_dojo_sh(script)
       assert stdout.include?('binary.dat: binary') # file --mime-encoding
       assert_created({
-        'newfile.txt' => file('xxx'),
-        '.dotfile' => file('yyy')
+        'newfile.txt' => intact('xxx'),
+        '.dotfile' => intact('yyy')
       })
       assert_deleted([])
       assert_changed({})
@@ -47,7 +47,7 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh(script)
-      assert_created({ path => file(content) })
+      assert_created({ path => intact(content) })
       assert_deleted([])
       assert_changed({})
     end
@@ -78,7 +78,7 @@ class RoundTripTest < TestBase
       assert_cyber_dojo_sh(script)
       assert_created({})
       assert_deleted([])
-      assert_changed({filename => file(content)})
+      assert_changed({filename => intact(content)})
     end
   end
 
@@ -93,7 +93,7 @@ class RoundTripTest < TestBase
       filename = 'empty.txt'
       script = "touch #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_created({filename => file('')})
+      assert_created({filename => intact('')})
       assert_deleted([])
       assert_changed({})
     end
@@ -111,7 +111,7 @@ class RoundTripTest < TestBase
       ch = 'x'
       script = "echo -n '#{ch}' > #{filename}"
       assert_cyber_dojo_sh(script)
-      assert_created({filename => file(ch)})
+      assert_created({filename => intact(ch)})
       assert_deleted([])
       assert_changed({})
     end
