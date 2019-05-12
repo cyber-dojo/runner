@@ -1,6 +1,6 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
-require 'gzipped_tar'   
+require 'gzipped_tar'
 require 'securerandom'
 require 'timeout'
 
@@ -49,6 +49,8 @@ class Runner
 
   private # = = = = = = = = = = = = = = = = = =
 
+  attr_reader :image_name, :id, :container_name
+
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     # The [docker exec] process running on the _host_ is
     # killed by Process.kill. This does _not_ kill the
@@ -76,8 +78,8 @@ class Runner
         @timed_out = killed?(@status)
       end
     rescue Timeout::Error
-      Process.kill(-9, pid)   # -ve means kill process-group
-      Process.detach(pid)     # prevent zombie-child but
+      Process_kill(-9, pid)   # -ve means kill process-group
+      Process_detach(pid)     # Prevent zombie-child but
       @status = killed_status # don't wait for detach status
       @timed_out = true
     ensure
@@ -91,16 +93,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def killed?(status)
-    status == killed_status
-  end
-
-  def killed_status
-    128 + 9
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh_cmd
     # Assumes a tarfile of files is on stdin. Untars this into
@@ -159,7 +151,7 @@ class Runner
     SHELL
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def files_now
     # gets text files in /sandbox (in container) after
@@ -377,12 +369,35 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # misc helpers
+  # process helpers
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def Process_kill(signal, pid)
+    # There is a race. There may no longer be a process at pid.
+    # If not, you get an exception Errno::ESRCH: No such process
+    Process.kill(signal, pid)
+  rescue Errno::ESRCH
+  end
+
+  def Process_detach(pid)
+    # There is a race. There may no longer be a process at pid.
+    # If not, you don't get an exception.
+    Process.detach(pid)
+  end
+
+  def killed?(status)
+    status == killed_status
+  end
+
+  def killed_status
+    128 + 9
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # io helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
   include StringCleaner
-
-  attr_reader :image_name, :id, :container_name
 
   def sanitized(content)
     if content.nil?
