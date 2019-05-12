@@ -1,6 +1,6 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
-require 'gzipped_tar'   # https://github.com/pat/gzipped_tar
+require 'gzipped_tar'   
 require 'securerandom'
 require 'timeout'
 
@@ -49,10 +49,6 @@ class Runner
 
   private # = = = = = = = = = = = = = = = = = =
 
-  include StringCleaner
-
-  attr_reader :image_name, :id, :container_name
-
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     # The [docker exec] process running on the _host_ is
     # killed by Process.kill. This does _not_ kill the
@@ -63,7 +59,7 @@ class Runner
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
 
-    w_stdin.write(tar_file(files))
+    w_stdin.write(create_tar_file(files))
     w_stdin.close
 
     create_container(max_seconds)
@@ -105,18 +101,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def tar_file(files)
-    # in-memory creation of tarfile.
-    writer = GZippedTar::Writer.new
-    files.each do |pathed_filename, file|
-      # 1st argument must not have leading /
-      writer.add(sandbox_dirname + '/' + pathed_filename, file['content'])
-    end
-    writer.output
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh_cmd
     # Assumes a tarfile of files is on stdin. Untars this into
@@ -177,42 +161,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def sandbox_dirname
-    'sandbox'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def sanitized(content)
-    if content.nil?
-      content = ''
-    end
-    truncate = (content.size > max_file_size)
-    content = cleaned(content)
-    if truncate
-      content = content[0...max_file_size]
-    end
-    {
-        'content' => content,
-      'truncated' => truncate
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def max_read(fd)
-    fd.read(max_file_size + 1)
-  end
-
-  def max_file_size
-    # 25K. Also applies to returned stdout/stderr.
-    25 * 1024
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def files_now
-    # get text files from /sandbox (in container)
+    # gets text files in /sandbox (in container) after
+    # /sandbox/cyber-dojo.sh has run.
     #
     # The create_text_file_tar_list.sh file is injected
     # into the test-framework image by image_builder.
@@ -237,66 +188,35 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe)
     if status == 0
-      unzipped = Zlib::GzipReader.new(StringIO.new(stdout, 'r+b'))
-      reader = GZippedTar::Tar::Reader.new(unzipped)
-      Hash[reader.map { |entry|
-        filename = entry.full_name[sandbox_dirname.size+1..-1]
-        [filename, sanitized(entry.read)]
-      }]
+      read_tar_file(stdout)
     else
       {}
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # red-amber-green colour of stdout,stderr,status
+  # in-memory tar-file creation/reading
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def set_colour
-    if @timed_out
-      @colour = 'timed_out'
-    else
-      @colour = red_amber_green
+  def create_tar_file(files)
+    # returns in-memory-created tar-file of files.
+    writer = GZippedTar::Writer.new
+    files.each do |pathed_filename, file|
+      # 1st argument must not have leading /
+      writer.add(sandbox_dirname + '/' + pathed_filename, file['content'])
     end
+    writer.output
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def red_amber_green
-    rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
-    stdout = @stdout['content']
-    stderr = @stderr['content']
-    colour = rag_lambda.call(stdout, stderr, @status)
-    unless [:red,:amber,:green].include?(colour)
-      log << rag_message(colour.to_s)
-      colour = :amber
-    end
-    colour.to_s
-  rescue => error
-    log << rag_message(error.message)
-    'amber'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def get_rag_lambda
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    docker_cmd = <<~SHELL.strip
-      docker exec               \
-        --user=#{uid}:#{gid}    \
-        #{container_name}       \
-          bash -c '#{cmd}'
-    SHELL
-    # In a crippled container (eg fork-bomb)
-    # the shell.assert will mostly likely raise.
-    src = shell.assert(docker_cmd)
-    eval(src)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def rag_message(msg)
-    "red_amber_green lambda error mapped to :amber\n#{msg}"
+  def read_tar_file(tarfile)
+    unzipped = Zlib::GzipReader.new(StringIO.new(tarfile, 'r+b'))
+    reader = GZippedTar::Tar::Reader.new(unzipped)
+    Hash[reader.map { |entry|
+      filename = entry.full_name[sandbox_dirname.size+1..-1]
+      [filename, sanitized(entry.read)]
+    }]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -439,6 +359,10 @@ class Runner
   # sandbox user/group
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def sandbox_dirname
+    'sandbox'
+  end
+
   def gid
     51966
   end
@@ -448,8 +372,36 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # misc
+  # misc helpers
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  include StringCleaner
+
+  attr_reader :image_name, :id, :container_name
+
+  def sanitized(content)
+    if content.nil?
+      content = ''
+    end
+    truncate = (content.size > max_file_size)
+    content = cleaned(content)
+    if truncate
+      content = content[0...max_file_size]
+    end
+    {
+        'content' => content,
+      'truncated' => truncate
+    }
+  end
+
+  def max_read(fd)
+    fd.read(max_file_size + 1)
+  end
+
+  def max_file_size
+    # Also applies to returned @stdout/@stderr.
+    25 * KB
+  end
 
   def space
     ' '
@@ -465,6 +417,57 @@ class Runner
 
   def shell
     @external.shell
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # red-amber-green colour of stdout,stderr,status
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def set_colour
+    if @timed_out
+      @colour = 'timed_out'
+    else
+      @colour = red_amber_green
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def red_amber_green
+    rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
+    stdout = @stdout['content']
+    stderr = @stderr['content']
+    colour = rag_lambda.call(stdout, stderr, @status)
+    unless [:red,:amber,:green].include?(colour)
+      log << rag_message(colour.to_s)
+      colour = :amber
+    end
+    colour.to_s
+  rescue => error
+    log << rag_message(error.message)
+    'amber'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def get_rag_lambda
+    cmd = 'cat /usr/local/bin/red_amber_green.rb'
+    docker_cmd = <<~SHELL.strip
+      docker exec               \
+        --user=#{uid}:#{gid}    \
+        #{container_name}       \
+          bash -c '#{cmd}'
+    SHELL
+    # In a crippled container (eg fork-bomb)
+    # the shell.assert will mostly likely raise.
+    src = shell.assert(docker_cmd)
+    eval(src)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def rag_message(msg)
+    "red_amber_green lambda error mapped to :amber\n#{msg}"
   end
 
 end
