@@ -10,8 +10,9 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs cyber-dojo.sh inside a docker container within a given amount of time.
 
 API:
-  * All methods receive their named arguments in a json hash.
-    * image_name must be an docker image created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
+  * All methods receive a json hash.
+    * The hash contains any method arguments as key-value pairs.
+    * The image_name argument must be the name of a docker image created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * All methods return a json hash.
     * If the method completes, a key equals the method's name.
     * If the method raises an exception, a key equals "exception".
