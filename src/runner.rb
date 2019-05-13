@@ -1,6 +1,7 @@
 require_relative 'file_delta'
 require_relative 'string_cleaner'
-require 'gzipped_tar'
+require_relative 'tar_reader'
+require_relative 'tar_writer'
 require 'securerandom'
 require 'timeout'
 
@@ -52,14 +53,14 @@ class Runner
   attr_reader :image_name, :id, :container_name
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
-    writer = tgz_file_writer(files)
-    writer.add(create_tar_list['filename'], create_tar_list['content'])
+    writer = tar_file_writer(files)
+    writer.write(create_tar_list['filename'], create_tar_list['content'])
 
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
 
-    w_stdin.write(writer.output)
+    w_stdin.write(writer.tar_file)
     w_stdin.close
 
     create_container(max_seconds)
@@ -138,7 +139,7 @@ class Runner
           '                      `# open quote`       \
           tar                                         \
             --touch              `# [2]`              \
-            -zxf                 `# extract tar file` \
+            -xf                  `# extract tar file` \
             -                    `# read from stdin`  \
             -C                   `# save to the`      \
             /                    `# root dir`         \
@@ -158,7 +159,7 @@ class Runner
     # comparison fails, generate a file holding the actual-text
     # ready for human inspection. cyber-dojo supports this by
     # returning _all_ text files (inside the container) under /sandbox
-    # after cyber-dojo.sh has finished.
+    # after cyber-dojo.sh has run.
     # Note: create_text_file_tar_list.sh has already been tar-piped
     # into the container.
     docker_tar_pipe = <<~SHELL.strip
@@ -170,7 +171,7 @@ class Runner
           bash /#{create_tar_list['filename']}       \
           &&                                         \
           tar                                        \
-            -zcf                 `# create tar file` \
+            -cf                  `# create tar file` \
             -                    `# write to stdout` \
             -T                   `# using filenames` \
             #{tar_list_filename} `# read from here`  \
@@ -181,7 +182,8 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe)
     if status == 0
-      read_tgz_file(stdout)
+      #read_tgz_file(stdout)
+      read_tar_file(stdout)
     else
       {}
     end
@@ -221,26 +223,25 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # in-memory tgz creation/reading
+  # in-memory tar-file creation/reading
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tgz_file_writer(files)
-    writer = GZippedTar::Writer.new
-    files.each do |pathed_filename, file|
-      # 1st argument must not have leading /
-      writer.add(sandbox_dirname + '/' + pathed_filename, file['content'])
+  def tar_file_writer(files)
+    writer = TarWriter.new
+    files.each do |pathed_filename,file|
+      filename = sandbox_dirname + '/' + pathed_filename
+      content = file['content']
+      writer.write(filename, content)
     end
     writer
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def read_tgz_file(tgz_file)
-    unzipped = Zlib::GzipReader.new(StringIO.new(tgz_file, 'r+b'))
-    reader = GZippedTar::Tar::Reader.new(unzipped)
-    Hash[reader.map do |entry|
-      filename = entry.full_name[sandbox_dirname.size+1..-1]
-      [filename, sanitized(entry.read)]
+  def read_tar_file(tar_file)
+    reader = TarReader.new(tar_file)
+    Hash[reader.files.map do |filename,content|
+      # unpathed must not have leading /
+      unpathed = filename[sandbox_dirname.size+1..-1]
+      [unpathed, sanitized(content)]
     end]
   end
 
