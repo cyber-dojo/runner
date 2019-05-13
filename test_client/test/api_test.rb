@@ -131,14 +131,14 @@ class ApiTest < TestBase
 
     run_cyber_dojo_sh({
       changed_files: {
-        'hiker.c' => file(hiker_c.sub('6 * 9', '6 * 9sd'))
+        'hiker.c' => intact(hiker_c.sub('6 * 9', '6 * 9sd'))
       }
     })
     assert amber?, result
 
     run_cyber_dojo_sh({
       changed_files: {
-        'hiker.c' => file(hiker_c.sub('6 * 9', '6 * 7'))
+        'hiker.c' => intact(hiker_c.sub('6 * 9', '6 * 7'))
       }
     })
     assert green?, result
@@ -157,7 +157,7 @@ class ApiTest < TestBase
     from = 'return 6 * 9'
     to = "    for (;;);\n    return 6 * 7;"
     run_cyber_dojo_sh({
-      changed_files: { 'hiker.c' => file(hiker_c.sub(from, to)) },
+      changed_files: { 'hiker.c' => intact(hiker_c.sub(from, to)) },
         max_seconds: 3
     })
     assert timed_out?, result
@@ -172,7 +172,7 @@ class ApiTest < TestBase
   multi_os_test '3DB',
   'run with very large file is red' do
     run_cyber_dojo_sh({
-      created_files: { 'big_file' => file('X'*1023*500) }
+      created_files: { 'big_file' => intact('X'*1023*500) }
     })
     assert red?, result
   end
@@ -191,7 +191,7 @@ class ApiTest < TestBase
     ].join('|')
     run_cyber_dojo_sh({
       changed_files: {
-        'cyber-dojo.sh' => file("seq 5 | xargs -I{} sh -c '#{command}'")
+        'cyber-dojo.sh' => intact("seq 5 | xargs -I{} sh -c '#{command}'")
       }
     })
     assert result['stdout']['truncated']

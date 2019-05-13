@@ -30,7 +30,7 @@ class RoundTripTest < TestBase
       'echo -n "xxx" > newfile.txt',
     ].join("\n"))
     assert stdout.include?('test: binary') # file --mime-encoding
-    assert_equal({ 'newfile.txt' => file('xxx') }, created)
+    assert_equal({ 'newfile.txt' => intact('xxx') }, created)
     assert_equal({}, deleted)
     assert_equal({}, changed)
   end
@@ -40,7 +40,7 @@ class RoundTripTest < TestBase
   test '162',
   %w( created text files in sub-dirs are returned in json payload ) do
     exec('mkdir sub && echo -n "yyy" > sub/newfile.txt')
-    assert_equal({ 'sub/newfile.txt' => file('yyy') }, created)
+    assert_equal({ 'sub/newfile.txt' => intact('yyy') }, created)
     assert_equal({}, deleted)
     assert_equal({}, changed)
   end
@@ -52,15 +52,15 @@ class RoundTripTest < TestBase
     exec('echo -n "jjj" > hiker.h')
     assert_equal({}, created)
     assert_equal({}, deleted)
-    assert_equal({ 'hiker.h' => file('jjj')}, changed)
+    assert_equal({ 'hiker.h' => intact('jjj')}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '164',
-  %w( [C,assert] created empyty text files is returned in json payload ) do
+  %w( [C,assert] created empty text files is returned in json payload ) do
     exec('touch empty.file')
-    assert_equal({ 'empty.file' => file('')}, created)
+    assert_equal({ 'empty.file' => intact('')}, created)
     assert_equal({}, deleted)
     assert_equal({}, changed)
   end
@@ -70,7 +70,7 @@ class RoundTripTest < TestBase
   def exec(script)
     named_args = {
       changed_files: {
-        'cyber-dojo.sh' => file(script)
+        'cyber-dojo.sh' => intact(script)
       }
     }
     run_cyber_dojo_sh(named_args)
