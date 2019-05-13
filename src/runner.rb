@@ -105,6 +105,7 @@ class Runner
     # o) it's simpler - let the OS do it, not the tar -x
     #
     # [2] is for file-stamp date-time granularity.
+    # --touch means 'dont extract file modified time'
     # This relates to the files modification-date (stat %y).
     # Without it the untarred files may all end up with the
     # same modification date and this can break some makefiles.
@@ -166,11 +167,15 @@ class Runner
         --env TAR_LIST=#{tar_list}                      \
         #{container_name}                               \
         sh -c                                           \
-          '                                             \
+          '             `# open quote`                  \
           bash /#{create_text_file_tar_list_filename}   \
           &&                                            \
-          tar -zcf - -T #{tar_list}                     \
-          '
+          tar                                           \
+            -zcf        `# create tar file`             \
+            -           `# write to stdout`             \
+            -T          `# using filenames`             \
+            #{tar_list} `# read from here`              \
+          '             `# close quote`
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
