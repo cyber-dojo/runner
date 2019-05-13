@@ -144,6 +144,10 @@ class TestBase < HexMiniTest
     end
   end
 
+  def hiker_c
+    starting_files['hiker.c']['content']
+  end
+
   private
 
   def defaulted_arg(named_args, arg_name, arg_default)
