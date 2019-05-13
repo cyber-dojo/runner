@@ -8,8 +8,9 @@ class TarWriter
     @writer = Gem::Package::TarWriter.new(@tar_file)
   end
 
-  def write(filename, content, mode = 0o644)
-    @writer.add_file_simple(filename, mode, content.bytesize) do |fd|
+  def write(filename, content)
+    size = content.bytesize
+    @writer.add_file_simple(filename, 0o644, size) do |fd|
       fd.write(content)
     end
   end
