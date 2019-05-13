@@ -150,14 +150,14 @@ $ ./sh/run_tests_in_containers.sh
 $ ./sh/run_demo.sh
 ```
 Runs inside the runner-client's container.
-Calls the runner-server's micro-service methods
+Calls the runner-server's methods
 and displays their json results and how long they took.
 If the runner-client's IP address is 192.168.99.100 then put
 192.168.99.100:4598 into your browser to see the output.
-- grey: tests did not complete (in 3 seconds)
 - red: tests ran but failed
 - amber: tests did not run (eg syntax error)
 - green: tests ran and passed
+- grey: tests did not complete (in 3 seconds)
 
 # demo screenshot
 
