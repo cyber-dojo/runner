@@ -46,7 +46,8 @@ API:
 
 # POST run_cyber_dojo_sh
 Creates a container from image_name,
-saves the files into it, and runs cyber-dojo.sh
+saves files into /sandbox inside it,
+runs /sandbox/cyber-dojo.sh
 for at most max_seconds.
 - parameters, eg
 ```
