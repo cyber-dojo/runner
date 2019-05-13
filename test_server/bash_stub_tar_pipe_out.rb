@@ -12,7 +12,7 @@ class BashStubTarPipeOut
   end
 
   def run(command)
-    if command.include?('--env TAR_LIST=')
+    if command.include?('/tmp/tar.list')
       @fired = true
       return stdout=@content,stderr='',status=1
     else

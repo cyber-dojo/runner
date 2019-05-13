@@ -53,7 +53,7 @@ class Runner
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     writer = tgz_file_writer(files)
-    writer.add(create_text_file_tar_list_filename, create_text_file_tar_list_content)
+    writer.add(create_tar_list['filename'], create_tar_list['content'])
 
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -153,29 +153,28 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def files_now
-    # After /sandbox/cyber-dojo.sh has run
-    # get text files in /sandbox (in container).
-    # The create_text_file_tar_list.sh file has already been
-    # tar-piped into the container.
-    # Pass the tar-list filename as an environment
-    # variable because using bash -c means you cannot
-    # pass it as an argument.
-    tar_list = '/tmp/tar.list'
+    # Approval-style test-frameworks compare actual-text against
+    # expected-text held inside a 'golden-master' file and, if the
+    # comparison fails, generate a file holding the actual-text
+    # ready for human inspection. cyber-dojo supports this by
+    # returning _all_ text files (inside the container) under /sandbox
+    # after cyber-dojo.sh has finished.
+    # Note: create_text_file_tar_list.sh has already been tar-piped
+    # into the container.
     docker_tar_pipe = <<~SHELL.strip
-      docker exec                                       \
-        --user=#{uid}:#{gid}                            \
-        --env TAR_LIST=#{tar_list}                      \
-        #{container_name}                               \
-        sh -c                                           \
-          '             `# open quote`                  \
-          bash /#{create_text_file_tar_list_filename}   \
-          &&                                            \
-          tar                                           \
-            -zcf        `# create tar file`             \
-            -           `# write to stdout`             \
-            -T          `# using filenames`             \
-            #{tar_list} `# read from here`              \
-          '             `# close quote`
+      docker exec                                    \
+        --user=#{uid}:#{gid}                         \
+        #{container_name}                            \
+        sh -c                                        \
+          '                      `# open quote`      \
+          bash /#{create_tar_list['filename']}       \
+          &&                                         \
+          tar                                        \
+            -zcf                 `# create tar file` \
+            -                    `# write to stdout` \
+            -T                   `# using filenames` \
+            #{tar_list_filename} `# read from here`  \
+          '                      `# close quote`
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
@@ -190,36 +189,39 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_text_file_tar_list_filename
-    'tmp/create_text_file_tar_list.sh'
+  def create_tar_list
+    { 'filename' => 'tmp/create_text_file_tar_list.sh',
+      'content' =>
+        <<~SHELL.strip
+          # o) ensure there is no tar.list file at the start
+          # o) for all files in sandbox dir (recursively)
+          #    if the file is not a binary file
+          #    then append the filename to the tar.list file
+          rm -f #{tar_list_filename} | true
+          find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
+            for filename do
+              if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
+                echo ${filename} >> #{tar_list_filename}
+              fi
+              if [ $(stat -c%s "${filename}") -eq 0 ]; then
+                # handle empty files which file reports are binary
+                echo ${filename} >> #{tar_list_filename}
+              fi
+              if [ $(stat -c%s "${filename}") -eq 1 ]; then
+                # handle file with one char which file reports are binary!
+                echo ${filename} >> #{tar_list_filename}
+              fi
+            done' sh {} +
+        SHELL
+    }
   end
 
-  def create_text_file_tar_list_content
-    <<~SHELL.strip
-      # o) ensure there is no tar-list file at the start
-      # o) for all files in sandbox dir (recursively)
-      #    if the file is not a binary file
-      #    then append the filename to the tar-list
-      rm -f ${TAR_LIST} | true
-      find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
-        for filename do
-          if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
-            echo ${filename} >> ${TAR_LIST}
-          fi
-          if [ $(stat -c%s "${filename}") -eq 0 ]; then
-            # handle empty files which file reports are binary
-            echo ${filename} >> ${TAR_LIST}
-          fi
-          if [ $(stat -c%s "${filename}") -eq 1 ]; then
-            # handle file with one char which file reports are binary!
-            echo ${filename} >> ${TAR_LIST}
-          fi
-        done' sh {} +
-    SHELL
+  def tar_list_filename
+    '/tmp/tar.list'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # in-memory tar-file creation/reading
+  # in-memory tgz creation/reading
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tgz_file_writer(files)
@@ -386,19 +388,19 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # sandbox user/group
+  # sandbox dirname/user/group
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def sandbox_dirname
     'sandbox'
   end
 
-  def gid
-    51966
-  end
-
   def uid
     41966
+  end
+
+  def gid
+    51966
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
