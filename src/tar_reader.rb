@@ -4,7 +4,7 @@ require 'stringio'
 class TarReader
 
   def initialize(tar_file)
-    @reader = Gem::Package::TarReader.new(StringIO.new(tar_file, 'r+b'))
+    @reader = Gem::Package::TarReader.new(StringIO.new(tar_file, 'r+t'))
   end
 
   def files

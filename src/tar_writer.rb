@@ -9,7 +9,7 @@ class TarWriter
   end
 
   def write(filename, content, mode = 0o644)
-    @writer.add_file_simple(filename, mode, content.size) do |fd|
+    @writer.add_file_simple(filename, mode, content.bytesize) do |fd|
       fd.write(content)
     end
   end
