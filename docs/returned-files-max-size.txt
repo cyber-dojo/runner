@@ -1,15 +1,28 @@
 
 On the tar-file-with-no-zipping branch
-there is a client test failing.
-I'm guessing this this is because files tar-piped
-OUT of the container are not size-limited.
+there was a client test failing.
+It failed because there was not tar-file compression (at the time)
+and files tar-piped OUT of the container are not (yet) size-limited.
 They should be.
 How?
-the create_text_file_tar_list.sh could get the size of
-each file and if it is too large it would
-o) truncated the file
-o) add the filename to a 2nd file holding truncated filenames
-This 2nd file would be added to the 1st list...
+
+the create_text_file_tar_list.sh could
+o) get the size of each file
+   how?
+   stat -c%s "${filename}"
+     Alpine. ok
+     Ubuntu. ok
+     Debian. ok
+o) if it is too large...
+   - truncate the file
+     how?
+     truncate -s ${SIZE} "${filename}"
+       Alpine. ok
+       Ubuntu. ok
+       Debian. ok
+   - add the filename to a 2nd file holding truncated filenames
+     This 2nd file would be added to the 1st list...
+
 
 Then once the files have been read tar-piped back from the
 container into the host process, the 2nd file could be
