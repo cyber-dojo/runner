@@ -1,0 +1,16 @@
+
+On the tar-file-with-no-zipping branch
+there is a client test failing.
+I'm guessing this this is because files tar-piped
+OUT of the container are not size-limited.
+They should be.
+How?
+the create_text_file_tar_list.sh could get the size of
+each file and if it is too large it would
+o) truncated the file
+o) add the filename to a 2nd file holding truncated filenames
+This 2nd file would be added to the 1st list...
+
+Then once the files have been read tar-piped back from the
+container into the host process, the 2nd file could be
+used to set the correct truncation values.
