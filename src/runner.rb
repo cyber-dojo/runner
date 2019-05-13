@@ -1,4 +1,5 @@
 require_relative 'file_delta'
+require_relative 'gzip'
 require_relative 'string_cleaner'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
@@ -60,7 +61,7 @@ class Runner
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
 
-    w_stdin.write(writer.tar_file)
+    w_stdin.write(gzip(writer.tar_file))
     w_stdin.close
 
     create_container(max_seconds)
@@ -139,7 +140,7 @@ class Runner
           '                      `# open quote`       \
           tar                                         \
             --touch              `# [2]`              \
-            -xf                  `# extract tar file` \
+            -zxf                 `# extract tar file` \
             -                    `# read from stdin`  \
             -C                   `# save to the`      \
             /                    `# root dir`         \
@@ -171,7 +172,7 @@ class Runner
           bash /#{create_tar_list['filename']}       \
           &&                                         \
           tar                                        \
-            -cf                  `# create tar file` \
+            -zcf                 `# create tar file` \
             -                    `# write to stdout` \
             -T                   `# using filenames` \
             #{tar_list_filename} `# read from here`  \
@@ -182,8 +183,7 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe)
     if status == 0
-      #read_tgz_file(stdout)
-      read_tar_file(stdout)
+      read_tar_file(ungzip(stdout))
     else
       {}
     end

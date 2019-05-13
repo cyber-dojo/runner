@@ -8,7 +8,7 @@ class TarTest < TestBase
     '80B'
   end
 
-  test '364', 'simple writer/reader round-trip' do
+  test '364', 'simple tar round-trip' do
     writer = TarWriter.new
     expected = {
       'hello.txt' => 'greetings earthlings...',
