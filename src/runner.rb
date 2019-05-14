@@ -42,13 +42,13 @@ class Runner
     }
   end
 
-  private # = = = = = = = = = = = = = = = = = =
+  private
 
   attr_reader :image_name, :id
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     writer = tar_file_writer(files)
-    writer.write(create_tar_list['filename'], create_tar_list['content'])
+    writer.write(CREATE_TAR_LIST['filename'], CREATE_TAR_LIST['content'])
 
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -73,7 +73,7 @@ class Runner
     rescue Timeout::Error
       Process_kill(pid)
       Process_detach(pid)
-      @status = killed_status
+      @status = KILLED_STATUS
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
@@ -127,7 +127,7 @@ class Runner
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
-        --user=#{uid}:#{gid}     `# [1]`              \
+        --user=#{UID}:#{GID}     `# [1]`              \
         #{container_name}                             \
         sh -c                                         \
           '                      `# open quote`       \
@@ -138,7 +138,7 @@ class Runner
             -C                   `# save to the`      \
             /                    `# root dir`         \
           &&                                          \
-          cd /#{sandbox_dirname} `# [3]`              \
+          cd /#{SANDBOX_DIRNAME} `# [3]`              \
           &&                                          \
           bash ./cyber-dojo.sh                        \
           '                      `# close quote`
@@ -156,17 +156,17 @@ class Runner
     # after cyber-dojo.sh has run.
     docker_tar_pipe = <<~SHELL.strip
       docker exec                                    \
-        --user=#{uid}:#{gid}                         \
+        --user=#{UID}:#{GID}                         \
         #{container_name}                            \
         sh -c                                        \
           '                      `# open quote`      \
-          bash /#{create_tar_list['filename']}       \
+          bash /#{CREATE_TAR_LIST['filename']}       \
           &&                                         \
           tar                                        \
             -zcf                 `# create tgz file` \
             -                    `# write to stdout` \
             -T                   `# using filenames` \
-            #{tar_list_filename} `# read from here`  \
+            #{TAR_LIST_FILENAME} `# read from here`  \
           '                      `# close quote`
     SHELL
     # A crippled container (eg fork-bomb) will
@@ -182,7 +182,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_tar_list
+  TAR_LIST_FILENAME = '/tmp/tar.list'
+
+  CREATE_TAR_LIST =
     { 'filename' => 'tmp/create_text_file_tar_list.sh',
       'content' =>
         <<~SHELL.strip
@@ -190,28 +192,23 @@ class Runner
           # o) for all files in sandbox dir (recursively)
           #    if the file is not a binary file
           #    then append the filename to the tar.list file
-          rm -f #{tar_list_filename} | true
+          rm -f #{TAR_LIST_FILENAME} | true
           find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
             for filename do
               if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
-                echo ${filename} >> #{tar_list_filename}
+                echo ${filename} >> #{TAR_LIST_FILENAME}
               fi
               if [ $(stat -c%s "${filename}") -eq 0 ]; then
                 # handle empty files which file reports are binary
-                echo ${filename} >> #{tar_list_filename}
+                echo ${filename} >> #{TAR_LIST_FILENAME}
               fi
               if [ $(stat -c%s "${filename}") -eq 1 ]; then
                 # handle file with one char which file reports are binary!
-                echo ${filename} >> #{tar_list_filename}
+                echo ${filename} >> #{TAR_LIST_FILENAME}
               fi
             done' sh {} +
         SHELL
     }
-  end
-
-  def tar_list_filename
-    '/tmp/tar.list'
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # in-memory tar-file creation/reading
@@ -220,9 +217,8 @@ class Runner
   def tar_file_writer(files)
     writer = TarWriter.new
     files.each do |pathed_filename,file|
-      filename = sandbox_dirname + '/' + pathed_filename
-      content = file['content']
-      writer.write(filename, content)
+      filename = SANDBOX_DIRNAME + '/' + pathed_filename
+      writer.write(filename, file['content'])
     end
     writer
   end
@@ -233,10 +229,18 @@ class Runner
     reader = TarReader.new(tar_file)
     Hash[reader.files.map do |filename,content|
       # unpathed must not have leading /
-      unpathed = filename[sandbox_dirname.size+1..-1]
+      unpathed = filename[SANDBOX_DIRNAME.size+1..-1]
       [unpathed, sanitized(content)]
     end]
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # sandbox dirname/user/group
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  SANDBOX_DIRNAME = 'sandbox'
+  UID = 41966
+  GID = 51966
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
@@ -259,7 +263,7 @@ class Runner
         docker_run_options,
         image_name,
           "sh -c 'sleep #{max_seconds}'"
-    ].join(space)
+    ].join(SPACE)
     shell.assert(docker_run)
   end
 
@@ -268,18 +272,18 @@ class Runner
   def docker_run_options
     options = <<~SHELL.strip
       #{env_vars}                                     \
-      #{tmp_fs_sandbox_dir}                           \
-      #{tmp_fs_tmp_dir}                               \
+      #{TMP_FS_SANDBOX_DIR}                           \
+      #{TMP_FS_TMP_DIR}                               \
       #{ulimits}                                      \
       --detach                  `# later docker exec` \
       --init                    `# pid-1 process`     \
       --name=#{container_name}  `# later access`      \
       --rm                      `# auto rm on exit`   \
-      --user=#{uid}:#{gid}      `# not root`
+      --user=#{UID}:#{GID}      `# not root`
     SHELL
     if clang?
       # For the -fsanitize=address option.
-      options += space + '--cap-add=SYS_PTRACE'
+      options += SPACE + '--cap-add=SYS_PTRACE'
     end
     options
   end
@@ -292,30 +296,26 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tmp_fs_sandbox_dir
-    # Note:1 the docker documention says --tmpfs is only available on
-    # Docker for Linux. It works on DockerToolbox too (Mac).
-    # Note:2 Making the sandbox dir a tmpfs should improve speed.
-    # Note:3 tmp-fs's are setup as secure mountpoints.
-    # If you use only '--tmpfs #{sandboxdir}'
-    # then a [cat /etc/mtab] will reveal something like
-    # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
-    #   o) rw = Mount the filesystem read-write.
-    #   o) nosuid = Do not allow set-user-identifier or set-group-identifier bits to take effect.
-    #   o) nodev = Do not interpret character or block special devices.
-    #   o) noexec = Do not allow direct execution of any binaries.
-    #   o) relatime = Update inode access times relative to modify or change time.
-    # So set exec to make binaries and scripts executable.
-    # Note:4 Also set ownership as default permission on docker is 755.
-    # Note:5 Also limit size of tmp-fs
-    "--tmpfs /#{sandbox_dirname}:exec,size=50M,uid=#{uid},gid=#{gid}"
-  end
+  TMP_FS_SANDBOX_DIR = "--tmpfs /#{SANDBOX_DIRNAME}:exec,size=50M,uid=#{UID},gid=#{GID}"
+  # Note:1 the docker documention says --tmpfs is only available on
+  # Docker for Linux. It works on DockerToolbox too (Mac).
+  # Note:2 Making the sandbox dir a tmpfs should improve speed.
+  # Note:3 tmp-fs's are setup as secure mountpoints.
+  # If you use only '--tmpfs #{sandboxdir}'
+  # then a [cat /etc/mtab] will reveal something like
+  # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
+  #   o) rw = Mount the filesystem read-write.
+  #   o) nosuid = Do not allow set-user-identifier or set-group-identifier bits to take effect.
+  #   o) nodev = Do not interpret character or block special devices.
+  #   o) noexec = Do not allow direct execution of any binaries.
+  #   o) relatime = Update inode access times relative to modify or change time.
+  # So set exec to make binaries and scripts executable.
+  # Note:4 Also set ownership as default permission on docker is 755.
+  # Note:5 Also limit size of tmp-fs
 
-  def tmp_fs_tmp_dir
-    # A place to save the create_text_file_tar_list.sh script.
-    # May also improve speed of /sandbox/cyber-dojo.sh execution.
-    '--tmpfs /tmp:exec,size=50M'
-  end
+  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M'
+  # A place to save the create_text_file_tar_list.sh script.
+  # May also improve speed of /sandbox/cyber-dojo.sh execution.
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -323,8 +323,8 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('SANDBOX',    '/' + sandbox_dirname)
-    ].join(space)
+      env_var('SANDBOX',    '/' + SANDBOX_DIRNAME)
+    ].join(SPACE)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -363,7 +363,7 @@ class Runner
       # -fsanitize=address option.
       options << ulimit('data', 4*GB) # data segment size
     end
-    options.join(space)
+    options.join(SPACE)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -393,22 +393,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # sandbox dirname/user/group
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def sandbox_dirname
-    'sandbox'
-  end
-
-  def uid
-    41966
-  end
-
-  def gid
-    51966
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # process helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -418,7 +402,7 @@ class Runner
     # cyber-dojo.sh process running _inside_ the docker
     # container. The container is killed by the
     # docker daemon via [docker run]'s --rm option.
-    Process.kill(-kill_signal, pid) # -ve means kill process-group
+    Process.kill(-KILL_SIGNAL, pid) # -ve means kill process-group
   rescue Errno::ESRCH
     # There is a race. There may no longer be a process at pid.
     # If not, you get an exception Errno::ESRCH: No such process
@@ -432,16 +416,12 @@ class Runner
   end
 
   def killed?(status)
-    status == killed_status
+    status == KILLED_STATUS
   end
 
-  def killed_status
-    128 + kill_signal
-  end
+  KILL_SIGNAL = 9
 
-  def kill_signal
-    9
-  end
+  KILLED_STATUS = 128 + KILL_SIGNAL
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # io helpers
@@ -453,10 +433,10 @@ class Runner
     if content.nil?
       content = ''
     end
-    truncate = (content.size > max_file_size)
+    truncate = (content.size > MAX_FILE_SIZE)
     content = cleaned(content)
     if truncate
-      content = content[0...max_file_size]
+      content = content[0...MAX_FILE_SIZE]
     end
     {
         'content' => content,
@@ -465,17 +445,12 @@ class Runner
   end
 
   def max_read(fd)
-    fd.read(max_file_size + 1)
+    fd.read(MAX_FILE_SIZE + 1)
   end
 
-  def max_file_size
-    # Also applies to returned @stdout/@stderr.
-    25 * KB
-  end
+  MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout/@stderr.
 
-  def space
-    ' '
-  end
+  SPACE = ' '
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
@@ -524,7 +499,7 @@ class Runner
     command = 'cat /usr/local/bin/red_amber_green.rb'
     docker_command = <<~SHELL.strip
       docker exec               \
-        --user=#{uid}:#{gid}    \
+        --user=#{UID}:#{GID}    \
         #{container_name}       \
           bash -c '#{command}'
     SHELL
