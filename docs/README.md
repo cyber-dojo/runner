@@ -64,7 +64,7 @@ for at most max_seconds.
 - returns [stdout, stderr, status, colour] as the results of
 executing cyber-dojo.sh
 - returns [created, deleted, changed] which are text files
-altered by executing cyber-dojo.sh
+in /sandbox altered by executing /sandbox/cyber-dojo.sh
 - if the execution completed in max_seconds, colour will be "red", "amber", or "green".
 - if the execution did not complete in max_seconds, colour will be "timed_out".
 
