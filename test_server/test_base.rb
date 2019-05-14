@@ -124,7 +124,7 @@ class TestBase < HexMiniTest
   end
 
   def timed_out?
-    colour == 'timed_out'
+    colour === 'timed_out'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

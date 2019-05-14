@@ -15,7 +15,7 @@ class BashStub
     unless uncaught_exception?
       stubs = read
       pretty = JSON.pretty_generate(stubs)
-      unless stubs == []
+      unless stubs === []
         raise "#{filename}: uncalled stubs(#{pretty})"
       end
     end
@@ -47,7 +47,7 @@ class BashStub
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
-    unless command == stub['command']
+    unless command === stub['command']
       raise [
         self.class.name,
         "run(command) - does not match stub",

@@ -30,7 +30,7 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    cant_fork = (os == :Alpine ? "can't fork" : 'Cannot fork')
+    cant_fork = (os === :Alpine ? "can't fork" : 'Cannot fork')
     assert timed_out? ||
       printed?(cant_fork) ||
         printed?('bomb'), result

@@ -118,7 +118,7 @@ class ContainerPropertiesTest < TestBase
     assert_equal '', stderr
     assert_equal starting_files.keys.sort, stdout_stats.keys.sort
     starting_files.each do |filename, file|
-      if filename == 'cyber-dojo.sh'
+      if filename === 'cyber-dojo.sh'
         content = stat_cmd
       else
         content = file['content']
@@ -168,10 +168,10 @@ class ContainerPropertiesTest < TestBase
     row = table[key]
     diagnostic = "no ulimit table entry for #{key}"
     refute_nil row, diagnostic
-    if os == :Alpine
+    if os === :Alpine
       txt = row[0]
     end
-    if os == :Ubuntu
+    if os === :Ubuntu
       txt = row[1]
     end
     line = stdout.lines.detect { |line| line.start_with?(txt) }
