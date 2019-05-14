@@ -28,13 +28,6 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    # We do [docker run --rm --detach] so the docker daemon
-    # does the [docker rm]. This means the container-name
-    # must be unique. If the container name is based on just
-    # the id then a 2nd run started within max_seconds of the
-    # previous run (with the same id) would fail.
-    # Happens a lot in tests.
-    @container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
     run_cyber_dojo_sh_in_container(files, max_seconds)
     set_colour
     set_file_delta(files, files_now)
@@ -51,7 +44,7 @@ class Runner
 
   private # = = = = = = = = = = = = = = = = = =
 
-  attr_reader :image_name, :id, :container_name
+  attr_reader :image_name, :id
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     writer = tar_file_writer(files)
@@ -65,7 +58,7 @@ class Runner
     w_stdin.close
 
     create_container(max_seconds)
-    pid = Process.spawn(run_cyber_dojo_sh_cmd, {
+    pid = Process.spawn(run_cyber_dojo_sh_command, {
       pgroup:true,     # become process leader
           in:r_stdin,  # redirection
          out:w_stdout, # redirection
@@ -94,9 +87,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh_cmd
-    # Assumes a tarfile of files is on stdin. Untars this into
-    # /sandbox inside the container and runs cyber-dojo.sh
+  def run_cyber_dojo_sh_command
+    # Assumes a tgz of files is on stdin. Untars this into
+    # /sandbox inside the container and runs /sandbox/cyber-dojo.sh
     #
     # [1] Ways to ensure /sandbox files have correct ownership...
     # o) untar as root; tar will try to match ownership.
@@ -140,7 +133,7 @@ class Runner
           '                      `# open quote`       \
           tar                                         \
             --touch              `# [2]`              \
-            -zxf                 `# extract tar file` \
+            -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
             -C                   `# save to the`      \
             /                    `# root dir`         \
@@ -161,8 +154,6 @@ class Runner
     # ready for human inspection. cyber-dojo supports this by
     # returning _all_ text files (inside the container) under /sandbox
     # after cyber-dojo.sh has run.
-    # Note: create_text_file_tar_list.sh has already been tar-piped
-    # into the container.
     docker_tar_pipe = <<~SHELL.strip
       docker exec                                    \
         --user=#{uid}:#{gid}                         \
@@ -172,7 +163,7 @@ class Runner
           bash /#{create_tar_list['filename']}       \
           &&                                         \
           tar                                        \
-            -zcf                 `# create tar file` \
+            -zcf                 `# create tgz file` \
             -                    `# write to stdout` \
             -T                   `# using filenames` \
             #{tar_list_filename} `# read from here`  \
@@ -247,6 +238,17 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def container_name
+    # We do [docker run --rm] so the docker daemon does the
+    # [docker rm]. This means the container-name must be
+    # unique. If the container name is based on only the
+    # id then a 2nd run started while a 1st run (with the
+    # same id) is still live would fail.
+    @container_name ||= ['test_run_runner', id, SecureRandom.hex].join('_')
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(max_seconds)
@@ -409,15 +411,15 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def Process_kill(signal, pid)
-    # There is a race. There may no longer be a process at pid.
-    # If not, you get an exception Errno::ESRCH: No such process
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
     # cyber-dojo.sh process running _inside_ the docker
     # container. The container is killed by the
-    # docker daemon via [docker run --rm]
+    # docker daemon via [docker run]'s --rm option.
     Process.kill(signal, pid)
   rescue Errno::ESRCH
+    # There is a race. There may no longer be a process at pid.
+    # If not, you get an exception Errno::ESRCH: No such process
   end
 
   def Process_detach(pid)
@@ -512,23 +514,23 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def get_rag_lambda
-    cmd = 'cat /usr/local/bin/red_amber_green.rb'
-    docker_cmd = <<~SHELL.strip
+    command = 'cat /usr/local/bin/red_amber_green.rb'
+    docker_command = <<~SHELL.strip
       docker exec               \
         --user=#{uid}:#{gid}    \
         #{container_name}       \
-          bash -c '#{cmd}'
+          bash -c '#{command}'
     SHELL
     # In a crippled container (eg fork-bomb)
     # the shell.assert will mostly likely raise.
-    src = shell.assert(docker_cmd)
-    eval(src)
+    catted_source = shell.assert(docker_command)
+    eval(catted_source)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def rag_message(msg)
-    "red_amber_green lambda error mapped to :amber\n#{msg}"
+  def rag_message(message)
+    "red_amber_green lambda error mapped to :amber\n#{message}"
   end
 
 end
