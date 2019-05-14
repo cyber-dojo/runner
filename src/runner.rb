@@ -312,7 +312,7 @@ class Runner
   def tmp_fs_tmp_dir
     # A place to save the create_text_file_tar_list.sh script.
     # May also improve speed of /sandbox/cyber-dojo.sh execution.
-    '--tmpfs /tmp:exec,size=100M'
+    '--tmpfs /tmp:exec,size=50M'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
