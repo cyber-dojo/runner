@@ -173,7 +173,7 @@ class Runner
     # likely not be running causing the [docker exec]
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe)
-    if status == 0
+    if status === 0
       read_tar_file(ungzip(stdout))
     else
       {}
@@ -383,7 +383,7 @@ class Runner
   include FileDelta
 
   def set_file_delta(was_files, now_files)
-    if now_files == {} || @timed_out
+    if now_files === {} || @timed_out
       @created = {}
       @deleted = {}
       @changed = {}
@@ -416,7 +416,7 @@ class Runner
   end
 
   def killed?(status)
-    status == KILLED_STATUS
+    status === KILLED_STATUS
   end
 
   KILL_SIGNAL = 9
