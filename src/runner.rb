@@ -71,9 +71,9 @@ class Runner
         @timed_out = killed?(@status)
       end
     rescue Timeout::Error
-      Process_kill(-9, pid)   # -ve means kill process-group
-      Process_detach(pid)     # Prevent zombie-child but
-      @status = killed_status # don't wait for detach status
+      Process_kill(pid)
+      Process_detach(pid)
+      @status = killed_status
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
@@ -226,6 +226,8 @@ class Runner
     end
     writer
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_tar_file(tar_file)
     reader = TarReader.new(tar_file)
@@ -410,13 +412,13 @@ class Runner
   # process helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def Process_kill(signal, pid)
+  def Process_kill(pid)
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
     # cyber-dojo.sh process running _inside_ the docker
     # container. The container is killed by the
     # docker daemon via [docker run]'s --rm option.
-    Process.kill(signal, pid)
+    Process.kill(-kill_signal, pid) # -ve means kill process-group
   rescue Errno::ESRCH
     # There is a race. There may no longer be a process at pid.
     # If not, you get an exception Errno::ESRCH: No such process
@@ -425,6 +427,7 @@ class Runner
   def Process_detach(pid)
     # There is a race. There may no longer be a process at pid.
     # If not, you don't get an exception.
+    # Prevents zombie child-process. Don't wait for detach status.
     Process.detach(pid)
   end
 
@@ -433,7 +436,11 @@ class Runner
   end
 
   def killed_status
-    128 + 9
+    128 + kill_signal
+  end
+
+  def kill_signal
+    9
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
