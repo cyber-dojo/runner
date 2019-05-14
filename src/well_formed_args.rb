@@ -60,7 +60,7 @@ module WellFormedArgs
   include WellFormedImageName
 
   def well_formed_id?(arg)
-    Base58.string?(arg) && arg.size == 6
+    Base58.string?(arg) && arg.size === 6
   end
 
   def well_formed_files(name)

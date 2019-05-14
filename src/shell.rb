@@ -17,7 +17,7 @@ class Shell
 
   def assert(command)
     stdout,stderr,status = bash_run(command)
-    unless status == success
+    unless status === success
       args = [command,stdout,stderr,status]
       raise ShellAssertError.new(*args)
     end
@@ -34,7 +34,7 @@ class Shell
 
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
-    unless status == success
+    unless status === success
       log << JSON.pretty_generate({
         'command' => command,
         'stdout'  => stdout,

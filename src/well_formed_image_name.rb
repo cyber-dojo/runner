@@ -17,7 +17,7 @@ module WellFormedImageName # mix-in
 
   def split_image_name(image_name)
     i = image_name.index('/')
-    if i.nil? || i == -1 || (
+    if i.nil? || i === -1 || (
         !image_name[0...i].include?('.') &&
         !image_name[0...i].include?(':') &&
          image_name[0...i] != 'localhost')
@@ -33,7 +33,7 @@ module WellFormedImageName # mix-in
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def valid_hostname?(hostname)
-    return true if hostname == ''
+    return true if hostname === ''
     ch = '[a-zA-Z0-9]'
     component = "(#{ch}|#{ch}[a-zA-Z0-9-]*#{ch})"
     port = '[\d]+'
