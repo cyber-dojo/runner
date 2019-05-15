@@ -35,12 +35,8 @@ class Shell
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
     unless status === success
-      log << JSON.pretty_generate({
-        'command' => command,
-        'stdout'  => stdout,
-        'stderr'  => stderr,
-        'status'  => status
-      })
+      args = [command,stdout,stderr,status]
+      log << ShellAssertError.new(*args).message
     end
     [stdout, stderr, status]
   end

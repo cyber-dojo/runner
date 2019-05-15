@@ -160,8 +160,9 @@ class Runner
         #{container_name}                            \
         sh -c                                        \
           '                      `# open quote`      \
-          bash /#{CREATE_TAR_LIST[:filename]}        \
-          &&                                         \
+          bash /#{CREATE_TAR_LIST[:filename]};       \
+          [ -f #{TAR_LIST_FILENAME} ]                \
+            || > #{TAR_LIST_FILENAME};               \
           tar                                        \
             -zcf                 `# create tgz file` \
             -                    `# write to stdout` \
@@ -183,12 +184,13 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   TAR_LIST_FILENAME = '/tmp/tar.list'
+  # The name of the file populated (by the script below) with the names of
+  # text files under /sandbox after /sandbox/cyber-dojo.sh has finished.
 
   CREATE_TAR_LIST =
     { filename: 'tmp/create_text_file_tar_list.sh',
       content:
         <<~SHELL.strip
-          > #{TAR_LIST_FILENAME}
           find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
             for filename do
               is_textfile=false

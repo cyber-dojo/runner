@@ -98,10 +98,10 @@ class RoundTripTest < TestBase
 
   test '532', %w( empty new text files are detected ) do
     # The file utility says empty files are binary files!
+    filename = 'empty.txt'
+    script = "touch #{filename}"
     all_OSes.each do |os|
       set_OS(os)
-      filename = 'empty.txt'
-      script = "touch #{filename}"
       assert_cyber_dojo_sh(script)
       assert_created({filename => intact('')})
       assert_deleted([])
@@ -113,11 +113,11 @@ class RoundTripTest < TestBase
 
   test '533', %w( single-char new text files are detected ) do
     # The file utility says single-char files are binary files!
+    filename = 'one-char.txt'
+    ch = 'x'
+    script = "echo -n '#{ch}' > #{filename}"
     all_OSes.each do |os|
       set_OS(os)
-      filename = 'one-char.txt'
-      ch = 'x'
-      script = "echo -n '#{ch}' > #{filename}"
       assert_cyber_dojo_sh(script)
       assert_created({filename => intact(ch)})
       assert_deleted([])
@@ -144,7 +144,7 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '62C',
-  %w( no text files at is a benign no-op ) do
+  %w( no text files under /sandbox at all, returns everything unchanged ) do
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh('rm -rf /sandbox/*')
@@ -153,6 +153,52 @@ class RoundTripTest < TestBase
       assert_changed({})
     end
   end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '62D',
+  %w( deleting /tmp/create_text_file_tar_list.sh, returns everything unchanged ) do
+    script  = "echo -n 'greetings' > hello.txt;"
+    script += 'rm /tmp/create_text_file_tar_list.sh'
+    all_OSes.each do |os|
+      set_OS(os)
+      assert_cyber_dojo_sh(script)
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '62E',
+  %w( deleting /tmp/tar.list in the script, returns everything unchanged ) do
+    filename = '/tmp/create_text_file_tar_list.sh'
+    script = "echo 'rm /tmp/tar.list' > #{filename}"
+    all_OSes.each do |os|
+      set_OS(os)
+      assert_cyber_dojo_sh(script)
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+=begin
+  test '62F',
+  %w( filling /tmp/tar.list with non-existing filenames in script,
+  returns everything unchanged ) do
+    all_OSes.each do |os|
+      set_OS(os)
+      assert_cyber_dojo_sh('echo /a/b/c.txt > /tmp/tar.list')
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+=end
 
   private # = = = = = = = = = = = = =
 
