@@ -1,9 +1,9 @@
 
 On the tar-file-with-no-zipping branch
 there was a client test failing.
-It failed because there was not tar-file compression (at the time)
-and files tar-piped OUT of the container are not (yet) size-limited.
-They should be.
+It failed because there was no tar-file compression (at the time)
+and files tar-piped OUT of the container are not size-limited.
+They should be?
 How?
 
 the create_text_file_tar_list.sh could
@@ -27,3 +27,7 @@ o) if it is too large...
 Then once the files have been read tar-piped back from the
 container into the host process, the 2nd file could be
 used to set the correct truncation values.
+
+However, the tar-file is now compressed so there is less need
+to truncate it before the tar-piping.
+And the ulimits should limit the maximum size of an individual file.
