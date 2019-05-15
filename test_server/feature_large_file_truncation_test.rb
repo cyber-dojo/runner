@@ -29,6 +29,7 @@ class LargeFileTruncationTest < TestBase
 
   test '62B',
   %w( source files bigger than 10K are not truncated ) do
+    skip
     filename = 'Hiker.cs'
     src = starting_files[filename]['content']
     large_comment = "/*#{'x'*10*1024}*/"

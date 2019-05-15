@@ -131,6 +131,7 @@ class RoundTripTest < TestBase
 
   test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
+    skip
     all_OSes.each do |os|
       set_OS(os)
       stub = BashStubTarPipeOut.new('fail')
@@ -150,68 +151,6 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh('rm -rf /sandbox/*')
-      assert_created({})
-      assert_deleted([])
-      assert_changed({})
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '62D',
-  %w( deleting /tmp/create_text_file_tar_list.sh, returns everything unchanged ) do
-    script  = "echo -n 'greetings' > hello.txt;"
-    script += 'rm /tmp/create_text_file_tar_list.sh'
-    all_OSes.each do |os|
-      set_OS(os)
-      assert_cyber_dojo_sh(script)
-      assert_created({})
-      assert_deleted([])
-      assert_changed({})
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '62E',
-  %w( deleting /tmp/tar.list in the script, returns everything unchanged ) do
-    filename = '/tmp/create_text_file_tar_list.sh'
-    script = "echo 'rm /tmp/tar.list' > #{filename}"
-    all_OSes.each do |os|
-      set_OS(os)
-      assert_cyber_dojo_sh(script)
-      assert_created({})
-      assert_deleted([])
-      assert_changed({})
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '62F',
-  %w( filling /tmp/tar.list with non-existing filenames in script,
-  returns everything unchanged ) do
-    all_OSes.each do |os|
-      set_OS(os)
-      with_captured_log {
-        assert_cyber_dojo_sh('echo /a/b/c.txt > /tmp/tar.list')
-      }
-      assert_log_include('stderr', 'tar: /a/b/c.txt: Cannot stat: No such file or directory')
-      assert_created({})
-      assert_deleted([])
-      assert_changed({})
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '63A',
-  %w( attack attempting to tar files not under /sandbox fails ) do
-    filename = '/tmp/create_text_file_tar_list.sh'
-    script = "echo #{filename} > /tmp/tar.list"
-    all_OSes.each do |os|
-      set_OS(os)
-      assert_cyber_dojo_sh(script)
       assert_created({})
       assert_deleted([])
       assert_changed({})

@@ -48,7 +48,6 @@ class Runner
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     writer = tar_file_writer(files)
-    writer.write(CREATE_TAR_LIST[:filename], CREATE_TAR_LIST[:content])
 
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -155,20 +154,19 @@ class Runner
     # returning _all_ text files (inside the container) under /sandbox
     # after cyber-dojo.sh has run.
     docker_tar_pipe = <<~SHELL.strip
-      docker exec                                    \
-        --user=#{UID}:#{GID}                         \
-        #{container_name}                            \
-        bash -c                                      \
-          '                      `# open quote`      \
-          bash /#{CREATE_TAR_LIST[:filename]};       \
-          [ -f #{TAR_LIST_FILENAME} ]                \
-            || > #{TAR_LIST_FILENAME};               \
-          tar                                        \
-            -zcf                 `# create tgz file` \
-            -                    `# write to stdout` \
-            -T                   `# using filenames` \
-            #{TAR_LIST_FILENAME} `# read from here`  \
-          '                      `# close quote`
+      docker exec                   \
+        --user=#{UID}:#{GID}        \
+        #{container_name}           \
+        bash -c                     \
+          '                         \
+          #{CREATE_TAR_LIST_SCRIPT} \
+          |                         \
+          tar                       \
+            -zcf                    \
+            -                       \
+            -T                      \
+            - \
+          '
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
@@ -183,30 +181,22 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TAR_LIST_FILENAME = '/tmp/tar.list'
-  # The name of the file populated (by the script below) with the names of
-  # text files under /sandbox after /sandbox/cyber-dojo.sh has finished.
-
-  CREATE_TAR_LIST =
-    { filename: 'tmp/create_text_file_tar_list.sh',
-      content:
-        <<~SHELL.strip
-          is_text_file()
-          {
-            if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-              return
-            fi
-            if [ $(stat -c%s "${1}") -lt 2 ]; then
-              # file reports size==0,1 is binary!
-              return
-            fi
-            false
-          }
-          export -f is_text_file
-          find ${CYBER_DOJO_SANDBOX} -type f -exec \
-            bash -c "is_text_file {} && echo {} >> #{TAR_LIST_FILENAME}" \\;
-        SHELL
-    }
+  CREATE_TAR_LIST_SCRIPT =
+    <<~SHELL.strip
+      is_text_file() \
+      { \
+        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
+          return; \
+        fi; \
+        if [ $(stat -c%s "${1}") -lt 2 ]; then \
+          return; \
+        fi; \
+        false; \
+      }; \
+      export -f is_text_file; \
+      (find ${CYBER_DOJO_SANDBOX} -type f -exec \
+        bash -c "is_text_file {} && echo {}" \\;)
+    SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # in-memory tar-file creation/reading

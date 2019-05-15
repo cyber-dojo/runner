@@ -142,6 +142,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB6', '[C,assert] run_cyber_dojo_sh with some logging' do
+    skip
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
