@@ -154,18 +154,18 @@ class Runner
     # returning _all_ text files (inside the container) under /sandbox
     # after cyber-dojo.sh has run.
     docker_tar_pipe = <<~SHELL.strip
-      docker exec            \
-        --user=#{UID}:#{GID} \
-        #{container_name}    \
-        bash -c              \
-          '                  \
-          #{TAR_FILENAMES}   \
-          |                  \
-          tar                \
-            -zcf             \
-            -                \
-            -T               \
-            - \
+      docker exec                    \
+        --user=#{UID}:#{GID}         \
+        #{container_name}            \
+        bash -c                      \
+          '                          \
+          #{ECHO_TEXT_FILENAMES}     \
+          |                          \
+          tar                        \
+            -zcf `# create tgz file` \
+            -    `# write to stdout` \
+            -T   `# using filenames` \
+            -    `# from stdin`      \
           '
     SHELL
     # A crippled container (eg fork-bomb) will
@@ -181,13 +181,15 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TAR_FILENAMES =
+  ECHO_TEXT_FILENAMES =
     <<~SHELL.strip
       is_text_file() \
       { \
+        `# grep -v is --invert-match`; \
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
           return; \
         fi; \
+        `# file incorrectly reports size==0,1 as binary!`; \
         if [ $(stat -c%s "${1}") -lt 2 ]; then \
           return; \
         fi; \
