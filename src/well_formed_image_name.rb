@@ -34,8 +34,8 @@ module WellFormedImageName # mix-in
 
   def valid_hostname?(hostname)
     return true if hostname === ''
-    ch = '[a-zA-Z0-9]'
-    component = "(#{ch}|#{ch}[a-zA-Z0-9-]*#{ch})"
+    ch = 'a-zA-Z0-9'
+    component = "([#{ch}]|[#{ch}][#{ch}-]*[#{ch}])"
     port = '[\d]+'
     hostname =~ /^(#{component}(\.#{component})*)(:(#{port}))?$/
   end
