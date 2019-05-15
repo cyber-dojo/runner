@@ -158,7 +158,7 @@ class Runner
       docker exec                                    \
         --user=#{UID}:#{GID}                         \
         #{container_name}                            \
-        sh -c                                        \
+        bash -c                                      \
           '                      `# open quote`      \
           bash /#{CREATE_TAR_LIST[:filename]};       \
           [ -f #{TAR_LIST_FILENAME} ]                \
@@ -191,20 +191,18 @@ class Runner
     { filename: 'tmp/create_text_file_tar_list.sh',
       content:
         <<~SHELL.strip
-          find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
-            for filename do
-              is_textfile=false
-              if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
-                is_textfile=true
-              fi
-              if [ $(stat -c%s "${filename}") -lt 2 ]; then
-                # file reports size==0,1 is binary!
-                is_textfile=true
-              fi
-              if ${is_textfile}; then
-                echo ${filename} >> #{TAR_LIST_FILENAME}
-              fi
-            done' sh {} +
+          gg()
+          {
+            if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+              echo ${1} >> #{TAR_LIST_FILENAME}
+            fi
+            if [ $(stat -c%s "${1}") -lt 2 ]; then
+              # file reports size==0,1 is binary!
+              echo ${1} >> #{TAR_LIST_FILENAME}
+            fi
+          }
+          export -f gg
+          find ${CYBER_DOJO_SANDBOX} -type f -exec bash -c "gg {}" \\;
         SHELL
     }
 
