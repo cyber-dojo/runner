@@ -141,6 +141,19 @@ class RoundTripTest < TestBase
     end
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test '62C',
+  %w( no text files at is a benign no-op ) do
+    all_OSes.each do |os|
+      set_OS(os)
+      assert_cyber_dojo_sh('rm -rf /sandbox/*')
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+
   private # = = = = = = = = = = = = =
 
   def src_file(os)

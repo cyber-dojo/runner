@@ -188,7 +188,7 @@ class Runner
     { filename: 'tmp/create_text_file_tar_list.sh',
       content:
         <<~SHELL.strip
-          rm -f #{TAR_LIST_FILENAME} | true
+          > #{TAR_LIST_FILENAME}
           find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
             for filename do
               is_textfile=false
