@@ -23,3 +23,24 @@ bash -c 'is_text_file() { (file --mime-encoding "${1}" | grep -qv "${1}:\\sbinar
 
 bash -c 'is_text_file() { (file --mime-encoding "${1}" | grep -qv "${1}:\\sbinary") || [ $(stat -c%s "${1}") -lt 2 ]; }; export -f is_text_file; find /tmp -type f -exec bash -c "is_text_file {} && echo {}" \; | wc'
      12      12     567
+
+
+Use cut to strip off leading ./ and start from 3rd character...
+bash -c 'is_text_file() { (file --mime-encoding "${1}" | grep -qv "${1}:\\sbinary") || [ $(stat -c%s "${1}") -lt 2 ]; }; export -f is_text_file; (cd /tmp && find . -type f -exec bash -c "is_text_file {} && echo {} | cut -c 3-" \;);'
+jj.sh
+hello.txt
+empty.txt
+NuGetScratch/lock/83aa066c87fb38c77f9f6b3dd4e078231dab3c6c
+NuGetScratch/lock/8bc534b976ff4bda6042161b5f7717a10aa780de
+NuGetScratch/lock/66e4209c371ed8724b60e0e2328a3f1ede8c6f56
+NuGetScratch/lock/608d3464c52069cb3539d96e2695951b826b49e3
+NuGetScratch/lock/70c8a3a486fd5bba0e37a2e2dccf1bb7e32404fc
+NuGetScratch/lock/de6806043ddcf00a997e97f402be8742291d8685
+NuGetScratch/lock/07cd70bacfac95857d257877414e621bb22e14d6
+NuGetScratch/lock/d661ddcd240604c3b7bd9e58b6b6affa69c10a27
+
+So save that somewhere other than /tmp
+bash -c 'is_text_file() { (file --mime-encoding "${1}" | grep -qv "${1}:\\sbinary") || [ $(stat -c%s "${1}") -lt 2 ]; }; export -f is_text_file; (cd /tmp && find . -type f -exec bash -c "is_text_file {} && echo {} | cut -c 3-" \;);' > ~/tar.list
+
+Create tarfile from list of relative paths...
+(cat ~/tar.list | tar -C /tmp -zcf jj.tgz -T -) && tar -tf jj.tgz
