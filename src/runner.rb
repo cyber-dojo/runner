@@ -128,7 +128,7 @@ class Runner
         #{container_name}                             \
         sh -c                                         \
           '                      `# open quote`       \
-          cd #{SANDBOX_DIRNAME}  `# [2]`              \
+          cd #{SANDBOX_DIR}      `# [2]`              \
           &&                                          \
           tar                                         \
             --touch              `# [3]`              \
@@ -141,10 +141,10 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # sandbox dirname, user, group
+  # sandbox dir, user, group
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  SANDBOX_DIRNAME = '/sandbox'
+  SANDBOX_DIR = '/sandbox'
   UID = 41966
   GID = 51966
 
@@ -162,17 +162,17 @@ class Runner
         --user=#{UID}:#{GID}         \
         #{container_name}            \
         bash -c                      \
-          '                          \
+          '      `# open quote`;     \
           #{ECHO_TEXT_FILENAMES}     \
           |                          \
           tar                        \
             -C                       \
-            #{SANDBOX_DIRNAME}       \
+            #{SANDBOX_DIR}           \
             -zcf `# create tgz file` \
             -    `# write to stdout` \
             -T   `# using filenames` \
             -    `# from stdin`      \
-          '
+          '      `# close quote`
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
@@ -203,7 +203,7 @@ class Runner
       }; \
       export -f is_text_file; \
       `# strip ./ from relative filenames; start at char 3`; \
-      (cd #{SANDBOX_DIRNAME} && find . -type f -exec \
+      (cd #{SANDBOX_DIR} && find . -type f -exec \
         bash -c "is_text_file {} && echo {} | cut -c 3-" \\;)
     SHELL
 
@@ -278,7 +278,7 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('SANDBOX',    SANDBOX_DIRNAME)
+      env_var('SANDBOX',    SANDBOX_DIR)
     ].join(SPACE)
   end
 
@@ -291,12 +291,12 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{SANDBOX_DIRNAME}:exec,size=50M,uid=#{UID},gid=#{GID}"
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{SANDBOX_DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"
   # Note:1 the docker documention says --tmpfs is only available on
   # Docker for Linux. It works on DockerToolbox too (Mac).
   # Note:2 Making the sandbox dir a tmpfs should improve speed.
   # Note:3 tmp-fs's are setup as secure mountpoints.
-  # If you use only '--tmpfs #{sandboxdir}'
+  # If you use only '--tmpfs #{SANDBOX_DIR}'
   # then a [cat /etc/mtab] will reveal something like
   # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
   #   o) rw = Mount the filesystem read-write.
@@ -392,6 +392,8 @@ class Runner
     # If not, you get an exception Errno::ESRCH: No such process
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def Process_detach(pid)
     # Prevents zombie child-process. Don't wait for detach status.
     Process.detach(pid)
@@ -399,9 +401,13 @@ class Runner
     # If not, you don't get an exception.
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def killed?(status)
     status === KILLED_STATUS
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   KILL_SIGNAL = 9
 
@@ -428,9 +434,13 @@ class Runner
     }
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def max_read(fd)
     fd.read(MAX_FILE_SIZE + 1)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout/@stderr.
 
