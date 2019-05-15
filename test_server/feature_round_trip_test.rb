@@ -126,6 +126,8 @@ class RoundTripTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # robust-ness
+  # - - - - - - - - - - - - - - - - -
 
   test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
@@ -195,6 +197,21 @@ class RoundTripTest < TestBase
         assert_cyber_dojo_sh('echo /a/b/c.txt > /tmp/tar.list')
       }
       assert_log_include('stderr', 'tar: /a/b/c.txt: Cannot stat: No such file or directory')
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '63A',
+  %w( attack attempting to tar files not under /sandbox fails ) do
+    filename = '/tmp/create_text_file_tar_list.sh'
+    script = "echo #{filename} > /tmp/tar.list"
+    all_OSes.each do |os|
+      set_OS(os)
+      assert_cyber_dojo_sh(script)
       assert_created({})
       assert_deleted([])
       assert_changed({})
