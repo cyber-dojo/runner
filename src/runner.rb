@@ -126,7 +126,7 @@ class Runner
         --interactive            `# piping stdin`     \
         --user=#{UID}:#{GID}     `# [1]`              \
         #{container_name}                             \
-        sh -c                                         \
+        bash -c                                       \
           '                      `# open quote`       \
           cd #{SANDBOX_DIR}      `# [2]`              \
           &&                                          \
