@@ -188,22 +188,18 @@ class Runner
     { filename: 'tmp/create_text_file_tar_list.sh',
       content:
         <<~SHELL.strip
-          # o) ensure there is no tar.list file at the start
-          # o) for all files in sandbox dir (recursively)
-          #    if the file is not a binary file
-          #    then append the filename to the tar.list file
           rm -f #{TAR_LIST_FILENAME} | true
           find ${CYBER_DOJO_SANDBOX} -type f -exec sh -c '
             for filename do
+              is_textfile=false
               if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
-                echo ${filename} >> #{TAR_LIST_FILENAME}
+                is_textfile=true
               fi
-              if [ $(stat -c%s "${filename}") -eq 0 ]; then
-                # handle empty files which file reports are binary
-                echo ${filename} >> #{TAR_LIST_FILENAME}
+              if [ $(stat -c%s "${filename}") -lt 2 ]; then
+                # file reports size==0,1 is binary!
+                is_textfile=true
               fi
-              if [ $(stat -c%s "${filename}") -eq 1 ]; then
-                # handle file with one char which file reports are binary!
+              if ${is_textfile}; then
                 echo ${filename} >> #{TAR_LIST_FILENAME}
               fi
             done' sh {} +
