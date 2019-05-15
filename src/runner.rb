@@ -47,13 +47,11 @@ class Runner
   attr_reader :image_name, :id
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
-    writer = tar_file_writer(files)
-
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
 
-    w_stdin.write(gzip(writer.tar_file))
+    w_stdin.write(gzip(tar_file_writer(files).tar_file))
     w_stdin.close
 
     create_container(max_seconds)
@@ -98,7 +96,10 @@ class Runner
     # o) it's safer - no need to run as root.
     # o) it's simpler - let the OS do it, not the tar -x
     #
-    # [2] is for file-stamp date-time granularity.
+    # [2] Don't use docker exec --workdir as that requires API version
+    # 1.35 but CircleCI is currently using Docker Daemon API 1.32
+    #
+    # [3] is for file-stamp date-time granularity.
     # --touch means 'dont extract file modified time'
     # This relates to the files modification-date (stat %y).
     # Without it the untarred files may all end up with the
@@ -120,9 +121,6 @@ class Runner
     #    o) RUN_install_tar
     #    o) RUN_install_coreutils
     #    o) RUN_install_bash
-    #
-    # [3] Don't use docker exec --workdir as that requires API version
-    # 1.35 but CircleCI is currently using Docker Daemon API 1.32
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
@@ -130,14 +128,12 @@ class Runner
         #{container_name}                             \
         sh -c                                         \
           '                      `# open quote`       \
+          cd #{SANDBOX_DIRNAME}  `# [2]`              \
+          &&                                          \
           tar                                         \
-            --touch              `# [2]`              \
+            --touch              `# [3]`              \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
-            -C                   `# save to the`      \
-            /                    `# root dir`         \
-          &&                                          \
-          cd /#{SANDBOX_DIRNAME} `# [3]`              \
           &&                                          \
           bash ./cyber-dojo.sh                        \
           '                      `# close quote`
@@ -148,7 +144,7 @@ class Runner
   # sandbox dirname, user, group
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  SANDBOX_DIRNAME = 'sandbox'
+  SANDBOX_DIRNAME = '/sandbox'
   UID = 41966
   GID = 51966
 
@@ -171,7 +167,7 @@ class Runner
           |                          \
           tar                        \
             -C                       \
-            /#{SANDBOX_DIRNAME}      \
+            #{SANDBOX_DIRNAME}       \
             -zcf `# create tgz file` \
             -    `# write to stdout` \
             -T   `# using filenames` \
@@ -207,7 +203,7 @@ class Runner
       }; \
       export -f is_text_file; \
       `# strip ./ from relative filenames; start at char 3`; \
-      (cd /#{SANDBOX_DIRNAME} && find . -type f -exec \
+      (cd #{SANDBOX_DIRNAME} && find . -type f -exec \
         bash -c "is_text_file {} && echo {} | cut -c 3-" \\;)
     SHELL
 
@@ -217,8 +213,7 @@ class Runner
 
   def tar_file_writer(files)
     writer = TarWriter.new
-    files.each do |pathed_filename,file|
-      filename = SANDBOX_DIRNAME + '/' + pathed_filename
+    files.each do |filename,file|
       writer.write(filename, file['content'])
     end
     writer
@@ -283,7 +278,7 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('SANDBOX',    '/' + SANDBOX_DIRNAME)
+      env_var('SANDBOX',    SANDBOX_DIRNAME)
     ].join(SPACE)
   end
 
@@ -296,7 +291,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs /#{SANDBOX_DIRNAME}:exec,size=50M,uid=#{UID},gid=#{GID}"
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{SANDBOX_DIRNAME}:exec,size=50M,uid=#{UID},gid=#{GID}"
   # Note:1 the docker documention says --tmpfs is only available on
   # Docker for Linux. It works on DockerToolbox too (Mac).
   # Note:2 Making the sandbox dir a tmpfs should improve speed.
