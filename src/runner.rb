@@ -309,8 +309,7 @@ class Runner
   # Note:5 Also set ownership.
 
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M'
-  # A place to save the create_text_file_tar_list.sh script.
-  # May also improve speed of /sandbox/cyber-dojo.sh execution.
+  # May improve speed of /sandbox/cyber-dojo.sh execution.
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
