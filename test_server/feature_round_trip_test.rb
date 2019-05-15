@@ -9,12 +9,8 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '528', %w(
-  created text files (including dot files) are returned
-  but created binary files are not ) do
+  test '526', %w( created text files (including dot files) are returned ) do
     script = [
-      'dd if=/dev/zero of=binary.dat bs=1c count=42',
-      'file --mime-encoding binary.dat',
       'echo -n "xxx" > newfile.txt',
       'echo -n "yyy" > .dotfile'
     ].join(';')
@@ -22,7 +18,6 @@ class RoundTripTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       assert_cyber_dojo_sh(script)
-      assert stdout.include?('binary.dat: binary') # file --mime-encoding
       assert_created({
         'newfile.txt' => intact('xxx'),
         '.dotfile' => intact('yyy')
@@ -34,8 +29,25 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '529',
-  %w( text files created in sub-dirs are returned in json payload ) do
+  test '527', %w( created binary files are not returned ) do
+    script = [
+      'dd if=/dev/zero of=binary.dat bs=1c count=42',
+      'file --mime-encoding binary.dat'
+    ].join(';')
+
+    all_OSes.each do |os|
+      set_OS(os)
+      assert_cyber_dojo_sh(script)
+      assert stdout.include?('binary.dat: binary')
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '529', %w( text files created in sub-dirs are returned ) do
     dirname = 'sub'
     path = "#{dirname}/newfile.txt"
     content = 'jjj'
@@ -85,9 +97,7 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '532', %w( empty new text files are detected ) do
-    # runner runs create_text_file_tar_list.sh which
-    # uses the file utility to detect non binary files.
-    # However it says empty files are binary files.
+    # The file utility says empty files are binary files!
     all_OSes.each do |os|
       set_OS(os)
       filename = 'empty.txt'
@@ -102,9 +112,7 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '533', %w( single-char new text files are detected ) do
-    # runner runs create_text_file_tar_list.sh which
-    # uses the file utility to detect non binary files.
-    # However file says single-char files are binary files!
+    # The file utility says single-char files are binary files!
     all_OSes.each do |os|
       set_OS(os)
       filename = 'one-char.txt'

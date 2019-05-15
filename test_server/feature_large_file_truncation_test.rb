@@ -9,7 +9,7 @@ class LargeFileTruncationTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '62A',
-  %w( generated files bigger than 25K are truncated ) do
+  %w( generated text files bigger than 25K are truncated ) do
     s = '123456789A' + 'BCDEFGHIJK' + '1234'
     script = "yes '#{s}' | head -n 1025 > large_file.txt"
     all_OSes.each do |os|
