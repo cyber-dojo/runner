@@ -40,10 +40,12 @@ class BombRobustNessTest < TestBase
 
   test 'DB3',
   '[C,assert] file-handles quickly become exhausted' do
-    run_cyber_dojo_sh({
-      changed: { 'hiker.c' => intact(FILE_HANDLE_BOMB) },
-      max_seconds: 3
-    })
+    with_captured_log {
+      run_cyber_dojo_sh({
+        changed: { 'hiker.c' => intact(FILE_HANDLE_BOMB) },
+        max_seconds: 3
+      })
+    }
     assert printed?('fopen() != NULL'),  result
   end
 
