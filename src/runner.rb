@@ -225,10 +225,7 @@ class Runner
 
   def read_tar_file(tar_file)
     reader = TarReader.new(tar_file)
-    files = reader.files.select do |filename|
-      filename.start_with?(SANDBOX_DIRNAME)
-    end
-    Hash[files.map do |filename,content|
+    Hash[reader.files.map do |filename,content|
       # eg filename == sandbox/hiker.cs  (no leading /)
       unpathed = filename[SANDBOX_DIRNAME.size+1..-1]
       # eg unpathed = hiker.cs
