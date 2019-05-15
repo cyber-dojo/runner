@@ -191,18 +191,20 @@ class Runner
     { filename: 'tmp/create_text_file_tar_list.sh',
       content:
         <<~SHELL.strip
-          gg()
+          is_text_file()
           {
             if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-              echo ${1} >> #{TAR_LIST_FILENAME}
+              return
             fi
             if [ $(stat -c%s "${1}") -lt 2 ]; then
               # file reports size==0,1 is binary!
-              echo ${1} >> #{TAR_LIST_FILENAME}
+              return
             fi
+            false
           }
-          export -f gg
-          find ${CYBER_DOJO_SANDBOX} -type f -exec bash -c "gg {}" \\;
+          export -f is_text_file
+          find ${CYBER_DOJO_SANDBOX} -type f -exec \
+            bash -c "is_text_file {} && echo {} >> #{TAR_LIST_FILENAME}" \\;
         SHELL
     }
 
