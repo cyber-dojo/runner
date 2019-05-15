@@ -48,7 +48,7 @@ class Runner
 
   def run_cyber_dojo_sh_in_container(files, max_seconds)
     writer = tar_file_writer(files)
-    writer.write(CREATE_TAR_LIST['filename'], CREATE_TAR_LIST['content'])
+    writer.write(CREATE_TAR_LIST[:filename], CREATE_TAR_LIST[:content])
 
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -160,7 +160,7 @@ class Runner
         #{container_name}                            \
         sh -c                                        \
           '                      `# open quote`      \
-          bash /#{CREATE_TAR_LIST['filename']}       \
+          bash /#{CREATE_TAR_LIST[:filename]}        \
           &&                                         \
           tar                                        \
             -zcf                 `# create tgz file` \
@@ -185,8 +185,8 @@ class Runner
   TAR_LIST_FILENAME = '/tmp/tar.list'
 
   CREATE_TAR_LIST =
-    { 'filename' => 'tmp/create_text_file_tar_list.sh',
-      'content' =>
+    { filename: 'tmp/create_text_file_tar_list.sh',
+      content:
         <<~SHELL.strip
           # o) ensure there is no tar.list file at the start
           # o) for all files in sandbox dir (recursively)
@@ -235,7 +235,7 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # sandbox dirname/user/group
+  # sandbox dirname, user, group
   # - - - - - - - - - - - - - - - - - - - - - -
 
   SANDBOX_DIRNAME = 'sandbox'
@@ -247,11 +247,9 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name
-    # We do [docker run --rm] so the docker daemon does the
-    # [docker rm]. This means the container-name must be
-    # unique. If the container name is based on only the
-    # id then a 2nd run started while a 1st run (with the
-    # same id) is still live would fail.
+    # The container-name must be unique. If the container name is
+    # based on only the id then a 2nd run started while a 1st run
+    # (with the same id) is still live would fail.
     @container_name ||= ['test_run_runner', id, SecureRandom.hex].join('_')
   end
 
@@ -277,7 +275,7 @@ class Runner
       #{ulimits}                                      \
       --detach                  `# later docker exec` \
       --init                    `# pid-1 process`     \
-      --name=#{container_name}  `# later access`      \
+      --name=#{container_name}  `# for docker exec`   \
       --rm                      `# auto rm on exit`   \
       --user=#{UID}:#{GID}      `# not root`
     SHELL
@@ -290,8 +288,19 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def clang?
-    image_name.start_with?('cyberdojofoundation/clang')
+  def env_vars
+    [
+      env_var('IMAGE_NAME', image_name),
+      env_var('ID',         id),
+      env_var('SANDBOX',    '/' + SANDBOX_DIRNAME)
+    ].join(SPACE)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def env_var(name, value)
+    # Note: value must not contain a single quote
+    "--env CYBER_DOJO_#{name}='#{value}'"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -310,29 +319,12 @@ class Runner
   #   o) noexec = Do not allow direct execution of any binaries.
   #   o) relatime = Update inode access times relative to modify or change time.
   # So set exec to make binaries and scripts executable.
-  # Note:4 Also set ownership as default permission on docker is 755.
-  # Note:5 Also limit size of tmp-fs
+  # Note:4 Also limit size of tmp-fs
+  # Note:5 Also set ownership.
 
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M'
   # A place to save the create_text_file_tar_list.sh script.
   # May also improve speed of /sandbox/cyber-dojo.sh execution.
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def env_vars
-    [
-      env_var('IMAGE_NAME', image_name),
-      env_var('ID',         id),
-      env_var('SANDBOX',    '/' + SANDBOX_DIRNAME)
-    ].join(SPACE)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def env_var(name, value)
-    # Note: value must not contain a single quote
-    "--env CYBER_DOJO_#{name}='#{value}'"
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -377,6 +369,12 @@ class Runner
   GB = 1024 * MB
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def clang?
+    image_name.start_with?('cyberdojofoundation/clang')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # difference before-after /sandbox/cyber-dojo.sh is run
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -409,10 +407,10 @@ class Runner
   end
 
   def Process_detach(pid)
-    # There is a race. There may no longer be a process at pid.
-    # If not, you don't get an exception.
     # Prevents zombie child-process. Don't wait for detach status.
     Process.detach(pid)
+    # There is a race. There may no longer be a process at pid.
+    # If not, you don't get an exception.
   end
 
   def killed?(status)
