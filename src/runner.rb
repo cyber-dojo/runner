@@ -154,17 +154,17 @@ class Runner
     # returning _all_ text files (inside the container) under /sandbox
     # after cyber-dojo.sh has run.
     docker_tar_pipe = <<~SHELL.strip
-      docker exec                   \
-        --user=#{UID}:#{GID}        \
-        #{container_name}           \
-        bash -c                     \
-          '                         \
-          #{CREATE_TAR_LIST_SCRIPT} \
-          |                         \
-          tar                       \
-            -zcf                    \
-            -                       \
-            -T                      \
+      docker exec            \
+        --user=#{UID}:#{GID} \
+        #{container_name}    \
+        bash -c              \
+          '                  \
+          #{TAR_FILENAMES}   \
+          |                  \
+          tar                \
+            -zcf             \
+            -                \
+            -T               \
             - \
           '
     SHELL
@@ -181,7 +181,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  CREATE_TAR_LIST_SCRIPT =
+  TAR_FILENAMES =
     <<~SHELL.strip
       is_text_file() \
       { \
