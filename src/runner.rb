@@ -145,6 +145,14 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # sandbox dirname, user, group
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  SANDBOX_DIRNAME = 'sandbox'
+  UID = 41966
+  GID = 51966
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def files_now
     # Approval-style test-frameworks compare actual-text against
@@ -196,7 +204,7 @@ class Runner
         false; \
       }; \
       export -f is_text_file; \
-      (find ${CYBER_DOJO_SANDBOX} -type f -exec \
+      (find /#{SANDBOX_DIRNAME} -type f -exec \
         bash -c "is_text_file {} && echo {}" \\;)
     SHELL
 
@@ -227,14 +235,6 @@ class Runner
       [unpathed, sanitized(content)]
     end]
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # sandbox dirname, user, group
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  SANDBOX_DIRNAME = 'sandbox'
-  UID = 41966
-  GID = 51966
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
