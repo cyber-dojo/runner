@@ -131,18 +131,6 @@ class ShellTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def with_captured_log
-    @log = ''
-    begin
-      old_stdout = $stdout
-      $stdout = StringIO.new('','w')
-      yield
-      @log = $stdout.string
-    ensure
-      $stdout = old_stdout
-    end
-  end
-
   def assert_nothing_logged
     assert_equal '', @log
   end

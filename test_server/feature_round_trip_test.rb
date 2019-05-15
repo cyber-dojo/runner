@@ -186,21 +186,33 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-=begin
   test '62F',
   %w( filling /tmp/tar.list with non-existing filenames in script,
   returns everything unchanged ) do
     all_OSes.each do |os|
       set_OS(os)
-      assert_cyber_dojo_sh('echo /a/b/c.txt > /tmp/tar.list')
+      with_captured_log {
+        assert_cyber_dojo_sh('echo /a/b/c.txt > /tmp/tar.list')
+      }
+      assert_log_include('stderr', 'tar: /a/b/c.txt: Cannot stat: No such file or directory')
       assert_created({})
       assert_deleted([])
       assert_changed({})
     end
   end
-=end
 
   private # = = = = = = = = = = = = =
+
+  def assert_log_include(key, value)
+    refute_nil @log
+    json = JSON.parse(@log)
+    diagnostic = "log does not contain key:#{key}\n#{@log}"
+    assert json.has_key?(key), diagnostic
+    diagnostic = "log[#{key}] does not include [#{value}]"
+    assert json[key].include?(value), diagnostic
+  end
+
+  # - - - - - - - - - - - - - - - - -
 
   def src_file(os)
     case os
