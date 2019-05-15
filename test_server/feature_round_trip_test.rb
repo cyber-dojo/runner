@@ -133,9 +133,7 @@ class RoundTripTest < TestBase
       set_OS(os)
       stub = BashStubTarPipeOut.new('fail')
       @external = External.new({ 'bash' => stub })
-      with_captured_log {
-        run_cyber_dojo_sh
-      }
+      with_captured_log { run_cyber_dojo_sh }
       assert stub.fired?
       assert_created({})
       assert_deleted([])
