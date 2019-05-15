@@ -131,7 +131,6 @@ class RoundTripTest < TestBase
 
   test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
-    skip
     all_OSes.each do |os|
       set_OS(os)
       stub = BashStubTarPipeOut.new('fail')
@@ -158,17 +157,6 @@ class RoundTripTest < TestBase
   end
 
   private # = = = = = = = = = = = = =
-
-  def assert_log_include(key, value)
-    refute_nil @log
-    json = JSON.parse(@log)
-    diagnostic = "log does not contain key:#{key}\n#{@log}"
-    assert json.has_key?(key), diagnostic
-    diagnostic = "log[#{key}] does not include [#{value}]"
-    assert json[key].include?(value), diagnostic
-  end
-
-  # - - - - - - - - - - - - - - - - -
 
   def src_file(os)
     case os

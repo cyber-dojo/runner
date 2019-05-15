@@ -8,7 +8,7 @@ class LargeFileTruncationTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '62A',
+  test '52A',
   %w( generated text files bigger than 25K are truncated ) do
     letters = [*('a'..'z')]
     size = 25 # -1 for newline
@@ -27,9 +27,8 @@ class LargeFileTruncationTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '62B',
+  test '52B',
   %w( source files bigger than 10K are not truncated ) do
-    skip
     filename = 'Hiker.cs'
     src = starting_files[filename]['content']
     large_comment = "/*#{'x'*10*1024}*/"
