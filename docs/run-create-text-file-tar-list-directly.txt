@@ -1,0 +1,7 @@
+
+Instead of saving create_text_file_tar_list.sh via the in-tar-pipe
+perhaps I can embed the bash script directly in the [docker exec] call...
+
+This works and is a start...
+
+bash -c 'g() { echo $1; }; export -f g; find /tmp -type f -exec bash -c "g {}" \;'
