@@ -10,8 +10,10 @@ class LargeFileTruncationTest < TestBase
 
   test '62A',
   %w( generated text files bigger than 25K are truncated ) do
-    s = '123456789A' + 'BCDEFGHIJK' + '1234'
-    script = "yes '#{s}' | head -n 1025 > large_file.txt"
+    letters = [*('a'..'z')]
+    size = 25 # -1 for newline
+    s = (size-1).times.map{letters[rand(letters.size)]}.join
+    script = "yes '#{s}' | head -n 30001025 > large_file.txt"
     all_OSes.each do |os|
       @os = os
       assert_cyber_dojo_sh(script)
