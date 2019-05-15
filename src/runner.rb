@@ -170,6 +170,8 @@ class Runner
           #{ECHO_TEXT_FILENAMES}     \
           |                          \
           tar                        \
+            -C                       \
+            /#{SANDBOX_DIRNAME}      \
             -zcf `# create tgz file` \
             -    `# write to stdout` \
             -T   `# using filenames` \
@@ -204,8 +206,9 @@ class Runner
         false; \
       }; \
       export -f is_text_file; \
-      (find /#{SANDBOX_DIRNAME} -type f -exec \
-        bash -c "is_text_file {} && echo {}" \\;)
+      `# strip ./ from relative filenames; start at char 3`; \
+      (cd /#{SANDBOX_DIRNAME} && find . -type f -exec \
+        bash -c "is_text_file {} && echo {} | cut -c 3-" \\;)
     SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -226,10 +229,7 @@ class Runner
   def read_tar_file(tar_file)
     reader = TarReader.new(tar_file)
     Hash[reader.files.map do |filename,content|
-      # eg filename == sandbox/hiker.cs  (no leading /)
-      unpathed = filename[SANDBOX_DIRNAME.size+1..-1]
-      # eg unpathed = hiker.cs
-      [unpathed, sanitized(content)]
+      [filename, sanitized(content)]
     end]
   end
 
