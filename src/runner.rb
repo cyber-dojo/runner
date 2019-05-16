@@ -46,6 +46,17 @@ class Runner
 
   attr_reader :image_name, :id
 
+  KB = 1024
+  MB = 1024 * KB
+  GB = 1024 * MB
+
+  SANDBOX_DIR = '/sandbox'  # where files are saved to in container
+  UID = 41966               # user running /sandbox/cyber-dojo.sh
+  GID = 51966               # group running /sandbox/cyber-dojo.sh
+  MAX_FILE_SIZE = 25 * KB   # of files tar-piped-in/out, @stdout, @stderr.
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def run(command, files, max_seconds)
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -82,9 +93,23 @@ class Runner
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def tgz(files)
     gzip(tar_file_writer(files).tar_file)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tar_file_writer(files)
+    writer = TarWriter.new
+    files.each do |filename,file|
+      writer.write(filename, file['content'])
+    end
+    writer
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_max(fd)
     fd.read(MAX_FILE_SIZE + 1) || ''
@@ -149,14 +174,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # sandbox dir, user, group
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  SANDBOX_DIR = '/sandbox'
-  UID = 41966
-  GID = 51966
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_pipe_text_files_out
     # Approval-style test-frameworks compare actual-text against
@@ -195,11 +212,15 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  KB = 1024
-  MB = 1024 * KB
-  GB = 1024 * MB
+  def read_tar_file(tar_file)
+    reader = TarReader.new(tar_file)
+    Hash[reader.files.map do |filename,content|
+      # empty files are coming back as nil
+      [filename, truncated(cleaned(content || ''))]
+    end]
+  end
 
-  MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout,@stderr.
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   ECHO_TEXT_FILENAMES =
     <<~SHELL.strip
@@ -228,28 +249,6 @@ class Runner
       (cd #{SANDBOX_DIR} && find . -type f -exec \
         bash -c "is_text_file {} && echo {} | cut -c 3-" \\;)
     SHELL
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # in-memory tar-file creation/reading
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def tar_file_writer(files)
-    writer = TarWriter.new
-    files.each do |filename,file|
-      writer.write(filename, file['content'])
-    end
-    writer
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def read_tar_file(tar_file)
-    reader = TarReader.new(tar_file)
-    Hash[reader.files.map do |filename,content|
-      # empty files are coming back as nil
-      [filename, truncated(cleaned(content || ''))]
-    end]
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
