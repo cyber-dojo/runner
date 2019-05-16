@@ -276,7 +276,7 @@ class Runner
         "--name=#{container_name}",
         docker_run_options(image_name, id),
         image_name,
-          "sh -c 'sleep #{max_seconds}'"
+          "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
     shell.assert(docker_run)
     container_name
