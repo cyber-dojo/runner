@@ -187,12 +187,25 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  KB = 1024
+  MB = 1024 * KB
+  GB = 1024 * MB
+
+  MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout,@stderr.
+
   ECHO_TEXT_FILENAMES =
     <<~SHELL.strip
+      truncate_file() \
+      { \
+        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then \
+          truncate -s #{MAX_FILE_SIZE+1} "${1}"; \
+        fi; \
+      }; \
       is_text_file() \
       { \
         `# grep -v is --invert-match`; \
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
+          truncate_file "${1}"; \
           return; \
         fi; \
         `# file incorrectly reports size==0,1 as binary!`; \
@@ -201,6 +214,7 @@ class Runner
         fi; \
         false; \
       }; \
+      export -f truncate_file; \
       export -f is_text_file; \
       `# strip ./ from relative filenames; start at char 3`; \
       (cd #{SANDBOX_DIR} && find . -type f -exec \
@@ -350,10 +364,6 @@ class Runner
     "--ulimit #{name}=#{limit}"
   end
 
-  KB = 1024
-  MB = 1024 * KB
-  GB = 1024 * MB
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def clang?
@@ -433,8 +443,6 @@ class Runner
   def truncate?(content)
     content.size > MAX_FILE_SIZE
   end
-
-  MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout,@stderr.
 
   SPACE = ' '
 
