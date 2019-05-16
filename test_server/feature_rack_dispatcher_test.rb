@@ -171,11 +171,12 @@ class RackDispatcherTest < TestBase
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
-    rack = RackDispatcher.new(traffic_light)
     raiser = BashStubRaiser.new('fubar')
     external = External.new({ 'bash' => raiser })
+    runner = Runner.new(external)
+    rack = RackDispatcher.new(runner)
     with_captured_stdout_stderr {
-      response = rack.call(env, external, RackRequestStub)
+      response = rack.call(env, RackRequestStub)
       assert raiser.fired?
       status = response[0]
       assert_equal 500, status
@@ -211,9 +212,10 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, e = external)
-    rack = RackDispatcher.new(traffic_light)
+    runner = Runner.new(e)
+    rack = RackDispatcher.new(runner)
     response = with_captured_stdout_stderr {
-      rack.call(env, e, RackRequestStub)
+      rack.call(env, RackRequestStub)
     }
     @status = response[0]
     @type = response[1]

@@ -1,23 +1,20 @@
 require_relative 'client_error'
-require_relative 'external'
-require_relative 'runner'
 require_relative 'well_formed_args'
 require 'rack'
 require 'json'
 
-class RackDispatcher # stateless
+class RackDispatcher
 
-  def initialize(traffic_light)
-    @traffic_light = traffic_light
+  def initialize(runner)
+    @runner = runner
   end
 
-  def call(env, external = External.new, request_class = Rack::Request)
-    runner = Runner.new(external, @traffic_light)
+  def call(env, request_class = Rack::Request)
     request = request_class.new(env)
     path = request.path_info[1..-1] # lose leading /
     body = request.body.read
     name, args = name_args(path, body)
-    result = runner.public_send(name, *args)
+    result = @runner.public_send(name, *args)
     json_response(200, json_plain({ name => result }))
   rescue => error
     diagnostic = json_pretty({

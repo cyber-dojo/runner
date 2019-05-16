@@ -1,5 +1,5 @@
 require_relative 'test_base'
-require_relative '../src/traffic_light'
+require_relative '../src/external'
 
 class TrafficLightTest < TestBase
 
@@ -10,7 +10,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - -
 
   def hex_setup
-    @traffic_light = TrafficLight.new
+    @traffic_light = External.new.traffic_light
   end
 
   # - - - - - - - - - - - - - - - -

@@ -8,9 +8,8 @@ require 'timeout'
 
 class Runner
 
-  def initialize(external, traffic_light)
+  def initialize(external)
     @external = external
-    @traffic_light = traffic_light
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -26,25 +25,23 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
-    @image_name = image_name
-    @id = id
+    #@image_name = image_name
+    #@id = id
 
-    create_container(max_seconds)
-
-    stdout,stderr,status,timed_out =
-      run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
-
-    if timed_out
-      colour = 'timed_out'
-    else
-      colour = red_amber_green(stdout, stderr, status)
-    end
-
-    files_now = tar_pipe_text_files_out
+    container_name = create_container(image_name, id, max_seconds)
+    command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
+    stdout,stderr,status,timed_out = run(command, files, max_seconds)
+    files_now = tar_pipe_text_files_out(container_name)
     if files_now === {} || timed_out
       created,deleted,changed = {},{},{}
     else
       created,deleted,changed = files_delta(files, files_now)
+    end
+
+    if timed_out
+      colour = 'timed_out'
+    else
+      colour = traffic_light.colour(stdout['content'], stderr['content'], status, image_name)
     end
 
     {
@@ -62,8 +59,6 @@ class Runner
 
   include FilesDelta
   include StringCleaner
-
-  attr_reader :image_name, :id
 
   KB = 1024
   MB = 1024 * KB
@@ -135,7 +130,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_files_in_and_run_cyber_dojo_sh
+  def tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
     # Assumes a tgz of files is on stdin. Untars this into
     # /sandbox inside the container and runs /sandbox/cyber-dojo.sh
     #
@@ -193,7 +188,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_text_files_out
+  def tar_pipe_text_files_out(container_name)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -273,40 +268,36 @@ class Runner
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def container_name
+  def create_container(image_name, id, max_seconds)
     # The container-name must be unique. If the container name is
-    # based on only the id then a 2nd run started while a 1st run
+    # based on _only_ the id then a 2nd run started while a 1st run
     # (with the same id) is still live would fail.
-    @container_name ||= ['test_run_runner', id, SecureRandom.hex].join('_')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def create_container(max_seconds)
+    container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
     docker_run = [
       'docker run',
-        docker_run_options,
+        "--name=#{container_name}",
+        docker_run_options(image_name, id),
         image_name,
           "sh -c 'sleep #{max_seconds}'"
     ].join(SPACE)
     shell.assert(docker_run)
+    container_name
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_options
+  def docker_run_options(image_name, id)
     options = <<~SHELL.strip
-      #{env_vars}                                     \
-      #{TMP_FS_SANDBOX_DIR}                           \
-      #{TMP_FS_TMP_DIR}                               \
-      #{ulimits}                                      \
-      --detach                  `# later docker exec` \
-      --init                    `# pid-1 process`     \
-      --name=#{container_name}  `# for docker exec`   \
-      --rm                      `# auto rm on exit`   \
+      #{env_vars(image_name, id)}                      \
+      #{TMP_FS_SANDBOX_DIR}                            \
+      #{TMP_FS_TMP_DIR}                                \
+      #{ulimits(image_name)}                           \
+      --detach                  `# later docker execs` \
+      --init                    `# pid-1 process`      \
+      --rm                      `# auto rm on exit`    \
       --user=#{UID}:#{GID}      `# not root`
     SHELL
-    if clang?
+    if clang?(image_name)
       # For the -fsanitize=address option.
       options += SPACE + '--cap-add=SYS_PTRACE'
     end
@@ -315,7 +306,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def env_vars
+  def env_vars(image_name, id)
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
@@ -354,7 +345,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def ulimits
+  def ulimits(image_name)
     # There is no cpu-ulimit... a cpu-ulimit of 10
     # seconds could kill a container after only 5
     # seconds... The cpu-ulimit assumes one core.
@@ -376,7 +367,7 @@ class Runner
       '--pids-limit=128',                  # no fork bombs
       '--security-opt=no-new-privileges',  # no escalation
     ]
-    unless clang?
+    unless clang?(image_name)
       # [ulimit data] prevents clang's
       # -fsanitize=address option.
       options << ulimit('data', 4*GB) # data segment size
@@ -392,7 +383,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def clang?
+  def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang')
   end
 
@@ -458,56 +449,12 @@ class Runner
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def log
-    @external.log
-  end
-
   def shell
     @external.shell
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # red-amber-green colour of stdout,stderr,status
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # Get red-amber-green colour before tar_pipe_text_files_out
-  # as doing it after slows down execution noticeably. Don't know
-  # why but planning on splitting red-amber-green colour code
-  # into its own micro-service anyway so not investigating.
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def red_amber_green(stdout, stderr, status)
-    rag_lambda = @traffic_light.rag_lambda(image_name) { get_rag_lambda }
-    colour = rag_lambda.call(stdout['content'], stderr['content'], status)
-    unless [:red,:amber,:green].include?(colour)
-      log << rag_message(colour.to_s)
-      colour = :amber
-    end
-    colour.to_s
-  rescue => error
-    log << rag_message(error.message)
-    'amber'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def get_rag_lambda
-    command = 'cat /usr/local/bin/red_amber_green.rb'
-    docker_command = <<~SHELL.strip
-      docker exec               \
-        --user=#{UID}:#{GID}    \
-        #{container_name}       \
-          bash -c '#{command}'
-    SHELL
-    # In a crippled container (eg fork-bomb)
-    # the shell.assert will mostly likely raise.
-    catted_source = shell.assert(docker_command)
-    eval(catted_source)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def rag_message(message)
-    "red_amber_green lambda error mapped to :amber\n#{message}"
+  def traffic_light
+    @external.traffic_light
   end
 
 end
