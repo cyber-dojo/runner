@@ -126,24 +126,6 @@ class RoundTripTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # robust-ness
-  # - - - - - - - - - - - - - - - - -
-
-  test '62B',
-  %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
-    all_OSes.each do |os|
-      set_OS(os)
-      stub = BashStubTarPipeOut.new('fail')
-      @external = External.new({ 'bash' => stub })
-      with_captured_log { run_cyber_dojo_sh }
-      assert stub.fired?
-      assert_created({})
-      assert_deleted([])
-      assert_changed({})
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
 
   test '62C',
   %w( no text files under /sandbox at all, returns everything unchanged ) do

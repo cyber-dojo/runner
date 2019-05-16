@@ -33,7 +33,7 @@ class RagRegexLambdaTest < TestBase
 
   test '5A3',
   %w( (rag_lambda syntax-error) exception becomes amber ) do
-    assert_rag("undefined local variable or method `sdf'",
+    assert_amber("undefined local variable or method `sdf'",
       <<~RUBY
       sdf
       RUBY
@@ -42,7 +42,7 @@ class RagRegexLambdaTest < TestBase
 
   test '5A4',
   %w( (rag_lambda explicit raise) becomes amber ) do
-    assert_rag('wibble',
+    assert_amber('wibble',
       <<~RUBY
       lambda { |stdout, stderr, status|
         raise ArgumentError.new('wibble')
@@ -53,7 +53,7 @@ class RagRegexLambdaTest < TestBase
 
   test '5A5',
   %w( (rag_lambda returning non red/amber/green) becomes amber ) do
-    assert_rag('orange',
+    assert_amber('orange',
       <<~RUBY
       lambda { |stdout, stderr, status|
         return :orange
@@ -64,7 +64,7 @@ class RagRegexLambdaTest < TestBase
 
   test '5A6',
   %w( (rag_lambda with too few parameters) becomes amber ) do
-    assert_rag('wrong number of arguments (given 3, expected 2)',
+    assert_amber('wrong number of arguments (given 3, expected 2)',
       <<~RUBY
       lambda { |stdout, stderr|
         return :red
@@ -75,7 +75,7 @@ class RagRegexLambdaTest < TestBase
 
   test '5A7',
   %w( (rag_lambda with too many parameters) becomes amber ) do
-    assert_rag('wrong number of arguments (given 3, expected 4)',
+    assert_amber('wrong number of arguments (given 3, expected 4)',
       <<~RUBY
       lambda { |stdout, stderr, status, extra|
         return :red
@@ -86,7 +86,7 @@ class RagRegexLambdaTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_rag(expected_log, lambda)
+  def assert_amber(expected_log, lambda)
     cater = BashStubRagFileCatter.new(lambda)
     @external = External.new({ 'bash' => cater })
     with_captured_log {

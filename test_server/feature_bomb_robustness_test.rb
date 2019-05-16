@@ -49,6 +49,22 @@ class BombRobustNessTest < TestBase
     assert printed?('fopen() != NULL'),  result
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '62B',
+  %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
+    all_OSes.each do |os|
+      set_OS(os)
+      stub = BashStubTarPipeOut.new('fail')
+      @external = External.new({ 'bash' => stub })
+      with_captured_log { run_cyber_dojo_sh }
+      assert stub.fired?
+      assert_created({})
+      assert_deleted([])
+      assert_changed({})
+    end
+  end
+
   private # = = = = = = = = = = = = = = = = = = = = = =
 
   C_FORK_BOMB = <<~'CODE'
