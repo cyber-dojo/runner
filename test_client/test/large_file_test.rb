@@ -25,18 +25,14 @@ class LargeFileTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'ED4',
-  'stdout greater than 25K is truncated' do
-    # [1] fold limit is 10000 so I do five smaller folds
-    five_K_plus_1 = 5*1024+1
-    command = [
-      'cat /dev/urandom',
-      "tr -dc 'a-zA-Z0-9'",
-      "fold -w #{five_K_plus_1}", # [1]
-      'head -n 1'
-    ].join('|')
+  'stdout greater than 50K is truncated' do
+    letters = [*('a'..'z')]
+    size = 50 # -1 for yes's newline
+    s = (size-1).times.map{letters[rand(letters.size)]}.join
+    command = "yes '#{s}' | head -n 1025"
     run_cyber_dojo_sh({
       changed_files: {
-        'cyber-dojo.sh' => intact("seq 5 | xargs -I{} sh -c '#{command}'")
+        'cyber-dojo.sh' => intact(command)
       }
     })
     assert result['stdout']['truncated']

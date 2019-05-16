@@ -53,7 +53,7 @@ class Runner
   SANDBOX_DIR = '/sandbox'  # where files are saved to in container
   UID = 41966               # user running /sandbox/cyber-dojo.sh
   GID = 51966               # group running /sandbox/cyber-dojo.sh
-  MAX_FILE_SIZE = 25 * KB   # of files tar-piped-in/out, @stdout, @stderr.
+  MAX_FILE_SIZE = 50 * KB   # of files tar-piped-in/out, @stdout, @stderr.
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
