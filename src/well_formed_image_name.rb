@@ -27,7 +27,7 @@ module WellFormedImageName # mix-in
       hostname = image_name[0..i-1]
       remote_name = image_name[i+1..-1]
     end
-    return hostname,remote_name
+    [hostname,remote_name]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
