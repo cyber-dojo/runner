@@ -1,5 +1,6 @@
 require_relative 'test_base'
 require_relative '../src/gzip'
+require_relative '../src/ungzip'
 
 class GZipTest < TestBase
 

@@ -1,22 +1,26 @@
 require 'rubygems/package'  # Gem::Package::TarWriter
 require 'stringio'
 
-class TarWriter
+module Tar
 
-  def initialize
-    @tar_file = StringIO.new('')
-    @writer = Gem::Package::TarWriter.new(@tar_file)
-  end
+  class Writer
 
-  def write(filename, content)
-    size = content.bytesize
-    @writer.add_file_simple(filename, 0o644, size) do |fd|
-      fd.write(content)
+    def initialize
+      @tar_file = StringIO.new('')
+      @writer = Gem::Package::TarWriter.new(@tar_file)
     end
-  end
 
-  def tar_file
-    @tar_file.string
+    def write(filename, content)
+      size = content.bytesize
+      @writer.add_file_simple(filename, 0o644, size) do |fd|
+        fd.write(content)
+      end
+    end
+
+    def tar_file
+      @tar_file.string
+    end
+
   end
 
 end

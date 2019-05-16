@@ -11,7 +11,7 @@ class TarTest < TestBase
   # - - - - - - - - - - - - - - - - - -
 
   test '364', 'simple tar round-trip' do
-    writer = TarWriter.new
+    writer = Tar::Writer.new
     expected = {
       'hello.txt' => 'greetings earthlings...',
       'hiker.c' => '#include <stdio.h>'
@@ -19,7 +19,7 @@ class TarTest < TestBase
     expected.each do |filename, content|
       writer.write(filename, content)
     end
-    reader = TarReader.new(writer.tar_file)
+    reader = Tar::Reader.new(writer.tar_file)
     actual = reader.files
     assert_equal expected, actual
   end
@@ -29,7 +29,7 @@ class TarTest < TestBase
   test '365', 'writing content where .size != .bytesize does not throw' do
     utf8 = [226].pack('U*')
     refute_equal utf8.size, utf8.bytesize
-    TarWriter.new.write('hello.txt', utf8)
+    Tar::Writer.new.write('hello.txt', utf8)
     assert doesnt_throw=true
   end
 

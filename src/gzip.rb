@@ -9,10 +9,3 @@ def gzip(s)
   writer.close
   zipped.string
 end
-
-def ungzip(s)
-  reader = Zlib::GzipReader.new(StringIO.new(s))
-  unzipped = StringIO.new(reader.read)
-  reader.close
-  unzipped.string
-end

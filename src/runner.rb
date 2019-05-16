@@ -3,6 +3,7 @@ require_relative 'gzip'
 require_relative 'string_cleaner'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
+require_relative 'ungzip'
 require 'securerandom'
 require 'timeout'
 
@@ -112,7 +113,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_file_writer(files)
-    writer = TarWriter.new
+    writer = Tar::Writer.new
     files.each do |filename,file|
       writer.write(filename, file['content'])
     end
@@ -223,7 +224,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_tar_file(tar_file)
-    reader = TarReader.new(tar_file)
+    reader = Tar::Reader.new(tar_file)
     Hash[reader.files.map do |filename,content|
       # empty files are coming back as nil
       [filename, packaged(cleaned(content || ''))]
@@ -440,8 +441,6 @@ class Runner
     content.size > MAX_FILE_SIZE
   end
 
-  SPACE = ' '
-
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -453,5 +452,7 @@ class Runner
   def traffic_light
     @external.traffic_light
   end
+
+  SPACE = ' '
 
 end
