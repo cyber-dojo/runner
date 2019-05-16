@@ -2,17 +2,18 @@
 module FileDelta
 
   def file_delta(was, now)
-    @changed = {}
-    @deleted = {}
+    changed = {}
+    deleted = {}
     was.each do |filename, file|
       if !now.has_key?(filename)
-        @deleted[filename] = file
+        deleted[filename] = file
       elsif now[filename]['content'] != file['content']
-        @changed[filename] = now[filename]
+        changed[filename] = now[filename]
       end
       now.delete(filename) # destructive
     end
-    @created = now
+    created = now
+    [created,deleted,changed]
   end
 
 end

@@ -30,15 +30,15 @@ class Runner
     @id = id
     run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
     set_colour
-    set_file_delta(files, tar_pipe_text_files_out)
+    created,deleted,changed = set_file_delta(files, tar_pipe_text_files_out)
     {
        stdout: @stdout,
        stderr: @stderr,
        status: @status,
        colour: @colour,
-      created: @created,
-      deleted: @deleted,
-      changed: @changed
+      created: created,
+      deleted: deleted,
+      changed: changed
     }
   end
 
@@ -386,9 +386,7 @@ class Runner
 
   def set_file_delta(was_files, now_files)
     if now_files === {} || @timed_out
-      @created = {}
-      @deleted = {}
-      @changed = {}
+      [{},{},{}]
     else
       file_delta(was_files, now_files)
     end
