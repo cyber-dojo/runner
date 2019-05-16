@@ -86,8 +86,8 @@ class Runner
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = truncated(cleaned(read_max(r_stdout)))
-      @stderr = truncated(cleaned(read_max(r_stderr)))
+      @stdout = packaged(cleaned(read_max(r_stdout)))
+      @stderr = packaged(cleaned(read_max(r_stderr)))
       r_stdout.close
       r_stderr.close
     end
@@ -216,7 +216,7 @@ class Runner
     reader = TarReader.new(tar_file)
     Hash[reader.files.map do |filename,content|
       # empty files are coming back as nil
-      [filename, truncated(cleaned(content || ''))]
+      [filename, packaged(cleaned(content || ''))]
     end]
   end
 
@@ -436,15 +436,15 @@ class Runner
 
   include StringCleaner
 
-  def truncated(content)
-    truncate = truncate?(content)
-    if truncate
-      content.slice!(MAX_FILE_SIZE..-1)
-    end
+  def packaged(content)
     {
-        'content' => content,
-      'truncated' => truncate
+        'content' => truncated(content),
+      'truncated' => truncate?(content)
     }
+  end
+
+  def truncated(content)
+    content[0...MAX_FILE_SIZE]
   end
 
   def truncate?(content)
