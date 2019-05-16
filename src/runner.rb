@@ -28,9 +28,9 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    run_cyber_dojo_sh_in_container(files, max_seconds)
+    run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
     set_colour
-    set_file_delta(files, files_now)
+    set_file_delta(files, tar_pipe_text_files_out)
     {
        stdout: @stdout,
        stderr: @stderr,
@@ -46,7 +46,7 @@ class Runner
 
   attr_reader :image_name, :id
 
-  def run_cyber_dojo_sh_in_container(files, max_seconds)
+  def run(command, files, max_seconds)
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
@@ -55,7 +55,7 @@ class Runner
     w_stdin.close
 
     create_container(max_seconds)
-    pid = Process.spawn(run_cyber_dojo_sh_command, {
+    pid = Process.spawn(command, {
       pgroup:true,     # become process leader
           in:r_stdin,  # redirection
          out:w_stdout, # redirection
@@ -84,7 +84,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh_command
+  def tar_pipe_files_in_and_run_cyber_dojo_sh
     # Assumes a tgz of files is on stdin. Untars this into
     # /sandbox inside the container and runs /sandbox/cyber-dojo.sh
     #
@@ -150,7 +150,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def files_now
+  def tar_pipe_text_files_out
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -208,7 +208,7 @@ class Runner
           truncate_file "${1}"; \
           return; \
         fi; \
-        `# file incorrectly reports size==0,1 as binary!`; \
+        `# file incorrectly reports size==0,1 as binary`; \
         if [ $(stat -c%s "${1}") -lt 2 ]; then \
           return; \
         fi; \
@@ -432,7 +432,7 @@ class Runner
   def truncated(content)
     truncate = truncate?(content)
     if truncate
-      content = content[0...MAX_FILE_SIZE]
+      content.slice!(MAX_FILE_SIZE..-1)
     end
     {
         'content' => content,
