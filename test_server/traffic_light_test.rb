@@ -14,12 +14,12 @@ class TrafficLightTest < TestBase
 
   test '6CC',
   'block is used to populate the cache once only' do
-    @count = 0
+    count = 0
     5.times {
-      ragger = traffic_light.rag_lambda('gcc_assert') { @count += 1; eval(purple) }
+      ragger = traffic_light.rag_lambda('gcc_assert') { count += 1; eval(purple) }
       assert_equal :purple, ragger.call('stdout','stderr',status=23)
     }
-    assert_equal 1, @count
+    assert_equal 1, count
   end
 
   # - - - - - - - - - - - - - - - -
