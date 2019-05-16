@@ -51,7 +51,7 @@ class Runner
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
 
-    w_stdin.write(gzip(tar_file_writer(files).tar_file))
+    w_stdin.write(tgz(files))
     w_stdin.close
 
     create_container(max_seconds)
@@ -68,18 +68,26 @@ class Runner
         @timed_out = killed?(@status)
       end
     rescue Timeout::Error
-      Process_kill(pid)
+      Process_kill_group(pid)
       Process_detach(pid)
       @status = KILLED_STATUS
       @timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = truncated(cleaned(max_read(r_stdout)))
-      @stderr = truncated(cleaned(max_read(r_stderr)))
+      @stdout = truncated(cleaned(read_max(r_stdout)))
+      @stderr = truncated(cleaned(read_max(r_stderr)))
       r_stdout.close
       r_stderr.close
     end
+  end
+
+  def tgz(files)
+    gzip(tar_file_writer(files).tar_file)
+  end
+
+  def read_max(fd)
+    fd.read(MAX_FILE_SIZE + 1) || ''
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -155,8 +163,8 @@ class Runner
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
     # ready for human inspection. cyber-dojo supports this by
-    # returning _all_ text files (inside the container) under /sandbox
-    # after cyber-dojo.sh has run.
+    # returning _all_ text files (generated inside the container)
+    # under /sandbox after cyber-dojo.sh has run.
     docker_tar_pipe = <<~SHELL.strip
       docker exec                    \
         --user=#{UID}:#{GID}         \
@@ -390,7 +398,7 @@ class Runner
   # process helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def Process_kill(pid)
+  def Process_kill_group(pid)
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
     # cyber-dojo.sh process running _inside_ the docker
@@ -445,14 +453,6 @@ class Runner
   end
 
   SPACE = ' '
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # input helper
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def max_read(fd)
-    fd.read(MAX_FILE_SIZE + 1) || ''
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
