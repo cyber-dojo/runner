@@ -34,17 +34,17 @@ class Runner
     stdout,stderr,status,timed_out =
       run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
 
+    if timed_out
+      colour = 'timed_out'
+    else
+      colour = red_amber_green(stdout, stderr, status)
+    end
+
     files_now = tar_pipe_text_files_out
     if files_now === {} || timed_out
       created,deleted,changed = {},{},{}
     else
       created,deleted,changed = files_delta(files, files_now)
-    end
-
-    if timed_out
-      colour = 'timed_out'
-    else
-      colour = red_amber_green(stdout, stderr, status)
     end
 
     {
@@ -468,6 +468,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # red-amber-green colour of stdout,stderr,status
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # Get red-amber-green colour before tar_pipe_text_files_out
+  # as doing it after slows down execution noticeably. Don't know
+  # why but planning on splitting red-amber-green colour code
+  # into its own micro-service anyway so not investigating.
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green(stdout, stderr, status)
