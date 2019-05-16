@@ -171,7 +171,7 @@ class RackDispatcherTest < TestBase
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
-    rack = RackDispatcher.new(cache)
+    rack = RackDispatcher.new(traffic_light)
     raiser = BashStubRaiser.new('fubar')
     external = External.new({ 'bash' => raiser })
     with_captured_stdout_stderr {
@@ -211,7 +211,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, e = external)
-    rack = RackDispatcher.new(cache)
+    rack = RackDispatcher.new(traffic_light)
     response = with_captured_stdout_stderr {
       rack.call(env, e, RackRequestStub)
     }

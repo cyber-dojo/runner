@@ -1,7 +1,7 @@
 require_relative 'test_base'
-require_relative '../src/rag_lambda_cache'
+require_relative '../src/traffic_light'
 
-class RagLambdaCacheTest < TestBase
+class TrafficLightTest < TestBase
 
   def self.hex_prefix
     '332'
@@ -10,7 +10,7 @@ class RagLambdaCacheTest < TestBase
   # - - - - - - - - - - - - - - - -
 
   def hex_setup
-    @cache = RagLambdaCache.new
+    @traffic_light = TrafficLight.new
   end
 
   # - - - - - - - - - - - - - - - -
@@ -19,7 +19,7 @@ class RagLambdaCacheTest < TestBase
   'block is used to populate the cache once only' do
     @count = 0
     5.times {
-      ragger = @cache.rag_lambda('gcc_assert') { @count += 1; eval(purple) }
+      ragger = @traffic_light.rag_lambda('gcc_assert') { @count += 1; eval(purple) }
       assert_equal :purple, ragger.call('stdout','stderr',status=23)
     }
     assert_equal 1, @count

@@ -7,12 +7,12 @@ require 'json'
 
 class RackDispatcher # stateless
 
-  def initialize(cache)
-    @cache = cache
+  def initialize(traffic_light)
+    @traffic_light = traffic_light
   end
 
   def call(env, external = External.new, request_class = Rack::Request)
-    runner = Runner.new(external, @cache)
+    runner = Runner.new(external, @traffic_light)
     request = request_class.new(env)
     path = request.path_info[1..-1] # lose leading /
     body = request.body.read

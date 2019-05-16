@@ -1,7 +1,5 @@
-# Caching the rag-lambdas typically saves
-# about 0.15 seconds per [test] event.
 
-class RagLambdaCache
+class TrafficLight
 
   def initialize
     @cache = {}

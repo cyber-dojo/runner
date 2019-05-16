@@ -1,7 +1,7 @@
 require_relative 'hex_mini_test'
 require_relative '../src/external'
-require_relative '../src/rag_lambda_cache'
 require_relative '../src/runner'
+require_relative '../src/traffic_light'
 
 class TestBase < HexMiniTest
 
@@ -9,12 +9,12 @@ class TestBase < HexMiniTest
     @external ||= External.new
   end
 
-  def cache
-    @cache ||= RagLambdaCache.new
+  def traffic_light
+    @traffic_light ||= TrafficLight.new
   end
 
   def runner
-    Runner.new(external, cache)
+    Runner.new(external, traffic_light)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

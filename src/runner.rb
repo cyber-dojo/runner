@@ -8,9 +8,9 @@ require 'timeout'
 
 class Runner
 
-  def initialize(external, cache)
+  def initialize(external, traffic_light)
     @external = external
-    @cache = cache
+    @traffic_light = traffic_light
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -476,7 +476,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def red_amber_green(stdout, stderr, status)
-    rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
+    rag_lambda = @traffic_light.rag_lambda(image_name) { get_rag_lambda }
     colour = rag_lambda.call(stdout['content'], stderr['content'], status)
     unless [:red,:amber,:green].include?(colour)
       log << rag_message(colour.to_s)
