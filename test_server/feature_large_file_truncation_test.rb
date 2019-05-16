@@ -10,16 +10,15 @@ class LargeFileTruncationTest < TestBase
 
   test '52A',
   %w( generated text files bigger than 50K are truncated ) do
-    letters = [*('a'..'z')]
-    size = 50 # -1 for yes's newline
-    s = (size-1).times.map{letters[rand(letters.size)]}.join
-    script = "yes '#{s}' | head -n 1025 > large_file.txt"
+    filename = 'large_file.txt'
+    script = "od -An -x /dev/urandom | head -c#{51*1024} > #{filename}"
+    script += ";stat -c%s #{filename}"
     all_OSes.each do |os|
       @os = os
       assert_cyber_dojo_sh(script)
-      expected = "#{s}\n" * 1024
-
-      assert_created({ 'large_file.txt' => truncated(expected) })
+      assert_stdout "#{51*1024}\n"
+      assert created[filename]['truncated']
+      assert_equal 50*1024, created[filename]['content'].size
       assert_deleted([])
       assert_changed({})
     end

@@ -244,10 +244,6 @@ class TestBase < HexMiniTest
     { 'content' => content, 'truncated' => false }
   end
 
-  def truncated(content)
-    { 'content' => content, 'truncated' => true }
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_hash_equal(expected, actual)

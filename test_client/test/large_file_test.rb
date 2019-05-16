@@ -26,13 +26,10 @@ class LargeFileTest < TestBase
 
   multi_os_test 'ED4',
   'stdout greater than 50K is truncated' do
-    letters = [*('a'..'z')]
-    size = 50 # -1 for yes's newline
-    s = (size-1).times.map{letters[rand(letters.size)]}.join
-    command = "yes '#{s}' | head -n 1025"
+    script = "od -An -x /dev/urandom | head -c#{51*1024}"
     run_cyber_dojo_sh({
       changed_files: {
-        'cyber-dojo.sh' => intact(command)
+        'cyber-dojo.sh' => intact(script)
       }
     })
     assert result['stdout']['truncated']
