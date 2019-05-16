@@ -5,7 +5,7 @@ wait_until_ready()
 {
   local name="${1}"
   local port="${2}"
-  local max_tries=20
+  local max_tries=10
   local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/ready?"
   cmd+=" > /dev/null 2>&1"
 
