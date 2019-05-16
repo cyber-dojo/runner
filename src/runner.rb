@@ -28,14 +28,28 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     @image_name = image_name
     @id = id
-    run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
-    set_colour
-    created,deleted,changed = set_files_delta(files, tar_pipe_text_files_out)
+
+    stdout,stderr,status,timed_out =
+      run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
+
+    if timed_out
+      colour = 'timed_out'
+    else
+      colour = red_amber_green(stdout, stderr, status)
+    end
+
+    files_now = tar_pipe_text_files_out
+    if files_now === {} || timed_out
+      created,deleted,changed = {},{},{}
+    else
+      created,deleted,changed = files_delta(files, files_now)
+    end
+
     {
-       stdout: @stdout,
-       stderr: @stderr,
-       status: @status,
-       colour: @colour,
+       stdout: stdout,
+       stderr: stderr,
+       status: status,
+       colour: colour,
       created: created,
       deleted: deleted,
       changed: changed
@@ -43,6 +57,9 @@ class Runner
   end
 
   private
+
+  include FilesDelta
+  include StringCleaner
 
   attr_reader :image_name, :id
 
@@ -58,6 +75,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run(command, files, max_seconds)
+    stdout,stderr,status,timed_out = nil,nil,nil,nil
+
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
@@ -75,22 +94,23 @@ class Runner
     begin
       Timeout::timeout(max_seconds) do
         _, ps = Process.waitpid2(pid)
-        @status = ps.exitstatus
-        @timed_out = killed?(@status)
+        status = ps.exitstatus
+        timed_out = killed?(status)
       end
     rescue Timeout::Error
       Process_kill_group(pid)
       Process_detach(pid)
-      @status = KILLED_STATUS
-      @timed_out = true
+      status = KILLED_STATUS
+      timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = packaged(cleaned(read_max(r_stdout)))
-      @stderr = packaged(cleaned(read_max(r_stderr)))
+      stdout = packaged(cleaned(read_max(r_stdout)))
+      stderr = packaged(cleaned(read_max(r_stderr)))
       r_stdout.close
       r_stderr.close
     end
+    [stdout,stderr,status,timed_out]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -379,20 +399,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # difference before-after /sandbox/cyber-dojo.sh is run
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  include FilesDelta
-
-  def set_files_delta(was_files, now_files)
-    if now_files === {} || @timed_out
-      [{},{},{}]
-    else
-      files_delta(was_files, now_files)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # process helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -433,8 +439,6 @@ class Runner
   # file content helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  include StringCleaner
-
   def packaged(content)
     {
         'content' => truncated(content),
@@ -468,21 +472,9 @@ class Runner
   # red-amber-green colour of stdout,stderr,status
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def set_colour
-    if @timed_out
-      @colour = 'timed_out'
-    else
-      @colour = red_amber_green
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def red_amber_green
+  def red_amber_green(stdout, stderr, status)
     rag_lambda = @cache.rag_lambda(image_name) { get_rag_lambda }
-    stdout = @stdout['content']
-    stderr = @stderr['content']
-    colour = rag_lambda.call(stdout, stderr, @status)
+    colour = rag_lambda.call(stdout['content'], stderr['content'], status)
     unless [:red,:amber,:green].include?(colour)
       log << rag_message(colour.to_s)
       colour = :amber
