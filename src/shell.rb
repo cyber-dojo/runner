@@ -17,24 +17,24 @@ class Shell
 
   def assert(command)
     stdout,stderr,status = bash_run(command)
-    unless status === success
+    unless success?(status)
       args = [command,stdout,stderr,status]
       raise ShellAssertError.new(*args)
     end
     stdout
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def success
-    0
-  end
-
   private
+
+  SUCCESS = 0
+
+  def success?(status)
+    status === SUCCESS
+  end
 
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
-    unless status === success && stderr.empty?
+    unless success?(status) && stderr.empty?
       args = [command,stdout,stderr,status]
       log << ShellAssertError.new(*args).message
     end
