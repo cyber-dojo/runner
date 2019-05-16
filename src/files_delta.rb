@@ -1,7 +1,7 @@
 
-module FileDelta
+module FilesDelta
 
-  def file_delta(was, now)
+  def files_delta(was, now)
     changed = {}
     deleted = {}
     was.each do |filename, file|

@@ -1,20 +1,20 @@
-require_relative '../src/file_delta'
+require_relative '../src/files_delta'
 require_relative 'test_base'
 
-class FileDeltaTest < TestBase
+class FilesDeltaTest < TestBase
 
   def self.hex_prefix
     '5C2'
   end
 
-  include FileDelta
+  include FilesDelta
 
   # - - - - - - - - - - - - - - - - -
 
   test 'E76', %w( unchanged content) do
     was_files = { 'wibble.txt' => intact('hello') }
     now_files = { 'wibble.txt' => intact('hello') }
-    created,deleted,changed = file_delta(was_files, now_files)
+    created,deleted,changed = files_delta(was_files, now_files)
     assert_equal({}, created)
     assert_equal({}, deleted)
     assert_equal({}, changed)
@@ -25,7 +25,7 @@ class FileDeltaTest < TestBase
   test 'E77', %w( changed content ) do
     was_files = { 'wibble.txt' => intact('hello') }
     now_files = { 'wibble.txt' => intact('hello, world') }
-    created,deleted,changed = file_delta(was_files, now_files)
+    created,deleted,changed = files_delta(was_files, now_files)
     assert_equal({}, created)
     assert_equal({}, deleted)
     assert_equal({'wibble.txt' => intact('hello, world')}, changed)
@@ -36,7 +36,7 @@ class FileDeltaTest < TestBase
   test 'E78', %w( deleted content ) do
     was_files = { 'wibble.txt' => intact('hello') }
     now_files = {}
-    created,deleted,changed = file_delta(was_files, now_files)
+    created,deleted,changed = files_delta(was_files, now_files)
     assert_equal({}, created)
     assert_equal({'wibble.txt' => intact('hello')}, deleted)
     assert_equal({}, changed)
@@ -47,7 +47,7 @@ class FileDeltaTest < TestBase
   test 'E79', %w( new content ) do
     was_files = {}
     now_files = { 'wibble.txt' => intact('hello') }
-    created,deleted,changed = file_delta(was_files, now_files)
+    created,deleted,changed = files_delta(was_files, now_files)
     assert_equal({'wibble.txt' => intact('hello')}, created)
     assert_equal({}, deleted)
     assert_equal({}, changed)
@@ -58,7 +58,7 @@ class FileDeltaTest < TestBase
   test 'E80', %w( new empty content ) do
     was_files = {}
     now_files = { 'empty.file' => intact('') }
-    created,deleted,changed = file_delta(was_files, now_files)
+    created,deleted,changed = files_delta(was_files, now_files)
     assert_equal({'empty.file' => intact('')}, created)
     assert_equal({}, deleted)
     assert_equal({}, changed)

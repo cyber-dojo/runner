@@ -1,4 +1,4 @@
-require_relative 'file_delta'
+require_relative 'files_delta'
 require_relative 'gzip'
 require_relative 'string_cleaner'
 require_relative 'tar_reader'
@@ -30,7 +30,7 @@ class Runner
     @id = id
     run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
     set_colour
-    created,deleted,changed = set_file_delta(files, tar_pipe_text_files_out)
+    created,deleted,changed = set_files_delta(files, tar_pipe_text_files_out)
     {
        stdout: @stdout,
        stderr: @stderr,
@@ -382,13 +382,13 @@ class Runner
   # difference before-after /sandbox/cyber-dojo.sh is run
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  include FileDelta
+  include FilesDelta
 
-  def set_file_delta(was_files, now_files)
+  def set_files_delta(was_files, now_files)
     if now_files === {} || @timed_out
       [{},{},{}]
     else
-      file_delta(was_files, now_files)
+      files_delta(was_files, now_files)
     end
   end
 
