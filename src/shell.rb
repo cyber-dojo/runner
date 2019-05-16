@@ -1,5 +1,4 @@
 require_relative 'shell_assert_error'
-require 'json'
 
 class Shell
 
