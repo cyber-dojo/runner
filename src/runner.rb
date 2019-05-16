@@ -224,7 +224,8 @@ class Runner
   def read_tar_file(tar_file)
     reader = TarReader.new(tar_file)
     Hash[reader.files.map do |filename,content|
-      [filename, sanitized(content)]
+      # empty files are coming back as nil
+      [filename, sanitized(content || '')]
     end]
   end
 
@@ -419,9 +420,6 @@ class Runner
   include StringCleaner
 
   def sanitized(content)
-    if content.nil?
-      content = ''
-    end
     truncate = (content.size > MAX_FILE_SIZE)
     content = cleaned(content)
     if truncate
@@ -436,7 +434,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def max_read(fd)
-    fd.read(MAX_FILE_SIZE + 1)
+    fd.read(MAX_FILE_SIZE + 1) || ''
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
