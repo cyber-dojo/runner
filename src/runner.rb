@@ -183,21 +183,21 @@ class Runner
     # returning _all_ text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
     docker_tar_pipe_text_files_out = <<~SHELL.strip
-      docker exec                          \
-        --user=#{UID}:#{GID}               \
-        #{container_name}                  \
-        bash -c                            \
-          '      `# open quote`;           \
-          #{ECHO_TRUNCATED_TEXT_FILENAMES} \
-          |                                \
-          tar                              \
-            -C                             \
-            #{SANDBOX_DIR}                 \
-            -zcf       `# create tgz file` \
-            -          `# write to stdout` \
-            -T         `# using filenames` \
-            -          `# from stdin`      \
-          '            `# close quote`
+      docker exec                           \
+        --user=#{UID}:#{GID}                \
+        #{container_name}                   \
+        bash -c                             \
+          '             `# open quote`;     \
+          #{ECHO_TRUNCATED_TEXT_FILE_NAMES} \
+          |                                 \
+          tar                               \
+            -C                              \
+            #{SANDBOX_DIR}                  \
+            -zcf        `# create tgz file` \
+            -           `# write to stdout` \
+            -T          `# using filenames` \
+            -           `# from stdin`      \
+          '             `# close quote`
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
@@ -223,7 +223,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   # Must not contain a single quote [bash -c '...']
-  ECHO_TRUNCATED_TEXT_FILENAMES =
+  ECHO_TRUNCATED_TEXT_FILE_NAMES =
     <<~SHELL.strip
       truncate_file() \
       { \
