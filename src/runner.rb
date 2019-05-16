@@ -75,8 +75,8 @@ class Runner
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      @stdout = sanitized(max_read(r_stdout))
-      @stderr = sanitized(max_read(r_stderr))
+      @stdout = truncated(cleaned(max_read(r_stdout)))
+      @stderr = truncated(cleaned(max_read(r_stderr)))
       r_stdout.close
       r_stderr.close
     end
@@ -225,7 +225,7 @@ class Runner
     reader = TarReader.new(tar_file)
     Hash[reader.files.map do |filename,content|
       # empty files are coming back as nil
-      [filename, sanitized(content || '')]
+      [filename, truncated(cleaned(content || ''))]
     end]
   end
 
@@ -414,14 +414,13 @@ class Runner
   KILLED_STATUS = 128 + KILL_SIGNAL
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # io helpers
+  # file content helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
   include StringCleaner
 
-  def sanitized(content)
-    truncate = (content.size > MAX_FILE_SIZE)
-    content = cleaned(content)
+  def truncated(content)
+    truncate = truncate?(content)
     if truncate
       content = content[0...MAX_FILE_SIZE]
     end
@@ -431,17 +430,21 @@ class Runner
     }
   end
 
+  def truncate?(content)
+    content.size > MAX_FILE_SIZE
+  end
+
+  MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout,@stderr.
+
+  SPACE = ' '
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # input helper
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def max_read(fd)
     fd.read(MAX_FILE_SIZE + 1) || ''
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  MAX_FILE_SIZE = 25 * KB # Also applies to returned @stdout/@stderr.
-
-  SPACE = ' '
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
