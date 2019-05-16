@@ -11,6 +11,7 @@ This means /var/run/docker.sock has a gid=100
 On an Alpine image (such as this), /etc/group
 has a group called users with gid=100
 So I just need to make my runner user a member of users!
+
 Obvious problem with this is that the docker group
 has different gids on different OS's.
 For example, on Ubuntu 16.04 (in Google Computer Engine)

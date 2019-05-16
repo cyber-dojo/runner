@@ -6,28 +6,24 @@ and files tar-piped OUT of the container are not size-limited.
 They should be?
 How?
 
-the create_text_file_tar_list.sh could
-o) get the size of each file
-   how?
-   stat -c%s "${filename}"
+One option is to simply add the option [-size -25K]
+to the find all in runner.rb
+See the end of ECHO_TEXT_FILENAMES
+This will simply not return text files bigger than 25K
+
+Another option is to truncate large text files to 25K (say)
+before they are added to the tar file.
+This could be done in the is_text_file() bash function at
+the start of ECHO_TEXT_FILENAMES.
+More work will be needed to set the file['truncated'] value.
+
+o) How to get the size of each file?
+   if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then \
      Alpine. ok
      Ubuntu. ok
      Debian. ok
-o) if it is too large...
-   - truncate the file
-     how?
-     truncate -s ${SIZE} "${filename}"
-       Alpine. ok
-       Ubuntu. ok
-       Debian. ok
-   - add the filename to a 2nd file holding truncated filenames
-     This 2nd file would be added to the 1st list...
-
-
-Then once the files have been read tar-piped back from the
-container into the host process, the 2nd file could be
-used to set the correct truncation values.
-
-However, the tar-file is now compressed so there is less need
-to truncate it before the tar-piping.
-And the ulimits should limit the maximum size of an individual file.
+o) How to truncate it when it too large?
+  truncate -s #{MAX_FILE_SIZE} "${1}"
+     Alpine. ok
+     Ubuntu. ok
+     Debian. ok
