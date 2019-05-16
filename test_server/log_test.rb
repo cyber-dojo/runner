@@ -1,4 +1,5 @@
 require_relative 'test_base'
+require 'stringio'
 
 class LogTest < TestBase
 

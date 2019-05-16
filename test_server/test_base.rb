@@ -1,6 +1,7 @@
 require_relative 'hex_mini_test'
 require_relative '../src/external'
 require_relative '../src/runner'
+require 'stringio'
 
 class TestBase < HexMiniTest
 

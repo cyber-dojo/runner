@@ -5,6 +5,7 @@ require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 require 'json'
+require 'stringio'
 
 class RackDispatcherTest < TestBase
 

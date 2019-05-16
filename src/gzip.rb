@@ -1,3 +1,4 @@
+require 'stringio'
 require 'zlib'
 
 # https://gist.github.com/sinisterchipmunk/1335041
