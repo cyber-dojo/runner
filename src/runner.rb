@@ -269,7 +269,7 @@ class Runner
     # The container-name must be unique. If the container name is
     # based on _only_ the id then a 2nd run started while a 1st run
     # (with the same id) is still live would fail.
-    container_name = ['test_run_runner', id, SecureRandom.hex].join('_')
+    container_name = ['cyber_dojo_runner', id, SecureRandom.hex].join('_')
     docker_run = [
       'docker run',
         "--name=#{container_name}",
