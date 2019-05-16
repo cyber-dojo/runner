@@ -182,27 +182,27 @@ class Runner
     # ready for human inspection. cyber-dojo supports this by
     # returning _all_ text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
-    docker_tar_pipe = <<~SHELL.strip
-      docker exec                    \
-        --user=#{UID}:#{GID}         \
-        #{container_name}            \
-        bash -c                      \
-          '      `# open quote`;     \
-          #{ECHO_TEXT_FILENAMES}     \
-          |                          \
-          tar                        \
-            -C                       \
-            #{SANDBOX_DIR}           \
-            -zcf `# create tgz file` \
-            -    `# write to stdout` \
-            -T   `# using filenames` \
-            -    `# from stdin`      \
-          '      `# close quote`
+    docker_tar_pipe_text_files_out = <<~SHELL.strip
+      docker exec                          \
+        --user=#{UID}:#{GID}               \
+        #{container_name}                  \
+        bash -c                            \
+          '      `# open quote`;           \
+          #{ECHO_TRUNCATED_TEXT_FILENAMES} \
+          |                                \
+          tar                              \
+            -C                             \
+            #{SANDBOX_DIR}                 \
+            -zcf       `# create tgz file` \
+            -          `# write to stdout` \
+            -T         `# using filenames` \
+            -          `# from stdin`      \
+          '            `# close quote`
     SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
     # to fail so you cannot use shell.assert() here.
-    stdout,_stderr,status = shell.exec(docker_tar_pipe)
+    stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       read_tar_file(ungzip(stdout))
     else
@@ -222,7 +222,8 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  ECHO_TEXT_FILENAMES =
+  # Must not contain a single quote [bash -c '...']
+  ECHO_TRUNCATED_TEXT_FILENAMES =
     <<~SHELL.strip
       truncate_file() \
       { \
