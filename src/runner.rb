@@ -29,20 +29,22 @@ class Runner
     @image_name = image_name
     @id = id
 
+    create_container(max_seconds)
+
     stdout,stderr,status,timed_out =
       run(tar_pipe_files_in_and_run_cyber_dojo_sh, files, max_seconds)
-
-    if timed_out
-      colour = 'timed_out'
-    else
-      colour = red_amber_green(stdout, stderr, status)
-    end
 
     files_now = tar_pipe_text_files_out
     if files_now === {} || timed_out
       created,deleted,changed = {},{},{}
     else
       created,deleted,changed = files_delta(files, files_now)
+    end
+
+    if timed_out
+      colour = 'timed_out'
+    else
+      colour = red_amber_green(stdout, stderr, status)
     end
 
     {
@@ -76,15 +78,11 @@ class Runner
 
   def run(command, files, max_seconds)
     stdout,stderr,status,timed_out = nil,nil,nil,nil
-
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-
     w_stdin.write(tgz(files))
     w_stdin.close
-
-    create_container(max_seconds)
     pid = Process.spawn(command, {
       pgroup:true,     # become process leader
           in:r_stdin,  # redirection
