@@ -1,5 +1,4 @@
 require_relative 'test_base'
-require_relative '../src/external'
 
 class TrafficLightTest < TestBase
 
@@ -7,10 +6,8 @@ class TrafficLightTest < TestBase
     '332'
   end
 
-  # - - - - - - - - - - - - - - - -
-
-  def hex_setup
-    @traffic_light = External.new.traffic_light
+  def traffic_light
+    external.traffic_light
   end
 
   # - - - - - - - - - - - - - - - -
@@ -19,7 +16,7 @@ class TrafficLightTest < TestBase
   'block is used to populate the cache once only' do
     @count = 0
     5.times {
-      ragger = @traffic_light.rag_lambda('gcc_assert') { @count += 1; eval(purple) }
+      ragger = traffic_light.rag_lambda('gcc_assert') { @count += 1; eval(purple) }
       assert_equal :purple, ragger.call('stdout','stderr',status=23)
     }
     assert_equal 1, @count

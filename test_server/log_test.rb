@@ -1,5 +1,4 @@
 require_relative 'test_base'
-require_relative '../src/log'
 
 class LogTest < TestBase
 
@@ -7,12 +6,16 @@ class LogTest < TestBase
     'CD4'
   end
 
+  def log
+    external.log
+  end
+
   # - - - - - - - - - - - - - - - -
 
   test '20C',
   'logging a string message send it directly to stdout' do
     stdout = captured_stdout {
-      Log.new << 'Hello'
+      log << 'Hello'
     }
     assert_equal 'Hello', stdout
   end

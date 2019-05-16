@@ -1,10 +1,13 @@
 require_relative 'test_base'
-require_relative '../src/shell'
 
 class ShellTest < TestBase
 
   def self.hex_prefix
     'C89'
+  end
+
+  def shell
+    external.shell
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -121,12 +124,6 @@ class ShellTest < TestBase
     expected = 'No such file or directory - xxx'
     assert_equal expected, @error.message
     assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def shell
-    external.shell
   end
 
   # - - - - - - - - - - - - - - - - -
