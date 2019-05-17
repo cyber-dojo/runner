@@ -161,10 +161,10 @@ Calls the runner-server's methods
 and displays their json results and how long they took.
 If the runner-client's IP address is 192.168.99.100 then put
 192.168.99.100:4598 into your browser to see the output.
-- <span style="color:red">red</span> tests ran but failed
-- <span style="color:amber">amber</span> tests did not run (eg syntax error)
-- <span style="color:green">green</span> tests ran and passed
-- <span style="color:gray">grey</span> tests did not complete (in 3 seconds)
+- red: tests ran but failed
+- amber: tests did not run (eg syntax error)
+- green: tests ran and passed
+- grey: tests did not complete (in 3 seconds)
 
 # demo screenshot
 
