@@ -15,7 +15,6 @@ API:
   * [GET sha()](#get-sha)
   * All methods receive a json hash.
     * The hash contains any method arguments as key-value pairs.
-    * The image_name argument must be the name of a docker image created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * All methods return a json hash.
     * If the method completes, a key equals the method's name.
     * If the method raises an exception, a key equals "exception".
@@ -27,6 +26,8 @@ Creates a container from **image_name**,
 saves **files** into /sandbox inside it,
 runs /sandbox/cyber-dojo.sh
 for at most **max_seconds**.
+**image_name** must be created with
+[image_builder](https://github.com/cyber-dojo-languages/image_builder)
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
@@ -160,10 +161,10 @@ Calls the runner-server's methods
 and displays their json results and how long they took.
 If the runner-client's IP address is 192.168.99.100 then put
 192.168.99.100:4598 into your browser to see the output.
-- red: tests ran but failed
-- amber: tests did not run (eg syntax error)
-- green: tests ran and passed
-- grey: tests did not complete (in 3 seconds)
+- <span style="color:red">red</span> tests ran but failed
+- <span style="color:amber">amber</span> tests did not run (eg syntax error)
+- <span style="color:green">green</span> tests ran and passed
+- <span style="color:gray">grey</span> tests did not complete (in 3 seconds)
 
 # demo screenshot
 
