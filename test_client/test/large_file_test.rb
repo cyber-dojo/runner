@@ -32,7 +32,8 @@ class LargeFileTest < TestBase
         'cyber-dojo.sh' => intact(script)
       }
     })
-    assert result['stdout']['truncated']
+    diagnostic = "#{@os}:stdout:size == #{stdout.size},bytesize=#{stdout.bytesize}"
+    assert result['stdout']['truncated'], diagnostic
   end
 
 end
