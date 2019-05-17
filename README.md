@@ -16,19 +16,18 @@ API:
   * All methods return a json hash.
     * If the method completes, a key equals the method's name.
     * If the method raises an exception, a key equals "exception".
-
-#
-- [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
-- [GET ready?()](#get-ready)
-- [GET sha()](#get-sha)
+  *
+    * [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
+    * [GET ready?()](#get-ready)
+    * [GET sha()](#get-sha)
 
 - - - -
 
 # POST run_cyber_dojo_sh(image_name,id,files,max_seconds)
-Creates a container from image_name,
-saves files into /sandbox inside it,
+Creates a container from *image_name*,
+saves *files* into /sandbox inside it,
 runs /sandbox/cyber-dojo.sh
-for at most max_seconds.
+for at most *max_seconds*.
 - parameters, eg
 ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
@@ -41,12 +40,12 @@ for at most max_seconds.
                          }
   }
 ```
-- returns [stdout, stderr, status, colour] as the results of
+- returns [*stdout*, *stderr*, *status*, *colour*] as the results of
 executing cyber-dojo.sh
-- returns [created, deleted, changed] which are text files
+- returns [*created*, *deleted*, *changed*] which are text files
 in /sandbox altered by executing /sandbox/cyber-dojo.sh
-- if the execution completed in max_seconds, colour will be "red", "amber", or "green".
-- if the execution did not complete in max_seconds, colour will be "timed_out".
+- if the execution completed in max_seconds, *colour* will be "red", "amber", or "green".
+- if the execution did not complete in max_seconds, *colour* will be "timed_out".
 
 eg
 ```
@@ -88,8 +87,8 @@ eg
 ```
 
 The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-is determined by passing stdout, stderr, and status to a Ruby lambda, read from the
-named image, at /usr/local/bin/red_amber_green.rb.
+is determined by passing *stdout*, *stderr*, and *status* to a Ruby lambda, read from
+*image_name*, at /usr/local/bin/red_amber_green.rb.
 
 eg
 ```
@@ -100,9 +99,9 @@ lambda { |stdout, stderr, status|
   return :amber
 }
 ```
-- If this file does not exist in the named image, the colour is "amber".
-- If the contents of this file raises an exception when eval'd or called, the colour is "amber".
-- If the lambda returns anything other than :red, :amber, or :green, the colour is "amber".
+- If this file does not exist in *image_name*, the *colour* is "amber".
+- If the contents of this file raises an exception when eval'd or called, the *colour* is "amber".
+- If the lambda returns anything other than :red, :amber, or :green, the *colour* is "amber".
 
 - - - -
 
