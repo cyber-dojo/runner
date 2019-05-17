@@ -61,6 +61,10 @@ class TestBase < HexMiniTest
     result['stderr']['content']
   end
 
+  def status
+    result['status']
+  end
+
   def colour
     result['colour']
   end

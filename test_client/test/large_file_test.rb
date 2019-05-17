@@ -25,6 +25,14 @@ class LargeFileTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'ED4',
+  # This test occasionlly fails. I've added the diagnostic below.
+  # Is this related to the truncate_file() in runner.rb
+  #   if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
+  #     truncate_file "${1}"; \
+  #     return; \
+  #   fi; \
+  # If truncate_file fails then $? will be non-zero and the return
+  # will be false...
   'stdout greater than 50K is truncated' do
     script = "od -An -x /dev/urandom | head -c#{51*1024}"
     run_cyber_dojo_sh({
@@ -32,7 +40,7 @@ class LargeFileTest < TestBase
         'cyber-dojo.sh' => intact(script)
       }
     })
-    diagnostic = "#{@os}:stdout:size == #{stdout.size},bytesize=#{stdout.bytesize}"
+    diagnostic = [@os,stdout,stderr,status].to_s
     assert result['stdout']['truncated'], diagnostic
   end
 
