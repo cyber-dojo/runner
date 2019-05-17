@@ -47,7 +47,13 @@ class TrafficLightTest < TestBase
 
   test '6CC',
   'lambda is retrieved from image only once' do
-    cater = BashStubRagFileCatter.new(amber_lambda)
+    cater = BashStubRagFileCatter.new(
+      <<~RUBY
+      lambda { |stdout, stderr, status|
+        :amber
+      }
+      RUBY
+    )
     @external = External.new({ 'bash' => cater })
     5.times {
       assert_equal 'amber', traffic_light.colour('','',0,image_name)
@@ -147,16 +153,6 @@ class TrafficLightTest < TestBase
   def assert_rag_log(msg)
     expected = "red_amber_green lambda error mapped to :amber\n#{msg}"
     assert @log.include?(expected), @log
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def amber_lambda
-    <<~RUBY
-    lambda { |stdout, stderr, status|
-      :amber
-    }
-    RUBY
   end
 
 end
