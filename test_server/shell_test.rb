@@ -155,12 +155,10 @@ class ShellTest < TestBase
     key = 'CIRCLECI'
     on_circle_ci = ENV.include?(key)
     begin
-      ENV[key] = 'true'
+      ENV[key] = 'true' unless on_circle_ci
       shell.exec('anything')
     ensure
-      unless on_circle_ci
-        ENV.delete(key)
-      end
+      ENV.delete(key) unless on_circle_ci 
     end
     assert bash_stub.fired?(1), 'bash_stub.fired?(1) is false'
     assert log_spy.fired?(0), 'log_spy.fired?(0) is false'
