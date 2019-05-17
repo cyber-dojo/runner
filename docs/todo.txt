@@ -15,7 +15,4 @@ returned files [created,changed,deleted] and  [stdout,stderr].
 -------------------------------------------------
 Possibly make max_file_size as incoming parameter.
 -------------------------------------------------
-Move traffic_light.colour into its own service
-called from web. Possible name: lighter?, trafficker?, ragger?
-I think this could be implemented by calling runner...
-would need a ruby image_name of course.
+Move traffic_light.colour into its own service called from web.
