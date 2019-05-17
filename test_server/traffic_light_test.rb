@@ -13,21 +13,21 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - -
 
   test '6CC',
-  'block is used to populate the cache once only' do
-    count = 0
+  'lambda is retrieved from image only once' do
+    cater = BashStubRagFileCatter.new(amber_lambda)
+    @external = External.new({ 'bash' => cater })
     5.times {
-      ragger = traffic_light.rag_lambda('gcc_assert') { count += 1; eval(purple) }
-      assert_equal :purple, ragger.call('stdout','stderr',status=23)
+      assert_equal 'amber', traffic_light.colour('','',0,image_name)
     }
-    assert_equal 1, count
+    assert cater.fired_once?
   end
 
   # - - - - - - - - - - - - - - - -
 
-  def purple
+  def amber_lambda
     <<~RUBY
     lambda { |stdout, stderr, status|
-      return :purple
+      :amber
     }
     RUBY
   end

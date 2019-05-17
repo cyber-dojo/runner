@@ -3,15 +3,15 @@ class BashStubRaiser
 
   def initialize(message)
     @message = message
-    @fired = false
+    @fired_count = 0
   end
 
-  def fired?
-    @fired
+  def fired_once?
+    @fired_count === 1
   end
 
   def run(command)
-    @fired = true
+    @fired_count += 1
     raise ArgumentError.new(@message)
   end
 

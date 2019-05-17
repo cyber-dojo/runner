@@ -4,16 +4,16 @@ class BashStubRagFileCatter
 
   def initialize(content)
     @content = content
-    @fired = false
+    @fired_count = 0
   end
 
-  def fired?
-    @fired
+  def fired_once?
+    @fired_count === 1
   end
 
   def run(command)
     if command.end_with?("cat /usr/local/bin/red_amber_green.rb'")
-      @fired = true
+      @fired_count += 1
       return stdout=@content,stderr='',status=0
     else
       stdout,stderr,r = Open3.capture3(command)

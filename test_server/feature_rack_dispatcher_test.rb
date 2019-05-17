@@ -153,7 +153,7 @@ class RackDispatcherTest < TestBase
     stub = BashStubTarPipeOut.new('fail')
     rack_call(env, External.new({ 'bash' => stub }))
 
-    assert stub.fired?
+    assert stub.fired_once?
     assert_200
     assert_body_contains(path_info)
     refute_body_contains('exception')
@@ -178,7 +178,7 @@ class RackDispatcherTest < TestBase
     rack = RackDispatcher.new(runner)
     with_captured_stdout_stderr {
       response = rack.call(env, RackRequestStub)
-      assert raiser.fired?
+      assert raiser.fired_once?
       status = response[0]
       assert_equal 500, status
     }

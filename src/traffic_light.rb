@@ -9,8 +9,8 @@ class TrafficLight
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def colour(stdout, stderr, status, image_name)
-    rag_lambda = rag_lambda(image_name) { get_rag_lambda(image_name) }
-    colour = rag_lambda.call(stdout, stderr, status)
+    @cache[image_name] ||= get_rag_lambda(image_name)
+    colour = @cache[image_name].call(stdout, stderr, status)
     unless [:red,:amber,:green].include?(colour)
       log << rag_message(colour.to_s)
       colour = :amber
@@ -19,12 +19,6 @@ class TrafficLight
   rescue => error
     log << rag_message(error.message)
     'amber'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def rag_lambda(image_name, &block)
-    @cache[image_name] ||= block.call
   end
 
   private

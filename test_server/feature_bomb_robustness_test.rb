@@ -58,7 +58,7 @@ class BombRobustNessTest < TestBase
       stub = BashStubTarPipeOut.new('fail')
       @external = External.new({ 'bash' => stub })
       with_captured_log { run_cyber_dojo_sh }
-      assert stub.fired?
+      assert stub.fired_once?
       assert_created({})
       assert_deleted([])
       assert_changed({})

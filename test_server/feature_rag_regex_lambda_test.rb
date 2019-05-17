@@ -11,9 +11,7 @@ class RagRegexLambdaTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def hex_teardown
-    if external.bash.respond_to? :fired?
-      assert external.bash.fired?
-    end
+    assert external.bash.fired_once?
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -84,7 +82,7 @@ class RagRegexLambdaTest < TestBase
     )
   end
 
-  # - - - - - - - - - - - - - - - - -
+  private
 
   def assert_amber(expected_log, lambda)
     cater = BashStubRagFileCatter.new(lambda)
