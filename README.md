@@ -17,34 +17,14 @@ API:
     * If the method completes, a key equals the method's name.
     * If the method raises an exception, a key equals "exception".
 
-- - - -
-
-## GET ready?
-- parameters, none
-```
-  {}
-```
-- returns true if the service is ready, otherwise false, eg
-```
-  { "ready?": true }
-  { "ready?": false }
-```
+#
+- [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
+- [GET ready?()](#get-ready)
+- [GET sha()](#get-sha)
 
 - - - -
 
-## GET sha
-- parameters, none
-```
-  {}
-```
-- returns the git commit sha used to create the docker image, eg
-```
-  { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
-```
-
-- - - -
-
-# POST run_cyber_dojo_sh
+# POST run_cyber_dojo_sh(image_name,id,files,max_seconds)
 Creates a container from image_name,
 saves files into /sandbox inside it,
 runs /sandbox/cyber-dojo.sh
@@ -123,6 +103,31 @@ lambda { |stdout, stderr, status|
 - If this file does not exist in the named image, the colour is "amber".
 - If the contents of this file raises an exception when eval'd or called, the colour is "amber".
 - If the lambda returns anything other than :red, :amber, or :green, the colour is "amber".
+
+- - - -
+
+## GET ready?
+- parameters, none
+```
+  {}
+```
+- returns true if the service is ready, otherwise false, eg
+```
+  { "ready?": true }
+  { "ready?": false }
+```
+
+- - - -
+
+## GET sha
+- parameters, none
+```
+  {}
+```
+- returns the git commit sha used to create the docker image, eg
+```
+  { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
+```
 
 - - - -
 - - - -
