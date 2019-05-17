@@ -152,11 +152,15 @@ class ShellTest < TestBase
         def <<(_s); @fired_count += 1; end
       end.new
     @external = External.new({ 'bash' => bash_stub, 'log' => log_spy })
+    key = 'CIRCLECI'
+    on_circle_ci = ENV.include?(key)
     begin
-      ENV['CIRCLECI'] = 'true'
+      ENV[key] = 'true'
       shell.exec('anything')
     ensure
-      ENV.delete('CIRCLECI')
+      unless on_circle_ci
+        ENV.delete(key)
+      end
     end
     assert bash_stub.fired?(1), 'bash_stub.fired?(1) is false'
     assert log_spy.fired?(0), 'log_spy.fired?(0) is false'
