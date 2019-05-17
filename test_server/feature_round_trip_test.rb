@@ -131,7 +131,7 @@ class RoundTripTest < TestBase
   %w( no text files under /sandbox at all, returns everything unchanged ) do
     all_OSes.each do |os|
       set_OS(os)
-      assert_cyber_dojo_sh('rm -rf /sandbox/*')
+      assert_cyber_dojo_sh('rm -rf /sandbox/* /sandbox/.*')
       assert_created({})
       assert_deleted([])
       assert_changed({})
