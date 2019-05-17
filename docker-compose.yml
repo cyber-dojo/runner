@@ -38,4 +38,4 @@ services:
       - ./test_server:/app/test:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - TRAVIS
+      - CIRCLECI      

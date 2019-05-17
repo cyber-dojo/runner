@@ -127,6 +127,42 @@ class ShellTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # special test for silencing known CircleCI error message
+  # - - - - - - - - - - - - - - - - -
+
+  KNOWN_CIRCLE_CI_WARNING =
+    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
+    "Memory limited without swap."
+
+  test '250',
+  %w( known warning message on CircleCI is not logged - helps reveal other warnings ) do
+    bash_stub =
+      Class.new do
+        def initialize; @fired_count = 0; end
+        def fired?(n); @fired_count === n; end
+        def run(command)
+          @fired_count += 1
+          ['',KNOWN_CIRCLE_CI_WARNING,0]
+        end
+      end.new
+    log_spy =
+      Class.new do
+        def initialize; @fired_count = 0; end
+        def fired?(n); @fired_count === n; end
+        def <<(_s); @fired_count += 1; end
+      end.new
+    @external = External.new({ 'bash' => bash_stub, 'log' => log_spy })
+    begin
+      ENV['CIRCLECI'] = 'true'
+      shell.exec('anything')
+    ensure
+      ENV.delete('CIRCLECI')
+    end
+    assert bash_stub.fired?(1), 'bash_stub.fired?(1) is false'
+    assert log_spy.fired?(0), 'log_spy.fired?(0) is false'
+  end
+
+  private
 
   def assert_nothing_logged
     assert_equal '', @log

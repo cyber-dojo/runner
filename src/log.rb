@@ -1,8 +1,8 @@
 
 class Log
 
-  def <<(string)
-    print string
+  def <<(message)
+    print message
   end
 
 end

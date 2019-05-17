@@ -33,12 +33,32 @@ class Shell
 
   def bash_run(command)
     stdout,stderr,status = bash.run(command)
-    unless success?(status) && stderr.empty?
+    unless success?(status) && ignore?(stderr)
       args = [command,stdout,stderr,status]
       log << ShellAssertError.new(*args).message
     end
     [stdout, stderr, status]
   end
+
+  # - - - - - - - - - - - - - - - - - - -
+
+  def ignore?(stderr)
+    stderr.empty? || known_circle_ci_warning?(stderr)
+  end
+
+  KNOWN_CIRCLE_CI_WARNING =
+    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
+    "Memory limited without swap."
+
+  def known_circle_ci_warning?(stderr)
+    on_circle_ci? && stderr.start_with?(KNOWN_CIRCLE_CI_WARNING)
+  end
+
+  def on_circle_ci?
+    ENV.include?('CIRCLECI')
+  end
+
+  # - - - - - - - - - - - - - - - - - - -
 
   def bash
     @external.bash

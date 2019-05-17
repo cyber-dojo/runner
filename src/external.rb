@@ -7,7 +7,7 @@ class External
 
   def initialize(options = {})
     @bash = options['bash'] || Bash.new
-    @log = Log.new
+    @log = options['log'] || Log.new
     @shell = Shell.new(self)
     @traffic_light = TrafficLight.new(self)
   end
