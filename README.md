@@ -10,21 +10,20 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs cyber-dojo.sh inside a docker container within a given amount of time.
 
 API:
+  * [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
+  * [GET ready?()](#get-ready)
+  * [GET sha()](#get-sha)
   * All methods receive a json hash.
     * The hash contains any method arguments as key-value pairs.
     * The image_name argument must be the name of a docker image created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * All methods return a json hash.
     * If the method completes, a key equals the method's name.
     * If the method raises an exception, a key equals "exception".
-  *
-    * [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
-    * [GET ready?()](#get-ready)
-    * [GET sha()](#get-sha)
 
 - - - -
 
 # POST run_cyber_dojo_sh(image_name,id,files,max_seconds)
-Creates a container from *image_name*,
+Creates a container from **image_name**,
 saves *files* into /sandbox inside it,
 runs /sandbox/cyber-dojo.sh
 for at most *max_seconds*.
