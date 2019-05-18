@@ -1,9 +1,9 @@
 require_relative 'files_delta' # files_delta(was,now)
-require_relative 'gnu_unzip'   # Gnu::unzip(s)
-require_relative 'gnu_zip'     # Gnu::zip(s)
+require_relative 'gnu_unzip'   # Gnu.unzip(s)
+require_relative 'gnu_zip'     # Gnu.zip(s)
 require_relative 'tar_reader'  # Tar::Reader
 require_relative 'tar_writer'  # Tar::Writer
-require_relative 'utf8_clean'  # Utf8::clean(s)
+require_relative 'utf8_clean'  # Utf8.clean(s)
 require 'securerandom'
 require 'timeout'
 
@@ -95,8 +95,8 @@ class Runner
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      stdout = packaged(Utf8::clean(read_max(r_stdout)))
-      stderr = packaged(Utf8::clean(read_max(r_stderr)))
+      stdout = packaged(Utf8.clean(read_max(r_stdout)))
+      stderr = packaged(Utf8.clean(read_max(r_stderr)))
       r_stdout.close
       r_stderr.close
     end
@@ -106,7 +106,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tgz(files)
-    Gnu::zip(tar_file_writer(files).tar_file)
+    Gnu.zip(tar_file_writer(files).tar_file)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -214,7 +214,7 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
-      read_tar_file(Gnu::unzip(stdout))
+      read_tar_file(Gnu.unzip(stdout))
     else
       {}
     end
@@ -226,7 +226,7 @@ class Runner
     reader = Tar::Reader.new(tar_file)
     Hash[reader.files.map do |filename,content|
       # empty files are coming back as nil
-      [filename, packaged(Utf8::clean(content || ''))]
+      [filename, packaged(Utf8.clean(content || ''))]
     end]
   end
 

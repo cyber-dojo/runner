@@ -10,8 +10,8 @@ class GnuZipTest < TestBase
 
   test '4A1', 'simple gzip round-trip' do
     expected = 'sdgfadsfghfghsfhdfghdfghdfgh'
-    zipped = Gnu::zip(expected)
-    actual = Gnu::unzip(zipped)
+    zipped = Gnu.zip(expected)
+    actual = Gnu.unzip(zipped)
     assert_equal expected, actual
   end
 

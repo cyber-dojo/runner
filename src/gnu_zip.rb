@@ -3,9 +3,7 @@ require 'zlib'
 
 module Gnu
 
-  module_function
-  
-  def zip(s)
+  def self.zip(s)
     zipped = StringIO.new('')
     writer = Zlib::GzipWriter.new(zipped)
     writer.write(s)

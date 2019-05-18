@@ -3,9 +3,7 @@ require 'zlib'
 
 module Gnu
 
-  module_function
-
-  def unzip(s)
+  def self.unzip(s)
     reader = Zlib::GzipReader.new(StringIO.new(s))
     unzipped = StringIO.new(reader.read)
     reader.close
