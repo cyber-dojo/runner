@@ -1,4 +1,6 @@
 
+
+Move traffic_light.colour into its own service called from web.
 -------------------------------------------------
 incoming files is currently
 {
@@ -7,12 +9,11 @@ incoming files is currently
     'truncated' => false
   }
 }
-Drop the truncated and just send in the content directly.
+Drop the truncation and just send in the content directly.
 As per the current README.md file.
 -------------------------------------------------
 Also document in the README.md file truncation in the
-returned files [created,changed,deleted] and  [stdout,stderr].
+returned files [created,changed,deleted] and [stdout,stderr].
 -------------------------------------------------
-Possibly make max_file_size as incoming parameter.
+Possibly make max_file_size as incoming parameter?
 -------------------------------------------------
-Move traffic_light.colour into its own service called from web.

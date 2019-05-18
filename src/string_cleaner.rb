@@ -1,7 +1,5 @@
 
-module StringCleaner # mix-in
-
-  module_function
+module StringCleaner
 
   def cleaned(s)
     # force an encoding change

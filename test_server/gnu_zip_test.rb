@@ -1,8 +1,8 @@
 require_relative 'test_base'
-require_relative '../src/gzip'
-require_relative '../src/ungzip'
+require_relative '../src/gnu_zip'
+require_relative '../src/gnu_unzip'
 
-class GZipTest < TestBase
+class GnuZipTest < TestBase
 
   def self.hex_prefix
     'CD4'
@@ -10,8 +10,8 @@ class GZipTest < TestBase
 
   test '4A1', 'simple gzip round-trip' do
     expected = 'sdgfadsfghfghsfhdfghdfghdfgh'
-    zipped = gzip(expected)
-    actual = ungzip(zipped)
+    zipped = Gnu::zip(expected)
+    actual = Gnu::unzip(zipped)
     assert_equal expected, actual
   end
 

@@ -1,11 +1,11 @@
-require_relative 'files_delta'
-require_relative 'gzip'
-require_relative 'string_cleaner'
-require_relative 'tar_reader'
-require_relative 'tar_writer'
-require_relative 'ungzip'
-require 'securerandom'
-require 'timeout'
+require_relative 'files_delta'     # files_delta(was,now)
+require_relative 'gnu_zip'         # Gnu::zip(s)
+require_relative 'gnu_unzip'       # Gnu::unzip(s)
+require_relative 'string_cleaner'  # cleaned(s)
+require_relative 'tar_reader'      # Tar::Reader
+require_relative 'tar_writer'      # Tar::Writer
+require 'securerandom'             # SecureRandom
+require 'timeout'                  # Timeout
 
 class Runner
 
@@ -107,7 +107,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tgz(files)
-    gzip(tar_file_writer(files).tar_file)
+    Gnu::zip(tar_file_writer(files).tar_file)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -215,7 +215,7 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
-      read_tar_file(ungzip(stdout))
+      read_tar_file(Gnu::unzip(stdout))
     else
       {}
     end
