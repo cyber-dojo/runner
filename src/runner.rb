@@ -1,11 +1,11 @@
-require_relative 'files_delta'     # files_delta(was,now)
-require_relative 'gnu_zip'         # Gnu::zip(s)
-require_relative 'gnu_unzip'       # Gnu::unzip(s)
-require_relative 'string_cleaner'  # cleaned(s)
-require_relative 'tar_reader'      # Tar::Reader
-require_relative 'tar_writer'      # Tar::Writer
-require 'securerandom'             # SecureRandom
-require 'timeout'                  # Timeout
+require_relative 'files_delta' # files_delta(was,now)
+require_relative 'gnu_unzip'   # Gnu::unzip(s)
+require_relative 'gnu_zip'     # Gnu::zip(s)
+require_relative 'tar_reader'  # Tar::Reader
+require_relative 'tar_writer'  # Tar::Writer
+require_relative 'utf8_clean'  # Utf8::clean(s)
+require 'securerandom'
+require 'timeout'
 
 class Runner
 
@@ -56,7 +56,6 @@ class Runner
   private
 
   include FilesDelta
-  include StringCleaner
 
   KB = 1024
   MB = 1024 * KB
@@ -96,8 +95,8 @@ class Runner
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      stdout = packaged(cleaned(read_max(r_stdout)))
-      stderr = packaged(cleaned(read_max(r_stderr)))
+      stdout = packaged(Utf8::clean(read_max(r_stdout)))
+      stderr = packaged(Utf8::clean(read_max(r_stderr)))
       r_stdout.close
       r_stderr.close
     end
@@ -227,7 +226,7 @@ class Runner
     reader = Tar::Reader.new(tar_file)
     Hash[reader.files.map do |filename,content|
       # empty files are coming back as nil
-      [filename, packaged(cleaned(content || ''))]
+      [filename, packaged(Utf8::clean(content || ''))]
     end]
   end
 
