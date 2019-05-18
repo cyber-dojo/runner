@@ -11,7 +11,8 @@ module Tar
     end
 
     def files
-      Hash[@reader.map { |e| [e.full_name, e.read] }]
+      # empty files are coming back as nil
+      Hash[@reader.map { |e| [e.full_name, e.read || ''] }]
     end
 
   end

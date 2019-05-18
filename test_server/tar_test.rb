@@ -33,4 +33,14 @@ class TarTest < TestBase
     assert doesnt_throw=true
   end
 
+  # - - - - - - - - - - - - - - - - - -
+
+  test '366', 'empty file round-trip' do
+    writer = Tar::Writer.new
+    filename = 'greeting.txt'
+    writer.write(filename, '')
+    read = Tar::Reader.new(writer.tar_file).files[filename]
+    assert_equal '', read
+  end
+
 end
