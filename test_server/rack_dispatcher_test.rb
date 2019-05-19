@@ -330,6 +330,7 @@ class RackDispatcherTest < TestBase
 
   METHOD_NAMES = %w(
     sha
+    ready
     run_cyber_dojo_sh
   )
 
