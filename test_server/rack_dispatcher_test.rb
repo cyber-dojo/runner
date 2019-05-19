@@ -252,13 +252,13 @@ class RackDispatcherTest < TestBase
 
   def assert_body_contains(key)
     refute_nil @body
-    json = JSON.parse!(@body)
+    json = JSON.parse(@body)
     assert json.has_key?(key)
   end
 
   def refute_body_contains(key)
     refute_nil @body
-    json = JSON.parse!(@body)
+    json = JSON.parse(@body)
     refute json.has_key?(key)
   end
 
@@ -271,7 +271,7 @@ class RackDispatcherTest < TestBase
 
   def assert_logged(key, value)
     refute_nil @stdout
-    json = JSON.parse!(@stdout)
+    json = JSON.parse(@stdout)
     diagnostic = "log does not contain key:#{key}\n#{@stdout}"
     assert json.has_key?(key), diagnostic
     assert_equal value, json[key], @stdout
@@ -279,7 +279,7 @@ class RackDispatcherTest < TestBase
 
   def assert_log_contains(key, value)
     refute_nil @stdout
-    json = JSON.parse!(@stdout)
+    json = JSON.parse(@stdout)
     diagnostic = "log does not contain key:#{key}\n#{@stdout}"
     assert json.has_key?(key), diagnostic
     assert json[key].include?(value), @stdout
@@ -288,7 +288,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_gcc_starting_red
-    result = JSON.parse!(@body)['run_cyber_dojo_sh']
+    result = JSON.parse(@body)['run_cyber_dojo_sh']
     stdout = result['stdout']
     assert_equal gcc_assert_stdout, stdout['content'], stdout
     stderr = result['stderr']

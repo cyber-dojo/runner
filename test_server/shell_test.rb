@@ -158,7 +158,7 @@ class ShellTest < TestBase
       ENV[key] = 'true' unless on_circle_ci
       shell.exec('anything')
     ensure
-      ENV.delete(key) unless on_circle_ci 
+      ENV.delete(key) unless on_circle_ci
     end
     assert bash_stub.fired?(1), 'bash_stub.fired?(1) is false'
     assert log_spy.fired?(0), 'log_spy.fired?(0) is false'
