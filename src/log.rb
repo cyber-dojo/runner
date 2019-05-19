@@ -2,7 +2,7 @@
 class Log
 
   def <<(message)
-    print message
+    $stdout.print(message)
   end
 
 end
