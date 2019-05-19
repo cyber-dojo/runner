@@ -155,10 +155,10 @@ class RackDispatcherTest < TestBase
     refute_body_contains('exception')
     refute_body_contains('backtrace')
 
-    #assert_log_contains('command')
-    #assert_log_contains('stdout', 'fail')
-    #assert_log_contains('stderr', '')
-    #assert_log_contains('status', 1)
+    assert_log_contains('command', 'docker exec')
+    assert_logged('stdout', 'fail')
+    assert_logged('stderr', '')
+    assert_logged('status', 1)
     assert_gcc_starting_red
   end
 
@@ -267,6 +267,22 @@ class RackDispatcherTest < TestBase
   def assert_nothing_logged
     assert_equal '', @stdout
     assert_equal '', @stderr
+  end
+
+  def assert_logged(key, value)
+    refute_nil @stdout
+    json = JSON.parse(@stdout)
+    diagnostic = "log does not contain key:#{key}\n#{@stdout}"
+    assert json.has_key?(key), diagnostic
+    assert_equal value, json[key], @stdout
+  end
+
+  def assert_log_contains(key, value)
+    refute_nil @stdout
+    json = JSON.parse(@stdout)
+    diagnostic = "log does not contain key:#{key}\n#{@stdout}"
+    assert json.has_key?(key), diagnostic
+    assert json[key].include?(value), @stdout
   end
 
   # - - - - - - - - - - - - - - - - -
