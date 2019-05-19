@@ -90,13 +90,9 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'A9E', 'its ready' do
-    path_info = 'ready'
-    env = { body:{}.to_json, path_info:path_info }
-    rack_call(env)
-    assert_200
-    assert_equal true, JSON.parse(@body)[path_info+'?']
-    refute_body_contains('exception')
-    refute_body_contains('trace')
+    rack_call({ body:{}.to_json, path_info:'ready' })
+    ready = assert_200('ready?')
+    assert ready
     assert_nothing_logged
   end
 
@@ -105,21 +101,10 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB0', 'sha' do
-    path_info = 'sha'
-    env = { body:{}.to_json, path_info:path_info }
-    rack_call(env)
-    assert_200
-    assert_sha(JSON.parse(@body)[path_info])
-    refute_body_contains('exception')
-    refute_body_contains('trace')
+    rack_call({ body:{}.to_json, path_info:'sha' })
+    sha = assert_200('sha')
+    assert_sha(sha)
     assert_nothing_logged
-  end
-
-  def assert_sha(string)
-    assert_equal 40, string.size
-    string.each_char do |ch|
-      assert '0123456789abcdef'.include?(ch)
-    end
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -127,34 +112,24 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB5', '[C,assert] run_cyber_dojo_sh with no logging' do
-    path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
-    env = { path_info:path_info, body:args.to_json }
-    rack_call(env)
+    rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
 
-    assert_200
-    assert_body_contains(path_info)
-    refute_body_contains('exception')
-    refute_body_contains('trace')
-    assert_nothing_logged
+    assert_200('run_cyber_dojo_sh')
     assert_gcc_starting_red
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'AB6', '[C,assert] run_cyber_dojo_sh with some logging' do
-    path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
-    env = { path_info:path_info, body:args.to_json }
+    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
     stub = BashStubTarPipeOut.new('fail')
     rack_call(env, External.new({ 'bash' => stub }))
 
     assert stub.fired_once?
-    assert_200
-    assert_body_contains(path_info)
-    refute_body_contains('exception')
-    refute_body_contains('backtrace')
-
+    assert_200('run_cyber_dojo_sh')
     assert_log_contains('command', 'docker exec')
     assert_logged('stdout', 'fail')
     assert_logged('stderr', '')
@@ -240,8 +215,12 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_200
+  def assert_200(name)
     assert_equal 200, @status
+    assert_body_contains(name)
+    refute_body_contains('exception')
+    refute_body_contains('trace')
+    JSON.parse(@body)[name]
   end
 
   def assert_400
