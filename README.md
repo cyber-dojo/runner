@@ -10,7 +10,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs cyber-dojo.sh inside a docker container within a given amount of time.
 
 API:
-  * [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
+  * [POST run_cyber_dojo_sh(image_name,id,files,max_seconds)](#post-run_cyber_dojo_shimage_nameidfilesmax_seconds)
   * [GET ready?()](#get-ready)
   * [GET sha()](#get-sha)
   * All methods receive a json hash.
