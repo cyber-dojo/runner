@@ -36,25 +36,25 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
   * if the execution did not complete in max_seconds, **colour** will be "timed_out".
   * eg
     ```
-        { "run_cyber_dojo_sh": {
-            "stdout": {
-                "content": "makefile:17: recipe for target 'test' failed\n",
-              "truncated": false
-            },
-            "stderr": {
-                "content": "invalid suffix sss on integer constant",
-              "truncated": false
-            },
-             "status": 2,
-             "colour": "amber",
-            "created": { ... },
-            "deleted": {},
-            "changed": { ... }
-          }
-        }
+    { "run_cyber_dojo_sh": {
+        "stdout": {
+            "content": "makefile:17: recipe for target 'test' failed\n",
+          "truncated": false
+        },
+        "stderr": {
+            "content": "invalid suffix sss on integer constant",
+          "truncated": false
+        },
+         "status": 2,
+         "colour": "amber",
+        "created": { ... },
+        "deleted": {},
+        "changed": { ... }
+      }
+    }
     ```
-eg
-```
+  * eg
+    ```
     { "run_cyber_dojo_sh": {
         "stdout": {
             "content": "",
@@ -71,22 +71,21 @@ eg
         "changed": {}
       }
     }
-```
+    ```
 
-The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
+  * The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
 is determined by passing the **stdout**, **stderr**, **status** strings to a Ruby lambda, read from
 **image_name**, at /usr/local/bin/red_amber_green.rb.
-
-eg
-```
-$ docker run --rm cyberdojofoundation/gcc_assert bash -c 'cat /usr/local/bin/red_amber_green.rb'
-lambda { |stdout, stderr, status|
-  output = stdout + stderr
-  return :red   if /(.*)Assertion(.*)failed./.match(output)
-  return :green if /(All|\d+) tests passed/.match(output)
-  return :amber
-}
-```
+  * eg
+    ```
+    $ docker run --rm cyberdojofoundation/gcc_assert bash -c 'cat /usr/local/bin/red_amber_green.rb'
+    lambda { |stdout, stderr, status|
+      output = stdout + stderr
+      return :red   if /(.*)Assertion(.*)failed./.match(output)
+      return :green if /(All|\d+) tests passed/.match(output)
+      return :amber
+    }
+    ```
   * If this file does not exist in **image_name**, the **colour** is "amber".
   * If the contents of this file raises an exception when eval'd or called, the **colour** is "amber".
   * If the lambda returns anything other than :red, :amber, or :green, the **colour** is "amber".
