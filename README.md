@@ -91,7 +91,7 @@ is determined by passing the **stdout**, **stderr**, **status** strings to a Rub
   * If the lambda returns anything other than :red, :amber, or :green, the **colour** is "amber".
 
 - parameters, eg
-```
+  ```
   {        "image_name": "cyberdojofoundation/gcc_assert",
                    "id": "15B9zD",
           "max_seconds": 10,
@@ -101,32 +101,32 @@ is determined by passing the **stdout**, **stderr**, **status** strings to a Rub
                            ...
                          }
   }
-```
+  ```
 
 - - - -
 
 ## GET ready?
 - returns true if the service is ready, otherwise false, eg
-```
+  ```
   { "ready?": true }
   { "ready?": false }
-```
+  ```
 - parameters, none
-```
+  ```
   {}
-```
+  ```
 
 - - - -
 
 ## GET sha
 - returns the git commit sha used to create the docker image, eg
-```
+  ```
   { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
-```
+  ```
 - parameters, none
-```
+  ```
   {}
-```
+  ```
 
 - - - -
 - - - -
