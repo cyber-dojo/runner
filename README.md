@@ -107,26 +107,26 @@ lambda { |stdout, stderr, status|
 - - - -
 
 ## GET ready?
-- parameters, none
-```
-  {}
-```
 - returns true if the service is ready, otherwise false, eg
 ```
   { "ready?": true }
   { "ready?": false }
 ```
-
-- - - -
-
-## GET sha
 - parameters, none
 ```
   {}
 ```
+
+- - - -
+
+## GET sha
 - returns the git commit sha used to create the docker image, eg
 ```
   { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
+```
+- parameters, none
+```
+  {}
 ```
 
 - - - -
