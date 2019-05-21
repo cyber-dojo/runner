@@ -34,25 +34,25 @@ executing cyber-dojo.sh
 in /sandbox altered by executing /sandbox/cyber-dojo.sh
   * if the execution completed in max_seconds, **colour** will be "red", "amber", or "green".
   * if the execution did not complete in max_seconds, **colour** will be "timed_out".
-eg
-```
-    { "run_cyber_dojo_sh": {
-        "stdout": {
-            "content": "makefile:17: recipe for target 'test' failed\n",
-          "truncated": false
-        },
-        "stderr": {
-            "content": "invalid suffix sss on integer constant",
-          "truncated": false
-        },
-         "status": 2,
-         "colour": "amber",
-        "created": { ... },
-        "deleted": {},
-        "changed": { ... }
-      }
-    }
-```
+  * eg
+    ```
+        { "run_cyber_dojo_sh": {
+            "stdout": {
+                "content": "makefile:17: recipe for target 'test' failed\n",
+              "truncated": false
+            },
+            "stderr": {
+                "content": "invalid suffix sss on integer constant",
+              "truncated": false
+            },
+             "status": 2,
+             "colour": "amber",
+            "created": { ... },
+            "deleted": {},
+            "changed": { ... }
+          }
+        }
+    ```
 eg
 ```
     { "run_cyber_dojo_sh": {
@@ -87,9 +87,9 @@ lambda { |stdout, stderr, status|
   return :amber
 }
 ```
-- If this file does not exist in **image_name**, the **colour** is "amber".
-- If the contents of this file raises an exception when eval'd or called, the **colour** is "amber".
-- If the lambda returns anything other than :red, :amber, or :green, the **colour** is "amber".
+  * If this file does not exist in **image_name**, the **colour** is "amber".
+  * If the contents of this file raises an exception when eval'd or called, the **colour** is "amber".
+  * If the lambda returns anything other than :red, :amber, or :green, the **colour** is "amber".
 
 - parameters, eg
 ```
