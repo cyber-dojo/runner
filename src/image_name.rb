@@ -22,6 +22,8 @@ module ImageName # mix-in
   end
 
   def remote_name?(s)
+    # '.' = DNS separator
+    # ':' = port separator
     exclude?(s, '.') && exclude?(s, ':') && s != 'localhost'
   end
 
@@ -30,7 +32,8 @@ module ImageName # mix-in
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+  # [[host:port/]registry/]component[:tag][@digest]
+  
   CH = 'a-zA-Z0-9'
   COMPONENT = "([#{CH}]|[#{CH}][#{CH}-]*[#{CH}])"
   PORT = '[\d]+'
