@@ -1,6 +1,6 @@
 require 'securerandom'
 
-# Alphabet of [0-9] [a-z] [A-Z]
+# Alphabet of [0-9] [a-z] [A-Z] excluding ioIO
 # You can safely use strings created in this alphabet in
 #   o) docker image names
 #   o) docker container names
