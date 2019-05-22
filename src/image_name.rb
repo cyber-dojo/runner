@@ -6,23 +6,27 @@ module ImageName # mix-in
 
   module_function
 
-  def well_formed?(image_name)
-    return false if image_name.nil?
-    i = image_name.index('/')
-    if i.nil? || !local?(image_name[0...i])
-      image_name =~ REMOTE_NAME
+  def image_name?(s)
+    return false if s.nil?
+    i = s.index('/')
+    if i.nil? || remote_name?(s[0...i])
+      s =~ REMOTE_NAME
     else
-      image_name[0..i-1] =~ HOST_NAME &&
-        image_name[i+1..-1] =~ REMOTE_NAME
+      host_name,remote_name = cut(s, i)
+      host_name =~ HOST_NAME && remote_name =~ REMOTE_NAME
     end
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def cut(s, i)
+    [s[0..i-1], s[i+1..-1]]
+  end
 
-  def local?(image_name)
-    image_name.include?('.') ||
-      image_name.include?(':') ||
-        image_name === 'localhost'
+  def remote_name?(s)
+    exclude?(s, '.') && exclude?(s, ':') && s != 'localhost'
+  end
+
+  def exclude?(s, c)
+    !s.include?(c)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -

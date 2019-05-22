@@ -21,11 +21,13 @@ module WellFormedArgs
   def image_name
     name = __method__.to_s
     arg = @args[name]
-    unless ImageName::well_formed?(arg)
+    unless image_name?(arg)
       malformed(name)
     end
     arg
   end
+
+  include ImageName
 
   # - - - - - - - - - - - - - - - -
 

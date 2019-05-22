@@ -11,17 +11,17 @@ class ImageNameTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '696', %w( malformed image_name is false ) do
-    MALFORMED_IMAGE_NAMES.each do |image_name|
-      refute well_formed?(image_name), image_name
+    MALFORMED_IMAGE_NAMES.each do |s|
+      refute image_name?(s), s
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '697', %w( well-formed image_name is true ) do
-    WELL_FORMED_IMAGE_NAMES.each { |image_name|
-      assert well_formed?(image_name), image_name
-    }
+    WELL_FORMED_IMAGE_NAMES.each do |s|
+      assert image_name?(s), s
+    end
   end
 
   private
