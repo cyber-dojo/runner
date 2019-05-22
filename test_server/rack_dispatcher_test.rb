@@ -1,6 +1,7 @@
 require_relative '../src/rack_dispatcher'
 require_relative 'bash_stub_raiser'
 require_relative 'bash_stub_tar_pipe_out'
+require_relative 'data/image_names'
 require_relative 'malformed_data'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
@@ -45,7 +46,7 @@ class RackDispatcherTest < TestBase
 
   test 'BB2',
   %w( malformed image_name becomes exception ) do
-    malformed_image_names.each do |malformed|
+    MALFORMED_IMAGE_NAMES.each do |malformed|
       assert_rack_call_exception(
         'image_name:malformed',
         'run_cyber_dojo_sh',
@@ -313,6 +314,7 @@ class RackDispatcherTest < TestBase
     run_cyber_dojo_sh
   )
 
+  include Test::Data
   include MalformedData
 
 end

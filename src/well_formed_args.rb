@@ -1,6 +1,6 @@
 require_relative 'base58'
 require_relative 'client_error'
-require_relative 'well_formed_image_name'
+require_relative 'image_name'
 require 'json'
 
 # Checks for arguments syntactic correctness
@@ -21,7 +21,7 @@ module WellFormedArgs
   def image_name
     name = __method__.to_s
     arg = @args[name]
-    unless well_formed_image_name?(arg)
+    unless ImageName::well_formed?(arg)
       malformed(name)
     end
     arg
@@ -56,8 +56,6 @@ module WellFormedArgs
   end
 
   private # = = = = = = = = = = = =
-
-  include WellFormedImageName
 
   def well_formed_id?(arg)
     Base58.string?(arg) && arg.size === 6

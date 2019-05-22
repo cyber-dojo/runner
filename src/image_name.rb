@@ -1,32 +1,28 @@
-# https://github.com/moby/moby/blob/master/image/spec/v1.1.md
 # http://stackoverflow.com/questions/37861791/
+# https://github.com/moby/moby/blob/master/image/spec/v1.1.md
 # https://github.com/docker/distribution/blob/master/reference/reference.go
 
-module WellFormedImageName # mix-in
+module ImageName # mix-in
 
   module_function
 
-  def well_formed_image_name?(s)
-    return false if s.nil?
-    hostname,remote_name = split_image_name(s)
-    valid_hostname?(hostname) && valid_remote_name?(remote_name)
+  def well_formed?(image_name)
+    return false if image_name.nil?
+    i = image_name.index('/')
+    if i.nil? || !local?(image_name[0...i])
+      image_name =~ REMOTE_NAME
+    else
+      image_name[0..i-1] =~ HOST_NAME &&
+        image_name[i+1..-1] =~ REMOTE_NAME
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def split_image_name(image_name)
-    i = image_name.index('/')
-    if i.nil? || i === -1 || (
-        !image_name[0...i].include?('.') &&
-        !image_name[0...i].include?(':') &&
-         image_name[0...i] != 'localhost')
-      hostname = ''
-      remote_name = image_name
-    else
-      hostname = image_name[0..i-1]
-      remote_name = image_name[i+1..-1]
-    end
-    [hostname,remote_name]
+  def local?(image_name)
+    image_name.include?('.') ||
+      image_name.include?(':') ||
+        image_name === 'localhost'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -34,11 +30,7 @@ module WellFormedImageName # mix-in
   CH = 'a-zA-Z0-9'
   COMPONENT = "([#{CH}]|[#{CH}][#{CH}-]*[#{CH}])"
   PORT = '[\d]+'
-  HOSTNAME = /^(#{COMPONENT}(\.#{COMPONENT})*)(:(#{PORT}))?$/
-
-  def valid_hostname?(hostname)
-    hostname === '' || hostname =~ HOSTNAME
-  end
+  HOST_NAME = /^(#{COMPONENT}(\.#{COMPONENT})*)(:(#{PORT}))?$/
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -53,9 +45,5 @@ module WellFormedImageName # mix-in
   DIGEST_HEX = "[0-9a-fA-F]{32,}"
   DIGEST = "#{DIGEST_ALGORITHM}[:]#{DIGEST_HEX}"
   REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/
-
-  def valid_remote_name?(remote_name)
-    remote_name =~ REMOTE_NAME
-  end
 
 end
