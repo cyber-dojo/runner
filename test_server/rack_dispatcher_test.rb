@@ -1,8 +1,10 @@
 require_relative '../src/rack_dispatcher'
 require_relative 'bash_stub_raiser'
 require_relative 'bash_stub_tar_pipe_out'
+require_relative 'data/files'
+require_relative 'data/ids'
 require_relative 'data/image_names'
-require_relative 'malformed_data'
+require_relative 'data/max_seconds'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 require 'json'
@@ -46,11 +48,11 @@ class RackDispatcherTest < TestBase
 
   test 'BB2',
   %w( malformed image_name becomes exception ) do
-    MALFORMED_IMAGE_NAMES.each do |malformed|
+    MALFORMED_IMAGE_NAMES.each do |s|
       assert_rack_call_exception(
         'image_name:malformed',
         'run_cyber_dojo_sh',
-        run_cyber_dojo_sh_args.merge({image_name:malformed}).to_json
+        run_cyber_dojo_sh_args.merge({image_name:s}).to_json
       )
     end
   end
@@ -59,11 +61,11 @@ class RackDispatcherTest < TestBase
 
   test 'BB3',
   %w( malformed id becomes exception ) do
-    malformed_ids.each do |malformed|
+    MALFORMED_IDS.each do |s|
       assert_rack_call_exception(
         'id:malformed',
         'run_cyber_dojo_sh',
-        run_cyber_dojo_sh_args.merge({id:malformed}).to_json
+        run_cyber_dojo_sh_args.merge({id:s}).to_json
       )
     end
   end
@@ -72,8 +74,8 @@ class RackDispatcherTest < TestBase
 
   test 'BB7',
   %w( malformed max_seconds becomes exception ) do
-    malformed_max_seconds.each do |malformed|
-      assert_rack_call_run_malformed({max_seconds:malformed})
+    MALFORMED_MAX_SECONDS.each do |s|
+      assert_rack_call_run_malformed({max_seconds:s})
     end
   end
 
@@ -81,8 +83,8 @@ class RackDispatcherTest < TestBase
 
   test 'BB8',
   %w( malformed files becomes exception ) do
-    malformed_files.each do |malformed|
-      assert_rack_call_run_malformed({files:malformed})
+    MALFORMED_FILES.each do |s|
+      assert_rack_call_run_malformed({files:s})
     end
   end
 
@@ -315,6 +317,5 @@ class RackDispatcherTest < TestBase
   )
 
   include Test::Data
-  include MalformedData
 
 end
