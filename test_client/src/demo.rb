@@ -4,8 +4,10 @@ class Demo
 
   def call(_env)
     inner_call
+    [ 200, { 'Content-Type' => 'text/html' }, [ @html ] ]
   rescue => error
-    [ 200, { 'Content-Type' => 'text/html' }, [ error.message ] ]
+    body = [ [error.message] + [error.backtrace] ]
+    [ 200, { 'Content-Type' => 'text/html' }, body ]
   end
 
   def inner_call
@@ -21,7 +23,6 @@ class Demo
     run_cyber_dojo_sh('Green')
     change('hiker.c', hiker_c['content'].sub('return', "for(;;);\n return"))
     run_cyber_dojo_sh('LightGray', 3)
-    [ 200, { 'Content-Type' => 'text/html' }, [ @html ] ]
   end
 
   private
@@ -30,13 +31,10 @@ class Demo
     @files[filename] = { 'content' => content }
   end
 
-  def run_cyber_dojo_sh(colour, max_seconds = 10)
-    result = nil
+  def run_cyber_dojo_sh(css_colour, max_seconds = 10)
     args  = [ @image_name, @id, @files, max_seconds ]
-    duration = timed {
-      result = runner.run_cyber_dojo_sh(*args)
-    }
-    @html += pre('run_cyber_dojo_sh', duration, colour, result)
+    duration = timed { @result = runner.run_cyber_dojo_sh(*args) }
+    @html += pre('run_cyber_dojo_sh', duration, css_colour, @result)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
