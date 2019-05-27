@@ -28,12 +28,12 @@ runs /sandbox/cyber-dojo.sh
 for at most **max_seconds**.
 **image_name** must be created with
 [image_builder](https://github.com/cyber-dojo-languages/image_builder)
-  * returns [**stdout**, **stderr**, **status**, **colour**] as the results of
+  * returns [**stdout**, **stderr**, **status**, **timed_out**] as the results of
 executing cyber-dojo.sh
   * returns [**created**, **deleted**, **changed**] which are text files
 in /sandbox altered by executing /sandbox/cyber-dojo.sh
-  * if the execution completed in max_seconds, **colour** will be "red", "amber", or "green".
-  * if the execution did not complete in max_seconds, **colour** will be "timed_out".
+  * if the execution completed in max_seconds, **timed_out** will be true.
+  * if the execution did not complete in max_seconds, **timed_out** will be false.
   * eg
     ```
     { "run_cyber_dojo_sh": {
@@ -46,7 +46,7 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
           "truncated": false
         },
          "status": 2,
-         "colour": "amber",
+         "timed_out": false,
         "created": { ... },
         "deleted": {},
         "changed": { ... }
@@ -65,30 +65,13 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
           "truncated": false
         },
          "status": 137,
-          "colour: "timed_out",
+      "timed_out": false,
         "created": {},
         "deleted": {},
         "changed": {}
       }
     }
     ```
-
-  * The [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html)
-is determined by passing the **stdout**, **stderr**, **status** strings to a Ruby lambda, read from
-**image_name**, at /usr/local/bin/red_amber_green.rb.
-  * eg
-    ```
-    $ docker run --rm cyberdojofoundation/gcc_assert bash -c 'cat /usr/local/bin/red_amber_green.rb'
-    lambda { |stdout, stderr, status|
-      output = stdout + stderr
-      return :red   if /(.*)Assertion(.*)failed./.match(output)
-      return :green if /(All|\d+) tests passed/.match(output)
-      return :amber
-    }
-    ```
-  * If this file does not exist in **image_name**, the **colour** is "amber".
-  * If the contents of this file raises an exception when eval'd or called, the **colour** is "amber".
-  * If the lambda returns anything other than :red, :amber, or :green, the **colour** is "amber".
 
 - parameters, eg
   ```

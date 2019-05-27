@@ -9,7 +9,7 @@ class LargeFileTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '3DB',
-  'run with very large file is red' do
+  'run with very large file' do
     # Notes
     # 1. docker-compose.yml need a tmpfs for this to pass
     #      tmpfs: /tmp
@@ -19,7 +19,8 @@ class LargeFileTest < TestBase
     run_cyber_dojo_sh({
       created_files: { 'big_file' => intact('X'*1023*500) }
     })
-    assert red?, result
+    refute timed_out?, result
+    assert_equal 1, status, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

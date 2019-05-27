@@ -10,13 +10,12 @@ class ClangSanitizeAddressTest < TestBase
 
   test '0BB',
   %w( [clang,assert] clang sanitize address ) do
+    diagnostic = 'AddressSanitizer: heap-use-after-free on address'
     run_cyber_dojo_sh
-    assert_colour 'red'
+    refute stderr.include?(diagnostic), @json
     run_cyber_dojo_sh( {
       changed:{ 'hiker.c' => intact(leaks_memory) }
     })
-    assert_colour 'amber'
-    diagnostic = 'AddressSanitizer: heap-use-after-free on address'
     assert stderr.include?(diagnostic), @json
   end
 

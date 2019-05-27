@@ -119,7 +119,7 @@ class RackDispatcherTest < TestBase
     rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
 
     assert_200('run_cyber_dojo_sh')
-    assert_gcc_starting_red
+    assert_gcc_starting
     assert_nothing_logged
   end
 
@@ -137,7 +137,7 @@ class RackDispatcherTest < TestBase
     assert_logged('stdout', 'fail')
     assert_logged('stderr', '')
     assert_logged('status', 1)
-    assert_gcc_starting_red
+    assert_gcc_starting
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -269,14 +269,13 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_gcc_starting_red
+  def assert_gcc_starting
     result = JSON.parse(@body)['run_cyber_dojo_sh']
     stdout = result['stdout']
     assert_equal gcc_assert_stdout, stdout['content'], stdout
     stderr = result['stderr']
     assert stderr['content'].start_with?(gcc_assert_stderr), stderr
     assert_equal 2, result['status']
-    assert_equal 'red', result['colour']
   end
 
   def gcc_assert_stdout
@@ -293,7 +292,7 @@ class RackDispatcherTest < TestBase
     # then the output does not say "(core dumped)"
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
+    "test: hiker.tests.c:6: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
     "make: *** [test.output] Aborted"
   end
 

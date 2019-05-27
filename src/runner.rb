@@ -39,17 +39,18 @@ class Runner
     if timed_out
       colour = 'timed_out'
     else
-      colour = traffic_light.colour(stdout['content'], stderr['content'], status, image_name)
+      colour = 'amber'
     end
 
     {
-       stdout: stdout,
-       stderr: stderr,
-       status: status,
-       colour: colour,
-      created: created,
-      deleted: deleted,
-      changed: changed
+         stdout: stdout,
+         stderr: stderr,
+         status: status,
+      timed_out: timed_out,
+         colour: colour,
+        created: created,
+        deleted: deleted,
+        changed: changed
     }
   end
 
@@ -445,10 +446,6 @@ class Runner
 
   def shell
     @external.shell
-  end
-
-  def traffic_light
-    @external.traffic_light
   end
 
   SPACE = ' '

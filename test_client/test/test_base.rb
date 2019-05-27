@@ -65,9 +65,7 @@ class TestBase < HexMiniTest
     result['status']
   end
 
-  def colour
-    result['colour']
-  end
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def created
     result['created']
@@ -83,20 +81,8 @@ class TestBase < HexMiniTest
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def red?
-    colour == 'red'
-  end
-
-  def amber?
-    colour == 'amber'
-  end
-
-  def green?
-    colour == 'green'
-  end
-
   def timed_out?
-    colour == 'timed_out'
+    result['timed_out']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -8,11 +8,20 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test 'B2A', %w( timed_out is false ) do
+    with_captured_log {
+      run_cyber_dojo_sh
+    }
+    refute_timed_out    
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test 'B2B', %w( [C,assert]
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
   then stdout is empty,
-  and the colour is 'timed_out'
+  and timed_out is true
   ) do
     named_args = {
       changed: { 'hiker.c' => intact(quiet_infinite_loop) },
@@ -24,7 +33,6 @@ class TimedOutTest < TestBase
     assert_timed_out
     assert_stdout ''
     assert_stderr ''
-    assert_timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +41,7 @@ class TimedOutTest < TestBase
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output
   then stdout is not empty,
-  and the colour is 'timed_out'
+  and timed_out is true
   ) do
     named_args = {
       changed: { 'hiker.c' => intact(loud_infinite_loop) },
@@ -44,7 +52,6 @@ class TimedOutTest < TestBase
     }
     assert_timed_out
     refute_stdout ''
-    assert_timed_out
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =

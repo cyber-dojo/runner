@@ -88,10 +88,6 @@ class TestBase < HexMiniTest
     result[__method__]['content']
   end
 
-  def colour
-    result[__method__]
-  end
-
   def created
     result[__method__]
   end
@@ -129,13 +125,7 @@ class TestBase < HexMiniTest
   end
 
   def timed_out?
-    colour === 'timed_out'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_colour(expected)
-    assert_equal expected, colour, result
+    result[:timed_out]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
