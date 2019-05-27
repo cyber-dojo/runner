@@ -32,8 +32,8 @@ for at most **max_seconds**.
 executing cyber-dojo.sh
   * returns [**created**, **deleted**, **changed**] which are text files
 in /sandbox altered by executing /sandbox/cyber-dojo.sh
-  * if the execution completed in max_seconds, **timed_out** will be true.
-  * if the execution did not complete in max_seconds, **timed_out** will be false.
+  * if the execution completed in max_seconds, **timed_out** will be false.
+  * if the execution did not complete in max_seconds, **timed_out** will be true.
   * eg
     ```
     { "run_cyber_dojo_sh": {
@@ -65,7 +65,7 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
           "truncated": false
         },
          "status": 137,
-      "timed_out": false,
+      "timed_out": true,
         "created": {},
         "deleted": {},
         "changed": {}
