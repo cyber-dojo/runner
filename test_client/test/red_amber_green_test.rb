@@ -12,13 +12,13 @@ class RedAmberGreenTest < TestBase
     expected_stdout = "makefile:14: recipe for target 'test.output' failed"
     expected_stderr = [
       "test: hiker.tests.c:6: life_the_universe_and_everything: Assertion `answer() == 42' failed.",
-      'make: *** [test.output] Aborted'
+      'make: *** [test.output]'
     ].join("\n")
     expected_status = 2
 
     run_cyber_dojo_sh
-    assert_equal expected_stdout+"\n", stdout
-    assert_equal expected_stderr+"\n", stderr
+    assert stdout.include?(expected_stdout), stdout
+    assert stderr.include?(expected_stderr), stderr
     assert_equal expected_status, status
   end
 
@@ -27,16 +27,11 @@ class RedAmberGreenTest < TestBase
   test '3DB', '[C,assert] test that has compile-time error' do
     expected_stdout = "makefile:17: recipe for target 'test' failed"
     expected_stderr = [
-      "hiker.c: In function 'answer':",
       'hiker.c:5:16: error: invalid suffix "sd" on integer constant',
-      '     return 6 * 9sd;',
-      '                ^~~',
       'hiker.c:6:1: error: control reaches end of non-void function [-Werror=return-type]',
-      ' }',
-      ' ^',
       "cc1: all warnings being treated as errors",
       "make: *** [test] Error 1"
-    ].join("\n")
+    ]
     expected_status = 2
 
     run_cyber_dojo_sh({
@@ -45,7 +40,9 @@ class RedAmberGreenTest < TestBase
       }
     })
     assert_equal expected_stdout+"\n", stdout
-    assert_equal expected_stderr+"\n", stderr
+    expected_stderr.each do |line|
+      assert stderr.include?(line), stderr
+    end
     assert_equal expected_status, status
   end
 

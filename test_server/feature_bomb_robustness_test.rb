@@ -16,7 +16,6 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    assert timed_out? || printed?('All tests passed'), result
     assert timed_out? || printed?('fork()'), result
   end
 
