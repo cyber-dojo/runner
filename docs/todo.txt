@@ -1,7 +1,4 @@
 
-
-Move traffic_light.colour into its own service called from web.
--------------------------------------------------
 incoming files is currently
 {
   'hiker.c' => {
