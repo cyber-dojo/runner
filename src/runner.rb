@@ -36,18 +36,11 @@ class Runner
       created,deleted,changed = files_delta(files, files_now)
     end
 
-    if timed_out
-      colour = 'timed_out'
-    else
-      colour = 'amber'
-    end
-
     {
          stdout: stdout,
          stderr: stderr,
          status: status,
       timed_out: timed_out,
-         colour: colour,
         created: created,
         deleted: deleted,
         changed: changed
