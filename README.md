@@ -47,9 +47,19 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
         },
          "status": 2,
          "timed_out": false,
-        "created": { ... },
+        "created": {
+          "coverage.html": {
+              "content": "...",
+            "truncated": false
+          }
+        },
         "deleted": {},
-        "changed": { ... }
+        "changed": {
+          "todo.txt": {
+              "content": "...",
+            "truncated": false
+          }
+        }
       }
     }
     ```
