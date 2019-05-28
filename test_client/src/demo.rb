@@ -15,6 +15,8 @@ class Demo
     @image_name = 'cyberdojofoundation/gcc_assert'
     @id = '729z65'
     @files = starting_files
+    sha
+    ready?
     change('hiker.c', hiker_c['content'].sub('6 * 9', '6 * 9'))
     run_cyber_dojo_sh('Red')
     change('hiker.c', hiker_c['content'].sub('6 * 9', 'syntax-error'))
@@ -29,6 +31,16 @@ class Demo
 
   def change(filename, content)
     @files[filename] = { 'content' => content }
+  end
+
+  def sha
+    duration = timed { @result = runner.sha }
+    @html += pre('sha', duration, 'white', @result)
+  end
+
+  def ready?
+    duration = timed { @result = runner.ready? }
+    @html += pre('ready?', duration, 'white', @result)
   end
 
   def run_cyber_dojo_sh(css_colour, max_seconds = 10)
@@ -80,7 +92,7 @@ class Demo
     margin = 'margin-left: 30px; margin-right: 30px;'
     background = "background: #{colour};"
     whitespace = "white-space: pre-wrap;"
-    html = "<pre>/#{name}(#{duration}s)</pre>"
+    html = "<pre style='margin-left:30px'>/#{name}(#{duration}s)</pre>"
     unless result.nil?
       html += "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
               "#{JSON.pretty_unparse(result)}" +

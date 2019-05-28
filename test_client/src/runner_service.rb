@@ -9,6 +9,14 @@ class RunnerService
 
   # - - - - - - - - - - - - - - - - - - -
 
+  def sha
+    get([], __method__)
+  end
+
+  def ready?
+    get([], __method__)
+  end
+
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     args  = [image_name, id, files, max_seconds]
     get(args, __method__)
