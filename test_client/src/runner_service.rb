@@ -11,7 +11,7 @@ class RunnerService
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     args  = [image_name, id, files, max_seconds]
-    post(args, __method__)
+    get(args, __method__)
   end
 
   private
