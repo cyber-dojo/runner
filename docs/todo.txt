@@ -9,8 +9,5 @@ incoming files is currently
 Drop the truncation and just send in the content directly.
 As per the current README.md file.
 -------------------------------------------------
-Also document in the README.md file truncation in the
-returned files [created,changed,deleted] and [stdout,stderr].
--------------------------------------------------
 Possibly make max_file_size as incoming parameter?
 -------------------------------------------------
