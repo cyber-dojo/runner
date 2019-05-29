@@ -140,24 +140,18 @@ class Runner
     # --touch means 'dont extract file modified time'
     # This relates to the files modification-date (stat %y).
     # Without it the untarred files may all end up with the
-    # same modification date and this can break some makefiles.
-    # The tar --touch option is not available in a default
-    # Alpine container. To add it the image needs to run:
-    #    $ apk add --update tar
+    # same modification date.
     # Further, in a default Alpine container the date-time
     # file-stamps have a granularity of one second. In other
-    # words the microseconds value is always zero. Again, this
-    # can break some makefiles.
+    # words the microseconds value is always zero.
+    # The tar --touch option is not available
+    # in a default Alpine container. To add it the image needs to run:
+    #    $ apk add --update tar
     # To add microsecond granularity the image also needs to run:
     #    $ apk add --update coreutils
-    # Obviously, the image needs to have tar installed.
-    # These image requirements are satisified by the image_builder.
-    # See the file builder/image_builder.rb on
-    # https://github.com/cyber-dojo-languages/image_builder/blob/master/
-    # In particular the methods
-    #    o) RUN_install_tar
-    #    o) RUN_install_coreutils
-    #    o) RUN_install_bash
+    # Obviously, the image also needs to have tar installed.
+    # These requirements are satisified by the image_builder. See
+    # https://github.com/cyber-dojo-languages/image_builder
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
