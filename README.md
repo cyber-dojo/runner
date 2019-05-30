@@ -22,17 +22,40 @@ API:
 - - - -
 
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
-- creates a container from **image_name**
-- saves **files** into /sandbox inside it
-- runs /sandbox/cyber-dojo.sh for at most **max_seconds**
-- **image_name** must be created with
-[image_builder](https://github.com/cyber-dojo-languages/image_builder)
-  * returns [**stdout**, **stderr**, **status**, **timed_out**] as the results of
-executing /sandbox/cyber-dojo.sh
-  * returns [**created**, **deleted**, **changed**] which are text files
-in /sandbox altered by executing /sandbox/cyber-dojo.sh, truncated to 50K.
-  * if the execution completed in max_seconds, **timed_out** will be false.
-  * if the execution did not complete in max_seconds, **timed_out** will be true.
+- parameters
+  * **image_name** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
+  * **id**
+  * **files**
+  * **max_seconds** an integer between 1 and 20
+  * eg
+  ```
+  {  "image_name": "cyberdojofoundation/gcc_assert",
+             "id": "15B9zD",
+    "max_seconds": 10,
+          "files": {
+            "cyber-dojo.sh": "make",
+            "fizz_buzz.c": "#include...",
+            "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
+            ...
+          }
+  }
+  ```
+
+- behaviour
+  * creates a container from **image_name**
+  * saves **files** into /sandbox inside it
+  * runs /sandbox/cyber-dojo.sh for at most **max_seconds**
+
+- returns  
+  * **stdout** of /sandbox/cyber-dojo.sh, truncated to 50K
+  * **stderr** of /sandbox/cyber-dojo.sh, truncated to 50K
+  * **status** of /sandbox/cyber-dojo.sh, an Integer
+  * **timed_out**
+    * **false** if execution completed in **max_seconds**
+    * **true** if execution did not complete in **max_seconds**
+  * **created** textfiles created under /sandbox, each truncated to 50K
+  * **deleted** names of textfiles deleted from /sandbox
+  * **changed** textfiles changed under /sandbox, each truncated to 50K
   * eg
     ```
     { "run_cyber_dojo_sh": {
@@ -82,42 +105,36 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh, truncated to 50K.
     }
     ```
 
-- parameters, eg
-  ```
-  {        "image_name": "cyberdojofoundation/gcc_assert",
-                   "id": "15B9zD",
-          "max_seconds": 10,
-                "files": { "cyber-dojo.sh": "make",
-                             "fizz_buzz.c": "#include...",
-                             "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
-                           ...
-                         }
-  }
-  ```
-
 - - - -
 
 ## GET ready?
-- returns true if the service is ready, otherwise false, eg
+- parameters
+  * none
+  ```
+  {}
+  ```
+- returns
+  * **true** if the service is ready
+  * **false** if the service is not ready
+  * eg
   ```
   { "ready?": true }
   { "ready?": false }
-  ```
-- parameters, none
-  ```
-  {}
   ```
 
 - - - -
 
 ## GET sha
-- returns the git commit sha used to create the docker image, eg
-  ```
-  { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
-  ```
-- parameters, none
+- parameters
+  * none
   ```
   {}
+  ```
+- returns
+  * the git commit sha used to create the docker image
+  * eg
+  ```
+  { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
   ```
 
 - - - -
