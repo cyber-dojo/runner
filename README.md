@@ -49,15 +49,15 @@ JSON in, JSON out
   * runs `/sandbox/cyber-dojo.sh` inside the container for at most **max_seconds**
 
 - returns  
-  * **stdout:String** of `/sandbox/cyber-dojo.sh` truncated to 50K
-  * **stderr:String** of `/sandbox/cyber-dojo.sh` truncated to 50K
-  * **status:Integer** of `/sandbox/cyber-dojo.sh`, 0 to 255
+  * **stdout:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
+  * **stderr:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
+  * **status:Integer** of running `/sandbox/cyber-dojo.sh` 0 to 255
   * **timed_out:Boolean**
     * **false** if execution completed in **max_seconds**
     * **true** if execution did not complete in **max_seconds**
-  * **created:Hash** text-files created under `/sandbox`, each truncated to 50K
+  * **created:Hash** text-files created under `/sandbox` each truncated to 50K
   * **deleted:Array[String]** names of text-files deleted from under `/sandbox`
-  * **changed:Hash** text-files changed under `/sandbox`, each truncated to 50K
+  * **changed:Hash** text-files changed under `/sandbox` each truncated to 50K
   * eg
     ```
     { "run_cyber_dojo_sh": {
