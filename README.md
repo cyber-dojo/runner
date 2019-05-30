@@ -7,12 +7,12 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 # cyberdojo/runner-stateless docker image
 
 - A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org).
-- Runs cyber-dojo.sh inside a docker container within a given amount of time.
+- Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 
 # API
-  * [GET run_cyber_dojo_sh(image_name,id,files,max_seconds)](#post-run_cyber_dojo_shimage_nameidfilesmax_seconds)
-  * [GET ready?()](#get-ready)
-  * [GET sha()](#get-sha)
+  * [GET run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
+  * [GET ready?](#get-ready)
+  * [GET sha](#get-sha)
 
 - - - -
 
