@@ -112,7 +112,6 @@ JSON in, JSON out
 ## GET ready?
 - parameters
   * none
-  * eg
   ```
   {}
   ```
@@ -130,7 +129,6 @@ JSON in, JSON out
 ## GET sha
 - parameters
   * none
-  * eg
   ```
   {}
   ```
@@ -163,7 +161,7 @@ $ ./sh/run_demo.sh
 
 # demo screenshot
 
-![demo screenshot](docs/demo_screenshot.png?raw=true "demo screenshot")
+![demo screenshot](test_client/src/demo_screenshot.png?raw=true "demo screenshot")
 
 - - - -
 
