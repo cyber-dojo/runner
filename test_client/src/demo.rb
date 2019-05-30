@@ -7,9 +7,7 @@ class Demo
     inner_call
     [ 200, text_html_content, [ @html ] ]
   rescue => error
-    body = [ [error.message] + [error.backtrace] ]
-    [ 400, text_html_content, body ]
-    #pre('exception', 0.0, 'blue', body)
+    [ 400, text_html_content, [ [error.message] + [error.backtrace] ] ]
   end
 
   def text_html_content
@@ -24,15 +22,9 @@ class Demo
     sha
     ready?
     change(hiker_c.sub('6 * 9', '6 * 9'))
-    run_cyber_dojo_sh('Red')
-    change(hiker_c.sub('6 * 9', 'syntax-error'))
-    run_cyber_dojo_sh('Yellow')
-    change(hiker_c.sub('6 * 9', '6 * 7'))
-    run_cyber_dojo_sh('Green')
-    change(hiker_c.sub('return', "for(;;);\n return"))
-    run_cyber_dojo_sh('LightGray', 3)
-    #change(42)
-    #run_cyber_dojo_sh('LightGray', 3)
+    run_cyber_dojo_sh
+    @image_name = 'BAD/image_name'
+    run_cyber_dojo_sh
   end
 
   private
@@ -43,18 +35,50 @@ class Demo
 
   def sha
     duration = timed { @result = runner.sha }
-    @html += pre('sha', duration, 'white')
+    fragment = [
+      'sha = runner.sha',
+      'html = JSON.pretty_unparse(sha)'
+    ].join("\n")
+    @html += pre(fragment, duration)
   end
 
   def ready?
     duration = timed { @result = runner.ready? }
-    @html += pre('ready?', duration, 'white')
+    fragment = [
+      'ready = runner.ready?',
+      'html = JSON.pretty_unparse(ready)'
+    ].join("\n")
+    @html += pre(fragment, duration)
   end
 
-  def run_cyber_dojo_sh(css_colour, max_seconds = 10)
-    args  = [ @image_name, @id, @files, max_seconds ]
-    duration = timed { @result = runner.run_cyber_dojo_sh(*args) }
-    @html += pre('run_cyber_dojo_sh', duration, css_colour)
+  def run_cyber_dojo_sh
+    raised = true
+    duration = timed {
+      args  = [ @image_name, @id, @files, 10 ]
+      begin
+        @result = runner.run_cyber_dojo_sh(*args)
+        raised = false
+      rescue => error
+        @result = JSON.parse(error.message)
+      end
+    }
+    if raised
+      fragment = [
+        'begin',
+        '  results = runner.run_cyber_dojo_sh(...)',
+        '  ...',
+        'rescue => error',
+        '  html = JSON.parse(error.message)',
+        'end'
+      ].join("\n")
+      @html += pre(fragment, duration, 'LightGray')
+    else
+      fragment = [
+        'results = runner.run_cyber_dojo_sh(...)',
+        'html = JSON.pretty_unparse(results)'
+      ].join("\n")
+      @html += pre(fragment, duration)
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -92,13 +116,13 @@ class Demo
     IO.read("/app/test/start_files/C_assert/#{filename}")
   end
 
-  def pre(name, duration, colour)
+  def pre(fragment, duration, colour = 'LightGreen')
     border = 'border: 1px solid black;'
     padding = 'padding: 5px;'
     margin = 'margin-left: 30px; margin-right: 30px;'
     background = "background: #{colour};"
     whitespace = "white-space: pre-wrap;"
-    "<pre style='margin-left:30px'>/#{name}(#{duration}s)</pre>" +
+    "<pre style='margin-left:30px'>#{duration}s\n#{fragment}</pre>" +
     "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
       "#{JSON.pretty_unparse(@result)}" +
     '</pre>'

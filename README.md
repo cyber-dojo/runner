@@ -163,7 +163,7 @@ $ ./sh/run_demo.sh
 
 # demo screenshot
 
-![red amber green demo](docs/red_amber_green_demo.png?raw=true "red amber green demo")
+![demo screenshot](docs/demo_screenshot.png?raw=true "demo screenshot")
 
 - - - -
 
