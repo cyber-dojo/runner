@@ -149,7 +149,13 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs the runner-server's tests from inside a runner-server container.
 - Runs the runner-client's tests from inside the runner-client container.
 ```
-$ ./pipe_build_up_test.sh [client|server] [HEX-ID...]
+$ ./pipe_build_up_test.sh
+
+Use: pipe_build_up_test.sh [client|server] [HEX-ID...]
+Options:
+   client  - only run the tests from inside the client
+   server  - only run the tests from inside the server
+   HEX-ID  - only run the tests matching this identifier
 
 Building runner-stateless
 Step 1/8 : FROM cyberdojo/docker-base
