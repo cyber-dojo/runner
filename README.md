@@ -124,24 +124,13 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
 - - - -
 - - - -
 
-# build the docker images
-Builds the runner-server image and an example runner-client image.
-```
-$ ./sh/build_docker_images.sh
-```
-
-# bring up the docker containers
-Brings up a runner-server container and a runner-client container.
-
-```
-$ ./sh/docker_containers_up.sh
-```
-
 # run the tests
-Runs the runner-server's tests from inside a runner-server container
-and then the runner-client's tests from inside the runner-client container.
+- Builds the runner-server image and an example runner-client image.
+- Brings up a runner-server container and a runner-client container.
+- Runs the runner-server's tests from inside a runner-server container.
+- Runs the runner-client's tests from inside the runner-client container.
 ```
-$ ./sh/run_tests_in_containers.sh
+$ ./pipe_build_up_test.sh
 ```
 
 # run the demo
