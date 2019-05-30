@@ -158,6 +158,24 @@ class RackDispatcherTest < TestBase
     }
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB8', '[C,assert] run_cyber_dojo_sh supports files as a Hash' do
+    args = run_cyber_dojo_sh_args
+    files = Hash[args[:files].map {|filename,content|
+      [filename,{
+        'content' => content,
+        'truncated' => false
+      }]
+    }]
+    args[:files] = files
+    rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
+
+    assert_200('run_cyber_dojo_sh')
+    assert_gcc_starting
+    assert_nothing_logged
+  end
+
   private # = = = = = = = = = = = = =
 
   def assert_rack_call_run_malformed(added)

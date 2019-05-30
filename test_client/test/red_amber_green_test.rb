@@ -36,7 +36,7 @@ class RedAmberGreenTest < TestBase
 
     run_cyber_dojo_sh({
       changed_files: {
-        'hiker.c' => intact(hiker_c.sub('6 * 9', '6 * 9sd'))
+        'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
       }
     })
     assert_equal expected_stdout+"\n", stdout
@@ -49,6 +49,19 @@ class RedAmberGreenTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3DC', '[C,assert] test that runs and passes' do
+    run_cyber_dojo_sh({
+      changed_files: {
+        'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
+      }
+    })
+    assert_equal '', stdout
+    assert_equal '', stderr
+    assert_equal 0, status
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3DD', '[C,assert] test with files as content/truncated Hash' do
     run_cyber_dojo_sh({
       changed_files: {
         'hiker.c' => intact(hiker_c.sub('6 * 9', '6 * 7'))

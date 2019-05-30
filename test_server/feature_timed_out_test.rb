@@ -12,7 +12,7 @@ class TimedOutTest < TestBase
     with_captured_log {
       run_cyber_dojo_sh
     }
-    refute_timed_out    
+    refute_timed_out
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -24,7 +24,7 @@ class TimedOutTest < TestBase
   and timed_out is true
   ) do
     named_args = {
-      changed: { 'hiker.c' => intact(quiet_infinite_loop) },
+      changed: { 'hiker.c' => quiet_infinite_loop },
       max_seconds: 2
     }
     with_captured_log {
@@ -44,7 +44,7 @@ class TimedOutTest < TestBase
   and timed_out is true
   ) do
     named_args = {
-      changed: { 'hiker.c' => intact(loud_infinite_loop) },
+      changed: { 'hiker.c' => loud_infinite_loop },
       max_seconds: 2
     }
     with_captured_log {

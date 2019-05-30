@@ -21,7 +21,7 @@ class TimedOutTest < TestBase
     from = 'return 6 * 9'
     to = "    for (;;);\n    return 6 * 7;"
     run_cyber_dojo_sh({
-      changed_files: { 'hiker.c' => intact(hiker_c.sub(from, to)) },
+      changed_files: { 'hiker.c' => hiker_c.sub(from, to) },
         max_seconds: 3
     })
     assert timed_out?, result

@@ -15,7 +15,7 @@ class RoundTripTest < TestBase
     # CSharp-NUnit which does generate an .xml text file.
     run_cyber_dojo_sh
     assert_equal({}, created)
-    assert_equal({}, deleted)
+    assert_equal([], deleted)
     assert_equal({}, changed)
   end
 
@@ -31,7 +31,7 @@ class RoundTripTest < TestBase
     ].join("\n"))
     assert stdout.include?('test: binary') # file --mime-encoding
     assert_equal({ 'newfile.txt' => intact('xxx') }, created)
-    assert_equal({}, deleted)
+    assert_equal([], deleted)
     assert_equal({}, changed)
   end
 
@@ -41,7 +41,7 @@ class RoundTripTest < TestBase
   %w( created text files in sub-dirs are returned in json payload ) do
     exec('mkdir sub && echo -n "yyy" > sub/newfile.txt')
     assert_equal({ 'sub/newfile.txt' => intact('yyy') }, created)
-    assert_equal({}, deleted)
+    assert_equal([], deleted)
     assert_equal({}, changed)
   end
 
@@ -51,7 +51,7 @@ class RoundTripTest < TestBase
   %w( [C,assert] changed text files are returned in json payload ) do
     exec('echo -n "jjj" > hiker.h')
     assert_equal({}, created)
-    assert_equal({}, deleted)
+    assert_equal([], deleted)
     assert_equal({ 'hiker.h' => intact('jjj')}, changed)
   end
 
@@ -61,7 +61,7 @@ class RoundTripTest < TestBase
   %w( [C,assert] created empty text files is returned in json payload ) do
     exec('touch empty.file')
     assert_equal({ 'empty.file' => intact('')}, created)
-    assert_equal({}, deleted)
+    assert_equal([], deleted)
     assert_equal({}, changed)
   end
 

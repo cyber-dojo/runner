@@ -17,7 +17,7 @@ class LargeFileTest < TestBase
     #    (to support approval style test frameworks)
     #    is not compressed (tar -zcf) then this fails.
     run_cyber_dojo_sh({
-      created_files: { 'big_file' => intact('X'*1023*500) }
+      created_files: { 'big_file' => 'X'*1023*500 }
     })
     refute timed_out?, result
     assert_equal 1, status, result
@@ -30,7 +30,7 @@ class LargeFileTest < TestBase
     script = "od -An -x /dev/urandom | head -c#{51*1024}"
     run_cyber_dojo_sh({
       changed_files: {
-        'cyber-dojo.sh' => intact(script)
+        'cyber-dojo.sh' => script
       }
     })
     # Occasionally fails with status==137 (128+KILL)

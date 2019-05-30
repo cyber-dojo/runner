@@ -12,7 +12,7 @@ class BombRobustNessTest < TestBase
   '[C,assert] fork-bomb does not run indefinitely' do
     with_captured_log {
       run_cyber_dojo_sh({
-        changed: { 'hiker.c' => intact(C_FORK_BOMB) },
+        changed: { 'hiker.c' => C_FORK_BOMB },
         max_seconds: 3
       })
     }
@@ -25,7 +25,7 @@ class BombRobustNessTest < TestBase
   'shell fork-bomb does not run indefinitely' do
     with_captured_log {
       run_cyber_dojo_sh({
-        changed: { 'cyber-dojo.sh' => intact(SHELL_FORK_BOMB) },
+        changed: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
         max_seconds: 3
       })
     }
@@ -41,7 +41,7 @@ class BombRobustNessTest < TestBase
   '[C,assert] file-handles quickly become exhausted' do
     with_captured_log {
       run_cyber_dojo_sh({
-        changed: { 'hiker.c' => intact(FILE_HANDLE_BOMB) },
+        changed: { 'hiker.c' => FILE_HANDLE_BOMB },
         max_seconds: 3
       })
     }

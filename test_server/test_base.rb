@@ -44,8 +44,8 @@ class TestBase < HexMiniTest
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    deleted_files = defaulted_arg(named_args, :deleted, {})
-    deleted_files.keys.each do |filename|
+    deleted_files = defaulted_arg(named_args, :deleted, [])
+    deleted_files.each do |filename|
       diagnostic = "#{filename} is not a deleted_file (it does not already exist)"
       assert unchanged_files.keys.include?(filename), diagnostic
       unchanged_files.delete(filename)
@@ -135,7 +135,7 @@ class TestBase < HexMiniTest
   end
 
   def assert_deleted(expected)
-    assert_equal(expected, deleted.keys)
+    assert_equal(expected, deleted)
   end
 
   def assert_changed(expected)
@@ -146,7 +146,7 @@ class TestBase < HexMiniTest
 
   def assert_cyber_dojo_sh(script)
     named_args = {
-      :changed => { 'cyber-dojo.sh' => intact(script) }
+      :changed => { 'cyber-dojo.sh' => script }
     }
     run_cyber_dojo_sh(named_args)
     refute_timed_out
@@ -175,7 +175,7 @@ class TestBase < HexMiniTest
 
   def starting_files
     Hash[manifest['visible_filenames'].collect { |filename|
-      [filename, intact(IO.read("#{starting_files_dir}/#{filename}"))]
+      [filename, IO.read("#{starting_files_dir}/#{filename}")]
     }]
   end
 

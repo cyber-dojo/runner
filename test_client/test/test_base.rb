@@ -112,7 +112,8 @@ class TestBase < HexMiniTest
 
   def starting_files
     Hash[manifest['visible_filenames'].collect { |filename|
-      [filename, intact(IO.read("#{starting_files_dir}/#{filename}"))]
+      # [filename, intact(IO.read("#{starting_files_dir}/#{filename}"))]
+      [filename, IO.read("#{starting_files_dir}/#{filename}")]
     }]
   end
 
@@ -135,7 +136,7 @@ class TestBase < HexMiniTest
   end
 
   def hiker_c
-    starting_files['hiker.c']['content']
+    starting_files['hiker.c']
   end
 
   private

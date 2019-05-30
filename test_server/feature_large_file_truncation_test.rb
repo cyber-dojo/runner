@@ -29,12 +29,12 @@ class LargeFileTruncationTest < TestBase
   test '52B',
   %w( source files bigger than 10K are not truncated ) do
     filename = 'Hiker.cs'
-    src = starting_files[filename]['content']
+    src = starting_files[filename]
     large_comment = "/*#{'x'*10*1024}*/"
     refute_nil src
     run_cyber_dojo_sh( {
       changed:{
-        filename => intact(src + large_comment)
+        filename => src + large_comment
       }
     })
     refute changed.keys.include?(filename)

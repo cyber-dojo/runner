@@ -31,7 +31,7 @@ class Runner
     stdout,stderr,status,timed_out = run(command, files, max_seconds)
     files_now = tar_pipe_text_files_out(container_name)
     if files_now === {} || timed_out
-      created,deleted,changed = {},{},{}
+      created,deleted,changed = {},[],{}
     else
       created,deleted,changed = files_delta(files, files_now)
     end
@@ -107,8 +107,8 @@ class Runner
 
   def tar_file_writer(files)
     writer = Tar::Writer.new
-    files.each do |filename,file|
-      writer.write(filename, file['content'])
+    files.each do |filename, content|
+      writer.write(filename, content)
     end
     writer
   end
@@ -186,7 +186,7 @@ class Runner
         #{container_name}                   \
         bash -c                             \
           '             `# open quote`;     \
-          #{ECHO_TRUNCATED_TEXT_FILE_NAMES} \
+          #{ECHO_TRUNCATED_TEXTFILE_NAMES}  \
           |                                 \
           tar                               \
             -C                              \
@@ -220,7 +220,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   # Must not contain a single quote [bash -c '...']
-  ECHO_TRUNCATED_TEXT_FILE_NAMES =
+  ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
       truncate_file() \
       { \

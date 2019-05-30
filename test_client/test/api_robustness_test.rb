@@ -95,7 +95,7 @@ class ApiRobustnessTest < TestBase
 
   def assert_exception(method_name, jsoned_args)
     json = http(method_name, jsoned_args) { |uri|
-      Net::HTTP::Post.new(uri)
+      Net::HTTP::Get.new(uri)
     }
     refute_nil json['exception']
   end

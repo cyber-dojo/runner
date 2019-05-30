@@ -14,7 +14,7 @@ class ClangSanitizeAddressTest < TestBase
     run_cyber_dojo_sh
     refute stderr.include?(diagnostic), @json
     run_cyber_dojo_sh( {
-      changed:{ 'hiker.c' => intact(leaks_memory) }
+      changed:{ 'hiker.c' => leaks_memory }
     })
     assert stderr.include?(diagnostic), @json
   end
