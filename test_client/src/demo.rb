@@ -12,13 +12,13 @@ class Demo
 
   def inner_call
     @html = ''
-    @html += '<h1>sha</h1>'
+    @html += '<h1>GET /sha</h1>'
     @html += pre(sha_snippet)
     sha
-    @html += '<h1>ready?</h1>'
+    @html += '<h1>GET /ready?</h1>'
     @html += pre(ready_snippet)
     ready?
-    @html += '<h1>run_cyber_dojo_sh</h1>'    
+    @html += '<h1>GET /run_cyber_dojo_sh</h1>'    
     @html += pre(run_cyber_dojo_sh_snippet)
     @image_name = 'cyberdojofoundation/gcc_assert'
     @id = '729z65'

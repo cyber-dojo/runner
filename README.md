@@ -10,9 +10,9 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 
 # API
-  * [run_cyber_dojo_sh(image_name,id,files,max_seconds)](#run_cyber_dojo_shimage_nameidfilesmax_seconds)
-  * [ready?](#ready)
-  * [sha](#sha)
+  * [GET run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
+  * [GET ready?](#get-ready)
+  * [GET sha](#get-sha)
 
 - - - -
 
@@ -25,7 +25,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 - - - -
 
-# run_cyber_dojo_sh(image_name,id,files,max_seconds)
+# GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
 - parameters
   * **image_name:String** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * **id:String** for tracing, must be in [base58](https://github.com/cyber-dojo/runner-stateless/blob/master/src/base58.rb)
@@ -111,7 +111,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 - - - -
 
-# ready?
+# GET ready?
 - parameters
   * none
   ```
@@ -128,7 +128,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 - - - -
 
-# sha
+# GET sha
 - parameters
   * none
   ```
