@@ -12,8 +12,11 @@ class Demo
 
   def inner_call
     @html = ''
+    @html += pre(sha_snippet)
     sha
+    @html += pre(ready_snippet)
     ready?
+    @html += pre(run_cyber_dojo_sh_snippet)
     @image_name = 'cyberdojofoundation/gcc_assert'
     @id = '729z65'
     @files = gcc_assert_files
@@ -27,7 +30,7 @@ class Demo
 
   def sha
     duration = timed { @result = runner.sha }
-    @html += pre(sha_snippet, duration)
+    @html += boxed_pre(duration, @result)
   end
 
   def sha_snippet
@@ -41,10 +44,10 @@ class Demo
 
   def ready?
     duration = timed { @result = runner.ready? }
-    @html += pre(read_snippet, duration)
+    @html += boxed_pre(duration, @result)
   end
 
-  def read_snippet
+  def ready_snippet
     [
       'ready = runner.ready?',
       'html = green(JSON.pretty_unparse(ready))'
@@ -65,7 +68,7 @@ class Demo
       end
     }
     css_colour = @raised ? 'LightGray' : 'LightGreen'
-    @html += pre(run_cyber_dojo_sh_snippet, duration, css_colour)
+    @html += boxed_pre(duration, @result, css_colour)
   end
 
   def run_cyber_dojo_sh_snippet
@@ -107,15 +110,20 @@ class Demo
     IO.read("/app/test/start_files/C_assert/#{filename}")
   end
 
-  def pre(fragment, duration, css_colour = 'LightGreen')
+  def pre(fragment)
+    "<pre style='margin-left:30px'>#{fragment}</pre>"
+  end
+
+  def boxed_pre(duration, result, css_colour = 'LightGreen')
     border = 'border: 1px solid black;'
     padding = 'padding: 5px;'
     margin = 'margin-left: 30px; margin-right: 30px;'
     background = "background: #{css_colour};"
     whitespace = "white-space: pre-wrap;"
-    "<pre style='margin-left:30px'>#{duration}s\n#{fragment}</pre>" +
-    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
-      "#{JSON.pretty_unparse(@result)}" +
+    font = 'font-size:8pt;'
+    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>" +
+      "#{duration}s\n" +
+      "#{JSON.pretty_unparse(result)}" +
     '</pre>'
   end
 
