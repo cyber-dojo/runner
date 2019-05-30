@@ -16,12 +16,12 @@ class Demo
 
   def inner_call
     @html = ''
-    @image_name = 'cyberdojofoundation/gcc_assert'
-    @id = '729z65'
-    @files = starting_files
     sha
     ready?
-    change(hiker_c.sub('6 * 9', '6 * 9'))
+    @image_name = 'cyberdojofoundation/gcc_assert'
+    @id = '729z65'
+    @files = gcc_assert_files
+    @max_seconds = 10
     run_cyber_dojo_sh
     @image_name = 'BAD/image_name'
     run_cyber_dojo_sh
@@ -29,15 +29,11 @@ class Demo
 
   private
 
-  def change(content)
-    @files['hiker.c'] = content
-  end
-
   def sha
     duration = timed { @result = runner.sha }
     fragment = [
       'sha = runner.sha',
-      'html = JSON.pretty_unparse(sha)'
+      'html = green(JSON.pretty_unparse(sha))'
     ].join("\n")
     @html += pre(fragment, duration)
   end
@@ -46,7 +42,7 @@ class Demo
     duration = timed { @result = runner.ready? }
     fragment = [
       'ready = runner.ready?',
-      'html = JSON.pretty_unparse(ready)'
+      'html = green(JSON.pretty_unparse(ready))'
     ].join("\n")
     @html += pre(fragment, duration)
   end
@@ -54,11 +50,11 @@ class Demo
   def run_cyber_dojo_sh
     raised = true
     duration = timed {
-      args  = [ @image_name, @id, @files, 10 ]
+      args  = [ @image_name, @id, @files, @max_seconds ]
       begin
         @result = runner.run_cyber_dojo_sh(*args)
         raised = false
-      rescue => error
+      rescue => error # ServiceError better RunnerError
         @result = JSON.parse(error.message)
       end
     }
@@ -68,14 +64,15 @@ class Demo
         '  results = runner.run_cyber_dojo_sh(...)',
         '  ...',
         'rescue => error',
-        '  html = JSON.parse(error.message)',
+        '  json = JSON.parse(error.message)',
+        '  html = gray(JSON.pretty_unparse(json))',
         'end'
       ].join("\n")
       @html += pre(fragment, duration, 'LightGray')
     else
       fragment = [
         'results = runner.run_cyber_dojo_sh(...)',
-        'html = JSON.pretty_unparse(results)'
+        'html = green(JSON.pretty_unparse(results))'
       ].join("\n")
       @html += pre(fragment, duration)
     end
@@ -94,22 +91,14 @@ class Demo
     '%.2f' % (finished - started)
   end
 
-  def starting_files
+  def gcc_assert_files
     {
-      'hiker.c'       => hiker_c,
+      'hiker.c'       => read('hiker.c'),
       'hiker.h'       => read('hiker.h'),
       'hiker.tests.c' => read('hiker.tests.c'),
       'cyber-dojo.sh' => read('cyber-dojo.sh'),
       'makefile'      => read('makefile')
     }
-  end
-
-  def file(filename)
-    { filename => read(filename) }
-  end
-
-  def hiker_c
-    read('hiker.c')
   end
 
   def read(filename)
