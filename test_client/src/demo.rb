@@ -5,9 +5,9 @@ class Demo
 
   def call(_env)
     inner_call
-    [ 200, text_html_content, [ @html ] ]
+    [ 200, content_text_html, [ @html ] ]
   rescue => error
-    [ 400, text_html_content, [ [error.message] + [error.backtrace] ] ]
+    [ 400, content_text_html, [ [error.message] + [error.backtrace] ] ]
   end
 
   def inner_call
@@ -25,27 +25,33 @@ class Demo
 
   private
 
-  def text_html_content
-    { 'Content-Type' => 'text/html' }
-  end
-
   def sha
     duration = timed { @result = runner.sha }
-    fragment = [
+    @html += pre(sha_snippet, duration)
+  end
+
+  def sha_snippet
+    [
       'sha = runner.sha',
       'html = green(JSON.pretty_unparse(sha))'
     ].join("\n")
-    @html += pre(fragment, duration)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - -
 
   def ready?
     duration = timed { @result = runner.ready? }
-    fragment = [
+    @html += pre(read_snippet, duration)
+  end
+
+  def read_snippet
+    [
       'ready = runner.ready?',
       'html = green(JSON.pretty_unparse(ready))'
     ].join("\n")
-    @html += pre(fragment, duration)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh
     duration = timed {
@@ -58,7 +64,12 @@ class Demo
         @raised = true
       end
     }
-    fragment = [
+    css_colour = @raised ? 'LightGray' : 'LightGreen'
+    @html += pre(run_cyber_dojo_sh_snippet, duration, css_colour)
+  end
+
+  def run_cyber_dojo_sh_snippet
+    [
       'begin',
       '  result = runner.run_cyber_dojo_sh(...)',
       '  html = green(JSON.pretty_unparse(result))',
@@ -67,8 +78,6 @@ class Demo
       '  html = gray(JSON.pretty_unparse(json))',
       'end'
     ].join("\n")
-    css_colour = @raised ? 'LightGray' : 'LightGreen'
-    @html += pre(fragment, duration, css_colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -108,6 +117,10 @@ class Demo
     "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
       "#{JSON.pretty_unparse(@result)}" +
     '</pre>'
+  end
+
+  def content_text_html
+    { 'Content-Type' => 'text/html' }
   end
 
 end
