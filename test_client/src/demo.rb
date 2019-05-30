@@ -10,10 +10,6 @@ class Demo
     [ 400, text_html_content, [ [error.message] + [error.backtrace] ] ]
   end
 
-  def text_html_content
-    { 'Content-Type' => 'text/html' }
-  end
-
   def inner_call
     @html = ''
     sha
@@ -28,6 +24,10 @@ class Demo
   end
 
   private
+
+  def text_html_content
+    { 'Content-Type' => 'text/html' }
+  end
 
   def sha
     duration = timed { @result = runner.sha }
@@ -48,34 +48,27 @@ class Demo
   end
 
   def run_cyber_dojo_sh
-    raised = true
     duration = timed {
       args  = [ @image_name, @id, @files, @max_seconds ]
       begin
         @result = runner.run_cyber_dojo_sh(*args)
-        raised = false
+        @raised = false
       rescue => error # ServiceError better RunnerError
         @result = JSON.parse(error.message)
+        @raised = true
       end
     }
-    if raised
-      fragment = [
-        'begin',
-        '  results = runner.run_cyber_dojo_sh(...)',
-        '  ...',
-        'rescue => error',
-        '  json = JSON.parse(error.message)',
-        '  html = gray(JSON.pretty_unparse(json))',
-        'end'
-      ].join("\n")
-      @html += pre(fragment, duration, 'LightGray')
-    else
-      fragment = [
-        'results = runner.run_cyber_dojo_sh(...)',
-        'html = green(JSON.pretty_unparse(results))'
-      ].join("\n")
-      @html += pre(fragment, duration)
-    end
+    fragment = [
+      'begin',
+      '  result = runner.run_cyber_dojo_sh(...)',
+      '  html = green(JSON.pretty_unparse(result))',
+      'rescue => error',
+      '  json = JSON.parse(error.message)',
+      '  html = gray(JSON.pretty_unparse(json))',
+      'end'
+    ].join("\n")
+    css_colour = @raised ? 'LightGray' : 'LightGreen'
+    @html += pre(fragment, duration, css_colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -105,11 +98,11 @@ class Demo
     IO.read("/app/test/start_files/C_assert/#{filename}")
   end
 
-  def pre(fragment, duration, colour = 'LightGreen')
+  def pre(fragment, duration, css_colour = 'LightGreen')
     border = 'border: 1px solid black;'
     padding = 'padding: 5px;'
     margin = 'margin-left: 30px; margin-right: 30px;'
-    background = "background: #{colour};"
+    background = "background: #{css_colour};"
     whitespace = "white-space: pre-wrap;"
     "<pre style='margin-left:30px'>#{duration}s\n#{fragment}</pre>" +
     "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
