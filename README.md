@@ -27,19 +27,19 @@ JSON in, JSON out
 - parameters
   * **image_name:String** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * **id:String** for tracing, must be in [base58](https://github.com/cyber-dojo/runner-stateless/blob/master/src/base58.rb)
-  * **files:Hash{String=>String}** must contain a file called 'sandbox.sh'
+  * **files:Hash{String=>String}** must contain a file called `cyber-dojo.sh`
   * **max_seconds:Integer** must be between 1 and 20
   * eg
   ```
   { "image_name": "cyberdojofoundation/gcc_assert",
     "id": "15B9zD",
-    "max_seconds": 10,
     "files": {
       "cyber-dojo.sh": "make",
       "fizz_buzz.c": "#include...",
       "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
       ...
-    }
+    },
+    "max_seconds": 10
   }
   ```
 
@@ -49,15 +49,15 @@ JSON in, JSON out
   * runs `/sandbox/cyber-dojo.sh` inside the container for at most **max_seconds**
 
 - returns  
-  * **stdout:String** of `/sandbox/cyber-dojo.sh`, truncated to 50K
-  * **stderr:String** of `/sandbox/cyber-dojo.sh`, truncated to 50K
-  * **status:Integer** of `/sandbox/cyber-dojo.sh`,
+  * **stdout:String** of `/sandbox/cyber-dojo.sh` truncated to 50K
+  * **stderr:String** of `/sandbox/cyber-dojo.sh` truncated to 50K
+  * **status:Integer** of `/sandbox/cyber-dojo.sh`, 0 to 255
   * **timed_out:Boolean**
     * **false** if execution completed in **max_seconds**
     * **true** if execution did not complete in **max_seconds**
-  * **created:Hash** textfiles created under `/sandbox`, each truncated to 50K
-  * **deleted:Array[String]** names of textfiles deleted from under `/sandbox`
-  * **changed:Hash** textfiles changed under `/sandbox`, each truncated to 50K
+  * **created:Hash** text-files created under `/sandbox`, each truncated to 50K
+  * **deleted:Array[String]** names of text-files deleted from under `/sandbox`
+  * **changed:Hash** text-files changed under `/sandbox`, each truncated to 50K
   * eg
     ```
     { "run_cyber_dojo_sh": {
