@@ -130,18 +130,16 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
 - Runs the runner-server's tests from inside a runner-server container.
 - Runs the runner-client's tests from inside the runner-client container.
 ```
-$ ./pipe_build_up_test.sh
+$ ./pipe_build_up_test.sh [client|server] [HEX-ID...]
 ```
 
 # run the demo
+- Runs inside the runner-client's container.
+- Calls the runner-server's methods and displays their json results and how long they took.
+- If the runner-client's IP address is 192.168.99.100 then put 192.168.99.100:4598 into your browser to see the output.
 ```
 $ ./sh/run_demo.sh
 ```
-Runs inside the runner-client's container.
-Calls the runner-server's methods
-and displays their json results and how long they took.
-If the runner-client's IP address is 192.168.99.100 then put
-192.168.99.100:4598 into your browser to see the output.
 
 # demo screenshot
 
