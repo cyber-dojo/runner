@@ -142,7 +142,6 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
   ```
 
 - - - -
-- - - -
 
 # run the tests
 - Builds the runner-server image and an example runner-client image.
@@ -151,6 +150,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs the runner-client's tests from inside the runner-client container.
 ```
 $ ./pipe_build_up_test.sh [client|server] [HEX-ID...]
+
 Building runner-stateless
 Step 1/8 : FROM cyberdojo/docker-base
  ---> 9d1f06280f4d
@@ -168,15 +168,16 @@ Step 5/8 : ARG SHA
  ---> 6911053e42f4
 Step 6/8 : ENV SHA=${SHA}
  ---> Using cache
- ---> 9a844d207a68
+ ---> 72abf5c7da8c
 Step 7/8 : EXPOSE 4597
  ---> Using cache
- ---> 7218247496d6
+ ---> 406b4216d24b
 Step 8/8 : CMD [ "./up.sh" ]
  ---> Using cache
- ---> 6e1e41d11407
-Successfully built 6e1e41d11407
+ ---> cf9a8ba4dc8c
+Successfully built cf9a8ba4dc8c
 Successfully tagged cyberdojo/runner-stateless:latest
+
 Building runner-stateless-client
 Step 1/5 : FROM  cyberdojo/docker-base
  ---> 9d1f06280f4d
@@ -194,17 +195,19 @@ Step 5/5 : CMD [ "./up.sh" ]
  ---> 5bd4ca27b816
 Successfully built 5bd4ca27b816
 Successfully tagged cyberdojo/runner-stateless-client:latest
+
 Recreating test-runner-stateless-server ... done
 Recreating test-runner-stateless-client ... done
 Waiting until test-runner-stateless-server is ready.OK
 Checking test-runner-stateless-server started cleanly...OK
-Run options: --seed 39210
+
+Run options: --seed 34605
 
 # Running:
 
 .....................................................................................
 
-Finished in 72.968660s, 1.1649 runs/s, 22.4480 assertions/s.
+Finished in 73.529235s, 1.1560 runs/s, 22.2769 assertions/s.
 
 85 runs, 1638 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/coverage. 1510 / 1510 LOC (100.0%) covered.
@@ -213,28 +216,28 @@ Coverage report copied to runner-stateless/test_server/coverage/
                  failures |       0 ==     0 | true
                    errors |       0 ==     0 | true
                     skips |       0 ==     0 | true
-        duration(test)[s] |   72.97 <=   100 | true
+        duration(test)[s] |   73.53 <=   100 | true
          coverage(src)[%] |   100.0 ==   100 | true
         coverage(test)[%] |   100.0 ==   100 | true
    lines(test)/lines(src) |    2.99 >=   2.8 | true
-     hits(src)/hits(test) |   24.92 >=    23 | true
+     hits(src)/hits(test) |   24.80 >=    23 | true
 
-Run options: --seed 13943
+Run options: --seed 19227
 
 # Running:
 
 ...............................
 
-Finished in 23.606565s, 1.3132 runs/s, 6.0153 assertions/s.
+Finished in 13.761359s, 2.2527 runs/s, 10.3914 assertions/s.
 
-31 runs, 142 assertions, 0 failures, 0 errors, 0 skips
+31 runs, 143 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/coverage. 338 / 338 LOC (100.0%) covered.
 Coverage report copied to runner-stateless/test_client/coverage/
 
                  failures |       0 ==     0 | true
                    errors |       0 ==     0 | true
                     skips |       0 ==     0 | true
-        duration(test)[s] |   23.61 <=    25 | true
+        duration(test)[s] |   13.76 <=    25 | true
          coverage(src)[%] |   100.0 ==   100 | true
         coverage(test)[%] |   100.0 ==   100 | true
    lines(test)/lines(src) |    5.26 >=     5 | true
