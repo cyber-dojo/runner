@@ -22,41 +22,40 @@ API:
 - - - -
 
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
-- Creates a container from **image_name**,
-saves **files** into /sandbox inside it,
-runs /sandbox/cyber-dojo.sh
-for at most **max_seconds**.
-**image_name** must be created with
+- creates a container from **image_name**
+- saves **files** into /sandbox inside it
+- runs /sandbox/cyber-dojo.sh for at most **max_seconds**
+- **image_name** must be created with
 [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * returns [**stdout**, **stderr**, **status**, **timed_out**] as the results of
-executing cyber-dojo.sh
+executing /sandbox/cyber-dojo.sh
   * returns [**created**, **deleted**, **changed**] which are text files
-in /sandbox altered by executing /sandbox/cyber-dojo.sh
+in /sandbox altered by executing /sandbox/cyber-dojo.sh, truncated to 50K.
   * if the execution completed in max_seconds, **timed_out** will be false.
   * if the execution did not complete in max_seconds, **timed_out** will be true.
   * eg
     ```
     { "run_cyber_dojo_sh": {
         "stdout": {
-            "content": "makefile:17: recipe for target 'test' failed\n",
+          "content": "makefile:17: recipe for target 'test' failed\n",
           "truncated": false
         },
         "stderr": {
-            "content": "invalid suffix sss on integer constant",
+          "content": "invalid suffix sss on integer constant",
           "truncated": false
         },
-         "status": 2,
-         "timed_out": false,
+        "status": 2,
+        "timed_out": false,
         "created": {
           "coverage.html": {
-              "content": "...",
+            "content": "...",
             "truncated": false
           }
         },
-        "deleted": {},
+        "deleted": [],
         "changed": {
           "todo.txt": {
-              "content": "...",
+            "content": "...",
             "truncated": false
           }
         }
@@ -67,17 +66,17 @@ in /sandbox altered by executing /sandbox/cyber-dojo.sh
     ```
     { "run_cyber_dojo_sh": {
         "stdout": {
-            "content": "",
+          "content": "",
           "truncated": false
         },
         "stderr": {
-            "content": "",
+          "content": "",
           "truncated": false
         },
-         "status": 137,
-      "timed_out": true,
+        "status": 137,
+        "timed_out": true,
         "created": {},
-        "deleted": {},
+        "deleted": [ "filename.txt" ],
         "changed": {}
       }
     }
