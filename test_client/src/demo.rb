@@ -17,20 +17,20 @@ class Demo
     @files = starting_files
     sha
     ready?
-    change('hiker.c', hiker_c['content'].sub('6 * 9', '6 * 9'))
+    change(hiker_c.sub('6 * 9', '6 * 9'))
     run_cyber_dojo_sh('Red')
-    change('hiker.c', hiker_c['content'].sub('6 * 9', 'syntax-error'))
+    change(hiker_c.sub('6 * 9', 'syntax-error'))
     run_cyber_dojo_sh('Yellow')
-    change('hiker.c', hiker_c['content'].sub('6 * 9', '6 * 7'))
+    change(hiker_c.sub('6 * 9', '6 * 7'))
     run_cyber_dojo_sh('Green')
-    change('hiker.c', hiker_c['content'].sub('return', "for(;;);\n return"))
+    change(hiker_c.sub('return', "for(;;);\n return"))
     run_cyber_dojo_sh('LightGray', 3)
   end
 
   private
 
-  def change(filename, content)
-    @files[filename] = { 'content' => content }
+  def change(content)
+    @files['hiker.c'] = content
   end
 
   def sha
@@ -72,10 +72,8 @@ class Demo
     }
   end
 
-  def file(content, truncated = false)
-    { 'content' => content,
-      'truncated' => truncated
-    }
+  def file(filename)
+    { filename => read(filename) }
   end
 
   def hiker_c
@@ -83,7 +81,7 @@ class Demo
   end
 
   def read(filename)
-    file(IO.read("/app/test/start_files/C_assert/#{filename}"))
+    IO.read("/app/test/start_files/C_assert/#{filename}")
   end
 
   def pre(name, duration, colour = 'white', result = nil)
