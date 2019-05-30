@@ -1,13 +1,19 @@
 require_relative 'runner_service'
+require 'json'
 
 class Demo
 
   def call(_env)
     inner_call
-    [ 200, { 'Content-Type' => 'text/html' }, [ @html ] ]
+    [ 200, text_html_content, [ @html ] ]
   rescue => error
     body = [ [error.message] + [error.backtrace] ]
-    [ 200, { 'Content-Type' => 'text/html' }, body ]
+    [ 400, text_html_content, body ]
+    #pre('exception', 0.0, 'blue', body)
+  end
+
+  def text_html_content
+    { 'Content-Type' => 'text/html' }
   end
 
   def inner_call
@@ -25,6 +31,8 @@ class Demo
     run_cyber_dojo_sh('Green')
     change(hiker_c.sub('return', "for(;;);\n return"))
     run_cyber_dojo_sh('LightGray', 3)
+    #change(42)
+    #run_cyber_dojo_sh('LightGray', 3)
   end
 
   private
@@ -35,18 +43,18 @@ class Demo
 
   def sha
     duration = timed { @result = runner.sha }
-    @html += pre('sha', duration, 'white', @result)
+    @html += pre('sha', duration, 'white')
   end
 
   def ready?
     duration = timed { @result = runner.ready? }
-    @html += pre('ready?', duration, 'white', @result)
+    @html += pre('ready?', duration, 'white')
   end
 
   def run_cyber_dojo_sh(css_colour, max_seconds = 10)
     args  = [ @image_name, @id, @files, max_seconds ]
     duration = timed { @result = runner.run_cyber_dojo_sh(*args) }
-    @html += pre('run_cyber_dojo_sh', duration, css_colour, @result)
+    @html += pre('run_cyber_dojo_sh', duration, css_colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -84,19 +92,16 @@ class Demo
     IO.read("/app/test/start_files/C_assert/#{filename}")
   end
 
-  def pre(name, duration, colour = 'white', result = nil)
+  def pre(name, duration, colour)
     border = 'border: 1px solid black;'
     padding = 'padding: 5px;'
     margin = 'margin-left: 30px; margin-right: 30px;'
     background = "background: #{colour};"
     whitespace = "white-space: pre-wrap;"
-    html = "<pre style='margin-left:30px'>/#{name}(#{duration}s)</pre>"
-    unless result.nil?
-      html += "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
-              "#{JSON.pretty_unparse(result)}" +
-              '</pre>'
-    end
-    html
+    "<pre style='margin-left:30px'>/#{name}(#{duration}s)</pre>" +
+    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}'>" +
+      "#{JSON.pretty_unparse(@result)}" +
+    '</pre>'
   end
 
 end
