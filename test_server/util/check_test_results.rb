@@ -15,6 +15,16 @@ def cleaned(s)
   s = s.encode('UTF-8', 'UTF-16')
 end
 
+def coloured(tf)
+  red = 31
+  green = 32
+  colourize(tf ? green : red, tf)
+end
+
+def colourize(code, word)
+  "\e[#{code}m#{word}\e[0m"
+end
+
 def get_index_stats(name)
   html = `cat #{ARGV[1]}`
   html = cleaned(html)
@@ -112,7 +122,7 @@ puts
 table.each do |name,value,op,limit|
   result = eval("#{value} #{op} #{limit}")
   puts "%s | %s %s %s | %s" % [
-    name.rjust(25), value.to_s.rjust(7), op, limit.to_s.rjust(5), result.to_s
+    name.rjust(25), value.to_s.rjust(7), op, limit.to_s.rjust(5), coloured(result)
   ]
   done << result
 end
