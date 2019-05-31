@@ -173,14 +173,14 @@ Step 5/8 : ARG SHA
  ---> 34118df92b68
 Step 6/8 : ENV SHA=${SHA}
  ---> Using cache
- ---> d1e218eb06ff
+ ---> b23584f46cd8
 Step 7/8 : EXPOSE 4597
  ---> Using cache
- ---> 80943dc5fd06
+ ---> cee0a4be1884
 Step 8/8 : CMD [ "./up.sh" ]
  ---> Using cache
- ---> 18955ef0eaef
-Successfully built 18955ef0eaef
+ ---> d7f02de4eac2
+Successfully built d7f02de4eac2
 Successfully tagged cyberdojo/runner:latest
 
 Building runner-client
@@ -191,14 +191,14 @@ Step 2/5 : LABEL maintainer=jon@jaggersoft.com
  ---> 985da0ca2b94
 Step 3/5 : COPY . /app
  ---> Using cache
- ---> f165913008f8
+ ---> 23d3dc565e94
 Step 4/5 : EXPOSE 4598
  ---> Using cache
- ---> 2e14a5f671db
+ ---> db62f0cca060
 Step 5/5 : CMD [ "./up.sh" ]
  ---> Using cache
- ---> 63e17597f807
-Successfully built 63e17597f807
+ ---> 4c1336265de6
+Successfully built 4c1336265de6
 Successfully tagged cyberdojo/runner-client:latest
 
 Recreating test-runner-server ... done
@@ -206,43 +206,45 @@ Recreating test-runner-client ... done
 Waiting until test-runner-server is ready.OK
 Checking test-runner-server started cleanly...OK
 
-Run options: --seed 25423
+Run options: --seed 39369
 
 # Running:
 
 .....................................................................................
 
-Finished in 72.839668s, 1.1669 runs/s, 22.4877 assertions/s.
+Finished in 73.008720s, 1.1642 runs/s, 22.4357 assertions/s.
 
 85 runs, 1638 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/coverage. 1510 / 1510 LOC (100.0%) covered.
 Coverage report copied to runner/test_server/coverage/
 
+                    tests |      85 !=     0 | true
                  failures |       0 ==     0 | true
                    errors |       0 ==     0 | true
                     skips |       0 ==     0 | true
-        duration(test)[s] |   72.84 <=   100 | true
+        duration(test)[s] |   73.01 <=    90 | true
          coverage(src)[%] |   100.0 ==   100 | true
         coverage(test)[%] |   100.0 ==   100 | true
    lines(test)/lines(src) |    2.99 >=   2.8 | true
-     hits(src)/hits(test) |   24.80 >=    23 | true
+     hits(src)/hits(test) |   24.92 >=    23 | true
 
-Run options: --seed 51040
+Run options: --seed 52893
 
 # Running:
 
 ...............................
 
-Finished in 13.139505s, 2.3593 runs/s, 10.8832 assertions/s.
+Finished in 22.947461s, 1.3509 runs/s, 6.1880 assertions/s.
 
-31 runs, 143 assertions, 0 failures, 0 errors, 0 skips
+31 runs, 142 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/coverage. 338 / 338 LOC (100.0%) covered.
 Coverage report copied to runner/test_client/coverage/
 
+                    tests |      31 !=     0 | true
                  failures |       0 ==     0 | true
                    errors |       0 ==     0 | true
                     skips |       0 ==     0 | true
-        duration(test)[s] |   13.14 <=    25 | true
+        duration(test)[s] |   22.95 <=    25 | true
          coverage(src)[%] |   100.0 ==   100 | true
         coverage(test)[%] |   100.0 ==   100 | true
    lines(test)/lines(src) |    5.26 >=     5 | true
