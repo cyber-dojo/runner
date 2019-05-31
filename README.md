@@ -147,7 +147,8 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Brings up a runner-server container and a runner-client container.
 - Runs the runner-server's tests from inside a runner-server container.
 - Runs the runner-client's tests from inside the runner-client container.
-```
+
+```bash
 $ ./pipe_build_up_test.sh
 
 Use: pipe_build_up_test.sh [client|server] [HEX-ID...]
@@ -265,7 +266,8 @@ Removing network runner_default
 - Runs inside the runner-client's container.
 - Calls the runner-server's methods and displays their json results and how long they took.
 - If the runner-client's IP address is 192.168.99.100 then put 192.168.99.100:4598 into your browser to see the output.
-```
+
+```bash
 $ ./sh/run_demo.sh
 ```
 ![demo screenshot](test_client/src/demo_screenshot.png?raw=true "demo screenshot")
