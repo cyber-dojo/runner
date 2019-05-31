@@ -8,10 +8,10 @@ echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
     build \
-      runner-stateless
+      runner-server
 
 echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
     build \
-      runner-stateless-client
+      runner-client

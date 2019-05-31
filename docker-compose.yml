@@ -3,32 +3,32 @@ version: '2.2'
 
 services:
 
-  runner-stateless-client:
+  runner-client:
     build:
       context: test_client
     user: nobody
-    image: cyberdojo/runner-stateless-client
+    image: cyberdojo/runner-client
     init: true
-    container_name: test-runner-stateless-client
+    container_name: test-runner-client
     read_only: true
     tmpfs: /tmp
     restart: 'no'
     depends_on:
-      - runner-stateless
+      - runner-server
     ports:
       - 4598:4598
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  runner-stateless:
+  runner-server:
     build:
       context: .
       args:
         - SHA
     user: root
-    image: cyberdojo/runner-stateless
+    image: cyberdojo/runner
     init: true
-    container_name: test-runner-stateless-server
+    container_name: test-runner-server
     ports:
       - 4597:4597
     read_only: true

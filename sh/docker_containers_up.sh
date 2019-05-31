@@ -77,7 +77,7 @@ docker-compose \
   -d \
   --force-recreate
 
-readonly MY_NAME=runner-stateless
+readonly MY_NAME=runner
 
 wait_until_ready  "test-${MY_NAME}-server" 4597
 exit_unless_clean "test-${MY_NAME}-server"

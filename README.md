@@ -1,10 +1,10 @@
 
-[![CircleCI](https://circleci.com/gh/cyber-dojo/runner-stateless.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner-stateless)
+[![CircleCI](https://circleci.com/gh/cyber-dojo/runner.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner)
 
 <img src="https://raw.githubusercontent.com/cyber-dojo/nginx/master/images/home_page_logo.png"
 alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
-# cyberdojo/runner-stateless docker image
+# cyberdojo/runner docker image
 
 - A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org).
 - Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
@@ -28,7 +28,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
 - parameters
   * **image_name:String** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
-  * **id:String** for tracing, must be in [base58](https://github.com/cyber-dojo/runner-stateless/blob/master/src/base58.rb)
+  * **id:String** for tracing, must be in [base58](https://github.com/cyber-dojo/runner/blob/master/src/base58.rb)
   * **files:Hash{String=>String}** must contain a file called `cyber-dojo.sh`
   * **max_seconds:Integer** must be between 1 and 20
   * eg
@@ -157,7 +157,7 @@ Options:
    server  - only run the tests from inside the server
    HEX-ID  - only run the tests matching this identifier
 
-Building runner-stateless
+Building runner-server
 Step 1/8 : FROM cyberdojo/docker-base
  ---> 9d1f06280f4d
 Step 2/8 : LABEL maintainer=jon@jaggersoft.com
@@ -168,23 +168,23 @@ Step 3/8 : WORKDIR /app
  ---> 5ac8f3e2548b
 Step 4/8 : COPY . .
  ---> Using cache
- ---> 9b1d20329a16
+ ---> d7da64d5f835
 Step 5/8 : ARG SHA
  ---> Using cache
- ---> 6911053e42f4
+ ---> 34118df92b68
 Step 6/8 : ENV SHA=${SHA}
  ---> Using cache
- ---> 72abf5c7da8c
+ ---> d1e218eb06ff
 Step 7/8 : EXPOSE 4597
  ---> Using cache
- ---> 406b4216d24b
+ ---> 80943dc5fd06
 Step 8/8 : CMD [ "./up.sh" ]
  ---> Using cache
- ---> cf9a8ba4dc8c
-Successfully built cf9a8ba4dc8c
-Successfully tagged cyberdojo/runner-stateless:latest
+ ---> 18955ef0eaef
+Successfully built 18955ef0eaef
+Successfully tagged cyberdojo/runner:latest
 
-Building runner-stateless-client
+Building runner-client
 Step 1/5 : FROM  cyberdojo/docker-base
  ---> 9d1f06280f4d
 Step 2/5 : LABEL maintainer=jon@jaggersoft.com
@@ -192,58 +192,58 @@ Step 2/5 : LABEL maintainer=jon@jaggersoft.com
  ---> 985da0ca2b94
 Step 3/5 : COPY . /app
  ---> Using cache
- ---> 5e32e72ef70b
+ ---> f165913008f8
 Step 4/5 : EXPOSE 4598
  ---> Using cache
- ---> 704a7fa8e551
+ ---> 2e14a5f671db
 Step 5/5 : CMD [ "./up.sh" ]
  ---> Using cache
- ---> 5bd4ca27b816
-Successfully built 5bd4ca27b816
-Successfully tagged cyberdojo/runner-stateless-client:latest
+ ---> 63e17597f807
+Successfully built 63e17597f807
+Successfully tagged cyberdojo/runner-client:latest
 
-Recreating test-runner-stateless-server ... done
-Recreating test-runner-stateless-client ... done
-Waiting until test-runner-stateless-server is ready.OK
-Checking test-runner-stateless-server started cleanly...OK
+Recreating test-runner-server ... done
+Recreating test-runner-client ... done
+Waiting until test-runner-server is ready.OK
+Checking test-runner-server started cleanly...OK
 
-Run options: --seed 34605
+Run options: --seed 25423
 
 # Running:
 
 .....................................................................................
 
-Finished in 73.529235s, 1.1560 runs/s, 22.2769 assertions/s.
+Finished in 72.839668s, 1.1669 runs/s, 22.4877 assertions/s.
 
 85 runs, 1638 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/coverage. 1510 / 1510 LOC (100.0%) covered.
-Coverage report copied to runner-stateless/test_server/coverage/
+Coverage report copied to runner/test_server/coverage/
 
                  failures |       0 ==     0 | true
                    errors |       0 ==     0 | true
                     skips |       0 ==     0 | true
-        duration(test)[s] |   73.53 <=   100 | true
+        duration(test)[s] |   72.84 <=   100 | true
          coverage(src)[%] |   100.0 ==   100 | true
         coverage(test)[%] |   100.0 ==   100 | true
    lines(test)/lines(src) |    2.99 >=   2.8 | true
      hits(src)/hits(test) |   24.80 >=    23 | true
 
-Run options: --seed 19227
+Run options: --seed 51040
 
 # Running:
 
 ...............................
 
-Finished in 13.761359s, 2.2527 runs/s, 10.3914 assertions/s.
+Finished in 13.139505s, 2.3593 runs/s, 10.8832 assertions/s.
 
 31 runs, 143 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/coverage. 338 / 338 LOC (100.0%) covered.
-Coverage report copied to runner-stateless/test_client/coverage/
+Coverage report copied to runner/test_client/coverage/
 
                  failures |       0 ==     0 | true
                    errors |       0 ==     0 | true
                     skips |       0 ==     0 | true
-        duration(test)[s] |   13.76 <=    25 | true
+        duration(test)[s] |   13.14 <=    25 | true
          coverage(src)[%] |   100.0 ==   100 | true
         coverage(test)[%] |   100.0 ==   100 | true
    lines(test)/lines(src) |    5.26 >=     5 | true
@@ -251,11 +251,11 @@ Coverage report copied to runner-stateless/test_client/coverage/
 
 ------------------------------------------------------
 All passed
-Stopping test-runner-stateless-client ... done
-Stopping test-runner-stateless-server ... done
-Removing test-runner-stateless-client ... done
-Removing test-runner-stateless-server ... done
-Removing network runner-stateless_default
+Stopping test-runner-client ... done
+Stopping test-runner-server ... done
+Removing test-runner-client ... done
+Removing test-runner-server ... done
+Removing network runner_default
 ```
 
 - - - -

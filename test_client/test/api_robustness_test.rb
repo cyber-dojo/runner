@@ -51,7 +51,7 @@ class ApiRobustnessTest < TestBase
           self.send method_name, { image_name:image_name }
         end
         json = JSON.parse(error.message)
-        assert_equal 'RunnerStatelessService', json['class']
+        assert_equal 'RunnerService', json['class']
         assert_equal 'image_name:malformed', json['message']
         assert_equal 'Array', json['backtrace'].class.name
       end
@@ -68,7 +68,7 @@ class ApiRobustnessTest < TestBase
           self.send method_name, { id:id }
         end
         json = JSON.parse(error.message)
-        assert_equal 'RunnerStatelessService', json['class']
+        assert_equal 'RunnerService', json['class']
         assert_equal 'id:malformed', json['message']
         assert_equal 'Array', json['backtrace'].class.name
       end
@@ -86,7 +86,7 @@ class ApiRobustnessTest < TestBase
   include HttpJsonService
 
   def hostname
-    'runner-stateless'
+    'runner-server'
   end
 
   def port

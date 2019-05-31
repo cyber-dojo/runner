@@ -3,7 +3,7 @@ require_relative 'http_json_service'
 class RunnerService
 
   def initialize
-    @hostname = 'runner-stateless'
+    @hostname = 'runner-server'
     @port = 4597
   end
 

@@ -196,7 +196,7 @@ class RackDispatcherTest < TestBase
       json = JSON.parse(s)
       ex = json['exception']
       refute_nil ex
-      assert_equal 'RunnerStatelessService', ex['class']
+      assert_equal 'RunnerService', ex['class']
       assert_equal expected, ex['message']
       assert_equal 'Array', ex['backtrace'].class.name
     end

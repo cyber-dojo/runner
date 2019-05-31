@@ -10,7 +10,5 @@
 
   "image_name": "cyberdojofoundation/csharp_nunit",
 
-  "runner_choice": "stateless",
-
   "filename_extension" : ".cs"
 }
