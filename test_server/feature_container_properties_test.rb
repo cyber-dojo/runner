@@ -213,7 +213,7 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout_stats
-    Hash[stdout.lines.collect { |line|
+    stdout.lines.collect { |line|
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],
@@ -222,7 +222,7 @@ class ContainerPropertiesTest < TestBase
                size: attr[4].to_i,
                time: attr[6],
       }]
-    }]
+    }.to_h
   end
 
 end

@@ -24,9 +24,9 @@ module HttpJsonService # mix-in
 
   def jsoned_args(method, args)
     parameters = self.class.instance_method(method).parameters
-    Hash[parameters.map.with_index { |parameter,index|
+    parameters.map.with_index { |parameter,index|
       [parameter[1], args[index]]
-    }].to_json
+    }.to_h.to_json
   end
 
   def es_result(json, name)

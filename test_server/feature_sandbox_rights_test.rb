@@ -87,7 +87,7 @@ class SandboxRightsTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout_stats
-    Hash[stdout.lines.collect { |line|
+    stdout.lines.collect { |line|
       attr = line.split
       [attr[0], {         # filename eg hiker.h
         permissions: attr[1],      # eg -rwxr--r--
@@ -96,7 +96,7 @@ class SandboxRightsTest < TestBase
                size: attr[4].to_i, # eg 136
          time_stamp: attr[6],      # eg 07:03:14.539952547
       }]
-    }]
+    }.to_h
   end
 
 end

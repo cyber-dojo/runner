@@ -212,9 +212,9 @@ class Runner
 
   def read_tar_file(tar_file)
     reader = Tar::Reader.new(tar_file)
-    Hash[reader.files.map do |filename,content|
+    reader.files.map do |filename,content|
       [filename, packaged(Utf8.clean(content))]
-    end]
+    end.to_h
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

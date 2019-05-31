@@ -174,9 +174,9 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    Hash[manifest['visible_filenames'].collect { |filename|
+    manifest['visible_filenames'].collect do |filename|
       [filename, IO.read("#{starting_files_dir}/#{filename}")]
-    }]
+    end.to_h
   end
 
   def manifest

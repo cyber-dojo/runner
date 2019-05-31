@@ -162,12 +162,12 @@ class RackDispatcherTest < TestBase
 
   test 'AB8', '[C,assert] run_cyber_dojo_sh supports files as a Hash' do
     args = run_cyber_dojo_sh_args
-    files = Hash[args[:files].map {|filename,content|
-      [filename,{
+    files = args[:files].map { |filename,content|
+      [filename, {
         'content' => content,
         'truncated' => false
       }]
-    }]
+    }.to_h
     args[:files] = files
     rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
 

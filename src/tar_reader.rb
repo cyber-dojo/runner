@@ -12,7 +12,7 @@ module Tar
 
     def files
       # empty files are coming back as nil
-      Hash[@reader.map { |e| [e.full_name, e.read || ''] }]
+      @reader.map { |e| [e.full_name, e.read || ''] }.to_h
     end
 
   end
