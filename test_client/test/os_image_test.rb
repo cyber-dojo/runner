@@ -7,7 +7,7 @@ class OsImageTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  
+
   multi_os_test '8A1',
   'start-files image_name<->os correspondence' do
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')

@@ -64,7 +64,7 @@ class RedAmberGreenTest < TestBase
   test '3DD', '[C,assert] test with files as content/truncated Hash' do
     run_cyber_dojo_sh({
       changed_files: {
-        'hiker.c' => intact(hiker_c.sub('6 * 9', '6 * 7'))
+        'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
       }
     })
     assert_equal '', stdout

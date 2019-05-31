@@ -64,26 +64,17 @@ module WellFormedArgs
   end
 
   def well_formed_files(name)
-    result = {}
     name = name.to_s
     arg = @args[name]
     unless arg.is_a?(Hash)
       malformed(name)
     end
-    arg.each do |filename,x|
-      if x.is_a?(String)
-        result[filename] = x
-      elsif x.is_a?(Hash)
-        content = x['content']
-        unless content.is_a?(String)
-          malformed(name)
-        end
-        result[filename] = content
-      else
+    arg.each do |_filename,content|
+      unless content.is_a?(String)
         malformed(name)
       end
     end
-    result
+    arg
   end
 
   def well_formed_max_seconds?(arg)

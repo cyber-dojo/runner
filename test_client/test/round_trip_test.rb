@@ -11,7 +11,7 @@ class RoundTripTest < TestBase
   test '160',
   %w( [Ubuntu] round-tripping: example of no file changes ) do
     # Using [Ubuntu] because that's Perl-testsimple which does
-    # not generated any text files. In contrast, Alpine is
+    # not generated any extra text files. In contrast, Alpine is
     # CSharp-NUnit which does generate an .xml text file.
     run_cyber_dojo_sh
     assert_equal({}, created)
@@ -65,15 +65,21 @@ class RoundTripTest < TestBase
     assert_equal({}, changed)
   end
 
-  # - - - - - - - - - - - - - - - - -
+  private
 
   def exec(script)
     named_args = {
       changed_files: {
-        'cyber-dojo.sh' => intact(script)
+        'cyber-dojo.sh' => script
       }
     }
     run_cyber_dojo_sh(named_args)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def intact(content)
+    { 'content' => content, 'truncated' => false }
   end
 
 end

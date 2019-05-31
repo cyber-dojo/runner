@@ -89,7 +89,7 @@ class TestBase < HexMiniTest
 
   def assert_cyber_dojo_sh(sh_script)
     run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => intact(sh_script) }
+      changed_files: { 'cyber-dojo.sh' => sh_script }
     })
     refute timed_out?, result
     assert_equal '', stderr
@@ -142,10 +142,6 @@ class TestBase < HexMiniTest
 
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
-  end
-
-  def intact(content)
-    { 'content' => content, 'truncated' => false }
   end
 
 end
