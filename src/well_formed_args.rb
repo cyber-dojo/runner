@@ -43,7 +43,12 @@ module WellFormedArgs
   # - - - - - - - - - - - - - - - -
 
   def files
-    well_formed_files(__method__)
+    name = __method__.to_s
+    arg = @args[name]
+    unless well_formed_files?(arg)
+      malformed(name)      
+    end
+    arg
   end
 
   # - - - - - - - - - - - - - - - -
@@ -63,18 +68,8 @@ module WellFormedArgs
     Base58.string?(arg) && arg.size === 6
   end
 
-  def well_formed_files(name)
-    name = name.to_s
-    arg = @args[name]
-    unless arg.is_a?(Hash)
-      malformed(name)
-    end
-    arg.each do |_filename,content|
-      unless content.is_a?(String)
-        malformed(name)
-      end
-    end
-    arg
+  def well_formed_files?(arg)
+    arg.is_a?(Hash) && arg.all?{|_f,content| content.is_a?(String) }
   end
 
   def well_formed_max_seconds?(arg)
