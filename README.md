@@ -31,7 +31,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
   * **files:Hash{String=>String}** must contain a file called `cyber-dojo.sh`
   * **max_seconds:Integer** must be between 1 and 20
   * eg
-  ```
+  ```json
   { "image_name": "cyberdojofoundation/gcc_assert",
     "id": "15B9zD",
     "files": {
@@ -60,7 +60,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
   * **deleted:Array[String]** names of text-files deleted from under `/sandbox`
   * **changed:Hash** text-files changed under `/sandbox` each truncated to 50K
   * eg
-    ```
+    ```json
     { "run_cyber_dojo_sh": {
         "stdout": {
           "content": "makefile:17: recipe for target 'test' failed\n",
@@ -89,7 +89,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
     }
     ```
   * eg
-    ```
+    ```json
     { "run_cyber_dojo_sh": {
         "stdout": {
           "content": "",
@@ -113,14 +113,14 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 # GET ready?
 - parameters
   * none
-  ```
+  ```json
   {}
   ```
 - returns
   * **true** if the service is ready
   * **false** if the service is not ready
   * eg
-  ```
+  ```json
   { "ready?": true }
   { "ready?": false }
   ```
@@ -130,13 +130,13 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 # GET sha
 - parameters
   * none
-  ```
+  ```json
   {}
   ```
 - returns
   * the git commit sha used to create the docker image
   * eg
-  ```
+  ```json
   { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
   ```
 
@@ -148,7 +148,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 - Runs the runner-server's tests from inside a runner-server container.
 - Runs the runner-client's tests from inside the runner-client container.
 
-```bash
+```text
 $ ./pipe_build_up_test.sh
 
 Use: pipe_build_up_test.sh [client|server] [HEX-ID...]
