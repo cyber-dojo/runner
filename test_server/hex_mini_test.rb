@@ -4,14 +4,12 @@ class HexMiniTest < MiniTest::Test
 
   @@args = (ARGV.sort.uniq - ['--'])
   @@seen_hex_ids = []
-  @@matched_hex_ids = []
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def self.test(hex_suffix, *lines, &test_block)
     hex_id = checked_hex_id(hex_suffix, lines)
     if @@args === [] || @@args.any?{ |arg| hex_id.include?(arg) }
-      @@matched_hex_ids << hex_id
       hex_name = lines.join(space = ' ')
       execute_around = lambda {
         _hex_setup_caller(hex_id, hex_name)
@@ -26,14 +24,6 @@ class HexMiniTest < MiniTest::Test
       define_method("test_\n#{name}".to_sym, &execute_around)
     end
   end
-
-  ObjectSpace.define_finalizer(self, proc {
-    if @@matched_hex_ids.empty?
-      puts '=' * 60
-      puts "ERROR: matched zero tests"
-      puts '=' * 60
-    end
-  })
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
