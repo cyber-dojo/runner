@@ -38,7 +38,8 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
       "cyber-dojo.sh": "make",
       "fizz_buzz.c": "#include...",
       "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
-      ...
+      "fizz_buzz.tests.c": "#include \"fizz_buzz.h\"...",
+      "makefile": "CFLAGS += -I. ........"
     },
     "max_seconds": 10
   }
