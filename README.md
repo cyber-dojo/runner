@@ -5,7 +5,7 @@
 alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 - The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) docker image
-- A docker-containerized stateless micro-service for [cyber-dojo](http://cyber-dojo.org).
+- A docker-containerized stateless micro-service for [https://cyber-dojo.org](http://cyber-dojo.org).
 - Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 
 # API
@@ -275,7 +275,6 @@ $ ./sh/run_demo.sh
 
 - - - -
 
-* [Take me to cyber-dojo's home github repo](https://github.com/cyber-dojo/cyber-dojo).
-* [Take me to the http://cyber-dojo.org site](http://cyber-dojo.org).
+* Go to cyber-dojo's [home repo](https://github.com/cyber-dojo/cyber-dojo).
 
 ![cyber-dojo.org home page](https://github.com/cyber-dojo/cyber-dojo/blob/master/shared/home_page_snapshot.png)
