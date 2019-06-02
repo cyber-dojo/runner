@@ -58,7 +58,7 @@ class Runner
   SANDBOX_DIR = '/sandbox'  # where files are saved to in container
   UID = 41966               # user running /sandbox/cyber-dojo.sh
   GID = 51966               # group running /sandbox/cyber-dojo.sh
-  MAX_FILE_SIZE = 50 * KB   # of files tar-piped-in/out, @stdout, @stderr.
+  MAX_FILE_SIZE = 50 * KB   # of files tar-piped-out, @stdout, @stderr.
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -307,25 +307,29 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{SANDBOX_DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"
-  # Note:1 the docker documention says --tmpfs is only available on
-  # Docker for Linux. It works on DockerToolbox too (Mac).
-  # Note:2 Making the sandbox dir a tmpfs should improve speed.
-  # Note:3 tmp-fs's are setup as secure mountpoints.
-  # If you use only '--tmpfs #{SANDBOX_DIR}'
-  # then a [cat /etc/mtab] will reveal something like
-  # tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0
-  #   o) rw = Mount the filesystem read-write.
-  #   o) nosuid = Do not allow set-user-identifier or set-group-identifier bits to take effect.
-  #   o) nodev = Do not interpret character or block special devices.
-  #   o) noexec = Do not allow direct execution of any binaries.
-  #   o) relatime = Update inode access times relative to modify or change time.
-  # So set exec to make binaries and scripts executable.
-  # Note:4 Also limit size of tmp-fs
-  # Note:5 Also set ownership.
+  TMP_FS_SANDBOX_DIR =
+    "--tmpfs #{SANDBOX_DIR}:" +
+    'exec,' +       # [1]
+    'size=50M,' +   # [2]
+    "uid=#{UID}," + # [3]
+    "gid=#{GID}"    # [3]
+    # - Making the sandbox dir a tmpfs should improve speed.
+    # - By default, tmp-fs's are setup as secure mountpoints.
+    #    If you use only '--tmpfs #{SANDBOX_DIR}'
+    #    then a [cat /etc/mtab] will reveal something like
+    #    "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
+    #    o) rw = Mount the filesystem read-write.
+    #    o) nosuid = Do not allow set-user-identifier or
+    #       set-group-identifier bits to take effect.
+    #    o) nodev = Do not interpret character or block special devices.
+    #    o) noexec = Do not allow direct execution of any binaries.
+    #    o) relatime = Update inode access times relative to modify or change time.
+    #    So...
+    #     [1] set exec to make binaries and scripts executable.
+    #     [2] limit size of tmp-fs.
+    #     [3] set ownership.
 
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M'
-  # May improve speed of /sandbox/cyber-dojo.sh execution.
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
