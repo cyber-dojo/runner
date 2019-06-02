@@ -1,13 +1,9 @@
 
 [![CircleCI](https://circleci.com/gh/cyber-dojo/runner.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner)
 
-<img src="https://raw.githubusercontent.com/cyber-dojo/nginx/master/images/home_page_logo.png"
-alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
-
 - The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) Docker image.
 - A docker-containerized stateless micro-service for [https://cyber-dojo.org](http://cyber-dojo.org).
 - Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
-- Go to cyber-dojo's [home repo](https://github.com/cyber-dojo/cyber-dojo).
 
 # API
   * [GET run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
@@ -144,7 +140,7 @@ alt="cyber-dojo yin/yang logo" width="50px" height="50px"/>
 
 - - - -
 
-# run the tests
+# build the image and run the tests
 - Builds the runner-server image and an example runner-client image.
 - Brings up a runner-server container and a runner-client container.
 - Runs the runner-server's tests from inside a runner-server container.
@@ -264,7 +260,7 @@ Removing network runner_default
 
 - - - -
 
-# run the demo
+# build the demo and run it
 - Runs inside the runner-client's container.
 - Calls the runner-server's methods and displays their json results and how long they took.
 - If the runner-client's IP address is 192.168.99.100 then put 192.168.99.100:4598 into your browser to see the output.
