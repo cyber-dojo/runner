@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build-publish:
+  build-tag-publish:
 
     machine:
       enabled: true
@@ -58,9 +58,9 @@ jobs:
 
 workflows:
   version: 2
-  build-publish-deploy:
+  build-tag-publish-deploy:
     jobs:
-      - build-publish:
+      - build-tag-publish:
           context: cyberdojo-context
           filters:
             branches:
@@ -69,4 +69,4 @@ workflows:
       - deploy-to-beta:
           context: cyberdojo-context
           requires:
-            - build-publish
+            - build-tag-publish
