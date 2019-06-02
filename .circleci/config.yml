@@ -39,6 +39,14 @@ jobs:
             curl -O --fail ${CIRCLECI_SCRIPT_DIR}/${PUBLISH}
             chmod 700 ./${PUBLISH}
             ./${PUBLISH}
+      - run:
+          name: Trigger dependent repos
+          command: |
+            set -e
+            TRIGGER=trigger-dependent-repos.sh
+            curl -O --fail ${CIRCLECI_SCRIPT_DIR}/${TRIGGER}
+            chmod 700 ./${TRIGGER}
+            ./${TRIGGER} web
 
   deploy-to-beta:
     docker:
