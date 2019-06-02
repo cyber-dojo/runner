@@ -16,7 +16,7 @@ services:
     depends_on:
       - runner-server
     ports:
-      - 4598:4598
+      - 4598:4598 # for demo
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -38,4 +38,4 @@ services:
       - ./test_server:/app/test:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - CIRCLECI
+      - CIRCLECI # turn off known warning on CircleCI
