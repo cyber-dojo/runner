@@ -5,13 +5,13 @@
 - A docker-containerized stateless micro-service for [https://cyber-dojo.org](http://cyber-dojo.org).
 - Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 
+- - - -
 # API
   * [GET run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
   * [GET ready?](#get-ready)
   * [GET sha](#get-sha)
 
 - - - -
-
 # JSON in, JSON out  
   * All methods receive a JSON hash.
     * The hash contains any method arguments as key-value pairs.
@@ -20,7 +20,6 @@
     * If the method raises an exception, a key equals "exception".
 
 - - - -
-
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
 - parameters
   * **image_name:String** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
@@ -107,7 +106,6 @@
     ```
 
 - - - -
-
 # GET ready?
 - parameters
   * none
@@ -124,7 +122,6 @@
   ```
 
 - - - -
-
 # GET sha
 - parameters
   * none
@@ -139,7 +136,6 @@
   ```
 
 - - - -
-
 # build the image and run the tests
 - Builds the runner-server image and an example runner-client image.
 - Brings up a runner-server container and a runner-client container.
@@ -259,7 +255,6 @@ Removing network runner_default
 ```
 
 - - - -
-
 # build the demo and run it
 - Runs inside the runner-client's container.
 - Calls the runner-server's methods and displays their json results and how long they took.
@@ -271,5 +266,4 @@ $ ./sh/run_demo.sh
 ![demo screenshot](test_client/src/demo_screenshot.png?raw=true "demo screenshot")
 
 - - - -
-
 ![cyber-dojo.org home page](https://github.com/cyber-dojo/cyber-dojo/blob/master/shared/home_page_snapshot.png)
