@@ -46,7 +46,7 @@ jobs:
             TRIGGER=trigger-dependent-repos.sh
             curl -O --fail ${CIRCLECI_SCRIPT_DIR}/${TRIGGER}
             chmod 700 ./${TRIGGER}
-            ./${TRIGGER} web
+            # ./${TRIGGER} web # off till authentication done.
 
   deploy-to-beta:
     docker:
