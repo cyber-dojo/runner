@@ -5,9 +5,10 @@ wait_until_ready()
 {
   local name="${1}"
   local port="${2}"
-  local max_tries=10
-  local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/ready?"
-  cmd+=" > /dev/null 2>&1"
+  local max_tries=20
+  local cmd="curl --fail --data '{}' -X GET http://localhost:${port}/ready?"
+  #local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/ready?"
+  #cmd+=" > /dev/null 2>&1"
 
   if [ -n ${DOCKER_MACHINE_NAME} ]; then
     cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
