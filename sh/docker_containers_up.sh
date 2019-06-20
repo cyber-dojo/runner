@@ -1,23 +1,17 @@
 #!/bin/bash
-set -ex
+set -e
 
 wait_until_ready()
 {
   local name="${1}"
   local port="${2}"
-  local max_tries=20
-  local cmd="curl --fail --data '{}' -X GET http://localhost:${port}/ready?"
-  #local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/ready?"
-  #cmd+=" > /dev/null 2>&1"
+  local max_tries=10
+  local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/ready?"
+  cmd+=" > /dev/null 2>&1"
 
-  echo "DOCKER_MACHINE_NAME=:${DOCKER_MACHINE_NAME}:"
   if [ -n "${DOCKER_MACHINE_NAME}" ]; then
-    echo "IN HERE...."
     cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
   fi
-
-  echo "cmd=:${cmd}:"
-
   echo -n "Waiting until ${name} is ready"
   for _ in $(seq ${max_tries})
   do

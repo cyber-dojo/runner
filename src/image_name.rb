@@ -54,3 +54,5 @@ module ImageName # mix-in
   REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/
 
 end
+
+ImageName.freeze

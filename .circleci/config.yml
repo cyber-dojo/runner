@@ -13,11 +13,11 @@ jobs:
           name: Prepull images to avoid pulls happening in speed tests
           command: |
             set -e
-            #docker pull cyberdojofoundation/gcc_assert
-            #docker pull cyberdojofoundation/csharp_nunit
-            #docker pull cyberdojofoundation/python_pytest
-            #docker pull cyberdojofoundation/clang_assert
-            #docker pull cyberdojofoundation/perl_test_simple
+            docker pull cyberdojofoundation/gcc_assert
+            docker pull cyberdojofoundation/csharp_nunit
+            docker pull cyberdojofoundation/python_pytest
+            docker pull cyberdojofoundation/clang_assert
+            docker pull cyberdojofoundation/perl_test_simple
       - run:
           name: Build tested docker image
           command: |
