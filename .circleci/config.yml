@@ -13,11 +13,11 @@ jobs:
           name: Prepull images to avoid pulls happening in speed tests
           command: |
             set -e
-            docker pull cyberdojofoundation/gcc_assert
-            docker pull cyberdojofoundation/csharp_nunit
-            docker pull cyberdojofoundation/python_pytest
-            docker pull cyberdojofoundation/clang_assert
-            docker pull cyberdojofoundation/perl_test_simple
+            #docker pull cyberdojofoundation/gcc_assert
+            #docker pull cyberdojofoundation/csharp_nunit
+            #docker pull cyberdojofoundation/python_pytest
+            #docker pull cyberdojofoundation/clang_assert
+            #docker pull cyberdojofoundation/perl_test_simple
       - run:
           name: Build tested docker image
           command: |
@@ -38,7 +38,7 @@ jobs:
             PUBLISH=publish-tagged-image.sh
             curl -O --fail ${CIRCLECI_SCRIPT_DIR}/${PUBLISH}
             chmod 700 ./${PUBLISH}
-            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin            
+            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
             ./${PUBLISH}
       - run:
           name: Trigger dependent repos

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 wait_until_ready()
 {
@@ -12,8 +12,12 @@ wait_until_ready()
 
   echo "DOCKER_MACHINE_NAME=:${DOCKER_MACHINE_NAME}:"
   if [ -n ${DOCKER_MACHINE_NAME} ]; then
+    echo "IN HERE...."
     cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
   fi
+
+  echo "cmd=:${cmd}:"
+
   echo -n "Waiting until ${name} is ready"
   for _ in $(seq ${max_tries})
   do
