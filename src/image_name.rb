@@ -33,7 +33,7 @@ module ImageName # mix-in
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # [[host:port/]registry/]component[:tag][@digest]
-  
+
   CH = 'a-zA-Z0-9'
   COMPONENT = "([#{CH}]|[#{CH}][#{CH}-]*[#{CH}])"
   PORT = '[\d]+'
@@ -54,3 +54,5 @@ module ImageName # mix-in
   REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/
 
 end
+
+ImageName.freeze
