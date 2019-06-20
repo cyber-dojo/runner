@@ -11,7 +11,7 @@ wait_until_ready()
   #cmd+=" > /dev/null 2>&1"
 
   echo "DOCKER_MACHINE_NAME=:${DOCKER_MACHINE_NAME}:"
-  if [ -n ${DOCKER_MACHINE_NAME} ]; then
+  if [ -n "${DOCKER_MACHINE_NAME}" ]; then
     echo "IN HERE...."
     cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
   fi
