@@ -10,6 +10,7 @@ wait_until_ready()
   #local cmd="curl --silent --fail --data '{}' -X GET http://localhost:${port}/ready?"
   #cmd+=" > /dev/null 2>&1"
 
+  echo "DOCKER_MACHINE_COMMAND=:${DOCKER_MACHINE_COMMAND}:"
   if [ -n ${DOCKER_MACHINE_NAME} ]; then
     cmd="docker-machine ssh ${DOCKER_MACHINE_NAME} ${cmd}"
   fi
