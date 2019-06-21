@@ -172,8 +172,8 @@ class ContainerPropertiesTest < TestBase
     if os === :Ubuntu
       txt = row[1]
     end
-    line = stdout.lines.detect { |line| line.start_with?(txt) }
-    line.split[-1].to_i
+    entry = stdout.lines.detect { |line| line.start_with?(txt) }
+    entry.split[-1].to_i
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

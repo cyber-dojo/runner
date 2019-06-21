@@ -5,6 +5,12 @@ require 'stringio'
 
 class TestBase < HexMiniTest
 
+  def initialize(arg)
+    super(arg)
+    @files = nil
+    @os = nil
+  end
+
   def external
     @external ||= External.new
   end

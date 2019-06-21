@@ -2,6 +2,10 @@ require 'minitest/autorun'
 
 class HexMiniTest < MiniTest::Test
 
+  def initialize(arg)
+    super(arg)
+  end
+
   @@args = (ARGV.sort.uniq - ['--'])
   @@seen_hex_ids = []
 

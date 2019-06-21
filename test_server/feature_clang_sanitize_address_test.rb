@@ -6,6 +6,10 @@ class ClangSanitizeAddressTest < TestBase
     'D28'
   end
 
+  def hex_setup
+    @json = nil
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   test '0BB',
