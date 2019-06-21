@@ -4,6 +4,12 @@ require 'json'
 
 class TestBase < HexMiniTest
 
+  def initialize(arg)
+    super(arg)
+    @files = nil
+    @image_name = nil
+  end
+
   def self.multi_os_test(hex_suffix, *lines, &block)
     alpine_lines = ['[Alpine]'] + lines
     test(hex_suffix+'0', *alpine_lines, &block)

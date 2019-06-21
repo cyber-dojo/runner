@@ -61,6 +61,9 @@ def get_test_log_stats
 
   stats = {}
 
+  warning_regex = /: warning:/m
+  stats[:warning_count] = test_log.scan(warning_regex).size
+
   finished_pattern = "Finished in (#{number})s, (#{number}) runs/s"
   m = test_log.match(Regexp.new(finished_pattern))
   stats[:time]               = f2(m[1])
@@ -88,6 +91,7 @@ src_stats = get_index_stats('src')
 test_count    = log_stats[:test_count]
 failure_count = log_stats[:failure_count]
 error_count   = log_stats[:error_count]
+warning_count = log_stats[:warning_count]
 skip_count    = log_stats[:skip_count]
 test_duration = log_stats[:time].to_f
 
@@ -107,6 +111,7 @@ table =
     [ 'tests',                  test_count,     '!=',   0 ],
     [ 'failures',               failure_count,  '==',   0 ],
     [ 'errors',                 error_count,    '==',   0 ],
+    [ 'warnings',               warning_count,  '==',   0 ],    
     [ 'skips',                  skip_count,     '==',   0 ],
     [ 'duration(test)[s]',      test_duration,  '<=',  25 ],
     [ 'coverage(src)[%]',       src_coverage,   '==', 100 ],

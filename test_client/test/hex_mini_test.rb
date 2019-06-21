@@ -2,6 +2,10 @@ require 'minitest/autorun'
 
 class HexMiniTest < MiniTest::Test
 
+  def initialize(arg)
+    super(arg)
+  end
+
   @@args = (ARGV.sort.uniq - ['--']).map(&:upcase) # eg 2E4
   @@seen_hex_ids = []
 
@@ -14,7 +18,7 @@ class HexMiniTest < MiniTest::Test
       execute_around = lambda {
         _hex_setup_caller(hex_id, hex_name)
         begin
-          self.instance_eval &test_block
+          self.instance_eval(&test_block)
         ensure
           _hex_teardown_caller
         end
