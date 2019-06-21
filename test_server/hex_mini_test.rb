@@ -14,7 +14,7 @@ class HexMiniTest < MiniTest::Test
       execute_around = lambda {
         _hex_setup_caller(hex_id, hex_name)
         begin
-          self.instance_eval &test_block
+          self.instance_eval(&test_block)
         ensure
           puts $!.message unless $!.nil?
           _hex_teardown_caller
