@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export RUBYOPT=-w
+
 rackup             \
   --env production \
   --host 0.0.0.0   \

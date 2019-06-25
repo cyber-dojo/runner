@@ -104,8 +104,6 @@ docker-compose \
   -d \
   --force-recreate
 
-readonly MY_NAME=runner
-
 wait_until_ready  "test-runner-server" 4597
 exit_unless_clean "test-runner-server"
 
