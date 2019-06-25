@@ -46,6 +46,9 @@ wait_until_ready()
   done
   echo 'FAIL'
   echo "${name} not ready after ${max_tries} tries"
+  if [ -f /tmp/curl-probe ]; then
+    echo "$(cat /tmp/curl-probe)"
+  fi  
   docker logs ${name}
   exit 1
 }
