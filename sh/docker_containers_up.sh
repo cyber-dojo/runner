@@ -18,8 +18,12 @@ curl_cmd()
 {
   local -r port="${1}"
   local -r path="${2}"
-  local -r cmd="curl --output /dev/null --silent --fail --data {} -X GET http://${IP_ADDRESS}:${port}/${path}"
-  echo "${cmd}"
+  local -r cmd="curl --output /tmp/curl-probe --silent --fail --data {} -X GET http://${IP_ADDRESS}:${port}/${path}"
+  if ${cmd} && [ "$(cat /tmp/curl-probe)" = '{"ready?":true}' ]; then
+    true
+  else
+    false
+  fi
 }
 
 # - - - - - - - - - - - - - - - - - - - -
@@ -28,7 +32,7 @@ wait_until_ready()
 {
   local -r name="${1}"
   local -r port="${2}"
-  local -r max_tries=10
+  local -r max_tries=20
   echo -n "Waiting until ${name} is ready"
   for _ in $(seq ${max_tries})
   do
