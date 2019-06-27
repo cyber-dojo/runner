@@ -2,8 +2,7 @@ version: 2
 jobs:
   build-tag-publish:
 
-    machine:
-      enabled: true
+    machine: true
 
     working_directory: ~/repo
 
