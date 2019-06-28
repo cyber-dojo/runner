@@ -100,17 +100,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tgz(files)
-    Gnu.zip(tar_file_writer(files).tar_file)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def tar_file_writer(files)
-    Tar::Writer.new do |writer|
-      files.each do |filename, content|
-        writer.write(filename, content)
-      end
-    end
+    Gnu.zip(Tar::Writer.new(files).tar_file)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

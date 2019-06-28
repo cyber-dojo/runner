@@ -5,11 +5,11 @@ module Tar
 
   class Writer
 
-    def initialize
+    def initialize(files = {})
       @tar_file = StringIO.new('')
       @writer = Gem::Package::TarWriter.new(@tar_file)
-      if block_given?
-        yield self
+      files.each do |filename, content|
+        write(filename, content)
       end
     end
 
