@@ -33,15 +33,15 @@ containers:
         name: docker-socket
     resources:
       limits:
-       memory: 4Gi
+        memory: 4Gi
       requests:
-       memory: 4Gi
-    # livenessProbe:
-    #   path: /sha
-    #   port: 4597
-    # readinessProbe:
-    #   path: /ready?
-    #   port: 4597
+        memory: 4Gi
+      livenessProbe:
+        path: /sha
+        port: 4597
+      readinessProbe:
+        path: /ready?
+        port: 4597
 
 initContainers: {}
 
