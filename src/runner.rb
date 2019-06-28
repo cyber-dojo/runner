@@ -220,6 +220,9 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   # Must not contain a single-quote [bash -c '...']
+  # o) grep -v is --invert-match
+  # o) file incorrectly reports size==0,1 as binary
+  # o) use cut -c 3- to strip ./ from relative filenames
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
       truncate_file() \
@@ -230,12 +233,10 @@ class Runner
       }; \
       is_text_file() \
       { \
-        `# grep -v is --invert-match`; \
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
           truncate_file "${1}"; \
           return; \
         fi; \
-        `# file incorrectly reports size==0,1 as binary`; \
         if [ $(stat -c%s "${1}") -lt 2 ]; then \
           return; \
         fi; \
@@ -243,7 +244,6 @@ class Runner
       }; \
       export -f truncate_file; \
       export -f is_text_file; \
-      `# strip ./ from relative filenames; start at char 3`; \
       (cd #{SANDBOX_DIR} && find . -type f -exec \
         bash -c "is_text_file {} && echo {} | cut -c 3-" \\;)
     SHELL
