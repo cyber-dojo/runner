@@ -8,6 +8,9 @@ module Tar
     def initialize
       @tar_file = StringIO.new('')
       @writer = Gem::Package::TarWriter.new(@tar_file)
+      if block_given?
+        yield self
+      end
     end
 
     def write(filename, content)

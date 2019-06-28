@@ -106,11 +106,11 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tar_file_writer(files)
-    writer = Tar::Writer.new
-    files.each do |filename, content|
-      writer.write(filename, content)
+    Tar::Writer.new do |writer|
+      files.each do |filename, content|
+        writer.write(filename, content)
+      end
     end
-    writer
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -301,7 +301,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_var(name, value)
-    # Note: value must not contain a single quote
+    # Note: value must not contain a single-quote
     "--env CYBER_DOJO_#{name}='#{value}'"
   end
 
