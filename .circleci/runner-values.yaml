@@ -2,11 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# app name
 fullnameOverride: "runner"
 
-# deployment spec
 replicaCount: 1
+
+service:
+  port: 4597
 
 volumes:
   - name: runner-tmp-dir
@@ -17,8 +18,6 @@ volumes:
     hostPath:
       path: /var/run/docker.sock
       type: File
-
-initContainers: {}
 
 containers:
   - name: runner
@@ -32,7 +31,6 @@ containers:
         readOnly: false
       - mountPath: /var/run/docker.sock
         name: docker-socket
-
     resources:
       limits:
        memory: 4Gi
@@ -45,14 +43,12 @@ containers:
     #   path: /ready?
     #   port: 4597
 
-envFromSecret: {}
+initContainers: {}
 
+envFromSecret: {}
 
 nodeSelector: {}
 
 affinity: {}
 
 tolerations: []
-
-service:
-  port: 4597
