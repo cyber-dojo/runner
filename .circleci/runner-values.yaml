@@ -1,0 +1,67 @@
+# Default values for cyber-dojo-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# app name
+fullnameOverride: "runner"
+
+# deployment spec
+replicaCount: 1
+
+
+volumes: 
+  - name: runner-tmp-dir
+    emptyDir: 
+      medium: Memory
+      sizeLimit: "64Mi"
+  - name: docker-socket
+    hostPath:
+      path: /var/run/docker.sock
+      type: File    
+
+# init containers (they do a job and die)
+initContainers: {}
+
+
+# containers
+# provide default values that you HAVE to overwrite in your values.yaml file
+containers: 
+  - name: runner
+    image: cyberdojo/runner
+    tag: "df21572"
+    securityContext:
+      readOnlyRootFilesystem: true
+    volumeMounts:
+      - name: runner-tmp-dir
+        mountPath: /tmp
+        readOnly: false
+      - mountPath: /var/run/docker.sock
+        name: docker-socket  
+
+    resources: 
+      limits:
+       memory: 4Gi
+      requests:
+       memory: 4Gi
+    # livenessProbe:
+    #   path: /health
+    #   port: 80
+    # readinessProbe:
+    #   path: /health
+    #   port: 80
+
+envFromSecret: {}
+ 
+
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: []
+
+# service
+service: 
+  port: 4597 
+
+  
+  
