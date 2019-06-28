@@ -329,7 +329,8 @@ class Runner
     #     [2] limit size of tmp-fs.
     #     [3] set ownership.
 
-  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M'
+  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777'
+    # Set the sticky-bit on /tmp
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
