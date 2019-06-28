@@ -1,9 +1,9 @@
 require_relative 'files_delta' # files_delta(was,now)
-require_relative 'gnu_unzip'   # Gnu.unzip(s)
-require_relative 'gnu_zip'     # Gnu.zip(s)
+require_relative 'gnu_unzip'   # Gnu#unzip(s)
+require_relative 'gnu_zip'     # Gnu#zip(s)
 require_relative 'tar_reader'  # Tar::Reader
 require_relative 'tar_writer'  # Tar::Writer
-require_relative 'utf8_clean'  # Utf8.clean(s)
+require_relative 'utf8_clean'  # Utf8#clean(s)
 require 'securerandom'
 require 'timeout'
 
@@ -219,7 +219,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  # Must not contain a single quote [bash -c '...']
+  # Must not contain a single-quote [bash -c '...']
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
       truncate_file() \
