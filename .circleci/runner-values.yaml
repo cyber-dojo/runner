@@ -8,24 +8,19 @@ fullnameOverride: "runner"
 # deployment spec
 replicaCount: 1
 
-
-volumes: 
+volumes:
   - name: runner-tmp-dir
-    emptyDir: 
+    emptyDir:
       medium: Memory
       sizeLimit: "64Mi"
   - name: docker-socket
     hostPath:
       path: /var/run/docker.sock
-      type: File    
+      type: File
 
-# init containers (they do a job and die)
 initContainers: {}
 
-
-# containers
-# provide default values that you HAVE to overwrite in your values.yaml file
-containers: 
+containers:
   - name: runner
     image: cyberdojo/runner
     tag: "df21572"
@@ -36,22 +31,22 @@ containers:
         mountPath: /tmp
         readOnly: false
       - mountPath: /var/run/docker.sock
-        name: docker-socket  
+        name: docker-socket
 
-    resources: 
+    resources:
       limits:
        memory: 4Gi
       requests:
        memory: 4Gi
     # livenessProbe:
-    #   path: /health
-    #   port: 80
+    #   path: /sha
+    #   port: 4597
     # readinessProbe:
-    #   path: /health
-    #   port: 80
+    #   path: /ready?
+    #   port: 4597
 
 envFromSecret: {}
- 
+
 
 nodeSelector: {}
 
@@ -59,9 +54,5 @@ affinity: {}
 
 tolerations: []
 
-# service
-service: 
-  port: 4597 
-
-  
-  
+service:
+  port: 4597
