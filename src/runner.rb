@@ -58,7 +58,7 @@ class Runner
   SANDBOX_DIR = '/sandbox'  # where files are saved to in container
   UID = 41966               # user running /sandbox/cyber-dojo.sh
   GID = 51966               # group running /sandbox/cyber-dojo.sh
-  MAX_FILE_SIZE = 50 * KB   # of files tar-piped-out, @stdout, @stderr.
+  MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -89,8 +89,8 @@ class Runner
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      stdout = packaged(Utf8.clean(read_max(r_stdout)))
-      stderr = packaged(Utf8.clean(read_max(r_stderr)))
+      stdout = packaged(read_max(r_stdout))
+      stderr = packaged(read_max(r_stderr))
       r_stdout.close
       r_stderr.close
     end
@@ -203,7 +203,7 @@ class Runner
   def read_tar_file(tar_file)
     reader = Tar::Reader.new(tar_file)
     reader.files.each_with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(Utf8.clean(content))
+      memo[filename] = packaged(content)
     end
   end
 
@@ -407,7 +407,8 @@ class Runner
   # file content helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def packaged(content)
+  def packaged(raw_content)
+    content = Utf8.clean(raw_content)
     {
         'content' => truncated(content),
       'truncated' => truncate?(content)
