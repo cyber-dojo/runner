@@ -14,19 +14,7 @@ readonly IP_ADDRESS=$(ip_address)
 
 # - - - - - - - - - - - - - - - - - - - -
 
-curl_cmd()
-{
-  local -r port="${1}"
-  local -r path="${2}"
-  local -r cmd="curl --output /tmp/curl-probe --silent --fail --data {} -X GET http://${IP_ADDRESS}:${port}/${path}"
-  if ${cmd} && [ "$(cat /tmp/curl-probe)" = '{"ready?":true}' ]; then
-    true
-  else
-    false
-  fi
-}
-
-# - - - - - - - - - - - - - - - - - - - -
+readonly READY_FILENAME='/tmp/curl-ready-output'
 
 wait_until_ready()
 {
@@ -37,7 +25,7 @@ wait_until_ready()
   for _ in $(seq ${max_tries})
   do
     echo -n '.'
-    if curl_cmd ${port} ready? ; then
+    if ready ${port} ; then
       echo 'OK'
       return
     else
@@ -46,11 +34,26 @@ wait_until_ready()
   done
   echo 'FAIL'
   echo "${name} not ready after ${max_tries} tries"
-  if [ -f /tmp/curl-probe ]; then
-    echo "$(cat /tmp/curl-probe)"
-  fi  
+  if [ -f "${READY_FILENAME}" ]; then
+    echo "$(cat "${READY_FILENAME}")"
+  fi
   docker logs ${name}
   exit 1
+}
+
+# - - - - - - - - - - - - - - - - - - - -
+
+ready()
+{
+  local -r port="${1}"
+  local -r path=ready?
+  local -r curl_cmd="curl --output ${READY_FILENAME} --silent --fail --data {} -X GET http://${IP_ADDRESS}:${port}/${path}"
+  rm -f "${READY_FILENAME}"
+  if ${curl_cmd} && [ "$(cat "${READY_FILENAME}")" = '{"ready?":true}' ]; then
+    true
+  else
+    false
+  fi
 }
 
 # - - - - - - - - - - - - - - - - - - - -
@@ -111,7 +114,7 @@ docker-compose \
   -d \
   --force-recreate
 
-wait_until_ready  "test-runner-server" 4597
-exit_unless_clean "test-runner-server"
+wait_until_ready   test-runner-server 4597
+exit_unless_clean  test-runner-server
 
-wait_till_up "test-runner-client"
+wait_till_up       test-runner-client
