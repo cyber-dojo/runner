@@ -1,5 +1,5 @@
-require_relative 'client_error'
-require_relative 'well_formed_args'
+require_relative 'http_json/request_error'
+require_relative 'http_json_args'
 require 'rack'
 require 'json'
 
@@ -11,54 +11,27 @@ class RackDispatcher
 
   def call(env, request_class = Rack::Request)
     request = request_class.new(env)
-    path = request.path_info[1..-1] # lose leading /
+    path = request.path_info
     body = request.body.read
-    name, args = name_args(path, body)
+    name,args = HttpJsonArgs.new(body).get(path)
     result = @runner.public_send(name, *args)
-    json_response(200, json_plain({ name => result }))
-  rescue => error
-    diagnostic = json_pretty({
-      'exception' => {
-        'path' => path,
-        'body' => body,
-        'class' => 'RunnerService',
-        'message' => error.message,
-        'backtrace' => error.backtrace
-      }
-    })
-    $stderr.puts(diagnostic)
-    $stderr.flush
-    json_response(code(error), diagnostic)
+    json_response(200, { name => result })
+  rescue HttpJson::RequestError => error
+    json_response(400, diagnostic(path, body, error))
+  rescue Exception => error
+    json_response(500, diagnostic(path, body, error))
   end
 
-  private # = = = = = = = = = = = =
+  private
 
-  include WellFormedArgs
-
-  def name_args(name, body)
-    well_formed_args(body)
-    args = case name
-      when /^ready$/             then []
-      when /^sha$/               then []
-      when /^run_cyber_dojo_sh$/ then [image_name, id, files, max_seconds]
-      else
-        raise ClientError, 'json:malformed'
+  def json_response(status, json)
+    if status == 200
+      body = JSON.fast_generate(json)
+    else
+      body = JSON.pretty_generate(json)
+      $stderr.puts(body)
+      $stderr.flush
     end
-    name += '?' if query?(name)
-    [name, args]
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def json_plain(body)
-    JSON.generate(body)
-  end
-
-  def json_pretty(body)
-    JSON.pretty_generate(body)
-  end
-
-  def json_response(status, body)
     [ status,
       { 'Content-Type' => 'application/json' },
       [ body ]
@@ -67,18 +40,15 @@ class RackDispatcher
 
   # - - - - - - - - - - - - - - - -
 
-  def query?(name)
-    ['ready'].include?(name)
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def code(error)
-    if error.is_a?(ClientError)
-      400 # client_error
-    else
-      500 # server_error
-    end
+  def diagnostic(path, body, error)
+    { 'exception' => {
+        'path' => path,
+        'body' => body,
+        'class' => 'RunnerService',
+        'message' => error.message,
+        'backtrace' => error.backtrace
+      }
+    }
   end
 
 end

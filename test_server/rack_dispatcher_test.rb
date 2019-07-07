@@ -19,8 +19,8 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BAF',
-  %w( unknown method becomes exception ) do
-    expected = 'json:malformed'
+  %w( unknown path becomes exception ) do
+    expected = 'unknown path'
     assert_rack_call_exception(expected, nil,       '{}')
     assert_rack_call_exception(expected, [],        '{}')
     assert_rack_call_exception(expected, {},        '{}')
@@ -33,10 +33,19 @@ class RackDispatcherTest < TestBase
 
   test 'BB0',
   %w( malformed json in http payload becomes exception ) do
-    expected = 'json:malformed'
+    expected = 'body is not JSON'
     METHOD_NAMES.each do |method_name|
       assert_rack_call_exception(expected, method_name, 'sdfsdf')
       assert_rack_call_exception(expected, method_name, 'nil')
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BB1',
+  %w( json not Hash in http payload becomes exception ) do
+    expected = 'body is not JSON Hash'
+    METHOD_NAMES.each do |method_name|
       assert_rack_call_exception(expected, method_name, 'null')
       assert_rack_call_exception(expected, method_name, '[]')
       assert_rack_call_exception(expected, method_name, 'true')
@@ -50,7 +59,7 @@ class RackDispatcherTest < TestBase
   %w( malformed image_name becomes exception ) do
     MALFORMED_IMAGE_NAMES.each do |s|
       assert_rack_call_exception(
-        'image_name:malformed',
+        'image_name is malformed',
         'run_cyber_dojo_sh',
         run_cyber_dojo_sh_args.merge({image_name:s}).to_json
       )
@@ -63,7 +72,7 @@ class RackDispatcherTest < TestBase
   %w( malformed id becomes exception ) do
     MALFORMED_IDS.each do |s|
       assert_rack_call_exception(
-        'id:malformed',
+        'id is malformed',
         'run_cyber_dojo_sh',
         run_cyber_dojo_sh_args.merge({id:s}).to_json
       )
@@ -161,7 +170,7 @@ class RackDispatcherTest < TestBase
   private # = = = = = = = = = = = = =
 
   def assert_rack_call_run_malformed(added)
-    expected = "#{added.keys[0]}:malformed"
+    expected = "#{added.keys[0]} is malformed"
     args = run_cyber_dojo_sh_args.merge(added).to_json
     assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
   end
@@ -197,7 +206,7 @@ class RackDispatcherTest < TestBase
     @body = response[2][0]
 
     expected_type = { 'Content-Type' => 'application/json' }
-    assert_equal expected_type, @type
+    assert_equal expected_type, @type, response
   end
 
   def with_captured_stdout_stderr
@@ -227,7 +236,7 @@ class RackDispatcherTest < TestBase
   end
 
   def assert_400
-    assert_equal 400, @status
+    assert_equal 400, @status, "body:#{@body}"
   end
 
   # - - - - - - - - - - - - - - - - -

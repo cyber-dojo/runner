@@ -1,33 +1,45 @@
+require_relative 'docker/image_name'
+require_relative 'http_json/request_error'
 require_relative 'base58'
-require_relative 'client_error'
-require_relative 'image_name'
 require 'json'
 
-# Checks for arguments syntactic correctness
+class HttpJsonArgs
 
-module WellFormedArgs
+  # Checks for arguments synactic correctness
+  # Exception messages use the words 'body' and 'path'
+  # to match RackDispatcher's exception keys.
 
-  def well_formed_args(s)
-    @args = JSON.parse(s)
-    if @args.nil? || !@args.is_a?(Hash)
-      malformed('json')
+  def initialize(body)
+    @args = JSON.parse(body)
+    unless @args.is_a?(Hash)
+      fail HttpJson::RequestError, 'body is not JSON Hash'
     end
-  rescue
-    malformed('json')
+  rescue JSON::ParserError
+    fail HttpJson::RequestError, 'body is not JSON'
   end
 
   # - - - - - - - - - - - - - - - -
 
+  def get(path)
+    case path
+    when '/ready'              then ['ready?',[]]
+    when '/sha'                then ['sha',[]]
+    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh',[image_name, id, files, max_seconds]]
+    else
+      raise HttpJson::RequestError, 'unknown path'
+    end
+  end
+
+  private
+
   def image_name
     name = __method__.to_s
     arg = @args[name]
-    unless image_name?(arg)
+    unless Docker::image_name?(arg)
       malformed(name)
     end
     arg
   end
-
-  include ImageName
 
   # - - - - - - - - - - - - - - - -
 
@@ -46,7 +58,7 @@ module WellFormedArgs
     name = __method__.to_s
     arg = @args[name]
     unless well_formed_files?(arg)
-      malformed(name)      
+      malformed(name)
     end
     arg
   end
@@ -62,7 +74,7 @@ module WellFormedArgs
     arg
   end
 
-  private # = = = = = = = = = = = =
+  # - - - - - - - - - - - - - - - -
 
   def well_formed_id?(arg)
     Base58.string?(arg) && arg.size === 6
@@ -79,7 +91,7 @@ module WellFormedArgs
   # - - - - - - - - - - - - - - - -
 
   def malformed(arg_name)
-    raise ClientError, "#{arg_name}:malformed"
+    fail HttpJson::RequestError.new("#{arg_name} is malformed")
   end
 
 end

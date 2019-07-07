@@ -2,7 +2,7 @@
 # https://github.com/moby/moby/blob/master/image/spec/v1.1.md
 # https://github.com/docker/distribution/blob/master/reference/reference.go
 
-module ImageName # mix-in
+module Docker # mix-in
 
   module_function
 
@@ -55,4 +55,4 @@ module ImageName # mix-in
 
 end
 
-ImageName.freeze
+Docker.freeze
