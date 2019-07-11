@@ -6,25 +6,25 @@ class HexMiniTest < MiniTest::Test
     super(arg)
   end
 
-  @@args = (ARGV.sort.uniq - ['--']).map(&:upcase) # eg 2E4
+  @@args = (ARGV.sort.uniq - ['--'])
   @@seen_hex_ids = []
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def self.test(hex_suffix, *lines, &test_block)
     hex_id = checked_hex_id(hex_suffix, lines)
-    if @@args == [] || @@args.any?{ |arg| hex_id.include?(arg) }
+    if @@args === [] || @@args.any?{ |arg| hex_id.include?(arg) }
       hex_name = lines.join(space = ' ')
       execute_around = lambda {
         _hex_setup_caller(hex_id, hex_name)
         begin
           self.instance_eval(&test_block)
         ensure
+          puts $!.message unless $!.nil?
           _hex_teardown_caller
         end
       }
-      proposition = lines.join(space = ' ')
-      name = "hex '#{hex_suffix}',\n'#{proposition}'"
+      name = "hex '#{hex_id}',\n'#{hex_name}'"
       define_method("test_\n#{name}".to_sym, &execute_around)
     end
   end
@@ -37,8 +37,8 @@ class HexMiniTest < MiniTest::Test
     pointee = (['',pointer,method,'','']).join("\n")
     pointer.prepend("\n\n")
     raise "#{pointer}missing#{pointee}" unless respond_to?(:hex_prefix)
-    raise "#{pointer}empty#{pointee}" if hex_prefix == ''
-    raise "#{pointer}not hex#{pointee}" unless hex_prefix =~ /^[0-9A-F]+$/
+    raise "#{pointer}empty#{pointee}" if hex_prefix === ''
+    raise "#{pointer}not hex#{pointee}" unless hex_prefix =~ /^[0-9A-Fa-f]+$/
 
     method = "test '#{hex_suffix}',"
     pointer = ' ' * method.index("'") + '!'
@@ -46,9 +46,10 @@ class HexMiniTest < MiniTest::Test
     pointee = ['',pointer,method,"'#{proposition}'",'',''].join("\n")
     hex_id = hex_prefix + hex_suffix
     pointer.prepend("\n\n")
-    raise "#{pointer}empty#{pointee}" if hex_suffix == ''
-    raise "#{pointer}not hex#{pointee}" unless hex_suffix =~ /^[0-9A-F]+$/
+    raise "#{pointer}empty#{pointee}" if hex_suffix === ''
+    raise "#{pointer}not hex#{pointee}" unless hex_suffix =~ /^[0-9A-Fa-f]+$/
     raise "#{pointer}duplicate#{pointee}" if @@seen_hex_ids.include?(hex_id)
+    raise "#{pointer}overlap#{pointee}" if hex_prefix[-2..-1] === hex_suffix[0..1]
     @@seen_hex_ids << hex_id
     hex_id
   end
