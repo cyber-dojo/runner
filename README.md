@@ -144,13 +144,6 @@
 
 ```text
 $ ./pipe_build_up_test.sh
-
-Use: pipe_build_up_test.sh [client|server] [HEX-ID...]
-Options:
-   client  - only run the tests from inside the client
-   server  - only run the tests from inside the server
-   HEX-ID  - only run the tests matching this identifier
-
 Building runner-server
 Step 1/8 : FROM cyberdojo/docker-base
 ---> 330a9d0f2304
