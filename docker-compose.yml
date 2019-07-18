@@ -29,6 +29,8 @@ services:
     image: cyberdojo/runner
     init: true
     container_name: test-runner-server
+    environment:
+      - NO_PROMETHEUS
     ports:
       - 4597:4597
     read_only: true
