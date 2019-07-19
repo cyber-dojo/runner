@@ -36,12 +36,12 @@ containers:
         memory: 4Gi
       requests:
         memory: 4Gi
-      livenessProbe:
-        path: /sha
-        port: 4597
-      readinessProbe:
-        path: /ready?
-        port: 4597
+      #livenessProbe:
+      #  path: /sha
+      #  port: 4597
+      #readinessProbe:
+      #  path: /ready?
+      #  port: 4597
 
 initContainers: {}
 
