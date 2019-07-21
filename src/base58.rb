@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'securerandom'
 
 # Alphabet of [0-9] [a-z] [A-Z] excluding ioIO

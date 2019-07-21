@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'docker/image_name'
 require_relative 'http_json/request_error'
 require_relative 'base58'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'utf8_clean'
 require 'json'
 

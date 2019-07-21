@@ -1,6 +1,4 @@
-# http://stackoverflow.com/questions/37861791/
-# https://github.com/moby/moby/blob/master/image/spec/v1.1.md
-# https://github.com/docker/distribution/blob/master/reference/reference.go
+# frozen_string_literal: true
 
 module Docker # mix-in
 
@@ -56,3 +54,7 @@ module Docker # mix-in
 end
 
 Docker.freeze
+
+# http://stackoverflow.com/questions/37861791/
+# https://github.com/moby/moby/blob/master/image/spec/v1.1.md
+# https://github.com/docker/distribution/blob/master/reference/reference.go

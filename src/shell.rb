@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'shell_assert_error'
 
 class Shell

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'files_delta' # files_delta(was,now)
 require_relative 'gnu_unzip'   # Gnu#unzip(s)
 require_relative 'gnu_zip'     # Gnu#zip(s)
