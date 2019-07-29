@@ -22,7 +22,6 @@ service:
 containers:
   - name: runner
     image: cyberdojo/runner
-    tag: ""
     securityContext:
       readOnlyRootFilesystem: true
     volumeMounts:
@@ -33,9 +32,9 @@ containers:
         name: docker-socket
     resources:
       limits:
-        memory: 128Mi
+        memory: 64Mi
       requests:
-        memory: 128Mi
+        memory: 64Mi
       livenessProbe:
         path: /sha
         port: 4597
