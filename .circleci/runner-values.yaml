@@ -33,9 +33,9 @@ containers:
         name: docker-socket
     resources:
       limits:
-        memory: 1Gi
+        memory: 256Mi
       requests:
-        memory: 1Gi
+        memory: 256Mi
       #livenessProbe:
       #  path: /sha
       #  port: 4597
