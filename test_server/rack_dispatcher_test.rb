@@ -98,6 +98,19 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # empty body behave as {}
+  # - - - - - - - - - - - - - - - - -
+
+  test '82d', %w(
+  allow '' instead of {} to allow kubernetes
+  liveness/readyness http probes ) do
+    rack_call(body:'', path_info:'ready')
+    ready = assert_200('ready?')
+    assert ready
+    assert_nothing_logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
   # ready?
   # - - - - - - - - - - - - - - - - -
 

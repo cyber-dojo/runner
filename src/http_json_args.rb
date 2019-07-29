@@ -12,7 +12,7 @@ class HttpJsonArgs
   # to match RackDispatcher's exception keys.
 
   def initialize(body)
-    @args = JSON.parse(body)
+    @args = json_parse(body)
     unless @args.is_a?(Hash)
       fail HttpJson::RequestError, 'body is not JSON Hash'
     end
@@ -33,6 +33,14 @@ class HttpJsonArgs
   end
 
   private
+
+  def json_parse(body)
+    if body === ''
+      {}
+    else
+      JSON.parse(body)
+    end
+  end
 
   def image_name
     name = __method__.to_s
