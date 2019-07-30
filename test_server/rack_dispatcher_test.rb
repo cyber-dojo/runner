@@ -111,17 +111,6 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # ready?
-  # - - - - - - - - - - - - - - - - -
-
-  test 'A9E', 'its ready' do
-    rack_call({ body:{}.to_json, path_info:'ready' })
-    ready = assert_200('ready?')
-    assert ready
-    assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
   # sha
   # - - - - - - - - - - - - - - - - -
 
@@ -129,6 +118,28 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'sha' })
     sha = assert_200('sha')
     assert_sha(sha)
+    assert_nothing_logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # alive?
+  # - - - - - - - - - - - - - - - - -
+
+  test '15D', 'its alive' do
+    rack_call({ body:{}.to_json, path_info:'alive' })
+    alive = assert_200('alive?')
+    assert alive
+    assert_nothing_logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # ready?
+  # - - - - - - - - - - - - - - - - -
+
+  test 'A9E', 'its ready' do
+    rack_call({ body:{}.to_json, path_info:'ready' })
+    ready = assert_200('ready?')
+    assert ready
     assert_nothing_logged
   end
 

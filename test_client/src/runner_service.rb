@@ -13,6 +13,10 @@ class RunnerService
     get([], __method__)
   end
 
+  def alive?
+    get([], __method__)
+  end
+
   def ready?
     get([], __method__)
   end

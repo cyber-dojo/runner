@@ -47,7 +47,7 @@ ready()
 {
   local -r port="${1}"
   local -r path=ready?
-  local -r curl_cmd="curl --output ${READY_FILENAME} --silent --fail --data {} -X GET http://${IP_ADDRESS}:${port}/${path}"
+  local -r curl_cmd="curl --output ${READY_FILENAME} --silent --fail -X GET http://${IP_ADDRESS}:${port}/${path}"
   rm -f "${READY_FILENAME}"
   if ${curl_cmd} && [ "$(cat "${READY_FILENAME}")" = '{"ready?":true}' ]; then
     true
