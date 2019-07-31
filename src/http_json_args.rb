@@ -5,19 +5,16 @@ require_relative 'http_json/request_error'
 require_relative 'base58'
 require 'json'
 
+# Checks for arguments synactic correctness
 class HttpJsonArgs
-
-  # Checks for arguments synactic correctness
-  # Exception messages use the words 'body' and 'path'
-  # to match RackDispatcher's exception keys.
 
   def initialize(body)
     @args = json_parse(body)
     unless @args.is_a?(Hash)
-      fail HttpJson::RequestError, 'body is not JSON Hash'
+      raise request_error('body is not JSON Hash')
     end
   rescue JSON::ParserError
-    fail HttpJson::RequestError, 'body is not JSON'
+    raise request_error('body is not JSON')
   end
 
   # - - - - - - - - - - - - - - - -
@@ -29,7 +26,7 @@ class HttpJsonArgs
     when '/ready'              then ['ready?',[]]
     when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh',[image_name, id, files, max_seconds]]
     else
-      raise HttpJson::RequestError, 'unknown path'
+      raise request_error('unknown path')
     end
   end
 
@@ -43,11 +40,13 @@ class HttpJsonArgs
     end
   end
 
+  # - - - - - - - - - - - - - - - -
+
   def image_name
-    name = __method__.to_s
+    name = present_arg(__method__)
     arg = @args[name]
     unless Docker::image_name?(arg)
-      malformed(name)
+      raise malformed(name)
     end
     arg
   end
@@ -55,10 +54,10 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def id
-    name = __method__.to_s
+    name = present_arg(__method__)
     arg = @args[name]
     unless well_formed_id?(arg)
-      malformed(name)
+      raise malformed(name)
     end
     arg
   end
@@ -66,10 +65,10 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def files
-    name = __method__.to_s
+    name = present_arg(__method__)
     arg = @args[name]
     unless well_formed_files?(arg)
-      malformed(name)
+      raise malformed(name)
     end
     arg
   end
@@ -77,12 +76,22 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def max_seconds
-    name = __method__.to_s
+    name = present_arg(__method__)
     arg = @args[name]
     unless well_formed_max_seconds?(arg)
-      malformed(name)
+      raise malformed(name)
     end
     arg
+  end
+
+  # - - - - - - - - - - - - - - - -
+
+  def present_arg(method)
+    name = method.to_s
+    unless @args.has_key?(name)
+      raise missing(name)
+    end
+    name
   end
 
   # - - - - - - - - - - - - - - - -
@@ -101,8 +110,20 @@ class HttpJsonArgs
 
   # - - - - - - - - - - - - - - - -
 
+  def missing(arg_name)
+    request_error("#{arg_name} is missing")
+  end
+
   def malformed(arg_name)
-    fail HttpJson::RequestError.new("#{arg_name} is malformed")
+    request_error("#{arg_name} is malformed")
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def request_error(text)
+    # Exception messages use the words 'body' and 'path'
+    # to match RackDispatcher's exception keys.
+    HttpJson::RequestError.new(text)
   end
 
 end

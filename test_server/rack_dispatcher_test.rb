@@ -54,6 +54,32 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # missing arguments
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AA2',
+  %w( missing image_name becomes exception ) do
+    assert_rack_call_run_missing(:image_name)
+  end
+
+  test 'AA3',
+  %w( missing id becomes exception ) do
+    assert_rack_call_run_missing(:id)
+  end
+
+  test 'AA4',
+  %w( missing max_seconds becomes exception ) do
+    assert_rack_call_run_missing(:max_seconds)
+  end
+
+  test 'AA5',
+  %w( missing max_seconds becomes exception ) do
+    assert_rack_call_run_missing(:files)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # malformed arguments
+  # - - - - - - - - - - - - - - - - -
 
   test 'BB2',
   %w( malformed image_name becomes exception ) do
@@ -192,6 +218,12 @@ class RackDispatcherTest < TestBase
   end
 
   private # = = = = = = = = = = = = =
+
+  def assert_rack_call_run_missing(name)
+    expected = "#{name} is missing"
+    args = run_cyber_dojo_sh_args.tap{|hs| hs.delete(name)}.to_json
+    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
+  end
 
   def assert_rack_call_run_malformed(added)
     expected = "#{added.keys[0]} is malformed"
