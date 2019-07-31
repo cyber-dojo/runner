@@ -18,6 +18,9 @@ Plus...
 - runner-stateful will need restoring (its in cyber-dojo-retired org)
 - start-point manifest will need to re-introduce optional runner: setting.
 
+How to limit the size of a docker volume?
+https://stackoverflow.com/questions/52089499/create-docker-volume-with-limited-size
+https://stackoverflow.com/questions/40494536/how-specify-the-size-of-a-shared-docker-volume/40499023#40499023
 
 
 Trying to use a non root user (called runner) when running the container...

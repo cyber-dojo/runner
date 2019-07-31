@@ -43,69 +43,55 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def image_name
-    name = present_arg(__method__)
-    arg = @args[name]
-    unless Docker::image_name?(arg)
-      raise malformed(name)
-    end
-    arg
+    checked_arg(:well_formed_image_name?)
+  end
+
+  def well_formed_image_name?(arg)
+    Docker::image_name?(arg)
   end
 
   # - - - - - - - - - - - - - - - -
 
   def id
-    name = present_arg(__method__)
-    arg = @args[name]
-    unless well_formed_id?(arg)
-      raise malformed(name)
-    end
-    arg
+    checked_arg(:well_formed_id?)
+  end
+
+  def well_formed_id?(arg)
+    Base58.string?(arg) && arg.size === 6
   end
 
   # - - - - - - - - - - - - - - - -
 
   def files
-    name = present_arg(__method__)
-    arg = @args[name]
-    unless well_formed_files?(arg)
-      raise malformed(name)
-    end
-    arg
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def max_seconds
-    name = present_arg(__method__)
-    arg = @args[name]
-    unless well_formed_max_seconds?(arg)
-      raise malformed(name)
-    end
-    arg
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def present_arg(method)
-    name = method.to_s
-    unless @args.has_key?(name)
-      raise missing(name)
-    end
-    name
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def well_formed_id?(arg)
-    Base58.string?(arg) && arg.size === 6
+    checked_arg(:well_formed_files?)
   end
 
   def well_formed_files?(arg)
     arg.is_a?(Hash) && arg.all?{|_f,content| content.is_a?(String) }
   end
 
+  # - - - - - - - - - - - - - - - -
+
+  def max_seconds
+    checked_arg(:well_formed_max_seconds?)
+  end
+
   def well_formed_max_seconds?(arg)
     arg.is_a?(Integer) && (1..20).include?(arg)
+  end
+
+  # - - - - - - - - - - - - - - - -
+
+  def checked_arg(validator)
+    name = caller_locations(1,1)[0].label
+    unless @args.has_key?(name)
+      raise missing(name)
+    end
+    arg = @args[name]
+    unless self.send(validator, arg)
+      raise malformed(name)
+    end
+    arg
   end
 
   # - - - - - - - - - - - - - - - -
