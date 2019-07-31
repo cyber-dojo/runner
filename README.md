@@ -8,6 +8,7 @@
 # API
   * [GET run_cyber_dojo_sh(image_name,id,files,max_seconds)](#get-run_cyber_dojo_shimage_nameidfilesmax_seconds)
   * [GET ready?](#get-ready)
+  * [GET alive?](#get-alive)    
   * [GET sha](#get-sha)
 
 - - - -
@@ -20,31 +21,7 @@
 
 - - - -
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
-- parameters
-  * **image_name:String** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
-  * **id:String** for tracing, must be in [base58](https://github.com/cyber-dojo/runner/blob/master/src/base58.rb)
-  * **files:Hash{String=>String}** must contain a file called `cyber-dojo.sh`
-  * **max_seconds:Integer** must be between 1 and 20
-  * eg
-  ```json
-  { "image_name": "cyberdojofoundation/gcc_assert",
-    "id": "15B9zD",
-    "files": {
-      "cyber-dojo.sh": "make",
-      "fizz_buzz.c": "#include...",
-      "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
-      "fizz_buzz.tests.c": "#include \"fizz_buzz.h\"...",
-      "makefile": "CFLAGS += -I. ........"
-    },
-    "max_seconds": 10
-  }
-  ```
-
-- behaviour
-  * creates a container from **image_name**
-  * saves **files** into `/sandbox` inside the container
-  * runs `/sandbox/cyber-dojo.sh` inside the container for at most **max_seconds**
-
+Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 - returns  
   * **stdout:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
   * **stderr:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
@@ -103,35 +80,76 @@
       }
     }
     ```
+- parameters
+  * **image_name:String** must be created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
+  * **id:String** for tracing, must be in [base58](https://github.com/cyber-dojo/runner/blob/master/src/base58.rb)
+  * **files:Hash{String=>String}** must contain a file called `cyber-dojo.sh`
+  * **max_seconds:Integer** must be between 1 and 20
+  * eg
+  ```json
+  { "image_name": "cyberdojofoundation/gcc_assert",
+    "id": "15B9zD",
+    "files": {
+      "cyber-dojo.sh": "make",
+      "fizz_buzz.c": "#include...",
+      "fizz_buzz.h": "#ifndef FIZZ_BUZZ_INCLUDED...",
+      "fizz_buzz.tests.c": "#include \"fizz_buzz.h\"...",
+      "makefile": "CFLAGS += -I. ........"
+    },
+    "max_seconds": 10
+  }
+  ```
+- behaviour
+  * creates a container from **image_name**
+  * saves **files** into `/sandbox` inside the container
+  * runs `/sandbox/cyber-dojo.sh` inside the container for at most **max_seconds**
+
 
 - - - -
 # GET ready?
+Useful as a readiness probe.
+- returns
+  * **true** if the service is ready
+  ```json
+  { "ready?": true }
+  ```
+  * **false** if the service is not ready
+  ```json
+  { "ready?": false }
+  ```
 - parameters
   * none
   ```json
   {}
-  ```
-- returns
-  * **true** if the service is ready
-  * **false** if the service is not ready
-  * eg
-  ```json
-  { "ready?": true }
-  { "ready?": false }
   ```
 
 - - - -
-# GET sha
+# GET alive?
+Useful as a liveness probe.
+- returns
+  * **true**
+  ```json
+  { "alive?": true }
+  ```
 - parameters
   * none
   ```json
   {}
   ```
+
+- - - -
+## GET sha
+The git commit sha used to create the Docker image.
 - returns
-  * the git commit sha used to create the docker image
+  * The 40 character sha string.
   * eg
   ```json
   { "sha": "b28b3e13c0778fe409a50d23628f631f87920ce5" }
+  ```
+- parameters
+  * none
+  ```json
+  {}
   ```
 
 - - - -
