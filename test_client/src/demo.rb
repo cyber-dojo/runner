@@ -15,10 +15,13 @@ class Demo
     @html += '<h1>GET /sha</h1>'
     @html += pre(sha_snippet)
     sha
+    @html += '<h1>GET /alive?</h1>'
+    @html += pre(alive_snippet)
+    alive?
     @html += '<h1>GET /ready?</h1>'
     @html += pre(ready_snippet)
     ready?
-    @html += '<h1>GET /run_cyber_dojo_sh</h1>'    
+    @html += '<h1>GET /run_cyber_dojo_sh</h1>'
     @html += pre(run_cyber_dojo_sh_snippet)
     @image_name = 'cyberdojofoundation/gcc_assert'
     @id = '729z65'
@@ -40,6 +43,20 @@ class Demo
     [
       'sha = runner.sha',
       'html = green(JSON.pretty_unparse(sha))'
+    ].join("\n")
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  def alive?
+    duration = timed { @result = runner.alive? }
+    @html += boxed_pre(duration, @result)
+  end
+
+  def alive_snippet
+    [
+      'alive = runner.alive?',
+      'html = green(JSON.pretty_unparse(alive))'
     ].join("\n")
   end
 
