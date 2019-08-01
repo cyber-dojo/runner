@@ -1,30 +1,22 @@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-STATEFUL RUNNER
+Stateful runner?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Test run times for C++ catch are very very slow.
-It would be nice to make this faster.
-Which means the stateful runner again.
-I don't need to keep two lots of files in the browser.
-Instead, the stateful runner can
-- tar pipe files out of the volume-mount
-- compare visible-files against those
-- only write changes files to /tmp
-- tar pipe /tmp into the container
-- Note: all the above may not actually be necessary for catch
-Plus...
-- collector will need to be restored (its in cyber-dojo-retired org)
-- cron can run it daily...
-- runner-stateful will need restoring (its in cyber-dojo-retired org)
-- start-point manifest will need to re-introduce optional runner: setting.
-
-How to limit the size of a docker volume?
+I was considering adding a new type parameter to runner.run_cyber_dojo_sh
+eg type="stateful" and have it default to "stateless".
+Then for stateful, mount a docker-volume associated with the id.
+The big problem with this is that on k8s runner is a Daemonset.
+This means you don't know which node's runner a [test] will end up on.
+There is also the problem of how to limit the size of a docker volume?
 https://stackoverflow.com/questions/52089499/create-docker-volume-with-limited-size
 https://stackoverflow.com/questions/40494536/how-specify-the-size-of-a-shared-docker-volume/40499023#40499023
+Then reinstate the collector service and a collector job to cron.
+But that's all too complex.
+I have fixed Catch by baking catch.hpp's .o file into the Docker image.
 
 
-Trying to use a non root user (called runner) when running the container...
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Trying to use a non root user (called runner) when running the container...
 Problem. Need permission to run /var/run/docker.sock
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
