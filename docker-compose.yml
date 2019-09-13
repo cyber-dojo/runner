@@ -1,5 +1,5 @@
 
-version: '3'
+version: '2.2'
 
 services:
 
@@ -8,6 +8,7 @@ services:
       context: test_client
     user: nobody
     image: cyberdojo/runner-client
+    init: true
     container_name: test-runner-client
     read_only: true
     tmpfs: /tmp
@@ -26,6 +27,7 @@ services:
         - SHA
     user: root
     image: cyberdojo/runner
+    init: true
     container_name: test-runner-server
     environment:
       - NO_PROMETHEUS
