@@ -24,7 +24,7 @@ class Runner
   def alive?
     true
   end
-  
+
   def ready?
     true
   end
