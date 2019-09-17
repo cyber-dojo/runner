@@ -6,7 +6,6 @@ require_relative 'gnu_zip'     # Gnu#zip(s)
 require_relative 'tar_reader'  # Tar::Reader
 require_relative 'tar_writer'  # Tar::Writer
 require_relative 'utf8_clean'  # Utf8#clean(s)
-require 'securerandom'
 require 'timeout'
 
 class Runner
@@ -249,10 +248,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(image_name, id, max_seconds)
-    # The container-name must be unique. If the container name is
-    # based on _only_ the id then a 2nd run started while a 1st run
-    # (with the same id) is still live would fail.
-    container_name = ['cyber_dojo_runner', id, SecureRandom.hex].join('_')
+    container_name = ['cyber_dojo_runner', id, random_id].join('_')
     docker_run = [
       'docker run',
         "--name=#{container_name}",
@@ -263,6 +259,17 @@ class Runner
     shell.assert(docker_run)
     container_name
   end
+
+  def random_id
+    # If the container name is based on _only_ the id then a 2nd
+    # run started while a 1st run (with the same id) is still live
+    # would fail. Remember:
+    #   1) the container rm is async at the end of the sleep
+    #   2) a reserved id 999999 indicates the saver is offline.
+    HEX_DIGITS.shuffle[0,8].join
+  end
+
+  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
