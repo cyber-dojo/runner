@@ -13,10 +13,9 @@ services:
     read_only: true
     tmpfs: /tmp
     restart: 'no'
+    ports: [4598:4598] # for demo
     depends_on:
       - runner-server
-    ports:
-      - 4598:4598 # for demo
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -29,15 +28,11 @@ services:
     image: cyberdojo/runner
     init: true
     container_name: test-runner-server
-    environment:
-      - NO_PROMETHEUS
-    ports:
-      - 4597:4597
+    environment: [NO_PROMETHEUS,CIRCLECI] # turn off known warning on CircleCI
+    ports: [4597:4597]
     read_only: true
     tmpfs: /tmp
     restart: 'no'
     volumes:
       - ./test_server:/app/test:ro
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - CIRCLECI # turn off known warning on CircleCI
