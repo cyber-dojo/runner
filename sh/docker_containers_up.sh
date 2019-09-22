@@ -79,7 +79,7 @@ wait_till_up()
 exit_unless_clean()
 {
   local -r name="${1}"
-  local -r docker_log=$(docker logs "${name}")
+  local -r docker_log=$(docker logs "${name}" 2>&1)
   local -r line_count=$(echo -n "${docker_log}" | grep -c '^')
   echo -n "Checking ${name} started cleanly..."
   if [ "${line_count}" == '3' ]; then

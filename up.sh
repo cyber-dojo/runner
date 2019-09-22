@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export RUBYOPT=-w
+export RUBYOPT='-W2'
 
 rackup             \
   --env production \
