@@ -13,7 +13,8 @@ services:
     read_only: true
     tmpfs: /tmp
     restart: 'no'
-    ports: [4598:4598] # for demo
+    ports:
+      - 4598:4598 # for demo
     depends_on:
       - runner-server
 
@@ -29,7 +30,8 @@ services:
     init: true
     container_name: test-runner-server
     environment: [NO_PROMETHEUS,CIRCLECI] # turn off known warning on CircleCI
-    ports: [4597:4597]
+    ports:
+      - 4597:4597
     read_only: true
     tmpfs: /tmp
     restart: 'no'
