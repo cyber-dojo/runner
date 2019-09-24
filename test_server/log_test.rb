@@ -8,7 +8,7 @@ class LogTest < TestBase
   end
 
   def log
-    external.log
+    externals.log
   end
 
   # - - - - - - - - - - - - - - - -

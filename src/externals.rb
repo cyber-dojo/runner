@@ -4,7 +4,7 @@ require_relative 'bash'
 require_relative 'log'
 require_relative 'shell'
 
-class External
+class Externals
 
   def initialize(options = {})
     @bash = options['bash'] || Bash.new

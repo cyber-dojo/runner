@@ -7,7 +7,7 @@ class ShellTest < TestBase
   end
 
   def shell
-    external.shell
+    externals.shell
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -151,7 +151,7 @@ class ShellTest < TestBase
         def fired?(n); @fired_count === n; end
         def <<(_s); @fired_count += 1; end
       end.new
-    @external = External.new({ 'bash' => bash_stub, 'log' => log_spy })
+    @externals = Externals.new({ 'bash' => bash_stub, 'log' => log_spy })
     key = 'CIRCLECI'
     on_circle_ci = ENV.include?(key)
     begin

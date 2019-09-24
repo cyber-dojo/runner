@@ -1,5 +1,5 @@
 require_relative 'hex_mini_test'
-require_relative '../src/external'
+require_relative '../src/externals'
 require_relative '../src/runner'
 require 'stringio'
 
@@ -11,12 +11,12 @@ class TestBase < HexMiniTest
     @os = nil
   end
 
-  def external
-    @external ||= External.new
+  def externals
+    @externals ||= Externals.new
   end
 
   def runner
-    Runner.new(external)
+    Runner.new(externals)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

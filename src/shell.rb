@@ -4,8 +4,8 @@ require_relative 'shell_assert_error'
 
 class Shell
 
-  def initialize(external)
-    @external = external
+  def initialize(externals)
+    @externals = externals
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -63,11 +63,11 @@ class Shell
   # - - - - - - - - - - - - - - - - - - -
 
   def bash
-    @external.bash
+    @externals.bash
   end
 
   def log
-    @external.log
+    @externals.log
   end
 
 end

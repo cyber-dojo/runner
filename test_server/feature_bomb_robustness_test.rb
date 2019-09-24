@@ -55,7 +55,7 @@ class BombRobustNessTest < TestBase
     all_OSes.each do |os|
       set_OS(os)
       stub = BashStubTarPipeOut.new('fail')
-      @external = External.new({ 'bash' => stub })
+      @externals = Externals.new({ 'bash' => stub })
       with_captured_log { run_cyber_dojo_sh }
       assert stub.fired_once?
       assert_created({})

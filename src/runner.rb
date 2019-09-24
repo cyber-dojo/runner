@@ -10,8 +10,8 @@ require 'timeout'
 
 class Runner
 
-  def initialize(external)
-    @external = external
+  def initialize(externals)
+    @externals = externals
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -441,7 +441,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def shell
-    @external.shell
+    @externals.shell
   end
 
   SPACE = ' '

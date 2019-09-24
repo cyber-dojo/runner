@@ -188,7 +188,7 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
     stub = BashStubTarPipeOut.new('fail')
-    rack_call(env, External.new({ 'bash' => stub }))
+    rack_call(env, Externals.new({ 'bash' => stub }))
 
     assert stub.fired_once?
     assert_200('run_cyber_dojo_sh')
@@ -206,8 +206,8 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
     raiser = BashStubRaiser.new('fubar')
-    external = External.new({ 'bash' => raiser })
-    runner = Runner.new(external)
+    externals = Externals.new({ 'bash' => raiser })
+    runner = Runner.new(externals)
     rack = RackDispatcher.new(runner)
     with_captured_stdout_stderr {
       response = rack.call(env, RackRequestStub)
@@ -251,7 +251,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def rack_call(env, e = external)
+  def rack_call(env, e = externals)
     runner = Runner.new(e)
     rack = RackDispatcher.new(runner)
     response = with_captured_stdout_stderr {
