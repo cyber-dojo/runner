@@ -16,6 +16,4 @@ use Rack::Deflater, if: ->(_, _, _, body) { body.any? && body[0].length > 512 }
 externals = Externals.new
 runner = Runner.new(externals)
 dispatcher = RackDispatcher.new(runner)
-Rack::Handler::Thin.run(dispatcher,{ Port:4597 }) do |server|
-  server.threaded = true
-end
+run dispatcher
