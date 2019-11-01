@@ -18,6 +18,9 @@ volumes:
 
 service:
   port: 4597
+  annotations:
+    - prometheus.io/scrape: "true"
+    - prometheus.io/port: "4597"
 
 containers:
   - name: runner
