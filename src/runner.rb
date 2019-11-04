@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'files_delta' # files_delta(was,now)
-require_relative 'gnu_unzip'   # Gnu#unzip(s)
-require_relative 'gnu_zip'     # Gnu#zip(s)
-require_relative 'tar_reader'  # Tar::Reader
-require_relative 'tar_writer'  # Tar::Writer
-require_relative 'utf8_clean'  # Utf8#clean(s)
+require_relative 'files_delta'
+require_relative 'gnu_unzip'
+require_relative 'gnu_zip'
+require_relative 'tar_reader'
+require_relative 'tar_writer'
+require_relative 'utf8_clean'
 require 'timeout'
 
 class Runner
