@@ -31,10 +31,12 @@ containers:
       - mountPath: /var/run/docker.sock
         name: docker-socket
     resources:
-      limits:
-        memory: 64Mi
       requests:
+        cpu: 100m
         memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 128Mi
     livenessProbe:
       path: /alive?
       port: 4597
