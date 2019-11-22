@@ -12,7 +12,7 @@ class LabelExperimentCollector
 
   def initialize(app, options = {})
     @app = app
-    @registry = options[:registry] || Client.registry
+    @registry = options[:registry] || Prometheus::Client.registry
     @metrics_prefix = options[:metrics_prefix] || 'http_server'
 
     init_request_metrics
