@@ -30,12 +30,12 @@ class LabelExperimentCollector
       :"#{@metrics_prefix}_requests_total",
       docstring:
         'The total number of HTTP requests handled by the Rack application.',
-      labels: %i[code method path]
+      labels: %i[code method path image_name]
     )
     @durations = @registry.histogram(
       :"#{@metrics_prefix}_request_duration_seconds",
       docstring: 'The HTTP response duration of the Rack application.',
-      labels: %i[method path]
+      labels: %i[method path image_name]
     )
   end
 
