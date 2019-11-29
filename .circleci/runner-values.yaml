@@ -3,6 +3,12 @@ fullnameOverride: "runner"
 
 daemonSet: true
 
+service:
+  port: 4597
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "4597"
+
 volumes:
   - name: runner-tmp-dir
     emptyDir:
@@ -12,12 +18,6 @@ volumes:
     hostPath:
       path: /var/run/docker.sock
       type: File
-
-service:
-  port: 4597
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "4597"
 
 containers:
   - name: runner
