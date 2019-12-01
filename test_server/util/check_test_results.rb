@@ -113,7 +113,7 @@ table =
     [ 'errors',                 error_count,    '==',   0 ],
     [ 'warnings',               warning_count,  '==',   0 ],
     [ 'skips',                  skip_count,     '==',   0 ],
-    [ 'duration(test)[s]',      test_duration,  '<=',  90 ],
+    [ 'duration(test)[s]',      test_duration,  '<=', 150 ],
     [ 'coverage(src)[%]',       src_coverage,   '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,  '==', 100 ],
     [ 'lines(test)/lines(src)', f2(line_ratio), '>=', 2.8 ],
