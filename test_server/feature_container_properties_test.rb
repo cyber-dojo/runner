@@ -28,8 +28,12 @@ class ContainerPropertiesTest < TestBase
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd)
     # odd, but there _is_ an embedded nul-character
-    expected = '/dev/init' + 0.chr + '--'
-    assert proc1.start_with?(expected), proc1
+    expected_1 = '/dev/init' + 0.chr + '--'
+    # The result of a docker-compose.yml's
+    #     init: true
+    # varies depending on what version of docker you are using
+    expected_2 = '/sbin/docker-init'
+    assert proc1.start_with?(expected_1) || proc1.start_with?(expected_2), proc1
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
