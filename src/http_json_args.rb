@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'docker/image_name'
 require_relative 'http_json/request_error'
-require_relative 'base58'
 require 'json'
 
-# Checks for arguments synactic correctness
 class HttpJsonArgs
 
   def initialize(body)
@@ -43,54 +40,34 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def image_name
-    checked_arg(:well_formed_image_name?)
-  end
-
-  def well_formed_image_name?(arg)
-    Docker::image_name?(arg)
+    exists_arg('image_name')
   end
 
   # - - - - - - - - - - - - - - - -
 
   def id
-    checked_arg(:well_formed_id?)
-  end
-
-  def well_formed_id?(arg)
-    Base58.string?(arg) && arg.size === 6
+    exists_arg('id')
   end
 
   # - - - - - - - - - - - - - - - -
 
   def files
-    checked_arg(:well_formed_files?)
-  end
-
-  def well_formed_files?(arg)
-    arg.is_a?(Hash) && arg.all?{|_f,content| content.is_a?(String) }
+    exists_arg('files')
   end
 
   # - - - - - - - - - - - - - - - -
 
   def max_seconds
-    checked_arg(:well_formed_max_seconds?)
-  end
-
-  def well_formed_max_seconds?(arg)
-    arg.is_a?(Integer) && (1..20).include?(arg)
+    exists_arg('max_seconds')
   end
 
   # - - - - - - - - - - - - - - - -
 
-  def checked_arg(validator)
-    name = caller_locations(1,1)[0].label
+  def exists_arg(name)
     unless @args.has_key?(name)
       raise missing(name)
     end
     arg = @args[name]
-    unless self.send(validator, arg)
-      raise malformed(name)
-    end
     arg
   end
 
@@ -98,10 +75,6 @@ class HttpJsonArgs
 
   def missing(arg_name)
     request_error("#{arg_name} is missing")
-  end
-
-  def malformed(arg_name)
-    request_error("#{arg_name} is malformed")
   end
 
   # - - - - - - - - - - - - - - - - -

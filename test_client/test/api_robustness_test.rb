@@ -41,47 +41,7 @@ class ApiRobustnessTest < TestBase
     assert_exception('run_cyber_dojo_sh', args.to_json)
   end
 
-  # - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D21',
-  'all api methods raise when image_name is invalid' do
-    METHOD_NAMES.each do |method_name|
-      MALFORMED_IMAGE_NAMES.each do |image_name|
-        error = assert_raises(ServiceError, method_name.to_s) do
-          self.send method_name, { image_name:image_name }
-        end
-        json = JSON.parse(error.message)
-        assert_equal 'RunnerService', json['class']
-        assert_equal 'image_name is malformed', json['message']
-        assert_equal 'Array', json['backtrace'].class.name
-      end
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test '656',
-  'all api methods raise when kata_id is invalid' do
-    METHOD_NAMES.each do |method_name|
-      MALFORMED_IDS.each do |id|
-        error = assert_raises(ServiceError, method_name.to_s) do
-          self.send method_name, { id:id }
-        end
-        json = JSON.parse(error.message)
-        assert_equal 'RunnerService', json['class']
-        assert_equal 'id is malformed', json['message']
-        assert_equal 'Array', json['backtrace'].class.name
-      end
-    end
-  end
-
   private
-
-  METHOD_NAMES = [ :run_cyber_dojo_sh ]
-
-  MALFORMED_IMAGE_NAMES = [ nil, '_cantStartWithSeparator' ]
-
-  MALFORMED_IDS = [ nil, '675' ]
 
   include HttpJsonService
 

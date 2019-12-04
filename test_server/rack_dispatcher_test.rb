@@ -1,10 +1,6 @@
 require_relative '../src/rack_dispatcher'
 require_relative 'bash_stub_raiser'
 require_relative 'bash_stub_tar_pipe_out'
-require_relative 'data/files'
-require_relative 'data/ids'
-require_relative 'data/image_names'
-require_relative 'data/max_seconds'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 require 'json'
@@ -75,52 +71,6 @@ class RackDispatcherTest < TestBase
   test 'AA5',
   %w( missing max_seconds becomes exception ) do
     assert_rack_call_run_missing(:files)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # malformed arguments
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB2',
-  %w( malformed image_name becomes exception ) do
-    MALFORMED_IMAGE_NAMES.each do |s|
-      assert_rack_call_exception(
-        'image_name is malformed',
-        'run_cyber_dojo_sh',
-        run_cyber_dojo_sh_args.merge({image_name:s}).to_json
-      )
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB3',
-  %w( malformed id becomes exception ) do
-    MALFORMED_IDS.each do |s|
-      assert_rack_call_exception(
-        'id is malformed',
-        'run_cyber_dojo_sh',
-        run_cyber_dojo_sh_args.merge({id:s}).to_json
-      )
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB7',
-  %w( malformed max_seconds becomes exception ) do
-    MALFORMED_MAX_SECONDS.each do |s|
-      assert_rack_call_run_malformed({max_seconds:s})
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB8',
-  %w( malformed files becomes exception ) do
-    MALFORMED_FILES.each do |s|
-      assert_rack_call_run_malformed({files:s})
-    end
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -222,12 +172,6 @@ class RackDispatcherTest < TestBase
   def assert_rack_call_run_missing(name)
     expected = "#{name} is missing"
     args = run_cyber_dojo_sh_args.tap{|hs| hs.delete(name)}.to_json
-    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
-  end
-
-  def assert_rack_call_run_malformed(added)
-    expected = "#{added.keys[0]} is malformed"
-    args = run_cyber_dojo_sh_args.merge(added).to_json
     assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
   end
 
@@ -379,7 +323,5 @@ class RackDispatcherTest < TestBase
     ready
     run_cyber_dojo_sh
   )
-
-  include Test::Data
 
 end
