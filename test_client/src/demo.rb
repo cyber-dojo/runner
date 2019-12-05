@@ -106,7 +106,7 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    RunnerService.new
+    RunnerService.new(Net::HTTP)
   end
 
   def timed
