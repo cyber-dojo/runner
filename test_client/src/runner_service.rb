@@ -1,35 +1,39 @@
-require_relative 'http_json_service'
+# frozen_string_literal: true
+
+require_relative 'http_json/service'
+require_relative 'http_json/error'
 
 class RunnerService
 
-  def initialize
-    @hostname = 'runner-server'
-    @port = 4597
+  class Error < HttpJson::Error
+    def initialize(message)
+      super
+    end
   end
 
-  # - - - - - - - - - - - - - - - - - - -
-
-  def sha
-    get([], __method__)
+  def initialize(externals)
+    @http = HttpJson::service(Net::HTTP, 'runner-server', 4597, Error)
   end
 
   def alive?
-    get([], __method__)
+    @http.get(__method__, {})
   end
 
   def ready?
-    get([], __method__)
+    @http.get(__method__, {})
+  end
+
+  def sha
+    @http.get(__method__, {})
   end
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
-    args  = [image_name, id, files, max_seconds]
-    get(args, __method__)
+    @http.get(__method__, {
+      image_name:image_name,
+      id:id,
+      files:files,
+      max_seconds:max_seconds
+    })
   end
-
-  private
-
-  include HttpJsonService
-
-  attr_reader :hostname, :port
 
 end

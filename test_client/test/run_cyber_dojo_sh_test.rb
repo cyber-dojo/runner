@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class RedAmberGreenTest < TestBase
+class RunCyberDojoShTest < TestBase
 
   def self.hex_prefix
     'FAA'
@@ -70,6 +70,32 @@ class RedAmberGreenTest < TestBase
     assert_equal '', stdout
     assert_equal '', stderr
     assert_equal 0, status
+  end
+
+  # - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test '2F5',
+  'call to existing method with bad argument type becomes RunnerService::Error' do
+    error = assert_raises(RunnerService::Error) {
+      with_captured_stdout {
+        run_cyber_dojo_sh({ max_seconds:'xxx' })
+      }
+    }
+    json = JSON.parse(error.message)
+    assert_equal '/run_cyber_dojo_sh', json['path']
+    assert_equal 'RunnerService', json['class']
+  end
+
+  private
+
+  def with_captured_stdout
+    begin
+      old_stdout = $stdout
+      $stdout = StringIO.new('', 'w')
+      yield
+    ensure
+      $stdout = old_stdout
+    end
   end
 
 end

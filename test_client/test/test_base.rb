@@ -20,7 +20,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    RunnerService.new
+    RunnerService.new(Net::HTTP)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
