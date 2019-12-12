@@ -35,7 +35,7 @@ containers:
         cpu: 50m
         memory: 256Mi
       limits:
-        cpu: 500m
+        cpu: 750m
         memory: 1Gi
     livenessProbe:
       path: /alive?
