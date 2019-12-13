@@ -134,13 +134,14 @@ class Runner
     # [3] is for file-stamp date-time granularity.
     # --touch means 'dont extract file modified time'
     # This relates to the files modification-date (stat %y).
-    # Without it the untarred files may all end up with the
-    # same modification date.
+    # Without it the untarred files may all end up with the same
+    # modification date. With it, the untarred files have a
+    # proper date-time file-stamp in all supported OS's.
     # Further, in a default Alpine container the date-time
     # file-stamps have a granularity of one second. In other
-    # words the microseconds value is always zero.
-    # The tar --touch option is not available
-    # in a default Alpine container. To add it the image needs to run:
+    # words, the microseconds value is always zero.
+    # The tar --touch option is not available in a default
+    # Alpine container. To add it the image build needs to run:
     #    $ apk add --update tar
     # To add microsecond granularity the image also needs to run:
     #    $ apk add --update coreutils
@@ -318,22 +319,21 @@ class Runner
     "gid=#{GID}"    # [3]
     # - Making the sandbox dir a tmpfs should improve speed.
     # - By default, tmp-fs's are setup as secure mountpoints.
-    #    If you use only '--tmpfs #{SANDBOX_DIR}'
-    #    then a [cat /etc/mtab] will reveal something like
-    #    "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
-    #    o) rw = Mount the filesystem read-write.
-    #    o) nosuid = Do not allow set-user-identifier or
-    #       set-group-identifier bits to take effect.
-    #    o) nodev = Do not interpret character or block special devices.
-    #    o) noexec = Do not allow direct execution of any binaries.
-    #    o) relatime = Update inode access times relative to modify or change time.
-    #    So...
-    #     [1] set exec to make binaries and scripts executable.
-    #     [2] limit size of tmp-fs.
-    #     [3] set ownership.
+    #   If you use only '--tmpfs #{SANDBOX_DIR}'
+    #   then a [cat /etc/mtab] will reveal something like
+    #   "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
+    #     o) rw = Mount the filesystem read-write.
+    #     o) nosuid = Do not allow set-user-identifier or
+    #        set-group-identifier bits to take effect.
+    #     o) nodev = Do not interpret character or block special devices.
+    #     o) noexec = Do not allow direct execution of any binaries.
+    #     o) relatime = Update inode access times relative to modify/change time.
+    #     So...
+    #      [1] set exec to make binaries and scripts executable.
+    #      [2] limit size of tmp-fs.
+    #      [3] set ownership.
 
-  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777'
-    # Set the sticky-bit on /tmp
+  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -345,8 +345,6 @@ class Runner
     # can have multiple cores or use hyperthreading.
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
-    # What ulimits are supported?
-    # See https://github.com/docker/go-units/blob/f2145db703495b2e525c59662db69a7344b00bb8/ulimit.go#L46-L62
     options = [
       ulimit('core'  ,   0   ), # core file size
       ulimit('fsize' ,  16*MB), # file size
@@ -360,8 +358,7 @@ class Runner
       '--security-opt=no-new-privileges',  # no escalation
     ]
     unless clang?(image_name)
-      # [ulimit data] prevents clang's
-      # -fsanitize=address option.
+      # [ulimit data] prevents clang's -fsanitize=address option.
       options << ulimit('data', 4*GB) # data segment size
     end
     options.join(SPACE)
