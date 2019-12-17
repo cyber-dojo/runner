@@ -61,8 +61,8 @@ class Runner
   GB = 1024 * MB
 
   SANDBOX_DIR = '/sandbox'  # where files are saved to in container
-  UID = 41966               # user running /sandbox/cyber-dojo.sh
-  GID = 51966               # group running /sandbox/cyber-dojo.sh
+  UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -120,13 +120,15 @@ class Runner
     # Assumes a tgz of files is on stdin. Untars this into
     # /sandbox inside the container and runs /sandbox/cyber-dojo.sh
     #
-    # [1] Ways to ensure /sandbox files have correct ownership...
-    # o) untar as root; tar will try to match ownership.
-    # o) untar as non-root; ownership based on the running user.
+    # [1] The uid/gid are for the user/group called sandbox
+    # which is added to the image by the image_builder [*].
+    # How to ensure /sandbox files have correct ownership?
+    #   o) untar as root; tar will try to match ownership.
+    #   o) untar as non-root; ownership based on the running user.
     # The latter is better:
-    # o) it's faster - no need to set ownership on the source files.
-    # o) it's safer - no need to run as root.
-    # o) it's simpler - let the OS do it, not the tar -x
+    #   o) it's faster - no need to set ownership on the source files.
+    #   o) it's safer - no need to run as root.
+    #   o) it's simpler - let the OS do it, not the tar -x
     #
     # [2] Don't use docker exec --workdir as that requires API version
     # 1.35 but CircleCI is currently using Docker Daemon API 1.32
@@ -146,8 +148,9 @@ class Runner
     # To add microsecond granularity the image also needs to run:
     #    $ apk add --update coreutils
     # Obviously, the image also needs to have tar installed.
-    # These requirements are satisified by the image_builder. See
-    # https://github.com/cyber-dojo-languages/image_builder
+    # These requirements are satisified by the image_builder [*]
+    #
+    # [*] https://github.com/cyber-dojo-languages/image_builder
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
