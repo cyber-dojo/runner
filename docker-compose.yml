@@ -22,8 +22,7 @@ services:
   runner-server:
     build:
       context: .
-      args:
-        - SHA
+      args: [ COMMIT_SHA ]
     user: root
     image: cyberdojo/runner
     init: true

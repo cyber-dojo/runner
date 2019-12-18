@@ -19,17 +19,10 @@ jobs:
             docker pull cyberdojofoundation/clang_assert
             docker pull cyberdojofoundation/perl_test_simple
       - run:
-          name: Build tested docker image
+          name: Build tested tagged docker image
           command: |
             set -e
             ./pipe_build_up_test.sh
-      - run:
-          name: Tag docker image
-          command: |
-            set -e
-            declare -r NAME="${CIRCLE_PROJECT_REPONAME}"
-            declare -r SHA="${CIRCLE_SHA1}"
-            docker tag cyberdojo/${NAME}:latest cyberdojo/${NAME}:${SHA:0:7}
       - run:
           name: Publish tagged docker image on dockerhub
           command: |
@@ -58,14 +51,14 @@ jobs:
           name: Authenticate with gcloud and deploy with helm
           command: |
             set -e
-            echo $GCP_K8S_CREDENTIALS > /gcp/gcp-credentials.json
+            echo ${GCP_K8S_CREDENTIALS} > /gcp/gcp-credentials.json
             gcloud auth activate-service-account \
-              "$SERVICE_ACCOUNT" \
+              "${SERVICE_ACCOUNT}" \
               --key-file=/gcp/gcp-credentials.json
             gcloud container clusters get-credentials \
-              "$CLUSTER" \
-              --zone "$ZONE" \
-              --project "$PROJECT"
+              "${CLUSTER}" \
+              --zone "${ZONE}" \
+              --project "${PROJECT}"
             helm init --client-only
             helm repo add praqma https://praqma-helm-repo.s3.amazonaws.com/
             helm upgrade \
@@ -86,14 +79,14 @@ jobs:
           name: Authenticate with gcloud and deploy with helm
           command: |
             set -e
-            echo $GCP_K8S_CREDENTIALS > /gcp/gcp-credentials.json
+            echo ${GCP_K8S_CREDENTIALS} > /gcp/gcp-credentials.json
             gcloud auth activate-service-account \
-              "$SERVICE_ACCOUNT" \
+              "${SERVICE_ACCOUNT}" \
               --key-file=/gcp/gcp-credentials.json
             gcloud container clusters get-credentials \
-              "$CLUSTER" \
-              --zone "$ZONE" \
-              --project "$PROJECT"
+              "${CLUSTER}" \
+              --zone "${ZONE}" \
+              --project "${PROJECT}"
             helm init --client-only
             helm repo add praqma https://praqma-helm-repo.s3.amazonaws.com/
             helm upgrade \
