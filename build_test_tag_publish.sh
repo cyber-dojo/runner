@@ -3,11 +3,11 @@ set -e
 
 if [ "${1}" = '-h' ] || [ "${1}" = '--help' ]; then
   echo
-  echo 'Use: pipe_build_up_test.sh [client|server] [HEX-ID...]'
+  echo 'Use: build_test_tag_publish.sh [client|server] [ID...]'
   echo 'Options:'
   echo '   client  - only run the tests from inside the client'
   echo '   server  - only run the tests from inside the server'
-  echo '   HEX-ID  - only run the tests matching this identifier'
+  echo '   ID...   - only run the tests matching these identifiers'
   exit 0
 fi
 
