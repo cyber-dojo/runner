@@ -20,7 +20,7 @@ services:
 
   runner-server:
     build:
-      context: .
+      context: app
       args: [ COMMIT_SHA ]
     user: root
     image: ${CYBER_DOJO_RUNNER_IMAGE}

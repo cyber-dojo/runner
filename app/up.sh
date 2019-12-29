@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 export RUBYOPT='-W2'
 
@@ -7,4 +8,4 @@ rackup \
   --port 4597       \
   --server thin     \
   --warn            \
-    config.ru
+    /app/config.ru
