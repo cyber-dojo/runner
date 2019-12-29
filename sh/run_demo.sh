@@ -2,6 +2,8 @@
 
 readonly SH_DIR="$( cd "$( dirname "${0}" )" && pwd )"
 
+source ${SH_DIR}/cat_env_vars.sh
+export $(cat_env_vars)
 "${SH_DIR}/build_docker_images.sh"
 "${SH_DIR}/docker_containers_up.sh"
 

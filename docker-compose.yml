@@ -14,8 +14,7 @@ services:
     tmpfs: /tmp
     restart: 'no'
     ports: [ "4598:4598" ] # for demo
-    depends_on:
-      - runner-server
+    depends_on: [ runner-server ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -24,11 +23,11 @@ services:
       context: .
       args: [ COMMIT_SHA ]
     user: root
-    image: cyberdojo/runner
+    image: ${CYBER_DOJO_RUNNER_IMAGE}
     init: true
     container_name: test-runner-server
     environment: [ NO_PROMETHEUS,CIRCLECI ] # turn off known warning on CircleCI
-    ports: [ "4597:4597" ]
+    ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     tmpfs: /tmp
     restart: 'no'
