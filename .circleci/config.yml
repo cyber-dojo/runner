@@ -6,35 +6,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Prepull images to avoid pulls happening in speed tests
-          command: |
-            set -e
-            docker pull cyberdojofoundation/gcc_assert
-            docker pull cyberdojofoundation/csharp_nunit
-            docker pull cyberdojofoundation/python_pytest
-            docker pull cyberdojofoundation/clang_assert
-            docker pull cyberdojofoundation/perl_test_simple
-      - run:
           name: Build tested tagged docker image
           command: ./build_test_tag_publish.sh
-      - run:
-          name: Publish tagged docker image on dockerhub
-          command: |
-            set -e
-            declare -r NAME="${CIRCLE_PROJECT_REPONAME}"
-            declare -r SHA="${CIRCLE_SHA1}"
-            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
-            docker push cyberdojo/${NAME}:${SHA:0:7}
-            docker push cyberdojo/${NAME}:latest
-            docker logout
-      - run:
-          name: Trigger dependent repos
-          command: |
-            set -e
-            TRIGGER=trigger-dependent-repos.sh
-            curl -O --fail ${CIRCLECI_SCRIPT_DIR}/${TRIGGER}
-            chmod 700 ./${TRIGGER}
-            # ./${TRIGGER} web # off till authentication done.
 
   deploy-to-beta:
     docker:
