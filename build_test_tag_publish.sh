@@ -1,7 +1,6 @@
-#!/bin/bash
-set -e
+#!/bin/bash -Ee
 
-if [ "${1}" = '-h' ] || [ "${1}" = '--help' ]; then
+if [ "${1}" == '-h' ] || [ "${1}" == '--help' ]; then
   echo
   echo 'Use: build_test_tag_publish.sh [client|server] [ID...]'
   echo 'Options:'
@@ -12,7 +11,6 @@ if [ "${1}" = '-h' ] || [ "${1}" = '--help' ]; then
 fi
 
 readonly SH_DIR="$( cd "$( dirname "${0}" )" && pwd )/sh"
-
 source ${SH_DIR}/cat_env_vars.sh
 export $(cat_env_vars)
 ${SH_DIR}/build_docker_images.sh
