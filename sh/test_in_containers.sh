@@ -12,7 +12,6 @@ readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=test-${MY_NAME}-cli
 readonly COVERAGE_ROOT=/tmp/coverage
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 run_server_tests()
 {
   docker exec \
@@ -37,7 +36,6 @@ run_server_tests()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 run_client_tests()
 {
   docker exec \
@@ -62,7 +60,6 @@ run_client_tests()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 echo
 if [ "${1}" = server ]; then
   shift
@@ -76,7 +73,6 @@ else
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 if [[ ( ${server_status} == 0 && ${client_status} == 0 ) ]];  then
   echo "------------------------------------------------------"
   echo "All passed"
@@ -86,5 +82,5 @@ else
   echo "server: cid = ${SERVER_CID}, status = ${server_status}"
   echo "client: cid = ${CLIENT_CID}, status = ${client_status}"
   echo
-  exit 1
+  exit 42
 fi

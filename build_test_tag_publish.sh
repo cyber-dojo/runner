@@ -10,9 +10,9 @@ if [ "${1}" == '-h' ] || [ "${1}" == '--help' ]; then
   exit 0
 fi
 
-readonly SH_DIR="$( cd "$( dirname "${0}" )" && pwd )/sh"
-source ${SH_DIR}/cat_env_vars.sh
-export $(cat_env_vars)
+readonly SH_DIR="$( cd "$( dirname "${0}" )/sh" && pwd )"
+source ${SH_DIR}/versioner_env_vars.sh
+export $(versioner_env_vars)
 ${SH_DIR}/build_docker_images.sh
 ${SH_DIR}/tear_down.sh
 ${SH_DIR}/docker_containers_up.sh

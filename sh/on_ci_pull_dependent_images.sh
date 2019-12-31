@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -Ee
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 on_ci()
