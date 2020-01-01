@@ -1,29 +1,47 @@
-#!/bin/bash -Ee
+#!/bin/bash -Eeu
 
 readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
-readonly IMAGE=cyberdojo/runner
-export COMMIT_SHA=$(cd "${ROOT_DIR}" && git rev-parse HEAD)
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-build_service_images()
+build_images()
 {
-  echo
   docker-compose \
     --file "${ROOT_DIR}/docker-compose.yml" \
-    build
+    build \
+    --build-arg COMMIT_SHA=$(git_commit_sha)
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-images_sha_env_var()
+git_commit_sha()
 {
-  docker run --rm ${IMAGE}:latest sh -c 'env | grep SHA'
+  echo $(cd "${ROOT_DIR}" && git rev-parse HEAD)
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-build_service_images
-if [ "SHA=${COMMIT_SHA}" != $(images_sha_env_var) ]; then
-  echo "unexpected env-var inside image ${IMAGE}:latest"
-  echo "expected: 'SHA=${COMMIT_SHA}'"
-  echo "  actual: '$(images_sha_env_var)'"
-  exit 42
-fi
+image_name()
+{
+  echo "${CYBER_DOJO_RUNNER_IMAGE}"
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
+image_sha()
+{
+  docker run --rm $(image_name):latest sh -c 'env | grep SHA='
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
+assert_equal()
+{
+  local -r expected="${1}"
+  local -r actual="${2}"
+  if [ "${expected}" != "${actual}" ]; then
+    echo ERROR
+    echo "expected: '${expected}'"
+    echo "  actual: '${actual}'"
+    exit 42
+  fi
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
+build_images
+assert_equal "SHA=$(git_commit_sha)" "$(image_sha)"
