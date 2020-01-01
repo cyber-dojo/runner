@@ -6,8 +6,6 @@ end
 
 def app_file?(filename)
   filename.start_with?("#{app_root}/src" )
-  #filename.start_with?("#{app_root}/" ) &&
-  #  !filename.start_with?("#{app_root}/test/")
 end
 
 def test_file?(filename)
