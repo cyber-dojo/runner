@@ -1,4 +1,4 @@
-#!/bin/bash -Ee
+#!/bin/bash -Eeu
 
 readonly NAMESPACE="${1}" # eg beta
 
