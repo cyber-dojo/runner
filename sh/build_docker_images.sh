@@ -1,6 +1,6 @@
 #!/bin/bash -Eeu
 
-readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
+readonly ROOT_DIR="$( cd "$( dirname "${0}" )/.." && pwd )"
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()
