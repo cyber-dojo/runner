@@ -31,6 +31,12 @@ image_sha()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
+image_port()
+{
+  docker run --rm $(image_name):latest sh -c 'env | grep PORT='
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
 assert_equal()
 {
   local -r expected="${1}"
@@ -45,4 +51,5 @@ assert_equal()
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images
-assert_equal "SHA=$(git_commit_sha)" "$(image_sha)"
+assert_equal "SHA=$(git_commit_sha)"          "$(image_sha)"
+assert_equal "PORT=${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
