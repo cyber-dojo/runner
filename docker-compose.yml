@@ -21,7 +21,7 @@ services:
   runner-server:
     build:
       context: app
-      args: [ COMMIT_SHA ]
+      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     user: root
     image: ${CYBER_DOJO_RUNNER_IMAGE}
     init: true
