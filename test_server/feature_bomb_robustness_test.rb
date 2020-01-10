@@ -16,7 +16,7 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    assert timed_out? || printed?('fork()'), result
+    assert timed_out? || printed?('fork()') || daemon_error?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,10 +29,9 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
+
     cant_fork = (os === :Alpine ? "can't fork" : 'Cannot fork')
-    assert timed_out? ||
-      printed?(cant_fork) ||
-        printed?('bomb'), result
+    assert timed_out? || printed?(cant_fork) || printed?('bomb') || daemon_error?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +44,7 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    assert printed?('fopen() != NULL'),  result
+    assert printed?('fopen() != NULL') || daemon_error?,  result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -125,5 +124,20 @@ class BombRobustNessTest < TestBase
     count = (stdout+stderr).lines.count { |line| line.include?(text) }
     count > 0
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def daemon_error?
+    printed?('Error response from daemon: No such container') ||
+      regex?(/Error response from daemon: Container .* is not running/)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # :nocov:
+  def regexp?(pattern)
+    (stdout+stderr) =~ pattern
+  end
+  # :nocov:
 
 end
