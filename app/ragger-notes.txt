@@ -42,43 +42,67 @@ It has a dependency on CSP and LSP which is fine.
 It does a docker pull every 24 hours. Job done!
 An updated image will be ready for any runner.run_cyber_dojo_sh call.
 
-Back to caching. Suppose runner had a lambda cache (like ragger).
-That would be faster. Cache staleness on a puller update is no longer
+Back to caching. Cache staleness on a puller update is no longer
 an issue as long as runner gets a fresh copy of the master rag-lambda
-from the image on each [test]. That is doable. Then it compares it to
-the incoming version in the files argument. Have to be very careful with
-comparison. Exactly the same is safest. So comments for
-cyber-dojo-traffic-light.rb would need to go in their own file.
-Should be possible to update tar_pipe_text_files_out() function
-to add one extra line to ECHO_TRUNCATED_TEXTFILE_NAMES. Viz
-cp /usr/local/bin/red_amber_green.rb #{SANDBOX_DIR}
+from the image on each [test].
+So update tar_pipe_text_files_out() function to add one extra line to
+ECHO_TRUNCATED_TEXTFILE_NAMES. Viz:
+cp /usr/local/bin/red_amber_green.rb COPY_OF_ORIGINAL
+Then compare it to the incoming files['cyber-dojo-traffic-light.rb']
+
+if there isn't one
+  you can eval+call where you are, with the extracted original
+else if its an exact match
+  you can eval+call where you are, with either.
+else
+  you have to make a 2nd runner call.
+end
+
+Now, what to call COPY_OF_ORIGINAL. Whatever you choose it could
+overwrite a file with the same name in /sandbox.
+Pick a randomly generated name.
+Then extract it from created() files so it does not go back to
+the browser with the random name.
+If incoming files does _not_ have a cyber-dojo-traffic-light.rb file
+then copy it back into created() with the name cyber-dojo-traffic-light.rb.
+
+Have to be very careful with comparison. Exactly the same is safest. So
+comments for cyber-dojo-traffic-light.rb are best in their own file.
+
 
 --------------------------------------------------------------
+rag_name_rand = .... # used in ECHO_TRUNCATED_TEXTFILE_NAMES
+...
+rag_name_true = 'cyber-dojo-traffic-light.rb'
 
-rag_src = files['cyber-dojo-traffic-light.rb'] || get_rag_lambda_src(image_name, id)
+rag_original = created.delete(rag_name_rand)
+rag_incoming = files[rag_name_true]
 
-rag_files = {
-  "stdout" => stdout,
-  "stderr" => stderr,
-  "status" => status,
-  "cyber-dojo.sh" => 'ruby ./run-traffic-light.rb',
-  "traffic-light.rb" => rag_src,
-  "run-traffic-light.rb" =>
-    <<~RUBY
-    rag = eval(IO.read('traffic-light.rb'))
-    stdout = IO.read('stdout')
-    stderr = IO.read('stderr')
-    status = IO.read('status')
-    print rag.call(stdout, stderr, status)
-    RUBY
-}
-result = runner.run_cyber_dojo_sh('cyberdojo/ruby-base', id, rag_files, 2)
-rgb = result['stdout']['content'].strip
+if rag_incoming.nil?
+  created[rag_name_true] = rag_original # Add truncation wrap
+  eval_call(rag_original)
+else if rag_incoming === rag_original
+  eval_call(rag_original)
+else
+  safe_colour_run(rag_incoming)
+end
 
-
-def get_rag_lambda_src(image_name, id)
-  files = { 'cyber-dojo.sh' => 'cat /usr/local/bin/red_amber_green.rb' }
-  max_seconds = 5
-  result = runner.run_cyber_dojo_sh(image_name, id, files, max_seconds)
-  result['stdout']['content']
+def safe_colour_run(rag_src, stdout, stderr, status)
+  rag_files = {
+    "stdout" => stdout,
+    "stderr" => stderr,
+    "status" => status,
+    "cyber-dojo.sh" => 'ruby ./run-traffic-light.rb',
+    "traffic-light.rb" => rag_src,
+    "run-traffic-light.rb" =>
+      <<~RUBY
+      rag = eval(IO.read('traffic-light.rb'))
+      stdout = IO.read('stdout')
+      stderr = IO.read('stderr')
+      status = IO.read('status')
+      print rag.call(stdout, stderr, status)
+      RUBY
+  }
+  result = core_run('cyberdojo/ruby-base', id, rag_files, 2)
+  rgb = result['stdout']['content'].strip
 end
