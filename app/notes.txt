@@ -1,0 +1,79 @@
+
+ragger.colour() now returns much more info in the json (for image_builder)
+Why not use the same idea in runner...
+runner could always return the colour.
+If the colour is 'faulty', return extra "out-of-band" information like ragger does.
+So the extra would just be {stdour,stderr,status} for the rag-lambda call itself.
+
+red_amber_green.rb cannot be run inside the runner directly.
+Runner must spawn a new cyberdojo/ruby container to run it securely
+(and with its own max_seconds). And now it becomes clear that the
+best option is to simply expose the red_amber_green.rb file in the browser
+so it is available in the files arguments. The red_amber_green.rb file inside
+the image becomes the 'master' version where the original comes from.
+
+Simplest starting use-case (which covers existing sessions) is to get runner to
+check if cyber-dojo-traffic-light.rb is already in incoming files argument.
+If not, extract it via a separate container-run and add it to returned files
+(as if it was created like an Approval style test), so it becomes an incoming
+file for the next [test].
+
+Some comments could be added to the red_amber_green.rb itself, as documentation,
+visible in the browser.
+
+In the browser, any file that begins cyber-dojo can be "reserved".
+Reserved files appear in lower section and cannot be deleted or renamed,
+but can be viewed and edited.
+
+Ok. Now we get to caching. Is it worth caching, so runner itself does the
+rag lambda eval+call if it has not been edited? Not initially.
+It adds a lot more complexity to puller as I have experienced.
+A colour-docker-container spin up is very fast. And I already save by not having to
+make another http-web call (like I do with ragger).
+
+I have to avoid recursion. I don't want the colour() call to try and get the colour too!
+
+Do I now add red_amber_green.rb to the starting files for a new kata?
+Initially let the first [test] run add it to files. Then add it as polish.
+When creating a forked-start-point, only add it if its not already there.
+
+Ok. So now puller becomes a properly separate service.
+It has a dependency on CSP and LSP which is fine.
+It does a docker pull every 24 hours. Job done!
+An updated image will be ready for any runner.run_cyber_dojo_sh call.
+
+Back to caching. Suppose runner had a lambda cache (like ragger).
+That would be faster. Cache staleness on a puller update is still a messy
+issue. One idea is to rely on the test robustness and do an automated
+full redeployment of the runner service when a puller gets a new CDF
+image.
+
+--------------------------------------------------------------
+
+rag_src = files['cyber-dojo-traffic-light.rb'] || get_rag_lambda_src(image_name, id)
+
+rag_files = {
+  "stdout" => stdout,
+  "stderr" => stderr,
+  "status" => status,
+  "cyber-dojo.sh" => 'ruby ./run-traffic-light.rb',
+  "traffic-light.rb" => rag_src,
+  "run-traffic-light.rb" =>
+    <<~RUBY
+    rag = eval(IO.read('traffic-light.rb'))
+    stdout = IO.read('stdout')
+    stderr = IO.read('stderr')
+    status = IO.read('status')
+    print rag.call(stdout, stderr, status)
+    RUBY
+}
+result = runner.run_cyber_dojo_sh('cyberdojo/ruby-base', id, rag_files, 2)
+rgb = result['stdout']['content'].strip
+
+
+def get_rag_lambda_src(image_name, id)
+  files = { 'cyber-dojo.sh' => 'cat /usr/local/bin/red_amber_green.rb' }
+  max_seconds = 5
+  result = runner.run_cyber_dojo_sh(image_name, id, files, max_seconds)
+  result['stdout']['content']
+end
