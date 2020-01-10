@@ -43,10 +43,15 @@ It does a docker pull every 24 hours. Job done!
 An updated image will be ready for any runner.run_cyber_dojo_sh call.
 
 Back to caching. Suppose runner had a lambda cache (like ragger).
-That would be faster. Cache staleness on a puller update is still a messy
-issue. One idea is to rely on the test robustness and do an automated
-full redeployment of the runner service when a puller gets a new CDF
-image.
+That would be faster. Cache staleness on a puller update is no longer
+an issue as long as runner gets a fresh copy of the master rag-lambda
+from the image on each [test]. That is doable. Then it compares it to
+the incoming version in the files argument. Have to be very careful with
+comparison. Exactly the same is safest. So comments for
+cyber-dojo-traffic-light.rb would need to go in their own file.
+Should be possible to update tar_pipe_text_files_out() function
+to add one extra line to ECHO_TRUNCATED_TEXTFILE_NAMES. Viz
+cp /usr/local/bin/red_amber_green.rb #{SANDBOX_DIR}
 
 --------------------------------------------------------------
 

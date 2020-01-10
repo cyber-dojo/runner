@@ -149,7 +149,6 @@ class Runner
     #    $ apk add --update coreutils
     # Obviously, the image also needs to have tar installed.
     # These requirements are satisified by the image_builder [*]
-    #
     # [*] https://github.com/cyber-dojo-languages/image_builder
     <<~SHELL.strip
       docker exec                                     \
@@ -220,8 +219,9 @@ class Runner
 
   # Must not contain a single-quote [bash -c '...']
   # o) grep -v is --invert-match
-  # o) file incorrectly reports size==0,1 as binary
   # o) use cut -c 3- to strip ./ from relative filenames
+  # o) file utility incorrectly reports size==0,1 as binary
+  #    which is impossible. No executable binary can be that small.
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
       truncate_file() \
@@ -320,21 +320,21 @@ class Runner
     'size=50M,' +   # [2]
     "uid=#{UID}," + # [3]
     "gid=#{GID}"    # [3]
-    # - Making the sandbox dir a tmpfs should improve speed.
-    # - By default, tmp-fs's are setup as secure mountpoints.
-    #   If you use only '--tmpfs #{SANDBOX_DIR}'
-    #   then a [cat /etc/mtab] will reveal something like
-    #   "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
-    #     o) rw = Mount the filesystem read-write.
-    #     o) nosuid = Do not allow set-user-identifier or
-    #        set-group-identifier bits to take effect.
-    #     o) nodev = Do not interpret character or block special devices.
-    #     o) noexec = Do not allow direct execution of any binaries.
-    #     o) relatime = Update inode access times relative to modify/change time.
-    #     So...
-    #      [1] set exec to make binaries and scripts executable.
-    #      [2] limit size of tmp-fs.
-    #      [3] set ownership.
+    # Making the sandbox dir a tmpfs should improve speed.
+    # By default, tmp-fs's are setup as secure mountpoints.
+    # If you use only '--tmpfs #{SANDBOX_DIR}'
+    # then a [cat /etc/mtab] will reveal something like
+    # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
+    #   o) rw = Mount the filesystem read-write.
+    #   o) nosuid = Do not allow set-user-identifier or
+    #      set-group-identifier bits to take effect.
+    #   o) nodev = Do not interpret character or block special devices.
+    #   o) noexec = Do not allow direct execution of any binaries.
+    #   o) relatime = Update inode access times relative to modify/change time.
+    #   So...
+    #     [1] set exec to make binaries and scripts executable.
+    #     [2] limit size of tmp-fs.
+    #     [3] set ownership.
 
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
