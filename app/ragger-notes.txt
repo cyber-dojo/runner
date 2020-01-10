@@ -103,6 +103,8 @@ def safe_colour_run(rag_src, stdout, stderr, status)
       print rag.call(stdout, stderr, status)
       RUBY
   }
-  result = core_run('cyberdojo/ruby-base', id, rag_files, 2)
-  rgb = result['stdout']['content'].strip
+  container_name = create_container('cyberdojo/ruby-base', id, 2)
+  command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
+  rgb_stdout,rgb_stderr,rgb_status,timed_out = run(command, rag_files, max_seconds)
+  rgb = rgb_stdout['content'].strip
 end
