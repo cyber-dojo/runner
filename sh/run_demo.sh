@@ -2,7 +2,7 @@
 
 ip_address()
 {
-  if [ ! -z "${DOCKER_MACHINE_NAME}" ]; then
+  if [ -n "${DOCKER_MACHINE_NAME}" ]; then
     echo "$(docker-machine ip "${DOCKER_MACHINE_NAME}")"
   else
     echo localhost
@@ -15,4 +15,4 @@ source ${SH_DIR}/versioner_env_vars.sh
 export $(versioner_env_vars)
 "${SH_DIR}/build_docker_images.sh"
 "${SH_DIR}/docker_containers_up.sh"
-open "http://$(ip_address):4598"
+open "http://$(ip_address):${CYBER_DOJO_RUNNER_DEMO_PORT}"

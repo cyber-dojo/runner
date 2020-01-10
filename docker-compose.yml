@@ -13,7 +13,7 @@ services:
     read_only: true
     tmpfs: /tmp
     restart: 'no'
-    ports: [ "4598:4598" ] # for demo
+    ports: [ "${CYBER_DOJO_RUNNER_DEMO_PORT}:${CYBER_DOJO_RUNNER_DEMO_PORT}" ] # for demo
     depends_on: [ runner-server ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
