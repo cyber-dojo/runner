@@ -22,13 +22,13 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ready?
-    runner.ready?
+    runner.ready?['ready?']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def sha
-    runner.sha
+    runner.sha['sha']
   end
 
   def assert_sha(string)
@@ -71,8 +71,8 @@ class TestBase < HexMiniTest
     args << id
     args << @files
     args << defaulted_arg(named_args, :max_seconds, 10)
-    @result = runner.run_cyber_dojo_sh(*args)
-
+    result = runner.run_cyber_dojo_sh(*args)
+    @result = result['run_cyber_dojo_sh']
     nil
   end
 

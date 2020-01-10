@@ -17,27 +17,27 @@ class RackDispatcher
     body = request.body.read
     name,args = HttpJsonArgs.new(body).get(path)
     result = @runner.public_send(name, *args)
-    json_response(200, { name => result })
+    json_response_pass(200, result)
   rescue HttpJson::RequestError => error
-    json_response(400, diagnostic(path, body, error))
+    json_response_fail(400, diagnostic(path, body, error))
   rescue Exception => error
-    json_response(500, diagnostic(path, body, error))
+    json_response_fail(500, diagnostic(path, body, error))
   end
 
   private
 
-  def json_response(status, json)
-    if status == 200
-      body = JSON.fast_generate(json)
-    else
-      body = JSON.pretty_generate(json)
-      $stderr.puts(body)
-      $stderr.flush
-    end
-    [ status,
-      { 'Content-Type' => 'application/json' },
-      [ body ]
-    ]
+  def json_response_pass(status, json)
+    s = JSON.fast_generate(json)
+    [ status, CONTENT_TYPE_JSON, [s] ]
+  end
+
+  # - - - - - - - - - - - - - - - -
+
+  def json_response_fail(status, json)
+    s = JSON.pretty_generate(json)
+    $stderr.puts(s)
+    $stderr.flush
+    [ status, CONTENT_TYPE_JSON, [s] ]
   end
 
   # - - - - - - - - - - - - - - - -
@@ -52,5 +52,9 @@ class RackDispatcher
       }
     }
   end
+
+  # - - - - - - - - - - - - - - - -
+
+  CONTENT_TYPE_JSON = { 'Content-Type' => 'application/json' }
 
 end

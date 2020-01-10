@@ -17,15 +17,15 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def sha
-    ENV['SHA']
+    { 'sha' => ENV['SHA'] }
   end
 
   def alive?
-    true
+    { 'alive?' => true }
   end
 
   def ready?
-    true
+    { 'ready?' => true }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -41,7 +41,7 @@ class Runner
       created,deleted,changed = files_delta(files, files_now)
     end
 
-    {
+    { 'run_cyber_dojo_sh' => {
          stdout: stdout,
          stderr: stderr,
          status: status,
@@ -49,7 +49,7 @@ class Runner
         created: created,
         deleted: deleted,
         changed: changed
-    }
+    }}
   end
 
   private
