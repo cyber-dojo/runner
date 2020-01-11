@@ -11,14 +11,23 @@ class ContainerPropertiesTest < TestBase
   multi_os_test '8A3',
   'container environment properties' do
     assert_pid_1_is_running_init_process
+    print '.'
     assert_cyber_dojo_runs_in_bash
+    print '.'
     assert_time_stamp_microseconds_granularity
+    print '.'
     assert_env_vars_exist
+    print '.'
     assert_sandbox_user_exists
+    print '.'
     assert_sandbox_group_exists
+    print '.'
     assert_sandbox_user_has_home
+    print '.'
     assert_sandbox_dir_properties
+    print '.'
     assert_starting_files_properties
+    print '.'
     assert_ulimits
   end
 
@@ -63,7 +72,7 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_sandbox_user_exists
-    etc_passwd = assert_cyber_dojo_sh 'cat /etc/passwd'
+    etc_passwd = assert_cyber_dojo_sh('cat /etc/passwd')
     name = 'sandbox'
     diagnostic = "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
     assert etc_passwd.include?(uid.to_s), diagnostic

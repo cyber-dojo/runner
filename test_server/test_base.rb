@@ -113,6 +113,10 @@ class TestBase < HexMiniTest
     result['run_cyber_dojo_sh'][__method__]
   end
 
+  def traffic_light
+    result['traffic_light']
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_stdout(expected)

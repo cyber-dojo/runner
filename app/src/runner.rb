@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'empty'
 require_relative 'files_delta'
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
@@ -31,31 +32,25 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
+    rag_src = get_rag_src(image_name)
     container_name = create_container(image_name, id, max_seconds)
     command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
     stdout,stderr,status,timed_out = run(command, files, max_seconds)
-    if timed_out
+    colour = traffic_light(rag_src, stdout['content'], stderr['content'], status)
+
+    ok,files_now = tar_pipe_text_files_out(container_name)
+    if !ok
       created,deleted,changed = {},[],{}
     else
-      files_now = tar_pipe_text_files_out(container_name)
-      if files_now === {}
-        created,deleted,changed = {},[],{}
-      else
-        created,deleted,changed = files_delta(files, files_now)
-      end
+      created,deleted,changed = files_delta(files, files_now)
     end
-    
+
     { 'run_cyber_dojo_sh' => {
-         stdout: stdout,
-         stderr: stderr,
-         status: status,
-      timed_out: timed_out,
-        created: created,
-        deleted: deleted,
-        changed: changed
+         stdout: stdout, stderr: stderr, status: status, timed_out: timed_out,
+        created: created, deleted: deleted, changed: changed
       },
       'traffic_light' => {
-        colour: 'red'
+        colour: colour.to_s
       }
     }
   end
@@ -72,6 +67,30 @@ class Runner
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def get_rag_src(image_name)
+    docker_cmd =
+      <<~SHELL.strip
+      docker run         \
+        --entrypoint ""  \
+        --rm             \
+        #{image_name}    \
+        sh -c 'cat /usr/local/bin/red_amber_green.rb'
+      SHELL
+    stdout,_stderr,_status = shell.exec(docker_cmd)
+    stdout
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def traffic_light(rag_src, stdout, stderr, status)
+    rag_lambda = Empty.binding.eval(rag_src)
+    rag_lambda.call(stdout, stderr, status)
+  rescue
+    'faulty'
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -186,7 +205,8 @@ class Runner
     # ready for human inspection. cyber-dojo supports this by
     # returning _all_ text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
-    docker_tar_pipe_text_files_out = <<~SHELL.strip
+    docker_tar_pipe_text_files_out =
+      <<~SHELL.strip
       docker exec                           \
         --user=#{UID}:#{GID}                \
         #{container_name}                   \
@@ -202,15 +222,15 @@ class Runner
             -T          `# using filenames` \
             -           `# from stdin`      \
           '             `# close quote`
-    SHELL
+      SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
-      read_tar_file(Gnu.unzip(stdout))
+      [true,read_tar_file(Gnu.unzip(stdout))]
     else
-      {}
+      [false,{}]
     end
   end
 
@@ -224,12 +244,18 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
+  # ECHO_TRUNCATED_TEXTFILE_NAMES
+  #
+  # It might be possible to get the red_amber_green.rb file
+  # as part of tar_pipe_text_files_out() but I'm not doing that
+  # as it adds a bit too much complexity for my liking.
+  #
   # Must not contain a single-quote [bash -c '...']
   # o) grep -v is --invert-match
   # o) use cut -c 3- to strip ./ from relative filenames
   # o) file utility incorrectly reports size==0,1 as binary
   #    which is impossible. No executable binary can be that small.
+
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
       truncate_file() \

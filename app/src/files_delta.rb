@@ -14,7 +14,7 @@ module FilesDelta
       now.delete(filename) # destructive
     end
     created = now
-    [created,deleted,changed]
+    [created,deleted.sort,changed]
   end
 
 end

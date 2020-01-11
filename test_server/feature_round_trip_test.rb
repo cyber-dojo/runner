@@ -118,11 +118,11 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '62C', %w(
-  no text files under /sandbox at all, returns everything unchanged 
+  no text files under /sandbox at all, returns everything deleted
   ) do
     assert_cyber_dojo_sh('rm -rf /sandbox/* /sandbox/.*')
     assert_created({})
-    assert_deleted([])
+    assert_deleted(manifest['visible_files'].keys.sort)
     assert_changed({})
   end
 
