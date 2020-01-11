@@ -1,4 +1,24 @@
 
+Working towards runner returning the traffic-light colour.
+I changed the line
+  container_name = create_container(image_name, id, max_seconds)
+to
+  container_name = create_container(image_name, id, max_seconds+2)
+to give 2 seconds for tar_pipe_text_files_out() to complete.
+Hopefully this will lead to tar-piping out the red_amber_green.rb file.
+However, +2 broke tests. The reason seemed to be too many containers
+are left running concurrently. I'm thinking that a
+  runner.run_cyber_dojo_sh()
+call should, on completion, do an explicit 'docker rm cid --force' to
+reclaim resources immediately. This increased test duration
+from 122s to 131s but tests all passed again.
+Making the [docker rm] backgrounded (&) helped a bit. Back to 128s.
+These containers are removed since they are created with --rm so they
+cant be inspected eg when debugging a failing test.
+If adding the [cp /usr/local/bin/red_amber_green.rb] command back
+dont do it in ECHO_TRUNCATED_TEXTFILE_NAMES
+do it in tar_pipe_text_files_out above its use.
+
 ragger.colour() now returns much more info in the json (for image_builder)
 Why not use the same idea in runner...
 runner could always return the colour.

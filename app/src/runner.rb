@@ -33,12 +33,13 @@ class Runner
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     rag_src = get_rag_src(image_name)
-    container_name = create_container(image_name, id, max_seconds)
+    container_name = create_container(image_name, id, max_seconds+2)
     command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
     stdout,stderr,status,timed_out = run(command, files, max_seconds)
     colour = traffic_light(rag_src, stdout['content'], stderr['content'], status)
 
     ok,files_now = tar_pipe_text_files_out(container_name)
+    remove_container(container_name)
     if !ok
       created,deleted,changed = {},[],{}
     else
@@ -246,10 +247,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # ECHO_TRUNCATED_TEXTFILE_NAMES
   #
-  # It might be possible to get the red_amber_green.rb file
-  # as part of tar_pipe_text_files_out() but I'm not doing that
-  # as it adds a bit too much complexity for my liking.
-  #
   # Must not contain a single-quote [bash -c '...']
   # o) grep -v is --invert-match
   # o) use cut -c 3- to strip ./ from relative filenames
@@ -296,6 +293,10 @@ class Runner
     ].join(SPACE)
     shell.assert(docker_run)
     container_name
+  end
+
+  def remove_container(container_name)
+    shell.exec("docker rm #{container_name} --force &")
   end
 
   def random_id
