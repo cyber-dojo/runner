@@ -130,7 +130,7 @@ class BombRobustNessTest < TestBase
   # :nocov:
   def daemon_error?
     printed?('Error response from daemon: No such container') ||
-      regex?(/Error response from daemon: Container .* is not running/)
+      regexp?(/Error response from daemon: Container .* is not running/)
   end
   # :nocov:
 
