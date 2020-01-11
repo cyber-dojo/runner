@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'http_json/request_error'
 require_relative 'http_json_args'
 require 'rack'
 require 'json'
@@ -18,7 +17,7 @@ class RackDispatcher
     name,args = HttpJsonArgs.new(body).get(path)
     result = @runner.public_send(name, *args)
     json_response_pass(200, result)
-  rescue HttpJson::RequestError => error
+  rescue HttpJsonArgs::Error => error
     json_response_fail(400, diagnostic(path, body, error))
   rescue Exception => error
     json_response_fail(500, diagnostic(path, body, error))
