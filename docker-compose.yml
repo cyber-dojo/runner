@@ -34,3 +34,16 @@ services:
     volumes:
       - ./test_server:/app/test:ro
       - /var/run/docker.sock:/var/run/docker.sock
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  languages-start-points:
+    user: nobody
+    image: cyberdojo/languages-start-points-all:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
+    init: true
+    container_name: test-runner-languages-start-points
+    environment: [ NO_PROMETHEUS ]
+    read_only: true
+    ports: [ "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}" ]
+    restart: 'no'
+    tmpfs: /tmp

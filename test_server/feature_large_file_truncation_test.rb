@@ -8,20 +8,17 @@ class LargeFileTruncationTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '52A',
+  multi_os_test '52A',
   %w( generated text files bigger than 50K are truncated ) do
     filename = 'large_file.txt'
     script = "od -An -x /dev/urandom | head -c#{51*1024} > #{filename}"
     script += ";stat -c%s #{filename}"
-    all_OSes.each do |os|
-      @os = os
-      assert_cyber_dojo_sh(script)
-      assert_stdout "#{51*1024}\n"
-      assert created[filename]['truncated']
-      assert_equal 50*1024, created[filename]['content'].size
-      assert_deleted([])
-      assert_changed({})
-    end
+    assert_cyber_dojo_sh(script)
+    assert_stdout "#{51*1024}\n"
+    assert created[filename]['truncated']
+    assert_equal 50*1024, created[filename]['content'].size
+    assert_deleted([])
+    assert_changed({})
   end
 
   # - - - - - - - - - - - - - - - - -

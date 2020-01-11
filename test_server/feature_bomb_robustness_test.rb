@@ -31,7 +31,12 @@ class BombRobustNessTest < TestBase
     }
 
     cant_fork = (os === :Alpine ? "can't fork" : 'Cannot fork')
-    assert timed_out? || printed?(cant_fork) || printed?('bomb') || daemon_error?, result
+    assert \
+      timed_out? ||
+        printed?(cant_fork) ||
+          printed?('bomb') ||
+            daemon_error? ||
+              no_such_container_error?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,18 +54,15 @@ class BombRobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '62B',
+  multi_os_test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
-    all_OSes.each do |os|
-      set_OS(os)
-      stub = BashStubTarPipeOut.new('fail')
-      @externals = Externals.new({ 'bash' => stub })
-      with_captured_log { run_cyber_dojo_sh }
-      assert stub.fired_once?
-      assert_created({})
-      assert_deleted([])
-      assert_changed({})
-    end
+    stub = BashStubTarPipeOut.new('fail')
+    @externals = Externals.new({ 'bash' => stub })
+    with_captured_log { run_cyber_dojo_sh }
+    assert stub.fired_once?
+    assert_created({})
+    assert_deleted([])
+    assert_changed({})
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =
@@ -139,6 +141,14 @@ class BombRobustNessTest < TestBase
   # :nocov:
   def regexp?(pattern)
     (stdout+stderr) =~ pattern
+  end
+  # :nocov:
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # :nocov:
+  def no_such_container_error?
+    stderr.start_with?('Error: No such container: cyber_dojo_runner_')
   end
   # :nocov:
 

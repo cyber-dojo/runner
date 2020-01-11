@@ -289,7 +289,7 @@ class RackDispatcherTest < TestBase
 
   def gcc_assert_stdout
     # gcc,Debian
-    "makefile:14: recipe for target 'test.output' failed\n"
+    "makefile:19: recipe for target 'test.output' failed\n"
   end
 
   def gcc_assert_stderr

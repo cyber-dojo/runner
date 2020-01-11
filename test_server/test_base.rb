@@ -1,4 +1,6 @@
 require_relative 'hex_mini_test'
+require_relative 'http_adapter'
+require_relative 'services/languages_start_points'
 require_relative '../src/externals'
 require_relative '../src/runner'
 require 'stringio'
@@ -8,12 +10,13 @@ class TestBase < HexMiniTest
   def initialize(arg)
     super(arg)
     @files = nil
-    @os = nil
   end
 
   def externals
     @externals ||= Externals.new
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
     Runner.new(externals)
@@ -180,28 +183,36 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    manifest['visible_filenames'].collect do |filename|
-      [filename, IO.read("#{starting_files_dir}/#{filename}")]
+    manifest['visible_files'].map do |filename,file|
+      [ filename, file['content'] ]
     end.to_h
   end
 
   def manifest
-    JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
+    languages_start_points.manifest(display_name)
   end
 
-  def starting_files_dir
-    "/app/test/start_files/#{os}"
+  def languages_start_points
+    @languages_start_points ||= LanguagesStartPoints.new(http)
   end
 
-  def set_OS(os)
-    @os = os
-    @files = nil
+  def http
+    @http ||= HttpAdapter.new
+  end
+
+  def display_name
+    case os
+    when :C_assert     then 'C (gcc), assert'
+    when :clang_assert then 'C (clang), assert'
+    when :Alpine       then 'C#, NUnit'
+    when :Ubuntu       then 'Perl, Test::Simple'
+    when :Debian       then 'Python, py.test'
+    else                    'C#, NUnit'
+    end
   end
 
   def os
-    if !@os.nil?
-      return @os
-    elsif hex_test_name.start_with?('[C,assert]')
+    if hex_test_name.start_with?('[C,assert]')
       :C_assert
     elsif hex_test_name.start_with?('[clang,assert]')
       :clang_assert
@@ -209,6 +220,8 @@ class TestBase < HexMiniTest
       :Alpine
     elsif hex_test_name.start_with?('[Ubuntu]')
       :Ubuntu
+    elsif hex_test_name.start_with?('[Debian]')
+      :Debian
     else # default
       :Alpine
     end
@@ -219,10 +232,8 @@ class TestBase < HexMiniTest
     test(hex_suffix+'0', *alpine_lines, &block)
     ubuntu_lines = ['[Ubuntu]'] + lines
     test(hex_suffix+'1', *ubuntu_lines, &block)
-  end
-
-  def all_OSes
-    [ :Alpine, :Ubuntu, :Debian ]
+    #debian_lines = ['[Debian]'] + lines
+    #test(hex_suffix+'2', *debian_lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -79,11 +79,10 @@ exit_unless_clean()
 {
   local -r name="${1}"
   local -r docker_log=$(docker logs "${name}" 2>&1)
-  local -r known_warning="daemons-1.3.1(.*)warning\: mismatched indentations at 'rescue'"
-  local -r stripped=$(echo -n "${docker_log}" | grep --invert-match -E "${known_warning}")
-  if [ "${docker_log}" == "${stripped}" ]; then
-    echo "ERROR: expected to find warning: ${known_warning}"
-    exit 42
+  local -r daemon_warning="daemons-1.3.1(.*)warning\: mismatched indentations at 'rescue'"
+  local -r stripped=$(echo -n "${docker_log}" | grep --invert-match -E "${daemon_warning}")
+  if [ "${docker_log}" != "${stripped}" ]; then
+    echo "SERVICE START-UP WARNING: ${daemon_warning}"
   fi
   local -r line_count=$(echo -n "${stripped}" | grep --count '^')
   echo -n "Checking ${name} started cleanly..."
@@ -121,7 +120,10 @@ docker-compose \
   -d \
   --force-recreate
 
-wait_until_ready   test-runner-server 4597
+wait_until_ready   test-runner-server ${CYBER_DOJO_RUNNER_PORT}
 exit_unless_clean  test-runner-server
+
+wait_until_ready   test-runner-languages-start-points ${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}
+exit_unless_clean  test-runner-languages-start-points
 
 wait_till_up       test-runner-client
