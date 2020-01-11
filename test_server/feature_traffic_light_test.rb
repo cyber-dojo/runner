@@ -9,6 +9,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '9DB', %w( stdout is not being whitespace stripped ) do
+    stdout = assert_cyber_dojo_sh('echo " hello "')
+    assert_equal " hello \n", stdout
+  end
+
   test '9DA', %w( start-point files colour is red ) do
     # In order to properly test traffic-light-colour I will need
     # to generate new images with a modified
@@ -22,7 +27,7 @@ class TrafficLightTest < TestBase
     # 5. Dockerfile will use COPY to overwrite red_amber_green.rb
     # 6. [docker build] to create a new image tagged with test id.
     rag_src = assert_cyber_dojo_sh('cat /usr/local/bin/red_amber_green.rb')
-    assert rag_src.start_with?('lambda {')
+    assert rag_src.start_with?("\nlambda {")
     #puts rag_src
     #Dir.mktmpdir do |dir|
       #puts "My new temp dir:#{dir}:#{dir.class.name}:"

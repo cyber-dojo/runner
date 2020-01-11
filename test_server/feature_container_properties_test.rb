@@ -43,7 +43,7 @@ class ContainerPropertiesTest < TestBase
   end
 
   def cyber_dojo_sh_shell
-    cmd = 'echo ${SHELL}'
+    cmd = 'printf ${SHELL}'
     assert_cyber_dojo_sh(cmd)
   end
 
@@ -56,7 +56,7 @@ class ContainerPropertiesTest < TestBase
   end
 
   def env_var(name)
-    cmd = "printenv CYBER_DOJO_#{name}"
+    cmd = "printf ${CYBER_DOJO_#{name}}"
     assert_cyber_dojo_sh(cmd)
   end
 
@@ -81,8 +81,7 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_sandbox_user_has_home
-    assert_equal home_dir, assert_cyber_dojo_sh('printenv HOME')
-    assert_equal home_dir, assert_cyber_dojo_sh('cd ~ && pwd')
+    assert_equal home_dir, assert_cyber_dojo_sh('printf ${HOME}')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,11 +97,11 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stat_sandbox_dir(ch)
-    assert_cyber_dojo_sh("stat -c '%#{ch}' #{sandbox_dir}")
+    assert_cyber_dojo_sh("stat --printf='%#{ch}' #{sandbox_dir}")
   end
 
   def home_dir
-    "/home/sandbox"
+    '/home/sandbox'
   end
 
   def sandbox_dir

@@ -159,7 +159,7 @@ class TestBase < HexMiniTest
     }
     run_cyber_dojo_sh(named_args)
     refute_timed_out
-    stdout.strip
+    stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
