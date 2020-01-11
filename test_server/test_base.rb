@@ -201,13 +201,13 @@ class TestBase < HexMiniTest
   def os
     if !@os.nil?
       return @os
-    elsif hex_test_name.start_with? '[C,assert]'
+    elsif hex_test_name.start_with?('[C,assert]')
       :C_assert
-    elsif hex_test_name.start_with? '[clang,assert]'
+    elsif hex_test_name.start_with?('[clang,assert]')
       :clang_assert
-    elsif hex_test_name.start_with? '[Alpine]'
+    elsif hex_test_name.start_with?('[Alpine]')
       :Alpine
-    elsif hex_test_name.start_with? '[Ubuntu]'
+    elsif hex_test_name.start_with?('[Ubuntu]')
       :Ubuntu
     else # default
       :Alpine
