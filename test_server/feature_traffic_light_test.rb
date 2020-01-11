@@ -9,12 +9,21 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DB', %w( stdout is not being whitespace stripped ) do
+  test '9DA', %w( stdout is not being whitespace stripped ) do
     stdout = assert_cyber_dojo_sh('echo " hello "')
     assert_equal " hello \n", stdout
   end
 
-  test '9DA', %w( start-point files colour is red ) do
+  # - - - - - - - - - - - - - - - - -
+
+  test '9DB', %w( run returns traffic-light colour ) do
+    run_cyber_dojo_sh
+    assert_equal 'red', @result['traffic_light'][:colour]
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '9DC', %w( start-point files colour is red ) do
     # In order to properly test traffic-light-colour I will need
     # to generate new images with a modified
     #   /usr/local/bin/red_amber_green.rb file

@@ -75,7 +75,7 @@ class TestBase < HexMiniTest
     args << @files
     args << defaulted_arg(named_args, :max_seconds, 10)
     result = runner.run_cyber_dojo_sh(*args)
-    @result = result['run_cyber_dojo_sh']
+    @result = result
     nil
   end
 
@@ -90,23 +90,27 @@ class TestBase < HexMiniTest
   attr_reader :result
 
   def stdout
-    result[__method__]['content']
+    result['run_cyber_dojo_sh'][__method__]['content']
   end
 
   def stderr
-    result[__method__]['content']
+    result['run_cyber_dojo_sh'][__method__]['content']
+  end
+
+  def timed_out?
+    result['run_cyber_dojo_sh'][:timed_out]
   end
 
   def created
-    result[__method__]
+    result['run_cyber_dojo_sh'][__method__]
   end
 
   def deleted
-    result[__method__]
+    result['run_cyber_dojo_sh'][__method__]
   end
 
   def changed
-    result[__method__]
+    result['run_cyber_dojo_sh'][__method__]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -131,10 +135,6 @@ class TestBase < HexMiniTest
 
   def refute_timed_out
     refute timed_out?, result
-  end
-
-  def timed_out?
-    result[:timed_out]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

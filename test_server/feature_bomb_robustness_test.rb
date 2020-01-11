@@ -16,7 +16,10 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    assert timed_out? || printed?('fork()') || daemon_error?, result
+    assert timed_out? ||
+      printed?('fork()') ||
+        daemon_error? ||
+          no_such_container_error?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +52,9 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    assert printed?('fopen() != NULL') || daemon_error?,  result
+    assert printed?('fopen() != NULL') ||
+      daemon_error? ||
+        no_such_container_error?,  result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

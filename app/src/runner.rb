@@ -34,13 +34,17 @@ class Runner
     container_name = create_container(image_name, id, max_seconds)
     command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
     stdout,stderr,status,timed_out = run(command, files, max_seconds)
-    files_now = tar_pipe_text_files_out(container_name)
-    if files_now === {} || timed_out
+    if timed_out
       created,deleted,changed = {},[],{}
     else
-      created,deleted,changed = files_delta(files, files_now)
+      files_now = tar_pipe_text_files_out(container_name)
+      if files_now === {}
+        created,deleted,changed = {},[],{}
+      else
+        created,deleted,changed = files_delta(files, files_now)
+      end
     end
-
+    
     { 'run_cyber_dojo_sh' => {
          stdout: stdout,
          stderr: stderr,
@@ -49,7 +53,11 @@ class Runner
         created: created,
         deleted: deleted,
         changed: changed
-    }}
+      },
+      'traffic_light' => {
+        colour: 'red'
+      }
+    }
   end
 
   private
