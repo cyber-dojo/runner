@@ -72,7 +72,7 @@ class Runner
   def traffic_light(rag_src, stdout, stderr, status)
     rag_lambda = Empty.binding.eval(rag_src)
     rag_lambda.call(stdout['content'], stderr['content'], status)
-  rescue
+  rescue Exception # => error
     'faulty'
   end
 
