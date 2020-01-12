@@ -16,35 +16,26 @@ class ContainerPropertiesTest < TestBase
           image_name:'alpine:latest'
       })
     }
-    assert @log.include?('Error: No such container: cyber_dojo_runner_3A8D91')
+    assert_stdout('')
+    assert stderr.include?('Error response from daemon'), stderr
+    assert_equal 'faulty', traffic_light[:colour]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A3',
-  'container environment properties' do
-    assert_pid_1_is_running_init_process
-    print '.'
-    assert_time_stamp_microseconds_granularity
-    print '.'
-    assert_env_vars_exist
-    print '.'
-    assert_sandbox_user_exists
-    print '.'
-    assert_sandbox_group_exists
-    print '.'
-    assert_sandbox_user_has_home
-    print '.'
-    assert_sandbox_dir_properties
-    print '.'
-    assert_starting_files_properties
-    print '.'
-    assert_ulimits
+  test 'D92', %w( requires a /sandbox/ dir ) do
+    with_captured_log {
+      run_cyber_dojo_sh({
+          image_name:'cyberdojo/runner'
+      })
+    }
+    assert_stdout('')
+    assert_equal 'faulty', traffic_light[:colour]
   end
 
-  private # = = = = = = = = = = = = = = = = = = = = = =
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_pid_1_is_running_init_process
+  multi_os_test 'D93', %w( pid1 is running init process ) do
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd)
     # odd, but there _is_ an embedded nul-character
@@ -58,20 +49,7 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_env_vars_exist
-    assert_equal  image_name, env_var('IMAGE_NAME')
-    assert_equal          id, env_var('ID')
-    assert_equal sandbox_dir, env_var('SANDBOX')
-  end
-
-  def env_var(name)
-    cmd = "printf ${CYBER_DOJO_#{name}}"
-    assert_cyber_dojo_sh(cmd)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_sandbox_user_exists
+  multi_os_test 'D94', %w( sandbox user exists ) do
     etc_passwd = assert_cyber_dojo_sh('cat /etc/passwd')
     name = 'sandbox'
     diagnostic = "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
@@ -80,7 +58,7 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_sandbox_group_exists
+  multi_os_test 'D95', %w( sandbox group exists ) do
     assert_cyber_dojo_sh("getent group #{group}")
     entries = stdout.split(':')  # sandbox:x:51966
     assert_equal group, entries[0], stdout
@@ -89,18 +67,89 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_sandbox_user_has_home
+  multi_os_test 'D96', %w( sandbox user has home ) do
     assert_equal home_dir, assert_cyber_dojo_sh('printf ${HOME}')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_sandbox_dir_properties
+  multi_os_test 'D97', %w( env-vars are set ) do
+    assert_equal  image_name, env_var('IMAGE_NAME')
+    assert_equal          id, env_var('ID')
+    assert_equal sandbox_dir, env_var('SANDBOX')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test 'D98', %w( sandbox/ dir properties ) do
     assert_cyber_dojo_sh "[ -d #{sandbox_dir} ]" # sandbox exists
     refute_equal '', assert_cyber_dojo_sh("ls -A #{sandbox_dir}")
     assert_equal     uid.to_s, stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
     assert_equal     gid.to_s, stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
     assert_equal 'drwxrwxrwt', stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test 'D99', %w( starting-files properties ) do
+    run_cyber_dojo_sh({
+      changed: { 'cyber-dojo.sh' => stat_cmd }
+    })
+    assert_equal '', stderr
+    assert_equal starting_files.keys.sort, stdout_stats.keys.sort
+    starting_files.each do |filename, content|
+      if filename === 'cyber-dojo.sh'
+        content = stat_cmd
+      end
+      assert_stats(filename, '-rw-r--r--', content.length)
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test 'D9A', %w( ulimits are set ) do
+    assert_cyber_dojo_sh("sh -c 'ulimit -a'")
+
+    expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
+    expected_max_file_size  = 16 * MB / (block_size = 512)
+    expected_max_stack_size =  8 * MB / KB
+
+    assert_equal expected_max_data_size,  ulimit(:data_size)
+    assert_equal expected_max_file_size,  ulimit(:file_size)
+    assert_equal expected_max_stack_size, ulimit(:stack_size)
+    assert_equal 0,                       ulimit(:core_size)
+    assert_equal 128,                     ulimit(:file_locks)
+    assert_equal 256,                     ulimit(:no_files)
+    assert_equal 128,                     ulimit(:processes)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test 'D9B', %w( time-stamp microsecond gramularity ) do
+    # On _default_ Alpine date-time file-stamps are to
+    # the second granularity. In other words, the
+    # microseconds value is always '000000000'.
+    # Make sure the tar-piped files have fixed this.
+    run_cyber_dojo_sh({
+      changed: { 'cyber-dojo.sh' => stat_cmd }
+    })
+    count = 0
+    stdout_stats.each do |filename,atts|
+      count += 1
+      refute_nil atts, filename
+      stamp = atts[:time] # eg '07:03:14.835233538'
+      microsecs = stamp.split(/[\:\.]/)[-1]
+      assert_equal 9, microsecs.length
+      refute_equal '0'*9, microsecs
+    end
+    assert count > 0, count    
+  end
+
+  private # = = = = = = = = = = = = = = = = = = = = = =
+
+  def env_var(name)
+    cmd = "printf ${CYBER_DOJO_#{name}}"
+    assert_cyber_dojo_sh(cmd)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -122,38 +171,6 @@ class ContainerPropertiesTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_starting_files_properties
-    run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => stat_cmd }
-    })
-    assert_equal '', stderr
-    assert_equal starting_files.keys.sort, stdout_stats.keys.sort
-    starting_files.each do |filename, content|
-      if filename === 'cyber-dojo.sh'
-        content = stat_cmd
-      end
-      assert_stats(filename, '-rw-r--r--', content.length)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_ulimits
-    assert_cyber_dojo_sh("sh -c 'ulimit -a'")
-
-    expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
-    expected_max_file_size  = 16 * MB / (block_size = 512)
-    expected_max_stack_size =  8 * MB / KB
-
-    assert_equal expected_max_data_size,  ulimit(:data_size)
-    assert_equal expected_max_file_size,  ulimit(:file_size)
-    assert_equal expected_max_stack_size, ulimit(:stack_size)
-    assert_equal 0,                       ulimit(:core_size)
-    assert_equal 128,                     ulimit(:file_locks)
-    assert_equal 256,                     ulimit(:no_files)
-    assert_equal 128,                     ulimit(:processes)
-  end
 
   KB = 1024
   MB = 1024 * KB
@@ -186,28 +203,6 @@ class ContainerPropertiesTest < TestBase
     end
     entry = stdout.lines.detect { |line| line.start_with?(txt) }
     entry.split[-1].to_i
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_time_stamp_microseconds_granularity
-    # On _default_ Alpine date-time file-stamps are to
-    # the second granularity. In other words, the
-    # microseconds value is always '000000000'.
-    # Make sure the tar-piped files have fixed this.
-    run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => stat_cmd }
-    })
-    count = 0
-    stdout_stats.each do |filename,atts|
-      count += 1
-      refute_nil atts, filename
-      stamp = atts[:time] # eg '07:03:14.835233538'
-      microsecs = stamp.split(/[\:\.]/)[-1]
-      assert_equal 9, microsecs.length
-      refute_equal '0'*9, microsecs
-    end
-    assert count > 0, count
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

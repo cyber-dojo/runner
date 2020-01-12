@@ -214,7 +214,7 @@ class Runner
       SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
-    # to fail so you cannot use shell.assert() here.
+    # to fail be careful if you switch to shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
@@ -311,7 +311,7 @@ class Runner
         image_name,
           "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
-    # The --detach option means this assert will not catch some 
+    # The --detach option means this assert will not catch some
     # errors. For example, if the container has no bash.
     shell.assert(docker_run)
     container_name
@@ -326,11 +326,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def random_id
-    # If the container name is based on _only_ the id then a 2nd
-    # run started while a 1st run (with the same id) is still live
-    # would fail. Remember:
-    #   1) the container rm is async at the end of the sleep
-    #   2) a reserved id 999999 indicates the saver is offline.
+    # A container name based on _only_ the id could fail
+    # when a 2nd run is started with the same id.
     HEX_DIGITS.shuffle[0,8].join
   end
 
