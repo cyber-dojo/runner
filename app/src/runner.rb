@@ -132,8 +132,9 @@ class Runner
     # Assumes container_name's image was built by image_builder.
     # [X] https://github.com/cyber-dojo-languages/image_builder
     #
-    # Assumes a tgz of files on stdin. Untars this into /sandbox
-    # inside the container and runs /sandbox/cyber-dojo.sh
+    # Assumes a tgz of files on stdin. Untars this into the
+    # /sandbox/ dir (which must exist) inside the container and
+    # runs /sandbox/cyber-dojo.sh
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
     #     Untars files as this user sets their ownership.
@@ -185,16 +186,12 @@ class Runner
     # tar-piping out all text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
     #
-    # [1] Ensure filenames are not read as tar command options.
+    # [1] Extract /usr/local/bin/red_amber_green.rb too.
+    # [2] Ensure filenames are not read as tar command options.
     #     Eg -J is a tar compression option.
     #
-    # [2] Also extracts /usr/local/bin/red_amber_green.rb by copying
-    #     it to the /sandbox dir.
 
-    unique_filename = SecureRandom.urlsafe_base64
-    rag_src = '/usr/local/bin/red_amber_green.rb'
-    rag_dst = "#{SANDBOX_DIR}/#{unique_filename}"
-
+    rag_filename = SecureRandom.urlsafe_base64
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
       docker exec                                       \
@@ -202,7 +199,7 @@ class Runner
         #{container_name}                               \
         bash -c                                         \
           '                         `# open quote`      \
-          cp #{rag_src} #{rag_dst}  `# [2]`;            \
+          #{copy_rag(rag_filename)} `# [1]`;            \
           #{ECHO_TRUNCATED_TEXTFILE_NAMES}              \
           |                                             \
           tar                                           \
@@ -210,7 +207,7 @@ class Runner
             #{SANDBOX_DIR}                              \
             -zcf                    `# create tgz file` \
             -                       `# write to stdout` \
-            --verbatim-files-from   `# [1]`             \
+            --verbatim-files-from   `# [2]`             \
             -T                      `# using filenames` \
             -                       `# from stdin`      \
           '                         `# close quote`
@@ -221,12 +218,37 @@ class Runner
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
-      rag_lambda = files_now.delete(unique_filename)['content']
+      rag_lambda = extract_rag(files_now, rag_filename)
       [ true, rag_lambda, files_now ]
     else
-      [ false, get_rag_lambda(image_name), {} ]
+      [ false, RAG_LAMBDA_FAULTY, {} ]
     end
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def copy_rag(rag_filename)
+    # The command must not write anything to stdout/stderr
+    # since it would be taken as a filename by tar's -T option.
+    rag_src = '/usr/local/bin/red_amber_green.rb'
+    rag_dst = "#{SANDBOX_DIR}/#{rag_filename}"
+    "[ -f #{rag_src} ] && cp #{rag_src} #{rag_dst}"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def extract_rag(files_now, rag_filename)
+    rag_file = files_now.delete(rag_filename)
+    if rag_file.nil?
+      RAG_LAMBDA_FAULTY
+    else
+      rag_file['content']
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  RAG_LAMBDA_FAULTY = 'lambda{|stdout,stderr,status| return :faulty}'
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -238,26 +260,11 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def get_rag_lambda(image_name)
-    docker_cmd =
-      <<~SHELL.strip
-      docker run         \
-        --entrypoint ""  \
-        --rm             \
-        #{image_name}    \
-        sh -c 'cat /usr/local/bin/red_amber_green.rb'
-      SHELL
-    stdout,_stderr,_status = shell.exec(docker_cmd)
-    stdout
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # ECHO_TRUNCATED_TEXTFILE_NAMES
   #
   # Must not contain a single-quote [bash -c '...']
   # o) grep -v is --invert-match
-  # o) strip ./ from filepath in depathed()
+  # o) strip ./ from front of pathed filename in depathed()
   # o) file utility incorrectly reports size==0,1 as binary
   #    which is impossible. No executable binary can be that small.
 
@@ -308,9 +315,13 @@ class Runner
     container_name
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def remove_container(container_name)
     shell.exec("docker rm #{container_name} --force &")
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def random_id
     # If the container name is based on _only_ the id then a 2nd
@@ -320,6 +331,8 @@ class Runner
     #   2) a reserved id 999999 indicates the saver is offline.
     HEX_DIGITS.shuffle[0,8].join
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
 

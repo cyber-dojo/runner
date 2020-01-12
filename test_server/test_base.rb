@@ -70,7 +70,7 @@ class TestBase < HexMiniTest
     @files = [ *unchanged_files, *changed_files, *created_files ].to_h
 
     args = []
-    args << image_name
+    args << defaulted_arg(named_args, :image_name, image_name)
     args << id
     args << @files
     args << defaulted_arg(named_args, :max_seconds, 10)

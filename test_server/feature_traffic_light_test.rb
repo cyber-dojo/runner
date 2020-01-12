@@ -16,14 +16,14 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DB', %w( run returning red traffic-light colour ) do
+  test '9DB', %w( red traffic-light ) do
     run_cyber_dojo_sh
     assert_equal 'red', traffic_light[:colour]
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DC', %w( run returning amber traffic-light colour ) do
+  test '9DC', %w( amber traffic-light ) do
     syntax_error = starting_files['Hiker.cs'].sub('6 * 9', '6 * 9sdf')
     run_cyber_dojo_sh({changed:{ 'Hiker.cs' => syntax_error}})
     assert_equal 'amber', traffic_light[:colour]
@@ -31,7 +31,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DD', %w( run returning green traffic-light colour ) do
+  test '9DD', %w( green traffic-light ) do
     syntax_error = starting_files['Hiker.cs'].sub('6 * 9', '6 * 7')
     run_cyber_dojo_sh({changed:{ 'Hiker.cs' => syntax_error}})
     assert_equal 'green', traffic_light[:colour]
@@ -39,7 +39,25 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '8A1', %w( robustness against broken red_amber_green.rb files ) do
+  test '8A1', %w( faulty when no red_amber_green.rb file ) do
+    # Make an image with a /sandbox user+dir but no rag-lambda file
+    image_stub = "runner_test_stub:#{id}"
+    Dir.mktmpdir do |dir|
+      dockerfile = [
+        "FROM #{image_name}",
+        'RUN rm /usr/local/bin/red_amber_green.rb'
+      ].join("\n")
+      IO.write("#{dir}/Dockerfile", dockerfile)
+      `docker build --tag #{image_stub} #{dir}`
+    end
+    run_cyber_dojo_sh({image_name:image_stub})
+    `docker image rm #{image_stub}`
+    assert_equal 'faulty', traffic_light[:colour]
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '8A2', %w( robustness against broken red_amber_green.rb files ) do
     # I need to generate new images with a modified
     #   /usr/local/bin/red_amber_green.rb file
     # Plan is
