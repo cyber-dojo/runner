@@ -34,23 +34,22 @@ class Runner
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     container_name = create_container(image_name, id, max_seconds+2)
-    command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
-    stdout,stderr,status,timed_out = run(command, files, max_seconds)
+    stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
     ok,rag_lambda,files_now = tar_pipe_text_files_out(image_name, container_name)
     remove_container(container_name)
-    if !ok
-      created,deleted,changed = {},[],{}
-    else
+    if ok
       created,deleted,changed = files_delta(files, files_now)
+    else
+      created,deleted,changed = {},[],{}
     end
-    colour = traffic_light(rag_lambda, stdout['content'], stderr['content'], status)
+    colour = traffic_light(rag_lambda, stdout, stderr, status)
 
     { 'run_cyber_dojo_sh' => {
-         stdout: stdout, stderr: stderr, status: status, timed_out: timed_out,
-        created: created, deleted: deleted, changed: changed
+         stdout:stdout, stderr:stderr, status:status, timed_out:timed_out,
+        created:created, deleted:deleted, changed:changed
       },
       'traffic_light' => {
-        colour: colour.to_s
+        colour:colour.to_s
       }
     }
   end
@@ -72,14 +71,15 @@ class Runner
 
   def traffic_light(rag_src, stdout, stderr, status)
     rag_lambda = Empty.binding.eval(rag_src)
-    rag_lambda.call(stdout, stderr, status)
+    rag_lambda.call(stdout['content'], stderr['content'], status)
   rescue
     'faulty'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run(command, files, max_seconds)
+  def run(container_name, files, max_seconds)
+    command = main_docker_run_command(container_name)
     stdout,stderr,status,timed_out = nil,nil,nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -128,40 +128,34 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
-    # Assumes a tgz of files is on stdin. Untars this into
-    # /sandbox inside the container and runs /sandbox/cyber-dojo.sh
+  def main_docker_run_command(container_name)
+    # Assumes container_name's image was built by image_builder.
+    # [X] https://github.com/cyber-dojo-languages/image_builder
     #
-    # [1] The uid/gid are for the user/group called sandbox
-    # which is added to the image by the image_builder [*].
-    # How to ensure /sandbox files have correct ownership?
-    #   o) untar as root; tar will try to match ownership.
-    #   o) untar as non-root; ownership based on the running user.
-    # The latter is better:
-    #   o) it's faster - no need to set ownership on the source files.
-    #   o) it's safer - no need to run as root.
-    #   o) it's simpler - let the OS do it, not the tar -x
+    # Assumes a tgz of files on stdin. Untars this into /sandbox
+    # inside the container and runs /sandbox/cyber-dojo.sh
     #
-    # [2] Don't use docker exec --workdir as that requires API version
-    # 1.35 but CircleCI is currently using Docker Daemon API 1.32
+    # [1] The uid/gid are for the user/group called sandbox [X].
+    #     Untars files as this user sets their ownership.
     #
-    # [3] is for file-stamp date-time granularity.
-    # --touch means 'dont extract file modified time'
-    # This relates to the files modification-date (stat %y).
-    # Without it the untarred files may all end up with the same
-    # modification date. With it, the untarred files have a
-    # proper date-time file-stamp in all supported OS's.
-    # Further, in a default Alpine container the date-time
-    # file-stamps have a granularity of one second. In other
-    # words, the microseconds value is always zero.
-    # The tar --touch option is not available in a default
-    # Alpine container. To add it the image build needs to run:
-    #    $ apk add --update tar
-    # To add microsecond granularity the image also needs to run:
-    #    $ apk add --update coreutils
-    # Obviously, the image also needs to have tar installed.
-    # These requirements are satisified by the image_builder [*]
-    # [*] https://github.com/cyber-dojo-languages/image_builder
+    # [2] Don't use [docker exec --workdir] as that requires API version
+    #     1.35 but CircleCI is currently using Docker Daemon API 1.32
+    #
+    # [3] tar is installed by image_builder [X].
+    #
+    # [4] For file-stamp date-time granularity.
+    #     --touch means 'dont extract file modified time'
+    #     It is not installed in a default Alpine container.
+    #     [X] Adds it via $ apk add --update tar
+    #     It relates to the files modification-date (stat %y).
+    #     Without it the untarred files may all end up with the same
+    #     modification date. With it, the untarred files have a
+    #     proper date-time file-stamp in all supported OS's.
+    #     In a default Alpine container the date-time file-stamps
+    #     have a granularity of one second; viz, the microseconds
+    #     value is always zero.
+    #     [X] Adds it via $ apk add --update coreutils
+
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
@@ -171,8 +165,8 @@ class Runner
           '                      `# open quote`       \
           cd #{SANDBOX_DIR}      `# [2]`              \
           &&                                          \
-          tar                                         \
-            --touch              `# [3]`              \
+          tar                    `# [3]`              \
+            --touch              `# [4]`              \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
@@ -188,14 +182,14 @@ class Runner
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
     # ready for human inspection. cyber-dojo supports this by
-    # returning all text files (generated inside the container)
+    # tar-piping out all text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
-    #
-    # Also extracts /usr/local/bin/red_amber_green.rb by copying
-    # it to the /sandbox dir.
     #
     # [1] Ensure filenames are not read as tar command options.
     #     Eg -J is a tar compression option.
+    #
+    # [2] Also extracts /usr/local/bin/red_amber_green.rb by copying
+    #     it to the /sandbox dir.
 
     unique_filename = SecureRandom.urlsafe_base64
     rag_src = '/usr/local/bin/red_amber_green.rb'
@@ -203,23 +197,23 @@ class Runner
 
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
-      docker exec                           \
-        --user=#{UID}:#{GID}                \
-        #{container_name}                   \
-        bash -c                             \
-          '             `# open quote`;     \
-          cp #{rag_src} #{rag_dst};         \
-          #{ECHO_TRUNCATED_TEXTFILE_NAMES}  \
-          |                       \
-          tar                     \
-            -C                    \
-            #{SANDBOX_DIR}        \
-            -zcf                  `# create tgz file` \
-            -                     `# write to stdout` \
-            --verbatim-files-from `# [1]`   \
-            -T                    `# using filenames` \
-            -                     `# from stdin`      \
-          '             `# close quote`
+      docker exec                                       \
+        --user=#{UID}:#{GID}                            \
+        #{container_name}                               \
+        bash -c                                         \
+          '                         `# open quote`      \
+          cp #{rag_src} #{rag_dst}  `# [2]`;            \
+          #{ECHO_TRUNCATED_TEXTFILE_NAMES}              \
+          |                                             \
+          tar                                           \
+            -C                                          \
+            #{SANDBOX_DIR}                              \
+            -zcf                    `# create tgz file` \
+            -                       `# write to stdout` \
+            --verbatim-files-from   `# [1]`             \
+            -T                      `# using filenames` \
+            -                       `# from stdin`      \
+          '                         `# close quote`
       SHELL
     # A crippled container (eg fork-bomb) will
     # likely not be running causing the [docker exec]
@@ -409,10 +403,10 @@ class Runner
       ulimit('nofile', 256   ), # number of files
       ulimit('nproc' , 128   ), # number of processes
       ulimit('stack' ,   8*MB), # stack size
-      '--memory=512m',                     # max 512MB ram
-      '--net=none',                        # no network
-      '--pids-limit=128',                  # no fork bombs
-      '--security-opt=no-new-privileges',  # no escalation
+      '--memory=512m',                    # max 512MB ram
+      '--net=none',                       # no network
+      '--pids-limit=128',                 # no fork bombs
+      '--security-opt=no-new-privileges', # no escalation
     ]
     unless clang?(image_name)
       # [ulimit data] prevents clang's -fsanitize=address option.
