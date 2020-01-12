@@ -15,9 +15,9 @@ from 122s to 131s but tests all passed again.
 Making the [docker rm] backgrounded (&) helped a bit. Back to 128s.
 These containers are removed since they are created with --rm so they
 cant be inspected eg when debugging a failing test.
-If adding the [cp /usr/local/bin/red_amber_green.rb] command back
-dont do it in ECHO_TRUNCATED_TEXTFILE_NAMES
-do it in tar_pipe_text_files_out above its use.
+Extracting rag-lambda in tar_pipe_text_files_out() brought this
+down to 104s.
+
 
 ragger.colour() now returns much more info in the json (for image_builder)
 Why not use the same idea in runner...

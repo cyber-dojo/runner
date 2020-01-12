@@ -7,6 +7,7 @@ require_relative 'gnu_zip'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
+require 'securerandom'
 require 'timeout'
 
 class Runner
@@ -32,19 +33,17 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
-    rag_src = get_rag_src(image_name)
     container_name = create_container(image_name, id, max_seconds+2)
     command = tar_pipe_files_in_and_run_cyber_dojo_sh(container_name)
     stdout,stderr,status,timed_out = run(command, files, max_seconds)
-    colour = traffic_light(rag_src, stdout['content'], stderr['content'], status)
-
-    ok,files_now = tar_pipe_text_files_out(container_name)
+    ok,rag_lambda,files_now = tar_pipe_text_files_out(image_name, container_name)
     remove_container(container_name)
     if !ok
       created,deleted,changed = {},[],{}
     else
       created,deleted,changed = files_delta(files, files_now)
     end
+    colour = traffic_light(rag_lambda, stdout['content'], stderr['content'], status)
 
     { 'run_cyber_dojo_sh' => {
          stdout: stdout, stderr: stderr, status: status, timed_out: timed_out,
@@ -68,21 +67,6 @@ class Runner
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def get_rag_src(image_name)
-    docker_cmd =
-      <<~SHELL.strip
-      docker run         \
-        --entrypoint ""  \
-        --rm             \
-        #{image_name}    \
-        sh -c 'cat /usr/local/bin/red_amber_green.rb'
-      SHELL
-    stdout,_stderr,_status = shell.exec(docker_cmd)
-    stdout
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -199,13 +183,24 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_text_files_out(container_name)
+  def tar_pipe_text_files_out(image_name, container_name)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
     # ready for human inspection. cyber-dojo supports this by
-    # returning _all_ text files (generated inside the container)
+    # returning all text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
+    #
+    # Also extracts /usr/local/bin/red_amber_green.rb by copying
+    # it to the /sandbox dir.
+    #
+    # [1] Ensure filenames are not read as tar command options.
+    #     Eg -J is a tar compression option.
+
+    unique_filename = SecureRandom.urlsafe_base64
+    rag_src = '/usr/local/bin/red_amber_green.rb'
+    rag_dst = "#{SANDBOX_DIR}/#{unique_filename}"
+
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
       docker exec                           \
@@ -213,15 +208,17 @@ class Runner
         #{container_name}                   \
         bash -c                             \
           '             `# open quote`;     \
+          cp #{rag_src} #{rag_dst};         \
           #{ECHO_TRUNCATED_TEXTFILE_NAMES}  \
-          |                                 \
-          tar                               \
-            -C                              \
-            #{SANDBOX_DIR}                  \
-            -zcf        `# create tgz file` \
-            -           `# write to stdout` \
-            -T          `# using filenames` \
-            -           `# from stdin`      \
+          |                       \
+          tar                     \
+            -C                    \
+            #{SANDBOX_DIR}        \
+            -zcf                  `# create tgz file` \
+            -                     `# write to stdout` \
+            --verbatim-files-from `# [1]`   \
+            -T                    `# using filenames` \
+            -                     `# from stdin`      \
           '             `# close quote`
       SHELL
     # A crippled container (eg fork-bomb) will
@@ -229,9 +226,11 @@ class Runner
     # to fail so you cannot use shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
-      [true,read_tar_file(Gnu.unzip(stdout))]
+      files_now = read_tar_file(Gnu.unzip(stdout))
+      rag_lambda = files_now.delete(unique_filename)['content']
+      [ true, rag_lambda, files_now ]
     else
-      [false,{}]
+      [ false, get_rag_lambda(image_name), {} ]
     end
   end
 
@@ -245,11 +244,26 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def get_rag_lambda(image_name)
+    docker_cmd =
+      <<~SHELL.strip
+      docker run         \
+        --entrypoint ""  \
+        --rm             \
+        #{image_name}    \
+        sh -c 'cat /usr/local/bin/red_amber_green.rb'
+      SHELL
+    stdout,_stderr,_status = shell.exec(docker_cmd)
+    stdout
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # ECHO_TRUNCATED_TEXTFILE_NAMES
   #
   # Must not contain a single-quote [bash -c '...']
   # o) grep -v is --invert-match
-  # o) use cut -c 3- to strip ./ from relative filenames
+  # o) strip ./ from filepath in depathed()
   # o) file utility incorrectly reports size==0,1 as binary
   #    which is impossible. No executable binary can be that small.
 
@@ -272,10 +286,15 @@ class Runner
         fi; \
         false; \
       }; \
+      depathed() \
+      { \
+        echo "${1:2}"; \
+      }; \
       export -f truncate_file; \
       export -f is_text_file; \
+      export -f depathed; \
       (cd #{SANDBOX_DIR} && find . -type f -exec \
-        bash -c "is_text_file {} && echo {} | cut -c 3-" \\;)
+        bash -c "is_text_file {} && depathed {}" \\;)
     SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -

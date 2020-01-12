@@ -9,12 +9,26 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  multi_os_test '524', %w(
+  filenames with leading hyphens can interfere with text-file tar-pipe
+  unless filenames are read from stdin verbatim
+  ) do
+    interfere = '-JPlOLNY7yt_fFndapHwIg'
+    script = "printf 'xxx' > '#{interfere}';"
+    assert_cyber_dojo_sh(script)
+    assert_created({interfere => intact('xxx')})
+    assert_deleted([])
+    assert_changed({})
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   multi_os_test '526', %w(
   created text files (including dot files) are returned
   ) do
     script = [
-      'echo -n "xxx" > newfile.txt',
-      'echo -n "yyy" > .dotfile'
+      'printf "xxx" > newfile.txt',
+      'printf "yyy" > .dotfile'
     ].join(';')
     assert_cyber_dojo_sh(script)
     assert_created({
@@ -51,7 +65,7 @@ class RoundTripTest < TestBase
     content = 'jjj'
     script = [
       "mkdir #{dirname}",
-      "echo -n '#{content}' > #{path}"
+      "printf '#{content}' > #{path}"
     ].join(';')
     assert_cyber_dojo_sh(script)
     assert_created({ path => intact(content) })
@@ -79,7 +93,7 @@ class RoundTripTest < TestBase
   ) do
     filename = any_src_file
     content = 'XXX'
-    script = "echo -n '#{content}' > #{filename}"
+    script = "printf '#{content}' > #{filename}"
     assert_cyber_dojo_sh(script)
     assert_created({})
     assert_deleted([])
@@ -108,7 +122,7 @@ class RoundTripTest < TestBase
     # The file utility says single-char files are binary files!
     filename = 'one-char.txt'
     ch = 'x'
-    script = "echo -n '#{ch}' > #{filename}"
+    script = "printf '#{ch}' > #{filename}"
     assert_cyber_dojo_sh(script)
     assert_created({filename => intact(ch)})
     assert_deleted([])
