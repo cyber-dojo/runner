@@ -8,11 +8,22 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  multi_os_test 'D91', %w(
+  requires bash, won't run in sh ) do
+    assert_equal '/bin/bash', assert_cyber_dojo_sh('printf ${SHELL}')
+    with_captured_log {
+      run_cyber_dojo_sh({
+          image_name:'alpine:latest'
+      })
+    }
+    assert @log.include?('Error: No such container: cyber_dojo_runner_3A8D91')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   multi_os_test '8A3',
   'container environment properties' do
     assert_pid_1_is_running_init_process
-    print '.'
-    assert_cyber_dojo_runs_in_bash
     print '.'
     assert_time_stamp_microseconds_granularity
     print '.'
@@ -43,17 +54,6 @@ class ContainerPropertiesTest < TestBase
     # varies depending on what version of docker you are using
     expected_2 = '/sbin/docker-init'
     assert proc1.start_with?(expected_1) || proc1.start_with?(expected_2), proc1
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_runs_in_bash
-    assert_equal '/bin/bash', cyber_dojo_sh_shell
-  end
-
-  def cyber_dojo_sh_shell
-    cmd = 'printf ${SHELL}'
-    assert_cyber_dojo_sh(cmd)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
