@@ -94,11 +94,11 @@ class TestBase < HexMiniTest
   attr_reader :result
 
   def stdout
-    result['run_cyber_dojo_sh'][__method__]['content']
+    result['run_cyber_dojo_sh'][:stdout]['content']
   end
 
   def stderr
-    result['run_cyber_dojo_sh'][__method__]['content']
+    result['run_cyber_dojo_sh'][:stderr]['content']
   end
 
   def timed_out?
@@ -106,15 +106,15 @@ class TestBase < HexMiniTest
   end
 
   def created
-    result['run_cyber_dojo_sh'][__method__]
+    result['run_cyber_dojo_sh'][:created]
   end
 
   def deleted
-    result['run_cyber_dojo_sh'][__method__]
+    result['run_cyber_dojo_sh'][:deleted]
   end
 
   def changed
-    result['run_cyber_dojo_sh'][__method__]
+    result['run_cyber_dojo_sh'][:changed]
   end
 
   def colour
@@ -123,20 +123,6 @@ class TestBase < HexMiniTest
 
   def diagnostic
     result['diagnostic']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_stdout(expected)
-    assert_equal expected, stdout, result
-  end
-
-  def refute_stdout(unexpected)
-    refute_equal unexpected, stdout, result
-  end
-
-  def assert_stderr(expected)
-    assert_equal expected, stderr, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -251,12 +237,11 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def with_captured_log
-    @log = ''
     begin
       old_stdout = $stdout
       $stdout = StringIO.new('', 'w')
       yield
-      @log = $stdout.string
+      $stdout.string
     ensure
       $stdout = old_stdout
     end

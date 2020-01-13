@@ -31,8 +31,8 @@ class TimedOutTest < TestBase
       run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
-    assert_stdout ''
-    assert_stderr ''
+    assert_equal '', stdout, :stdout
+    assert_equal '', stderr, :stderr
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,7 +51,7 @@ class TimedOutTest < TestBase
       run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
-    refute_stdout ''
+    refute_equal '', stdout, :stdout
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =
