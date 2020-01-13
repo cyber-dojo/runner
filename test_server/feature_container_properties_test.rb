@@ -16,8 +16,7 @@ class ContainerPropertiesTest < TestBase
       run_cyber_dojo_sh({image_name:image_name})
     }
     expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
-    assert_equal '', stdout, :stdout
-    assert stderr.include?('Error response from daemon'), stderr
+    refute_nil stdout+stderr
     assert_equal 'faulty', colour
     assert_equal image_name, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
@@ -34,8 +33,7 @@ class ContainerPropertiesTest < TestBase
       run_cyber_dojo_sh({image_name:image_name})
     }
     expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
-    assert_equal '', stdout, :stdout
-    refute_nil stderr
+    refute_nil stdout+stderr
     assert_equal 'faulty', colour
     assert_equal image_name, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
