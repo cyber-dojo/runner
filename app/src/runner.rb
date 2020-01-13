@@ -36,13 +36,8 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     container_name = create_container(image_name, id, max_seconds+2)
     stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
-    ok,rag_src,files_now = tar_pipe_text_files_out(container_name)
+    rag_src,created,deleted,changed = text_file_changes(container_name, files)
     remove_container(container_name)
-    if ok
-      created,deleted,changed = files_delta(files, files_now)
-    else
-      created,deleted,changed = {},[],{}
-    end
     result = {
       'run_cyber_dojo_sh' => {
          stdout:stdout, stderr:stderr, status:status, timed_out:timed_out,
@@ -169,7 +164,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_text_files_out(container_name)
+  def text_file_changes(container_name, files)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -179,9 +174,7 @@ class Runner
     #
     # [1] Extract /usr/local/bin/red_amber_green.rb too.
     # [2] Ensure filenames are not read as tar command options.
-    #     Eg -J is a tar compression option.
-    #
-
+    #     Eg -J... is a tar compression option.
     rag_filename = SecureRandom.urlsafe_base64
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
@@ -203,16 +196,17 @@ class Runner
             -                       `# from stdin`      \
           '                         `# close quote`
       SHELL
-    # A crippled container (eg fork-bomb) will
-    # likely not be running causing the [docker exec]
-    # to fail be careful if you switch to shell.assert() here.
+    # A crippled container (eg fork-bomb) will likely
+    # not be running causing the [docker exec] to fail.
+    # Be careful if you switch to shell.assert() here.
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
       rag_lambda = extract_rag(files_now, rag_filename)
-      [ true, rag_lambda, files_now ]
+      [ rag_lambda, *files_delta(files, files_now) ]
     else
-      [ false, nil, {} ]
+      # log _stderr ?
+      [ nil, {}, [], {} ]
     end
   end
 
@@ -298,8 +292,8 @@ class Runner
         image_name,
           "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
-    # The --detach option means this assert will not catch some
-    # errors. For example, if the container has no bash.
+    # The --detach run-option means this assert will not catch 
+    # some errors. For example, if the container has no bash.
     shell.assert(docker_run)
     container_name
   end
