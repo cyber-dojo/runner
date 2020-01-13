@@ -9,14 +9,14 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DA', %w( stdout is not being whitespace stripped ) do
+  multi_os_test '9DA', %w( stdout is not being whitespace stripped ) do
     stdout = assert_cyber_dojo_sh('printf " hello \n"')
     assert_equal " hello \n", stdout
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DB', %w( red traffic-light ) do
+  multi_os_test '9DB', %w( red traffic-light, no diagnostics ) do
     run_cyber_dojo_sh
     assert_equal 'red', colour, :colour
     assert_nil diagnostic, :diagnostic
@@ -24,18 +24,18 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DC', %w( amber traffic-light ) do
-    syntax_error = starting_files['Hiker.cs'].sub('6 * 9', '6 * 9sdf')
-    run_cyber_dojo_sh({changed:{ 'Hiker.cs' => syntax_error}})
+  multi_os_test '9DC', %w( amber traffic-light, no diagnostics ) do
+    syntax_error = starting_files[filename_6x9].sub('6 * 9', '6 * 9sdf')
+    run_cyber_dojo_sh({changed:{filename_6x9=>syntax_error}})
     assert_equal 'amber', colour, :colour
     assert_nil diagnostic, :diagnostic
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '9DD', %w( green traffic-light ) do
-    fixed = starting_files['Hiker.cs'].sub('6 * 9', '6 * 7')
-    run_cyber_dojo_sh({changed:{ 'Hiker.cs' => fixed}})
+  multi_os_test '9DD', %w( green traffic-light, no diagnostics ) do
+    passing = starting_files[filename_6x9].sub('6 * 9', '6 * 7')
+    run_cyber_dojo_sh({changed:{filename_6x9=>passing}})
     assert_equal 'green', colour, :colour
     assert_nil diagnostic, :diagnostic
   end
@@ -226,6 +226,14 @@ class TrafficLightTest < TestBase
   end
 
   private
+
+  def filename_6x9
+    starting_files.keys.find { |filename|
+      starting_files[filename].include?('6 * 9')
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_image_stubbed_with(stub)
     image_stub = "runner_test_stub:#{id}"

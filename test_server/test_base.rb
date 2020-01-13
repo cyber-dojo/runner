@@ -187,11 +187,11 @@ class TestBase < HexMiniTest
   end
 
   def manifest
-    languages_start_points.manifest(display_name)
+    @manifest ||= languages_start_points.manifest(display_name)
   end
 
   def languages_start_points
-    @languages_start_points ||= LanguagesStartPoints.new(http)
+    LanguagesStartPoints.new(http)
   end
 
   def http
