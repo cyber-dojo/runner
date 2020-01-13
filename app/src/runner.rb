@@ -4,6 +4,7 @@ require_relative 'empty'
 require_relative 'files_delta'
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
+require_relative 'set_traffic_light'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
@@ -35,26 +36,27 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     container_name = create_container(image_name, id, max_seconds+2)
     stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
-    ok,rag_lambda,files_now = tar_pipe_text_files_out(image_name, container_name)
+    ok,rag_src,files_now = tar_pipe_text_files_out(image_name, container_name)
     remove_container(container_name)
     if ok
       created,deleted,changed = files_delta(files, files_now)
     else
       created,deleted,changed = {},[],{}
     end
-    colour = traffic_light(rag_lambda, stdout, stderr, status)
-
-    { 'run_cyber_dojo_sh' => {
+    result = {
+      'run_cyber_dojo_sh' => {
          stdout:stdout, stderr:stderr, status:status, timed_out:timed_out,
         created:created, deleted:deleted, changed:changed
-      },
-      'colour' => colour.to_s
+      }
     }
+    set_traffic_light(result, rag_src, stdout, stderr, status)
+    result
   end
 
   private
 
   include FilesDelta
+  include SetTrafficLight
 
   KB = 1024
   MB = 1024 * KB
@@ -64,15 +66,6 @@ class Runner
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def traffic_light(rag_src, stdout, stderr, status)
-    rag_lambda = Empty.binding.eval(rag_src)
-    rag_lambda.call(stdout['content'], stderr['content'], status)
-  rescue Exception # => error
-    'faulty'
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
