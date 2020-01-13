@@ -22,6 +22,10 @@ class TestBase < HexMiniTest
     Runner.new(externals)
   end
 
+  def shell
+    externals.shell
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ready?
@@ -113,8 +117,12 @@ class TestBase < HexMiniTest
     result['run_cyber_dojo_sh'][__method__]
   end
 
-  def traffic_light
-    result['traffic_light']
+  def colour
+    result['colour']
+  end
+
+  def diagnostic
+    result['diagnostic']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -48,9 +48,7 @@ class Runner
          stdout:stdout, stderr:stderr, status:status, timed_out:timed_out,
         created:created, deleted:deleted, changed:changed
       },
-      'traffic_light' => {
-        colour:colour.to_s
-      }
+      'colour' => colour.to_s
     }
   end
 

@@ -18,7 +18,8 @@ class TrafficLightTest < TestBase
 
   test '9DB', %w( red traffic-light ) do
     run_cyber_dojo_sh
-    assert_equal 'red', traffic_light[:colour]
+    assert_equal 'red', colour
+    assert_nil diagnostic
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -26,7 +27,8 @@ class TrafficLightTest < TestBase
   test '9DC', %w( amber traffic-light ) do
     syntax_error = starting_files['Hiker.cs'].sub('6 * 9', '6 * 9sdf')
     run_cyber_dojo_sh({changed:{ 'Hiker.cs' => syntax_error}})
-    assert_equal 'amber', traffic_light[:colour]
+    assert_equal 'amber', colour
+    assert_nil diagnostic
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -34,13 +36,13 @@ class TrafficLightTest < TestBase
   test '9DD', %w( green traffic-light ) do
     syntax_error = starting_files['Hiker.cs'].sub('6 * 9', '6 * 7')
     run_cyber_dojo_sh({changed:{ 'Hiker.cs' => syntax_error}})
-    assert_equal 'green', traffic_light[:colour]
+    assert_equal 'green', colour
+    assert_nil diagnostic
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '421', %w( faulty when no red_amber_green.rb file ) do
-    # Make an image with a /sandbox user+dir but no rag-lambda file
     image_stub = "runner_test_stub:#{id}"
     Dir.mktmpdir do |dir|
       dockerfile = [
@@ -48,11 +50,14 @@ class TrafficLightTest < TestBase
         'RUN rm /usr/local/bin/red_amber_green.rb'
       ].join("\n")
       IO.write("#{dir}/Dockerfile", dockerfile)
-      `docker build --tag #{image_stub} #{dir}`
+      shell.assert("docker build --tag #{image_stub} #{dir}")
     end
-    run_cyber_dojo_sh({image_name:image_stub})
-    `docker image rm #{image_stub}`
-    assert_equal 'faulty', traffic_light[:colour]
+    begin
+      run_cyber_dojo_sh({image_name:image_stub})
+      assert_equal 'faulty', colour
+    ensure
+      shell.assert("docker image rm #{image_stub}")
+    end
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -94,11 +99,14 @@ class TrafficLightTest < TestBase
       ].join("\n")
       IO.write("#{dir}/stub", stub)
       IO.write("#{dir}/Dockerfile", dockerfile)
-      `docker build --tag #{image_stub} #{dir}`
+      shell.assert("docker build --tag #{image_stub} #{dir}")
     end
-    run_cyber_dojo_sh({image_name:image_stub})
-    `docker image rm #{image_stub}`
-    assert_equal 'faulty', traffic_light[:colour]
+    begin
+      run_cyber_dojo_sh({image_name:image_stub})
+      assert_equal 'faulty', colour
+    ensure
+      shell.assert("docker image rm #{image_stub}")
+    end
   end
 
 end
