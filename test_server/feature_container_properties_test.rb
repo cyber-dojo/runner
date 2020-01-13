@@ -8,29 +8,40 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D91', %w(
+  test 'D91', %w(
   requires bash, won't run in sh ) do
     assert_equal '/bin/bash', assert_cyber_dojo_sh('printf ${SHELL}')
+    image_name = 'alpine:latest'
     with_captured_log {
-      run_cyber_dojo_sh({
-          image_name:'alpine:latest'
-      })
+      run_cyber_dojo_sh({image_name:image_name})
     }
-    assert_stdout('')
+    expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
+    assert_equal '', stdout, :stdout
     assert stderr.include?('Error response from daemon'), stderr
-    assert_equal 'faulty', traffic_light[:colour]
+    assert_equal 'faulty', colour
+    assert_equal image_name, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
+    assert_equal expected_info, diagnostic['info'], :info
+    assert_nil diagnostic['message'], :message
+    assert_nil diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test 'D92', %w( requires a /sandbox/ dir ) do
+    image_name = 'cyberdojo/runner'
     with_captured_log {
-      run_cyber_dojo_sh({
-          image_name:'cyberdojo/runner'
-      })
+      run_cyber_dojo_sh({image_name:image_name})
     }
-    assert_stdout('')
-    assert_equal 'faulty', traffic_light[:colour]
+    expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
+    assert_equal '', stdout, :stdout
+    refute_nil stderr
+    assert_equal 'faulty', colour
+    assert_equal image_name, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
+    assert_equal expected_info, diagnostic['info'], :info
+    assert_nil diagnostic['message'], :message
+    assert_nil diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,7 +153,7 @@ class ContainerPropertiesTest < TestBase
       assert_equal 9, microsecs.length
       refute_equal '0'*9, microsecs
     end
-    assert count > 0, count    
+    assert count > 0, count
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =

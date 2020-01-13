@@ -42,7 +42,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '421', %w( faulty when no red_amber_green.rb file ) do
+  test '421', %w(
+  when rag-lambda is missing,
+  then the colour is faulty,
+  and diagnostics are added to the json result
+  ) do
     image_stub = "runner_test_stub:#{id}"
     Dir.mktmpdir do |dir|
       dockerfile = [
@@ -54,8 +58,13 @@ class TrafficLightTest < TestBase
     end
     begin
       run_cyber_dojo_sh({image_name:image_stub})
+      expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_stub}"
       assert_equal 'faulty', colour
-      assert false, 'todo: add diagnostic'
+      assert_equal image_stub, diagnostic['image_name'], :image_name
+      assert_equal id, diagnostic['id'], :id
+      assert_equal expected_info, diagnostic['info'], :info
+      assert_nil diagnostic['message'], :message
+      assert_nil diagnostic['rag_lambda'], :rag_lambda
     ensure
       shell.assert("docker image rm #{image_stub}")
     end
@@ -65,17 +74,19 @@ class TrafficLightTest < TestBase
 
   test '422', %w(
   when rag-lambda has an eval exception,
-  then colour is mapped to faulty,
+  then the colour is faulty,
   and diagnostics are added to the json result
   ) do
     stub =
       <<~RUBY
       sdf
       RUBY
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'eval(rag_lambda) raised an exception'
     expected_message = "undefined local variable or method `sdf'"
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert diagnostic['message'].start_with?(expected_message), :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -85,7 +96,7 @@ class TrafficLightTest < TestBase
 
   test '423', %w(
   when rag-lambda has a call exception,
-  then the colour is mapped to faulty,
+  then the colour is faulty,
   and diagnostics are added to the json result
   ) do
     stub =
@@ -94,10 +105,12 @@ class TrafficLightTest < TestBase
         raise ArgumentError.new('wibble')
       }
       RUBY
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'rag_lambda.call raised an exception'
     expected_message = 'wibble'
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal expected_message, diagnostic['message'], :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -107,7 +120,7 @@ class TrafficLightTest < TestBase
 
   test '424', %w(
   when the rag-lambda returns non red/amber/green,
-  then the colour is mapped to faulty,
+  then the colour is faulty,
   and diagnostics are added to the json result
   ) do
     stub =
@@ -116,9 +129,11 @@ class TrafficLightTest < TestBase
       return :orange
     }
     RUBY
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = "rag_lambda.call is 'orange' which is not 'red'|'amber'|'green'"
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_nil diagnostic['message'], :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -137,10 +152,12 @@ class TrafficLightTest < TestBase
       return :red
     }
     RUBY
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'rag_lambda.call raised an exception'
     expected_message = 'wrong number of arguments (given 3, expected 2)'
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal expected_message, diagnostic['message'], :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -159,10 +176,12 @@ class TrafficLightTest < TestBase
       return :red
     }
     RUBY
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'rag_lambda.call raised an exception'
     expected_message = 'wrong number of arguments (given 3, expected 4)'
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal expected_message, diagnostic['message'], :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -172,14 +191,16 @@ class TrafficLightTest < TestBase
 
   test '427', %w(
   when the rag-lambda has an eval SyntaxError exception,
-  then the colour is mapped to faulty,
+  then the colour is faulty,
   and diagnostics are added to the json result
   ) do
     stub = 'return :red adsd'
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'eval(rag_lambda) raised an exception'
     expected_message = 'syntax error, unexpected tIDENTIFIER'
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert diagnostic['message'].include?(expected_message), :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -189,14 +210,16 @@ class TrafficLightTest < TestBase
 
   test '428', %w(
   when the rag-lambda raises an Exception directly,
-  then the colour is mapped to faulty,
+  then the colour is faulty,
   and diagnostics are added to the json result
   ) do
     stub = 'raise Exception, "fubar"'
-    run_cyber_dojo_image_stubbed_with(stub)
+    image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'eval(rag_lambda) raised an exception'
     expected_message = 'fubar'
     assert_equal 'faulty', colour, :colour
+    assert_equal image_stub, diagnostic['image_name'], :image_name
+    assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal expected_message, diagnostic['message'], :message
     assert_equal stub, diagnostic['rag_lambda'], :rag_lambda
@@ -217,6 +240,7 @@ class TrafficLightTest < TestBase
     end
     begin
       run_cyber_dojo_sh({image_name:image_stub})
+      image_stub
     ensure
       shell.assert("docker image rm #{image_stub}")
     end

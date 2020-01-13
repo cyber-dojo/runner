@@ -49,7 +49,7 @@ class Runner
         created:created, deleted:deleted, changed:changed
       }
     }
-    set_traffic_light(result, rag_src, stdout, stderr, status)
+    set_traffic_light(result, image_name, id, rag_src, stdout, stderr, status)
     result
   end
 
@@ -212,7 +212,7 @@ class Runner
       rag_lambda = extract_rag(files_now, rag_filename)
       [ true, rag_lambda, files_now ]
     else
-      [ false, RAG_LAMBDA_FAULTY, {} ]
+      [ false, nil, {} ]
     end
   end
 
@@ -231,15 +231,11 @@ class Runner
   def extract_rag(files_now, rag_filename)
     rag_file = files_now.delete(rag_filename)
     if rag_file.nil?
-      RAG_LAMBDA_FAULTY
+      nil
     else
       rag_file['content']
     end
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  RAG_LAMBDA_FAULTY = 'lambda{|stdout,stderr,status| return :faulty}'
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
