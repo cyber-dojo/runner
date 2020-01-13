@@ -26,7 +26,7 @@ services:
     image: ${CYBER_DOJO_RUNNER_IMAGE}
     init: true
     container_name: test-runner-server
-    environment: [ NO_PROMETHEUS,CIRCLECI ] # turn off known warning on CircleCI
+    environment: [ NO_PROMETHEUS, CIRCLECI ] # turn off known warning on CircleCI
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     tmpfs: /tmp

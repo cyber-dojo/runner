@@ -14,10 +14,6 @@ class LanguagesStartPoints
     @http = HttpJson::service(http, 'languages-start-points', 4524, Error)
   end
 
-  def ready?
-    @http.get(__method__, {})
-  end
-
   def names
     @http.get(__method__, {})
   end
