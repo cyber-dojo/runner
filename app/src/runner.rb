@@ -36,7 +36,7 @@ class Runner
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     container_name = create_container(image_name, id, max_seconds+2)
     stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
-    ok,rag_src,files_now = tar_pipe_text_files_out(image_name, container_name)
+    ok,rag_src,files_now = tar_pipe_text_files_out(container_name)
     remove_container(container_name)
     if ok
       created,deleted,changed = files_delta(files, files_now)
@@ -169,7 +169,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tar_pipe_text_files_out(image_name, container_name)
+  def tar_pipe_text_files_out(container_name)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
