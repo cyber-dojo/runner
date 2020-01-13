@@ -12,6 +12,8 @@ class TestBase < HexMiniTest
     @files = nil
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def externals
     @externals ||= Externals.new
   end
@@ -21,6 +23,8 @@ class TestBase < HexMiniTest
   def runner
     Runner.new(externals)
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def shell
     externals.shell
@@ -48,20 +52,12 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(named_args = {})
-
-    unchanged_files = @files || starting_files
+    unchanged_files = starting_files
 
     created_files = defaulted_arg(named_args, :created, {})
     created_files.keys.each do |filename|
       diagnostic = "#{filename} is not a created_file (it already exists)"
       refute unchanged_files.keys.include?(filename), diagnostic
-    end
-
-    deleted_files = defaulted_arg(named_args, :deleted, [])
-    deleted_files.each do |filename|
-      diagnostic = "#{filename} is not a deleted_file (it does not already exist)"
-      assert unchanged_files.keys.include?(filename), diagnostic
-      unchanged_files.delete(filename)
     end
 
     changed_files = defaulted_arg(named_args, :changed, {})
@@ -71,15 +67,12 @@ class TestBase < HexMiniTest
       unchanged_files.delete(filename)
     end
 
-    @files = [ *unchanged_files, *changed_files, *created_files ].to_h
-
     args = []
     args << defaulted_arg(named_args, :image_name, image_name)
     args << id
-    args << @files
+    args << [ *unchanged_files, *changed_files, *created_files ].to_h
     args << defaulted_arg(named_args, :max_seconds, 10)
-    result = runner.run_cyber_dojo_sh(*args)
-    @result = result
+    @result = runner.run_cyber_dojo_sh(*args)
     nil
   end
 

@@ -16,15 +16,15 @@ class SandboxRightsTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A4',
-  'files can be created in sandbox sub-dirs' do
-    assert_files_can_be_created_in_sandbox_sub_dir('s1')
-    assert_files_can_be_created_in_sandbox_sub_dir('s1/s2')
+  'files can be created in sandbox sub-dirs from browser' do
+    assert_files_can_be_created_in_sandbox_sub_dir_from_browser('s1')
+    assert_files_can_be_created_in_sandbox_sub_dir_from_browser('s1/s2')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '12B',
-  %w( files can be deleted from sandbox sub-dir ) do
+  %w( files can be deleted from sandbox sub-dir from cyber-dojo.sh ) do
     assert_files_can_be_deleted_from_sandbox_sub_dir('d1')
     assert_files_can_be_deleted_from_sandbox_sub_dir('d1/d2')
   end
@@ -44,12 +44,12 @@ class SandboxRightsTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_files_can_be_created_in_sandbox_sub_dir(sub_dir)
+  def assert_files_can_be_created_in_sandbox_sub_dir_from_browser(sub_dir)
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
     run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{stat_cmd}" },
-      created: { "#{sub_dir}/#{filename}" => content }
+      created: { "#{sub_dir}/#{filename}" => content },
+      changed: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{stat_cmd}" }
     })
     assert_stats(filename, '-rw-r--r--', content.length)
   end
@@ -59,17 +59,12 @@ class SandboxRightsTest < TestBase
   def assert_files_can_be_deleted_from_sandbox_sub_dir(sub_dir)
     filename = 'goodbye.txt'
     content = 'goodbye, world'
+    cmd = "rm #{sub_dir}/#{filename} && cd #{sub_dir} && #{stat_cmd}"
     run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{stat_cmd}" },
-      created: { "#{sub_dir}/#{filename}" => content }
+      created: { "#{sub_dir}/#{filename}" => content },
+      changed: { 'cyber-dojo.sh' => cmd }
     })
-    filenames = stdout_stats.keys
-    assert filenames.include?(filename)
-    run_cyber_dojo_sh({
-      deleted: [ "#{sub_dir}/#{filename}" ]
-    })
-    filenames = stdout_stats.keys
-    refute filenames.include?(filename)
+    assert_equal [], stdout_stats.keys
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

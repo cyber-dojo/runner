@@ -292,7 +292,7 @@ class Runner
         image_name,
           "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
-    # The --detach run-option means this assert will not catch 
+    # The --detach run-option means this assert will not catch
     # some errors. For example, if the container has no bash.
     shell.assert(docker_run)
     container_name
