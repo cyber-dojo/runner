@@ -44,11 +44,7 @@ module HttpJson
     # - - - - - - - - - - - - - - - - - - - - -
 
     def json_parse(body)
-      if body === ''
-        {}
-      else
-        JSON.parse!(body)
-      end
+      JSON.parse!(body)
     rescue JSON::ParserError
       fail error_msg(body, 'is not JSON')
     end

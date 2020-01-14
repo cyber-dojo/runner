@@ -5,15 +5,9 @@ require_relative 'http_json/responder'
 
 class LanguagesStartPoints
 
-  class Error < RuntimeError
-    def initialize(message)
-      super
-    end
-  end
-
   def initialize(http)
     requester = HttpJson::Requester.new(http, 'languages-start-points', 4524)
-    @http = HttpJson::Responder.new(requester, Error)
+    @http = HttpJson::Responder.new(requester, RuntimeError)
   end
 
   def manifest(name)
