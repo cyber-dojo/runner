@@ -261,12 +261,12 @@ class Runner
       { \
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
           truncate_file "${1}"; \
-          return; \
+          true; \
+        elif [ $(stat -c%s "${1}") -lt 2 ]; then \
+          true; \
+        else \
+          false; \
         fi; \
-        if [ $(stat -c%s "${1}") -lt 2 ]; then \
-          return; \
-        fi; \
-        false; \
       }; \
       depathed() \
       { \
