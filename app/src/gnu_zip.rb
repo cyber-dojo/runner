@@ -12,5 +12,3 @@ module Gnu
   end
 
 end
-
-# https://gist.github.com/sinisterchipmunk/1335041
