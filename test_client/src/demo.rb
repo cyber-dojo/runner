@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'http_adapter'
+require_relative 'languages_start_points'
 require_relative 'runner'
 require 'json'
 
@@ -26,20 +27,15 @@ class Demo
     ready?
     @html += '<h1>GET /run_cyber_dojo_sh</h1>'
     @html += pre(run_cyber_dojo_sh_snippet)
-    @image_name = 'cyberdojofoundation/gcc_assert'
-    @id = '729z65'
-    @files = gcc_assert_files
-    @max_seconds = 10
-    run_cyber_dojo_sh
-    @image_name = 'BAD/image_name'
-    run_cyber_dojo_sh
+    run_cyber_dojo_sh('cyberdojofoundation/gcc_assert')
+    run_cyber_dojo_sh('BAD/image_name')
   end
 
   private
 
   def sha
-    duration = timed { @result = runner.sha }
-    @html += boxed_pre(duration, @result)
+    result,duration = timed { runner.sha }
+    @html += boxed_pre(duration, result)
   end
 
   def sha_snippet
@@ -52,8 +48,8 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def alive?
-    duration = timed { @result = runner.alive? }
-    @html += boxed_pre(duration, @result)
+    result,duration = timed { runner.alive? }
+    @html += boxed_pre(duration, result)
   end
 
   def alive_snippet
@@ -66,8 +62,8 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def ready?
-    duration = timed { @result = runner.ready? }
-    @html += boxed_pre(duration, @result)
+    result,duration = timed { runner.ready? }
+    @html += boxed_pre(duration, result)
   end
 
   def ready_snippet
@@ -79,9 +75,9 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh
-    duration = timed {
-      args  = [ @image_name, @id, @files, @max_seconds ]
+  def run_cyber_dojo_sh(image_name)
+    args  = [ image_name, '729z65', gcc_assert_files, 10 ]
+    _,duration = timed {
       begin
         @result = runner.run_cyber_dojo_sh(*args)
         @raised = false
@@ -109,28 +105,30 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    Runner.new(HttpAdapter.new)
+    Runner.new(http_adapter)
+  end
+
+  def languages_start_points
+    LanguagesStartPoints.new(http_adapter)
+  end
+
+  def http_adapter
+    HttpAdapter.new
   end
 
   def timed
     started = Time.now
-    yield
+    result = yield
     finished = Time.now
-    '%.2f' % (finished - started)
+    duration = '%.2f' % (finished - started)
+    [result, duration]
   end
 
   def gcc_assert_files
-    {
-      'hiker.c'       => read('hiker.c'),
-      'hiker.h'       => read('hiker.h'),
-      'hiker.tests.c' => read('hiker.tests.c'),
-      'cyber-dojo.sh' => read('cyber-dojo.sh'),
-      'makefile'      => read('makefile')
-    }
-  end
-
-  def read(filename)
-    IO.read("/app/test/start_files/C_assert/#{filename}")
+    manifest = languages_start_points.manifest('C (gcc), assert')
+    manifest['visible_files'].map do |filename,file|
+      [ filename, file['content'] ]
+    end.to_h
   end
 
   def pre(fragment)

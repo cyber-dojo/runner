@@ -134,27 +134,11 @@ class TestBase < HexMiniTest
     end.to_h
   end
 
-  #def XXX_starting_files
-  #  manifest['visible_filenames'].collect do |filename|
-  #    [filename, IO.read("#{starting_files_dir}/#{filename}")]
-  #  end.to_h
-  #end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def manifest
     @manifest ||= languages_start_points.manifest(display_name)
   end
-
-  #def XXX_manifest
-  #  @manifest ||= JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
-  #end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  #def starting_files_dir
-  #  "/app/test/start_files/#{os}"
-  #end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
