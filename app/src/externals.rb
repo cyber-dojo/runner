@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require_relative 'bash'
 require_relative 'log'
 require_relative 'shell'

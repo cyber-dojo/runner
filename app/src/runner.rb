@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require_relative 'empty'
 require_relative 'files_delta'
 require_relative 'gnu_unzip'

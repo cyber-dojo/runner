@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module Utf8
 
   def self.clean(s)

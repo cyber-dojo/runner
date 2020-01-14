@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module SetTrafficLight
 
   def set_traffic_light(result, image_name, id, rag_src, stdout, stderr, status)
