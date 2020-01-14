@@ -70,7 +70,7 @@ class HttpJsonResponderTest < TestBase
     end
   end
 
-  class RunnerServiceErrorStub < HttpJson::Error
+  class RunnerServiceErrorStub < RuntimeError
     def initialize(message)
       super
     end

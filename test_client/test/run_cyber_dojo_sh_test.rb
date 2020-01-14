@@ -76,7 +76,7 @@ class RunCyberDojoShTest < TestBase
 
   multi_os_test '2F5',
   'call to existing method with bad argument type becomes RunnerService::Error' do
-    error = assert_raises(RunnerService::Error) {
+    error = assert_raises(Runner::Error) {
       with_captured_stdout {
         run_cyber_dojo_sh({ max_seconds:'xxx' })
       }

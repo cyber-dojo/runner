@@ -1,4 +1,7 @@
-require_relative 'runner_service'
+# frozen_string_literal: true
+
+require_relative 'http_adapter'
+require_relative 'runner'
 require 'json'
 
 class Demo
@@ -106,7 +109,7 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    RunnerService.new(Net::HTTP)
+    Runner.new(HttpAdapter.new)
   end
 
   def timed

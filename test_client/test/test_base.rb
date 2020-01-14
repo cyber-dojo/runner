@@ -1,5 +1,6 @@
 require_relative 'hex_mini_test'
-require_relative '../src/runner_service'
+require_relative '../src/http_adapter'
+require_relative '../src/runner'
 require 'json'
 
 class TestBase < HexMiniTest
@@ -20,7 +21,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    RunnerService.new(Net::HTTP)
+    Runner.new(HttpAdapter.new)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
 require_relative 'http_json/service'
-require_relative 'http_json/error'
 
-class RunnerService
+class Runner
 
-  class Error < HttpJson::Error
+  class Error < RuntimeError
     def initialize(message)
       super
     end
   end
 
-  def initialize(externals)
-    @http = HttpJson::service(Net::HTTP, 'runner-server', 4597, Error)
+  def initialize(http)
+    @http = HttpJson::service(http, 'runner-server', 4597, Error)
   end
 
   def alive?
