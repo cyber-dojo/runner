@@ -8,8 +8,6 @@ class TestBase < HexMiniTest
 
   def initialize(arg)
     super(arg)
-    @files = nil
-    @image_name = nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,7 +37,7 @@ class TestBase < HexMiniTest
 
   def run_cyber_dojo_sh(named_args = {})
 
-    unchanged_files = @files || starting_files
+    unchanged_files = starting_files
 
     changed_files = defaulted_arg(named_args, :changed_files, {})
     changed_files.keys.each do |filename|
@@ -54,12 +52,10 @@ class TestBase < HexMiniTest
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    @files = [ *created_files, *unchanged_files, *changed_files ].to_h
-
     args = []
     args << defaulted_arg(named_args, :image_name, image_name)
     args << defaulted_arg(named_args, :id,         id)
-    args << @files
+    args << [ *created_files, *unchanged_files, *changed_files ].to_h
     args << defaulted_arg(named_args, :max_seconds, 10)
 
     @result = runner.run_cyber_dojo_sh(*args)
@@ -117,7 +113,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_name
-    @image_name || manifest['image_name']
+    manifest['image_name']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
