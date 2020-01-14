@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../src/files_delta'
 require_relative 'test_base'
 

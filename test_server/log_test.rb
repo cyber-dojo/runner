@@ -4,7 +4,7 @@ require 'stringio'
 class LogTest < TestBase
 
   def self.hex_prefix
-    'CD4'
+    'CE4'
   end
 
   def log
