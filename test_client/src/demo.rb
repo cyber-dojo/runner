@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require_relative 'http_adapter'
 require_relative 'languages_start_points'
 require_relative 'runner'

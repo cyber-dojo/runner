@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative 'hex_mini_test'
 require_relative '../src/http_adapter'
 require_relative '../src/languages_start_points'
@@ -79,8 +80,6 @@ class TestBase < HexMiniTest
     result['run_cyber_dojo_sh']['status']
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def created
     result['run_cyber_dojo_sh']['created']
   end
@@ -93,10 +92,12 @@ class TestBase < HexMiniTest
     result['run_cyber_dojo_sh']['changed']
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def timed_out?
     result['run_cyber_dojo_sh']['timed_out']
+  end
+
+  def traffic_light
+    result['colour']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
