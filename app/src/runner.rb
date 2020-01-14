@@ -34,6 +34,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
+    # [X] Assumes image_name was built by image_builder with a
+    # Dockerfile augmented by image_dockerfile_augmenter. See
+    #   https://github.com/cyber-dojo-languages/image_builder
+    #   https://github.com/cyber-dojo-languages/image_dockerfile_augmenter
     container_name = create_container(image_name, id, max_seconds+2)
     stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
     rag_src,created,deleted,changed = text_file_changes(container_name, files)
@@ -57,7 +61,7 @@ class Runner
   MB = 1024 * KB
   GB = 1024 * MB
 
-  SANDBOX_DIR = '/sandbox'  # where files are saved to in container
+  SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
@@ -115,34 +119,26 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def main_docker_run_command(container_name)
-    # Assumes container_name's image was built by image_builder.
-    # [X] https://github.com/cyber-dojo-languages/image_builder
-    #
     # Assumes a tgz of files on stdin. Untars this into the
-    # /sandbox/ dir (which must exist) inside the container and
-    # runs /sandbox/cyber-dojo.sh
+    # /sandbox/ dir (which must exist [X]) inside the container
+    # and runs /sandbox/cyber-dojo.sh
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
     #     Untars files as this user sets their ownership.
-    #
     # [2] Don't use [docker exec --workdir] as that requires API version
     #     1.35 but CircleCI is currently using Docker Daemon API 1.32
-    #
-    # [3] tar is installed by image_builder [X].
-    #
-    # [4] For file-stamp date-time granularity.
+    # [3] tar is installed [X].
+    # [4] tar has the --touch option installed [X].
+    #     (not true in a default Alpine container)
     #     --touch means 'dont extract file modified time'
-    #     It is not installed in a default Alpine container.
-    #     [X] Adds it via $ apk add --update tar
     #     It relates to the files modification-date (stat %y).
     #     Without it the untarred files may all end up with the same
     #     modification date. With it, the untarred files have a
     #     proper date-time file-stamp in all supported OS's.
+    # [5] tar date-time file-stamps have a granularity < 1 second [X].
     #     In a default Alpine container the date-time file-stamps
     #     have a granularity of one second; viz, the microseconds
     #     value is always zero.
-    #     [X] Adds it via $ apk add --update coreutils
-
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
@@ -153,7 +149,7 @@ class Runner
           cd #{SANDBOX_DIR}      `# [2]`              \
           &&                                          \
           tar                    `# [3]`              \
-            --touch              `# [4]`              \
+            --touch              `# [4][5]`           \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
@@ -172,7 +168,7 @@ class Runner
     # tar-piping out all text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
     #
-    # [1] Extract /usr/local/bin/red_amber_green.rb too.
+    # [1] Extract /usr/local/bin/red_amber_green.rb if it exists.
     # [2] Ensure filenames are not read as tar command options.
     #     Eg -J... is a tar compression option.
     rag_filename = SecureRandom.urlsafe_base64
@@ -243,11 +239,16 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # ECHO_TRUNCATED_TEXTFILE_NAMES
   #
-  # Must not contain a single-quote [bash -c '...']
+  # o) Must not contain a single-quote [bash -c '...']
+  # o) grep -q is --quiet
   # o) grep -v is --invert-match
-  # o) strip ./ from front of pathed filename in depathed()
-  # o) file utility incorrectly reports size==0,1 as binary
+  # o) Strip ./ from front of pathed filename in depathed()
+  # o) The file utility must be installed [X].
+  #    However, it incorrectly reports size==0,1 as binary
   #    which is impossible. No executable binary can be that small.
+  # o) truncates text files to MAX_FILE_SIZE+1
+  #    This is so truncated?() can detect the truncation.
+  #    The truncate utility must be installed [X].
 
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
@@ -293,7 +294,7 @@ class Runner
           "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
     # The --detach run-option means this assert will not catch
-    # some errors. For example, if the container has no bash.
+    # some errors. For example, if the container has no bash [X].
     shell.assert(docker_run)
     container_name
   end
@@ -301,14 +302,17 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def remove_container(container_name)
+    # Backgrounded for a small speed-up.
     shell.exec("docker rm #{container_name} --force &")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def random_id
-    # A container name based on _only_ the id could fail
-    # when a 2nd run is started with the same id.
+    # Add a random-id to the container name. A container-name
+    # based on _only_ the id will fail when a container with
+    # that id exists and is alive. Note that remove_container()
+    # backgrounds the [docker rm].
     HEX_DIGITS.shuffle[0,8].join
   end
 
@@ -390,12 +394,12 @@ class Runner
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
     options = [
-      ulimit('core'  ,   0   ), # core file size
-      ulimit('fsize' ,  16*MB), # file size
-      ulimit('locks' , 128   ), # number of file locks
-      ulimit('nofile', 256   ), # number of files
-      ulimit('nproc' , 128   ), # number of processes
-      ulimit('stack' ,   8*MB), # stack size
+      ulimit('core'  ,   0   ),           # core file size
+      ulimit('fsize' ,  16*MB),           # file size
+      ulimit('locks' , 128   ),           # number of file locks
+      ulimit('nofile', 256   ),           # number of files
+      ulimit('nproc' , 128   ),           # number of processes
+      ulimit('stack' ,   8*MB),           # stack size
       '--memory=512m',                    # max 512MB ram
       '--net=none',                       # no network
       '--pids-limit=128',                 # no fork bombs
@@ -432,7 +436,7 @@ class Runner
     # docker daemon via [docker run]'s --rm option.
     Process.kill(-KILL_SIGNAL, pid) # -ve means kill process-group
   rescue Errno::ESRCH
-    # There is a race. There may no longer be a process at pid.
+    # There may no longer be a process at pid (timeout race).
     # If not, you get an exception Errno::ESRCH: No such process
   end
 
@@ -441,7 +445,7 @@ class Runner
   def Process_detach(pid)
     # Prevents zombie child-process. Don't wait for detach status.
     Process.detach(pid)
-    # There is a race. There may no longer be a process at pid.
+    # There may no longer be a process at pid (timeout race).
     # If not, you don't get an exception.
   end
 
