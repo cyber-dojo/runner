@@ -1,5 +1,6 @@
 require_relative 'hex_mini_test'
 require_relative '../src/http_adapter'
+require_relative '../src/languages_start_points'
 require_relative '../src/runner'
 require 'json'
 
@@ -11,6 +12,8 @@ class TestBase < HexMiniTest
     @image_name = nil
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def self.multi_os_test(hex_suffix, *lines, &block)
     alpine_lines = ['[Alpine]'] + lines
     test(hex_suffix+'0', *alpine_lines, &block)
@@ -21,7 +24,15 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    Runner.new(HttpAdapter.new)
+    Runner.new(http_adapter )
+  end
+
+  def languages_start_points
+    LanguagesStartPoints.new(http_adapter)
+  end
+
+  def http_adapter
+    HttpAdapter.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -100,7 +111,7 @@ class TestBase < HexMiniTest
     })
     refute timed_out?, result
     assert_equal '', stderr
-    stdout.strip
+    stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,28 +129,56 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    manifest['visible_filenames'].collect do |filename|
-      [filename, IO.read("#{starting_files_dir}/#{filename}")]
+    manifest['visible_files'].map do |filename,file|
+      [ filename, file['content'] ]
     end.to_h
   end
 
+  #def XXX_starting_files
+  #  manifest['visible_filenames'].collect do |filename|
+  #    [filename, IO.read("#{starting_files_dir}/#{filename}")]
+  #  end.to_h
+  #end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def manifest
-    @manifest ||= JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
+    @manifest ||= languages_start_points.manifest(display_name)
   end
 
-  def starting_files_dir
-    "/app/test/start_files/#{os}"
+  #def XXX_manifest
+  #  @manifest ||= JSON.parse(IO.read("#{starting_files_dir}/manifest.json"))
+  #end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  #def starting_files_dir
+  #  "/app/test/start_files/#{os}"
+  #end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def display_name
+    case os
+    when :C_assert     then 'C (gcc), assert'
+    when :Ubuntu       then 'Perl, Test::Simple'
+    else                    'C#, NUnit'
+    end
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def os
     if hex_test_name.start_with? '[C,assert]'
       return :C_assert
     elsif hex_test_name.start_with? '[Ubuntu]'
       return :Ubuntu
-    else # [Alpine] || default
+    else # default
       :Alpine
     end
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def hiker_c
     starting_files['hiker.c']
