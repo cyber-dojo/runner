@@ -465,7 +465,7 @@ class Runner
     content = Utf8.clean(raw_content)
     {
         'content' => truncated(content),
-      'truncated' => truncate?(content)
+      'truncated' => truncated?(content)
     }
   end
 
@@ -473,7 +473,7 @@ class Runner
     content[0...MAX_FILE_SIZE]
   end
 
-  def truncate?(content)
+  def truncated?(content)
     content.size > MAX_FILE_SIZE
   end
 
