@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'http_json/service'
+require_relative 'http_json/requester'
+require_relative 'http_json/responder'
 
 class LanguagesStartPoints
 
@@ -11,7 +12,8 @@ class LanguagesStartPoints
   end
 
   def initialize(http)
-    @http = HttpJson::service(http, 'languages-start-points', 4524, Error)
+    requester = HttpJson::Requester.new(http, 'languages-start-points', 4524)
+    @http = HttpJson::Responder.new(requester, Error)
   end
 
   def manifest(name)

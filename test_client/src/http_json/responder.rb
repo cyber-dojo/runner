@@ -6,9 +6,10 @@ module HttpJson
 
   class Responder
 
-    def initialize(requester, exception_class)
+    def initialize(requester, exception_class, options = {})
       @requester = requester
       @exception_class = exception_class
+      @options = options
     end
 
     # - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +34,11 @@ module HttpJson
       unless json.has_key?(path)
         fail error_msg(body, "has no key for '#{path}'")
       end
-      json[path]
+      if @options[:raw]
+        json
+      else
+        json[path]
+      end
     end
 
     # - - - - - - - - - - - - - - - - - - - - -

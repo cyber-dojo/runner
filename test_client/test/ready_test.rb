@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class AliveTest < TestBase
+class ReadyTest < TestBase
 
   def self.hex_prefix
     'A86'
@@ -8,10 +8,10 @@ class AliveTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '15D', 'alive?' do
-    alive = runner.alive?
-    assert alive.is_a?(TrueClass) || alive.is_a?(FalseClass)
-    assert alive
+  test '15D', 'ready?' do
+    ready = runner.ready?['ready?']
+    assert ready.is_a?(TrueClass) || ready.is_a?(FalseClass)
+    assert ready
   end
 
 end

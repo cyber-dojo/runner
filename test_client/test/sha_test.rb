@@ -9,7 +9,7 @@ class ShaTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '882', 'sha' do
-    sha = runner.sha
+    sha = runner.sha['sha']
     assert sha.is_a?(String)
     assert_equal 40, sha.size
     sha.each_char do |ch|

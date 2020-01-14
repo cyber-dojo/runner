@@ -66,7 +66,7 @@ class RunCyberDojoShTest < TestBase
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
       }
     })
-    assert stdout.include?('GCC Code Coverage Report'), :stdout      
+    assert stdout.include?('GCC Code Coverage Report'), :stdout
     assert_equal '', stderr
     assert_equal 0, status
   end

@@ -68,35 +68,35 @@ class TestBase < HexMiniTest
   attr_reader :result
 
   def stdout
-    result['stdout']['content']
+    result['run_cyber_dojo_sh']['stdout']['content']
   end
 
   def stderr
-    result['stderr']['content']
+    result['run_cyber_dojo_sh']['stderr']['content']
   end
 
   def status
-    result['status']
+    result['run_cyber_dojo_sh']['status']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def created
-    result['created']
+    result['run_cyber_dojo_sh']['created']
   end
 
   def deleted
-    result['deleted']
+    result['run_cyber_dojo_sh']['deleted']
   end
 
   def changed
-    result['changed']
+    result['run_cyber_dojo_sh']['changed']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def timed_out?
-    result['timed_out']
+    result['run_cyber_dojo_sh']['timed_out']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
