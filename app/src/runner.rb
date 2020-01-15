@@ -40,13 +40,17 @@ class Runner
     stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
     rag_src,created,deleted,changed = text_file_changes(container_name, files)
     remove_container(container_name)
-    result = {
+    if timed_out
+      result = {}
+    else
+      result = traffic_light(image_name, id, rag_src, stdout, stderr, status)
+    end
+    result.merge({
       'run_cyber_dojo_sh' => {
          stdout:stdout, stderr:stderr, status:status, timed_out:timed_out,
         created:created, deleted:deleted, changed:changed
       }
-    }
-    result.merge(traffic_light(image_name, id, rag_src, stdout, stderr, status))
+    })
   end
 
   private
