@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'empty'
 module TrafficLight
 
   def traffic_light(image_name, id, rag_src, stdout, stderr, status)
