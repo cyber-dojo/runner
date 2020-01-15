@@ -9,7 +9,6 @@ class TestBase < HexMiniTest
 
   def initialize(arg)
     super(arg)
-    @files = nil
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
