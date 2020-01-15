@@ -75,6 +75,8 @@ class TestBase < HexMiniTest
     nil
   end
 
+  attr_reader :result
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def defaulted_arg(named_args, arg_name, arg_default)
@@ -82,8 +84,6 @@ class TestBase < HexMiniTest
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  attr_reader :result
 
   def stdout
     result['run_cyber_dojo_sh'][:stdout]['content']
@@ -187,7 +187,7 @@ class TestBase < HexMiniTest
   end
 
   def http
-    @http ||= HttpAdapter.new
+    HttpAdapter.new
   end
 
   def display_name
