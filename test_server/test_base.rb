@@ -20,7 +20,7 @@ class TestBase < HexMiniTest
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    Runner.new(externals)
+    @runner ||= Runner.new(externals)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
