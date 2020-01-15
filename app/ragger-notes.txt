@@ -1,94 +1,27 @@
 
-Working towards runner returning the traffic-light colour.
-I changed the line
-  container_name = create_container(image_name, id, max_seconds)
-to
-  container_name = create_container(image_name, id, max_seconds+2)
-to give 2 seconds for tar_pipe_text_files_out() to complete.
-Hopefully this will lead to tar-piping out the red_amber_green.rb file.
-However, +2 broke tests. The reason seemed to be too many containers
-are left running concurrently. I'm thinking that a
-  runner.run_cyber_dojo_sh()
-call should, on completion, do an explicit 'docker rm cid --force' to
-reclaim resources immediately. This increased test duration
-from 122s to 131s but tests all passed again.
-Making the [docker rm] backgrounded (&) helped a bit. Back to 128s.
-These containers are removed since they are created with --rm so they
-cant be inspected eg when debugging a failing test.
-Extracting rag-lambda in tar_pipe_text_files_out() brought this
-down to 104s.
-
-
-ragger.colour() now returns much more info in the json (for image_builder)
-Why not use the same idea in runner...
-runner could always return the colour.
-If the colour is 'faulty', return extra "out-of-band" information like ragger does.
-So the extra would just be {stdour,stderr,status} for the rag-lambda call itself.
-
-red_amber_green.rb cannot be run inside the runner directly.
-Runner must spawn a new cyberdojo/ruby container to run it securely
-(and with its own max_seconds). And now it becomes clear that the
-best option is to simply expose the red_amber_green.rb file in the browser
-so it is available in the files arguments. The red_amber_green.rb file inside
-the image becomes the 'master' version where the original comes from.
-
-Simplest starting use-case (which covers existing sessions) is to get runner to
-check if cyber-dojo-traffic-light.rb is already in incoming files argument.
-If not, extract it via a separate container-run and add it to returned files
-(as if it was created like an Approval style test), so it becomes an incoming
-file for the next [test].
-
-Some comments could be added to the red_amber_green.rb itself, as documentation,
-visible in the browser.
+Now have option of returning the rag-lambda as a 'created' file
+so it appears in the browser. Call it cyber-dojo-traffic-light.rb
 
 In the browser, any file that begins cyber-dojo can be "reserved".
 Reserved files appear in lower section and cannot be deleted or renamed,
 but can be viewed and edited.
 
-Ok. Now we get to caching. Is it worth caching, so runner itself does the
-rag lambda eval+call if it has not been edited? Not initially.
-It adds a lot more complexity to puller as I have experienced.
-A colour-docker-container spin up is very fast. And I already save by not having to
-make another http-web call (like I do with ragger).
+Could add red_amber_green.rb to the starting files for a _new_ kata.
+What about forking?
 
-I have to avoid recursion. I don't want the colour() call to try and get the colour too!
-
-Do I now add red_amber_green.rb to the starting files for a new kata?
-Initially let the first [test] run add it to files. Then add it as polish.
-When creating a forked-start-point, only add it if its not already there.
-
-Ok. So now puller becomes a properly separate service.
+Now puller becomes a properly separate service.
 It has a dependency on CSP and LSP which is fine.
 It does a docker pull every 24 hours. Job done!
 An updated image will be ready for any runner.run_cyber_dojo_sh call.
 
-Back to caching. Cache staleness on a puller update is no longer
-an issue as long as runner gets a fresh copy of the master rag-lambda
-from the image on each [test].
-So update tar_pipe_text_files_out() function to add one extra line to
-ECHO_TRUNCATED_TEXTFILE_NAMES. Viz:
-cp /usr/local/bin/red_amber_green.rb COPY_OF_ORIGINAL
-Then compare it to the incoming files['cyber-dojo-traffic-light.rb']
-
+Looking for incoming cyber-dojo-traffic-light.rb file.
 if there isn't one
-  you can eval+call where you are, with the extracted original
+  you can eval+call, with the extracted original (as per now)
 else if its an exact match
-  you can eval+call where you are, with either.
+  you can eval+call with the extracted original (as per now)
 else
-  you have to make a 2nd runner call.
+  you have to make a 2nd runner call (see below)
 end
-
-Now, what to call COPY_OF_ORIGINAL. Whatever you choose it could
-overwrite a file with the same name in /sandbox.
-Pick a randomly generated name.
-Then extract it from created() files so it does not go back to
-the browser with the random name.
-If incoming files does _not_ have a cyber-dojo-traffic-light.rb file
-then copy it back into created() with the name cyber-dojo-traffic-light.rb.
-
-Have to be very careful with comparison. Exactly the same is safest. So
-comments for cyber-dojo-traffic-light.rb are best in their own file.
-
 
 --------------------------------------------------------------
 rag_name_rand = .... # used in ECHO_TRUNCATED_TEXTFILE_NAMES
