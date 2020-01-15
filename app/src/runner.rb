@@ -3,9 +3,9 @@ require_relative 'empty'
 require_relative 'files_delta'
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
-require_relative 'set_traffic_light'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
+require_relative 'traffic_light'
 require_relative 'utf8_clean'
 require 'securerandom'
 require 'timeout'
@@ -47,14 +47,13 @@ class Runner
         created:created, deleted:deleted, changed:changed
       }
     }
-    set_traffic_light(result, image_name, id, rag_src, stdout, stderr, status)
-    result
+    result.merge(traffic_light(image_name, id, rag_src, stdout, stderr, status))
   end
 
   private
 
   include FilesDelta
-  include SetTrafficLight
+  include TrafficLight
 
   KB = 1024
   MB = 1024 * KB
