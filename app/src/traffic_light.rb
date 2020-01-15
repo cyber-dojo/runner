@@ -57,7 +57,7 @@ module TrafficLight
       }
     end
 
-    return { 'colour' => colour }
+    { 'colour' => colour }
   end
 
 end

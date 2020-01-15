@@ -122,7 +122,7 @@ class Runner
     # and runs /sandbox/cyber-dojo.sh
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
-    #     Untars files as this user sets their ownership.
+    #     Untars files as this user to set their ownership.
     # [2] Don't use [docker exec --workdir] as that requires API version
     #     1.35 but CircleCI is currently using Docker Daemon API 1.32
     # [3] tar is installed [X].
@@ -405,7 +405,7 @@ class Runner
     ]
     unless clang?(image_name)
       # [ulimit data] prevents clang's -fsanitize=address option.
-      options << ulimit('data', 4*GB) # data segment size
+      options << ulimit('data', 4*GB)     # data segment size
     end
     options.join(SPACE)
   end
@@ -430,8 +430,8 @@ class Runner
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
     # cyber-dojo.sh process running _inside_ the docker
-    # container. The container is killed by the
-    # docker daemon via [docker run]'s --rm option.
+    # container. The container is killed by remove_container()
+    # with a fall-back via [docker run]'s --rm option.
     Process.kill(-KILL_SIGNAL, pid) # -ve means kill process-group
   rescue Errno::ESRCH
     # There may no longer be a process at pid (timeout race).
