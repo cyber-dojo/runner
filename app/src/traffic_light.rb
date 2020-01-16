@@ -24,8 +24,8 @@ module TrafficLight
           'image_name' => image_name,
           'id' => id,
           'info' => 'eval(rag_lambda) raised an exception',
-          'message' => error.message,
-          'rag_lambda' => rag_src
+          'message' => error.message.lines,
+          'rag_lambda' => rag_src.lines
         }
       }
     end
@@ -41,8 +41,8 @@ module TrafficLight
           'image_name' => image_name,
           'id' => id,
           'info' => 'rag_lambda.call raised an exception',
-          'message' => error.message,
-          'rag_lambda' => rag_src
+          'message' => error.message.lines,
+          'rag_lambda' => rag_src.lines
         }
       }
     end
@@ -54,7 +54,7 @@ module TrafficLight
           'image_name' => image_name,
           'id' => id,
           'info' => "rag_lambda.call is '#{colour}' which is not 'red'|'amber'|'green'",
-          'rag_lambda' => rag_src
+          'rag_lambda' => rag_src.lines
         }
       }
     end
