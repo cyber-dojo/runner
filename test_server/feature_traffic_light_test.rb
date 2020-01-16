@@ -90,7 +90,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert diagnostic['message'][0].start_with?(expected_message), :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -114,7 +114,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal [expected_message], diagnostic['message'], :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -137,7 +137,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_nil diagnostic['message'], :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -161,7 +161,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal [expected_message], diagnostic['message'], :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -185,7 +185,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal [expected_message], diagnostic['message'], :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -204,7 +204,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert diagnostic['message'][0].include?(expected_message), :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -223,7 +223,7 @@ class TrafficLightTest < TestBase
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
     assert_equal [expected_message], diagnostic['message'], :message
-    assert_equal stub.lines, diagnostic['rag_lambda'], :rag_lambda
+    assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
   private
