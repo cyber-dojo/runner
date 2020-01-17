@@ -94,11 +94,14 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'D98', %w( sandbox/ dir properties ) do
-    assert_cyber_dojo_sh "[ -d #{sandbox_dir} ]" # sandbox exists
-    refute_equal '', assert_cyber_dojo_sh("ls -A #{sandbox_dir}")
-    assert_equal     uid.to_s, stat_sandbox_dir('u'), 'stat <uid>  sandbox_dir'
-    assert_equal     gid.to_s, stat_sandbox_dir('g'), 'stat <gid>  sandbox_dir'
-    assert_equal 'drwxrwxrwt', stat_sandbox_dir('A'), 'stat <perm> sandbox_dir'
+    assert_cyber_dojo_sh([
+      "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/stat.u",
+      "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/stat.g",
+      "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A"
+    ].join(' && '))
+    assert_equal uid.to_s,     created['stat.u']['content'], :uid
+    assert_equal gid.to_s,     created['stat.g']['content'], :gid
+    assert_equal 'drwxrwxrwt', created['stat.A']['content'], :permission
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,10 +161,6 @@ class ContainerPropertiesTest < TestBase
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =
-
-  def stat_sandbox_dir(ch)
-    assert_cyber_dojo_sh("stat --printf='%#{ch}' #{sandbox_dir}")
-  end
 
   def home_dir
     '/home/sandbox'

@@ -14,7 +14,7 @@ def table
     [ 'coverage(app)[%]',       app_coverage,   '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,  '==', 100 ],
     [ 'lines(test)/lines(app)', f2(line_ratio), '>=', 3.0 ],
-    [ 'hits(app)/hits(test)',   f2(hits_ratio), '>=', 7.3 ],
+    [ 'hits(app)/hits(test)',   f2(hits_ratio), '>=', 6.9 ],
   ]
 end
 
