@@ -1,7 +1,7 @@
 # API
 
 - - - -
-# GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
+## GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
 Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 - [JSON-in](#json-in) parameters
   * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
@@ -71,15 +71,14 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
     "colour": "green"
   }
   ```
-  - notes
-    * `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
-      as determined by passing `stdout['content']`, `stderr['content']`, `status`      
-      to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
-    * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
-    * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
-    * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
-    * if calling the lambda returns anything other than `:red`, `:amber`, or `:green`,
-      then `"colour"` is `"faulty"`.
+  * `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
+    as determined by passing `stdout['content']`, `stderr['content']`, `status`      
+    to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
+  * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
+  * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
+  * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
+  * if calling the lambda returns anything other than `:red`, `:amber`, or `:green`,
+    then `"colour"` is `"faulty"`.
 - if `"colour"` is `"faulty"`, also returns information keyed on `"diagnostic"`.
   * eg    
   ```json
@@ -122,13 +121,12 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
 - - - -
 ## GET ready?
 Tests if the service is ready to handle requests.
+Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
 - [JSON-in](#json-in) parameters
   * none
 - returns [JSON-out](#json-out) result, keyed on `"ready?"`
   * **true** if the service is ready
   * **false** if the service is not ready
-- notes
-  * Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
 - example
   ```bash     
   $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/ready?
@@ -137,13 +135,12 @@ Tests if the service is ready to handle requests.
 
 - - - -
 ## GET alive?
-Tests if the service is alive.  
+Tests if the service is alive.
+Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
 - [JSON-in](#json-in) parameters
   * none
 - returns the [JSON-out](#json-out) result, keyed on `"alive?"`
   * **true**
-- notes
-  * Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
 - example
   ```bash     
   $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/alive?
@@ -164,13 +161,13 @@ The 40 character git commit sha used to create the Docker image.
   ```
 
 - - - -
-# JSON in
+## JSON in
 - All methods pass any arguments as a json hash in the http request body.
 - If there are no arguments you can use `''` (which is the default
   for `curl --data`) instead of `'{}'`.
 
 - - - -
-# JSON out      
+## JSON out      
 - All methods return a json hash in the http response body.
 - If the method completes, a string key equals the method's name. eg
   ```bash
