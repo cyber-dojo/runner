@@ -64,6 +64,7 @@ class TrafficLightTest < TestBase
       assert_equal image_stub, diagnostic['image_name'], :image_name
       assert_equal id, diagnostic['id'], :id
       assert_equal expected_info, diagnostic['info'], :info
+      assert_nil diagnostic['name'], :name
       assert_nil diagnostic['message'], :message
       assert_nil diagnostic['rag_lambda'], :rag_lambda
     ensure
@@ -89,6 +90,7 @@ class TrafficLightTest < TestBase
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
+    assert_equal 'NameError', diagnostic['name'], :name
     assert diagnostic['message'][0].start_with?(expected_message), :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
@@ -108,12 +110,12 @@ class TrafficLightTest < TestBase
       RUBY
     image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'rag_lambda.call raised an exception'
-    expected_message = 'wibble'
     assert_equal 'faulty', colour, :colour
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
-    assert_equal [expected_message], diagnostic['message'], :message
+    assert_equal 'ArgumentError', diagnostic['name'], :name
+    assert_equal ['wibble'], diagnostic['message'], :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
@@ -136,6 +138,7 @@ class TrafficLightTest < TestBase
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
+    assert_nil diagnostic['name'], :name
     assert_nil diagnostic['message'], :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
@@ -160,6 +163,7 @@ class TrafficLightTest < TestBase
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
+    assert_equal 'ArgumentError', diagnostic['name'], :name
     assert_equal [expected_message], diagnostic['message'], :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
@@ -184,6 +188,7 @@ class TrafficLightTest < TestBase
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
+    assert_equal 'ArgumentError', diagnostic['name'], :name
     assert_equal [expected_message], diagnostic['message'], :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
@@ -203,6 +208,7 @@ class TrafficLightTest < TestBase
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
+    assert_equal 'SyntaxError', diagnostic['name'], :name
     assert diagnostic['message'][0].include?(expected_message), :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
@@ -217,12 +223,12 @@ class TrafficLightTest < TestBase
     stub = 'raise Exception, "fubar"'
     image_stub = run_cyber_dojo_image_stubbed_with(stub)
     expected_info = 'eval(rag_lambda) raised an exception'
-    expected_message = 'fubar'
     assert_equal 'faulty', colour, :colour
     assert_equal image_stub, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
     assert_equal expected_info, diagnostic['info'], :info
-    assert_equal [expected_message], diagnostic['message'], :message
+    assert_equal 'Exception', diagnostic['name'], :name
+    assert_equal ['fubar'], diagnostic['message'], :message
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 

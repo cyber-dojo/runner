@@ -3,7 +3,7 @@
 - - - -
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
 Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
-- [json](#json-in) parameters
+- [JSON-in](#json-in) parameters
   * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * **id:String** for tracing
   * **files:Hash{String=>String}** assumed to contain a file called `"cyber-dojo.sh"`
@@ -21,7 +21,7 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
     "max_seconds": 10
   }
   ```
-- returns the results, [keyed](#json-out) on `"run_cyber_dojo_sh"`
+- returns the [JSON-out](#json-out) results, keyed on `"run_cyber_dojo_sh"`
   * **stdout:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
   * **stderr:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
   * **status:Integer** of running `/sandbox/cyber-dojo.sh` (0 to 255)
@@ -57,7 +57,7 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
     ```
 - if `timed_out` is `false`, also returns the
 [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html),
- [keyed](#json-out) on `"colour"`.
+ keyed on `"colour"`.
   * eg
   ```json
   { "run_cyber_dojo": {
@@ -73,47 +73,48 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
   ```
   - notes
     * `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
-    * as determined by passing `stdout['content']`, `stderr['content']`, `status`
-to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
+      as determined by passing `stdout['content']`, `stderr['content']`, `status`      
+      to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
     * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
     * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
     * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
     * if calling the lambda returns anything other than `:red`, `:amber`, or `:green`,
       then `"colour"` is `"faulty"`.
-- if `"colour"` is `"faulty"`, also returns information [keyed](#json-out) on `"diagnostics"`.
+- if `"colour"` is `"faulty"`, also returns information keyed on `"diagnostic"`.
   * eg    
   ```json
   { "run_cyber_dojo_sh": { ... },
     "colour": "faulty",
     "diagnostic": {
-        "image_name": "cyberdojofoundation/python_pytest",
-        "id": "34de2W",
-        "info": "eval(rag_lambda) raised an exception",
-        "message": [
-          "/app/src/empty.rb:25: syntax error, unexpected tIDENTIFIER, expecting end",
-          "     return :amber sdf if",
-          "                   ^~~",
-          "/app/src/empty.rb:28: syntax error, unexpected end, expecting '}'",
-          "  end",
-          "  ^~~",
-          "/app/src/empty.rb:32: syntax error, unexpected '}', expecting end-of-input"
-        ],
-        "rag_lambda": [
-          "lambda { |stdout,stderr,status|",
-          "  output = stdout + stderr",
-          "",
-          "  return :amber if /=== ERRORS ===/.match(output)",
-          "",
-          "  %w( ... ).each do |syntax_error_prefix|",
-          "     return :amber sdf if",
-          "       /=== FAILURES ===/.match(output) &&",
-          "         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)",
-          "  end",
-          "",
-          "  return :green if /=== (\\d+) passed/.match(output)",
-          "  return :red",
-          "}"
-        ]
+      "image_name": "cyberdojofoundation/python_pytest",
+      "id": "34de2W",
+      "info": "eval(rag_lambda) raised an exception",
+      "name:": "SyntaxError",
+      "message": [
+        "/app/src/empty.rb:25: syntax error, unexpected tIDENTIFIER, expecting end",
+        "     return :amber sdf if",
+        "                   ^~~",
+        "/app/src/empty.rb:28: syntax error, unexpected end, expecting '}'",
+        "  end",
+        "  ^~~",
+        "/app/src/empty.rb:32: syntax error, unexpected '}', expecting end-of-input"
+      ],
+      "rag_lambda": [
+        "lambda { |stdout,stderr,status|",
+        "  output = stdout + stderr",
+        "",
+        "  return :amber if /=== ERRORS ===/.match(output)",
+        "",
+        "  %w( ... ).each do |syntax_error_prefix|",
+        "     return :amber sdf if",
+        "       /=== FAILURES ===/.match(output) &&",
+        "         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)",
+        "  end",
+        "",
+        "  return :green if /=== (\\d+) passed/.match(output)",
+        "  return :red",
+        "}"
+      ]
     }
   }
   ```
@@ -123,7 +124,7 @@ to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green
 Tests if the service is ready to handle requests.
 - [JSON-in](#json-in) parameters
   * none
-- returns [JSON-out](#json-out)
+- returns [JSON-out](#json-out) result, keyed on `"ready?"`
   * **true** if the service is ready
   * **false** if the service is not ready
 - notes
@@ -139,7 +140,7 @@ Tests if the service is ready to handle requests.
 Tests if the service is alive.  
 - [JSON-in](#json-in) parameters
   * none
-- returns [JSON-out](#json-out)
+- returns the [JSON-out](#json-out) result, keyed on `"alive?"`
   * **true**
 - notes
   * Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
@@ -151,11 +152,11 @@ Tests if the service is alive.
 
 - - - -
 ## GET sha
-The git commit sha used to create the Docker image.
+The 40 character git commit sha used to create the Docker image.
 - [JSON-in](#json-in) parameters
   * none
-- returns [JSON-out](#json-out)
-  * the 40 character commit sha string.
+- returns the [JSON-out](#json-out) result, keyed on `"sha"`
+  * eg `"41d7e6068ab75716e4c7b9262a3a44323b4d1448"`
 - example
   ```bash     
   $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/sha

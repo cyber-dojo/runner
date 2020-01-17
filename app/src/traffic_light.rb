@@ -24,6 +24,7 @@ module TrafficLight
           'image_name' => image_name,
           'id' => id,
           'info' => 'eval(rag_lambda) raised an exception',
+          'name' => error.class.name,
           'message' => error.message.split("\n"),
           'rag_lambda' => rag_src.split("\n")
         }
@@ -41,6 +42,7 @@ module TrafficLight
           'image_name' => image_name,
           'id' => id,
           'info' => 'rag_lambda.call raised an exception',
+          'name' => error.class.name,          
           'message' => error.message.split("\n"),
           'rag_lambda' => rag_src.split("\n")
         }
