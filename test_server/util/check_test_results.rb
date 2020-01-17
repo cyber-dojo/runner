@@ -1,4 +1,23 @@
 
+# It's useful to keep these tolerances quite close
+# to their limit. It helps to show large jumps which
+# can be a sign of too much work in progres.
+
+def table
+  [
+    [ 'tests',                  test_count,     '!=',   0 ],
+    [ 'failures',               failure_count,  '==',   0 ],
+    [ 'errors',                 error_count,    '==',   0 ],
+    [ 'warnings',               warning_count,  '==',   0 ],
+    [ 'skips',                  skip_count,     '==',   0 ],
+    [ 'duration(test)[s]',      test_duration,  '<=', 240 ],
+    [ 'coverage(app)[%]',       app_coverage,   '==', 100 ],
+    [ 'coverage(test)[%]',      test_coverage,  '==', 100 ],
+    [ 'lines(test)/lines(app)', f2(line_ratio), '>=', 3.0 ],
+    [ 'hits(app)/hits(test)',   f2(hits_ratio), '>=', 7.3 ],
+  ]
+end
+
 def number
   '[\.|\d]+'
 end
@@ -82,43 +101,32 @@ end
 
 # - - - - - - - - - - - - - - - - - - - - - - -
 
-log_stats = get_test_log_stats
-test_stats = get_index_stats('test')
-app_stats = get_index_stats('app')
+def log_stats
+  $log_stats ||= get_test_log_stats
+end
+
+def test_stats
+  $test_stats ||= get_index_stats('test')
+end
+
+def app_stats
+  $app_stats ||= get_index_stats('app')
+end
 
 # - - - - - - - - - - - - - - - - - - - - - - -
 
-test_count    = log_stats[:test_count]
-failure_count = log_stats[:failure_count]
-error_count   = log_stats[:error_count]
-warning_count = log_stats[:warning_count]
-skip_count    = log_stats[:skip_count]
-test_duration = log_stats[:time].to_f
+def test_count;    log_stats[:test_count]; end
+def failure_count; log_stats[:failure_count]; end
+def error_count;   log_stats[:error_count]; end
+def warning_count; log_stats[:warning_count]; end
+def skip_count;    log_stats[:skip_count]; end
+def test_duration; log_stats[:time].to_f; end
 
-app_coverage  = app_stats[:coverage].to_f
-test_coverage = test_stats[:coverage].to_f
+def app_coverage;  app_stats[:coverage].to_f; end
+def test_coverage; test_stats[:coverage].to_f; end
 
-line_ratio = (test_stats[:line_count].to_f / app_stats[:line_count].to_f)
-hits_ratio = (app_stats[:hits_per_line].to_f / test_stats[:hits_per_line].to_f)
-
-# - - - - - - - - - - - - - - - - - - - - - - -
-# It is useful to keep these tolerances quite close
-# to their limit. It helps to show large jumps which
-# can be a sign of too much work in progres.
-
-table =
-  [
-    [ 'tests',                  test_count,     '!=',   0 ],
-    [ 'failures',               failure_count,  '==',   0 ],
-    [ 'errors',                 error_count,    '==',   0 ],
-    [ 'warnings',               warning_count,  '==',   0 ],
-    [ 'skips',                  skip_count,     '==',   0 ],
-    [ 'duration(test)[s]',      test_duration,  '<=', 240 ],
-    [ 'coverage(app)[%]',       app_coverage,   '==', 100 ],
-    [ 'coverage(test)[%]',      test_coverage,  '==', 100 ],
-    [ 'lines(test)/lines(app)', f2(line_ratio), '>=', 3.0 ],
-    [ 'hits(app)/hits(test)',   f2(hits_ratio), '>=', 7.5 ],
-  ]
+def line_ratio; (test_stats[:line_count].to_f / app_stats[:line_count].to_f); end
+def hits_ratio; (app_stats[:hits_per_line].to_f / test_stats[:hits_per_line].to_f); end
 
 # - - - - - - - - - - - - - - - - - - - - - - -
 
