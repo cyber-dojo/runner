@@ -28,23 +28,6 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test 'D92', %w( requires a /sandbox/ dir ) do
-    image_name = 'cyberdojo/runner'
-    with_captured_log {
-      run_cyber_dojo_sh({image_name:image_name})
-    }
-    expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
-    refute_nil stdout+stderr
-    assert_equal 'faulty', colour
-    assert_equal image_name, diagnostic['image_name'], :image_name
-    assert_equal id, diagnostic['id'], :id
-    assert_equal expected_info, diagnostic['info'], :info
-    assert_nil diagnostic['message'], :message
-    assert_nil diagnostic['rag_lambda'], :rag_lambda
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   multi_os_test 'D98', %w( various container properties ) do
     assert_cyber_dojo_sh([
       "cat /proc/1/cmdline | cut -c1-9   > #{sandbox_dir}/proc.1", # [1]
@@ -73,7 +56,7 @@ class ContainerPropertiesTest < TestBase
 
     etc_passwd = created['passwd']['content']
     assert etc_passwd.include?(uid.to_s), etc_passwd
-    
+
     fields = created['group']['content'].split(':')  # sandbox:x:51966
     assert_equal group, fields[0], :group_name
     assert_equal   gid, fields[2].to_i, :group_gid
