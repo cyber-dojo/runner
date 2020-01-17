@@ -46,6 +46,11 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'D93', %w( pid1 is running init process ) do
+    # Note: I tried adding this to D98 below...
+    # 'cat /proc/1/cmdline > #{sandbox_dir}/proc.1'
+    # It fails because this...
+    # file --mime-encoding #{sandbox_dir}/proc.1
+    # returns /sandbox/proc.1: binary
     cmd = 'cat /proc/1/cmdline'
     proc1 = assert_cyber_dojo_sh(cmd)
     # odd, but there _is_ an embedded nul-character
@@ -59,46 +64,29 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D94', %w( sandbox user exists ) do
-    etc_passwd = assert_cyber_dojo_sh('cat /etc/passwd')
-    name = 'sandbox'
-    diagnostic = "#{name}:#{uid}:#{etc_passwd}:#{image_name}"
-    assert etc_passwd.include?(uid.to_s), diagnostic
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D95', %w( sandbox group exists ) do
-    assert_cyber_dojo_sh("getent group #{group}")
-    entries = stdout.split(':')  # sandbox:x:51966
-    assert_equal group, entries[0], stdout
-    assert_equal   gid, entries[2].to_i, stdout
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D96', %w( sandbox user has home ) do
-    assert_equal home_dir, assert_cyber_dojo_sh('printf ${HOME}')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D97', %w( environment variables are set ) do
-    assert_cyber_dojo_sh('env')
-    env_vars = Hash[stdout.split("\n").map{ |line| line.split('=') }]
-    assert_equal  image_name, env_vars['CYBER_DOJO_IMAGE_NAME']
-    assert_equal          id, env_vars['CYBER_DOJO_ID']
-    assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D98', %w( sandbox/ dir properties ) do
+  multi_os_test 'D98', %w( container properties ) do
     assert_cyber_dojo_sh([
+      "cat /etc/passwd                   > #{sandbox_dir}/passwd",
+      "getent group #{group}             > #{sandbox_dir}/group",
+      "printf ${HOME}                    > #{sandbox_dir}/home.dir",
+      "env                               > #{sandbox_dir}/env.vars",
       "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/stat.u",
       "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/stat.g",
       "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A"
     ].join(' && '))
+
+    etc_passwd = created['passwd']['content']
+    assert etc_passwd.include?(uid.to_s), etc_passwd
+    group_entries = created['group']['content'].split(':')  # sandbox:x:51966
+    assert_equal group, group_entries[0], :group_name
+    assert_equal   gid, group_entries[2].to_i, :group_gid
+
+    assert_equal home_dir, created['home.dir']['content'], :home_dir
+    env = created['env.vars']['content']
+    env_vars = Hash[env.split("\n").map{ |line| line.split('=') }]
+    assert_equal  image_name, env_vars['CYBER_DOJO_IMAGE_NAME'], :cyber_dojo_image_name
+    assert_equal          id, env_vars['CYBER_DOJO_ID'], :cyber_dojo_id
+    assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX'], :cyber_dojo_sandbox
     assert_equal uid.to_s,     created['stat.u']['content'], :uid
     assert_equal gid.to_s,     created['stat.g']['content'], :gid
     assert_equal 'drwxrwxrwt', created['stat.A']['content'], :permission
