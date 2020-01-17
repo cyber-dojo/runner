@@ -49,10 +49,12 @@ class ContainerPropertiesTest < TestBase
     # nine characters of proc/1/cmdline are saved, and proc.1 is
     # seen as a text file.
     proc1 = created['proc.1']['content']
+    puts "proc1:#{proc1}:"
     # odd, but there _is_ an embedded nul-character
     expected_1 = ('/dev/init' + 0.chr + '--')[0...9]
-    expected_2 = ('/sbin/docker-init')[0...9]
+    expected_2 = ('/sbin/docker-init')[0...9] # 17
     assert proc1.start_with?(expected_1) || proc1.start_with?(expected_2), proc1
+    assert false, :force_fail
 
     etc_passwd = created['passwd']['content']
     assert etc_passwd.include?(uid.to_s), etc_passwd

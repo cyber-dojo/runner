@@ -10,7 +10,7 @@ def table
     [ 'errors',                 error_count,    '==',   0 ],
     [ 'warnings',               warning_count,  '==',   0 ],
     [ 'skips',                  skip_count,     '==',   0 ],
-    [ 'duration(test)[s]',      test_duration,  '<=', 240 ],
+    [ 'duration(test)[s]',      test_duration,  '<=', 200 ],
     [ 'coverage(app)[%]',       app_coverage,   '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,  '==', 100 ],
     [ 'lines(test)/lines(app)', f2(line_ratio), '>=', 2.9 ],
