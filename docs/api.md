@@ -74,8 +74,7 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
   }
   ```
   * `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
-    as determined by passing `stdout['content']`, `stderr['content']`, `status`      
-    to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
+    as determined by passing `stdout['content']`, `stderr['content']`, `status` to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
   * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
   * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
   * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
