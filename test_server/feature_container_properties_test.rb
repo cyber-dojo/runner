@@ -30,20 +30,24 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D98', %w( various container properties ) do
-    assert_cyber_dojo_sh([
-      "cat /proc/1/cmdline | cut -c1-9   > #{sandbox_dir}/proc.1", # [1]
+  multi_os_test 'D98', %w( multiple container properties ) do
+    cyber_dojo_sh = [
+      "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]
+      "cat /proc/1/cmdline | cut -c1-9   > #{sandbox_dir}/proc.1", # [2]
       "cat /etc/passwd                   > #{sandbox_dir}/passwd",
       "getent group #{group}             > #{sandbox_dir}/group",
       "printf ${HOME}                    > #{sandbox_dir}/home.dir",
       "env                               > #{sandbox_dir}/env.vars",
-      "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/stat.u",
-      "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/stat.g",
-      "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A",
-      "ulimit -a                         > #{sandbox_dir}/ulimit"
-    ].join(' && '))
+      "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/dir.stat.u",
+      "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/dir.stat.g",
+      "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/dir.stat.A",
+      "ulimit -a                         > #{sandbox_dir}/ulimit.all"
+    ].join(' && ')
 
-    # [1] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'
+    assert_cyber_dojo_sh(cyber_dojo_sh)
+
+    # [1] must be first so as not to see newly created files.
+    # [2] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'
     # Yes, there is an embedded nul-character.
     # Depending on the version of docker you are using you may get
     # '/sbin/docker-init' instead of '/dev/init'
@@ -57,7 +61,8 @@ class ContainerPropertiesTest < TestBase
     assert [expected_1,expected_2].any?{|s|proc1.start_with?(s)}, proc1
 
     etc_passwd = created_file('passwd')
-    assert etc_passwd.include?(uid.to_s), etc_passwd
+    etc_passwd_line = "sandbox:x:#{uid}:#{gid}:"
+    assert etc_passwd.lines.detect{|line| line.start_with?(etc_passwd_line)}, etc_passwd
 
     fields = created_file('group').split(':')  # sandbox:x:51966
     assert_equal group, fields[0], :group_name
@@ -71,9 +76,9 @@ class ContainerPropertiesTest < TestBase
     assert_equal          id, env_vars['CYBER_DOJO_ID'], :cyber_dojo_id
     assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX'], :cyber_dojo_sandbox
 
-    assert_equal uid.to_s,     created_file('stat.u'), :uid
-    assert_equal gid.to_s,     created_file('stat.g'), :gid
-    assert_equal 'drwxrwxrwt', created_file('stat.A'), :permission
+    assert_equal uid.to_s,     created_file('dir.stat.u'), :uid
+    assert_equal gid.to_s,     created_file('dir.stat.g'), :gid
+    assert_equal 'drwxrwxrwt', created_file('dir.stat.A'), :permission
 
     expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
     expected_max_file_size  = 16 * MB / (block_size = 1024)
@@ -85,47 +90,32 @@ class ContainerPropertiesTest < TestBase
     assert_equal 128,                     ulimit(:file_locks), :file_locks
     assert_equal 256,                     ulimit(:open_files), :open_files
     assert_equal 128,                     ulimit(:processes),  :processes
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D99', %w( starting-files properties ) do
-    run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => stat_cmd }
-    })
-    assert_equal '', stderr
-    assert_equal starting_files.keys.sort, stdout_stats.keys.sort
+    stats = files_stat
+    assert_equal starting_files.keys.sort, stats.keys.sort
     starting_files.each do |filename, content|
       if filename === 'cyber-dojo.sh'
-        content = stat_cmd
+        content = cyber_dojo_sh
       end
-      assert_stats(filename, '-rw-r--r--', content.length)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D9B', %w( time-stamp microsecond gramularity ) do
-    # On _default_ Alpine date-time file-stamps are to
-    # the second granularity. In other words, the
-    # microseconds value is always '000000000'.
-    # Make sure the tar-piped files have fixed this.
-    run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => stat_cmd }
-    })
-    count = 0
-    stdout_stats.each do |filename,atts|
-      count += 1
-      refute_nil atts, filename
-      stamp = atts[:time] # eg '07:03:14.835233538'
+      stat = stats[filename]
+      refute_nil stat, filename
+      diagnostic = { filename => stat }
+      assert_equal '-rw-r--r--', stat[:permissions], diagnostic
+      assert_equal          uid, stat[:uid        ], diagnostic
+      assert_equal        group, stat[:group      ], diagnostic
+      assert_equal content.size, stat[:size       ], diagnostic
+      # On _default_ Alpine date-time file-stamps are to
+      # the second granularity. In other words, the
+      # microseconds value is always '000000000'.
+      # Make sure this had been upgraded.
+      stamp = stat[:time] # eg '07:03:14.835233538'
       microsecs = stamp.split(/[\:\.]/)[-1]
-      assert_equal 9, microsecs.length
-      refute_equal '0'*9, microsecs
+      assert_equal 9, microsecs.length, :microsecs_length
+      refute_equal '0'*9, microsecs, :microsecs_not_zero
     end
-    assert count > 0, count
   end
 
-  private # = = = = = = = = = = = = = = = = = = = = = =
+  private
 
   def home_dir
     '/home/sandbox'
@@ -162,7 +152,7 @@ class ContainerPropertiesTest < TestBase
   }
 
   def ulimit(key)
-    ulimit = created_file('ulimit')
+    ulimit = created_file('ulimit.all')
     text = ULIMIT_TABLE[key]
     diagnostic = "#{ulimit}\nno ulimit for #{key}"
     refute_nil text, diagnostic
@@ -172,26 +162,14 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_stats(filename, permissions, size)
-    stats = stdout_stats[filename]
-    refute_nil stats, filename
-    diagnostic = { filename => stats }
-    assert_equal permissions, stats[:permissions], diagnostic
-    assert_equal         uid, stats[:uid        ], diagnostic
-    assert_equal       group, stats[:group      ], diagnostic
-    assert_equal        size, stats[:size       ], diagnostic
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def stdout_stats
-    stdout.lines.collect { |line|
+  def files_stat
+    created_file('files.stat').lines.collect { |line|
       attr = line.split
       [attr[0], { # filename
         permissions: attr[1],
                 uid: attr[2].to_i,
               group: attr[3],
-               size: attr[4].to_i,
+               size: attr[4].to_i, # [5] === date
                time: attr[6],
       }]
     }.to_h
