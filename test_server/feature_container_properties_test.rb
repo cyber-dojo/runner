@@ -45,27 +45,9 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D93', %w( pid1 is running init process ) do
-    # Note: I tried adding this to D98 below...
-    # 'cat /proc/1/cmdline > #{sandbox_dir}/proc.1'
-    # It fails because this...
-    # file --mime-encoding #{sandbox_dir}/proc.1
-    # returns /sandbox/proc.1: binary
-    cmd = 'cat /proc/1/cmdline'
-    proc1 = assert_cyber_dojo_sh(cmd)
-    # odd, but there _is_ an embedded nul-character
-    expected_1 = '/dev/init' + 0.chr + '--'
-    # The result of a docker-compose.yml's
-    #     init: true
-    # varies depending on what version of docker you are using
-    expected_2 = '/sbin/docker-init'
-    assert proc1.start_with?(expected_1) || proc1.start_with?(expected_2), proc1
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D98', %w( container properties ) do
+  multi_os_test 'D98', %w( various container properties ) do
     assert_cyber_dojo_sh([
+      "cat /proc/1/cmdline | cut -c1-9   > #{sandbox_dir}/proc.1", # [1]
       "cat /etc/passwd                   > #{sandbox_dir}/passwd",
       "getent group #{group}             > #{sandbox_dir}/group",
       "printf ${HOME}                    > #{sandbox_dir}/home.dir",
@@ -75,18 +57,35 @@ class ContainerPropertiesTest < TestBase
       "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A"
     ].join(' && '))
 
+    # [1] On inspection, proc.1 is...  '/dev/init' + 0.chr + '--'
+    # Yes, there is an embedded nul-character.
+    # Depending on the version of docker you are using you may get
+    # '/sbin/docker-init' instead of '/dev/init'
+    # Either way, the embedded nul-character causes text_file_changes()
+    # in runner.rb to see proc.1 as a binary file. Hence only the first
+    # nine characters of proc/1/cmdline are saved, and proc.1 is
+    # seen as a text file.
+    proc1 = created['proc.1']['content']
+    # odd, but there _is_ an embedded nul-character
+    expected_1 = ('/dev/init' + 0.chr + '--')[0...9]
+    expected_2 = ('/sbin/docker-init')[0...9]
+    assert proc1.start_with?(expected_1) || proc1.start_with?(expected_2), proc1
+
     etc_passwd = created['passwd']['content']
     assert etc_passwd.include?(uid.to_s), etc_passwd
-    group_entries = created['group']['content'].split(':')  # sandbox:x:51966
-    assert_equal group, group_entries[0], :group_name
-    assert_equal   gid, group_entries[2].to_i, :group_gid
+    
+    fields = created['group']['content'].split(':')  # sandbox:x:51966
+    assert_equal group, fields[0], :group_name
+    assert_equal   gid, fields[2].to_i, :group_gid
 
     assert_equal home_dir, created['home.dir']['content'], :home_dir
+
     env = created['env.vars']['content']
     env_vars = Hash[env.split("\n").map{ |line| line.split('=') }]
     assert_equal  image_name, env_vars['CYBER_DOJO_IMAGE_NAME'], :cyber_dojo_image_name
     assert_equal          id, env_vars['CYBER_DOJO_ID'], :cyber_dojo_id
     assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX'], :cyber_dojo_sandbox
+
     assert_equal uid.to_s,     created['stat.u']['content'], :uid
     assert_equal gid.to_s,     created['stat.g']['content'], :gid
     assert_equal 'drwxrwxrwt', created['stat.A']['content'], :permission
