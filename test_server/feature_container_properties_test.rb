@@ -40,40 +40,37 @@ class ContainerPropertiesTest < TestBase
       "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A"
     ].join(' && '))
 
-    # [1] On inspection, proc.1 is...  '/dev/init' + 0.chr + '--'
+    # [1] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'
     # Yes, there is an embedded nul-character.
     # Depending on the version of docker you are using you may get
     # '/sbin/docker-init' instead of '/dev/init'
     # Either way, the embedded nul-character causes text_file_changes()
     # in runner.rb to see proc.1 as a binary file. Hence only the first
-    # nine characters of proc/1/cmdline are saved, and proc.1 is
-    # seen as a text file.
-    proc1 = created['proc.1']['content']
-    puts "proc1:#{proc1}:"
-    # odd, but there _is_ an embedded nul-character
-    expected_1 = ('/dev/init' + 0.chr + '--')[0...9]
-    expected_2 = ('/sbin/docker-init')[0...9] # 17
-    assert proc1.start_with?(expected_1) || proc1.start_with?(expected_2), proc1
-    assert false, :force_fail
+    # nine characters of proc/1/cmdline are saved, and proc.1 is seen
+    # as a text file.
+    proc1 = created_file('proc.1')
+    expected_1 = '/dev/init'
+    expected_2 = '/sbin/docker-init'[0...expected_1.size]
+    assert [expected_1,expected_2].any?{|s|proc1.start_with?(s)}, proc1
 
-    etc_passwd = created['passwd']['content']
+    etc_passwd = created_file('passwd')
     assert etc_passwd.include?(uid.to_s), etc_passwd
 
-    fields = created['group']['content'].split(':')  # sandbox:x:51966
+    fields = created_file('group').split(':')  # sandbox:x:51966
     assert_equal group, fields[0], :group_name
     assert_equal   gid, fields[2].to_i, :group_gid
 
-    assert_equal home_dir, created['home.dir']['content'], :home_dir
+    assert_equal home_dir, created_file('home.dir'), :home_dir
 
-    env = created['env.vars']['content']
+    env = created_file('env.vars')
     env_vars = Hash[env.split("\n").map{ |line| line.split('=') }]
     assert_equal  image_name, env_vars['CYBER_DOJO_IMAGE_NAME'], :cyber_dojo_image_name
     assert_equal          id, env_vars['CYBER_DOJO_ID'], :cyber_dojo_id
     assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX'], :cyber_dojo_sandbox
 
-    assert_equal uid.to_s,     created['stat.u']['content'], :uid
-    assert_equal gid.to_s,     created['stat.g']['content'], :gid
-    assert_equal 'drwxrwxrwt', created['stat.A']['content'], :permission
+    assert_equal uid.to_s,     created_file('stat.u'), :uid
+    assert_equal gid.to_s,     created_file('stat.g'), :gid
+    assert_equal 'drwxrwxrwt', created_file('stat.A'), :permission
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -206,6 +203,12 @@ class ContainerPropertiesTest < TestBase
                time: attr[6],
       }]
     }.to_h
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def created_file(filename)
+    created[filename]['content']
   end
 
 end
