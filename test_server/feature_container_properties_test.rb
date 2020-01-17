@@ -39,7 +39,8 @@ class ContainerPropertiesTest < TestBase
       "env                               > #{sandbox_dir}/env.vars",
       "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/stat.u",
       "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/stat.g",
-      "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A"
+      "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/stat.A",
+      "ulimit -a                         > #{sandbox_dir}/ulimit"
     ].join(' && '))
 
     # [1] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'
@@ -73,6 +74,17 @@ class ContainerPropertiesTest < TestBase
     assert_equal uid.to_s,     created_file('stat.u'), :uid
     assert_equal gid.to_s,     created_file('stat.g'), :gid
     assert_equal 'drwxrwxrwt', created_file('stat.A'), :permission
+
+    expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
+    expected_max_file_size  = 16 * MB / (block_size = 1024)
+    expected_max_stack_size =  8 * MB / KB
+    assert_equal expected_max_data_size,  ulimit(:data_size),  :data_size
+    assert_equal expected_max_file_size,  ulimit(:file_size),  :file_size
+    assert_equal expected_max_stack_size, ulimit(:stack_size), :stack_size
+    assert_equal 0,                       ulimit(:core_size),  :core_size
+    assert_equal 128,                     ulimit(:file_locks), :file_locks
+    assert_equal 256,                     ulimit(:open_files), :open_files
+    assert_equal 128,                     ulimit(:processes),  :processes
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -89,24 +101,6 @@ class ContainerPropertiesTest < TestBase
       end
       assert_stats(filename, '-rw-r--r--', content.length)
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test 'D9A', %w( ulimits are set ) do
-    assert_cyber_dojo_sh("sh -c 'ulimit -a'")
-
-    expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
-    expected_max_file_size  = 16 * MB / (block_size = 512)
-    expected_max_stack_size =  8 * MB / KB
-
-    assert_equal expected_max_data_size,  ulimit(:data_size)
-    assert_equal expected_max_file_size,  ulimit(:file_size)
-    assert_equal expected_max_stack_size, ulimit(:stack_size)
-    assert_equal 0,                       ulimit(:core_size)
-    assert_equal 128,                     ulimit(:file_locks)
-    assert_equal 256,                     ulimit(:no_files)
-    assert_equal 128,                     ulimit(:processes)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -157,26 +151,22 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  ULIMIT_TABLE = {
+    :core_size  => 'core file size',
+    :data_size  => 'data seg size',
+    :file_locks => 'file locks',
+    :file_size  => 'file size',
+    :open_files => 'open files',
+    :processes  => 'max user processes',
+    :stack_size => 'stack size'
+  }
+
   def ulimit(key)
-    table = {             # alpine (sh),               ubuntu
-      :core_size  => [ '-c: core file size (blocks)', 'coredump(blocks)'],
-      :data_size  => [ '-d: data seg size (kb)',      'data(kbytes)'    ],
-      :file_locks => [ '-w: locks',                   'locks'           ],
-      :file_size  => [ '-f: file size (blocks)',      'file(blocks)'    ],
-      :no_files   => [ '-n: file descriptors',        'nofiles'         ],
-      :processes  => [ '-p: processes',               'process'         ],
-      :stack_size => [ '-s: stack size (kb)',         'stack(kbytes)'   ],
-    }
-    row = table[key]
-    diagnostic = "no ulimit table entry for #{key}"
-    refute_nil row, diagnostic
-    if os === :Alpine
-      txt = row[0]
-    end
-    if os === :Ubuntu
-      txt = row[1]
-    end
-    entry = stdout.lines.detect { |line| line.start_with?(txt) }
+    ulimit = created_file('ulimit')
+    text = ULIMIT_TABLE[key]
+    diagnostic = "#{ulimit}\nno ulimit for #{key}"
+    refute_nil text, diagnostic
+    entry = ulimit.lines.find { |line| line.start_with?(text) }
     entry.split[-1].to_i
   end
 
