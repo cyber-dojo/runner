@@ -83,10 +83,12 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D97', %w( env-vars are set ) do
-    assert_equal  image_name, env_var('IMAGE_NAME')
-    assert_equal          id, env_var('ID')
-    assert_equal sandbox_dir, env_var('SANDBOX')
+  multi_os_test 'D97', %w( environment variables are set ) do
+    assert_cyber_dojo_sh('env')
+    env_vars = Hash[stdout.split("\n").map{ |line| line.split('=') }]
+    assert_equal  image_name, env_vars['CYBER_DOJO_IMAGE_NAME']
+    assert_equal          id, env_vars['CYBER_DOJO_ID']
+    assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,13 +158,6 @@ class ContainerPropertiesTest < TestBase
   end
 
   private # = = = = = = = = = = = = = = = = = = = = = =
-
-  def env_var(name)
-    cmd = "printf ${CYBER_DOJO_#{name}}"
-    assert_cyber_dojo_sh(cmd)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stat_sandbox_dir(ch)
     assert_cyber_dojo_sh("stat --printf='%#{ch}' #{sandbox_dir}")
