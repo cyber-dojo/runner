@@ -3,7 +3,7 @@
 - - - -
 # GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
 Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
-- parameters
+- [json](#json-in) parameters
   * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * **id:String** for tracing
   * **files:Hash{String=>String}** assumed to contain a file called `"cyber-dojo.sh"`
@@ -33,8 +33,7 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
   * **changed:Hash** text-files changed under `/sandbox`, each truncated to 50K
   * eg
     ```json
-    { ...,
-      "run_cyber_dojo_sh": {
+    { "run_cyber_dojo_sh": {
         "stdout": {
           "content": "...\nE       assert 54 == 42\n...",
           "truncated": false
@@ -61,20 +60,31 @@ Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
  [keyed](#json-out) on `"colour"`.
   * eg
   ```json
-  { ..., "colour": "green" }
+  { "run_cyber_dojo": {
+      ...,
+      "stdout": { "content": "...", ... },
+      "stderr": { "content": "...", ... },
+      "status": 2,
+      "timed_out": "false",
+      ...
+    },
+    "colour": "green"
+  }
   ```
   - notes
-    * **colour:String** equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
-    * determined by passing the **stdout**, **stderr**, **status**
+    * `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
+    * as determined by passing `stdout['content']`, `stderr['content']`, `status`
 to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
-    * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, the colour is `"faulty"`.
-    * if eval'ing the lambda raises an exception, the colour is `"faulty"`.
-    * if calling the lambda raises an exception, the colour is `"faulty"`.
-    * if calling the lambda returns anything other than :red, :amber, or :green, the colour is `"faulty"`.
-- if `colour` is `"faulty"`, also returns information [keyed](#json-out) on `"diagnostics"`.
+    * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
+    * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
+    * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
+    * if calling the lambda returns anything other than `:red`, `:amber`, or `:green`,
+      then `"colour"` is `"faulty"`.
+- if `"colour"` is `"faulty"`, also returns information [keyed](#json-out) on `"diagnostics"`.
   * eg    
   ```json
-  { ...,
+  { "run_cyber_dojo_sh": { ... },
+    "colour": "faulty",
     "diagnostic": {
         "image_name": "cyberdojofoundation/python_pytest",
         "id": "34de2W",
@@ -111,9 +121,9 @@ to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green
 - - - -
 ## GET ready?
 Tests if the service is ready to handle requests.
-- parameters
+- [JSON-in](#json-in) parameters
   * none
-- returns [(JSON-out)](#json-out)
+- returns [JSON-out](#json-out)
   * **true** if the service is ready
   * **false** if the service is not ready
 - notes
@@ -127,9 +137,9 @@ Tests if the service is ready to handle requests.
 - - - -
 ## GET alive?
 Tests if the service is alive.  
-- parameters
+- [JSON-in](#json-in) parameters
   * none
-- returns [(JSON-out)](#json-out)
+- returns [JSON-out](#json-out)
   * **true**
 - notes
   * Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
@@ -142,9 +152,9 @@ Tests if the service is alive.
 - - - -
 ## GET sha
 The git commit sha used to create the Docker image.
-- parameters
+- [JSON-in](#json-in) parameters
   * none
-- returns [(JSON-out)](#json-out)
+- returns [JSON-out](#json-out)
   * the 40 character commit sha string.
 - example
   ```bash     
@@ -153,33 +163,32 @@ The git commit sha used to create the Docker image.
   ```
 
 - - - -
-## JSON in
+# JSON in
 - All methods pass any arguments as a json hash in the http request body.
-  * If there are no arguments you can use `''` (which is the default
-    for `curl --data`) instead of `'{}'`.
+- If there are no arguments you can use `''` (which is the default
+  for `curl --data`) instead of `'{}'`.
 
 - - - -
-## JSON out      
+# JSON out      
 - All methods return a json hash in the http response body.
-  * If the method completes, a string key equals the method's name. eg
-    ```bash
-    $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/ready?
-    { ..., "ready?":true}
-    ```
-  * If the method raises an exception, a string key equals `"exception"`, with
-    a json-hash as its value. eg
-    ```bash
-    $ curl --silent -X POST http://${IP_ADDRESS}:${PORT}/run_cyber_dojo_sh | jq      
-    { ...,
-      "exception": {
-        "path": "/run_cyber_dojo_sh",
-        "body": "",
-        "class": "RunnerService",
-        "message": "image_name is missing",
-        "backtrace": [
-          ...
-          "/usr/bin/rackup:23:in `<main>'"
-        ]
-      }
+- If the method completes, a string key equals the method's name. eg
+  ```bash
+  $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/ready?
+  { "ready?":true}
+  ```
+- If the method raises an exception, a string key equals `"exception"`, with
+  a json-hash as its value. eg
+  ```bash
+  $ curl --silent -X POST http://${IP_ADDRESS}:${PORT}/run_cyber_dojo_sh | jq      
+  { "exception": {
+      "path": "/run_cyber_dojo_sh",
+      "body": "",
+      "class": "RunnerService",
+      "message": "image_name is missing",
+      "backtrace": [
+        ...
+        "/usr/bin/rackup:23:in `<main>'"
+      ]
     }
-    ```
+  }
+  ```
