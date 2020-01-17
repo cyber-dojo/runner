@@ -2,7 +2,9 @@
 
 - - - -
 ## GET run_cyber_dojo_sh(image_name,id,files,max_seconds)
-Runs `cyber-dojo.sh` inside a docker container for at most max_seconds.
+Creates a docker container from **image_name**, inserts **files** into the
+container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
+**max_seconds**.
 - [JSON-in](#json-in) parameters
   * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * **id:String** for tracing
