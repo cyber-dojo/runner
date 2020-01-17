@@ -12,12 +12,14 @@ class ContainerPropertiesTest < TestBase
   test 'D91', %w(
   requires bash, won't run in sh ) do
     assert_equal '/bin/bash', assert_cyber_dojo_sh('printf ${SHELL}')
-    image_name = 'alpine:latest'
+    image_name = 'alpine:latest' # has sh but not bash
     with_captured_log {
       run_cyber_dojo_sh({image_name:image_name})
     }
+    assert_equal '', stdout, :stdout
+    # main command is [docker run --detach IMAGE bash -c 'sleep 10']
+    assert stderr.start_with?('Error response from daemon:'), stderr
     expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
-    refute_nil stdout+stderr
     assert_equal 'faulty', colour
     assert_equal image_name, diagnostic['image_name'], :image_name
     assert_equal id, diagnostic['id'], :id
