@@ -11,18 +11,18 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
   * **files:Hash{String=>String}** assumed to contain a file called `"cyber-dojo.sh"`
   * **max_seconds:Integer** between `1` and `20`
   * eg
-  ```json
-  { "image_name": "cyberdojofoundation/python_pytest",
-    "id": "34de2W",
-    "files": {
-      "cyber-dojo.sh": "coverage3 run --source='.' -m pytest *test*.py\n...",      
-      "hiker.py": "#class Hiker:...",
-      "test_hiker.py": "import hiker\n...",
-      "readme.txt": "You task is to..."
-    },
-    "max_seconds": 10
-  }
-  ```
+    ```json
+    { "image_name": "cyberdojofoundation/python_pytest",
+      "id": "34de2W",
+      "files": {
+        "cyber-dojo.sh": "coverage3 run --source='.' -m pytest *test*.py\n...",      
+        "hiker.py": "#class Hiker:...",
+        "test_hiker.py": "import hiker\n...",
+        "readme.txt": "You task is to..."
+      },
+      "max_seconds": 10
+    }
+    ```
 - returns the [JSON-out](#json-out) results, keyed on `"run_cyber_dojo_sh"`
   * **stdout:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
   * **stderr:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
@@ -61,18 +61,18 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
 [traffic-light colour](http://blog.cyber-dojo.org/2014/10/cyber-dojo-traffic-lights.html),
  keyed on `"colour"`.
   * eg
-  ```json
-  { "run_cyber_dojo": {
-      ...,
-      "stdout": { "content": "...", ... },
-      "stderr": { "content": "...", ... },
-      "status": 2,
-      "timed_out": "false",
-      ...
-    },
-    "colour": "green"
-  }
-  ```
+    ```json
+    { "run_cyber_dojo": {
+        ...,
+        "stdout": { "content": "...", ... },
+        "stderr": { "content": "...", ... },
+        "status": 2,
+        "timed_out": "false",
+        ...
+      },
+      "colour": "green"
+    }
+    ```
   * `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
     as determined by passing `stdout['content']`, `stderr['content']`, `status` to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
   * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
@@ -82,42 +82,42 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
     then `"colour"` is `"faulty"`.
 - if `"colour"` is `"faulty"`, also returns information keyed on `"diagnostic"`.
   * eg    
-  ```json
-  { "run_cyber_dojo_sh": { ... },
-    "colour": "faulty",
-    "diagnostic": {
-      "image_name": "cyberdojofoundation/python_pytest",
-      "id": "34de2W",
-      "info": "eval(rag_lambda) raised an exception",
-      "name:": "SyntaxError",
-      "message": [
-        "/app/src/empty.rb:25: syntax error, unexpected tIDENTIFIER, expecting end",
-        "     return :amber sdf if",
-        "                   ^~~",
-        "/app/src/empty.rb:28: syntax error, unexpected end, expecting '}'",
-        "  end",
-        "  ^~~",
-        "/app/src/empty.rb:32: syntax error, unexpected '}', expecting end-of-input"
-      ],
-      "rag_lambda": [
-        "lambda { |stdout,stderr,status|",
-        "  output = stdout + stderr",
-        "",
-        "  return :amber if /=== ERRORS ===/.match(output)",
-        "",
-        "  %w( ... ).each do |syntax_error_prefix|",
-        "     return :amber sdf if",
-        "       /=== FAILURES ===/.match(output) &&",
-        "         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)",
-        "  end",
-        "",
-        "  return :green if /=== (\\d+) passed/.match(output)",
-        "  return :red",
-        "}"
-      ]
+    ```json
+    { "run_cyber_dojo_sh": { ... },
+      "colour": "faulty",
+      "diagnostic": {
+        "image_name": "cyberdojofoundation/python_pytest",
+        "id": "34de2W",
+        "info": "eval(rag_lambda) raised an exception",
+        "name:": "SyntaxError",
+        "message": [
+          "/app/src/empty.rb:25: syntax error, unexpected tIDENTIFIER, expecting end",
+          "     return :amber sdf if",
+          "                   ^~~",
+          "/app/src/empty.rb:28: syntax error, unexpected end, expecting '}'",
+          "  end",
+          "  ^~~",
+          "/app/src/empty.rb:32: syntax error, unexpected '}', expecting end-of-input"
+        ],
+        "rag_lambda": [
+          "lambda { |stdout,stderr,status|",
+          "  output = stdout + stderr",
+          "",
+          "  return :amber if /=== ERRORS ===/.match(output)",
+          "",
+          "  %w( ... ).each do |syntax_error_prefix|",
+          "     return :amber sdf if",
+          "       /=== FAILURES ===/.match(output) &&",
+          "         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)",
+          "  end",
+          "",
+          "  return :green if /=== (\\d+) passed/.match(output)",
+          "  return :red",
+          "}"
+        ]
+      }
     }
-  }
-  ```
+    ```
 
 - - - -
 ## GET ready?
