@@ -1,5 +1,8 @@
 #!/bin/bash -Ee
 
+echo ${DOCKER_USER:0:3}
+exit 42
+
 if [ "${1}" == '-h' ] || [ "${1}" == '--help' ]; then
   echo
   echo 'Use: build_test_tag_publish.sh [client|server] [ID...]'
