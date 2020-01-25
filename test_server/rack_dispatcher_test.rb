@@ -242,22 +242,22 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_body_contains(key)
-    refute_nil @body
+    refute_nil @body, '@body is nil'
     json = JSON.parse(@body)
-    assert json.has_key?(key)
+    assert json.has_key?(key), "assert json.has_key?(#{key}) keys are #{json.keys}"
   end
 
   def refute_body_contains(key)
-    refute_nil @body
+    refute_nil @body, '@body is nil'
     json = JSON.parse(@body)
-    refute json.has_key?(key)
+    refute json.has_key?(key), "refute json.has_key?(#{key}) keys are #{json.keys}"
   end
 
   # - - - - - - - - - - - - - - - - -
 
   def assert_nothing_logged
-    assert_equal '', @stdout
-    assert_equal '', @stderr
+    assert_equal '', @stdout, 'stdout is not empty'
+    assert_equal '', @stderr, 'stderr is not empty'
   end
 
   def assert_logged(key, value)
@@ -280,16 +280,13 @@ class RackDispatcherTest < TestBase
 
   def assert_gcc_starting
     result = JSON.parse(@body)['run_cyber_dojo_sh']
-    stdout = result['stdout']
-    assert_equal gcc_assert_stdout, stdout['content'], stdout
-    stderr = result['stderr']
-    assert stderr['content'].start_with?(gcc_assert_stderr), stderr
-    assert_equal 2, result['status']
-  end
-
-  def gcc_assert_stdout
-    # gcc,Debian
-    "makefile:19: recipe for target 'test.output' failed\n"
+    stdout = result['stdout']['content']
+    diagnostic = 'stdout is not empty!'
+    assert_equal '', stdout, diagnostic
+    stderr = result['stderr']['content']
+    diagnostic = "Expected stderr to start with #{gcc_assert_stderr}"
+    assert stderr.start_with?(gcc_assert_stderr), diagnostic
+    assert_equal 2, result['status'], :status
   end
 
   def gcc_assert_stderr
@@ -302,7 +299,7 @@ class RackDispatcherTest < TestBase
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
     "test: hiker.tests.c:6: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
-    "make: *** [test.output] Aborted"
+    "make: *** [makefile:19: test.output] Aborted"
   end
 
   # - - - - - - - - - - - - - - - - -
