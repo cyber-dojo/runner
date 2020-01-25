@@ -128,10 +128,11 @@ class BombRobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  # :nocov:
   def printed?(text)
-    count = (stdout+stderr).lines.count { |line| line.include?(text) }
-    count > 0
+    (stdout+stderr).lines.any? { |line| line.include?(text) }
   end
+  # :nocov:
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
