@@ -157,8 +157,7 @@ class RackDispatcherTest < TestBase
     env = { path_info:path_info, body:args.to_json }
     raiser = BashStubRaiser.new('fubar')
     externals = Externals.new({ 'bash' => raiser })
-    runner = Runner.new(externals)
-    rack = RackDispatcher.new(runner)
+    rack = RackDispatcher.new(externals)
     with_captured_stdout_stderr {
       response = rack.call(env, RackRequestStub)
       assert raiser.fired_once?
@@ -196,8 +195,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, e = externals)
-    runner = Runner.new(e)
-    rack = RackDispatcher.new(runner)
+    rack = RackDispatcher.new(e)
     response = with_captured_stdout_stderr {
       rack.call(env, RackRequestStub)
     }

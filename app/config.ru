@@ -10,9 +10,7 @@ end
 
 require_relative 'src/externals'
 externals = Externals.new
-require_relative 'src/runner'
-runner = Runner.new(externals)
 require_relative 'src/rack_dispatcher'
-dispatcher = RackDispatcher.new(runner)
+dispatcher = RackDispatcher.new(externals)
 require 'rack'
 run dispatcher

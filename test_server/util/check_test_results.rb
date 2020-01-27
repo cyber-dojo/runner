@@ -13,7 +13,7 @@ def table
     [ 'duration(test)[s]',      test_duration,  '<=', 200 ],
     [ 'coverage(app)[%]',       app_coverage,   '==', 100 ],
     [ 'coverage(test)[%]',      test_coverage,  '==', 100 ],
-    [ 'lines(test)/lines(app)', f2(line_ratio), '>=', 2.8 ],
+    [ 'lines(test)/lines(app)', f2(line_ratio), '>=', 2.7 ],
     [ 'hits(app)/hits(test)',   f2(hits_ratio), '>=', 6.6 ],
   ]
 end
