@@ -55,14 +55,14 @@ class TestBase < HexMiniTest
 
     created_files = defaulted_arg(named_args, :created, {})
     created_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a created_file (it already exists)"
-      refute unchanged_files.keys.include?(filename), diagnostic
+      info = "#{filename} is not a created_file (it already exists)"
+      refute unchanged_files.keys.include?(filename), info
     end
 
     changed_files = defaulted_arg(named_args, :changed, {})
     changed_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a changed_file (it does not already exist)"
-      assert unchanged_files.keys.include?(filename), diagnostic
+      info = "#{filename} is not a changed_file (it does not already exist)"
+      assert unchanged_files.keys.include?(filename), info
       unchanged_files.delete(filename)
     end
 

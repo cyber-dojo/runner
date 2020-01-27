@@ -245,8 +245,12 @@ class TrafficLightTest < TestBase
       run_cyber_dojo_sh({image_name:'ubuntu:16.04'})
     }
     assert_equal 'faulty', colour, :colour
-    assert log.include?('bash: file: command not found')
-    assert log.include?("tar: unrecognized option '--verbatim-files-from'"), log
+    no_file_msg = 'bash: file: command not found'
+    no_tar_verbatim_msg = "tar: unrecognized option '--verbatim-files-from'"
+    assert log.include?(no_file_msg), log
+    assert diagnostic['stderr'].include?(no_file_msg), diagnostic
+    assert log.include?(no_tar_verbatim_msg), log
+    assert diagnostic['stderr'].include?(no_tar_verbatim_msg), diagnostic
   end
 
   private

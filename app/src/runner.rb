@@ -197,13 +197,13 @@ class Runner
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
     # Be careful if you switch to shell.assert() here.
-    stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
+    stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
       rag_src = extract_rag(files_now, rag_filename)
       created,deleted,changed = *files_delta(files, files_now)
     else
-      # log _stderr ?
+      @result['diagnostic'] = { 'stderr' => stderr }
       rag_src = nil
       created,deleted,changed = {}, [], {}
     end
