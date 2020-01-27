@@ -38,11 +38,14 @@ class Runner
     #   https://github.com/cyber-dojo-languages/image_dockerfile_augmenter
     @result = {}
     create_container(image_name, id, max_seconds+2)
-    run(files, max_seconds)
-    text_file_changes(files)
-    remove_container
-    traffic_light(image_name, id)
-    @result
+    begin
+      run(files, max_seconds)
+      text_file_changes(files)
+      traffic_light(image_name, id)
+      @result
+    ensure
+      remove_container
+    end
   end
 
   private
