@@ -232,6 +232,23 @@ class TrafficLightTest < TestBase
     assert_equal stub.split("\n"), diagnostic['rag_lambda'], :rag_lambda
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test '429', %w(
+  when the base-os is Ubuntu 16.04,
+  then the colour is faulty,
+  and diagnostics are added to the json result,
+  stating the file command was not found,
+  stating --verbatim-files-from is an unrecognized tar option
+  ) do
+    log = with_captured_log {
+      run_cyber_dojo_sh({image_name:'ubuntu:16.04'})
+    }
+    assert_equal 'faulty', colour, :colour
+    assert log.include?('bash: file: command not found')
+    assert log.include?("tar: unrecognized option '--verbatim-files-from'"), log
+  end
+
   private
 
   def filename_6x9

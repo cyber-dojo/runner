@@ -3,22 +3,28 @@ require_relative 'empty'
 
 module TrafficLight
 
-  def traffic_light(image_name, id, rag_src, stdout, stderr, status)
+  def traffic_light(image_name, id)
+    if @result['run_cyber_dojo_sh'][:timed_out]
+      return
+    end
+
+    rag_src = @result['rag_src']
     if rag_src.nil?
-      return {
+      @result.merge!({
         'colour' => 'faulty',
         'diagnostic' => {
           'image_name' => image_name,
           'id' => id,
           'info' => "no /usr/local/bin/red_amber_green.rb in #{image_name}"
         }
-      }
+      })
+      return
     end
 
     begin
       rag_lambda = Empty.binding.eval(rag_src)
     rescue Exception => error
-      return {
+      @result.merge!({
         'colour' => 'faulty',
         'diagnostic' => {
           'image_name' => image_name,
@@ -28,29 +34,32 @@ module TrafficLight
           'message' => error.message.split("\n"),
           'rag_lambda' => rag_src.split("\n")
         }
-      }
+      })
+      return
     end
 
     begin
-      stdout = stdout['content']
-      stderr = stderr['content']
+      stdout = @result['run_cyber_dojo_sh'][:stdout]['content']
+      stderr = @result['run_cyber_dojo_sh'][:stderr]['content']
+      status = @result['run_cyber_dojo_sh'][:status]
       colour = rag_lambda.call(stdout, stderr, status).to_s
     rescue => error
-      return {
+      @result.merge!({
         'colour' => 'faulty',
         'diagnostic' => {
           'image_name' => image_name,
           'id' => id,
           'info' => 'rag_lambda.call raised an exception',
-          'name' => error.class.name,          
+          'name' => error.class.name,
           'message' => error.message.split("\n"),
           'rag_lambda' => rag_src.split("\n")
         }
-      }
+      })
+      return
     end
 
     unless colour === 'red' || colour === 'amber' || colour === 'green'
-      return {
+      @result.merge!({
         'colour' => 'faulty',
         'diagnostic' => {
           'image_name' => image_name,
@@ -58,10 +67,11 @@ module TrafficLight
           'info' => "rag_lambda.call is '#{colour}' which is not 'red'|'amber'|'green'",
           'rag_lambda' => rag_src.split("\n")
         }
-      }
+      })
+      return
     end
 
-    { 'colour' => colour }
+    @result.merge!({ 'colour' => colour })
   end
 
 end

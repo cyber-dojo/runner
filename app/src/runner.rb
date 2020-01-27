@@ -36,21 +36,13 @@ class Runner
     # Dockerfile augmented by image_dockerfile_augmenter. See
     #   https://github.com/cyber-dojo-languages/image_builder
     #   https://github.com/cyber-dojo-languages/image_dockerfile_augmenter
-    container_name = create_container(image_name, id, max_seconds+2)
-    stdout,stderr,status,timed_out = run(container_name, files, max_seconds)
-    rag_src,created,deleted,changed = text_file_changes(container_name, files)
-    remove_container(container_name)
-    if timed_out
-      result = {}
-    else
-      result = traffic_light(image_name, id, rag_src, stdout, stderr, status)
-    end
-    result.merge({
-      'run_cyber_dojo_sh' => {
-         stdout:stdout, stderr:stderr, status:status, timed_out:timed_out,
-        created:created, deleted:deleted, changed:changed
-      }
-    })
+    @result = {}
+    create_container(image_name, id, max_seconds+2)
+    run(files, max_seconds)
+    text_file_changes(files)
+    remove_container
+    traffic_light(image_name, id)
+    @result
   end
 
   private
@@ -69,8 +61,8 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run(container_name, files, max_seconds)
-    command = main_docker_run_command(container_name)
+  def run(files, max_seconds)
+    command = main_docker_run_command
     stdout,stderr,status,timed_out = nil,nil,nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
@@ -102,7 +94,12 @@ class Runner
       r_stdout.close
       r_stderr.close
     end
-    [stdout,stderr,status,timed_out]
+    @result['run_cyber_dojo_sh'] = {
+      stdout:stdout,
+      stderr:stderr,
+      status:status,
+      timed_out:timed_out
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -119,7 +116,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def main_docker_run_command(container_name)
+  def main_docker_run_command
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir (which must exist [X]) inside the container
     # and runs /sandbox/cyber-dojo.sh
@@ -144,7 +141,7 @@ class Runner
       docker exec                                     \
         --interactive            `# piping stdin`     \
         --user=#{UID}:#{GID}     `# [1]`              \
-        #{container_name}                             \
+        #{@container_name}                            \
         bash -c                                       \
           '                      `# open quote`       \
           cd #{SANDBOX_DIR}      `# [2]`              \
@@ -161,7 +158,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def text_file_changes(container_name, files)
+  def text_file_changes(files)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -172,12 +169,13 @@ class Runner
     # [1] Extract /usr/local/bin/red_amber_green.rb if it exists.
     # [2] Ensure filenames are not read as tar command options.
     #     Eg -J... is a tar compression option.
+    #     This option is not available on Ubuntu 16.04
     rag_filename = SecureRandom.urlsafe_base64
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
       docker exec                                       \
         --user=#{UID}:#{GID}                            \
-        #{container_name}                               \
+        #{@container_name}                              \
         bash -c                                         \
           '                         `# open quote`      \
           #{copy_rag(rag_filename)} `# [1]`;            \
@@ -199,21 +197,28 @@ class Runner
     stdout,_stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
-      rag_lambda = extract_rag(files_now, rag_filename)
-      [ rag_lambda, *files_delta(files, files_now) ]
+      rag_src = extract_rag(files_now, rag_filename)
+      created,deleted,changed = *files_delta(files, files_now)
     else
       # log _stderr ?
-      [ nil, {}, [], {} ]
+      rag_src = nil
+      created,deleted,changed = {}, [], {}
     end
+    @result['rag_src'] = rag_src
+    @result['run_cyber_dojo_sh'].merge!({
+      created:created,
+      deleted:deleted,
+      changed:changed
+    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def copy_rag(rag_filename)
-    # The command must not write anything to stdout/stderr
-    # since it would be taken as a filename by tar's -T option.
     rag_src = '/usr/local/bin/red_amber_green.rb'
     rag_dst = "#{SANDBOX_DIR}/#{rag_filename}"
+    # This command must not write anything to stdout/stderr
+    # since it would be taken as a filename by tar's -T option.
     "[ -f #{rag_src} ] && cp #{rag_src} #{rag_dst}"
   end
 
@@ -286,10 +291,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(image_name, id, max_seconds)
-    container_name = ['cyber_dojo_runner', id, random_id].join('_')
+    @container_name = ['cyber_dojo_runner', id, random_id].join('_')
     docker_run = [
       'docker run',
-        "--name=#{container_name}",
+        "--name=#{@container_name}",
         docker_run_options(image_name, id),
         image_name,
           "bash -c 'sleep #{max_seconds}'"
@@ -297,14 +302,13 @@ class Runner
     # The --detach run-option means this assert will not catch
     # some errors. For example, if the container has no bash [X].
     shell.assert(docker_run)
-    container_name
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def remove_container(container_name)
+  def remove_container
     # Backgrounded for a small speed-up.
-    shell.exec("docker rm #{container_name} --force &")
+    shell.exec("docker rm #{@container_name} --force &")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
