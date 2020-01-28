@@ -123,7 +123,7 @@ class RackDispatcherTest < TestBase
   # run_cyber_dojo_sh
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB5', '[C,assert] run_cyber_dojo_sh with no logging' do
+  c_assert_test 'AB5', 'run_cyber_dojo_sh with no logging' do
     args = run_cyber_dojo_sh_args
     rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
 
@@ -134,7 +134,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB6', '[C,assert] run_cyber_dojo_sh with some logging' do
+  c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
     args = run_cyber_dojo_sh_args
     env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
     stub = BashStubTarPipeOut.new('fail')

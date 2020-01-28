@@ -190,40 +190,29 @@ class TestBase < HexMiniTest
     HttpAdapter.new
   end
 
-  def display_name
-    case os
-    when :C_assert     then 'C (gcc), assert'
-    when :clang_assert then 'C (clang), assert'
-    when :Alpine       then 'C#, NUnit'
-    when :Ubuntu       then 'Perl, Test::Simple'
-    when :Debian       then 'Python, py.test'
-    else                    'C#, NUnit'
-    end
+  def self.test(hex_suffix, *lines, &block)
+    alpine_test(hex_suffix, *lines, &block)
   end
 
-  def os
-    if hex_test_name.start_with?('[C,assert]')
-      :C_assert
-    elsif hex_test_name.start_with?('[clang,assert]')
-      :clang_assert
-    elsif hex_test_name.start_with?('[Alpine]')
-      :Alpine
-    elsif hex_test_name.start_with?('[Ubuntu]')
-      :Ubuntu
-    elsif hex_test_name.start_with?('[Debian]')
-      :Debian
-    else # default
-      :Alpine
-    end
+  def self.alpine_test(hex_suffix, *lines, &block)
+    define_test(:Alpine, 'C#, NUnit', hex_suffix, *lines, &block)
+  end
+
+  def self.ubuntu_test(hex_suffix, *lines, &block)
+    define_test(:Ubuntu, 'Perl, Test::Simple', hex_suffix, *lines, &block)
   end
 
   def self.multi_os_test(hex_suffix, *lines, &block)
-    alpine_lines = ['[Alpine]'] + lines
-    test(hex_suffix+'0', *alpine_lines, &block)
-    ubuntu_lines = ['[Ubuntu]'] + lines
-    test(hex_suffix+'1', *ubuntu_lines, &block)
-    #debian_lines = ['[Debian]'] + lines
-    #test(hex_suffix+'2', *debian_lines, &block)
+    alpine_test(hex_suffix+'0', *lines, &block)
+    ubuntu_test(hex_suffix+'1', *lines, &block)
+  end
+
+  def self.c_assert_test(hex_suffix, *lines, &block)
+    define_test(:Debian, 'C (gcc), assert', hex_suffix, *lines, &block)
+  end
+
+  def self.clang_assert_test(hex_suffix, *lines, &block)
+    define_test(:Ubuntu, 'C (clang), assert', hex_suffix, *lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

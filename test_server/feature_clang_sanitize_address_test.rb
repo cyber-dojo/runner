@@ -13,8 +13,8 @@ class ClangSanitizeAddressTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '0BB',
-  %w( [clang,assert] clang sanitize address ) do
+  clang_assert_test '0BB',
+  %w( clang sanitize address ) do
     diagnostic = 'AddressSanitizer: heap-use-after-free on address'
     run_cyber_dojo_sh
     refute stderr.include?(diagnostic), @json

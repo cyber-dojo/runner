@@ -12,12 +12,12 @@ class HexMiniTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def self.test(hex_suffix, *lines, &test_block)
+  def self.define_test(os, display_name, hex_suffix, *lines, &test_block)
     hex_id = checked_hex_id(hex_suffix, lines)
     if @@args === [] || @@args.any?{ |arg| hex_id.include?(arg) }
       hex_name = lines.join(space = ' ')
       execute_around = lambda {
-        _hex_setup_caller(hex_id, hex_name)
+        _hex_setup_caller(os, display_name, hex_id, hex_name)
         begin
           self.instance_eval(&test_block)
         ensure
@@ -57,8 +57,10 @@ class HexMiniTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def _hex_setup_caller(hex_id, hex_name)
+  def _hex_setup_caller(os, display_name, hex_id, hex_name)
     ENV['CYBER_DOJO_HEX_TEST_ID'] = hex_id
+    @_hex_os = os
+    @_hex_display_name = display_name
     @_hex_test_id = hex_id
     @_hex_test_name = hex_name
     hex_setup
@@ -77,6 +79,14 @@ class HexMiniTest < MiniTest::Test
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def os
+    @_hex_os
+  end
+
+  def display_name
+    @_hex_display_name
+  end
 
   def hex_test_id
     @_hex_test_id

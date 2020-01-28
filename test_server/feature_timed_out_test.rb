@@ -20,7 +20,7 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'B2B', %w( [C,assert]
+  c_assert_test 'B2B', %w(
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
   then stdout is empty,
@@ -42,7 +42,7 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '4D7', %w( [C,assert]
+  c_assert_test '4D7', %w(
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output
   then stdout is not empty,
