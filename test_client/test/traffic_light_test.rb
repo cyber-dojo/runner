@@ -10,6 +10,42 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3DA', '[C,assert] test with red traffic-light' do
+    red_traffic_light_test
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3DB', '[C,assert] test with amber traffic-light' do
+    amber_traffic_light_test
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3DC', '[C,assert] test with green traffic-light' do
+    green_traffic_light_test
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3DD', '[C,assert] test red/amber/green in parallel threads' do
+    rag1 = in_parallel_red_amber_green
+    rag2 = in_parallel_red_amber_green
+    rag3 = in_parallel_red_amber_green
+    rag3.each{|t| t.join}
+    rag2.each{|t| t.join}
+    rag1.each{|t| t.join}
+  end
+
+  def in_parallel_red_amber_green
+    red = Thread.new { red_traffic_light_test }
+    amber = Thread.new { amber_traffic_light_test }
+    green = Thread.new { green_traffic_light_test }
+    [red,amber,green]
+  end
+
+  private
+
+  def red_traffic_light_test
     expected_stdout = ''
     expected_stderr = [
       "test: hiker.tests.c:6: life_the_universe_and_everything: Assertion `answer() == 42' failed.",
@@ -28,7 +64,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DB', '[C,assert] test with amber traffic-light' do
+  def amber_traffic_light_test
     expected_stdout = ''
     expected_stderr = [
       'hiker.c:5:16: error: invalid suffix "sd" on integer constant',
@@ -53,7 +89,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DC', '[C,assert] test with green traffic-light' do
+  def green_traffic_light_test
     run_cyber_dojo_sh({
       changed_files: {
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
