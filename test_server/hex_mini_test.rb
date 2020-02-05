@@ -16,6 +16,7 @@ class HexMiniTest < MiniTest::Test
     hex_id = checked_hex_id(hex_suffix, lines)
     if @@args === [] || @@args.any?{ |arg| hex_id.include?(arg) }
       hex_name = lines.join(space = ' ')
+      name = "hex '#{hex_id}',\n'#{hex_name}'"
       execute_around = lambda {
         _hex_setup_caller(os, display_name, hex_id, hex_name)
         begin
@@ -25,7 +26,6 @@ class HexMiniTest < MiniTest::Test
           _hex_teardown_caller
         end
       }
-      name = "hex '#{hex_id}',\n'#{hex_name}'"
       define_method("test_\n#{name}".to_sym, &execute_around)
     end
   end
