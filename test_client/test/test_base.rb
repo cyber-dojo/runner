@@ -142,7 +142,7 @@ class TestBase < HexMiniTest
   def display_name
     case os
     when :C_assert     then 'C (gcc), assert'
-    when :Ubuntu       then 'Perl, Test::Simple'
+    when :Ubuntu       then 'D, unittest'
     else                    'C#, NUnit'
     end
   end

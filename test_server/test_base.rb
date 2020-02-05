@@ -199,7 +199,7 @@ class TestBase < HexMiniTest
   end
 
   def self.ubuntu_test(hex_suffix, *lines, &block)
-    define_test(:Ubuntu, 'Perl, Test::Simple', hex_suffix, *lines, &block)
+    define_test(:Ubuntu, 'VisualBasic, NUnit', hex_suffix, *lines, &block)
   end
 
   def self.multi_os_test(hex_suffix, *lines, &block)
