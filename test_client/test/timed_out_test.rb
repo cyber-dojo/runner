@@ -9,7 +9,7 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DD',
+  test 'FDD',
   '[C,assert] run which does not timeout' do
     run_cyber_dojo_sh
     refute timed_out?, result
@@ -17,7 +17,7 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DC',
+  test 'FDC',
   '[C,assert] run with infinite loop times out' do
     from = 'return 6 * 9'
     to = "    for (;;);\n    return 6 * 7;"
