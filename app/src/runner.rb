@@ -246,8 +246,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # ECHO_TRUNCATED_TEXTFILE_NAMES
-  #
   # o) Must not contain a single-quote [bash -c '...']
   # o) grep -q is --quiet
   # o) grep -v is --invert-match
@@ -331,21 +329,19 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_options(image_name, id)
-    options = <<~SHELL.strip
+    # [1] For clang/clang++'s -fsanitize=address
+    # [2] Makes container removal much faster
+    <<~SHELL.strip
       #{env_vars(image_name, id)}                      \
       #{TMP_FS_SANDBOX_DIR}                            \
       #{TMP_FS_TMP_DIR}                                \
       #{ulimits(image_name)}                           \
+      --cap-add=SYS_PTRACE      `# [1]`                \
       --detach                  `# later docker execs` \
-      --init                    `# pid-1 process`      \
+      --init                    `# pid-1 process [2]`  \
       --rm                      `# auto rm on exit`    \
       --user=#{UID}:#{GID}      `# not root`
     SHELL
-    if clang?(image_name)
-      # For the -fsanitize=address option.
-      options += SPACE + '--cap-add=SYS_PTRACE'
-    end
-    options
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
