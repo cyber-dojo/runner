@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/cyber-dojo/runner.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner) [![Hits-of-Code](https://hitsofcode.com/github/cyber-dojo/runner)](https://hitsofcode.com/view/github/cyber-dojo/runner)
+[![CircleCI](https://circleci.com/gh/cyber-dojo/runner.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner) [![Hits-of-Code](https://hitsofcode.com/github/cyber-dojo/runner)](https://hitsofcode.com/view/github/cyber-dojo/runner) [![License](https://img.shields.io/badge/license-BSD--2-brightgreen)]((https://github.com/cyber-dojo/runner/blob/master/LICENSE.md))
 
 - The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) Docker image.
 - A docker-containerized micro-service for [https://cyber-dojo.org](https://cyber-dojo.org).
