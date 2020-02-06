@@ -1,5 +1,7 @@
 [![CircleCI](https://circleci.com/gh/cyber-dojo/runner.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner)
 
+[![Hits-of-Code](https://hitsofcode.com/github/cyber-dojo/runner)](https://hitsofcode.com/view/github/cyber-dojo/runner)
+
 - The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) Docker image.
 - A docker-containerized micro-service for [https://cyber-dojo.org](https://cyber-dojo.org).
 - An http service (rack based) for running `cyber-dojo.sh` inside a docker container for at most `max_seconds` and returning `[stdout,stderr,status,timed_out,colour]`
