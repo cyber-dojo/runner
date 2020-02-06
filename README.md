@@ -1,5 +1,7 @@
 [![CircleCI](https://circleci.com/gh/cyber-dojo/runner.svg?style=svg)](https://circleci.com/gh/cyber-dojo/runner)
 [![License](https://img.shields.io/badge/license-BSD--2-brightgreen)]((https://github.com/cyber-dojo/runner/blob/master/LICENSE.md))
+[![code size](https://img.shields.io/github/languages/code-size/cyber-dojo/runner)]
+[![repo size](https://img.shields.io/github/languages/repo-size/cyber-dojo/runner)]
 [![Hits-of-Code](https://hitsofcode.com/github/cyber-dojo/runner)](https://hitsofcode.com/view/github/cyber-dojo/runner)
 
 - The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) Docker image.
