@@ -1,0 +1,31 @@
+Run options: --seed 11358
+
+# Running:
+
+...............................................................................................................
+
+Finished in 122.540213s, 0.9058 runs/s, 8.7481 assertions/s.
+
+111 runs, 1072 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to /tmp/reports. 4635 / 8161 LOC (56.79%) covered.
+
+Slowest 5 tests are...
+5.4704 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
+3.7561 - 1598A60:feature_baseline_speed_test.rb:12:baseline speed is less than 1.7secs
+3.7236 - 7B7424:feature_traffic_light_test.rb:124:when the rag-lambda returns non red/amber/green, then the colour is faulty, and diagnostics are added to the json result
+3.6712 - 1598A61:feature_baseline_speed_test.rb:12:baseline speed is less than 1.7secs
+3.6330 - E4A52B:feature_large_file_truncation_test.rb:27:source files bigger than 10K are not truncated
+3.6081 - 7B7421:feature_traffic_light_test.rb:46:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
+
+
+                 failures |       0   <=     0 | [32m true [0m
+                   errors |       0   <=     0 | [32m true [0m
+                 warnings |       0   <=     0 | [32m true [0m
+                    skips |       0   <=     0 | [32m true [0m
+        duration(test)[s] |  122.54   <=   200 | [32m true [0m
+                    tests |     111   >=     1 | [32m true [0m
+         coverage(app)[%] |   100.0   >=   100 | [32m true [0m
+        coverage(test)[%] |   100.0   >=   100 | [32m true [0m
+   lines(test)/lines(app) |    2.64   >=   2.5 | [32m true [0m
+     hits(app)/hits(test) |   12.79   >=   6.6 | [32m true [0m
+

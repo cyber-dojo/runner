@@ -1,86 +1,71 @@
-#!/bin/bash
+#!/bin/bash -Ee
 
-declare server_status=0
-declare client_status=0
-
-readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
-readonly MY_NAME=runner
-
-readonly SERVER_CID=$(docker ps --all --quiet --filter "name=test-${MY_NAME}-server")
-readonly CLIENT_CID=$(docker ps --all --quiet --filter "name=test-${MY_NAME}-client")
-
-readonly COVERAGE_ROOT=/tmp/coverage
+readonly root_dir="$( cd "$( dirname "${0}" )/.." && pwd )"
+readonly my_name=runner
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-run_server_tests()
+run_tests()
 {
-  docker exec \
-    --user root \
-    --env COVERAGE_ROOT=${COVERAGE_ROOT} \
-    "${SERVER_CID}" \
-      sh -c "/app/test/util/run.sh ${*}"
+  local -r user="${1}" # eg nobody
+  local -r type="${2}" # eg client|server
+  local -r reports_dir=reports
+  local -r coverage_root=/tmp/${reports_dir}
+  local -r test_log=test.log
+  local -r container_name="test-${my_name}-${type}" # eg test-ragger-server
 
-  server_status=$?
+  echo '=================================='
+  echo "Running ${type} tests"
+  echo '=================================='
 
-  # You can't [docker cp] from a tmpfs, so tar-piping out.
+  set +e
   docker exec \
-    --user root \
-    "${SERVER_CID}" \
+    --user "${user}" \
+    "${container_name}" \
+      sh -c "/test/run.sh ${coverage_root} ${test_log} ${type} ${*:3}"
+  set -e
+
+  # You can't [docker cp] from a tmpfs, so tar-piping coverage out...
+  local -r test_dir="${root_dir}/test/${type}" # ...to this dir
+  docker exec \
+    "${container_name}" \
     tar Ccf \
-      "$(dirname "${COVERAGE_ROOT}")" \
-      - "$(basename "${COVERAGE_ROOT}")" \
-        | tar Cxf "${ROOT_DIR}/test_server/" -
+      "$(dirname "${coverage_root}")" \
+      - "$(basename "${coverage_root}")" \
+        | tar Cxf "${test_dir}/" -
 
-  echo "Coverage report copied to ${MY_NAME}/test_server/coverage/"
-  cat "${ROOT_DIR}/test_server/coverage/done.txt"
+  set +e
+  local -r data_dir=/tmp
+  docker run --rm \
+    --volume ${test_dir}/${reports_dir}:${data_dir}:ro \
+    --volume ${test_dir}/metrics.rb:/app/metrics.rb:ro \
+    cyberdojo/check-test-results:latest \
+    sh -c "ruby /app/check_test_results.rb ${data_dir}/${test_log} ${data_dir}/index.html" \
+      | tee -a ${test_dir}/${reports_dir}/${test_log}
+  local -r status=${PIPESTATUS[0]}
+  set -e
+
+  echo "Test files copied to test/${type}/${reports_dir}/"
+  echo "${type} test status == ${status}"
+  if [ "${status}" != '0' ]; then
+    docker logs "${container_name}"
+  fi
+  return ${status}
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-run_client_tests()
-{
-  docker exec \
-    --user nobody \
-    --env COVERAGE_ROOT=${COVERAGE_ROOT} \
-    "${CLIENT_CID}" \
-      sh -c "/app/test/util/run.sh ${*}"
-
-  client_status=$?
-
-  # You can't [docker cp] from a tmpfs, so tar-piping out.
-  docker exec \
-    --user nobody \
-    "${CLIENT_CID}" \
-    tar Ccf \
-      "$(dirname "${COVERAGE_ROOT}")" \
-      - "$(basename "${COVERAGE_ROOT}")" \
-        | tar Cxf "${ROOT_DIR}/test_client/" -
-
-  echo "Coverage report copied to ${MY_NAME}/test_client/coverage/"
-  cat "${ROOT_DIR}/test_client/coverage/done.txt"
-}
+run_server_tests() { run_tests root   server "${@}"; }
+run_client_tests() { run_tests nobody client "${@}"; }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 echo
-if [ "${1}" = server ]; then
+if [ "${1}" == 'server' ]; then
   shift
-  run_server_tests "$@"
-elif [ "${1}" = client ]; then
+  run_server_tests "${@}"
+elif [ "${1}" == 'client' ]; then
   shift
-  run_client_tests "$@"
+  run_client_tests "${@}"
 else
-  run_server_tests "$@"
-  run_client_tests "$@"
+  run_server_tests "${@}"
+  run_client_tests "${@}"
 fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [[ ( ${server_status} == 0 && ${client_status} == 0 ) ]];  then
-  echo "------------------------------------------------------"
-  echo "All passed"
-  exit 0
-else
-  echo
-  echo "server: cid = ${SERVER_CID}, status = ${server_status}"
-  echo "client: cid = ${CLIENT_CID}, status = ${client_status}"
-  echo
-  exit 42
-fi
+echo All passed
