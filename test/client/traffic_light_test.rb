@@ -3,31 +3,31 @@ require_relative 'test_base'
 
 class TrafficLightTest < TestBase
 
-  def self.hex_prefix
+  def self.id58_prefix
     'FAA'
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DA', '[C,assert] test with red traffic-light' do
+  c_assert_test '3DA', 'test with red traffic-light' do
     red_traffic_light_test
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DB', '[C,assert] test with amber traffic-light' do
+  c_assert_test '3DB', 'test with amber traffic-light' do
     amber_traffic_light_test
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DC', '[C,assert] test with green traffic-light' do
+  c_assert_test '3DC', 'test with green traffic-light' do
     green_traffic_light_test
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DD', '[C,assert] test red/amber/green in parallel threads' do
+  c_assert_test '3DD', 'test red/amber/green in parallel threads' do
     rag1 = in_parallel_red_amber_green
     rag2 = in_parallel_red_amber_green
     rag3 = in_parallel_red_amber_green

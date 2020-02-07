@@ -1,31 +1,27 @@
-Run options: --seed 11358
+Run options: --seed 21510
 
 # Running:
 
-...............................................................................................................
+..
 
-Finished in 122.540213s, 0.9058 runs/s, 8.7481 assertions/s.
+Finished in 0.004935s, 405.2975 runs/s, 8511.2471 assertions/s.
 
-111 runs, 1072 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to /tmp/reports. 4635 / 8161 LOC (56.79%) covered.
+2 runs, 42 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to /tmp/reports. 3106 / 8160 LOC (38.06%) covered.
 
-Slowest 5 tests are...
-5.4704 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
-3.7561 - 1598A60:feature_baseline_speed_test.rb:12:baseline speed is less than 1.7secs
-3.7236 - 7B7424:feature_traffic_light_test.rb:124:when the rag-lambda returns non red/amber/green, then the colour is faulty, and diagnostics are added to the json result
-3.6712 - 1598A61:feature_baseline_speed_test.rb:12:baseline speed is less than 1.7secs
-3.6330 - E4A52B:feature_large_file_truncation_test.rb:27:source files bigger than 10K are not truncated
-3.6081 - 7B7421:feature_traffic_light_test.rb:46:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
+Slowest 2 tests are...
+0.0001 - FB3190:feature_sha_test.rb:12:sha is exposed via API                    
+0.0000 - 872190:feature_ready_test.rb:12:its ready                               
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  122.54   <=   200 | [32m true [0m
-                    tests |     111   >=     1 | [32m true [0m
-         coverage(app)[%] |   100.0   >=   100 | [32m true [0m
-        coverage(test)[%] |   100.0   >=   100 | [32m true [0m
-   lines(test)/lines(app) |    2.64   >=   2.5 | [32m true [0m
-     hits(app)/hits(test) |   12.79   >=   6.6 | [32m true [0m
+        duration(test)[s] |     0.0   <=   200 | [32m true [0m
+                    tests |       2   >=     1 | [32m true [0m
+         coverage(app)[%] |   42.98   >=   100 | [31m false [0m
+        coverage(test)[%] |   28.17   >=   100 | [31m false [0m
+   lines(test)/lines(app) |    2.64   >=   2.6 | [32m true [0m
+     hits(app)/hits(test) |    0.57   >=   6.6 | [31m false [0m
 

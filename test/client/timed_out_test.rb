@@ -3,13 +3,13 @@ require_relative 'test_base'
 
 class TimedOutTest < TestBase
 
-  def self.hex_prefix
+  def self.id58_prefix
     'D59'
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'FDD',
+  c_assert_test 'FDD',
   '[C,assert] run which does not timeout' do
     run_cyber_dojo_sh
     refute timed_out?, result
@@ -17,8 +17,8 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'FDC',
-  '[C,assert] run with infinite loop times out' do
+  c_assert_test 'FDC',
+  'run with infinite loop times out' do
     from = 'return 6 * 9'
     to = "    for (;;);\n    return 6 * 7;"
     run_cyber_dojo_sh({

@@ -1,5 +1,4 @@
 require_relative '../id58_test_base'
-require_relative '../require_src'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_src 'externals'

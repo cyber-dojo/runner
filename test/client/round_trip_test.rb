@@ -3,17 +3,14 @@ require_relative 'test_base'
 
 class RoundTripTest < TestBase
 
-  def self.hex_prefix
+  def self.id58_prefix
     '2D1'
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test '160',
-  %w( [Ubuntu] round-tripping: example of no file changes ) do
-    # Using [Ubuntu] because that's Perl-testsimple which does
-    # not generated any extra text files. In contrast, Alpine is
-    # CSharp-NUnit which does generate an .xml text file.
+  c_assert_test '160',
+  %w( round-tripping: example of no file changes ) do
     run_cyber_dojo_sh
     assert_equal({}, created)
     assert_equal([], deleted)
@@ -22,8 +19,8 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '161',
-  %w( [C,assert] created binary files are not returned in json payload
+  c_assert_test '161',
+  %w( created binary files are not returned in json payload
   but created text files are ) do
     exec([
       'make',
@@ -48,8 +45,8 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '163',
-  %w( [C,assert] changed text files are returned in json payload ) do
+  c_assert_test '163',
+  %w( changed text files are returned in json payload ) do
     exec('echo -n "jjj" > hiker.h')
     assert_equal({}, created)
     assert_equal([], deleted)
@@ -58,8 +55,8 @@ class RoundTripTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '164',
-  %w( [C,assert] created empty text files is returned in json payload ) do
+  c_assert_test '164',
+  %w( created empty text files is returned in json payload ) do
     exec('touch empty.file')
     assert_equal({ 'empty.file' => intact('')}, created)
     assert_equal([], deleted)

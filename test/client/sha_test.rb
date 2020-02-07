@@ -3,7 +3,7 @@ require_relative 'test_base'
 
 class ShaTest < TestBase
 
-  def self.hex_prefix
+  def self.id58_prefix
     '1B6'
   end
 
