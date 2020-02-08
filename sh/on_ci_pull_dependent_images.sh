@@ -17,6 +17,7 @@ on_ci_pull_dependent_images()
   # to avoid pulls happening in speed tests
   docker pull cyberdojofoundation/gcc_assert
   docker pull cyberdojofoundation/csharp_nunit
+  docker pull cyberdojofoundation/visual-basic_nunit
   docker pull cyberdojofoundation/python_pytest
   docker pull cyberdojofoundation/clang_assert
   docker pull cyberdojofoundation/perl_test_simple
