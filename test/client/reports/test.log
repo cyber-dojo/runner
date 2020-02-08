@@ -11,10 +11,10 @@ Coverage report generated for MiniTest to /tmp/reports. 2457 / 4317 LOC (56.91%)
 
 Slowest 5 tests are...
 7.3608 - FAA3DD:traffic_light_test.rb:30:test red/amber/green in parallel threads
-3.8663 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-2.7423 - 46D3DB0:large_file_test.rb:12:run with very large file                  
-1.9372 - 46D3DB1:large_file_test.rb:12:run with very large file                  
-0.8873 - FAA3DC:traffic_light_test.rb:24:test with green traffic-light           
+3.8663 - D59FDC:timed_out_test.rb:20:run with infinite loop times out
+2.7423 - 46D3DB0:large_file_test.rb:12:run with very large file
+1.9372 - 46D3DB1:large_file_test.rb:12:run with very large file
+0.8873 - FAA3DC:traffic_light_test.rb:24:test with green traffic-light
 0.8379 - 2D1161:round_trip_test.rb:22:created binary files are not returned in json payload but created text files are
 
 
@@ -28,4 +28,3 @@ Slowest 5 tests are...
         coverage(test)[%] |   100.0   >=   100 | [32m true [0m
    lines(test)/lines(app) |    2.61   >=   2.6 | [32m true [0m
      hits(app)/hits(test) |    7.73   >=   7.3 | [32m true [0m
-
