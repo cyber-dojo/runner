@@ -38,7 +38,7 @@ run_tests()
   docker run --rm \
     --volume ${test_dir}/${reports_dir}:${data_dir}:ro \
     --volume ${test_dir}/metrics.rb:/app/metrics.rb:ro \
-    cyberdojotools/check-test-results:latest \
+    cyberdojo/check-test-results:latest \
     sh -c "ruby /app/check_test_results.rb ${data_dir}/${test_log} ${data_dir}/index.html" \
       | tee -a ${test_dir}/${reports_dir}/${test_log}
   local -r status=${PIPESTATUS[0]}
