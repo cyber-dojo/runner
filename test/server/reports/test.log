@@ -1,31 +1,31 @@
-Run options: --seed 4810
+Run options: --seed 17045
 
 # Running:
 
-.....................
+..................
 
-Finished in 14.368384s, 1.4615 runs/s, 10.3700 assertions/s.
+Finished in 16.882192s, 1.0662 runs/s, 6.2788 assertions/s.
 
-21 runs, 149 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to /tmp/reports. 3854 / 8168 LOC (47.18%) covered.
+18 runs, 106 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to /tmp/reports. 3841 / 8167 LOC (47.03%) covered.
 
 Slowest 5 tests are...
-1.0055 - ECF5290:feature_returned_text_files_test.rb:62:text files created in sub-dirs are returned
-0.9940 - ECF5301:feature_returned_text_files_test.rb:80:deleted files are detected
-0.9488 - ECF5260:feature_returned_text_files_test.rb:28:created text files, including dot files, are returned
-0.9113 - ECF5311:feature_returned_text_files_test.rb:93:changed files are detected
-0.9095 - ECF5321:feature_returned_text_files_test.rb:107:empty new text files are detected
-0.7555 - ECF5271:feature_returned_text_files_test.rb:46:created binary files are not returned
+1.1146 - ECF5261:feature_returned_text_files_test.rb:28:created text files, including dot files, are returned
+1.1119 - ECF5270:feature_returned_text_files_test.rb:46:created binary files are not returned
+1.1058 - ECF5260:feature_returned_text_files_test.rb:28:created text files, including dot files, are returned
+1.0758 - ECF5321:feature_returned_text_files_test.rb:107:empty new text files are detected
+1.0679 - ECF5240:feature_returned_text_files_test.rb:13:created text-file filenames are returned even when their names have leading hyphens which could easily be read as a tar-pipe option
+1.0463 - ECF5310:feature_returned_text_files_test.rb:93:changed files are detected
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   14.37   <=   200 | [32m true [0m
-                    tests |      21   >=     1 | [32m true [0m
-         coverage(app)[%] |   78.22   >=   100 | [31m false [0m
-        coverage(test)[%] |   34.77   >=   100 | [31m false [0m
+        duration(test)[s] |   16.88   <=   200 | [32m true [0m
+                    tests |      18   >=     1 | [32m true [0m
+         coverage(app)[%] |   77.36   >=   100 | [31m false [0m
+        coverage(test)[%] |   34.38   >=   100 | [31m false [0m
    lines(test)/lines(app) |    2.66   >=   2.6 | [32m true [0m
-     hits(app)/hits(test) |   12.51   >=   6.6 | [32m true [0m
+     hits(app)/hits(test) |   12.61   >=   6.6 | [32m true [0m
 

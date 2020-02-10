@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require_relative 'bash_stub_tar_pipe_out'
 require_relative 'test_base'
 
 class ReturnedTextFilesTest < TestBase
