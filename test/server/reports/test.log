@@ -1,31 +1,31 @@
-Run options: --seed 17702
+Run options: --seed 4810
 
 # Running:
 
-...............................................................................................................
+.....................
 
-Finished in 102.797199s, 1.0798 runs/s, 10.4283 assertions/s.
+Finished in 14.368384s, 1.4615 runs/s, 10.3700 assertions/s.
 
-111 runs, 1072 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to /tmp/reports. 4633 / 8160 LOC (56.78%) covered.
+21 runs, 149 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to /tmp/reports. 3854 / 8168 LOC (47.18%) covered.
 
 Slowest 5 tests are...
-5.4446 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
-3.5483 - 1598A60:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-3.4214 - 1598A61:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-3.1837 - 9E94D7:feature_timed_out_test.rb:45:when run_cyber_dojo_sh does not complete in max_seconds and produces output then stdout is not empty, and timed_out is true, and the traffic-light colour is not set
-3.0604 - 7B7421:feature_traffic_light_test.rb:46:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
-2.8909 - 7B7422:feature_traffic_light_test.rb:77:when rag-lambda has an eval exception, then the colour is faulty, and diagnostics are added to the json result
+1.0055 - ECF5290:feature_returned_text_files_test.rb:62:text files created in sub-dirs are returned
+0.9940 - ECF5301:feature_returned_text_files_test.rb:80:deleted files are detected
+0.9488 - ECF5260:feature_returned_text_files_test.rb:28:created text files, including dot files, are returned
+0.9113 - ECF5311:feature_returned_text_files_test.rb:93:changed files are detected
+0.9095 - ECF5321:feature_returned_text_files_test.rb:107:empty new text files are detected
+0.7555 - ECF5271:feature_returned_text_files_test.rb:46:created binary files are not returned
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   102.8   <=   200 | [32m true [0m
-                    tests |     111   >=     1 | [32m true [0m
-         coverage(app)[%] |   100.0   >=   100 | [32m true [0m
-        coverage(test)[%] |   100.0   >=   100 | [32m true [0m
-   lines(test)/lines(app) |    2.64   >=   2.6 | [32m true [0m
-     hits(app)/hits(test) |   12.79   >=   6.6 | [32m true [0m
+        duration(test)[s] |   14.37   <=   200 | [32m true [0m
+                    tests |      21   >=     1 | [32m true [0m
+         coverage(app)[%] |   78.22   >=   100 | [31m false [0m
+        coverage(test)[%] |   34.77   >=   100 | [31m false [0m
+   lines(test)/lines(app) |    2.66   >=   2.6 | [32m true [0m
+     hits(app)/hits(test) |   12.51   >=   6.6 | [32m true [0m
 

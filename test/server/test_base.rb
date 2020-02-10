@@ -31,6 +31,12 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def alive?
+    runner.alive?['alive?']
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def ready?
     runner.ready?['ready?']
   end

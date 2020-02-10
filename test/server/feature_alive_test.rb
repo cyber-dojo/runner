@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ShaTest < TestBase
+class AliveTest < TestBase
 
   def self.id58_prefix
-    'FB3'
+    '6de'
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '190', %w(
-  sha of git commit which created docker image is available through API
+  alive? is true, useful for k8s liveness probes
   ) do
-    assert_sha(sha)
+    assert alive?
   end
 
 end

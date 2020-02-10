@@ -9,8 +9,9 @@ class ReadyTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '190',
-  %w( its ready ) do
+  test '190', %w(
+  ready? is true, useful for k8s readyness probes
+  ) do
     assert ready?
   end
 

@@ -2,7 +2,7 @@
 require_relative 'bash_stub_tar_pipe_out'
 require_relative 'test_base'
 
-class RoundTripTest < TestBase
+class ReturnedTextFilesTest < TestBase
 
   def self.id58_prefix
     'ECF'
@@ -11,13 +11,14 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '524', %w(
-  filenames with leading hyphens can interfere with text-file tar-pipe
-  unless filenames are read from stdin verbatim
+  created text-file filenames are returned even when
+  their names have leading hyphens which could easily
+  be read as a tar-pipe option
   ) do
-    interfere = '-JPlOLNY7yt_fFndapHwIg'
-    script = "printf 'xxx' > '#{interfere}';"
+    leading_hyphen = '-JPlOLNY7yt_fFndapHwIg'
+    script = "printf 'xxx' > '#{leading_hyphen}';"
     assert_cyber_dojo_sh(script)
-    assert_created({interfere => intact('xxx')})
+    assert_created({leading_hyphen => intact('xxx')})
     assert_deleted([])
     assert_changed({})
   end
@@ -25,7 +26,7 @@ class RoundTripTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '526', %w(
-  created text files (including dot files) are returned
+  created text files, including dot files, are returned
   ) do
     script = [
       'printf "xxx" > newfile.txt',
