@@ -1,31 +1,22 @@
-Run options: --seed 57266
+Run options: --seed 8484
 
 # Running:
 
-................................................................................................................
 
-Finished in 115.123815s, 0.9729 runs/s, 9.3204 assertions/s.
 
-112 runs, 1073 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to /tmp/reports. 4641 / 8167 LOC (56.83%) covered.
+Finished in 0.003747s, 0.0000 runs/s, 0.0000 assertions/s.
 
-Slowest 5 tests are...
-5.6825 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
-4.7163 - 1B5DB3:feature_bomb_robustness_test.rb:48:file-handles quickly become exhausted
-4.4394 - 7B7425:feature_traffic_light_test.rb:148:when the rag-lambda has too few parameters, then the colour is faulty, and diagnostics are added to the json result
-3.9857 - 1B562B0:feature_bomb_robustness_test.rb:63:a crippled container, eg from a fork-bomb, returns everything unchanged
-3.8412 - 1598A60:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-3.7934 - 1598A61:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
+0 runs, 0 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for Minitest to /tmp/reports. 143 / 349 LOC (40.97%) covered.
+
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  115.12   <=   200 | [32m true [0m
-                    tests |     112   >=     1 | [32m true [0m
-         coverage(app)[%] |   100.0   >=   100 | [32m true [0m
+        duration(test)[s] |     0.0   <=   200 | [32m true [0m
+                    tests |       0   >=     1 | [31m false [0m
+         coverage(app)[%] |   40.97   >=   100 | [31m false [0m
         coverage(test)[%] |   100.0   >=   100 | [32m true [0m
-   lines(test)/lines(app) |    2.66   >=   2.6 | [32m true [0m
-     hits(app)/hits(test) |   12.86   >=   6.6 | [32m true [0m
-
+   lines(test)/lines(app) |    0.00   >=   2.6 | [31m false [0m
