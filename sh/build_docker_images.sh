@@ -8,8 +8,7 @@ build_images()
   docker-compose \
     --file "${ROOT_DIR}/docker-compose.yml" \
     build \
-    --build-arg COMMIT_SHA=$(git_commit_sha) \
-    --build-arg CYBER_DOJO_RUNNER_PORT=${CYBER_DOJO_RUNNER_PORT}
+    --build-arg COMMIT_SHA=$(git_commit_sha)
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -

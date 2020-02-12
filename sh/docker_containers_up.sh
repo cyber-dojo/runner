@@ -20,18 +20,18 @@ wait_until_ready()
   local -r name="${1}"
   local -r port="${2}"
   local -r max_tries=20
-  echo -n "Waiting until ${name} is ready"
+  printf "Waiting until ${name} is ready"
   for _ in $(seq ${max_tries})
   do
-    echo -n '.'
     if ready ${port} ; then
-      echo 'OK'
+      printf 'OK\n'
       return
     else
+      printf .
       sleep 0.1
     fi
   done
-  echo 'FAIL'
+  printf 'FAIL\n'
   echo "${name} not ready after ${max_tries} tries"
   if [ -f "${READY_FILENAME}" ]; then
     echo "$(cat "${READY_FILENAME}")"
@@ -75,7 +75,7 @@ wait_till_up()
 
 # - - - - - - - - - - - - - - - - - - - -
 
-exit_unless_clean()
+warn_if_unclean()
 {
   local -r name="${1}"
   local -r docker_log=$(docker logs "${name}" 2>&1)
@@ -89,11 +89,11 @@ exit_unless_clean()
   # 3 lines on Thin (Unicorn=6, Puma=6)
   # Thin web server (v1.7.2 codename Bachmanity)
   # Maximum connections set to 1024
-  # Listening on 0.0.0.0:4568, CTRL+C to stop  
+  # Listening on 0.0.0.0:4568, CTRL+C to stop
   if [ "${line_count}" == '3' ]; then
-    echo 'OK'
+    echo OK
   else
-    echo 'FAIL'
+    echo FAIL
     echo_docker_log "${name}" "${docker_log}"
     exit 1
   fi
@@ -124,10 +124,10 @@ docker-compose \
   -d \
   --force-recreate
 
-wait_until_ready   test-runner-server ${CYBER_DOJO_RUNNER_PORT}
-exit_unless_clean  test-runner-server
+wait_until_ready test-runner-server ${CYBER_DOJO_RUNNER_PORT}
+warn_if_unclean  test-runner-server
 
-wait_until_ready   test-runner-languages-start-points ${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}
-exit_unless_clean  test-runner-languages-start-points
+wait_until_ready test-runner-languages-start-points ${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}
+warn_if_unclean  test-runner-languages-start-points
 
-wait_till_up       test-runner-client
+wait_till_up     test-runner-client

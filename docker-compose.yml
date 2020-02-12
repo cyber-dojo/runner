@@ -6,6 +6,7 @@ services:
   runner-client:
     build:
       context: client
+      args: [ CYBER_DOJO_RUNNER_DEMO_PORT ]
     user: nobody
     image: cyberdojo/runner-client
     init: true

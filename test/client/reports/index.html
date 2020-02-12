@@ -14,14 +14,14 @@
       <img src="./assets/0.10.2/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2020-02-08T11:00:24+00:00">2020-02-08T11:00:24+00:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2020-02-12T15:12:26+00:00">2020-02-12T15:12:26+00:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
         <div class="file_list_container" id="AllFiles">
   <h2>
     <span class="group_name">All Files</span>
-    (<span class="covered_percent"><span class="red">56.91%</span></span>
+    (<span class="covered_percent"><span class="red">56.93%</span></span>
      covered at
      <span class="covered_strength">
        <span class="green">
@@ -32,8 +32,8 @@
   <a name="AllFiles"></a>
   <div>
     <b>44</b> files in total.
-    <b>4317</b> relevant lines. 
-    <span class="green"><b>2457</b> lines covered</span> and
+    <b>4319</b> relevant lines. 
+    <span class="green"><b>2459</b> lines covered</span> and
     <span class="red"><b>1860</b> lines missed </span>
   </div>
   <table class="file_list">
@@ -203,9 +203,9 @@
       <tr>
         <td class="strong"><a href="#f62aa0eadbc8b72797f9a08ed81d4865ae9d2bd6" class="src_link" title="/test/client/traffic_light_test.rb">/test/client/traffic_light_test.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>104</td>
-        <td>51</td>
-        <td>51</td>
+        <td>106</td>
+        <td>53</td>
+        <td>53</td>
         <td>0</td>
         <td>3.6</td>
       </tr>
@@ -337,7 +337,7 @@
         <td>258</td>
         <td>139</td>
         <td>119</td>
-        <td>24.1</td>
+        <td>24.0</td>
       </tr>
       
       <tr>
@@ -407,7 +407,7 @@
         <td>282</td>
         <td>77</td>
         <td>205</td>
-        <td>3.6</td>
+        <td>3.7</td>
       </tr>
       
       <tr>
@@ -590,15 +590,15 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         2.83
+         2.84
        </span>
     </span> hits/line)
   </h2>
   <a name="test"></a>
   <div>
     <b>10</b> files in total.
-    <b>209</b> relevant lines. 
-    <span class="green"><b>209</b> lines covered</span> and
+    <b>211</b> relevant lines. 
+    <span class="green"><b>211</b> lines covered</span> and
     <span class="red"><b>0</b> lines missed </span>
   </div>
   <table class="file_list">
@@ -708,9 +708,9 @@
       <tr>
         <td class="strong"><a href="#f62aa0eadbc8b72797f9a08ed81d4865ae9d2bd6" class="src_link" title="/test/client/traffic_light_test.rb">/test/client/traffic_light_test.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>104</td>
-        <td>51</td>
-        <td>51</td>
+        <td>106</td>
+        <td>53</td>
+        <td>53</td>
         <td>0</td>
         <td>3.6</td>
       </tr>
@@ -889,7 +889,7 @@
         <td>258</td>
         <td>139</td>
         <td>119</td>
-        <td>24.1</td>
+        <td>24.0</td>
       </tr>
       
       <tr>
@@ -959,7 +959,7 @@
         <td>282</td>
         <td>77</td>
         <td>205</td>
-        <td>3.6</td>
+        <td>3.7</td>
       </tr>
       
       <tr>
@@ -4924,8 +4924,8 @@
           <code class="ruby">  def created</code>
         </li>
       
-        <li class="covered" data-hits="5" data-linenumber="98">
-          <span class="hits">5</span>
+        <li class="covered" data-hits="9" data-linenumber="98">
+          <span class="hits">9</span>
           
           <code class="ruby">    result[&#39;run_cyber_dojo_sh&#39;][&#39;created&#39;]</code>
         </li>
@@ -5553,8 +5553,8 @@
     <h3>/test/client/traffic_light_test.rb</h3>
     <h4><span class="green">100.0 %</span> covered</h4>
     <div>
-      <b>51</b> relevant lines. 
-      <span class="green"><b>51</b> lines covered</span> and
+      <b>53</b> relevant lines. 
+      <span class="green"><b>53</b> lines covered</span> and
       <span class="red"><b>0</b> lines missed.</span>
     </div>
   </div>
@@ -6153,7 +6153,7 @@
         <li class="covered" data-hits="4" data-linenumber="99">
           <span class="hits">4</span>
           
-          <code class="ruby">    assert stdout.include?(&#39;GCC Code Coverage Report&#39;), result</code>
+          <code class="ruby">    assert_equal &#39;&#39;, stdout</code>
         </li>
       
         <li class="covered" data-hits="4" data-linenumber="100">
@@ -6168,19 +6168,31 @@
           <code class="ruby">    assert_equal 0, status</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="102">
+        <li class="covered" data-hits="4" data-linenumber="102">
+          <span class="hits">4</span>
+          
+          <code class="ruby">    cov_report = created[&#39;report/coverage.txt&#39;][&#39;content&#39;]</code>
+        </li>
+      
+        <li class="covered" data-hits="4" data-linenumber="103">
+          <span class="hits">4</span>
+          
+          <code class="ruby">    assert cov_report.include?(&#39;GCC Code Coverage Report&#39;), result</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="104">
           
           
           <code class="ruby">  end</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="103">
+        <li class="never" data-hits="" data-linenumber="105">
           
           
           <code class="ruby"></code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="104">
+        <li class="never" data-hits="" data-linenumber="106">
           
           
           <code class="ruby">end</code>
@@ -29605,26 +29617,26 @@
           <code class="ruby">        while true</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="176">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="176">
+          <span class="hits">71</span>
           
           <code class="ruby">          s = rbuf_consume(@rbuf.size)</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="177">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="177">
+          <span class="hits">71</span>
           
           <code class="ruby">          read_bytes += s.size</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="178">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="178">
+          <span class="hits">71</span>
           
           <code class="ruby">          dest &lt;&lt; s</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="179">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="179">
+          <span class="hits">71</span>
           
           <code class="ruby">          rbuf_fill</code>
         </li>
@@ -29803,14 +29815,14 @@
           <code class="ruby">    def rbuf_fill</code>
         </li>
       
-        <li class="covered" data-hits="130" data-linenumber="209">
-          <span class="hits">130</span>
+        <li class="covered" data-hits="128" data-linenumber="209">
+          <span class="hits">128</span>
           
           <code class="ruby">      tmp = @rbuf.empty? ? @rbuf : nil</code>
         </li>
       
-        <li class="covered" data-hits="130" data-linenumber="210">
-          <span class="hits">130</span>
+        <li class="covered" data-hits="128" data-linenumber="210">
+          <span class="hits">128</span>
           
           <code class="ruby">      case rv = @io.read_nonblock(BUFSIZE, tmp, exception: false)</code>
         </li>
@@ -29821,8 +29833,8 @@
           <code class="ruby">      when String</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="212">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="212">
+          <span class="hits">71</span>
           
           <code class="ruby">        return if rv.equal?(tmp)</code>
         </li>
@@ -29851,8 +29863,8 @@
           <code class="ruby">      when :wait_readable</code>
         </li>
       
-        <li class="covered" data-hits="65" data-linenumber="217">
-          <span class="hits">65</span>
+        <li class="covered" data-hits="56" data-linenumber="217">
+          <span class="hits">56</span>
           
           <code class="ruby">        (io = @io.to_io).wait_readable(@read_timeout) or raise Net::ReadTimeout.new(io)</code>
         </li>
@@ -29929,20 +29941,20 @@
           <code class="ruby">    def rbuf_consume(len)</code>
         </li>
       
-        <li class="covered" data-hits="358" data-linenumber="230">
-          <span class="hits">358</span>
+        <li class="covered" data-hits="356" data-linenumber="230">
+          <span class="hits">356</span>
           
           <code class="ruby">      if len == @rbuf.size</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="231">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="231">
+          <span class="hits">71</span>
           
           <code class="ruby">        s = @rbuf</code>
         </li>
       
-        <li class="covered" data-hits="73" data-linenumber="232">
-          <span class="hits">73</span>
+        <li class="covered" data-hits="71" data-linenumber="232">
+          <span class="hits">71</span>
           
           <code class="ruby">        @rbuf = &#39;&#39;.b</code>
         </li>
@@ -29965,14 +29977,14 @@
           <code class="ruby">      end</code>
         </li>
       
-        <li class="covered" data-hits="358" data-linenumber="236">
-          <span class="hits">358</span>
+        <li class="covered" data-hits="356" data-linenumber="236">
+          <span class="hits">356</span>
           
           <code class="ruby">      @debug_output &lt;&lt; %Q[-&gt; #{s.dump}\n] if @debug_output</code>
         </li>
       
-        <li class="covered" data-hits="358" data-linenumber="237">
-          <span class="hits">358</span>
+        <li class="covered" data-hits="356" data-linenumber="237">
+          <span class="hits">356</span>
           
           <code class="ruby">      s</code>
         </li>
@@ -30223,20 +30235,20 @@
           <code class="ruby">        when Integer</code>
         </li>
       
-        <li class="covered" data-hits="116" data-linenumber="279">
-          <span class="hits">116</span>
+        <li class="covered" data-hits="117" data-linenumber="279">
+          <span class="hits">117</span>
           
           <code class="ruby">          @written_bytes += len</code>
         </li>
       
-        <li class="covered" data-hits="116" data-linenumber="280">
-          <span class="hits">116</span>
+        <li class="covered" data-hits="117" data-linenumber="280">
+          <span class="hits">117</span>
           
           <code class="ruby">          len -= str.bytesize</code>
         </li>
       
-        <li class="covered" data-hits="116" data-linenumber="281">
-          <span class="hits">116</span>
+        <li class="covered" data-hits="117" data-linenumber="281">
+          <span class="hits">117</span>
           
           <code class="ruby">          if len == 0</code>
         </li>
@@ -30277,14 +30289,14 @@
           <code class="ruby">            end</code>
         </li>
       
-        <li class="covered" data-hits="2" data-linenumber="288">
-          <span class="hits">2</span>
+        <li class="covered" data-hits="3" data-linenumber="288">
+          <span class="hits">3</span>
           
           <code class="ruby">          elsif len &lt; 0</code>
         </li>
       
-        <li class="covered" data-hits="2" data-linenumber="289">
-          <span class="hits">2</span>
+        <li class="covered" data-hits="3" data-linenumber="289">
+          <span class="hits">3</span>
           
           <code class="ruby">            str = str.byteslice(len, -len)</code>
         </li>
@@ -47481,8 +47493,8 @@
           <code class="ruby">    def read_nonblock(len, str = nil, exception: true) # :nodoc:</code>
         </li>
       
-        <li class="covered" data-hits="195" data-linenumber="452">
-          <span class="hits">195</span>
+        <li class="covered" data-hits="184" data-linenumber="452">
+          <span class="hits">184</span>
           
           <code class="ruby">      __read_nonblock(len, str, exception)</code>
         </li>
@@ -47505,8 +47517,8 @@
           <code class="ruby">    def write_nonblock(buf, exception: true) # :nodoc:</code>
         </li>
       
-        <li class="covered" data-hits="116" data-linenumber="456">
-          <span class="hits">116</span>
+        <li class="covered" data-hits="117" data-linenumber="456">
+          <span class="hits">117</span>
           
           <code class="ruby">      __write_nonblock(buf, exception)</code>
         </li>
@@ -64184,14 +64196,14 @@
           <code class="ruby">    def assert test, msg = nil</code>
         </li>
       
-        <li class="covered" data-hits="175" data-linenumber="179">
-          <span class="hits">175</span>
+        <li class="covered" data-hits="179" data-linenumber="179">
+          <span class="hits">179</span>
           
           <code class="ruby">      self.assertions += 1</code>
         </li>
       
-        <li class="covered" data-hits="175" data-linenumber="180">
-          <span class="hits">175</span>
+        <li class="covered" data-hits="179" data-linenumber="180">
+          <span class="hits">179</span>
           
           <code class="ruby">      unless test then</code>
         </li>
@@ -64220,8 +64232,8 @@
           <code class="ruby">      end</code>
         </li>
       
-        <li class="covered" data-hits="175" data-linenumber="185">
-          <span class="hits">175</span>
+        <li class="covered" data-hits="179" data-linenumber="185">
+          <span class="hits">179</span>
           
           <code class="ruby">      true</code>
         </li>
@@ -64412,14 +64424,14 @@
           <code class="ruby">    def assert_equal exp, act, msg = nil</code>
         </li>
       
-        <li class="covered" data-hits="70" data-linenumber="217">
-          <span class="hits">70</span>
+        <li class="covered" data-hits="74" data-linenumber="217">
+          <span class="hits">74</span>
           
           <code class="ruby">      msg = message(msg, E) { diff exp, act }</code>
         </li>
       
-        <li class="covered" data-hits="70" data-linenumber="218">
-          <span class="hits">70</span>
+        <li class="covered" data-hits="74" data-linenumber="218">
+          <span class="hits">74</span>
           
           <code class="ruby">      result = assert exp == act, msg</code>
         </li>
@@ -64430,8 +64442,8 @@
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="70" data-linenumber="220">
-          <span class="hits">70</span>
+        <li class="covered" data-hits="74" data-linenumber="220">
+          <span class="hits">74</span>
           
           <code class="ruby">      if nil == exp then</code>
         </li>
@@ -64496,8 +64508,8 @@
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="70" data-linenumber="231">
-          <span class="hits">70</span>
+        <li class="covered" data-hits="74" data-linenumber="231">
+          <span class="hits">74</span>
           
           <code class="ruby">      result</code>
         </li>
@@ -66704,8 +66716,8 @@
           <code class="ruby">    def message msg = nil, ending = nil, &amp;default</code>
         </li>
       
-        <li class="covered" data-hits="70" data-linenumber="599">
-          <span class="hits">70</span>
+        <li class="covered" data-hits="74" data-linenumber="599">
+          <span class="hits">74</span>
           
           <code class="ruby">      proc {</code>
         </li>

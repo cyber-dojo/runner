@@ -96,9 +96,11 @@ class TrafficLightTest < TestBase
       }
     })
     assert_equal 'green', traffic_light, result
-    assert stdout.include?('GCC Code Coverage Report'), result
+    assert_equal '', stdout
     assert_equal '', stderr
     assert_equal 0, status
+    cov_report = created['report/coverage.txt']['content']
+    assert cov_report.include?('GCC Code Coverage Report'), result
   end
 
 end
