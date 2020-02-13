@@ -127,7 +127,4 @@ docker-compose \
 wait_until_ready test-runner-server ${CYBER_DOJO_RUNNER_PORT}
 warn_if_unclean  test-runner-server
 
-wait_until_ready test-runner-languages-start-points ${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}
-warn_if_unclean  test-runner-languages-start-points
-
 wait_till_up     test-runner-client

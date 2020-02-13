@@ -7,15 +7,15 @@ services:
     build:
       context: src/client
       args: [ CYBER_DOJO_RUNNER_DEMO_PORT ]
-    user: nobody
+    container_name: test-runner-client
+    depends_on: [ runner-server ]
     image: cyberdojo/runner-client
     init: true
-    container_name: test-runner-client
-    read_only: true
-    tmpfs: /tmp
-    restart: 'no'
     ports: [ "${CYBER_DOJO_RUNNER_DEMO_PORT}:${CYBER_DOJO_RUNNER_DEMO_PORT}" ]
-    depends_on: [ runner-server ]
+    read_only: true
+    restart: 'no'
+    tmpfs: /tmp
+    user: nobody
     volumes:
       - ./test:/test/:ro
 
@@ -25,15 +25,16 @@ services:
     build:
       context: src/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
-    user: root
+    container_name: test-runner-server
+    depends_on: [ languages-start-points ]
+    environment: [ NO_PROMETHEUS, CIRCLECI ] # turn off known warning on CircleCI
     image: ${CYBER_DOJO_RUNNER_IMAGE}
     init: true
-    container_name: test-runner-server
-    environment: [ NO_PROMETHEUS, CIRCLECI ] # turn off known warning on CircleCI
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
-    tmpfs: /tmp
     restart: 'no'
+    tmpfs: /tmp
+    user: root
     volumes:
       - ./test:/test/:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -41,12 +42,12 @@ services:
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   languages-start-points:
-    user: nobody
-    image: cyberdojo/languages-start-points-all:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
-    init: true
     container_name: test-runner-languages-start-points
     environment: [ NO_PROMETHEUS ]
-    read_only: true
+    image: cyberdojo/languages-start-points-all:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
+    init: true
     ports: [ "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}" ]
+    read_only: true
     restart: 'no'
     tmpfs: /tmp
+    user: nobody
