@@ -59,19 +59,19 @@ run_tests()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-run_server_tests() { run_tests root   server "${@}"; }
-run_client_tests() { run_tests nobody client "${@}"; }
+run_server_tests() { run_tests root   server "${@:-}"; }
+run_client_tests() { run_tests nobody client "${@:-}"; }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 echo
 if [ "${1:-}" == 'server' ]; then
   shift
-  run_server_tests "${@}"
+  run_server_tests "${@:-}"
 elif [ "${1:-}" == 'client' ]; then
   shift
-  run_client_tests "${@}"
+  run_client_tests "${@:-}"
 else
-  run_server_tests "${@}"
-  run_client_tests "${@}"
+  run_server_tests "${@:-}"
+  run_client_tests "${@:-}"
 fi
 echo All passed
