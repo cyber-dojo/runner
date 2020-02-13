@@ -1,0 +1,23 @@
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Trying to use a non root user (called runner) when running the container...
+Problem. Need permission to run /var/run/docker.sock
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+On DockerToolbox for Mac, on the default VM
+/etc/group has docker group with gid=100
+This means /var/run/docker.sock has a gid=100
+On an Alpine image (such as this), /etc/group
+has a group called users with gid=100
+So I just need to make my runner user a member of users!
+
+Obvious problem with this is that the docker group
+has different gids on different OS's.
+For example, on Ubuntu 16.04 (in Google Computer Engine)
+/etc/group also has a group called users with gid=100
+but its docker group has a gid of 999
+I can hack-solve that by making the user a member
+of _multiple_ groups, each of which has the gid for
+docker on a particular OS
+
+RUN adduser runner users
