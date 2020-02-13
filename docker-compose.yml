@@ -23,7 +23,7 @@ services:
 
   runner-server:
     build:
-      context: app
+      context: server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     user: root
     image: ${CYBER_DOJO_RUNNER_IMAGE}

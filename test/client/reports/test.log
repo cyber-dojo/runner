@@ -1,16 +1,16 @@
-Run options: --seed 16817
+Run options: --seed 199
 
 # Running:
 
 .
 
-Finished in 0.004274s, 233.9536 runs/s, 467.9072 assertions/s.
+Finished in 0.004850s, 206.1969 runs/s, 412.3938 assertions/s.
 
 1 runs, 2 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to /tmp/reports. 2269 / 4322 LOC (52.5%) covered.
 
 Slowest 1 tests are...
-0.0018 - A8615D:ready_test.rb:12:ready?                                          
+0.0020 - A8615D:ready_test.rb:12:ready?                                          
 
 
                  failures |       0   <=     0 | [32m true [0m
