@@ -8,4 +8,4 @@ rackup \
   --port ${PORT} \
   --server thin \
   --env production \
-    config.ru
+    /app/config.ru

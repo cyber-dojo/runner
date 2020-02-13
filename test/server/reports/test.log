@@ -1,22 +1,28 @@
-Run options: --seed 8484
+Run options: --seed 23018
 
 # Running:
 
+...
 
+Finished in 0.005756s, 521.2353 runs/s, 7471.0393 assertions/s.
 
-Finished in 0.003747s, 0.0000 runs/s, 0.0000 assertions/s.
+3 runs, 43 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to /tmp/reports. 3120 / 8180 LOC (38.14%) covered.
 
-0 runs, 0 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for Minitest to /tmp/reports. 143 / 349 LOC (40.97%) covered.
-
+Slowest 3 tests are...
+0.0001 - FB3190:feature_sha_test.rb:12:sha of git commit which created docker image is available through API
+0.0000 - 872190:feature_ready_test.rb:12:ready? is true, useful for k8s readyness probes
+0.0000 - 6de190:feature_alive_test.rb:12:alive? is true, useful for k8s liveness probes
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |     0.0   <=   200 | [32m true [0m
-                    tests |       0   >=     1 | [31m false [0m
-         coverage(app)[%] |   40.97   >=   100 | [31m false [0m
-        coverage(test)[%] |   100.0   >=   100 | [32m true [0m
-   lines(test)/lines(app) |    0.00   >=   2.6 | [31m false [0m
+        duration(test)[s] |    0.01   <=   200 | [32m true [0m
+                    tests |       3   >=     1 | [32m true [0m
+         coverage(app)[%] |   43.27   >=   100 | [31m false [0m
+        coverage(test)[%] |   28.56   >=   100 | [31m false [0m
+   lines(test)/lines(app) |    2.66   >=   2.6 | [32m true [0m
+     hits(app)/hits(test) |    0.64   >=   6.6 | [31m false [0m
+
