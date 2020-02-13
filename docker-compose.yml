@@ -5,7 +5,7 @@ services:
 
   runner-client:
     build:
-      context: client
+      context: src/client
       args: [ CYBER_DOJO_RUNNER_DEMO_PORT ]
     user: nobody
     image: cyberdojo/runner-client
@@ -23,7 +23,7 @@ services:
 
   runner-server:
     build:
-      context: server
+      context: src/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     user: root
     image: ${CYBER_DOJO_RUNNER_IMAGE}
