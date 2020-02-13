@@ -1,7 +1,7 @@
-#!/bin/bash -Ee
+#!/bin/bash -Eeu
 
 readonly root_dir="$( cd "$( dirname "${0}" )/.." && pwd )"
-readonly my_name=runner
+readonly my_name=${root_dir##*/}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 run_tests()
@@ -64,10 +64,10 @@ run_client_tests() { run_tests nobody client "${@}"; }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 echo
-if [ "${1}" == 'server' ]; then
+if [ "${1:-}" == 'server' ]; then
   shift
   run_server_tests "${@}"
-elif [ "${1}" == 'client' ]; then
+elif [ "${1:-}" == 'client' ]; then
   shift
   run_client_tests "${@}"
 else
