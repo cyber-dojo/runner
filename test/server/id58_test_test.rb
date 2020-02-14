@@ -68,7 +68,7 @@ class Id58TestTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'e3a', %w( hex digits can be UPPERCASE or lowercase ) do
+  test 'e3a', %w( digits can be UPPERCASE or lowercase ) do
     assert_equal '89ce3a', ENV['ID58']
     assert_equal '89ce3a', id58
   end

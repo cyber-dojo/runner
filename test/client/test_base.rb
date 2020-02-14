@@ -13,25 +13,25 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def self.test(hex_suffix, *lines, &block)
-    alpine_test(hex_suffix, *lines, &block)
+  def self.test(id_suffix, *lines, &block)
+    alpine_test(id_suffix, *lines, &block)
   end
 
-  def self.alpine_test(hex_suffix, *lines, &block)
-    define_test(:Alpine, 'C#, NUnit', hex_suffix, *lines, &block)
+  def self.alpine_test(id_suffix, *lines, &block)
+    define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
   end
 
-  def self.ubuntu_test(hex_suffix, *lines, &block)
-    define_test(:Ubuntu, 'VisualBasic, NUnit', hex_suffix, *lines, &block)
+  def self.ubuntu_test(id_suffix, *lines, &block)
+    define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
   end
 
-  def self.multi_os_test(hex_suffix, *lines, &block)
-    alpine_test(hex_suffix+'0', *lines, &block)
-    ubuntu_test(hex_suffix+'1', *lines, &block)
+  def self.multi_os_test(id_suffix, *lines, &block)
+    alpine_test(id_suffix+'0', *lines, &block)
+    ubuntu_test(id_suffix+'1', *lines, &block)
   end
 
-  def self.c_assert_test(hex_suffix, *lines, &block)
-    define_test(:Debian, 'C (gcc), assert', hex_suffix, *lines, &block)
+  def self.c_assert_test(id_suffix, *lines, &block)
+    define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
