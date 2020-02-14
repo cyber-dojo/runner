@@ -1,7 +1,7 @@
 #!/bin/bash -Eeu
 
 readonly root_dir="$( cd "$( dirname "${0}" )/.." && pwd )"
-readonly my_name=${root_dir##*/}
+readonly my_name=runner
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 run_tests()
