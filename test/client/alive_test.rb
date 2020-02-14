@@ -9,10 +9,8 @@ class AliveTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CA2', 'alive?' do
-    alive = runner.alive?['alive?']
-    assert alive.is_a?(TrueClass) || alive.is_a?(FalseClass)
-    assert alive
+  test 'CA2', 'its alive' do
+    assert runner.alive?['alive?'].is_a?(TrueClass)
   end
 
 end

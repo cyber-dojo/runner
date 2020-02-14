@@ -9,10 +9,8 @@ class Ready < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '15D', 'ready?' do
-    ready = runner.ready?['ready?']
-    assert ready.is_a?(TrueClass) || ready.is_a?(FalseClass)
-    assert ready
+  test '15D', 'its ready' do
+    assert runner.ready?['ready?'].is_a?(TrueClass)
   end
 
 end

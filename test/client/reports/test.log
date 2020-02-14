@@ -1,31 +1,31 @@
-Run options: --seed 11393
+Run options: --seed 29013
 
 # Running:
 
 ................................
 
-Finished in 30.884898s, 1.0361 runs/s, 5.5367 assertions/s.
+Finished in 40.073085s, 0.7985 runs/s, 3.1692 assertions/s.
 
-32 runs, 171 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to /tmp/reports. 2462 / 4322 LOC (56.96%) covered.
+32 runs, 127 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to /tmp/reports. 2461 / 4321 LOC (56.95%) covered.
 
 Slowest 5 tests are...
-9.1821 - FAA3DD:traffic_light_test.rb:30:test red/amber/green in parallel threads
-4.0215 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-2.2964 - 46D3DB:large_file_test.rb:12:run with very large file                   
-1.0973 - FAA3DC:traffic_light_test.rb:24:test with green traffic-light           
-1.0603 - 2D1161:round_trip_test.rb:22:created binary files are not returned in json payload but created text files are
-0.9736 - D59FDD:timed_out_test.rb:12:[C,assert] run which does not timeout       
+10.6607 - 46DED4:large_file_test.rb:29:stdout greater than 50K is truncated       
+7.9741 - FAA3DD:traffic_light_test.rb:30:test red/amber/green in parallel threads
+4.0860 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
+2.6934 - 46D3DB:large_file_test.rb:12:run with very large file                   
+1.3068 - FAA3DC:traffic_light_test.rb:24:test with green traffic-light           
+0.9944 - 2D1160:round_trip_test.rb:12:round-tripping: example of no file changes 
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   30.88   <=    75 | [32m true [0m
+        duration(test)[s] |   40.07   <=    75 | [32m true [0m
                     tests |      32   >=     1 | [32m true [0m
          coverage(app)[%] |   100.0   >=   100 | [32m true [0m
         coverage(test)[%] |   100.0   >=   100 | [32m true [0m
-   lines(test)/lines(app) |    2.60   >=   2.6 | [32m true [0m
-     hits(app)/hits(test) |    7.47   >=   6.9 | [32m true [0m
+   lines(test)/lines(app) |    2.59   >=   2.6 | [31m false [0m
+     hits(app)/hits(test) |    7.03   >=   6.9 | [32m true [0m
 
