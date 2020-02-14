@@ -26,8 +26,8 @@ class TestBase < Id58TestBase
   end
 
   def self.multi_os_test(id_suffix, *lines, &block)
-    alpine_test(id_suffix+'0', *lines, &block)
-    ubuntu_test(id_suffix+'1', *lines, &block)
+    alpine_test(id_suffix, *lines, &block)
+    ubuntu_test(id_suffix, *lines, &block)
   end
 
   def self.c_assert_test(id_suffix, *lines, &block)

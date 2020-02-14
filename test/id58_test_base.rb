@@ -13,7 +13,7 @@ class Id58TestBase < MiniTest::Test
   end
 
   @@args = (ARGV.sort.uniq - ['--']) # eg 2m4
-  @@seen_ids = []
+  @@seen_ids = {}
   @@timings = {}
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -22,7 +22,7 @@ class Id58TestBase < MiniTest::Test
     src = test_block.source_location
     src_file = File.basename(src[0])
     src_line = src[1].to_s
-    id58 = checked_id58(id58_suffix, lines)
+    id58 = checked_id58(os, id58_suffix, lines)
     if @@args === [] || @@args.any?{ |arg| id58.include?(arg) }
       name58 = lines.join(space = ' ')
       execute_around = lambda {
@@ -42,7 +42,7 @@ class Id58TestBase < MiniTest::Test
           id58_teardown
         end
       }
-      name = "id58 '#{id58_suffix}',\n'#{name58}'"
+      name = "id='#{id58_suffix}'\nos=#{os}\n'#{name58}'"
       define_method("test_\n#{name}".to_sym, &execute_around)
     end
   end
@@ -77,7 +77,7 @@ class Id58TestBase < MiniTest::Test
       s.chars.all?{ |ch| ID58_ALPHABET.include?(ch) }
   end
 
-  def self.checked_id58(id58_suffix, lines)
+  def self.checked_id58(os, id58_suffix, lines)
     method = 'def self.id58_prefix'
     pointer = ' ' * method.index('.') + '!'
     pointee = (['',pointer,method,'','']).join("\n")
@@ -94,10 +94,20 @@ class Id58TestBase < MiniTest::Test
     pointer.prepend("\n\n")
     raise "#{pointer}empty#{pointee}" if id58_suffix === ''
     raise "#{pointer}not id58#{pointee}" unless id58?(id58_suffix)
-    raise "#{pointer}duplicate#{pointee}" if @@seen_ids.include?(id58)
+    raise "#{pointer}duplicate#{pointee}" if seen?(id58, os)
     raise "#{pointer}overlap#{pointee}" if id58_prefix[-2..-1] === id58_suffix[0..1]
-    @@seen_ids << id58
+    seen(id58, os)
     id58
+  end
+
+  def self.seen?(id58, os)
+    seen = @@seen_ids[id58] || []
+    seen.include?(os)
+  end
+
+  def self.seen(id58, os)
+    @@seen_ids[id58] ||= []
+    @@seen_ids[id58] << os
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

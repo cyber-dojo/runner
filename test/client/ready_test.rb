@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ReadyTest < TestBase
+class Ready < TestBase
 
   def self.id58_prefix
     'A86'
