@@ -34,10 +34,10 @@ wait_until_ready()
   printf 'FAIL\n'
   echo "${name} not ready after ${max_tries} tries"
   if [ -f "${READY_FILENAME}" ]; then
-    echo "$(cat "${READY_FILENAME}")"
+    cat "${READY_FILENAME}"
   fi
   docker logs ${name}
-  exit 1
+  exit 42
 }
 
 # - - - - - - - - - - - - - - - - - - - -
@@ -70,32 +70,47 @@ wait_till_up()
   done
   echo "${1} not up after 5 seconds"
   docker logs "${1}"
-  exit 1
+  exit 42
 }
 
 # - - - - - - - - - - - - - - - - - - - -
+strip_known_warning()
+{
+  local -r log="${1}"
+  local -r pattern="${2}"
+  local -r warning=$(printf "${log}" | grep --extended-regexp "${pattern}")
+  local -r stripped=$(printf "${log}" | grep --invert-match --extended-regexp "${pattern}")
+  if [ "${log}" != "${stripped}" ]; then
+    >&2 echo "SERVICE START-UP WARNING: ${warning}"
+  fi
+  echo "${stripped}"
+}
 
+# - - - - - - - - - - - - - - - - - - - -
 warn_if_unclean()
 {
   local -r name="${1}"
-  local -r docker_log=$(docker logs "${name}" 2>&1)
-  local -r daemon_warning="daemons-1.3.1(.*)warning\: mismatched indentations at 'rescue'"
-  local -r stripped=$(echo -n "${docker_log}" | grep --invert-match -E "${daemon_warning}")
-  if [ "${docker_log}" != "${stripped}" ]; then
-    echo "SERVICE START-UP WARNING: ${daemon_warning}"
-  fi
-  local -r line_count=$(echo -n "${stripped}" | grep --count '^')
+  local log=$(docker logs "${name}" 2>&1)
+
+  # Thin warnings
+  #local -r daemon_warning="daemons-1.3.1(.*)warning\: mismatched indentations at 'rescue'"
+  #log=$(strip_known_warning "${log}" "${daemon_warning}")
+
+  # Puma warnings
+  local -r last_arg_warning="puma.rb:(.*): warning: (.*) the last argument was passed as a single Hash"
+  log=$(strip_known_warning "${log}" "${last_arg_warning}")
+  local -r splat_keyword_warning="server.rb:(.*): warning: although a splat keyword arguments here"
+  log=$(strip_known_warning "${log}" "${splat_keyword_warning}")
+
+  local -r line_count=$(echo -n "${log}" | grep --count '^')
   echo -n "Checking ${name} started cleanly..."
-  # 3 lines on Thin (Unicorn=6, Puma=6)
-  # Thin web server (v1.7.2 codename Bachmanity)
-  # Maximum connections set to 1024
-  # Listening on 0.0.0.0:4568, CTRL+C to stop
-  if [ "${line_count}" == '3' ]; then
+  # Thin=3, Unicorn=6, Puma=6
+  if [ "${line_count}" == '6' ]; then
     echo OK
   else
     echo FAIL
     echo_docker_log "${name}" "${docker_log}"
-    exit 1
+    exit 42
   fi
 }
 
@@ -104,16 +119,16 @@ warn_if_unclean()
 echo_docker_log()
 {
   local -r name="${1}"
-  local -r docker_log="${2}"
+  local -r log="${2}"
   echo "[docker logs ${name}]"
   echo "<docker_log>"
-  echo "${docker_log}"
+  echo "${log}"
   echo "</docker_log>"
 }
 
 # - - - - - - - - - - - - - - - - - - - -
 
-readonly ROOT_DIR="$( cd "$( dirname "${0}" )" && cd .. && pwd )"
+readonly ROOT_DIR="$( cd "$(dirname "${0}")/.." && pwd )"
 
 export NO_PROMETHEUS=true
 

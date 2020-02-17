@@ -13,7 +13,7 @@ if [ "${1:-}" == '-h' ] || [ "${1:-}" == '--help' ]; then
   exit 0
 fi
 
-readonly SH_DIR="$( cd "$( dirname "${0}" )/sh" && pwd )"
+readonly SH_DIR="$( cd "$(dirname "${0}")/sh" && pwd )"
 source ${SH_DIR}/versioner_env_vars.sh
 export $(versioner_env_vars)
 ${SH_DIR}/build_images.sh
