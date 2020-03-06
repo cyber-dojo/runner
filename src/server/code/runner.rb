@@ -250,9 +250,9 @@ class Runner
   # o) grep -q is --quiet
   # o) grep -v is --invert-match
   # o) Strip ./ from front of pathed filename in depathed()
-  # o) The file utility must be installed [X].
-  #    However, it incorrectly reports size==0,1 as binary
-  #    which is impossible. No executable binary can be that small.
+  # o) The [file] utility must be installed [X]. However,
+  #    it incorrectly reports very small files as binary.
+  #    If size==0,1 assume its a text file.
   # o) truncates text files to MAX_FILE_SIZE+1
   #    This is so truncated?() can detect the truncation.
   #    The truncate utility must be installed [X].
