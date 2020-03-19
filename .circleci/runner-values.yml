@@ -4,10 +4,8 @@ fullnameOverride: "runner"
 daemonSet: true
 
 service:
-  port: 4597
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "4597"
 
 volumes:
   - name: runner-tmp-dir
@@ -21,7 +19,6 @@ volumes:
 
 containers:
   - name: runner
-    image: cyberdojo/runner
     securityContext:
       readOnlyRootFilesystem: true
     volumeMounts:
@@ -39,10 +36,8 @@ containers:
         memory: 4Gi
     livenessProbe:
       path: /alive?
-      port: 4597
     readinessProbe:
       path: /ready?
-      port: 4597
 
 initContainers: {}
 
