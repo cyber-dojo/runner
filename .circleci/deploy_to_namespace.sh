@@ -41,4 +41,4 @@ helm upgrade \
   --values .circleci/runner-values.yml \
   ${NAMESPACE}-runner \
   praqma/cyber-dojo-service \
-  --version 0.2.4
+  --version 0.2.5
