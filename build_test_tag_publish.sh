@@ -1,6 +1,6 @@
 #!/bin/bash -Eeu
 
-readonly MY_NAME=`basename "${0}"`
+readonly MY_NAME=`basename "${BASH_SOURCE[0]}"`
 
 if [ "${1:-}" == '-h' ] || [ "${1:-}" == '--help' ]; then
   echo
