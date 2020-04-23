@@ -17,10 +17,6 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def sha
-    { 'sha' => ENV['SHA'] }
-  end
-
   def alive?
     { 'alive?' => true }
   end
@@ -29,13 +25,21 @@ class Runner
     { 'ready?' => true }
   end
 
+  def sha
+    { 'sha' => ENV['SHA'] }
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     # [X] Assumes image_name was built by image_builder with a
     # Dockerfile augmented by image_dockerfile_augmenter. See
-    #   https://github.com/cyber-dojo-languages/image_builder
-    #   https://github.com/cyber-dojo-languages/image_dockerfile_augmenter
+    #   https://github.com/cyber-dojo-tools/image_builder
+    #   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+    # If image_name is not present on the node, docker will
+    # attempt to pull it. The browser's kata/run_tests ajax
+    # call can timeout before the pull completes; this browser
+    # timeout is different to the runner.run() call timing out.
     @result = {}
     create_container(image_name, id, max_seconds+2)
     begin
@@ -292,17 +296,23 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container(image_name, id, max_seconds)
+    # Add a random-id to the container name. A container-name
+    # based on _only_ the id will fail when a container with
+    # that id exists and is alive. Easily possible in tests.
+    # Note that remove_container() backgrounds the [docker rm].
     @container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    docker_run = [
+    docker_run_command = [
       'docker run',
         "--name=#{@container_name}",
         docker_run_options(image_name, id),
         image_name,
           "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
-    # The --detach run-option means this assert will not catch
-    # some errors. For example, if the container has no bash [X].
-    shell.assert(docker_run)
+    # This shell.assert will catch errors in the 'outer' docker-run 
+    # command but not errors in the 'inner' sleep command. For example,
+    # if the container has no bash [X]. Note that --detach is one of
+    # one docker_run_options.
+    shell.assert(docker_run_command)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -315,10 +325,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def random_id
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id exists and is alive. Note that remove_container()
-    # backgrounds the [docker rm].
     HEX_DIGITS.shuffle[0,8].join
   end
 

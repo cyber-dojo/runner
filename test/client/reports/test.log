@@ -1,31 +1,31 @@
-Run options: --seed 11941
+Run options: --seed 18102
 
 # Running:
 
 ................................
 
-Finished in 30.405328s, 1.0524 runs/s, 4.2098 assertions/s.
+Finished in 28.352158s, 1.1287 runs/s, 4.5146 assertions/s.
 
 32 runs, 128 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to //tmp/reports. 2478 / 4327 LOC (57.27%) covered.
 
 Slowest 5 tests are...
-9.7704 - FAA3DD:traffic_light_test.rb:30:test red/amber/green in parallel threads
-3.9981 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-3.0079 - 46D3DB:large_file_test.rb:12:run with very large file                   
-1.0116 - FAA3DC:traffic_light_test.rb:24:test with green traffic-light           
-0.9827 - 2D1161:round_trip_test.rb:22:created binary files are not returned in json payload but created text files are
-0.9423 - 2D1160:round_trip_test.rb:12:round-tripping: example of no file changes 
+8.7452 - FAA3DD:traffic_light_test.rb:30:test red/amber/green in parallel threads
+3.9411 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
+2.8196 - 46D3DB:large_file_test.rb:12:run with very large file                   
+0.9796 - FAA3DC:traffic_light_test.rb:24:test with green traffic-light           
+0.8973 - FAA3DA:traffic_light_test.rb:12:test with red traffic-light             
+0.8711 - 2378A1:os_image_test.rb:12:start-files image_name<->os correspondence   
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   30.41   <=    75 | [32m true [0m
+        duration(test)[s] |   28.35   <=    75 | [32m true [0m
                     tests |      32   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.59   >=   2.5 | [32m true [0m
-      hits(tested/tester) |    7.24   >=   6.9 | [32m true [0m
+      hits(tested/tester) |    7.00   >=   6.9 | [32m true [0m
 
