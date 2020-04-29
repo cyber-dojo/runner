@@ -39,7 +39,7 @@ class Runner
     # If image_name is not present on the node, docker will
     # attempt to pull it. The browser's kata/run_tests ajax
     # call can timeout before the pull completes; this browser
-    # timeout is different to the runner.run() call timing out.
+    # timeout is different to the Runner.run() call timing out.
     @result = {}
     create_container(image_name, id, max_seconds+2)
     begin
@@ -308,7 +308,7 @@ class Runner
         image_name,
           "bash -c 'sleep #{max_seconds}'"
     ].join(SPACE)
-    # This shell.assert will catch errors in the 'outer' docker-run 
+    # This shell.assert will catch errors in the 'outer' docker-run
     # command but not errors in the 'inner' sleep command. For example,
     # if the container has no bash [X]. Note that --detach is one of
     # one docker_run_options.

@@ -1,0 +1,6 @@
+
+
+It would be better if the runner processed the hidden-files itself,
+rather than returning them to web. This would mean
+ o) less bytes being sent back
+ o) it would be a step nearer using runner direct from the browser via a web-socket.
