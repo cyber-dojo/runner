@@ -311,7 +311,7 @@ class Runner
     # This shell.assert will catch errors in the 'outer' docker-run
     # command but not errors in the 'inner' sleep command. For example,
     # if the container has no bash [X]. Note that --detach is one of
-    # one docker_run_options.
+    # the docker_run_options.
     shell.assert(docker_run_command)
   end
 
