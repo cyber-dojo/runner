@@ -1,14 +1,47 @@
 
-Could docker logs be gathered on timeout and sent back to the browser.
-Currently runner does this...
+Could docker logs be gathered on timeout and sent back to the browser?
+It would have to be a third 'stream'
+stdout/stderr/stdlog  + status
 
-rescue Timeout::Error
-  Process_kill_group(pid)
-  Process_detach(pid)
-  status = KILLED_STATUS
-  timed_out = true
-  ...
-end
+Also get the exit status of the container?
+Rather just sending back 128+9
 
-It could gather the logs before Process_kill_group()
-It could send the log back as stderr!
+  Note:
+  pid,status = Process.wait2(pid, Process::WNOHANG)
+  # raises a SystemCallError if there are no child processes
+
+
+  pid = Process.spawn(command, {
+    pgroup:true,     # become process leader
+        in:r_stdin,  # redirection
+       out:w_stdout, # redirection
+       err:w_stderr  # redirection
+  })
+  begin
+    Timeout::timeout(max_seconds) do
+      # try to complete cyber-dojo.sh run
+      _, ps = Process.waitpid2(pid)
+      # we got here. it completed
+      status = ps.exitstatus
+      # TODO: gather the log if the status is not as expected?
+      # so,se,st = shell.exec("docker logs --tail=1000 #{container_name}")
+      timed_out = killed?(status)
+      # TODO: timed_out is false. status is being returned anyway. Let client interpret
+    end
+  rescue Timeout::Error
+    # did not complete cyber-dojo.sh run
+    # try to gather the docker log. In a race, could fail, dont shell.assert
+    so,se,st = shell.exec("docker logs --tail=1000 #{container_name}")
+    stdlog = { stdout:so, stderr:se, st:status }
+    Process_kill_group(pid)
+    Process_detach(pid)
+    status = KILLED_STATUS
+    timed_out = true
+  ensure
+    w_stdout.close unless w_stdout.closed?
+    w_stderr.close unless w_stderr.closed?
+    stdout = packaged(read_max(r_stdout))
+    stderr = packaged(read_max(r_stderr))
+    r_stdout.close
+    r_stderr.close
+  end
