@@ -1,0 +1,14 @@
+
+Could docker logs be gathered on timeout and sent back to the browser.
+Currently runner does this...
+
+rescue Timeout::Error
+  Process_kill_group(pid)
+  Process_detach(pid)
+  status = KILLED_STATUS
+  timed_out = true
+  ...
+end
+
+It could gather the logs before Process_kill_group()
+It could send the log back as stderr!

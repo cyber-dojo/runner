@@ -1,0 +1,61 @@
+
+Using a WebSocket?
+
+1. Same design but just WebSocket a tgz archive in directly.
+  Saves time:
+   o) using WebSocket
+   o) can send tgz file directly from browser (via archive lib)
+   o) results come back to browser directly (not via web)
+   o) Runner (or browser) could also send the results to the saver.
+2. Use a repl-like approach where a pool of longer-lived containers
+   are maintained, and tgz file is piped in via a docker exec.
+   Runner already does a docker exec with a tar pipe.
+   Saves time:
+   o) no need to start up a container
+   o) no need to shut down a container
+   o) how would this be made secure?
+      - can you securely time-limit a docker-exec?
+      - you would have to set the time limit as root
+      - and then issue the run command as a nobody user
+      - maybe there is another way...
+      - start a container but with a "paused" entry-point script
+         that will sleep and the die once awakened.
+      - the docker exec tar pipes the tgz into the container
+        and then wakes the pid1 process up
+      - this way the container will die after 10 seconds.
+      - after the runner has sent results back through the websocket
+        it can top of a "container pool" ready for next request...
+      - the container would have to be correct based on the image
+      - can a process wait for a signal?
+        Yes https://stackoverflow.com/questions/25687131
+        Also useful https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86
+      - can you send a docker container a signal?
+        Yes [docker stop --time 10s] gives 10 seconds. Just ensure --init
+        so container responds properly (speedily) to signals.
+        So 1) pre-set up a container with pid1 process which waits for kill signal, --init
+              Its ENTRYPOINT is a script that has a wait-loop to keep it alive. Running as root.
+        Runner receives incoming request and
+           1) runs a [docker stop --time 10s <PID>] to start the timer
+           2) runs the same docker exec(s) tar pipe as it does now. And it is a race.
+              docker exec to untar tgz on stdin and run cyber-dojo.sh
+              docker exec to extract text files
+     o) Other things that could speed things up
+        - Have option to not extract text files (most don't need it)
+        - Problem is need to extract red_amber_green.rb lambda
+        - Could extract that as part of the prep for the container!
+     o) So fast run would be...
+        - incoming request on WebSocket
+        - get container+lambda from pool based on image_name key
+        - docker stop --time 10s      Hmmmmm. Is this synchronous? Background it?
+        - docker exec harvesting stdout/stderr/status
+        - get colour by calling lambda with sss
+        - send results back on WebSocket
+        - when container actually dies tell container pool so it
+          keep cache topped up based on configuration.
+        - runner would need pool of WebSockets. I per active client.
+          This would need throttling too.
+          The no of websockets is different to the number of containers
+          to have cached and ready.
+          Suppose you have 30 active clients and they [test] on average
+          once every 30s. They on average you get 1 [test] per second.
+          So you don't need many containers in the cache to cater for this.
