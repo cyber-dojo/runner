@@ -1,16 +1,15 @@
 
-Could docker logs be gathered on timeout and sent back to the browser?
-It would have to be a third 'stream'
-stdout/stderr/stdlog  + status
+Gather docker logs and sent back to the browser as third 'stream' == log
+Note:
+pid,status = Process.wait2(pid, Process::WNOHANG)
+# raises a SystemCallError if there are no child processes
 
-Also get the exit status of the container?
-Rather just sending back 128+9
+  def add_docker_log(log)
+    so,se,st = shell.exec("docker logs --tail=1000 #{container_name}")
+    log.merge!{ stdout:so, stderr:se, status:st }
+  end
 
-  Note:
-  pid,status = Process.wait2(pid, Process::WNOHANG)
-  # raises a SystemCallError if there are no child processes
-
-
+  log = { image_name:@image_name, id:@id }
   pid = Process.spawn(command, {
     pgroup:true,     # become process leader
         in:r_stdin,  # redirection
@@ -19,24 +18,17 @@ Rather just sending back 128+9
   })
   begin
     Timeout::timeout(max_seconds) do
-      # try to complete cyber-dojo.sh run
       _, ps = Process.waitpid2(pid)
-      # we got here. it completed
+      add_docker_log(log)
+      timed_out = false
       status = ps.exitstatus
-      # TODO: gather the log if the status is not as expected?
-      # so,se,st = shell.exec("docker logs --tail=1000 #{container_name}")
-      timed_out = killed?(status)
-      # TODO: timed_out is false. status is being returned anyway. Let client interpret
     end
   rescue Timeout::Error
-    # did not complete cyber-dojo.sh run
-    # try to gather the docker log. In a race, could fail, dont shell.assert
-    so,se,st = shell.exec("docker logs --tail=1000 #{container_name}")
-    stdlog = { stdout:so, stderr:se, st:status }
+    add_docker_log(log)
     Process_kill_group(pid)
     Process_detach(pid)
-    status = KILLED_STATUS
     timed_out = true
+    status = KILLED_STATUS
   ensure
     w_stdout.close unless w_stdout.closed?
     w_stderr.close unless w_stderr.closed?
@@ -45,3 +37,10 @@ Rather just sending back 128+9
     r_stdout.close
     r_stderr.close
   end
+  @result['run_cyber_dojo_sh'] = {
+    stdout:stdout,
+    stderr:stderr,
+    status:status,
+    timed_out:timed_out,
+    log:log,
+  }
