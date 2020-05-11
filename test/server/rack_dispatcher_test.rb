@@ -55,22 +55,32 @@ class RackDispatcherTest < TestBase
 
   test 'AA2',
   %w( missing image_name becomes exception ) do
-    assert_rack_call_run_missing(:image_name)
+    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'image_name')
   end
 
   test 'AA3',
   %w( missing id becomes exception ) do
-    assert_rack_call_run_missing(:id)
+    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'id')
   end
 
   test 'AA4',
   %w( missing max_seconds becomes exception ) do
-    assert_rack_call_run_missing(:max_seconds)
+    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'max_seconds')
   end
 
   test 'AA5',
-  %w( missing max_seconds becomes exception ) do
-    assert_rack_call_run_missing(:files)
+  %w( missing files becomes exception ) do
+    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'files')
+  end
+
+  test 'AA6',
+  %w( new API: missing id becomes exception ) do
+    assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'id')
+  end
+
+  test 'AA7',
+  %w( new API: missing files becomes exception ) do
+    assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'files')
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -120,11 +130,11 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # run_cyber_dojo_sh with new method API
+  # run_cyber_dojo_sh with current method API
   # - - - - - - - - - - - - - - - - -
 
   c_assert_test 'SA2', 'run_cyber_dojo_sh with new args (no logging)' do
-    args = run_cyber_dojo_sh_new_args
+    args = run_cyber_dojo_sh_current_args
     rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
 
     assert_200('run_cyber_dojo_sh')
@@ -160,7 +170,7 @@ class RackDispatcherTest < TestBase
     assert_logged('stderr', '')
     assert_logged('status', 1)
     assert_gcc_starting
-  end 
+  end
 
   # - - - - - - - - - - - - - - - - -
 
@@ -181,10 +191,10 @@ class RackDispatcherTest < TestBase
 
   private # = = = = = = = = = = = = =
 
-  def assert_rack_call_run_missing(name)
+  def assert_rack_call_run_missing(args, name)
     expected = "#{name} is missing"
-    args = run_cyber_dojo_sh_args.tap{|hs| hs.delete(name.to_s)}.to_json
-    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
+    lacking = args.tap{|hs| hs.delete(name)}.to_json
+    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', lacking)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -324,15 +334,6 @@ class RackDispatcherTest < TestBase
 
   def run_cyber_dojo_sh_args
     {
-      'image_name' => image_name,
-      'id' => id,
-      'files' => starting_files,
-      'max_seconds' => 10
-    }
-  end
-
-  def run_cyber_dojo_sh_new_args
-    {
       'id' => id,
       'files' => starting_files,
       'manifest' =>
@@ -340,6 +341,15 @@ class RackDispatcherTest < TestBase
         'image_name' => image_name,
         'max_seconds' => 10
       }
+    }
+  end
+
+  def run_cyber_dojo_sh_current_args
+    {
+      'image_name' => image_name,
+      'id' => id,
+      'files' => starting_files,
+      'max_seconds' => 10
     }
   end
 
