@@ -16,7 +16,7 @@ class RackDispatcher
     body = request.body.read
     name,args = HttpJsonArgs.new(body).get(path)
     runner = Runner.new(@externals)
-    result = runner.public_send(name, *args)
+    result = runner.public_send(name, args)
     json_response_pass(200, result)
   rescue HttpJsonArgs::Error => error
     json_response_fail(400, diagnostic(path, body, error))

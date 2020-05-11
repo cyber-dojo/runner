@@ -36,11 +36,11 @@ class TimeOutRunner
   attr_reader :id, :files, :container_name
 
   def image_name
-    @manifest[:image_name]
+    @manifest['image_name']
   end
 
   def max_seconds
-    @manifest[:max_seconds]
+    @manifest['max_seconds']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

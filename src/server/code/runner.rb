@@ -7,20 +7,24 @@ class Runner
     @externals = externals
   end
 
-  def alive?
+  def alive?(_args={})
     { 'alive?' => true }
   end
 
-  def ready?
+  def ready?(_args={})
     { 'ready?' => true }
   end
 
-  def sha
+  def sha(_args={})
     { 'sha' => ENV['SHA'] }
   end
 
-  def run_cyber_dojo_sh(image_name, id, files, max_seconds)
-    manifest = { image_name:image_name, max_seconds:max_seconds };
+  def run_cyber_dojo_sh(args)
+    id = args['id']
+    files = args['files']
+    image_name = args['image_name']
+    max_seconds = args['max_seconds']
+    manifest = { 'image_name' => image_name, 'max_seconds' => max_seconds }
     TimeOutRunner.new(@externals, id, files, manifest).run_cyber_dojo_sh
   end
 

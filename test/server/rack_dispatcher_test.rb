@@ -120,6 +120,21 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
+  # run_cyber_dojo_sh with new method API
+  # - - - - - - - - - - - - - - - - -
+
+=begin
+  c_assert_test 'SA2', 'run_cyber_dojo_sh with new args (no logging)' do
+    args = run_cyber_dojo_sh_new_args
+    rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
+
+    assert_200('run_cyber_dojo_sh')
+    assert_gcc_starting
+    assert_nothing_logged
+  end
+=end
+
+  # - - - - - - - - - - - - - - - - -
   # run_cyber_dojo_sh
   # - - - - - - - - - - - - - - - - -
 
@@ -170,7 +185,7 @@ class RackDispatcherTest < TestBase
 
   def assert_rack_call_run_missing(name)
     expected = "#{name} is missing"
-    args = run_cyber_dojo_sh_args.tap{|hs| hs.delete(name)}.to_json
+    args = run_cyber_dojo_sh_args.tap{|hs| hs.delete(name.to_s)}.to_json
     assert_rack_call_exception(expected, 'run_cyber_dojo_sh', args)
   end
 
@@ -226,7 +241,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_200(name)
-    assert_equal 200, @status
+    assert_equal 200, @status, "stdout:\n#{@stdout}\nstderr:\n#{@stderr}"
     assert_body_contains(name)
     refute_body_contains('exception')
     refute_body_contains('trace')
@@ -311,12 +326,26 @@ class RackDispatcherTest < TestBase
 
   def run_cyber_dojo_sh_args
     {
-      image_name:image_name,
-      id:id,
-      files:starting_files,
-      max_seconds:10
+      'image_name' => image_name,
+      'id' => id,
+      'files' => starting_files,
+      'max_seconds' => 10
     }
   end
+
+=begin
+  def run_cyber_dojo_sh_new_args
+    {
+      'id' => id,
+      'files' => starting_files,
+      'manifest' =>
+      {
+        'image_name' => image_name,
+        'max_seconds' => 10
+      }
+    }
+  end
+=end
 
   # - - - - - - - - - - - - - - - - -
 

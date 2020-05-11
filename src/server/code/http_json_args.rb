@@ -24,10 +24,10 @@ class HttpJsonArgs
 
   def get(path)
     case path
-    when '/sha'                then ['sha',[]]
-    when '/alive'              then ['alive?',[]]
-    when '/ready'              then ['ready?',[]]
-    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh',[image_name, id, files, max_seconds]]
+    when '/sha'                then ['sha',{}]
+    when '/alive'              then ['alive?',{}]
+    when '/ready'              then ['ready?',{}]
+    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh',run_args]
     else
       raise request_error('unknown path')
     end
@@ -41,6 +41,16 @@ class HttpJsonArgs
     else
       JSON.parse(body)
     end
+  end
+
+  # - - - - - - - - - - - - - - - -
+
+  def run_args
+    { 'image_name' => image_name,
+      'id' => id,
+      'files' => files,
+      'max_seconds' => max_seconds
+    }
   end
 
   # - - - - - - - - - - - - - - - -

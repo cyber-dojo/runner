@@ -72,12 +72,12 @@ class TestBase < Id58TestBase
       unchanged_files.delete(filename)
     end
 
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << id
-    args << [ *unchanged_files, *changed_files, *created_files ].to_h
-    args << defaulted_arg(named_args, :max_seconds, 10)
-    @result = runner.run_cyber_dojo_sh(*args)
+    args = {}
+    args['image_name'] = defaulted_arg(named_args, :image_name, image_name)
+    args['id'] = id
+    args['files'] = [ *unchanged_files, *changed_files, *created_files ].to_h
+    args['max_seconds'] = defaulted_arg(named_args, :max_seconds, 10)
+    @result = runner.run_cyber_dojo_sh(args)
     nil
   end
 
