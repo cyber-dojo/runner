@@ -46,19 +46,22 @@ class TrafficLightTest < TestBase
   private
 
   def red_traffic_light_test
-    expected_stdout = ''
-    expected_stderr = [
-      "test: hiker.tests.c:6: life_the_universe_and_everything: Assertion `answer() == 42' failed.",
-      "make: *** [makefile:19: test.output] Aborted"
-    ].join("\n")
-    expected_status = 2
 
     run_cyber_dojo_sh
     assert_equal 'red', traffic_light
     diagnostic = 'stdout is not empty!'
+    expected_stdout = ''
     assert_equal expected_stdout, stdout, diagnostic
-    diagnostic = "Expected stderr to start with #{expected_stderr}"
-    assert stderr.start_with?(expected_stderr), diagnostic
+
+    r = /test: hiker.tests.c:(\d+): life_the_universe_and_everything: Assertion `answer\(\) == 42' failed./
+    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
+    assert r.match(stderr), diagnostic
+
+    r = /make: \*\*\* \[makefile:(\d+): test.output\] Aborted/
+    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
+    assert r.match(stderr), diagnostic
+
+    expected_status = 2
     assert_equal expected_status, status, :status
   end
 

@@ -282,22 +282,29 @@ class RackDispatcherTest < TestBase
     diagnostic = 'stdout is not empty!'
     assert_equal '', stdout, diagnostic
     stderr = result['stderr']['content']
-    diagnostic = "Expected stderr to start with #{gcc_assert_stderr}"
-    assert stderr.start_with?(gcc_assert_stderr), diagnostic
+    assert_assertion_failed(stderr)
+    assert_makefile_aborted(stderr)
     assert_equal 2, result['status'], :status
   end
 
-  def gcc_assert_stderr
+  def assert_assertion_failed(stderr)
+    r = /test: hiker.tests.c:(\d+): life_the_universe_and_everything: Assertion `answer\(\) == 42' failed./
+    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
+    assert r.match(stderr), diagnostic
+  end
+
+  def assert_makefile_aborted(stderr)
     # This depends partly on the host-OS. For example, when
     # the host-OS is CoreLinux (in the boot2docker VM
     # in DockerToolbox for Mac) then the output ends
     # ...Aborted (core dumped).
     # But if the host-OS is Debian/Ubuntu (eg on Travis)
-    # then the output does not say "(core dumped)"
+    # then the output does not say "(core dumped)" at the end.
     # Note that --ulimit core=0 is in place in the runner so
     # no core file is -actually- dumped.
-    "test: hiker.tests.c:6: life_the_universe_and_everything: Assertion `answer() == 42' failed.\n" +
-    "make: *** [makefile:19: test.output] Aborted"
+    r = /make: \*\*\* \[makefile:(\d+): test.output\] Aborted/
+    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
+    assert r.match(stderr), diagnostic
   end
 
   # - - - - - - - - - - - - - - - - -
