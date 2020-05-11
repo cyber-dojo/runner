@@ -46,17 +46,26 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def run_args
-    { 'image_name' => image_name,
-      'id' => id,
+    if arg_exists?('manifest')
+      new_run_args
+    else
+      existing_run_args
+    end
+  end
+
+  def new_run_args
+    { 'id' => id,
       'files' => files,
-      'max_seconds' => max_seconds
+      'manifest' => manifest
     }
   end
 
-  # - - - - - - - - - - - - - - - -
-
-  def image_name
-    exists_arg('image_name')
+  def existing_run_args
+    { 'id' => id,
+      'files' => files,
+      'image_name' => image_name,
+      'max_seconds' => max_seconds
+    }
   end
 
   # - - - - - - - - - - - - - - - -
@@ -73,6 +82,14 @@ class HttpJsonArgs
 
   # - - - - - - - - - - - - - - - -
 
+  def manifest
+    exists_arg('manifest')
+  end
+
+  def image_name
+    exists_arg('image_name')
+  end
+
   def max_seconds
     exists_arg('max_seconds')
   end
@@ -80,11 +97,15 @@ class HttpJsonArgs
   # - - - - - - - - - - - - - - - -
 
   def exists_arg(name)
-    unless @args.has_key?(name)
+    unless arg_exists?(name)
       raise missing(name)
     end
     arg = @args[name]
     arg
+  end
+
+  def arg_exists?(name)
+    @args.has_key?(name)
   end
 
   # - - - - - - - - - - - - - - - -

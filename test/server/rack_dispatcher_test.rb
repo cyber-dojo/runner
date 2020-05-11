@@ -123,7 +123,6 @@ class RackDispatcherTest < TestBase
   # run_cyber_dojo_sh with new method API
   # - - - - - - - - - - - - - - - - -
 
-=begin
   c_assert_test 'SA2', 'run_cyber_dojo_sh with new args (no logging)' do
     args = run_cyber_dojo_sh_new_args
     rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
@@ -132,7 +131,6 @@ class RackDispatcherTest < TestBase
     assert_gcc_starting
     assert_nothing_logged
   end
-=end
 
   # - - - - - - - - - - - - - - - - -
   # run_cyber_dojo_sh
@@ -162,7 +160,7 @@ class RackDispatcherTest < TestBase
     assert_logged('stderr', '')
     assert_logged('status', 1)
     assert_gcc_starting
-  end
+  end 
 
   # - - - - - - - - - - - - - - - - -
 
@@ -333,7 +331,6 @@ class RackDispatcherTest < TestBase
     }
   end
 
-=begin
   def run_cyber_dojo_sh_new_args
     {
       'id' => id,
@@ -345,7 +342,6 @@ class RackDispatcherTest < TestBase
       }
     }
   end
-=end
 
   # - - - - - - - - - - - - - - - - -
 

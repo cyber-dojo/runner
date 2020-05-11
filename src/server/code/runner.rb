@@ -22,9 +22,14 @@ class Runner
   def run_cyber_dojo_sh(args)
     id = args['id']
     files = args['files']
-    image_name = args['image_name']
-    max_seconds = args['max_seconds']
-    manifest = { 'image_name' => image_name, 'max_seconds' => max_seconds }
+    if args.has_key?('manifest')
+      manifest = args['manifest']
+    else
+      manifest = {
+        'image_name' => args['image_name'], 
+        'max_seconds' => args['max_seconds']
+      }
+    end
     TimeOutRunner.new(@externals, id, files, manifest).run_cyber_dojo_sh
   end
 
