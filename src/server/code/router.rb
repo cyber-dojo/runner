@@ -1,11 +1,13 @@
 # frozen_string_literal: true
-require_relative 'time_out_runner'
+require_relative 'runner'
 
-class Runner
+class Router
 
   def initialize(externals)
     @externals = externals
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def alive?
     { 'alive?' => true }
@@ -21,7 +23,7 @@ class Runner
 
   def run_cyber_dojo_sh(image_name, id, files, max_seconds)
     manifest = { image_name:image_name, max_seconds:max_seconds };
-    TimeOutRunner.new(@externals, id, files, manifest).run_cyber_dojo_sh
+    Runner.new(@externals, id, files, manifest).run_cyber_dojo_sh
   end
 
 end

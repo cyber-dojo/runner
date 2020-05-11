@@ -3,7 +3,7 @@ require_relative 'empty'
 
 module TrafficLight
 
-  def traffic_light(image_name, id)
+  def set_traffic_light
     if @result['run_cyber_dojo_sh'][:timed_out]
       return
     end
