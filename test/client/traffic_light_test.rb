@@ -9,20 +9,16 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test '3DA', 'test with red traffic-light' do
+  c_assert_test '3DA', 'test new API red/amber/green traffic-light' do
     red_traffic_light_test
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  c_assert_test '3DB', 'test with amber traffic-light' do
     amber_traffic_light_test
+    green_traffic_light_test
   end
 
-  # - - - - - - - - - - - - - - - - -
-
-  c_assert_test '3DC', 'test with green traffic-light' do
-    green_traffic_light_test
+  c_assert_test '3DB', 'test current API red/amber/green traffic-light' do
+    red_traffic_light_test(:current)
+    amber_traffic_light_test(:current)
+    green_traffic_light_test(:current)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -45,9 +41,8 @@ class TrafficLightTest < TestBase
 
   private
 
-  def red_traffic_light_test
-
-    run_cyber_dojo_sh
+  def red_traffic_light_test(api = :new)
+    run_cyber_dojo_sh({api:api})
     assert_equal 'red', traffic_light
     diagnostic = 'stdout is not empty!'
     expected_stdout = ''
@@ -67,7 +62,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def amber_traffic_light_test
+  def amber_traffic_light_test(api = :new)
     expected_stdout = ''
     expected_stderr = [
       'hiker.c:5:16: error: invalid suffix "sd" on integer constant',
@@ -77,6 +72,7 @@ class TrafficLightTest < TestBase
     expected_status = 2
 
     run_cyber_dojo_sh({
+      api: api,
       changed_files: {
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
       }
@@ -92,8 +88,9 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def green_traffic_light_test
+  def green_traffic_light_test(api = :new)
     run_cyber_dojo_sh({
+      api: api,
       changed_files: {
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
       }

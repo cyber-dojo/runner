@@ -67,14 +67,24 @@ class TestBase < Id58TestBase
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    args = []
-    args << defaulted_arg(named_args, :image_name, image_name)
-    args << defaulted_arg(named_args, :id,         id)
-    args << [ *created_files, *unchanged_files, *changed_files ].to_h
-    args << defaulted_arg(named_args, :max_seconds, 10)
-
-    @result = runner.run_cyber_dojo_sh(*args)
-
+    if named_args[:api] === :new
+      args = {
+        'id' => defaulted_arg(named_args, :id, id),
+        'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
+        'manifest' => {
+          'image_name' => defaulted_arg(named_args, :image_name, image_name),
+          'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
+        }
+      }
+    else
+      args = {
+        'id' => defaulted_arg(named_args, :id, id),
+        'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
+        'image_name' => defaulted_arg(named_args, :image_name, image_name),
+        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
+      }
+    end
+    @result = runner.run_cyber_dojo_sh(args)
     nil
   end
 
