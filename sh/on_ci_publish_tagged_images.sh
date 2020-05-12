@@ -7,6 +7,10 @@ on_ci_publish_tagged_images()
     echo 'not on CI so not publishing tagged images'
     return
   fi
+  #if git log -1 --pretty=%B | grep --quiet '[test-only]'; then
+  #  echo 'commit message contains [test-only] so stopping here'
+  #  return
+  #fi
   echo 'on CI so publishing tagged images'
   local -r image="$(image_name)"
   local -r sha="$(image_sha)"
