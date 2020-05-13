@@ -1,6 +1,8 @@
 FROM cyberdojo/docker-base
 LABEL maintainer=jon@jaggersoft.com
 
+RUN gem install --no-document 'concurrent-ruby'
+
 COPY . /app
 
 ARG COMMIT_SHA
