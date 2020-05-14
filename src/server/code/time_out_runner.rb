@@ -121,8 +121,8 @@ class TimeOutRunner
 
   def tgz_of_files
     writer = Tar::Writer.new(sandboxed(files))
-    writer.write('tmp/main.sh', main_sh)
-    writer.write('tmp/echo_truncated_textfilenames.sh', ECHO_TRUNCATED_TEXTFILE_NAMES_SH)
+    writer.write(unrooted(MAIN_SH_PATH), main_sh)
+    writer.write(unrooted(TRUNCATED_TEXTFILE_NAMES_SH_PATH), TRUNCATED_TEXTFILE_NAMES_SH)
     Gnu.zip(writer.tar_file)
   end
 
@@ -133,10 +133,13 @@ class TimeOutRunner
   end
 
   def unrooted(path)
-    # When pathnames have a leading / you get warnings messages
+    # When pathnames have a leading / you get warning messages
     # tar: Removing leading `/' from member names
+    # So strip off leading /
     path[1..-1]
   end
+
+  MAIN_SH_PATH = '/tmp/main.sh'
 
   def main_sh
     [
@@ -281,7 +284,9 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  ECHO_TRUNCATED_TEXTFILE_NAMES_SH =
+  TRUNCATED_TEXTFILE_NAMES_SH_PATH = '/tmp/echo_truncated_textfilenames.sh'
+
+  TRUNCATED_TEXTFILE_NAMES_SH =
     <<~SHELL.strip
       truncate_file()
       {
@@ -307,16 +312,16 @@ class TimeOutRunner
           false
         fi
       }
-      depathed()
+      unrooted()
       {
         # Strip ./ from front of pathed filename ready for tar to read
         echo "${1:2}"
       }
       export -f truncate_file
       export -f is_text_file
-      export -f depathed
+      export -f unrooted
       (cd #{SANDBOX_DIR} && find . -type f -exec \
-        bash -c "is_text_file {} && depathed {}" \\;)
+        bash -c "is_text_file {} && unrooted {}" \\;)
     SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
