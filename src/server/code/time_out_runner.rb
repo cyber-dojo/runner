@@ -150,7 +150,7 @@ class TimeOutRunner
     # and runs /sandbox/cyber-dojo.sh
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
-    #     Untars files as this user to set their ownership.    
+    #     Untars files as this user to set their ownership.
     # [2] tar is installed [X].
     # [3] tar has the --touch option installed [X].
     #     (not true in a default Alpine container)
@@ -179,7 +179,7 @@ class TimeOutRunner
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
-          cd /#{SANDBOX_DIR}      `# [5]`             \
+          cd #{SANDBOX_DIR}      `# [5]`              \
           &&                                          \
           bash ./cyber-dojo.sh                        \
           '                      `# close quote`
