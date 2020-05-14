@@ -30,3 +30,36 @@ to the json.
 Truncation. If I want to truncate to 50K then I need to truncate to 50K+1
 This is so that inside the runner I can tell.
 If it is 50K+1 truncate it by 1 byte and mark it as truncated.
+
+Better, truncate stdout/stderr at creation:
+https://stackoverflow.com/questions/61794952
+
+cd /sandbox
+./cyber-dojo.sh \
+  >  >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
+  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
+
+So...
+#---------------------------------------------------------------
+
+readonly TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }
+trap remove_tmp_dir EXIT
+
+cd /sandbox
+./cyber-dojo.sh \
+   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
+  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
+
+echo $? > ${TMP_DIR}/status
+
+#1
+
+jq -n \
+  --arg stdout \
+  --arg stderr \
+  --arg status \
+  "$(< ${TMP}/stdout)" \
+  "$(< ${TMP}/stderr)" \
+  "$(< ${TMP}/status)" \
+  '{stdout:$stdout, stderr:$stderr, status:$status}'
