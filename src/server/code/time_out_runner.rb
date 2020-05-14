@@ -120,7 +120,8 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tgz_of_files
-    Gnu.zip(Tar::Writer.new(sandboxed(files)).tar_file)
+    writer = Tar::Writer.new(sandboxed(files))
+    Gnu.zip(writer.tar_file)
   end
 
   def sandboxed(files)
