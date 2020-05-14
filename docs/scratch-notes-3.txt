@@ -1,0 +1,32 @@
+
+I'd like for the text file reading to not happen in a 2nd docker exec.
+Suppose I injected this script into the tar file...
+
+
+readonly TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }
+trap remove_tmp_dir EXIT
+
+cd /sandbox
+./cyber-dojo.sh \
+  >${TMP_DIR}/stdout \
+  2>${TMP_DIR}/stderr
+
+echo $? > ${TMP_DIR}/status
+truncate --size=50K ${TMP_DIR}/stdout
+truncate --size=50K ${TMP_DIR}/stderr
+#1
+jq -n --arg stdout --arg stderr --arg status \
+  "$(< ${TMP}/stdout)" \
+  "$(< ${TMP}/stderr)" \
+  "$(< ${TMP}/status)" \
+  '{stdout:$stdout, stderr:$stderr, status:$status}'
+
+Then back in the runner service code, I read stdin and parse it as json.
+This would allow me to insert another script at #1 which gathers the
+required info on generated files. These would also be truncated and added
+to the json.
+
+Truncation. If I want to truncate to 50K then I need to truncate to 50K+1
+This is so that inside the runner I can tell.
+If it is 50K+1 truncate it by 1 byte and mark it as truncated.
