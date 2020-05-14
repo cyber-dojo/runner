@@ -121,7 +121,7 @@ class TimeOutRunner
 
   def tgz_of_files
     writer = Tar::Writer.new(sandboxed(files))
-    writer.write('tmp/main.sh', main_sh);
+    writer.write('tmp/main.sh', main_sh)
     Gnu.zip(writer.tar_file)
   end
 
