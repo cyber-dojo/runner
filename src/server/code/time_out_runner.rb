@@ -120,7 +120,19 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def tgz_of_files
-    Gnu.zip(Tar::Writer.new(files).tar_file)
+    Gnu.zip(Tar::Writer.new(sandboxed(files)).tar_file)
+  end
+
+  def sandboxed(files)
+    files.keys.each_with_object({}) do |filename,h|
+      h["#{unrooted(SANDBOX_DIR)}/#{filename}"] = files[filename]
+    end
+  end
+
+  def unrooted(path)
+    # When pathnames have a leading / you get warnings messages
+    # tar: Removing leading `/' from member names
+    path[1..-1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -159,12 +171,14 @@ class TimeOutRunner
         #{container_name}                             \
         bash -c                                       \
           '                      `# open quote`       \
-          cd #{SANDBOX_DIR}      `# [2]`              \
+          cd /                                        \
           &&                                          \
           tar                    `# [3]`              \
             --touch              `# [4][5]`           \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
+          &&                                          \
+          cd /#{SANDBOX_DIR}      `# [2]`             \
           &&                                          \
           bash ./cyber-dojo.sh                        \
           '                      `# close quote`
