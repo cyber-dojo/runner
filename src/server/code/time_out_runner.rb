@@ -149,21 +149,21 @@ class TimeOutRunner
     # and runs /sandbox/cyber-dojo.sh
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
-    #     Untars files as this user to set their ownership.
-    # [2] Don't use [docker exec --workdir] as that requires API version
-    #     1.35 but CircleCI is currently using Docker Daemon API 1.32
-    # [3] tar is installed [X].
-    # [4] tar has the --touch option installed [X].
+    #     Untars files as this user to set their ownership.    
+    # [2] tar is installed [X].
+    # [3] tar has the --touch option installed [X].
     #     (not true in a default Alpine container)
     #     --touch means 'dont extract file modified time'
     #     It relates to the files modification-date (stat %y).
     #     Without it the untarred files may all end up with the same
     #     modification date. With it, the untarred files have a
     #     proper date-time file-stamp in all supported OS's.
-    # [5] tar date-time file-stamps have a granularity < 1 second [X].
+    # [4] tar date-time file-stamps have a granularity < 1 second [X].
     #     In a default Alpine container the date-time file-stamps
     #     have a granularity of one second; viz, the microseconds
     #     value is always zero.
+    # [5] Don't use [docker exec --workdir] as that requires API version
+    #     1.35 but CircleCI is currently using Docker Daemon API 1.32
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
@@ -173,12 +173,12 @@ class TimeOutRunner
           '                      `# open quote`       \
           cd /                                        \
           &&                                          \
-          tar                    `# [3]`              \
-            --touch              `# [4][5]`           \
+          tar                    `# [2]`              \
+            --touch              `# [3][4]`           \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
-          cd /#{SANDBOX_DIR}      `# [2]`             \
+          cd /#{SANDBOX_DIR}      `# [5]`             \
           &&                                          \
           bash ./cyber-dojo.sh                        \
           '                      `# close quote`
