@@ -1,29 +1,31 @@
-Run options: --seed 40214
+Run options: --seed 55413
 
 # Running:
 
-.......
+.........................................................................................................................
 
-Finished in 4.933673s, 1.4188 runs/s, 6.0807 assertions/s.
+Finished in 114.158195s, 1.0599 runs/s, 9.9073 assertions/s.
 
-7 runs, 30 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 3903 / 8254 LOC (47.29%) covered.
+121 runs, 1131 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 4721 / 8254 LOC (57.2%) covered.
 
-Slowest 4 tests are...
-0.8657 - AA2650:feature_textfilename_cater_script_test.rb:30:new script prints created text filenames in /sandbox when sources
-0.7836 - AA2649:feature_textfilename_cater_script_test.rb:21:new script prints existing text filenames in /sandbox when sourced
-0.7687 - AA2648:feature_textfilename_cater_script_test.rb:12:new script exists   
-0.0049 - D06AA2:rack_dispatcher_test.rb:56:missing image_name becomes exception  
+Slowest 5 tests are...
+5.4977 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
+3.6952 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
+3.2738 - 9E94D7:feature_timed_out_test.rb:45:when run_cyber_dojo_sh does not complete in max_seconds and produces output then stdout is not empty, and timed_out is true, and the traffic-light colour is not set
+3.2131 - 7B7421:feature_traffic_light_test.rb:46:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
+3.0420 - 7B7425:feature_traffic_light_test.rb:148:when the rag-lambda has too few parameters, then the colour is faulty, and diagnostics are added to the json result
+3.0103 - 7B7424:feature_traffic_light_test.rb:124:when the rag-lambda returns non red/amber/green, then the colour is faulty, and diagnostics are added to the json result
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    4.93   <=   200 | [32m true [0m
-                    tests |       7   >=     1 | [32m true [0m
-      coverage(tested)[%] |   85.09   >=   100 | [31m false [0m
-      coverage(tester)[%] |   32.92   >=   100 | [31m false [0m
+        duration(test)[s] |  114.16   <=   200 | [32m true [0m
+                    tests |     121   >=     1 | [32m true [0m
+      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.47   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    5.11   >=   6.6 | [31m false [0m
+      hits(tested/tester) |   13.81   >=   6.6 | [32m true [0m
 

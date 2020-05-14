@@ -210,23 +210,23 @@ class TimeOutRunner
     rag_filename = SecureRandom.urlsafe_base64
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
-      docker exec                                       \
-        --user=#{UID}:#{GID}                            \
-        #{container_name}                               \
-        bash -c                                         \
-          '                         `# open quote`      \
-          #{copy_rag(rag_filename)};`# [1]`             \
-          source /tmp/echo_truncated_textfilenames.sh   \
-          |                                             \
-          tar                                           \
-            -C                                          \
-            #{SANDBOX_DIR}                              \
-            -zcf                    `# create tgz file` \
-            -                       `# write to stdout` \
-            --verbatim-files-from   `# [2]`             \
-            -T                      `# using filenames` \
-            -                       `# from stdin`      \
-          '                         `# close quote`
+      docker exec                                        \
+        --user=#{UID}:#{GID}                             \
+        #{container_name}                                \
+        bash -c                                          \
+          '                          `# open quote`      \
+          #{copy_rag(rag_filename)}; `# [1]`             \
+          source /tmp/echo_truncated_textfilenames.sh    \
+          |                                              \
+          tar                                            \
+            -C                                           \
+            #{SANDBOX_DIR}                               \
+            -zcf                     `# create tgz file` \
+            -                        `# write to stdout` \
+            --verbatim-files-from    `# [2]`             \
+            -T                       `# using filenames` \
+            -                        `# from stdin`      \
+          '                          `# close quote`
       SHELL
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
@@ -280,48 +280,6 @@ class TimeOutRunner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # o) Must not contain a single-quote [bash -c '...']
-  # o) grep -q is --quiet
-  # o) grep -v is --invert-match
-  # o) Strip ./ from front of pathed filename in depathed()
-  # o) The [file] utility must be installed [X]. However,
-  #    it incorrectly reports very small files as binary.
-  #    If size==0,1 assume its a text file.
-  # o) truncates text files to MAX_FILE_SIZE+1
-  #    This is so truncated?() can detect the truncation.
-  #    The truncate utility must be installed [X].
-
-=begin
-  ECHO_TRUNCATED_TEXTFILE_NAMES =
-    <<~SHELL.strip
-      truncate_file() \
-      { \
-        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then \
-          truncate -s #{MAX_FILE_SIZE+1} "${1}"; \
-        fi; \
-      }; \
-      is_text_file() \
-      { \
-        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
-          truncate_file "${1}"; \
-          true; \
-        elif [ $(stat -c%s "${1}") -lt 2 ]; then \
-          true; \
-        else \
-          false; \
-        fi; \
-      }; \
-      depathed() \
-      { \
-        echo "${1:2}"; \
-      }; \
-      export -f truncate_file; \
-      export -f is_text_file; \
-      export -f depathed; \
-      (cd #{SANDBOX_DIR} && find . -type f -exec \
-        bash -c "is_text_file {} && depathed {}" \\;)
-    SHELL
-=end
 
   ECHO_TRUNCATED_TEXTFILE_NAMES_SH =
     <<~SHELL.strip
@@ -333,7 +291,14 @@ class TimeOutRunner
       }
       is_text_file()
       {
+        # The file utility must be installed [X]
+        # However, it incorrectly reports very small files as binary.
+        # If size==0,1 assume its a text file.
+        # -q is --quiet, we are generated text file names.
+        # -v is --invert-match
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+          # The truncate utility must be installed [X]
+          # Truncate to MAX_FILE_SIZE+1 so truncated?() can detect.
           truncate_file "${1}"
           true
         elif [ $(stat -c%s "${1}") -lt 2 ]; then
@@ -344,6 +309,7 @@ class TimeOutRunner
       }
       depathed()
       {
+        # Strip ./ from front of pathed filename ready for tar to read
         echo "${1:2}"
       }
       export -f truncate_file
