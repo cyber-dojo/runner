@@ -121,6 +121,7 @@ class TimeOutRunner
 
   def tgz_of_files
     writer = Tar::Writer.new(sandboxed(files))
+    writer.write('tmp/main.sh', main_sh);
     Gnu.zip(writer.tar_file)
   end
 
@@ -134,6 +135,13 @@ class TimeOutRunner
     # When pathnames have a leading / you get warnings messages
     # tar: Removing leading `/' from member names
     path[1..-1]
+  end
+
+  def main_sh
+    [
+      "cd #{SANDBOX_DIR}",
+      'bash ./cyber-dojo.sh'
+    ].join("\n")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -179,9 +187,7 @@ class TimeOutRunner
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
-          cd #{SANDBOX_DIR}      `# [5]`              \
-          &&                                          \
-          bash ./cyber-dojo.sh                        \
+          bash /tmp/main.sh      `# [5]`              \
           '                      `# close quote`
     SHELL
   end
