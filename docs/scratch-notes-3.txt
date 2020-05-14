@@ -63,3 +63,22 @@ jq -n \
   "$(< ${TMP}/stderr)" \
   "$(< ${TMP}/status)" \
   '{stdout:$stdout, stderr:$stderr, status:$status}'
+
+#---------------------------------------------------------------
+
+This relies on being to use a large bash command line
+Check on images...
+
+Debian (gcc_assert)
+$ getconf ARG_MAX
+2097152
+
+Ubuntu (clang_assert)
+$ getconf ARG_MAX
+2097152
+
+Alpine (csharp_nunit)
+$ getconf ARG_MAX
+131072
+
+Might have to up that a big with a command in image_builder.
