@@ -122,6 +122,7 @@ class TimeOutRunner
   def tgz_of_files
     writer = Tar::Writer.new(sandboxed(files))
     writer.write('tmp/main.sh', main_sh)
+    writer.write('tmp/echo_truncated_textfilenames.sh', ECHO_TRUNCATED_TEXTFILE_NAMES_SH)
     Gnu.zip(writer.tar_file)
   end
 
@@ -214,8 +215,8 @@ class TimeOutRunner
         #{container_name}                               \
         bash -c                                         \
           '                         `# open quote`      \
-          #{copy_rag(rag_filename)} `# [1]`;            \
-          #{ECHO_TRUNCATED_TEXTFILE_NAMES}              \
+          #{copy_rag(rag_filename)};`# [1]`             \
+          source /tmp/echo_truncated_textfilenames.sh   \
           |                                             \
           tar                                           \
             -C                                          \
@@ -290,6 +291,7 @@ class TimeOutRunner
   #    This is so truncated?() can detect the truncation.
   #    The truncate utility must be installed [X].
 
+=begin
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
       truncate_file() \
@@ -316,6 +318,37 @@ class TimeOutRunner
       export -f truncate_file; \
       export -f is_text_file; \
       export -f depathed; \
+      (cd #{SANDBOX_DIR} && find . -type f -exec \
+        bash -c "is_text_file {} && depathed {}" \\;)
+    SHELL
+=end
+
+  ECHO_TRUNCATED_TEXTFILE_NAMES_SH =
+    <<~SHELL.strip
+      truncate_file()
+      {
+        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
+          truncate -s #{MAX_FILE_SIZE+1} "${1}"
+        fi
+      }
+      is_text_file()
+      {
+        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+          truncate_file "${1}"
+          true
+        elif [ $(stat -c%s "${1}") -lt 2 ]; then
+          true
+        else
+          false
+        fi
+      }
+      depathed()
+      {
+        echo "${1:2}"
+      }
+      export -f truncate_file
+      export -f is_text_file
+      export -f depathed
       (cd #{SANDBOX_DIR} && find . -type f -exec \
         bash -c "is_text_file {} && depathed {}" \\;)
     SHELL

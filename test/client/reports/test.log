@@ -1,28 +1,28 @@
-Run options: --seed 3031
+Run options: --seed 25522
 
 # Running:
 
 ...............................
 
-Finished in 32.397017s, 0.9569 runs/s, 4.5683 assertions/s.
+Finished in 36.043658s, 0.8601 runs/s, 4.1061 assertions/s.
 
 31 runs, 148 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to //tmp/reports. 2481 / 4330 LOC (57.3%) covered.
 
 Slowest 5 tests are...
-9.3553 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
-3.9844 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-3.0295 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
-2.7183 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
-2.0193 - 46D3DB:large_file_test.rb:12:run with very large file                   
-0.9352 - D59FDD:timed_out_test.rb:12:[C,assert] run which does not timeout       
+10.7639 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
+4.3411 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
+2.9966 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
+2.8932 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
+2.5497 - 46D3DB:large_file_test.rb:12:run with very large file                   
+1.1176 - D59FDD:timed_out_test.rb:12:[C,assert] run which does not timeout       
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    32.4   <=    50 | [32m true [0m
+        duration(test)[s] |   36.04   <=    50 | [32m true [0m
                     tests |      31   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
