@@ -86,3 +86,82 @@ $ getconf ARG_MAX
 131072
 ==
 128K
+
+#---------------------------------------------------------------
+echo xxxx > x.txt
+echo yyyy > y.txt
+fn(){ echo "x.txt"; echo "y.txt"; }
+fn | xargs -L 1 -I {} jq -sR --arg key {} '{ ($key): .}' {} | jq -s 'add'
+{
+  "x.txt": "xxxx\n",
+  "y.txt": "yyyy\n"
+}
+
+This doesn't work on Alpine.
+Looks like its xargs lacks the [-L 1]
+Need to do
+$ apk add --update findutils
+
+Long xargs options are...
+-L, --max-lines=MAX-LINES    use at most MAX-LINES non-blank input lines per command line
+
+-I R                         same as --replace=R
+-i, --replace[=R]            replace R in INITIAL-ARGS with names read
+                                 from standard input; if R is unspecified,
+                                 assume {}
+
+Long jq options are...
+-s, --slurp
+-R, --raw-input
+
+
+Need to put them into a sub hash...
+
+echo xxxx > x.txt
+echo yyyy > y.txt
+fn(){ echo "x.txt"; echo "y.txt"; }
+fn | xargs --max-lines=1 --replace={} \
+       jq --slurp --raw-input --arg key {} '{ ($key): .}' {} \
+   | jq --slurp 'reduce .[] as $item ({}; . * $item)'
+
+{
+  "files": {
+    "x.txt": "xxx\n",
+    "y.txt": "yyy\n"
+  }
+}
+
+Better to keep the two json files separate; that way
+whether the text-file harvesting happens can become
+an option.
+
+
+jq -n \
+  --arg stdout \
+  --arg stderr \
+  --arg status \
+  "$(< ${TMP}/stdout)" \
+  "$(< ${TMP}/stderr)" \
+  "$(< ${TMP}/status)" \
+  '{stdout:$stdout, stderr:$stderr, status:$status}' \
+  > sss.json
+
+echo xxxx > x.txt
+echo yyyy > y.txt
+fn(){ echo "x.txt"; echo "y.txt"; }
+fn | xargs --max-lines=1 --replace={} \
+       jq --slurp --raw-input --arg key {} '{ ($key): .}' {} \
+   | jq --slurp 'reduce .[] as $item ({}; . * $item)' \
+   > files.json
+
+jq --slurp '.[0] * .[1]' sss.json files.json
+
+{
+  "stdout": "dfgdfgdfgdfgdfg",
+  "stderr": "dfgsdfsdfds",
+  "status": "42",
+  "files": {
+    "x.txt": "xxx\n",
+    "y.txt": "yyy\n"
+  }
+}
