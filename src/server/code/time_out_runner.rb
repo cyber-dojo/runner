@@ -92,10 +92,10 @@ class TimeOutRunner
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
       Timeout::timeout(max_seconds) do # [Z]
-        # cyber-dojo.sh completed :-)
         _, ps = Process.waitpid2(pid)
+        # cyber-dojo.sh completed :-)
         status = ps.exitstatus
-        timed_out = killed?(status)
+        timed_out = false
       end
     rescue Timeout::Error
       # cyber-dojo.sh did not complete :-(
@@ -529,12 +529,6 @@ class TimeOutRunner
     Process.detach(pid)
     # There may no longer be a process at pid (timeout race).
     # If not, you don't get an exception.
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def killed?(status)
-    status === KILLED_STATUS
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
