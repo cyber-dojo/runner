@@ -6,6 +6,7 @@ require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'traffic_light'
 require_relative 'utf8_clean'
+require 'json'
 require 'securerandom'
 require 'timeout'
 
@@ -83,17 +84,15 @@ class TimeOutRunner
 
   def run
     command = main_docker_run_command
-    stdout,stderr,status,timed_out = nil,nil,nil,nil
+    stdout,status,timed_out = nil,nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
-    r_stderr, w_stderr = IO.pipe
     w_stdin.write(tgz_of_files)
     w_stdin.close
     pid = Process.spawn(command, {
       pgroup:true,     # become process leader
           in:r_stdin,  # redirection
-         out:w_stdout, # redirection
-         err:w_stderr  # redirection
+         out:w_stdout  # redirection
     })
     begin
       Timeout::timeout(max_seconds) do # [Z]
@@ -110,19 +109,27 @@ class TimeOutRunner
       timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
-      w_stderr.close unless w_stderr.closed?
-      stdout = packaged(read_max(r_stdout))
-      stderr = packaged(read_max(r_stderr))
+      stdout = r_stdout.read # WAS packaged(read_max(r_stdout))
       r_stdout.close
-      r_stderr.close
     end
+
+    begin
+      json = JSON.parse(stdout)
+    rescue JSON::ParserError
+      json = { 'stdout' => '', 'stderr' => '' }
+    end
+
     @result['run_cyber_dojo_sh'] = {
-      stdout:stdout,
-      stderr:stderr,
+      stdout: packaged(json['stdout']),
+      stderr: packaged(json['stderr']),
       status:status,
       timed_out:timed_out
     }
   end
+
+  #def read_max(fd)
+  #  fd.read(MAX_FILE_SIZE + 1) || ''
+  #end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -178,24 +185,19 @@ class TimeOutRunner
       bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
       echo $? > "${STATUS}"
       truncate_dont_extend "${STDOUT}"
-      cat "${STDOUT}"
       truncate_dont_extend "${STDERR}"
-      cat "${STDERR}" 1>&2
 
-      #jq -n \
-      #  --arg stdout "$(< ${STDOUT})" \
-      #  --arg stderr "$(< ${STDERR})" \
-      #  --arg status "$(< ${STATUS})" \
-      #  '{stdout:$stdout, stderr:$stderr, status:$status}' \
+      #cat "${STDOUT}"
+      #cat "${STDERR}" 1>&2
+
+      jq -n \
+        --arg stdout "$(< ${STDOUT})" \
+        --arg stderr "$(< ${STDERR})" \
+        --arg status "$(< ${STATUS})" \
+        '{stdout:$stdout, stderr:$stderr, status:$status}' \
 
       exit "$(< ${STATUS})"
       SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def read_max(fd)
-    fd.read(MAX_FILE_SIZE + 1) || ''
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

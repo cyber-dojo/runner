@@ -9,6 +9,7 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   test 'D91', %w(
   requires bash, won't run in sh ) do
     image_name = 'alpine:latest' # has sh but not bash
@@ -29,6 +30,7 @@ class ContainerPropertiesTest < TestBase
     assert_nil diagnostic['message'], :message
     assert_nil diagnostic['rag_lambda'], :rag_lambda
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
