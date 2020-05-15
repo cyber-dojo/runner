@@ -84,7 +84,7 @@ class TimeOutRunner
 
   def run
     command = main_docker_run_command
-    stdout,status,timed_out = nil,nil,nil
+    stdout,timed_out = nil,nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     w_stdin.write(tgz_of_files)
@@ -92,27 +92,23 @@ class TimeOutRunner
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
       Timeout::timeout(max_seconds) do # [Z]
-        _, ps = Process.waitpid2(pid)
-        # cyber-dojo.sh completed :-)
-        status = ps.exitstatus
+        Process.waitpid(pid)
         timed_out = false
       end
     rescue Timeout::Error
-      # cyber-dojo.sh did not complete :-(
+      timed_out = true
       Process_kill_group(pid)
       Process_detach(pid)
-      status = KILLED_STATUS
-      timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
-      stdout = r_stdout.read # WAS packaged(read_max(r_stdout))
+      stdout = r_stdout.read
       r_stdout.close
     end
 
     begin
       json = JSON.parse(stdout)
     rescue JSON::ParserError
-      json = { 'stdout' => '', 'stderr' => '' }
+      json = { 'stdout' => '', 'stderr' => '', 'status' => 42 }
     end
 
     #p '~~~~~~~~~~~~~'
@@ -122,14 +118,10 @@ class TimeOutRunner
     @result['run_cyber_dojo_sh'] = {
       stdout: packaged(json['stdout']),
       stderr: packaged(json['stderr']),
-      status:status,
-      timed_out:timed_out
+      status: json['status'].to_i,
+      timed_out: timed_out
     }
   end
-
-  #def read_max(fd)
-  #  fd.read(MAX_FILE_SIZE + 1) || ''
-  #end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -522,6 +514,8 @@ class TimeOutRunner
     # If not, you get an exception Errno::ESRCH: No such process
   end
 
+  KILL_SIGNAL = 9
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def Process_detach(pid)
@@ -530,12 +524,6 @@ class TimeOutRunner
     # There may no longer be a process at pid (timeout race).
     # If not, you don't get an exception.
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  KILL_SIGNAL = 9
-
-  KILLED_STATUS = 128 + KILL_SIGNAL
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # file content helpers
