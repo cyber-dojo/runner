@@ -144,7 +144,7 @@ jq -n \
   --arg stderr "$(< ${TMP}/stderr)" \
   --arg status "$(< ${TMP}/status)" \
   '{stdout:$stdout, stderr:$stderr, status:$status}' \
-  > sss.json
+  > ${TMP}/sss.json
 
 TMP=/tmp
 cd ${TMP}

@@ -97,11 +97,13 @@ class TimeOutRunner
     })
     begin
       Timeout::timeout(max_seconds) do # [Z]
+        # cyber-dojo.sh completed :-)
         _, ps = Process.waitpid2(pid)
         status = ps.exitstatus
         timed_out = killed?(status)
       end
     rescue Timeout::Error
+      # cyber-dojo.sh did not complete :-(
       Process_kill_group(pid)
       Process_detach(pid)
       status = KILLED_STATUS
@@ -163,25 +165,30 @@ class TimeOutRunner
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
       STDOUT="${TMP_DIR}/stdout"
       STDERR="${TMP_DIR}/stderr"
-      cd #{SANDBOX_DIR}
-      bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
-      STATUS=$?
+      STATUS="${TMP_DIR}/status"
       truncate_dont_extend() # [X][Y]
       {
-        filename="${1}"
-        if [ $(stat -c%s "${filename}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size #{MAX_FILE_SIZE+1} "${filename}"
+        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
+          truncate --size #{MAX_FILE_SIZE+1} "${1}"
+        else
+          touch "${1}"
         fi
       }
-      if [ -f ${STDOUT} ]; then
-        truncate_dont_extend "${STDOUT}"
-        cat "${STDOUT}"
-      fi
-      if [ -f "${STDERR}" ]; then
-        truncate_dont_extend "${STDERR}"
-        cat "${STDERR}" 1>&2
-      fi
-      exit ${STATUS}
+      cd #{SANDBOX_DIR}
+      bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
+      echo $? > "${STATUS}"
+      truncate_dont_extend "${STDOUT}"
+      cat "${STDOUT}"
+      truncate_dont_extend "${STDERR}"
+      cat "${STDERR}" 1>&2
+
+      #jq -n \
+      #  --arg stdout "$(< ${STDOUT})" \
+      #  --arg stderr "$(< ${STDERR})" \
+      #  --arg status "$(< ${STATUS})" \
+      #  '{stdout:$stdout, stderr:$stderr, status:$status}' \
+
+      exit "$(< ${STATUS})"
       SHELL
   end
 
