@@ -10,7 +10,7 @@ class BombRobustNessTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   c_assert_test 'CD5',
-  'fork-bomb does not run indefinitely' do
+  'c fork-bomb is contained' do
     with_captured_log {
       run_cyber_dojo_sh({
         changed: { 'hiker.c' => C_FORK_BOMB },
@@ -18,15 +18,15 @@ class BombRobustNessTest < TestBase
       })
     }
     assert timed_out? ||
-      printed?('fork()') ||
-        daemon_error? ||
-          no_such_container_error?, result
+          printed?('fork()') ||
+            daemon_error? ||
+              no_such_container_error?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'CD6',
-  'shell fork-bomb does not run indefinitely' do
+  'shell fork-bomb is contained' do
     with_captured_log {
       run_cyber_dojo_sh({
         changed: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
@@ -53,9 +53,11 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    assert printed?('fopen() != NULL') ||
-      daemon_error? ||
-        no_such_container_error?,  result
+    refute timed_out?, result
+    assert stdout.include?('fopen() != NULL'), result
+    #assert_equal '', stderr gcov error
+    assert_equal 0, status
+    assert_equal 'green', colour
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

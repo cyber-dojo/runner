@@ -102,6 +102,10 @@ class TestBase < Id58TestBase
     result['run_cyber_dojo_sh'][:stderr]['content']
   end
 
+  def status
+    result['run_cyber_dojo_sh'][:status]
+  end
+
   def timed_out?
     result['run_cyber_dojo_sh'][:timed_out]
   end
