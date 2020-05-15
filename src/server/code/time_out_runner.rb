@@ -89,11 +89,7 @@ class TimeOutRunner
     r_stdout, w_stdout = IO.pipe
     w_stdin.write(tgz_of_files)
     w_stdin.close
-    pid = Process.spawn(command, {
-      pgroup:true,     # become process leader
-          in:r_stdin,  # redirection
-         out:w_stdout  # redirection
-    })
+    pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
       Timeout::timeout(max_seconds) do # [Z]
         # cyber-dojo.sh completed :-)
@@ -186,10 +182,6 @@ class TimeOutRunner
       echo $? > "${STATUS}"
       truncate_dont_extend "${STDOUT}"
       truncate_dont_extend "${STDERR}"
-
-      #cat "${STDOUT}"
-      #cat "${STDERR}" 1>&2
-
       jq -n \
         --arg stdout "$(< ${STDOUT})" \
         --arg stderr "$(< ${STDERR})" \
