@@ -14,13 +14,10 @@ require 'timeout'
 #   https://github.com/cyber-dojo-tools/image_builder
 #   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 #
-# [Y] The truncate utility must be installed.
-# Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
-# and lop off the final extra byte!
-# Truncate will also extend the file size (using zero bytes)
-# so its if guard is necessary.
+# [Y] Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
+# and lop off the final extra byte.
 #
-# If image_name is not present on the node, docker will
+# [Z] If image_name is not present on the node, docker will
 # attempt to pull it. The browser's kata/run_tests ajax
 # call can timeout before the pull completes; this browser
 # timeout is different to the Runner.run() call timing out.
@@ -99,7 +96,7 @@ class TimeOutRunner
          err:w_stderr  # redirection
     })
     begin
-      Timeout::timeout(max_seconds) do
+      Timeout::timeout(max_seconds) do # [Z]
         _, ps = Process.waitpid2(pid)
         status = ps.exitstatus
         timed_out = killed?(status)
@@ -141,7 +138,7 @@ class TimeOutRunner
   end
 
   def unrooted(path)
-    # When pathnames have a leading / you get warning messages
+    # Pathnames with a leading / give tar warnings:
     # tar: Removing leading `/' from member names
     # So strip off leading /
     path[1..-1]
@@ -158,23 +155,26 @@ class TimeOutRunner
     # See https://stackoverflow.com/questions/26461014
     # There is already a ulimit on files.
     <<~SHELL.strip
-      readonly TMP_DIR=$(mktemp -d /tmp/XXXXXX)
-      readonly STDOUT="${TMP_DIR}/stdout"
-      readonly STDERR="${TMP_DIR}/stderr"
+      TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+      STDOUT="${TMP_DIR}/stdout"
+      STDERR="${TMP_DIR}/stderr"
       cd #{SANDBOX_DIR}
       bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
       STATUS=$?
+      truncate_dont_extend() # [X][Y]
+      {
+        filename="${1}"
+        if [ $(stat -c%s "${filename}") -gt #{MAX_FILE_SIZE} ]; then
+          truncate --size #{MAX_FILE_SIZE+1} "${filename}"
+        fi
+      }
       if [ -f ${STDOUT} ]; then
-        if [ $(stat -c%s "${STDOUT}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size #{MAX_FILE_SIZE+1} ${STDOUT} # [Y]
-        fi
-        cat ${STDOUT}
+        truncate_dont_extend "${STDOUT}"
+        cat "${STDOUT}"
       fi
-      if [ -f ${STDERR} ]; then
-        if [ $(stat -c%s "${STDERR}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size #{MAX_FILE_SIZE+1} ${STDERR} # [Y]
-        fi
-        cat ${STDERR} 1>&2
+      if [ -f "${STDERR}" ]; then
+        truncate_dont_extend "${STDERR}"
+        cat "${STDERR}" 1>&2
       fi
       exit ${STATUS}
       SHELL
@@ -319,8 +319,7 @@ class TimeOutRunner
   TRUNCATED_TEXTFILE_NAMES_SH_PATH = '/tmp/echo_truncated_textfilenames.sh'
 
   TRUNCATED_TEXTFILE_NAMES_SH =
-    # file
-    #   must be installed [X]
+    # file [X]
     #   incorrectly reports very small files as binary.
     #   if size==0,1 assume its a text file.
     # grep
@@ -329,7 +328,7 @@ class TimeOutRunner
     # unrooted
     #   strip ./ from front of pathed filename ready for tar to read
     <<~SHELL.strip
-      truncate_file()
+      truncate_dont_extend() # [X][Y]
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
           truncate --size=#{MAX_FILE_SIZE+1} "${1}" # [Y]
@@ -338,7 +337,7 @@ class TimeOutRunner
       is_text_file()
       {
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-          truncate_file "${1}"
+          truncate_dont_extend "${1}"
           true
         elif [ $(stat -c%s "${1}") -lt 2 ]; then
           true
@@ -350,7 +349,7 @@ class TimeOutRunner
       {
         echo "${1:2}"
       }
-      export -f truncate_file
+      export -f truncate_dont_extend
       export -f is_text_file
       export -f unrooted
       (cd #{SANDBOX_DIR} && find . -type f -exec \
