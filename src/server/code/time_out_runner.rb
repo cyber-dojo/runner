@@ -147,6 +147,11 @@ class TimeOutRunner
   MAIN_SH_PATH = '/tmp/main.sh'
 
   def main_sh
+    # cyber-dojo.sh's stdout/stderr are now captured.
+    # This means if run() times out before cyber-dojo.sh completes
+    # then STDOUT/STDERR won't be catted and hence no info will
+    # get back to the client (except timed_out=true).
+    #
     # I tried limiting the size of stdout/stderr "in-place" using...
     # bash ./cyber-dojo.sh \
     #   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
