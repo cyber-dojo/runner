@@ -115,6 +115,10 @@ class TimeOutRunner
       json = { 'stdout' => '', 'stderr' => '' }
     end
 
+    #p '~~~~~~~~~~~~~'
+    #p JSON.pretty_generate(json)
+    #p '~~~~~~~~~~~~~'
+
     @result['run_cyber_dojo_sh'] = {
       stdout: packaged(json['stdout']),
       stderr: packaged(json['stderr']),
@@ -182,15 +186,69 @@ class TimeOutRunner
       echo $? > "${STATUS}"
       truncate_dont_extend "${STDOUT}"
       truncate_dont_extend "${STDERR}"
-      jq -n \
+
+      SSS_JSON="${TMP_DIR}/sss.json"
+      jq --null-input \
         --arg stdout "$(< ${STDOUT})" \
         --arg stderr "$(< ${STDERR})" \
         --arg status "$(< ${STATUS})" \
         '{stdout:$stdout, stderr:$stderr, status:$status}' \
+        > "${SSS_JSON}"
+
+      RAG=/usr/local/bin/red_amber_green.rb
+      RAG_JSON="${TMP_DIR}/rag.json"
+      jq --null-input \
+        --arg rag "$(< ${RAG})" \
+        '{rag:$rag}' \
+        > "${RAG_JSON}"
+
+      jq --slurp '.[0] * .[1]' "${SSS_JSON}" "${RAG_JSON}"
 
       exit "$(< ${STATUS})"
       SHELL
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  TRUNCATED_TEXTFILE_NAMES_SH_PATH = '/tmp/echo_truncated_textfilenames.sh'
+
+  TRUNCATED_TEXTFILE_NAMES_SH =
+    # file [X]
+    #   incorrectly reports very small files as binary.
+    #   if size==0,1 assume its a text file.
+    # grep
+    #   -q is --quiet, we are generating text file names.
+    #   -v is --invert-match
+    # unrooted
+    #   strip ./ from front of pathed filename ready for tar to read
+    <<~SHELL.strip
+      truncate_dont_extend() # [X][Y]
+      {
+        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
+          truncate --size=#{MAX_FILE_SIZE+1} "${1}" # [Y]
+        fi
+      }
+      is_text_file()
+      {
+        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+          truncate_dont_extend "${1}"
+          true
+        elif [ $(stat -c%s "${1}") -lt 2 ]; then
+          true
+        else
+          false
+        fi
+      }
+      unrooted()
+      {
+        echo "${1:2}"
+      }
+      export -f truncate_dont_extend
+      export -f is_text_file
+      export -f unrooted
+      (cd #{SANDBOX_DIR} && find . -type f -exec \
+        bash -c "is_text_file {} && unrooted {}" \\;)
+    SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -319,48 +377,6 @@ class TimeOutRunner
       memo[filename] = packaged(content)
     end
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  TRUNCATED_TEXTFILE_NAMES_SH_PATH = '/tmp/echo_truncated_textfilenames.sh'
-
-  TRUNCATED_TEXTFILE_NAMES_SH =
-    # file [X]
-    #   incorrectly reports very small files as binary.
-    #   if size==0,1 assume its a text file.
-    # grep
-    #   -q is --quiet, we are generating text file names.
-    #   -v is --invert-match
-    # unrooted
-    #   strip ./ from front of pathed filename ready for tar to read
-    <<~SHELL.strip
-      truncate_dont_extend() # [X][Y]
-      {
-        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size=#{MAX_FILE_SIZE+1} "${1}" # [Y]
-        fi
-      }
-      is_text_file()
-      {
-        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-          truncate_dont_extend "${1}"
-          true
-        elif [ $(stat -c%s "${1}") -lt 2 ]; then
-          true
-        else
-          false
-        fi
-      }
-      unrooted()
-      {
-        echo "${1:2}"
-      }
-      export -f truncate_dont_extend
-      export -f is_text_file
-      export -f unrooted
-      (cd #{SANDBOX_DIR} && find . -type f -exec \
-        bash -c "is_text_file {} && unrooted {}" \\;)
-    SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
