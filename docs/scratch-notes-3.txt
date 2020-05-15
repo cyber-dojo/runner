@@ -56,12 +56,9 @@ echo $? > ${TMP_DIR}/status
 #1
 
 jq -n \
-  --arg stdout \
-  "$(< ${TMP}/stdout)" \
-  --arg stderr \
-  "$(< ${TMP}/stderr)" \
-  --arg status \
-  "$(< ${TMP}/status)" \
+  --arg stdout "$(< ${TMP}/stdout)" \
+  --arg stderr "$(< ${TMP}/stderr)" \
+  --arg status "$(< ${TMP}/status)" \
   '{stdout:$stdout, stderr:$stderr, status:$status}'
 
 #---------------------------------------------------------------
@@ -114,7 +111,7 @@ Long jq options are...
 -s, --slurp
 -R, --raw-input
 
-
+#---------------------------------------------------------------
 Need to put them into a sub hash...
 
 echo xxxx > x.txt
@@ -132,6 +129,7 @@ fn | xargs --max-lines=1 --replace={} \
   }
 }
 
+#---------------------------------------------------------------
 Better to keep the two json files separate; that way
 whether the text-file harvesting happens can become
 an option.
@@ -142,12 +140,9 @@ echo dummy-stdout > ${TMP}/stdout
 echo dummy-stderr > ${TMP}/stderr
 echo 42 > ${TMP}/status
 jq -n \
-  --arg stdout \
-  "$(< ${TMP}/stdout)" \
-  --arg stderr \
-  "$(< ${TMP}/stderr)" \
-  --arg status \
-  "$(< ${TMP}/status)" \
+  --arg stdout "$(< ${TMP}/stdout)" \
+  --arg stderr "$(< ${TMP}/stderr)" \
+  --arg status "$(< ${TMP}/status)" \
   '{stdout:$stdout, stderr:$stderr, status:$status}' \
   > sss.json
 
@@ -172,3 +167,27 @@ jq --slurp '.[0] * .[1]' sss.json files.json
     "y.txt": "yyy\n"
   }
 }
+
+#---------------------------------------------------------------
+First step,
+capture sss into TMP dir
+create json file
+Then extract sss from json file and echo back to stdout/stderr
+And exit $status
+
+$ cat sss.json | jq '.stdout'
+"dfgdfgdfgdfgdfg"
+
+Need to lose the quotes...
+$ cat sss.json | jq --raw-output '.stdout'
+dfgdfgdfgdfgdfg
+
+Now the redirection...
+
+$ cat sss.json | jq --raw-output '.stdout'
+$ cat sss.json | jq --raw-output '.stderr' 1>&2
+
+#---------------------------------------------------------------
+Some tests are failing...
+It seems the head in the pipe may be a problem.
+https://stackoverflow.com/questions/26461014

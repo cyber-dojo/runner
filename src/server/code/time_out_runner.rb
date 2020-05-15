@@ -10,9 +10,16 @@ require 'securerandom'
 require 'timeout'
 
 # [X] Assumes image_name was built by image_builder with a
-# Dockerfile augmented by image_dockerfile_augmenter. See
+# Dockerfile augmented by image_dockerfile_augmenter.
 #   https://github.com/cyber-dojo-tools/image_builder
 #   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+#
+# [Y] The truncate utility must be installed.
+# Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
+# and lop off the final extra byte!
+# Truncate will also extend the file size (using zero bytes)
+# so its if guard is necessary.
+#
 # If image_name is not present on the node, docker will
 # attempt to pull it. The browser's kata/run_tests ajax
 # call can timeout before the pull completes; this browser
@@ -70,6 +77,7 @@ class TimeOutRunner
   SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
+
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
 
   HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
@@ -142,10 +150,33 @@ class TimeOutRunner
   MAIN_SH_PATH = '/tmp/main.sh'
 
   def main_sh
-    [
-      "cd #{SANDBOX_DIR}",
-      'bash ./cyber-dojo.sh'
-    ].join("\n")
+    # I tried limiting the size of stdout/stderr "in-place" using...
+    # bash ./cyber-dojo.sh \
+    #   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
+    #  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
+    # It seems a head in a pipe can cause problems!
+    # Tests failed. See https://stackoverflow.com/questions/26461014
+    <<~SHELL.strip
+      readonly TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+      readonly STDOUT="${TMP_DIR}/stdout"
+      readonly STDERR="${TMP_DIR}/stderr"
+      cd #{SANDBOX_DIR}
+      bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
+      STATUS=$?
+      if [ -f ${STDOUT} ]; then
+        if [ $(stat -c%s "${STDOUT}") -gt #{MAX_FILE_SIZE} ]; then
+          truncate --size #{MAX_FILE_SIZE+1} ${STDOUT} # [Y]
+        fi
+        cat ${STDOUT}
+      fi
+      if [ -f ${STDERR} ]; then
+        if [ $(stat -c%s "${STDERR}") -gt #{MAX_FILE_SIZE} ]; then
+          truncate --size #{MAX_FILE_SIZE+1} ${STDERR} # [Y]
+        fi
+        cat ${STDERR} 1>&2
+      fi
+      exit ${STATUS}
+      SHELL
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -287,23 +318,25 @@ class TimeOutRunner
   TRUNCATED_TEXTFILE_NAMES_SH_PATH = '/tmp/echo_truncated_textfilenames.sh'
 
   TRUNCATED_TEXTFILE_NAMES_SH =
+    # file
+    #   must be installed [X]
+    #   incorrectly reports very small files as binary.
+    #   if size==0,1 assume its a text file.
+    # grep
+    #   -q is --quiet, we are generating text file names.
+    #   -v is --invert-match
+    # unrooted
+    #   strip ./ from front of pathed filename ready for tar to read
     <<~SHELL.strip
       truncate_file()
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate -s #{MAX_FILE_SIZE+1} "${1}"
+          truncate --size=#{MAX_FILE_SIZE+1} "${1}" # [Y]
         fi
       }
       is_text_file()
       {
-        # The file utility must be installed [X]
-        # However, it incorrectly reports very small files as binary.
-        # If size==0,1 assume its a text file.
-        # -q is --quiet, we are generated text file names.
-        # -v is --invert-match
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-          # The truncate utility must be installed [X]
-          # Truncate to MAX_FILE_SIZE+1 so truncated?() can detect.
           truncate_file "${1}"
           true
         elif [ $(stat -c%s "${1}") -lt 2 ]; then
@@ -314,7 +347,6 @@ class TimeOutRunner
       }
       unrooted()
       {
-        # Strip ./ from front of pathed filename ready for tar to read
         echo "${1:2}"
       }
       export -f truncate_file

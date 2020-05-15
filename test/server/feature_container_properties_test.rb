@@ -11,12 +11,10 @@ class ContainerPropertiesTest < TestBase
 
   test 'D91', %w(
   requires bash, won't run in sh ) do
-    assert_equal '/bin/bash', assert_cyber_dojo_sh('printf ${SHELL}')
     image_name = 'alpine:latest' # has sh but not bash
     with_captured_log {
       run_cyber_dojo_sh({image_name:image_name})
     }
-
     # main command is [docker run --detach IMAGE bash -c 'sleep 10']
     # The --detach means lack of bash is not a [docker run] error.
     # Subsequent failure behavior is dependent on non determinstic timings.

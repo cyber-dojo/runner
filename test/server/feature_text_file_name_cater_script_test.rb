@@ -13,7 +13,7 @@ class TextFilenameCaterScriptTest < TestBase
   new cater script exists
   ) do
     assert_cyber_dojo_sh('ls -al /tmp')
-    assert stdout.include?('echo_truncated_textfilenames.sh')
+    assert stdout.include?('echo_truncated_textfilenames.sh'), ":#{stdout}:"
   end
 
   # - - - - - - - - - - - - - - - - -

@@ -44,8 +44,8 @@ class TimedOutTest < TestBase
 
   c_assert_test '4D7', %w(
   when run_cyber_dojo_sh does not complete in max_seconds
-  and produces output
-  then stdout is not empty,
+  and produces output on stdout
+  then stdout is nonetheless empty (because the pipe is not flushed?)
   and timed_out is true,
   and the traffic-light colour is not set
   ) do
@@ -57,7 +57,7 @@ class TimedOutTest < TestBase
       run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
-    refute_equal '', stdout, :stdout
+    assert_equal '', stdout, :stdout
     refute colour?, :colour?
   end
 
@@ -88,8 +88,10 @@ class TimedOutTest < TestBase
     #include <stdio.h>
     int answer(void)
     {
-        for(;;)
-            puts("Hello");
+        for (int i = 0; i != 1000; i++)
+          fputs("Hello\\n", stdout);
+        fflush(stdout);
+        for(;;);
         return 6 * 7;
     }
     SOURCE
