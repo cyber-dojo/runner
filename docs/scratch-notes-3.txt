@@ -57,10 +57,10 @@ echo $? > ${TMP_DIR}/status
 
 jq -n \
   --arg stdout \
-  --arg stderr \
-  --arg status \
   "$(< ${TMP}/stdout)" \
+  --arg stderr \
   "$(< ${TMP}/stderr)" \
+  --arg status \
   "$(< ${TMP}/status)" \
   '{stdout:$stdout, stderr:$stderr, status:$status}'
 
@@ -121,8 +121,9 @@ echo xxxx > x.txt
 echo yyyy > y.txt
 fn(){ echo "x.txt"; echo "y.txt"; }
 fn | xargs --max-lines=1 --replace={} \
-       jq --slurp --raw-input --arg key {} '{ ($key): .}' {} \
+       jq --slurp --raw-input --arg key {} '{ "files":{ ($key): .} }' {} \
    | jq --slurp 'reduce .[] as $item ({}; . * $item)'
+
 
 {
   "files": {
@@ -135,22 +136,28 @@ Better to keep the two json files separate; that way
 whether the text-file harvesting happens can become
 an option.
 
-
+TMP=/tmp
+cd ${TMP}
+echo dummy-stdout > ${TMP}/stdout
+echo dummy-stderr > ${TMP}/stderr
+echo 42 > ${TMP}/status
 jq -n \
   --arg stdout \
-  --arg stderr \
-  --arg status \
   "$(< ${TMP}/stdout)" \
+  --arg stderr \
   "$(< ${TMP}/stderr)" \
+  --arg status \
   "$(< ${TMP}/status)" \
   '{stdout:$stdout, stderr:$stderr, status:$status}' \
   > sss.json
 
+TMP=/tmp
+cd ${TMP}
 echo xxxx > x.txt
 echo yyyy > y.txt
 fn(){ echo "x.txt"; echo "y.txt"; }
 fn | xargs --max-lines=1 --replace={} \
-       jq --slurp --raw-input --arg key {} '{ ($key): .}' {} \
+       jq --slurp --raw-input --arg key {} '{ "files":{ ($key): .} }' {} \
    | jq --slurp 'reduce .[] as $item ({}; . * $item)' \
    > files.json
 
