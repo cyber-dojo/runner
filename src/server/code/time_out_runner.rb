@@ -154,8 +154,9 @@ class TimeOutRunner
     # bash ./cyber-dojo.sh \
     #   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
     #  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
-    # It seems a head in a pipe can cause problems!
-    # Tests failed. See https://stackoverflow.com/questions/26461014
+    # It seems a head in a pipe can cause problems! Tests failed.
+    # See https://stackoverflow.com/questions/26461014
+    # There is already a ulimit on files.
     <<~SHELL.strip
       readonly TMP_DIR=$(mktemp -d /tmp/XXXXXX)
       readonly STDOUT="${TMP_DIR}/stdout"
