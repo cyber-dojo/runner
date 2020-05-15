@@ -84,7 +84,7 @@ class TimeOutRunner
 
   def run
     command = main_docker_run_command
-    stdout,timed_out = nil,nil,nil
+    stdout,timed_out = nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     w_stdin.write(tgz_of_files)
