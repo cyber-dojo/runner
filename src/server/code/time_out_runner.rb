@@ -68,17 +68,14 @@ class TimeOutRunner
   include FilesDelta
   include TrafficLight
 
-  KB = 1024
-  MB = 1024 * KB
-  GB = 1024 * MB
-
   SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
 
+  KB = 1024
+  MB = 1024 * KB
+  GB = 1024 * MB
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
-
-  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -108,11 +105,14 @@ class TimeOutRunner
     begin
       json = JSON.parse(stdout)
     rescue JSON::ParserError
+      #p '~~~~~~~~~~~~~~~~'
+      #p stdout
+      #p '~~~~~~~~~~~~~~~~'
       json = { 'stdout' => '', 'stderr' => '', 'status' => 42 }
     end
 
     #p '~~~~~~~~~~~~~'
-    #p JSON.pretty_generate(json)
+    #print JSON.pretty_generate(json)
     #p '~~~~~~~~~~~~~'
 
     @result['run_cyber_dojo_sh'] = {
@@ -148,7 +148,7 @@ class TimeOutRunner
   MAIN_SH_PATH = '/tmp/main.sh'
 
   def main_sh
-    # cyber-dojo.sh's stdout/stderr are now captured.
+    # cyber-dojo.sh's stdout/stderr are now captured inside main.sh
     # This means if run() times out before cyber-dojo.sh completes
     # then STDOUT/STDERR won't be catted and hence no info will
     # get back to the client (except timed_out=true).
@@ -165,14 +165,43 @@ class TimeOutRunner
       STDOUT="${TMP_DIR}/stdout"
       STDERR="${TMP_DIR}/stderr"
       STATUS="${TMP_DIR}/status"
-      truncate_dont_extend() # [X][Y]
+      # [X] truncate,file,jq,xargs
+      truncate_dont_extend()
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size #{MAX_FILE_SIZE+1} "${1}"
+          truncate --size #{MAX_FILE_SIZE+1} "${1}" # [Y]
         else
           touch "${1}"
         fi
       }
+      is_text_file()
+      {
+        # grep -q is --quiet, we are generating text file names.
+        # grep -v is --invert-match
+        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+          truncate_dont_extend "${1}"
+          true
+        elif [ $(stat -c%s "${1}") -lt 2 ]; then
+          # file incorrectly reports very small files as binary.
+          true
+        else
+          false
+        fi
+      }
+      unrooted()
+      {
+        # strip ./ from front of pathed filename
+        echo "${1:2}"
+      }
+      text_filenames()
+      {
+        cd #{SANDBOX_DIR} &&
+          find . -type f -exec bash -c "is_text_file {} && unrooted {}" \\;
+      }
+      export -f truncate_dont_extend
+      export -f is_text_file
+      export -f unrooted
+
       cd #{SANDBOX_DIR}
       bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
       echo $? > "${STATUS}"
@@ -187,14 +216,14 @@ class TimeOutRunner
         '{stdout:$stdout, stderr:$stderr, status:$status}' \
         > "${SSS_JSON}"
 
-      RAG=/usr/local/bin/red_amber_green.rb
-      RAG_JSON="${TMP_DIR}/rag.json"
-      jq --null-input \
-        --arg rag "$(< ${RAG})" \
-        '{rag:$rag}' \
-        > "${RAG_JSON}"
+      FILES_JSON="${TMP_DIR}/files.json"
+      text_filenames \
+        | xargs --max-lines=1 --replace={} \
+            jq --slurp --raw-input --arg key {} '{ "files":{ ($key): .} }' {} \
+        | jq --slurp 'reduce .[] as $item ({}; . * $item)' \
+        > "${FILES_JSON}"
 
-      jq --slurp '.[0] * .[1]' "${SSS_JSON}" "${RAG_JSON}"
+      jq --slurp '.[0] * .[1]' "${SSS_JSON}" "${FILES_JSON}"
 
       exit "$(< ${STATUS})"
       SHELL
@@ -553,6 +582,7 @@ class TimeOutRunner
     @externals.shell
   end
 
+  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
   SPACE = ' '
 
 end

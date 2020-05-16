@@ -191,3 +191,13 @@ $ cat sss.json | jq --raw-output '.stderr' 1>&2
 Some tests are failing...
 It seems the head in the pipe may be a problem.
 https://stackoverflow.com/questions/26461014
+
+LargeFileTruncationTest#test_
+id='52A'
+os=Alpine
+jq: Unknown option -JPlOLNY7yt_fFndapHwIg
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://stedolan.github.io/jq
+...jq: Unknown option -JPlOLNY7yt_fFndapHwIg
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://stedolan.github.io/jq

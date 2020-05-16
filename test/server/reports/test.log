@@ -1,32 +1,45 @@
-Run options: --seed 26317
+Run options: --seed 34137
 
 # Running:
 
-............................................................................................................./tmp/main.sh: line 24: /usr/local/bin/red_amber_green.rb: No such file or directory
-..........
+......................./tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+./tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+...........................................jq: Unknown option -JPlOLNY7yt_fFndapHwIg
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://stedolan.github.io/jq
+.....jq: Unknown option -JPlOLNY7yt_fFndapHwIg
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://stedolan.github.io/jq
+...............................................
 
-Finished in 133.876380s, 0.8889 runs/s, 8.3510 assertions/s.
+Finished in 151.912961s, 0.7833 runs/s, 7.3200 assertions/s.
 
-119 runs, 1118 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 4696 / 8229 LOC (57.07%) covered.
+119 runs, 1112 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 4694 / 8227 LOC (57.06%) covered.
 
 Slowest 5 tests are...
-7.4285 - 7B7421:feature_traffic_light_test.rb:68:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
-5.9167 - 7B7425:feature_traffic_light_test.rb:170:when the rag-lambda has too few parameters, then the colour is faulty, and diagnostics are added to the json result
-5.4289 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
-4.8187 - D280BB:feature_clang_sanitize_address_test.rb:12:clang sanitize address 
-4.3898 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-4.0328 - 7B7423:feature_traffic_light_test.rb:122:when rag-lambda has a call exception, then the colour is faulty, and diagnostics are added to the json result
+5.2401 - 7B7423:feature_traffic_light_test.rb:122:when rag-lambda has a call exception, then the colour is faulty, and diagnostics are added to the json result
+5.0523 - 1B5DB3:feature_bomb_robustness_test.rb:48:file-handles quickly become exhausted
+4.2590 - 7B7425:feature_traffic_light_test.rb:170:when the rag-lambda has too few parameters, then the colour is faulty, and diagnostics are added to the json result
+4.1694 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
+4.1023 - E4A52B:feature_large_file_truncation_test.rb:32:source files bigger than 10K are not truncated
+3.9373 - 7B7421:feature_traffic_light_test.rb:68:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  133.88   <=   200 | [32m true [0m
+        duration(test)[s] |  151.91   <=   200 | [32m true [0m
                     tests |     119   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.45   >=   2.4 | [32m true [0m
-      hits(tested/tester) |   14.79   >=   6.6 | [32m true [0m
+      hits(tested/tester) |   14.98   >=   6.6 | [32m true [0m
 
