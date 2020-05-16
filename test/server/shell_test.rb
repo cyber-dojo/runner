@@ -20,7 +20,7 @@ class ShellTest < TestBase
       then the exception is untouched
       then nothing is logged
   ) do
-    log = with_captured_log {
+    log,_ = with_captured_log {
       error = assert_raises(Errno::ENOENT) { shell.exec('xxx Hello') }
       expected = 'No such file or directory - xxx'
       assert_equal expected, error.message, :error_message
@@ -36,7 +36,7 @@ class ShellTest < TestBase
       it returns [stdout,stderr,status],
       it logs nothing
   ) do
-    log = with_captured_log {
+    log,_ = with_captured_log {
       stdout,stderr,status = shell.exec('printf Hello')
       assert_equal 'Hello', stdout, :stdout
       assert_equal '', stderr, :stderr
@@ -54,7 +54,7 @@ class ShellTest < TestBase
       it logs [command,stdout,stderr,status] in json format
   ) do
     command = 'printf Bye && false'
-    log = with_captured_log {
+    log,_ = with_captured_log {
       stdout,stderr,status = shell.exec(command)
       assert_equal 'Bye', stdout, :stdout
       assert_equal '', stderr, :stderr
@@ -75,7 +75,7 @@ class ShellTest < TestBase
       it returns stdout,
       it logs nothing
   ) do
-    log = with_captured_log {
+    log,_ = with_captured_log {
       stdout = shell.assert('printf Hello')
       assert_equal 'Hello', stdout, :stdout
     }
@@ -90,7 +90,7 @@ class ShellTest < TestBase
       it logs [command,stdout,stderr,status]
   ) do
     command = 'printf Hello && false'
-    log = with_captured_log {
+    log,_ = with_captured_log {
       error = assert_raises(ShellAssertError) { shell.assert(command) }
       assert_error_contains(error, 'command', command)
       assert_error_contains(error, 'stdout', 'Hello')
@@ -110,7 +110,7 @@ class ShellTest < TestBase
   the exception is untouched,
   it logs nothing
   ) do
-    log = with_captured_log {
+    log,_ = with_captured_log {
       error = assert_raises(Errno::ENOENT) { shell.assert('xxx Hello') }
       expected = 'No such file or directory - xxx'
       assert_equal expected, error.message, :error_message

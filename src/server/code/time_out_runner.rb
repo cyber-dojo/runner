@@ -101,13 +101,14 @@ class TimeOutRunner
       timed_out = true
       Process_kill_group(pid)
       Process_detach(pid)
-      # docker stop --time 1 container_name
+      # TODO: docker stop --time 1 container_name
     ensure
       w_stdout.close unless w_stdout.closed?
       stdout = r_stdout.read
       r_stdout.close
     end
 
+    # TODO: Exception: not in gzip format
     sss,files_out = *from_tgz(stdout)
     created,deleted,changed = *files_delta(files_in, files_out)
 

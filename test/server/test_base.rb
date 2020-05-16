@@ -233,10 +233,13 @@ class TestBase < Id58TestBase
   def with_captured_log
     begin
       old_stdout = $stdout
+      old_stderr = $stderr
       $stdout = StringIO.new('', 'w')
+      $stderr = StringIO.new('', 'w')
       yield
-      $stdout.string
+      [ $stdout.string, $stderr.string ]
     ensure
+      $stderr = old_stderr
       $stdout = old_stdout
     end
   end
