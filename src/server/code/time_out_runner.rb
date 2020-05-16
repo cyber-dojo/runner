@@ -268,9 +268,8 @@ class TimeOutRunner
         #{container_name}                             \
         bash -c                                       \
           '                      `# open quote`       \
-          cd /                                        \
-          &&                                          \
           tar                    `# [2]`              \
+            -C /                                      \
             --touch              `# [3][4]`           \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
