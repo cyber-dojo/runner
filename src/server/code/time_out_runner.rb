@@ -155,17 +155,17 @@ class TimeOutRunner
 
   # [X] truncate,file
   # grep -q is --quiet, we are generating text file names.
-  # grep -v is --invert-match
+  # grep -v is --invert-match.
   # file incorrectly reports very small files as binary.
   # tar does not like absolute pathnames so strip leading /
   TEXT_FILENAMES_SH =
     <<~SHELL.strip
-      text_filenames()
+      function text_filenames()
       {
         find #{SANDBOX_DIR} -type f -exec \\
           bash -c "is_truncated_text_file {} && unrooted {}" \\;
       }
-      is_truncated_text_file()
+      function is_truncated_text_file()
       {
         if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
           truncate_dont_extend "${1}"
@@ -176,7 +176,7 @@ class TimeOutRunner
           false
         fi
       }
-      truncate_dont_extend()
+      function truncate_dont_extend()
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
           truncate --size #{MAX_FILE_SIZE+1} "${1}" # [Y]
@@ -184,7 +184,7 @@ class TimeOutRunner
           touch "${1}"
         fi
       }
-      unrooted()
+      function unrooted()
       {
         echo "${1:1}"
       }
@@ -204,23 +204,30 @@ class TimeOutRunner
     <<~SHELL.strip
       source #{TEXT_FILENAMES_SH_PATH}
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
-      STDOUT=stdout
-      STDERR=stderr
-      STATUS=status
-
+      TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
+      STATUS=137 # 128+9
+      trap cyber_done EXIT
+      function cyber_done() { zip_sss; zip_sandbox; send_tgz; }
+      function zip_sss()
+      {
+        echo ${STATUS} > "${TMP_DIR}/status"
+        truncate_dont_extend "${TMP_DIR}/stdout"
+        truncate_dont_extend "${TMP_DIR}/stderr"
+        tar -rf "${TAR_FILE}" -C "${TMP_DIR}" stdout stderr status
+      }
+      function zip_sandbox()
+      {
+        text_filenames | tar -C / -rf ${TAR_FILE} -T -
+      }
+      function send_tgz()
+      {
+        gzip -c "${TAR_FILE}"
+      }
       cd #{SANDBOX_DIR}
       bash ./cyber-dojo.sh \
-         > "${TMP_DIR}/${STDOUT}" \
-        2> "${TMP_DIR}/${STDERR}"
-
-      echo $? > "${TMP_DIR}/${STATUS}"
-      truncate_dont_extend "${TMP_DIR}/${STDOUT}"
-      truncate_dont_extend "${TMP_DIR}/${STDERR}"
-
-      TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
-      tar -rf "${TAR_FILE}" -C "${TMP_DIR}" "${STDOUT}" "${STDERR}" "${STATUS}"
-      text_filenames | tar -C / -rf ${TAR_FILE} -T -
-      gzip -c "${TAR_FILE}"
+         > "${TMP_DIR}/stdout" \
+        2> "${TMP_DIR}/stderr"
+      STATUS=$?
       SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -

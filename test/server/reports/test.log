@@ -1,26 +1,26 @@
-Run options: --seed 18251
+Run options: --seed 52157
 
 # Running:
 
-..
+.
 
-Finished in 4.541173s, 0.4404 runs/s, 1.3212 assertions/s.
+Finished in 2.706044s, 0.3695 runs/s, 1.4782 assertions/s.
 
-2 runs, 6 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 3774 / 8198 LOC (46.04%) covered.
+1 runs, 4 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3789 / 8203 LOC (46.19%) covered.
 
 Slowest 1 tests are...
-1.8148 - 7B79DD:feature_traffic_light_test.rb:38:green traffic-light, no diagnostics
+2.7013 - 9E94D7:feature_timed_out_test.rb:45:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and timed_out is true, and the traffic-light colour is not set
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    4.54   <=   200 | [32m true [0m
-                    tests |       2   >=     1 | [32m true [0m
-      coverage(tested)[%] |   74.59   >=   100 | [31m false [0m
-      coverage(tester)[%] |    29.3   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.48   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.99   >=   6.6 | [31m false [0m
+        duration(test)[s] |    2.71   <=   200 | [32m true [0m
+                    tests |       1   >=     1 | [32m true [0m
+      coverage(tested)[%] |    73.6   >=   100 | [31m false [0m
+      coverage(tester)[%] |   29.52   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.45   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.42   >=   6.6 | [31m false [0m
 

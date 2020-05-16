@@ -45,7 +45,7 @@ class TimedOutTest < TestBase
   c_assert_test '4D7', %w(
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output on stdout
-  the captured stdout never gets sent
+  the captured stdout still gets sent (thanks to trap handler)
   and timed_out is true,
   and the traffic-light colour is not set
   ) do
@@ -57,7 +57,7 @@ class TimedOutTest < TestBase
       run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
-    assert_equal '', stdout, :stdout
+    assert stdout.include?('Hello')
     refute colour?, :colour?
   end
 
