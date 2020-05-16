@@ -222,21 +222,25 @@ class TimeOutRunner
   def docker_run_cyber_dojo_sh_command
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir in the container and runs /sandbox/cyber-dojo.sh
+    # [1] For clang/clang++'s -fsanitize=address
+    # [2] Makes container removal much faster
     <<~SHELL.strip
-      docker run                              \
-        #{docker_run_options(image_name, id)} \
-        --interactive                         \
-        --name=#{container_name}              \
-        #{image_name}                         \
-        bash -c                               \
-          '                                   \
-          tar                                 \
-            -C /                              \
-            -zxf                              \
-            -                                 \
-          &&                                  \
-          bash #{MAIN_SH_PATH}                \
-          '
+      docker run                          \
+        --cap-add=SYS_PTRACE      `# [1]` \
+        #{env_vars(image_name, id)}       \
+        --init                    `# [2]` \
+        --interactive                     \
+        --name=#{container_name}          \
+        #{TMP_FS_SANDBOX_DIR}             \
+        #{TMP_FS_TMP_DIR}                 \
+        --rm                              \
+        --user=#{UID}:#{GID}      `# [X]` \
+        #{ulimits(image_name)}            \
+        #{image_name}                     \
+        bash -c '                         \
+          tar -C / -zxf -                 \
+          &&                              \
+          bash #{MAIN_SH_PATH}'
     SHELL
   end
 
@@ -282,23 +286,6 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_options(image_name, id)
-    # [1] For clang/clang++'s -fsanitize=address
-    # [2] Makes container removal much faster
-    <<~SHELL.strip
-      #{env_vars(image_name, id)}                      \
-      #{TMP_FS_SANDBOX_DIR}                            \
-      #{TMP_FS_TMP_DIR}                                \
-      #{ulimits(image_name)}                           \
-      --cap-add=SYS_PTRACE      `# [1]`                \
-      --init                    `# pid-1 process [2]`  \
-      --rm                      `# auto rm on exit`    \
-      --user=#{UID}:#{GID}      `# not root [X]`
-    SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def env_vars(image_name, id)
     [
       env_var('IMAGE_NAME', image_name),
@@ -310,7 +297,7 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_var(name, value)
-    # Note: value must not contain single-quotes
+    # value must not contain single-quotes
     "--env CYBER_DOJO_#{name}='#{value}'"
   end
 

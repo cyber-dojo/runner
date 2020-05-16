@@ -1,26 +1,26 @@
-Run options: --seed 30258
+Run options: --seed 18251
 
 # Running:
 
 ..
 
-Finished in 4.611309s, 0.4337 runs/s, 1.3011 assertions/s.
+Finished in 4.541173s, 0.4404 runs/s, 1.3212 assertions/s.
 
 2 runs, 6 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 3776 / 8200 LOC (46.05%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 3774 / 8198 LOC (46.04%) covered.
 
 Slowest 1 tests are...
-1.8889 - 7B79DD:feature_traffic_light_test.rb:38:green traffic-light, no diagnostics
+1.8148 - 7B79DD:feature_traffic_light_test.rb:38:green traffic-light, no diagnostics
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    4.61   <=   200 | [32m true [0m
+        duration(test)[s] |    4.54   <=   200 | [32m true [0m
                     tests |       2   >=     1 | [32m true [0m
-      coverage(tested)[%] |   74.73   >=   100 | [31m false [0m
+      coverage(tested)[%] |   74.59   >=   100 | [31m false [0m
       coverage(tester)[%] |    29.3   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.47   >=   2.4 | [32m true [0m
+     lines(tester/tested) |    2.48   >=   2.4 | [32m true [0m
       hits(tested/tester) |    1.99   >=   6.6 | [31m false [0m
 
