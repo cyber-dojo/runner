@@ -9,31 +9,6 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  test 'D91', %w(
-  requires bash, won't run in sh ) do
-    image_name = 'alpine:latest' # has sh but not bash
-    with_captured_log {
-      run_cyber_dojo_sh({image_name:image_name})
-    }
-    # main command is [docker run --detach IMAGE bash -c 'sleep 10']
-    # The --detach means lack of bash is not a [docker run] error.
-    # Subsequent failure behavior is dependent on non determinstic timings.
-    assert stdout === '' || stdout.start_with?('cannot exec in a stopped state:'), ":#{stdout}:"
-    assert stderr === '' || stderr.start_with?('Error response from daemon:'), ":#{stderr}:"
-
-    expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
-    assert_equal 'faulty', colour
-    assert_equal image_name, diagnostic['image_name'], :image_name
-    assert_equal id, diagnostic['id'], :id
-    assert_equal expected_info, diagnostic['info'], :info
-    assert_nil diagnostic['message'], :message
-    assert_nil diagnostic['rag_lambda'], :rag_lambda
-  end
-=end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   multi_os_test 'D98', %w( multiple container properties ) do
     cyber_dojo_sh = [
       "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]
