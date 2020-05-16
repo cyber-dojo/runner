@@ -107,12 +107,12 @@ class TimeOutRunner
       r_stdout.close
     end
 
-    o = from_tgz(stdout)
+    sss,_files = *from_tgz(stdout)
 
     @result['run_cyber_dojo_sh'] = {
-      stdout: o['stdout'],
-      stderr: o['stderr'],
-      status: o['status']['content'].to_i,
+      stdout: sss['stdout'],
+      stderr: sss['stderr'],
+      status: sss['status']['content'].to_i,
       timed_out: timed_out
     }
 
@@ -154,10 +154,16 @@ class TimeOutRunner
   end
 
   def from_tgz(tgz)
+    sss,files = {},{}
     reader = Tar::Reader.new(Gnu.unzip(tgz))
-    reader.files.each_with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(content)
+    reader.files.each do |filename,content|
+      if %w( stdout stderr status ).include?(filename)
+        sss[filename] = packaged(content)
+      else
+        files[filename] = packaged(content)
+      end
     end
+    [sss,files]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
