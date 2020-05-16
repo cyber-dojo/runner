@@ -63,8 +63,10 @@ class HttpJsonArgs
   def existing_run_args
     { 'id' => id,
       'files' => files,
-      'image_name' => image_name,
-      'max_seconds' => max_seconds
+      'manifest' => {
+        'image_name' => image_name,
+        'max_seconds' => max_seconds
+      }
     }
   end
 
