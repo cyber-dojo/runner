@@ -85,11 +85,13 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
+    files_in = sandboxed(files)
+    files_in[unrooted(MAIN_SH_PATH)] = main_sh
     command = main_docker_run_command
     stdout,timed_out = nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
-    w_stdin.write(into_tgz(files))
+    w_stdin.write(into_tgz(files_in))
     w_stdin.close
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
@@ -107,8 +109,8 @@ class TimeOutRunner
       r_stdout.close
     end
 
-    sss,_files_now = *from_tgz(stdout)
-    #created,deleted,changed = *files_delta(files, files_now)
+    sss,_files_out = *from_tgz(stdout)
+    #created,deleted,changed = *files_delta(files, files_out)
 
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],
@@ -124,8 +126,7 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def into_tgz(files)
-    writer = Tar::Writer.new(sandboxed(files))
-    writer.write(unrooted(MAIN_SH_PATH), main_sh)
+    writer = Tar::Writer.new(files)
     Gnu.zip(writer.tar_file)
   end
 
@@ -171,7 +172,7 @@ class TimeOutRunner
     # See https://stackoverflow.com/questions/26461014
     # There is already a ulimit on files.
     #
-    # [X] truncate,file,xargs
+    # [X] truncate,file
     <<~SHELL.strip
       truncate_dont_extend()
       {
@@ -197,7 +198,7 @@ class TimeOutRunner
       }
       unrooted()
       {
-        # Tar does not like absolute pathnames so strip leading /        
+        # Tar does not like absolute pathnames so strip leading /
         echo "${1:1}"
       }
       export -f truncate_dont_extend
@@ -224,11 +225,13 @@ class TimeOutRunner
 
       TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
 
+      # -C TMP_DIR so stdout/stderr/status are NOT pathed
       tar -rf "${TAR_FILE}" -C "${TMP_DIR}" \
         "${STDOUT}" \
         "${STDERR}" \
         "${STATUS}"
 
+      # -C / so sandbox files ARE pathed
       text_filenames | tar -C / -rf ${TAR_FILE} -T -
 
       gzip -c "${TAR_FILE}"
@@ -272,7 +275,7 @@ class TimeOutRunner
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
-          bash /tmp/main.sh      `# [5]`              \
+          bash #{MAIN_SH_PATH}   `# [5]`              \
           '                      `# close quote`
     SHELL
   end
