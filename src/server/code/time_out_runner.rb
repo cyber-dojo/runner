@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require_relative 'files_delta'
-require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
