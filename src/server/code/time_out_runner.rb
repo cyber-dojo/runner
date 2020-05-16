@@ -108,7 +108,7 @@ class TimeOutRunner
       #p '~~~~~~~~~~~~~~~~'
       #p stdout
       #p '~~~~~~~~~~~~~~~~'
-      json = { 'stdout' => '', 'stderr' => '', 'status' => 42 }
+      json = { 'stdout' => '', 'stderr' => '', 'status' => 42, 'files' => files }
     end
 
     #p '~~~~~~~~~~~~~'
@@ -121,6 +121,20 @@ class TimeOutRunner
       status: json['status'].to_i,
       timed_out: timed_out
     }
+
+    text_files = json['files'] || {} # If /sandbox is emptied! See test 62C
+    files_now = text_files.each_with_object({}) do |(filename,content),memo|
+      memo[filename] = packaged(content)
+    end
+
+    created,deleted,changed = *files_delta(files, files_now)
+
+    @result['run_cyber_dojo_sh'].merge!({
+      created:created,
+      deleted:deleted,
+      changed:changed
+    })
+
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -355,18 +369,11 @@ class TimeOutRunner
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
       rag_src = extract_rag(files_now, rag_filename)
-      created,deleted,changed = *files_delta(files, files_now)
     else
       @result['diagnostic'] = { 'stderr' => stderr }
       rag_src = nil
-      created,deleted,changed = {}, [], {}
     end
     @result['rag_src'] = rag_src
-    @result['run_cyber_dojo_sh'].merge!({
-      created:created,
-      deleted:deleted,
-      changed:changed
-    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

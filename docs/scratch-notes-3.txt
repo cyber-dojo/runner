@@ -188,9 +188,23 @@ $ cat sss.json | jq --raw-output '.stdout'
 $ cat sss.json | jq --raw-output '.stderr' 1>&2
 
 #---------------------------------------------------------------
+The generated text files... and stdout/stderr ...
+Would be nice if these could be compressed before being added to the JSON.
+See what it makes faster/slower.
+
+#---------------------------------------------------------------
 Some tests are failing...
 It seems the head in the pipe may be a problem.
 https://stackoverflow.com/questions/26461014
+
+BombRobustNessTest#test_
+id='62B'
+id='DB3'
+os=Debian
+'file-handles quickly become exhausted' [/test/server/feature_bomb_robustness_test.rb:56]:
+{"run_cyber_dojo_sh"=>{:stdout=>{"content"=>"", "truncated"=>false},
+:stderr=>{"content"=>"", "truncated"=>false}, :status=>42, :timed_out=>true, :created=>{},
+:deleted=>[], :changed=>{}}, "diagnostic"=>{"stderr"=>""}, "rag_src"=>nil}
 
 LargeFileTruncationTest#test_
 id='52A'
