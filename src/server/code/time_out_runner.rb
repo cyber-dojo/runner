@@ -14,14 +14,21 @@ require 'timeout'
 # Dockerfile augmented by image_dockerfile_augmenter.
 #   https://github.com/cyber-dojo-tools/image_builder
 #   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
-#
+
 # [Y] Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
 # and lop off the final extra byte.
-#
+
 # [Z] If image_name is not present on the node, docker will
 # attempt to pull it. The browser's kata/run_tests ajax
 # call can timeout before the pull completes; this browser
 # timeout is different to the Runner.run() call timing out.
+
+# Approval-style test-frameworks compare actual-text against
+# expected-text held inside a 'golden-master' file and, if the
+# comparison fails, generate a file holding the actual-text
+# ready for human inspection. cyber-dojo supports this by
+# scanning for text files (generated inside the container)
+# under /sandbox after cyber-dojo.sh has run.
 
 class TimeOutRunner
 
@@ -55,7 +62,7 @@ class TimeOutRunner
     create_container
     begin
       run
-      read_text_file_changes
+      read_rag_lambda_file
       set_traffic_light
       @result
     ensure
@@ -142,7 +149,6 @@ class TimeOutRunner
   def tgz_of_files
     writer = Tar::Writer.new(sandboxed(files))
     writer.write(unrooted(MAIN_SH_PATH), main_sh)
-    writer.write(unrooted(TRUNCATED_TEXTFILE_NAMES_SH_PATH), TRUNCATED_TEXTFILE_NAMES_SH)
     Gnu.zip(writer.tar_file)
   end
 
@@ -245,48 +251,6 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TRUNCATED_TEXTFILE_NAMES_SH_PATH = '/tmp/echo_truncated_textfilenames.sh'
-
-  TRUNCATED_TEXTFILE_NAMES_SH =
-    # file [X]
-    #   incorrectly reports very small files as binary.
-    #   if size==0,1 assume its a text file.
-    # grep
-    #   -q is --quiet, we are generating text file names.
-    #   -v is --invert-match
-    # unrooted
-    #   strip ./ from front of pathed filename ready for tar to read
-    <<~SHELL.strip
-      truncate_dont_extend() # [X][Y]
-      {
-        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size=#{MAX_FILE_SIZE+1} "${1}" # [Y]
-        fi
-      }
-      is_text_file()
-      {
-        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-          truncate_dont_extend "${1}"
-          true
-        elif [ $(stat -c%s "${1}") -lt 2 ]; then
-          true
-        else
-          false
-        fi
-      }
-      unrooted()
-      {
-        echo "${1:2}"
-      }
-      export -f truncate_dont_extend
-      export -f is_text_file
-      export -f unrooted
-      (cd #{SANDBOX_DIR} && find . -type f -exec \
-        bash -c "is_text_file {} && unrooted {}" \\;)
-    SHELL
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def main_docker_run_command
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir (which must exist [X]) inside the container
@@ -329,7 +293,7 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_text_file_changes
+  def read_rag_lambda_file
     docker_cat_rag_file =
       <<~SHELL.strip
       docker exec                                        \
@@ -346,86 +310,6 @@ class TimeOutRunner
       rag_src = nil
     end
     @result['rag_src'] = rag_src
-  end
-
-
-  def OLD_read_text_file_changes
-    # Approval-style test-frameworks compare actual-text against
-    # expected-text held inside a 'golden-master' file and, if the
-    # comparison fails, generate a file holding the actual-text
-    # ready for human inspection. cyber-dojo supports this by
-    # tar-piping out all text files (generated inside the container)
-    # under /sandbox after cyber-dojo.sh has run.
-    #
-    # [1] Extract /usr/local/bin/red_amber_green.rb if it exists.
-    # [2] Ensure filenames are not read as tar command options.
-    #     Eg -J... is a tar compression option.
-    #     This option is not available on Ubuntu 16.04
-    rag_filename = SecureRandom.urlsafe_base64
-    docker_tar_pipe_text_files_out =
-      <<~SHELL.strip
-      docker exec                                        \
-        --user=#{UID}:#{GID}                             \
-        #{container_name}                                \
-        bash -c                                          \
-          '                          `# open quote`      \
-          echo /usr/local/bin/red_amber_green.rb         \
-          #{copy_rag(rag_filename)}; `# [1]`             \
-          source /tmp/echo_truncated_textfilenames.sh    \
-          |                                              \
-          tar                                            \
-            -C                                           \
-            #{SANDBOX_DIR}                               \
-            -zcf                     `# create tgz file` \
-            -                        `# write to stdout` \
-            --verbatim-files-from    `# [2]`             \
-            -T                       `# using filenames` \
-            -                        `# from stdin`      \
-          '                          `# close quote`
-      SHELL
-    # A crippled container (eg fork-bomb) will likely
-    # not be running causing the [docker exec] to fail.
-    # Be careful if you switch to shell.assert() here.
-
-    stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
-    if status === 0
-      files_now = read_tar_file(Gnu.unzip(stdout))
-      rag_src = extract_rag(files_now, rag_filename)
-    else
-      @result['diagnostic'] = { 'stderr' => stderr }
-      rag_src = nil
-    end
-    @result['rag_src'] = rag_src
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def copy_rag(rag_filename)
-    rag_src = '/usr/local/bin/red_amber_green.rb'
-    rag_dst = "#{SANDBOX_DIR}/#{rag_filename}"
-    # This command must not write anything to stdout/stderr
-    # since it would be taken as a filename by tar's -T option.
-    "[ -f #{rag_src} ] && cp #{rag_src} #{rag_dst}"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def extract_rag(files_now, rag_filename)
-    rag_file = files_now.delete(rag_filename)
-    if rag_file.nil?
-      nil
-    else
-      rag_file['content']
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def read_tar_file(tar_file)
-    reader = Tar::Reader.new(tar_file)
-    reader.files.each_with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(content)
-    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
