@@ -9,13 +9,15 @@ require_relative 'utf8_clean'
 require 'securerandom'
 require 'timeout'
 
+# TODO: 1. Cache for rag-lambdas
+# TODO: 2. Only gather text files if manifest['hidden_filenames'] is set
+
 class TimeOutRunner
 
   def initialize(externals, id, files, manifest)
     @externals = externals
     @id = id
     @files = files
-    @manifest = manifest
     @image_name = manifest['image_name']
     @max_seconds = manifest['max_seconds']
   end
@@ -37,10 +39,10 @@ class TimeOutRunner
   include FilesDelta
   include TrafficLight
 
-  UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
+  UID = 41966               # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966               # [X] sandbox group - runs /sandbox/cyber-dojo.sh
   SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
-                            # not /home/sandbox; /sandbox is fast tmp-dir
+                            # not /home/sandbox; /sandbox is faster tmp-dir
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
@@ -49,9 +51,9 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
-    # prepare the output pipe
+    # pipe for getting tgz from container on stdout
     r_stdout, w_stdout = IO.pipe
-    # prepare the input pipe
+    # pipe for sending tgz into container on stdin
     files_in = sandboxed(files)
     files_in[unrooted(TEXT_FILENAMES_SH_PATH)] = TEXT_FILENAMES_SH
     files_in[unrooted(MAIN_SH_PATH)] = MAIN_SH
@@ -197,7 +199,6 @@ class TimeOutRunner
 
   MAIN_SH_PATH = '/tmp/main.sh'
 
-  # [X] truncate,file
   # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
   # 2nd tar: -C / so sandbox files are pathed
   MAIN_SH =
@@ -244,7 +245,7 @@ class TimeOutRunner
     <<~SHELL.strip
       docker run                          \
         --cap-add=SYS_PTRACE      `# [1]` \
-        #{env_vars(image_name, id)}       \
+        #{env_vars(id, image_name)}       \
         --init                    `# [2]` \
         --interactive                     \
         --name=#{container_name}          \
@@ -303,10 +304,10 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def env_vars(image_name, id)
+  def env_vars(id, image_name)
     [
-      env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
+      env_var('IMAGE_NAME', image_name),
       env_var('SANDBOX',    SANDBOX_DIR)
     ].join(SPACE)
   end
@@ -466,11 +467,6 @@ end
 # ready for human inspection. cyber-dojo supports this by
 # scanning for text files (generated inside the container)
 # under /sandbox after cyber-dojo.sh has run.
-#
-# cyber-dojo.sh's stdout/stderr are now captured inside main.sh
-# This means if run() times out before cyber-dojo.sh completes
-# then (currently) STDOUT/STDERR won't be catted and hence no info
-# will get back to the client (except timed_out=true).
 #
 # I tried limiting the size of stdout/stderr "in-place" using...
 # bash ./cyber-dojo.sh \
