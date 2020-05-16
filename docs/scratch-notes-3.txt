@@ -228,3 +228,83 @@ or see the jq manpage, or online docs  at https://stedolan.github.io/jq
 ...jq: Unknown option -JPlOLNY7yt_fFndapHwIg
 Use jq --help for help with command-line options,
 or see the jq manpage, or online docs  at https://stedolan.github.io/jq
+
+
+#---------------------------------------------------------------
+MAX_FILE_SIZE=5
+SANDBOX_DIR=/sandbox
+TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+
+rm -rf ${SANDBOX_DIR}
+mkdir  ${SANDBOX_DIR}
+
+echo xxxxxxxxxxxx > ${SANDBOX_DIR}/xxx
+echo yyyyyyyyyyyy > ${SANDBOX_DIR}/yyy
+
+truncate_dont_extend()
+{
+    if [[ $(stat -c%s "${1}") -gt ${MAX_FILE_SIZE} ]]; then
+          truncate --size 6 "${1}"
+    else
+          touch "${1}"
+    fi
+}
+
+is_text_file()
+      {
+        # grep -q is --quiet, we are generating text file names.
+        # grep -v is --invert-match
+        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+          truncate_dont_extend "${1}"
+          true
+        elif [ $(stat -c%s "${1}") -lt 2 ]; then
+          # file incorrectly reports very small files as binary.
+          true
+        else
+          false
+        fi
+      }
+
+unrooted()
+      {
+        # strip ./ from front of pathed filename
+        echo "${1:2}"
+      }
+
+
+export -f truncate_dont_extend
+export -f is_text_file
+export -f unrooted
+
+text_filenames()
+{
+    (find ${SANDBOX_DIR} -type f -exec bash -c "is_text_file {} && unrooted {}" \;)
+}
+
+echo
+echo --------
+echo text_filenames
+text_filenames
+
+echo
+echo --------
+echo creating tgz file
+text_filenames | tar -C / -zcf ${TMP_DIR}/jj.tgz -T -
+
+echo
+echo --------
+echo ls of tmp-dir
+ls -al ${TMP_DIR}
+
+echo
+echo --------
+echo tar -tvf
+tar -tvf ${TMP_DIR}/jj.tgz
+
+echo
+echo -------
+echo contents of xxx yyy
+tar -axf ${TMP_DIR}/jj.tgz sandbox/xxx -O
+echo
+tar -axf ${TMP_DIR}/jj.tgz sandbox/yyy -O
+echo

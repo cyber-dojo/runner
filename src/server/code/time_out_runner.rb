@@ -107,29 +107,18 @@ class TimeOutRunner
       r_stdout.close
     end
 
-    sss,_files = *from_tgz(stdout)
+    sss,_files_now = *from_tgz(stdout)
+    #created,deleted,changed = *files_delta(files, files_now)
 
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],
       stderr: sss['stderr'],
       status: sss['status']['content'].to_i,
       timed_out: timed_out
+      #created:created,
+      #deleted:deleted,
+      #changed:changed
     }
-
-=begin
-    text_files = json['files'] || {} # If /sandbox is emptied! See test 62C
-    files_now = text_files.each_with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(content)
-    end
-
-    created,deleted,changed = *files_delta(files, files_now)
-
-    @result['run_cyber_dojo_sh'].merge!({
-      created:created,
-      deleted:deleted,
-      changed:changed
-    })
-=end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -147,9 +136,7 @@ class TimeOutRunner
   end
 
   def unrooted(path)
-    # Pathnames with a leading / give tar warnings:
-    # tar: Removing leading `/' from member names
-    # So strip off leading /
+    # Tar does not like absolute pathnames so strip leading /
     path[1..-1]
   end
 
@@ -194,7 +181,7 @@ class TimeOutRunner
           touch "${1}"
         fi
       }
-      is_text_file()
+      is_truncated_text_file()
       {
         # grep -q is --quiet, we are generating text file names.
         # grep -v is --invert-match
@@ -210,17 +197,16 @@ class TimeOutRunner
       }
       unrooted()
       {
-        # strip ./ from front of pathed filename
-        echo "${1:2}"
-      }
-      text_filenames()
-      {
-        cd #{SANDBOX_DIR} &&
-          find . -type f -exec bash -c "is_text_file {} && unrooted {}" \\;
+        # Tar does not like absolute pathnames so strip leading /        
+        echo "${1:1}"
       }
       export -f truncate_dont_extend
-      export -f is_text_file
+      export -f is_truncated_text_file
       export -f unrooted
+      text_filenames()
+      {
+        find #{SANDBOX_DIR} -type f -exec bash -c "is_truncated_text_file {} && unrooted {}" \\;
+      }
 
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
       STDOUT=stdout
@@ -236,13 +222,16 @@ class TimeOutRunner
       truncate_dont_extend "${TMP_DIR}/${STDOUT}"
       truncate_dont_extend "${TMP_DIR}/${STDERR}"
 
-      TAR_FILE="${TMP_DIR}/output.tar"
-      tar -czf "${TAR_FILE}" -C "${TMP_DIR}" \
+      TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
+
+      tar -rf "${TAR_FILE}" -C "${TMP_DIR}" \
         "${STDOUT}" \
         "${STDERR}" \
         "${STATUS}"
 
-      cat "${TAR_FILE}"
+      text_filenames | tar -C / -rf ${TAR_FILE} -T -
+
+      gzip -c "${TAR_FILE}"
       SHELL
   end
 
