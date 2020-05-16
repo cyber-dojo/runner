@@ -5,7 +5,6 @@ require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'traffic_light'
 require_relative 'utf8_clean'
-require 'json'
 require 'securerandom'
 require 'timeout'
 
@@ -90,7 +89,7 @@ class TimeOutRunner
     stdout,timed_out = nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
-    w_stdin.write(tgz_of_files)
+    w_stdin.write(into_tgz(files))
     w_stdin.close
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
@@ -108,26 +107,16 @@ class TimeOutRunner
       r_stdout.close
     end
 
-    begin
-      json = JSON.parse(stdout)
-    rescue JSON::ParserError
-      #p '~~~~~~~~~~~~~~~~'
-      #p stdout
-      #p '~~~~~~~~~~~~~~~~'
-      json = { 'stdout' => '', 'stderr' => '', 'status' => 42, 'files' => files }
-    end
-
-    #p '~~~~~~~~~~~~~'
-    #print JSON.pretty_generate(json)
-    #p '~~~~~~~~~~~~~'
+    o = from_tgz(stdout)
 
     @result['run_cyber_dojo_sh'] = {
-      stdout: packaged(json['stdout']),
-      stderr: packaged(json['stderr']),
-      status: json['status'].to_i,
+      stdout: o['stdout'],
+      stderr: o['stderr'],
+      status: o['status']['content'].to_i,
       timed_out: timed_out
     }
 
+=begin
     text_files = json['files'] || {} # If /sandbox is emptied! See test 62C
     files_now = text_files.each_with_object({}) do |(filename,content),memo|
       memo[filename] = packaged(content)
@@ -140,12 +129,12 @@ class TimeOutRunner
       deleted:deleted,
       changed:changed
     })
-
+=end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tgz_of_files
+  def into_tgz(files)
     writer = Tar::Writer.new(sandboxed(files))
     writer.write(unrooted(MAIN_SH_PATH), main_sh)
     Gnu.zip(writer.tar_file)
@@ -162,6 +151,13 @@ class TimeOutRunner
     # tar: Removing leading `/' from member names
     # So strip off leading /
     path[1..-1]
+  end
+
+  def from_tgz(tgz)
+    reader = Tar::Reader.new(Gnu.unzip(tgz))
+    reader.files.each_with_object({}) do |(filename,content),memo|
+      memo[filename] = packaged(content)
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -181,12 +177,9 @@ class TimeOutRunner
     # It seems a head in a pipe can cause problems! Tests failed.
     # See https://stackoverflow.com/questions/26461014
     # There is already a ulimit on files.
+    #
+    # [X] truncate,file,xargs
     <<~SHELL.strip
-      TMP_DIR=$(mktemp -d /tmp/XXXXXX)
-      STDOUT="${TMP_DIR}/stdout"
-      STDERR="${TMP_DIR}/stderr"
-      STATUS="${TMP_DIR}/status"
-      # [X] truncate,file,jq,xargs
       truncate_dont_extend()
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
@@ -223,30 +216,27 @@ class TimeOutRunner
       export -f is_text_file
       export -f unrooted
 
+      TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+      STDOUT=stdout
+      STDERR=stderr
+      STATUS=status
+
       cd #{SANDBOX_DIR}
-      bash ./cyber-dojo.sh > "${STDOUT}" 2> "${STDERR}"
-      echo $? > "${STATUS}"
-      truncate_dont_extend "${STDOUT}"
-      truncate_dont_extend "${STDERR}"
+      bash ./cyber-dojo.sh \
+         > "${TMP_DIR}/${STDOUT}" \
+        2> "${TMP_DIR}/${STDERR}"
 
-      SSS_JSON="${TMP_DIR}/sss.json"
-      jq --null-input \
-        --arg stdout "$(< ${STDOUT})" \
-        --arg stderr "$(< ${STDERR})" \
-        --arg status "$(< ${STATUS})" \
-        '{stdout:$stdout, stderr:$stderr, status:$status}' \
-        > "${SSS_JSON}"
+      echo $? > "${TMP_DIR}/${STATUS}"
+      truncate_dont_extend "${TMP_DIR}/${STDOUT}"
+      truncate_dont_extend "${TMP_DIR}/${STDERR}"
 
-      FILES_JSON="${TMP_DIR}/files.json"
-      text_filenames \
-        | xargs --max-lines=1 --replace={} \
-            jq --slurp --raw-input --arg key {} '{ "files":{ ($key): .} }' {} \
-        | jq --slurp 'reduce .[] as $item ({}; . * $item)' \
-        > "${FILES_JSON}"
+      TAR_FILE="${TMP_DIR}/output.tar"
+      tar -czf "${TAR_FILE}" -C "${TMP_DIR}" \
+        "${STDOUT}" \
+        "${STDERR}" \
+        "${STATUS}"
 
-      jq --slurp '.[0] * .[1]' "${SSS_JSON}" "${FILES_JSON}"
-
-      exit "$(< ${STATUS})"
+      cat "${TAR_FILE}"
       SHELL
   end
 

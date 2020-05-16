@@ -2,7 +2,6 @@
 I'd like for the text file reading to not happen in a 2nd docker exec.
 Suppose I injected this script into the tar file...
 
-
 readonly TMP_DIR=$(mktemp -d /tmp/XXXXXX)
 remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }
 trap remove_tmp_dir EXIT
