@@ -158,18 +158,32 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
-    args = run_cyber_dojo_sh_args
-    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
-    stub = BashStubTarPipeOut.new('fail')
-    rack_call(env, Externals.new({ 'bash' => stub }))
+    image_stub = "runner_test_stub:#{id}"
+    Dir.mktmpdir do |dir|
+      dockerfile = [
+        "FROM #{image_name}",
+        'RUN rm /usr/local/bin/red_amber_green.rb'
+      ].join("\n")
+      IO.write("#{dir}/Dockerfile", dockerfile)
+      shell.assert("docker build --tag #{image_stub} #{dir}")
+    end
 
-    assert stub.fired_once?
-    assert_200('run_cyber_dojo_sh')
-    assert_log_contains('command', 'docker exec')
-    assert_logged('stdout', 'fail')
-    assert_logged('stderr', '')
-    assert_logged('status', 1)
-    assert_gcc_starting
+    begin
+      args = run_cyber_dojo_sh_args
+      args['manifest']['image_name'] = image_stub
+      env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
+      rack_call(env)
+
+      assert_200('run_cyber_dojo_sh')
+      expected_stdout = ''
+      expected_stderr = "cat: /usr/local/bin/red_amber_green.rb: No such file or directory\n"
+      expected_status = 1
+      assert_logged('stdout', expected_stdout)
+      assert_logged('stderr', expected_stderr)
+      assert_logged('status', expected_status)
+    ensure
+      shell.assert("docker image rm #{image_stub}")
+    end
   end
 
   # - - - - - - - - - - - - - - - - -
