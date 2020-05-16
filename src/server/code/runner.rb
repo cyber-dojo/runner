@@ -18,15 +18,15 @@ class Runner
     @externals = externals
   end
 
-  def alive?(_args={})
+  def alive?(_={})
     { 'alive?' => true }
   end
 
-  def ready?(_args={})
+  def ready?(_={})
     { 'ready?' => true }
   end
 
-  def sha(_args={})
+  def sha(_={})
     { 'sha' => ENV['SHA'] }
   end
 
