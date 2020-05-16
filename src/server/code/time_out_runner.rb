@@ -79,6 +79,8 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
+    # prepare the output pipe
+    r_stdout, w_stdout = IO.pipe
     # prepare the input pipe
     files_in = sandboxed(files)
     files_in[unrooted(MAIN_SH_PATH)] = main_sh
@@ -86,8 +88,6 @@ class TimeOutRunner
     w_stdin.write(into_tgz(files_in))
     w_stdin.close
     files_in.delete(unrooted(MAIN_SH_PATH))
-    # prepare the output pipe
-    r_stdout, w_stdout = IO.pipe
 
     stdout,timed_out = nil,nil
     command = docker_run_cyber_dojo_sh_command
@@ -108,17 +108,17 @@ class TimeOutRunner
       r_stdout.close
     end
 
-    sss,_files_out = *from_tgz(stdout)
-    #created,deleted,changed = *files_delta(files_in, files_out)
+    sss,files_out = *from_tgz(stdout)
+    created,deleted,changed = *files_delta(files_in, files_out)
 
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],
       stderr: sss['stderr'],
       status: sss['status']['content'].to_i,
-      timed_out: timed_out
-      #created:created,
-      #deleted:deleted,
-      #changed:changed
+      timed_out: timed_out,
+      created: unsandboxed(created),
+      deleted: unsandboxed(deleted).keys.sort,
+      changed: unsandboxed(changed)
     }
   end
 
@@ -130,6 +130,7 @@ class TimeOutRunner
   end
 
   def sandboxed(files)
+    # 'hiker.cs' ==> 'sandbox/hiker.cs'
     files.keys.each_with_object({}) do |filename,h|
       h["#{unrooted(SANDBOX_DIR)}/#{filename}"] = files[filename]
     end
@@ -140,17 +141,26 @@ class TimeOutRunner
     path[1..-1]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def from_tgz(tgz)
-    sss,files = {},{}
+    sss,sandbox = {},{}
     reader = Tar::Reader.new(Gnu.unzip(tgz))
     reader.files.each do |filename,content|
       if %w( stdout stderr status ).include?(filename)
         sss[filename] = packaged(content)
       else
-        files[filename] = packaged(content)
+        sandbox[filename] = packaged(content)
       end
     end
-    [sss,files]
+    [ sss, sandbox ]
+  end
+
+  def unsandboxed(files)
+    # 'sandbox/hiker.cs' ==> 'hiker.cs'
+    files.keys.each_with_object({}) do |filename,h|
+      h[filename[SANDBOX_DIR.size..-1]] = files[filename]
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -433,6 +443,8 @@ class TimeOutRunner
   # process helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  KILL_SIGNAL = 9
+
   def Process_kill_group(pid)
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
@@ -444,8 +456,6 @@ class TimeOutRunner
     # There may no longer be a process at pid (timeout race).
     # If not, you get an exception Errno::ESRCH: No such process
   end
-
-  KILL_SIGNAL = 9
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
