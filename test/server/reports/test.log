@@ -1,323 +1,40 @@
-Run options: --seed 58904
+Run options: --seed 40213
 
 # Running:
 
-............./tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-.Expected false to be truthy.
-F.Expected false to be truthy.
-F/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-.........info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7426"
-Finfo.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7425"
-Fcolour.
-Expected: "green"
-  Actual: "faulty"
-Fcolour.
-Expected: "amber"
-  Actual: "faulty"
-Fcolour.
-Expected: "green"
-  Actual: "faulty"
-Fcolour.
-Expected: "red"
-  Actual: "faulty"
-F..colour.
-Expected: "red"
-  Actual: "faulty"
-Finfo.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call is 'orange' which is not 'red'|'amber'|'green'"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7424"
-Fcolour.
-Expected: "amber"
-  Actual: "faulty"
-Finfo.
---- expected
-+++ actual
-@@ -1 +1 @@
--"eval(rag_lambda) raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7427"
-F{
-  "command": "docker exec                                          --user=41966:51966                               cyber_dojo_runner_7B7421_aye9ZVwn                                  bash -c                                              '                          `# open quote`          [ -f /usr/local/bin/red_amber_green.rb ] && cp /usr/local/bin/red_amber_green.rb /sandbox/shLVCA3TmKSYNsiKcvvRVw  `# [1]`                 |                                                  tar                                                  -C                                                 /sandbox                                     -zcf                     `# create tgz file`       -                        `# write to stdout`       --verbatim-files-from    `# [2]`                   -T                       `# using filenames`       -                        `# from stdin`          '                          `# close quote`",
-  "stdout": "",
-  "stderr": "",
-  "status": 1
-}.info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"eval(rag_lambda) raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7428"
-Finfo.
---- expected
-+++ actual
-@@ -1 +1 @@
--"eval(rag_lambda) raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7422"
-Finfo.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7423"
-F........colour.
-Expected: "red"
-  Actual: "faulty"
-F.....................jq: Unknown option -JPlOLNY7yt_fFndapHwIg
-Use jq --help for help with command-line options,
-or see the jq manpage, or online docs  at https://stedolan.github.io/jq
-Expected: ["-JPlOLNY7yt_fFndapHwIg"]
-  Actual: []
-F..jq: Unknown option -JPlOLNY7yt_fFndapHwIg
-Use jq --help for help with command-line options,
-or see the jq manpage, or online docs  at https://stedolan.github.io/jq
-Expected: ["-JPlOLNY7yt_fFndapHwIg"]
-  Actual: []
-F.....present.
-Expected: ["large_file.txt"]
-  Actual: []
-F........................Expected false to be truthy.
-F............SimpleCov failed with exit 1
+Expected false to be truthy.
+FExpected false to be truthy.
+FSimpleCov failed with exit 1
 
-Finished in 134.150216s, 0.8871 runs/s, 7.7972 assertions/s.
+Finished in 6.142150s, 0.3256 runs/s, 0.3256 assertions/s.
 
   1) Failure:
 BombRobustNessTest#test_
 id='62B'
-os=Ubuntu
+os=Alpine
 'a crippled container, eg from a fork-bomb, returns everything unchanged' [/test/server/feature_bomb_robustness_test.rb:70]:
 Expected false to be truthy.
 
   2) Failure:
 BombRobustNessTest#test_
 id='62B'
-os=Alpine
+os=Ubuntu
 'a crippled container, eg from a fork-bomb, returns everything unchanged' [/test/server/feature_bomb_robustness_test.rb:70]:
 Expected false to be truthy.
 
-  3) Failure:
-TrafficLightTest#test_
-id='426'
-os=Alpine
-'when the rag-lambda has too many parameters, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:212]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7426"
+2 runs, 2 assertions, 2 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3762 / 8236 LOC (45.68%) covered.
 
 
-  4) Failure:
-TrafficLightTest#test_
-id='425'
-os=Alpine
-'when the rag-lambda has too few parameters, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:187]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7425"
 
-
-  5) Failure:
-TrafficLightTest#test_
-id='9DD'
-os=Alpine
-'green traffic-light, no diagnostics' [/test/server/feature_traffic_light_test.rb:62]:
-colour.
-Expected: "green"
-  Actual: "faulty"
-
-  6) Failure:
-TrafficLightTest#test_
-id='9DC'
-os=Alpine
-'amber traffic-light, no diagnostics' [/test/server/feature_traffic_light_test.rb:53]:
-colour.
-Expected: "amber"
-  Actual: "faulty"
-
-  7) Failure:
-TrafficLightTest#test_
-id='9DD'
-os=Ubuntu
-'green traffic-light, no diagnostics' [/test/server/feature_traffic_light_test.rb:62]:
-colour.
-Expected: "green"
-  Actual: "faulty"
-
-  8) Failure:
-TrafficLightTest#test_
-id='9DB'
-os=Alpine
-'red traffic-light, no diagnostics' [/test/server/feature_traffic_light_test.rb:44]:
-colour.
-Expected: "red"
-  Actual: "faulty"
-
-  9) Failure:
-TrafficLightTest#test_
-id='9DB'
-os=Ubuntu
-'red traffic-light, no diagnostics' [/test/server/feature_traffic_light_test.rb:44]:
-colour.
-Expected: "red"
-  Actual: "faulty"
-
- 10) Failure:
-TrafficLightTest#test_
-id='424'
-os=Alpine
-'when the rag-lambda returns non red/amber/green, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:162]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call is 'orange' which is not 'red'|'amber'|'green'"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7424"
-
-
- 11) Failure:
-TrafficLightTest#test_
-id='9DC'
-os=Ubuntu
-'amber traffic-light, no diagnostics' [/test/server/feature_traffic_light_test.rb:53]:
-colour.
-Expected: "amber"
-  Actual: "faulty"
-
- 12) Failure:
-TrafficLightTest#test_
-id='427'
-os=Alpine
-'when the rag-lambda has an eval SyntaxError exception, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:232]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"eval(rag_lambda) raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7427"
-
-
- 13) Failure:
-TrafficLightTest#test_
-id='428'
-os=Alpine
-'when the rag-lambda raises an Exception directly, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:251]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"eval(rag_lambda) raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7428"
-
-
- 14) Failure:
-TrafficLightTest#test_
-id='422'
-os=Alpine
-'when rag-lambda has an eval exception, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:114]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"eval(rag_lambda) raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7422"
-
-
- 15) Failure:
-TrafficLightTest#test_
-id='423'
-os=Alpine
-'when rag-lambda has a call exception, then the colour is faulty, and diagnostics are added to the json result' [/test/server/feature_traffic_light_test.rb:138]:
-info.
---- expected
-+++ actual
-@@ -1 +1 @@
--"rag_lambda.call raised an exception"
-+"no /usr/local/bin/red_amber_green.rb in runner_test_stub:7B7423"
-
-
- 16) Failure:
-TimedOutTest#test_
-id='B2A'
-os=Alpine
-'when timed_out is false, then the traffic-light colour is set' [/test/server/feature_timed_out_test.rb:18]:
-colour.
-Expected: "red"
-  Actual: "faulty"
-
- 17) Failure:
-ReturnedTextFilesTest#test_
-id='524'
-os=Ubuntu
-'created text-file filenames are returned even when their names have leading hyphens which could easily be read as a tar-pipe option' [/test/server/feature_returned_text_files_test.rb:20]:
-Expected: ["-JPlOLNY7yt_fFndapHwIg"]
-  Actual: []
-
- 18) Failure:
-ReturnedTextFilesTest#test_
-id='524'
-os=Alpine
-'created text-file filenames are returned even when their names have leading hyphens which could easily be read as a tar-pipe option' [/test/server/feature_returned_text_files_test.rb:20]:
-Expected: ["-JPlOLNY7yt_fFndapHwIg"]
-  Actual: []
-
- 19) Failure:
-LargeFileTruncationTest#test_
-id='52A'
-os=Alpine
-'generated text files bigger than 50K are truncated' [/test/server/feature_large_file_truncation_test.rb:28]:
-present.
-Expected: ["large_file.txt"]
-  Actual: []
-
- 20) Failure:
-RackDispatcherTest#test_
-id='AB6'
-os=Debian
-'run_cyber_dojo_sh with some logging' [/test/server/rack_dispatcher_test.rb:166]:
-Expected false to be truthy.
-
-119 runs, 1046 assertions, 20 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 4706 / 8228 LOC (57.19%) covered.
-
-Slowest 5 tests are...
-5.5276 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
-3.8930 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-3.7104 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
-3.5343 - 7B7421:feature_traffic_light_test.rb:68:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
-3.2198 - 1B5DB3:feature_bomb_robustness_test.rb:48:file-handles quickly become exhausted
-3.0427 - E4A52B:feature_large_file_truncation_test.rb:38:source files bigger than 10K are not truncated
-
-
-                 failures |      20   <=     0 | [31m false [0m
+                 failures |       2   <=     0 | [31m false [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  134.15   <=   200 | [32m true [0m
-                    tests |     119   >=     1 | [32m true [0m
-      coverage(tested)[%] |   94.29   >=   100 | [31m false [0m
-      coverage(tester)[%] |   95.19   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.43   >=   2.4 | [32m true [0m
-      hits(tested/tester) |   14.58   >=   6.6 | [32m true [0m
+        duration(test)[s] |    6.14   <=   200 | [32m true [0m
+                    tests |       2   >=     1 | [32m true [0m
+      coverage(tested)[%] |   70.74   >=   100 | [31m false [0m
+      coverage(tester)[%] |   29.49   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.38   >=   2.4 | [31m false [0m
+      hits(tested/tester) |    1.84   >=   6.6 | [31m false [0m
 

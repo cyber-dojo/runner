@@ -330,6 +330,26 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def read_text_file_changes
+    docker_cat_rag_file =
+      <<~SHELL.strip
+      docker exec                                        \
+        --user=#{UID}:#{GID}                             \
+        #{container_name}                                \
+        cat /usr/local/bin/red_amber_green.rb
+      SHELL
+
+    stdout,stderr,status = shell.exec(docker_cat_rag_file)
+    if status === 0
+      rag_src = stdout
+    else
+      @result['diagnostic'] = { 'stderr' => stderr }
+      rag_src = nil
+    end
+    @result['rag_src'] = rag_src
+  end
+
+
+  def OLD_read_text_file_changes
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -349,6 +369,7 @@ class TimeOutRunner
         #{container_name}                                \
         bash -c                                          \
           '                          `# open quote`      \
+          echo /usr/local/bin/red_amber_green.rb         \
           #{copy_rag(rag_filename)}; `# [1]`             \
           source /tmp/echo_truncated_textfilenames.sh    \
           |                                              \
@@ -365,6 +386,7 @@ class TimeOutRunner
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
     # Be careful if you switch to shell.assert() here.
+
     stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = read_tar_file(Gnu.unzip(stdout))
