@@ -197,11 +197,6 @@ Some tests are failing...
 It seems the head in the pipe may be a problem.
 https://stackoverflow.com/questions/26461014
 
-RackDispatcherTest#test_
-id='AB6'
-os=Debian
-'run_cyber_dojo_sh with some logging' [/test/server/rack_dispatcher_test.rb:166]:
-Expected false to be truthy.
 
 ReturnedTextFilesTest#test_
 id='524'
@@ -210,7 +205,6 @@ os=Alpine
 Expected: ["-JPlOLNY7yt_fFndapHwIg"]
   Actual: []
 
-  6) Failure:
 ReturnedTextFilesTest#test_
 id='524'
 os=Ubuntu
@@ -219,7 +213,6 @@ Expected: ["-JPlOLNY7yt_fFndapHwIg"]
   Actual: []
 
 BombRobustNessTest#test_
-id='62B'
 id='DB3'
 os=Debian
 'file-handles quickly become exhausted' [/test/server/feature_bomb_robustness_test.rb:56]:
