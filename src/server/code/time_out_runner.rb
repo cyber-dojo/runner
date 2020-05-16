@@ -60,7 +60,7 @@ class TimeOutRunner
     create_container
     begin
       run
-      read_rag_lambda_file
+      read_traffic_light_file
       set_traffic_light
       @result
     ensure
@@ -281,13 +281,15 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_rag_lambda_file
+  def read_traffic_light_file
     docker_cat_rag_file =
       <<~SHELL.strip
-      docker exec                                        \
-        --user=#{UID}:#{GID}                             \
-        #{container_name}                                \
-        cat /usr/local/bin/red_amber_green.rb
+      docker run              \
+        --entrypoint=cat      \
+        --rm                  \
+        --user=#{UID}:#{GID}  \
+        #{image_name}         \
+        /usr/local/bin/red_amber_green.rb
       SHELL
 
     stdout,stderr,status = shell.exec(docker_cat_rag_file)
