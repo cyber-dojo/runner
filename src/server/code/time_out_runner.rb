@@ -34,24 +34,18 @@ class TimeOutRunner
     @externals = externals
     @id = id
     @files = files
+    @manifest = manifest
+    @image_name = manifest['image_name']
+    @max_seconds = manifest['max_seconds']
     # Add a random-id to the container name. A container-name
     # based on _only_ the id will fail when a container with
     # that id exists and is alive. Easily possible in tests.
     # Note that remove_container() backgrounds the [docker rm].
     random_id = HEX_DIGITS.shuffle[0,8].join
     @container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    @manifest = manifest
   end
 
-  attr_reader :id, :files, :container_name
-
-  def image_name
-    @manifest['image_name']
-  end
-
-  def max_seconds
-    @manifest['max_seconds']
-  end
+  attr_reader :id, :files, :image_name, :max_seconds, :container_name
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -85,14 +79,18 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
+    # prepare the input pipe
     files_in = sandboxed(files)
     files_in[unrooted(MAIN_SH_PATH)] = main_sh
-    command = main_docker_run_command
-    stdout,timed_out = nil,nil
-    r_stdin,  w_stdin  = IO.pipe
-    r_stdout, w_stdout = IO.pipe
+    r_stdin, w_stdin = IO.pipe
     w_stdin.write(into_tgz(files_in))
     w_stdin.close
+    files_in.delete(unrooted(MAIN_SH_PATH))
+    # prepare the output pipe
+    r_stdout, w_stdout = IO.pipe
+
+    stdout,timed_out = nil,nil
+    command = docker_run_cyber_dojo_sh_command
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
       Timeout::timeout(max_seconds) do # [Z]
@@ -103,6 +101,7 @@ class TimeOutRunner
       timed_out = true
       Process_kill_group(pid)
       Process_detach(pid)
+      # docker stop --time 1 container_name
     ensure
       w_stdout.close unless w_stdout.closed?
       stdout = r_stdout.read
@@ -110,7 +109,7 @@ class TimeOutRunner
     end
 
     sss,_files_out = *from_tgz(stdout)
-    #created,deleted,changed = *files_delta(files, files_out)
+    #created,deleted,changed = *files_delta(files_in, files_out)
 
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],
@@ -240,7 +239,7 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def main_docker_run_command
+  def docker_run_cyber_dojo_sh_command
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir (which must exist [X]) inside the container
     # and runs /sandbox/cyber-dojo.sh
