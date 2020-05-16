@@ -1,26 +1,26 @@
-Run options: --seed 14719
+Run options: --seed 41510
 
 # Running:
 
 ..
 
-Finished in 1.842918s, 1.0852 runs/s, 8.6819 assertions/s.
+Finished in 2.109446s, 0.9481 runs/s, 43.6133 assertions/s.
 
-2 runs, 16 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 3799 / 8205 LOC (46.3%) covered.
+2 runs, 92 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3848 / 8204 LOC (46.9%) covered.
 
 Slowest 1 tests are...
-0.8938 - E4A52A:feature_large_file_truncation_test.rb:12:generated text files bigger than 50K are truncated
+0.9622 - 3A8D98:feature_container_properties_test.rb:12:multiple container properties
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    1.84   <=   200 | [32m true [0m
+        duration(test)[s] |    2.11   <=   200 | [32m true [0m
                     tests |       2   >=     1 | [32m true [0m
       coverage(tested)[%] |   76.55   >=   100 | [31m false [0m
-      coverage(tester)[%] |   29.65   >=   100 | [31m false [0m
+      coverage(tester)[%] |    35.1   >=   100 | [31m false [0m
      lines(tester/tested) |    2.49   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    2.22   >=   6.6 | [31m false [0m
+      hits(tested/tester) |    1.65   >=   6.6 | [31m false [0m
 

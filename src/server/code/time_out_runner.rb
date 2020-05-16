@@ -8,26 +8,6 @@ require_relative 'utf8_clean'
 require 'securerandom'
 require 'timeout'
 
-# [X] Assumes image_name was built by image_builder with a
-# Dockerfile augmented by image_dockerfile_augmenter.
-#   https://github.com/cyber-dojo-tools/image_builder
-#   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
-
-# [Y] Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
-# and lop off the final extra byte.
-
-# [Z] If image_name is not present on the node, docker will
-# attempt to pull it. The browser's kata/run_tests ajax
-# call can timeout before the pull completes; this browser
-# timeout is different to the Runner.run() call timing out.
-
-# Approval-style test-frameworks compare actual-text against
-# expected-text held inside a 'golden-master' file and, if the
-# comparison fails, generate a file holding the actual-text
-# ready for human inspection. cyber-dojo supports this by
-# scanning for text files (generated inside the container)
-# under /sandbox after cyber-dojo.sh has run.
-
 class TimeOutRunner
 
   def initialize(externals, id, files, manifest)
@@ -67,10 +47,10 @@ class TimeOutRunner
   include FilesDelta
   include TrafficLight
 
-  SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
-
+  SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
+                            # not /home/sandbox; /sandbox is fast tmp-dir
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
@@ -169,19 +149,6 @@ class TimeOutRunner
   MAIN_SH_PATH = '/tmp/main.sh'
 
   def main_sh
-    # cyber-dojo.sh's stdout/stderr are now captured inside main.sh
-    # This means if run() times out before cyber-dojo.sh completes
-    # then STDOUT/STDERR won't be catted and hence no info will
-    # get back to the client (except timed_out=true).
-    #
-    # I tried limiting the size of stdout/stderr "in-place" using...
-    # bash ./cyber-dojo.sh \
-    #   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
-    #  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
-    # It seems a head in a pipe can cause problems! Tests failed.
-    # See https://stackoverflow.com/questions/26461014
-    # There is already a ulimit on files.
-    #
     # [X] truncate,file
     <<~SHELL.strip
       truncate_dont_extend()
@@ -253,25 +220,11 @@ class TimeOutRunner
 
   def docker_run_cyber_dojo_sh_command
     # Assumes a tgz of files on stdin. Untars this into the
-    # /sandbox/ dir (which must exist [X]) inside the container
-    # and runs /sandbox/cyber-dojo.sh
+    # /sandbox/ dir in the container and runs /sandbox/cyber-dojo.sh
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
     #     Untars files as this user to set their ownership.
     # [2] tar is installed [X].
-    # [3] tar has the --touch option installed [X].
-    #     (not true in a default Alpine container)
-    #     --touch means 'dont extract file modified time'
-    #     It relates to the files modification-date (stat %y).
-    #     Without it the untarred files may all end up with the same
-    #     modification date. With it, the untarred files have a
-    #     proper date-time file-stamp in all supported OS's.
-    # [4] tar date-time file-stamps have a granularity < 1 second [X].
-    #     In a default Alpine container the date-time file-stamps
-    #     have a granularity of one second; viz, the microseconds
-    #     value is always zero.
-    # [5] Don't use [docker exec --workdir] as that requires API version
-    #     1.35 but CircleCI is currently using Docker Daemon API 1.32
     <<~SHELL.strip
       docker exec                                     \
         --interactive            `# piping stdin`     \
@@ -281,11 +234,10 @@ class TimeOutRunner
           '                      `# open quote`       \
           tar                    `# [2]`              \
             -C /                                      \
-            --touch              `# [3][4]`           \
             -zxf                 `# extract tgz file` \
             -                    `# read from stdin`  \
           &&                                          \
-          bash #{MAIN_SH_PATH}   `# [5]`              \
+          bash #{MAIN_SH_PATH}                        \
           '                      `# close quote`
     SHELL
   end
@@ -500,3 +452,39 @@ class TimeOutRunner
   SPACE = ' '
 
 end
+
+#---------------------------------------------------------------
+# Notes
+#
+# [X] Assumes image_name was built by image_builder with a
+# Dockerfile augmented by image_dockerfile_augmenter.
+#   https://github.com/cyber-dojo-tools/image_builder
+#   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+#
+# [Y] Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
+# and lop off the final extra byte.
+#
+# [Z] If image_name is not present on the node, docker will
+# attempt to pull it. The browser's kata/run_tests ajax
+# call can timeout before the pull completes; this browser
+# timeout is different to the Runner.run() call timing out.
+#
+# Approval-style test-frameworks compare actual-text against
+# expected-text held inside a 'golden-master' file and, if the
+# comparison fails, generate a file holding the actual-text
+# ready for human inspection. cyber-dojo supports this by
+# scanning for text files (generated inside the container)
+# under /sandbox after cyber-dojo.sh has run.
+#
+# cyber-dojo.sh's stdout/stderr are now captured inside main.sh
+# This means if run() times out before cyber-dojo.sh completes
+# then (currently) STDOUT/STDERR won't be catted and hence no info
+# will get back to the client (except timed_out=true).
+#
+# I tried limiting the size of stdout/stderr "in-place" using...
+# bash ./cyber-dojo.sh \
+#   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
+#  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
+# It seems a head in a pipe can cause problems! Tests failed.
+# See https://stackoverflow.com/questions/26461014
+# There is already a ulimit on files.

@@ -83,14 +83,9 @@ class ContainerPropertiesTest < TestBase
       assert_equal          uid, stat[:uid        ], diagnostic
       assert_equal        group, stat[:group      ], diagnostic
       assert_equal content.size, stat[:size       ], diagnostic
-      # On _default_ Alpine date-time file-stamps are to
-      # the second granularity. In other words, the
-      # microseconds value is always '000000000'.
-      # Make sure this had been upgraded.
       stamp = stat[:time] # eg '07:03:14.835233538'
       microsecs = stamp.split(/[\:\.]/)[-1]
       assert_equal 9, microsecs.length, :microsecs_length
-      refute_equal '0'*9, microsecs, :microsecs_not_zero
     end
   end
 
