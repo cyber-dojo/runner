@@ -53,11 +53,13 @@ class TimeOutRunner
     r_stdout, w_stdout = IO.pipe
     # prepare the input pipe
     files_in = sandboxed(files)
+    files_in[unrooted(TEXT_FILENAMES_SH_PATH)] = text_filenames_sh
     files_in[unrooted(MAIN_SH_PATH)] = main_sh
     r_stdin, w_stdin = IO.pipe
     w_stdin.write(into_tgz(files_in))
     w_stdin.close
     files_in.delete(unrooted(MAIN_SH_PATH))
+    files_in.delete(unrooted(TEXT_FILENAMES_SH_PATH))
 
     stdout,timed_out = nil,nil
     command = docker_run_cyber_dojo_sh_command
@@ -149,11 +151,31 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  MAIN_SH_PATH = '/tmp/main.sh'
+  TEXT_FILENAMES_SH_PATH = '/tmp/text_filenames.sh'
 
-  def main_sh
+  def text_filenames_sh
     # [X] truncate,file
+    # grep -q is --quiet, we are generating text file names.
+    # grep -v is --invert-match
+    # file incorrectly reports very small files as binary.
+    # tar does not like absolute pathnames so strip leading /
     <<~SHELL.strip
+      text_filenames()
+      {
+        find #{SANDBOX_DIR} -type f -exec \\
+          bash -c "is_truncated_text_file {} && unrooted {}" \\;
+      }
+      is_truncated_text_file()
+      {
+        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+          truncate_dont_extend "${1}"
+          true
+        elif [ $(stat -c%s "${1}") -lt 2 ]; then
+          true
+        else
+          false
+        fi
+      }
       truncate_dont_extend()
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
@@ -162,34 +184,26 @@ class TimeOutRunner
           touch "${1}"
         fi
       }
-      is_truncated_text_file()
-      {
-        # grep -q is --quiet, we are generating text file names.
-        # grep -v is --invert-match
-        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-          truncate_dont_extend "${1}"
-          true
-        elif [ $(stat -c%s "${1}") -lt 2 ]; then
-          # file incorrectly reports very small files as binary.
-          true
-        else
-          false
-        fi
-      }
       unrooted()
       {
-        # Tar does not like absolute pathnames so strip leading /
         echo "${1:1}"
       }
       export -f truncate_dont_extend
       export -f is_truncated_text_file
       export -f unrooted
-      text_filenames()
-      {
-        find #{SANDBOX_DIR} -type f -exec \\
-          bash -c "is_truncated_text_file {} && unrooted {}" \\;
-      }
+      SHELL
+  end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  MAIN_SH_PATH = '/tmp/main.sh'
+
+  def main_sh
+    # [X] truncate,file
+    # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
+    # 2nd tar: -C / so sandbox files are pathed
+    <<~SHELL.strip
+      source #{TEXT_FILENAMES_SH_PATH}
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
       STDOUT=stdout
       STDERR=stderr
@@ -205,16 +219,8 @@ class TimeOutRunner
       truncate_dont_extend "${TMP_DIR}/${STDERR}"
 
       TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
-
-      # -C TMP_DIR so stdout/stderr/status are NOT pathed
-      tar -rf "${TAR_FILE}" -C "${TMP_DIR}" \
-        "${STDOUT}" \
-        "${STDERR}" \
-        "${STATUS}"
-
-      # -C / so sandbox files ARE pathed
+      tar -rf "${TAR_FILE}" -C "${TMP_DIR}" "${STDOUT}" "${STDERR}" "${STATUS}"
       text_filenames | tar -C / -rf ${TAR_FILE} -T -
-
       gzip -c "${TAR_FILE}"
       SHELL
   end
