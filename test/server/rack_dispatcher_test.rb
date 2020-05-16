@@ -303,14 +303,6 @@ class RackDispatcherTest < TestBase
     assert_equal value, json[key], @stdout
   end
 
-  def assert_log_contains(key, value)
-    refute_nil @stdout
-    json = JSON.parse(@stdout)
-    diagnostic = "log does not contain key:#{key}\n#{@stdout}"
-    assert json.has_key?(key), diagnostic
-    assert json[key].include?(value), @stdout
-  end
-
   # - - - - - - - - - - - - - - - - -
 
   def assert_gcc_starting

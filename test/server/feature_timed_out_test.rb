@@ -45,7 +45,7 @@ class TimedOutTest < TestBase
   c_assert_test '4D7', %w(
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output on stdout
-  the captured stdout never gets catted
+  the captured stdout never gets sent
   and timed_out is true,
   and the traffic-light colour is not set
   ) do

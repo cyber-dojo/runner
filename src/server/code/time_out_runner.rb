@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require_relative 'files_delta'
 require_relative 'gnu_zip'
+require_relative 'gnu_unzip'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'traffic_light'
@@ -88,9 +89,16 @@ class TimeOutRunner
       r_stdout.close
     end
 
-    # TODO: Exception: not in gzip format
-    sss,files_out = *from_tgz(stdout)
-    created,deleted,changed = *files_delta(files_in, files_out)
+    begin
+      sss,files_out = *from_tgz(stdout)
+      created,deleted,changed = *files_delta(files_in, files_out)
+    rescue Zlib::GzipFile::Error
+      sss = { 'stdout' => packaged(''),
+              'stderr' => packaged(''),
+              'status' => { 'content' => '127' }
+            }
+      created,deleted,changed = {},{},{}
+    end
 
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],

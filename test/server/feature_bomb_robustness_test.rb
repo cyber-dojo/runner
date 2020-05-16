@@ -18,9 +18,9 @@ class BombRobustNessTest < TestBase
       })
     }
     assert timed_out? ||
-          printed?('fork()') ||
-            daemon_error? ||
-              no_such_container_error?, result
+      printed?('fork()') ||
+        daemon_error? ||
+          no_such_container_error?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +33,6 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-
     cant_fork = (os === :Alpine ? "can't fork" : 'Cannot fork')
     assert \
       timed_out? ||
@@ -53,7 +52,7 @@ class BombRobustNessTest < TestBase
         max_seconds: 3
       })
     }
-    #refute timed_out?, result
+    refute timed_out?, result
     #assert stdout.include?('fopen() != NULL'), result
     #assert_equal '', stderr gcov error
     #assert_equal 0, status
