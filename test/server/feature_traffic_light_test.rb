@@ -80,7 +80,9 @@ class TrafficLightTest < TestBase
       shell.assert("docker build --tag #{image_stub} #{dir}")
     end
     begin
-      run_cyber_dojo_sh({image_name:image_stub})
+      with_captured_log {
+        run_cyber_dojo_sh({image_name:image_stub})
+      }
       expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_stub}"
       assert_equal 'faulty', colour
       assert_equal image_stub, diagnostic['image_name'], :image_name

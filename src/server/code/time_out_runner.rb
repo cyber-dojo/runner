@@ -164,6 +164,8 @@ class TimeOutRunner
     path[1..-1]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   MAIN_SH_PATH = '/tmp/main.sh'
 
   def main_sh
