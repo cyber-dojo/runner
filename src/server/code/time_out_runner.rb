@@ -82,10 +82,7 @@ class TimeOutRunner
       sss,files_out = *from_tgz(stdout)
       created,deleted,changed = *files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
-      sss = { 'stdout' => packaged(''),
-              'stderr' => packaged(''),
-              'status' => { 'content' => '42' }
-            }
+      sss = empty_sss
       created,deleted,changed = {},{},{}
     end
 
@@ -97,6 +94,15 @@ class TimeOutRunner
       created: unsandboxed(created),
       deleted: unsandboxed(deleted).keys.sort,
       changed: unsandboxed(changed)
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def empty_sss
+    { 'stdout' => packaged(''),
+      'stderr' => packaged(''),
+      'status' => { 'content' => '42' }
     }
   end
 
