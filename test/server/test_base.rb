@@ -20,7 +20,7 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    @runner ||= Runner.new(externals)
+    Runner.new(externals)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
