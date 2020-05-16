@@ -215,7 +215,8 @@ class TimeOutRunner
       export -f unrooted
       text_filenames()
       {
-        find #{SANDBOX_DIR} -type f -exec bash -c "is_truncated_text_file {} && unrooted {}" \\;
+        find #{SANDBOX_DIR} -type f -exec \\
+          bash -c "is_truncated_text_file {} && unrooted {}" \\;
       }
 
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)

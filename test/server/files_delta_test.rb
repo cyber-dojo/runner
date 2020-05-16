@@ -12,7 +12,7 @@ class FilesDeltaTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'E76', %w( unchanged content) do
+  test 'E76', %w( unchanged content ) do
     was_files = { 'wibble.txt' => 'hello' }
     now_files = { 'wibble.txt' => intact('hello') }
     created,deleted,changed = files_delta(was_files, now_files)
