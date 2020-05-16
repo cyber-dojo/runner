@@ -32,15 +32,15 @@ class TimeOutRunner
 
   def run_cyber_dojo_sh
     @result = {}
-    create_container
-    begin
+    #create_container
+    #begin
       run
       read_traffic_light_file
       set_traffic_light
       @result
-    ensure
-      remove_container
-    end
+    #ensure
+    #  remove_container
+    #end
   end
 
   private
@@ -79,10 +79,10 @@ class TimeOutRunner
         timed_out = false
       end
     rescue Timeout::Error
-      timed_out = true
+      shell.exec(docker_stop_command)
       Process_kill_group(pid)
       Process_detach(pid)
-      # TODO: docker stop --time 1 container_name
+      timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       stdout = r_stdout.read
@@ -95,7 +95,7 @@ class TimeOutRunner
     rescue Zlib::GzipFile::Error
       sss = { 'stdout' => packaged(''),
               'stderr' => packaged(''),
-              'status' => { 'content' => '127' }
+              'status' => { 'content' => '42' }
             }
       created,deleted,changed = {},{},{}
     end
@@ -226,27 +226,28 @@ class TimeOutRunner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def docker_stop_command
+    "docker stop --time 1 #{container_name}"
+  end
+
   def docker_run_cyber_dojo_sh_command
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir in the container and runs /sandbox/cyber-dojo.sh
-    #
-    # [1] The uid/gid are for the user/group called sandbox [X].
-    #     Untars files as this user to set their ownership.
-    # [2] tar is installed [X].
     <<~SHELL.strip
-      docker exec                                     \
-        --interactive            `# piping stdin`     \
-        --user=#{UID}:#{GID}     `# [1]`              \
-        #{container_name}                             \
-        bash -c                                       \
-          '                      `# open quote`       \
-          tar                    `# [2]`              \
-            -C /                                      \
-            -zxf                 `# extract tgz file` \
-            -                    `# read from stdin`  \
-          &&                                          \
-          bash #{MAIN_SH_PATH}                        \
-          '                      `# close quote`
+      docker run                              \
+        #{docker_run_options(image_name, id)} \
+        --interactive                         \
+        --name=#{container_name}              \
+        #{image_name}                         \
+        bash -c                               \
+          '                                   \
+          tar                                 \
+            -C /                              \
+            -zxf                              \
+            -                                 \
+          &&                                  \
+          bash #{MAIN_SH_PATH}                \
+          '
     SHELL
   end
 
@@ -277,6 +278,7 @@ class TimeOutRunner
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
+=begin
   def create_container
     docker_run_command = [
       'docker run',
@@ -291,13 +293,13 @@ class TimeOutRunner
     # the docker_run_options.
     shell.assert(docker_run_command)
   end
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def remove_container
     # Backgrounded for a small speed-up.
     shell.exec("docker rm #{container_name} --force &")
   end
+=end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -310,12 +312,13 @@ class TimeOutRunner
       #{TMP_FS_TMP_DIR}                                \
       #{ulimits(image_name)}                           \
       --cap-add=SYS_PTRACE      `# [1]`                \
-      --detach                  `# later docker execs` \
       --init                    `# pid-1 process [2]`  \
       --rm                      `# auto rm on exit`    \
-      --user=#{UID}:#{GID}      `# not root`
+      --user=#{UID}:#{GID}      `# not root [X]`
     SHELL
   end
+
+  # --detach                  `# later docker execs` \
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -356,7 +359,7 @@ class TimeOutRunner
     #   So...
     #     [1] set exec to make binaries and scripts executable.
     #     [2] limit size of tmp-fs.
-    #     [3] set ownership.
+    #     [3] set ownership [X]
 
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
