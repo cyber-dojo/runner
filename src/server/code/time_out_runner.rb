@@ -53,8 +53,8 @@ class TimeOutRunner
     r_stdout, w_stdout = IO.pipe
     # prepare the input pipe
     files_in = sandboxed(files)
-    files_in[unrooted(TEXT_FILENAMES_SH_PATH)] = text_filenames_sh
-    files_in[unrooted(MAIN_SH_PATH)] = main_sh
+    files_in[unrooted(TEXT_FILENAMES_SH_PATH)] = TEXT_FILENAMES_SH
+    files_in[unrooted(MAIN_SH_PATH)] = MAIN_SH
     r_stdin, w_stdin = IO.pipe
     w_stdin.write(into_tgz(files_in))
     w_stdin.close
@@ -153,12 +153,12 @@ class TimeOutRunner
 
   TEXT_FILENAMES_SH_PATH = '/tmp/text_filenames.sh'
 
-  def text_filenames_sh
-    # [X] truncate,file
-    # grep -q is --quiet, we are generating text file names.
-    # grep -v is --invert-match
-    # file incorrectly reports very small files as binary.
-    # tar does not like absolute pathnames so strip leading /
+  # [X] truncate,file
+  # grep -q is --quiet, we are generating text file names.
+  # grep -v is --invert-match
+  # file incorrectly reports very small files as binary.
+  # tar does not like absolute pathnames so strip leading /
+  TEXT_FILENAMES_SH =
     <<~SHELL.strip
       text_filenames()
       {
@@ -192,16 +192,15 @@ class TimeOutRunner
       export -f is_truncated_text_file
       export -f unrooted
       SHELL
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   MAIN_SH_PATH = '/tmp/main.sh'
 
-  def main_sh
-    # [X] truncate,file
-    # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
-    # 2nd tar: -C / so sandbox files are pathed
+  # [X] truncate,file
+  # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
+  # 2nd tar: -C / so sandbox files are pathed
+  MAIN_SH =
     <<~SHELL.strip
       source #{TEXT_FILENAMES_SH_PATH}
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
@@ -223,7 +222,6 @@ class TimeOutRunner
       text_filenames | tar -C / -rf ${TAR_FILE} -T -
       gzip -c "${TAR_FILE}"
       SHELL
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
