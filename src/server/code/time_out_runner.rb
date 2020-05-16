@@ -18,29 +18,18 @@ class TimeOutRunner
     @manifest = manifest
     @image_name = manifest['image_name']
     @max_seconds = manifest['max_seconds']
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id exists and is alive. Easily possible in tests.
-    # Note that remove_container() backgrounds the [docker rm].
-    random_id = HEX_DIGITS.shuffle[0,8].join
-    @container_name = ['cyber_dojo_runner', id, random_id].join('_')
   end
 
-  attr_reader :id, :files, :image_name, :max_seconds, :container_name
+  attr_reader :id, :files, :image_name, :max_seconds
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh
     @result = {}
-    #create_container
-    #begin
-      run
-      read_traffic_light_file
-      set_traffic_light
-      @result
-    #ensure
-    #  remove_container
-    #end
+    run
+    read_traffic_light_file
+    set_traffic_light
+    @result
   end
 
   private
@@ -278,28 +267,18 @@ class TimeOutRunner
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
-=begin
-  def create_container
-    docker_run_command = [
-      'docker run',
-        "--name=#{container_name}",
-        docker_run_options(image_name, id),
-        image_name,
-          "bash -c 'sleep #{max_seconds+2}'"
-    ].join(SPACE)
-    # This shell.assert will catch errors in the 'outer' docker-run
-    # command but not errors in the 'inner' sleep command. For example,
-    # if the container has no bash [X]. Note that --detach is one of
-    # the docker_run_options.
-    shell.assert(docker_run_command)
+  def container_name
+    # Add a random-id to the container name. A container-name
+    # based on _only_ the id will fail when a container with
+    # that id exists and is alive. Easily possible in tests.
+    @container_name ||= ['cyber_dojo_runner', id, random_id].join('_')
   end
-  # - - - - - - - - - - - - - - - - - - - - - -
 
-  def remove_container
-    # Backgrounded for a small speed-up.
-    shell.exec("docker rm #{container_name} --force &")
+  def random_id
+    HEX_DIGITS.shuffle[0,8].join
   end
-=end
+
+  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -318,8 +297,6 @@ class TimeOutRunner
     SHELL
   end
 
-  # --detach                  `# later docker execs` \
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_vars(image_name, id)
@@ -333,7 +310,7 @@ class TimeOutRunner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_var(name, value)
-    # Note: value must not contain a single-quote
+    # Note: value must not contain single-quotes
     "--env CYBER_DOJO_#{name}='#{value}'"
   end
 
@@ -414,8 +391,8 @@ class TimeOutRunner
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
     # cyber-dojo.sh process running _inside_ the docker
-    # container. The container is killed by remove_container()
-    # with a fall-back via [docker run]'s --rm option.
+    # container. The container is killed by the docker-daemon
+    # via [docker run]'s --rm option.
     Process.kill(-KILL_SIGNAL, pid) # -ve means kill process-group
   rescue Errno::ESRCH
     # There may no longer be a process at pid (timeout race).
@@ -459,7 +436,6 @@ class TimeOutRunner
     @externals.shell
   end
 
-  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
   SPACE = ' '
 
 end

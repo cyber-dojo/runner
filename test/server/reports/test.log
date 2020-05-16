@@ -1,40 +1,26 @@
-Run options: --seed 46092
+Run options: --seed 30258
 
 # Running:
 
-............................................................................tar: stdout: file changed as we read it
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-../tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-.................................
+..
 
-Finished in 96.901206s, 1.1455 runs/s, 11.1144 assertions/s.
+Finished in 4.611309s, 0.4337 runs/s, 1.3011 assertions/s.
 
-111 runs, 1077 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 4638 / 8198 LOC (56.57%) covered.
+2 runs, 6 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3776 / 8200 LOC (46.05%) covered.
 
-Slowest 5 tests are...
-3.4841 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
-3.4246 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
-3.1850 - 7B7421:feature_traffic_light_test.rb:47:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
-3.1484 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-2.9592 - 7B7426:feature_traffic_light_test.rb:176:when the rag-lambda has too many parameters, then the colour is faulty, and diagnostics are added to the json result
-2.9513 - 7B7422:feature_traffic_light_test.rb:80:when rag-lambda has an eval exception, then the colour is faulty, and diagnostics are added to the json result
+Slowest 1 tests are...
+1.8889 - 7B79DD:feature_traffic_light_test.rb:38:green traffic-light, no diagnostics
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    96.9   <=   200 | [32m true [0m
-                    tests |     111   >=     1 | [32m true [0m
-      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
-      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.48   >=   2.4 | [32m true [0m
-      hits(tested/tester) |   13.53   >=   6.6 | [32m true [0m
+        duration(test)[s] |    4.61   <=   200 | [32m true [0m
+                    tests |       2   >=     1 | [32m true [0m
+      coverage(tested)[%] |   74.73   >=   100 | [31m false [0m
+      coverage(tester)[%] |    29.3   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.47   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.99   >=   6.6 | [31m false [0m
 
