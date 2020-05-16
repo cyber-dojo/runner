@@ -8,27 +8,6 @@ class TrafficLightTest < TestBase
     '7B7'
   end
 
-=begin
-  test '429', %w(
-  when the base-os is Ubuntu 16.04,
-  then the colour is faulty,
-  and diagnostics are added to the json result,
-  stating the file command was not found,
-  stating --verbatim-files-from is an unrecognized tar option
-  ) do
-    log = with_captured_log {
-      run_cyber_dojo_sh({image_name:'ubuntu:16.04'})
-    }
-    assert_equal 'faulty', colour, :colour
-    no_file_msg = 'bash: file: command not found'
-    no_tar_verbatim_msg = "tar: unrecognized option '--verbatim-files-from'"
-    assert log.include?(no_file_msg), log
-    assert diagnostic['stderr'].include?(no_file_msg), diagnostic
-    assert log.include?(no_tar_verbatim_msg), log
-    assert diagnostic['stderr'].include?(no_tar_verbatim_msg), diagnostic
-  end
-=end
-
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '9DA', %w( stdout is not being whitespace stripped ) do
