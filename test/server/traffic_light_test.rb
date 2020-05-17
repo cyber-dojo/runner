@@ -44,6 +44,13 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test 'CB0', %w( status is an integer ) do
+    gcc_assert = 'cyberdojofoundation/gcc_assert'
+    assert_equal 'green', externals.traffic_light.colour(gcc_assert, '', '', '0')
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test 'CB4', %w(
   image_name without a rag-lambda file always gives colour==faulty
   ) do

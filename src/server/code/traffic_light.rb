@@ -47,10 +47,9 @@ class TrafficLight
   COLOURS =
 
   def wrapped(image_name, bulb)
-    #puts "Populating traffic_light @map for #{image_name}"
     lambda { |stdout,stderr,status|
       begin
-        colour = bulb.call(stdout,stderr,status)
+        colour = bulb.call(stdout,stderr,status.to_i)
         if is_working?(colour)
           colour.to_s
         else

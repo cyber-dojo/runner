@@ -1,31 +1,31 @@
-Run options: --seed 57526
+Run options: --seed 43831
 
 # Running:
 
 ...............................
 
-Finished in 32.929274s, 0.9414 runs/s, 4.4945 assertions/s.
+Finished in 24.934108s, 1.2433 runs/s, 5.9356 assertions/s.
 
 31 runs, 148 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 2481 / 4330 LOC (57.3%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 2483 / 4332 LOC (57.32%) covered.
 
 Slowest 5 tests are...
-8.2285 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
-3.7129 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-2.4255 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
-2.4187 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
-1.9106 - 46D3DB:large_file_test.rb:12:run with very large file                   
-1.8409 - 14D2F5:run_cyber_dojo_sh_test.rb:11:call to existing method with bad argument type becomes RunnerService::Error
+5.1591 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
+3.4316 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
+2.4887 - 46D3DB:large_file_test.rb:12:run with very large file                   
+1.8906 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
+1.5978 - 14D2F5:run_cyber_dojo_sh_test.rb:11:call to existing method with bad argument type becomes RunnerService::Error
+1.5908 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   32.93   <=    50 | [32m true [0m
+        duration(test)[s] |   24.93   <=    50 | [32m true [0m
                     tests |      31   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.65   >=   2.5 | [32m true [0m
-      hits(tested/tester) |    6.85   >=   6.5 | [32m true [0m
+      hits(tested/tester) |    6.96   >=   6.5 | [32m true [0m
 
