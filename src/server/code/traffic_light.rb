@@ -9,7 +9,7 @@ module TrafficLight
     end
 
     rag_src = @result['rag_src']
-    
+
     if rag_src.nil?
       @result.merge!({ 'colour' => 'faulty' })
       @result['diagnostic'] ||= {}
