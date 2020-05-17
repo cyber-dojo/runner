@@ -218,8 +218,7 @@ class Runner
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
       TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
       STATUS=137 # 128+9
-      trap cyber_done EXIT
-      function cyber_done() { zip_sss; zip_sandbox; send_tgz; }
+      trap "zip_sss; zip_sandbox; send_tgz" EXIT
       function zip_sss()
       {
         echo ${STATUS} > "${TMP_DIR}/status"
