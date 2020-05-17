@@ -2,6 +2,7 @@
 require_relative 'files_delta'
 require_relative 'gnu_zip'
 require_relative 'gnu_unzip'
+require_relative 'random_hex'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'traffic_light'
@@ -313,15 +314,8 @@ class Runner
     # Add a random-id to the container name. A container-name
     # based on _only_ the id will fail when a container with
     # that id exists and is alive. Easily possible in tests.
-    @container_name ||= ['cyber_dojo_runner', id, random_id].join('_')
+    @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
   end
-
-  def random_id
-    # Benchmarked showed this to be fastest implementation.
-    Array.new(8){HEX_DIGITS.sample}.join
-  end
-
-  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
