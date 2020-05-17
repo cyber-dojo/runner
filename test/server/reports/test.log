@@ -1,11 +1,10 @@
-/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
-/test/server/traffic_light_test.rb:9: warning: previous definition of id58_prefix was here
-Run options: --seed 16613
+/test/server/traffic_light_test.rb:9: warning: method redefined; discarding old id58_prefix
+/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
+Run options: --seed 45915
 
 # Running:
 
-.................................................../tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-../tmp/main.sh: fork: retry: Resource temporarily unavailable
+......................................./tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
@@ -13,30 +12,31 @@ Run options: --seed 16613
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-...........................................................
+./tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+........................................................................
 
-Finished in 72.009836s, 1.5692 runs/s, 327.1636 assertions/s.
+Finished in 70.500891s, 1.6028 runs/s, 334.1660 assertions/s.
 
 113 runs, 23559 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6858 / 13532 LOC (50.68%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6867 / 13542 LOC (50.71%) covered.
 
 Slowest 5 tests are...
-4.5180 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
-3.4473 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
-2.8094 - 7B79DB:feature_traffic_light_test.rb:21:red traffic-light, no diagnostics
-2.8029 - 7B79DD:feature_traffic_light_test.rb:38:green traffic-light, no diagnostics
-2.7883 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.7389 - 9E94D7:feature_timed_out_test.rb:45:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and timed_out is true, and the traffic-light colour is not set
+4.5313 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
+3.4116 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
+2.7095 - 9E94D7:feature_timed_out_test.rb:45:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and timed_out is true, and the traffic-light colour is not set
+2.6958 - 9E9B2B:feature_timed_out_test.rb:23:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and timed_out is true, and the traffic-light colour is not set
+2.6696 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.6610 - 7B79DB:feature_traffic_light_test.rb:21:red traffic-light, no diagnostics
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     0 | [31m false [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   72.01   <=   200 | [32m true [0m
+        duration(test)[s] |    70.5   <=   200 | [32m true [0m
                     tests |     113   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.49   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    0.99   >=   6.6 | [31m false [0m
+     lines(tester/tested) |    2.50   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    0.98   >=   6.6 | [31m false [0m
 

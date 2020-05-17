@@ -288,17 +288,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # container
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_name
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id exists and is alive. Easily possible in tests.
-    @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_vars(id, image_name)
     [
@@ -380,6 +369,17 @@ class Runner
 
   def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # container
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def container_name
+    # Add a random-id to the container name. A container-name
+    # based on _only_ the id will fail when a container with
+    # that id exists and is alive. Easily possible in tests.
+    @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

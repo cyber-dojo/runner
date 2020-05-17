@@ -12,6 +12,10 @@ class RackDispatcherTest < TestBase
     'D06'
   end
 
+  def id58_teardown
+    externals.instance_exec { @bash = nil }
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   test 'BAF',
@@ -193,7 +197,7 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
     raiser = BashStubRaiser.new('fubar')
-    externals = Externals.new({ 'bash' => raiser })
+    externals.instance_exec { @bash = raiser }
     rack = RackDispatcher.new(externals)
     with_captured_stdout_stderr {
       response = rack.call(env, RackRequestStub)

@@ -6,13 +6,20 @@ require_relative 'traffic_light'
 
 class Externals
 
-  def initialize(options = {})
-    @bash = options['bash'] || Bash.new
-    @log = options['log'] || Log.new
-    @shell = Shell.new(self)
-    @traffic_light = TrafficLight.new(self)
+  def bash
+    @bash ||= Bash.new
   end
 
-  attr_reader :bash, :log, :shell, :traffic_light
+  def log
+    @log ||= Log.new
+  end
+
+  def shell
+    @shell ||= Shell.new(self)
+  end
+
+  def traffic_light
+    @traffic_light ||= TrafficLight.new(self)
+  end
 
 end
