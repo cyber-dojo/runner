@@ -20,7 +20,7 @@ class TrafficLightTest < TestBase
 
   multi_os_test '9DB', %w( red traffic-light, no diagnostics ) do
     run_cyber_dojo_sh
-    assert_equal 'red', colour, :colour
+    assert_equal 'red', colour, result
     assert_nil diagnostic, :diagnostic
   end
 
@@ -29,7 +29,7 @@ class TrafficLightTest < TestBase
   multi_os_test '9DC', %w( amber traffic-light, no diagnostics ) do
     syntax_error = starting_files[filename_6x9].sub('6 * 9', '6 * 9sdf')
     run_cyber_dojo_sh({changed:{filename_6x9=>syntax_error}})
-    assert_equal 'amber', colour, :colour
+    assert_equal 'amber', colour, result
     assert_nil diagnostic, :diagnostic
   end
 
@@ -38,7 +38,7 @@ class TrafficLightTest < TestBase
   multi_os_test '9DD', %w( green traffic-light, no diagnostics ) do
     passing = starting_files[filename_6x9].sub('6 * 9', '6 * 7')
     run_cyber_dojo_sh({changed:{filename_6x9=>passing}})
-    assert_equal 'green', colour, :colour
+    assert_equal 'green', colour, result
     assert_nil diagnostic, :diagnostic
   end
 

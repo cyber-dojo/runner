@@ -9,9 +9,6 @@ require_relative 'utf8_clean'
 require 'securerandom'
 require 'timeout'
 
-# TODO: 1. Cache for rag-lambdas
-# TODO: 2. Only gather text files if manifest['hidden_filenames'] is set
-
 class Runner
 
   def initialize(externals)
@@ -51,8 +48,8 @@ class Runner
   include FilesDelta
   include TrafficLight
 
-  UID = 41966               # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966               # [X] sandbox group - runs /sandbox/cyber-dojo.sh
+  UID = 41966               # [A] sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966               # [A] sandbox group - runs /sandbox/cyber-dojo.sh
   SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
                             # not /home/sandbox; /sandbox is faster tmp-dir
   KB = 1024
@@ -79,7 +76,7 @@ class Runner
     command = docker_run_cyber_dojo_sh_command
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
     begin
-      Timeout::timeout(max_seconds) do # [Z]
+      Timeout::timeout(max_seconds) do # [C]
         Process.waitpid(pid)
         timed_out = false
       end
@@ -167,11 +164,12 @@ class Runner
 
   TEXT_FILENAMES_SH_PATH = '/tmp/text_filenames.sh'
 
-  # [X] truncate,file
-  # grep -q is --quiet, we are generating text file names.
-  # grep -v is --invert-match.
+  # [D] Support Approval style test frameworks.
+  # [A] Dependencies: truncate,file
   # file incorrectly reports very small files as binary.
   # tar does not like absolute pathnames so strip leading /
+  # grep -q is --quiet, we are generating text file names.
+  # grep -v is --invert-match.
   TEXT_FILENAMES_SH =
     <<~SHELL.strip
       function text_filenames()
@@ -193,7 +191,7 @@ class Runner
       function truncate_dont_extend()
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
-          truncate --size #{MAX_FILE_SIZE+1} "${1}" # [Y]
+          truncate --size #{MAX_FILE_SIZE+1} "${1}" # [B]
         else
           touch "${1}"
         fi
@@ -213,6 +211,7 @@ class Runner
 
   # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
   # 2nd tar: -C / so sandbox files are pathed
+  # [E] See notes re adding head into cyber-dojo.sh redirect pipes.
   MAIN_SH =
     <<~SHELL.strip
       source #{TEXT_FILENAMES_SH_PATH}
@@ -253,7 +252,7 @@ class Runner
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir in the container and runs /sandbox/cyber-dojo.sh
     # [1] For clang/clang++'s -fsanitize=address
-    # [2] Makes container removal much faster
+    # [2] Init process also makes container removal much faster
     <<~SHELL.strip
       docker run                          \
         --cap-add=SYS_PTRACE      `# [1]` \
@@ -264,7 +263,7 @@ class Runner
         #{TMP_FS_SANDBOX_DIR}             \
         #{TMP_FS_TMP_DIR}                 \
         --rm                              \
-        --user=#{UID}:#{GID}      `# [X]` \
+        --user=#{UID}:#{GID}      `# [A]` \
         #{ulimits(image_name)}            \
         #{image_name}                     \
         bash -c '                         \
@@ -333,6 +332,8 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
+
   TMP_FS_SANDBOX_DIR =
     "--tmpfs #{SANDBOX_DIR}:" +
     'exec,' +       # [1]
@@ -353,9 +354,7 @@ class Runner
     #   So...
     #     [1] set exec to make binaries and scripts executable.
     #     [2] limit size of tmp-fs.
-    #     [3] set ownership [X]
-
-  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
+    #     [3] set ownership [A]
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -460,27 +459,27 @@ end
 #---------------------------------------------------------------
 # Notes
 #
-# [X] Assumes image_name was built by image_builder with a
+# [A] Assumes image_name was built by image_builder with a
 # Dockerfile augmented by image_dockerfile_augmenter.
 #   https://github.com/cyber-dojo-tools/image_builder
 #   https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 #
-# [Y] Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
+# [B] Truncate to MAX_FILE_SIZE+1 so truncated?() can detect
 # and lop off the final extra byte.
 #
-# [Z] If image_name is not present on the node, docker will
+# [C] If image_name is not present on the node, docker will
 # attempt to pull it. The browser's kata/run_tests ajax
 # call can timeout before the pull completes; this browser
 # timeout is different to the Runner.run() call timing out.
 #
-# Approval-style test-frameworks compare actual-text against
+# [D] Approval-style test-frameworks compare actual-text against
 # expected-text held inside a 'golden-master' file and, if the
 # comparison fails, generate a file holding the actual-text
 # ready for human inspection. cyber-dojo supports this by
 # scanning for text files (generated inside the container)
 # under /sandbox after cyber-dojo.sh has run.
 #
-# I tried limiting the size of stdout/stderr "in-place" using...
+# [E] I tried limiting the size of stdout/stderr "in-place" using...
 # bash ./cyber-dojo.sh \
 #   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
 #  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
