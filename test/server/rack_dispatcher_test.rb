@@ -13,7 +13,7 @@ class RackDispatcherTest < TestBase
   end
 
   def id58_teardown
-    externals.instance_exec { @bash = nil }
+    externals.bash = nil
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -195,9 +195,11 @@ class RackDispatcherTest < TestBase
   test 'AB7', 'server error results in 500 status response' do
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
+    # Have to avoid cache to ensure bash.run() call is made
+    args['manifest']['image_name'] += "_#{id58.downcase}"
     env = { path_info:path_info, body:args.to_json }
     raiser = BashStubRaiser.new('fubar')
-    externals.instance_exec { @bash = raiser }
+    externals.bash = raiser
     rack = RackDispatcher.new(externals)
     with_captured_stdout_stderr {
       response = rack.call(env, RackRequestStub)

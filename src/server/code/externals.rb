@@ -9,9 +9,15 @@ class Externals
   def bash
     @bash ||= Bash.new
   end
+  def bash=(e)
+    @bash = e
+  end
 
   def log
     @log ||= Log.new
+  end
+  def log=(e)
+    @log = e
   end
 
   def shell

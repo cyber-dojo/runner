@@ -26,6 +26,7 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(' ')
+
     lambda_src,_stderr,status = shell.exec(docker_run_command)
     if status != 0
       return faulty(image_name)

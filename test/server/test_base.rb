@@ -5,6 +5,8 @@ require_src 'externals'
 require_src 'runner'
 require 'stringio'
 
+$externals = Externals.new
+
 class TestBase < Id58TestBase
 
   def initialize(arg)
@@ -14,7 +16,7 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def externals
-    @externals ||= Externals.new
+    $externals
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -8,10 +8,8 @@ class ShellTest < TestBase
   end
 
   def id58_teardown
-    externals.instance_exec {
-      @bash = nil
-      @log = nil
-    }
+    externals.bash = nil
+    externals.log = nil
   end
 
   def shell
@@ -150,10 +148,8 @@ class ShellTest < TestBase
         def fired?(n); @fired_count === n; end
         def <<(_s); @fired_count += 1; end
       end.new
-    externals.instance_exec {
-      @bash = bash_stub
-      @log = log_spy
-    }
+    externals.bash = bash_stub
+    externals.log = log_spy
     key = 'CIRCLECI'
     on_circle_ci = ENV.include?(key)
     begin
