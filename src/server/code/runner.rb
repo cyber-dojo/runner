@@ -6,6 +6,7 @@ require_relative 'random_hex'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
+require 'httpray'
 require 'securerandom'
 require 'timeout'
 
@@ -57,17 +58,14 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
-    # pipe for getting tgz from container on stdout
-    r_stdout, w_stdout = IO.pipe
-    # pipe for sending tgz into container on stdin
-    files_in = sandboxed(files)
-    files_in[unrooted(TEXT_FILENAMES_SH_PATH)] = TEXT_FILENAMES_SH
-    files_in[unrooted(MAIN_SH_PATH)] = MAIN_SH
+    # pipe for sending tgz into container's stdin
     r_stdin, w_stdin = IO.pipe
-    w_stdin.write(into_tgz(files_in))
+    # pipe for getting tgz from container's stdout
+    r_stdout, w_stdout = IO.pipe
+
+    files_in = sandboxed(files)
+    w_stdin.write(tgz(files_in))
     w_stdin.close
-    files_in.delete(unrooted(MAIN_SH_PATH))
-    files_in.delete(unrooted(TEXT_FILENAMES_SH_PATH))
 
     stdout,timed_out = nil,nil
     command = docker_run_cyber_dojo_sh_command
@@ -89,7 +87,7 @@ class Runner
     end
 
     begin
-      sss,files_out = *from_tgz(stdout)
+      sss,files_out = *untgz(stdout)
       created,deleted,changed = *files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
       sss = empty_sss
@@ -118,19 +116,27 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def empty_sss
-    { 'stdout' => packaged(''),
-      'stderr' => packaged(''),
-      'status' => { 'content' => '42' }
-    }
+  def tgz(files)
+    writer = Tar::Writer.new(files)
+    writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
+    writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
+    Gnu::zip(writer.tar_file)
+  end
+
+  def untgz(tgz)
+    sss,sandbox = {},{}
+    reader = Tar::Reader.new(Gnu::unzip(tgz))
+    reader.files.each do |filename,content|
+      if %w( stdout stderr status ).include?(filename)
+        sss[filename] = packaged(content)
+      else
+        sandbox[filename] = packaged(content)
+      end
+    end
+    [ sss, sandbox ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def into_tgz(files)
-    writer = Tar::Writer.new(files)
-    Gnu.zip(writer.tar_file)
-  end
 
   def sandboxed(files)
     # 'hiker.cs' ==> 'sandbox/hiker.cs'
@@ -144,26 +150,20 @@ class Runner
     path[1..-1]
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def from_tgz(tgz)
-    sss,sandbox = {},{}
-    reader = Tar::Reader.new(Gnu.unzip(tgz))
-    reader.files.each do |filename,content|
-      if %w( stdout stderr status ).include?(filename)
-        sss[filename] = packaged(content)
-      else
-        sandbox[filename] = packaged(content)
-      end
-    end
-    [ sss, sandbox ]
-  end
-
   def unsandboxed(files)
     # 'sandbox/hiker.cs' ==> 'hiker.cs'
     files.keys.each_with_object({}) do |filename,h|
       h[filename[SANDBOX_DIR.size..-1]] = files[filename]
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def empty_sss
+    { 'stdout' => packaged(''),
+      'stderr' => packaged(''),
+      'status' => { 'content' => '42' }
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

@@ -1,7 +1,7 @@
 FROM cyberdojo/docker-base
 LABEL maintainer=jon@jaggersoft.com
 
-RUN gem install --no-document 'concurrent-ruby'
+RUN gem install --no-document 'concurrent-ruby' 'httpray'
 
 COPY . /app
 
