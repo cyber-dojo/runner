@@ -97,39 +97,43 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout
-    result['run_cyber_dojo_sh'][:stdout]['content']
+    inner_result[:stdout]['content']
   end
 
   def stderr
-    result['run_cyber_dojo_sh'][:stderr]['content']
+    inner_result[:stderr]['content']
   end
 
   def status
-    result['run_cyber_dojo_sh'][:status]
+    inner_result[:status]
   end
 
   def timed_out?
-    result['run_cyber_dojo_sh'][:timed_out]
+    inner_result[:timed_out]
   end
 
   def created
-    result['run_cyber_dojo_sh'][:created]
+    inner_result[:created]
   end
 
   def deleted
-    result['run_cyber_dojo_sh'][:deleted]
+    inner_result[:deleted]
   end
 
   def changed
-    result['run_cyber_dojo_sh'][:changed]
+    inner_result[:changed]
   end
 
   def colour
-    result['run_cyber_dojo_sh'][:colour]
+    inner_result[:colour]
   end
 
   def diagnostic
     result['diagnostic']
+  end
+
+  def inner_result
+    result['run_cyber_dojo_sh']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
