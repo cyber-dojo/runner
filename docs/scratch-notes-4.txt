@@ -1,0 +1,50 @@
+
+Not using json. Using plain tar pipes.
+Checked whether compression made it faster.
+No detectable difference.
+
+# TODO: 1. Cache for rag-lambdas
+# TODO: 2. Only gather text files if manifest['hidden_filenames'] is set
+
+# TODO: add time-out tests gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
+# TODO: add tmp-dir for home/sandbox and make container --readonly. Check on all LTFs
+# TODO: split docker-run into run+exec as before ready for container cache
+# TODO: read stderr pipe and log if non empty
+# TODO: drop jq and xargs installs in image_dockerfile_augmenter
+
+Thinking about container-caches.
+--------------------------------
+Suppose a container was created with a run that did a plain bash wait loop.
+Then use docker-exec as before.
+Ruby would cache the container-name keyed on the image-name.
+docker exec would create and use its own Ruby wrapper (as now) with io pipes
+Main difference is
+- docker run:  cyber-dojo.sh is directly off pid1
+- docker exec: cyber-dojo.sh is not direcly off pid1
+Will that affect the docker stop command?
+Good step would be to re-split the docker-run into a docker-run and
+a docker-exec again. Look at older commit
+1. create_container(id, image_name)
+   this is a docker run (did a sleep before)
+2. run(files, max_seconds)
+   this is a docker exec wrapped in a Timeout.
+
+readonly containers
+-------------------
+Further, if the docker-run used --read-only it would mean
+all LTFs were using /tmp and /sandbox only.
+That would even make it possible to recycle containers.
+You'd only really need to clear out /tmp and /sandbox.
+
+They should be readonly anyway...
+What happens to tests with --read-only added...
+Only 2 failures
+TrafficLightTest
+9DB Ubuntu L23
+9DD Ubuntu L41
+Access to the path /home/sandbox/.mono is denied.
+Need to make another tmp-fs for /home/sandbox
+TMP_FS_HOME_DIR = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
+--read-only
+And all pass :-)
+Need to try on all LTFs

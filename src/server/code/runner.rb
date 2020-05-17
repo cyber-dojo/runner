@@ -250,9 +250,19 @@ class Runner
 
   def docker_run_cyber_dojo_sh_command
     # Assumes a tgz of files on stdin. Untars this into the
-    # /sandbox/ dir in the container and runs /sandbox/cyber-dojo.sh
+    # /sandbox/ dir in the container and runs main.sh which runs
+    # /sandbox/cyber-dojo.sh
     # [1] For clang/clang++'s -fsanitize=address
     # [2] Init process also makes container removal much faster
+    # [3] tar is installed and has the --touch option [A].
+    #     (not true in a default Alpine)
+    #     --touch means 'dont extract file modified time' (stat %y).
+    #     With --touch untarred files get a 'now' modification date.
+    #     However, in default Alpine, date-time file-stamps have a
+    #     granularity of only 1 second. In other words, the date-time
+    #     file-stamps always have a microseconds value of 000000000
+    #     Alpine images are augmented [A] with a coreutils update
+    #     to get non-zero microseconds.
     <<~SHELL.strip
       docker run                          \
         --cap-add=SYS_PTRACE      `# [1]` \
@@ -267,7 +277,7 @@ class Runner
         #{ulimits(image_name)}            \
         #{image_name}                     \
         bash -c '                         \
-          tar -C / -zxf -                 \
+          tar -C / --touch -zxf - `# [3]` \
           &&                              \
           bash #{MAIN_SH_PATH}'
     SHELL
