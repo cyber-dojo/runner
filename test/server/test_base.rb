@@ -123,7 +123,7 @@ class TestBase < Id58TestBase
   end
 
   def colour
-    result['colour']
+    result['run_cyber_dojo_sh'][:colour]
   end
 
   def diagnostic

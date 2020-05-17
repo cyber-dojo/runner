@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 class BashStub
 
@@ -58,7 +59,7 @@ class BashStub
     [stub['stdout'], stub['stderr'], stub['status']]
   end
 
-  private # = = = = = = = = = = = = = = = = = =
+  private
 
   def read
     JSON.parse(IO.read(filename))

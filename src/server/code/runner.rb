@@ -5,7 +5,6 @@ require_relative 'gnu_unzip'
 require_relative 'random_hex'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
-require_relative 'traffic_light'
 require_relative 'utf8_clean'
 require 'securerandom'
 require 'timeout'
@@ -39,15 +38,12 @@ class Runner
     @max_seconds = args['manifest']['max_seconds']
     @result = {}
     run
-    read_traffic_light_file
-    set_traffic_light
     @result
   end
 
   private
 
   include FilesDelta
-  include TrafficLight
 
   UID = 41966               # [A] sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # [A] sandbox group - runs /sandbox/cyber-dojo.sh
@@ -100,11 +96,19 @@ class Runner
       created,deleted,changed = {},{},{}
     end
 
+    args = []
+    args << image_name
+    args << sss['stdout']['content']
+    args << sss['stderr']['content']
+    args << sss['status']['content']
+    colour = traffic_light.colour(*args)
+
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],
       stderr: sss['stderr'],
       status: sss['status']['content'].to_i,
       timed_out: timed_out,
+      colour: colour,
       created: unsandboxed(created),
       deleted: unsandboxed(deleted).keys.sort,
       changed: unsandboxed(changed)
@@ -284,29 +288,6 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def read_traffic_light_file
-    docker_cat_rag_file =
-      <<~SHELL.strip
-      docker run              \
-        --entrypoint=cat      \
-        --rm                  \
-        --user=#{UID}:#{GID}  \
-        #{image_name}         \
-        /usr/local/bin/red_amber_green.rb
-      SHELL
-
-    stdout,stderr,status = shell.exec(docker_cat_rag_file)
-    if status === 0
-      rag_src = stdout
-    else
-      @result['diagnostic'] = { 'stderr' => stderr }
-      rag_src = nil
-    end
-    @result['rag_src'] = rag_src
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -456,6 +437,10 @@ class Runner
     @externals.shell
   end
 
+  def traffic_light
+    @externals.traffic_light
+  end
+
   SPACE = ' '
 
 end
@@ -490,3 +475,27 @@ end
 # It seems a head in a pipe can cause problems! Tests failed.
 # See https://stackoverflow.com/questions/26461014
 # There is already a ulimit on files.
+
+
+=begin
+  def read_traffic_light_file
+    docker_cat_rag_file =
+      <<~SHELL.strip
+      docker run              \
+        --entrypoint=cat      \
+        --rm                  \
+        --user=#{UID}:#{GID}  \
+        #{image_name}         \
+        /usr/local/bin/red_amber_green.rb
+      SHELL
+
+    stdout,stderr,status = shell.exec(docker_cat_rag_file)
+    if status === 0
+      rag_src = stdout
+    else
+      @result['diagnostic'] = { 'stderr' => stderr }
+      rag_src = nil
+    end
+    @result['rag_src'] = rag_src
+  end
+=end
