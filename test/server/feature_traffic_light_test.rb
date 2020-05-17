@@ -10,10 +10,18 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '9DA', %w( stdout is not being whitespace stripped ) do
+  multi_os_test 'p3W', %w( stdout is not being whitespace stripped ) do
     stdout = assert_cyber_dojo_sh('printf " hel\nlo "')
     assert_equal " hel\nlo ", stdout
     # NB: A trailing newline _is_ being stripped
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'Hd7', %w( return colour in outermost JSON till clients upgrade ) do
+    run_cyber_dojo_sh
+    assert_equal 'red', result['colour'], JSON.pretty_generate(result)
+    assert_equal 'red', result['run_cyber_dojo_sh'][:colour], JSON.pretty_generate(result)
   end
 
   # - - - - - - - - - - - - - - - - -

@@ -103,6 +103,7 @@ class Runner
     args << sss['status']['content']
     colour = traffic_light.colour(*args)
 
+    @result['colour'] = colour
     @result['run_cyber_dojo_sh'] = {
       stdout: sss['stdout'],
       stderr: sss['stderr'],

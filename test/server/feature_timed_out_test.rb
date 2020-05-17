@@ -14,7 +14,7 @@ class TimedOutTest < TestBase
   then the traffic-light colour is set
   ) do
     run_cyber_dojo_sh
-    refute_timed_out
+    refute timed_out?, :timed_out
     assert_equal 'red', colour, :colour
   end
 
@@ -24,8 +24,10 @@ class TimedOutTest < TestBase
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
   then stdout is empty,
+  and stderr is empty,
+  and status is 137 (==128+KILLED),
   and timed_out is true,
-  and the traffic-light colour is not set
+  and the traffic-light colour is set
   ) do
     named_args = {
       changed: { 'hiker.c' => quiet_infinite_loop },
@@ -34,10 +36,11 @@ class TimedOutTest < TestBase
     with_captured_log {
       run_cyber_dojo_sh(named_args)
     }
-    assert_timed_out
+    assert timed_out?, :timed_out
     assert_equal '', stdout, :stdout
     assert_equal '', stderr, :stderr
-    refute colour?, :colour?
+    assert_equal 137, status, :status
+    assert_equal 'amber', colour, :colour
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,8 +49,10 @@ class TimedOutTest < TestBase
   when run_cyber_dojo_sh does not complete in max_seconds
   and produces output on stdout
   the captured stdout still gets sent (thanks to trap handler)
+  and stderr is empty,
+  and status is 137,
   and timed_out is true,
-  and the traffic-light colour is not set
+  and the traffic-light colour is set
   ) do
     named_args = {
       changed: { 'hiker.c' => loud_infinite_loop },
@@ -56,18 +61,14 @@ class TimedOutTest < TestBase
     with_captured_log {
       run_cyber_dojo_sh(named_args)
     }
-    assert_timed_out
-    assert stdout.include?('Hello')
-    refute colour?, :colour?
+    assert timed_out?, :timed_out
+    assert stdout.include?('Hello'), :stdout
+    assert_equal '', stderr, :stderr
+    assert_equal 137, status, :status
+    assert_equal 'amber', colour, :colour
   end
 
   private
-
-  def colour?
-    result.has_key?('colour')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def quiet_infinite_loop
     <<~SOURCE

@@ -138,16 +138,6 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_timed_out
-    assert timed_out?, result
-  end
-
-  def refute_timed_out
-    refute timed_out?, result
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def assert_created(expected)
     assert_hash_equal(expected, created)
   end
@@ -167,7 +157,7 @@ class TestBase < Id58TestBase
       :changed => { 'cyber-dojo.sh' => script }
     }
     run_cyber_dojo_sh(named_args)
-    refute_timed_out
+    refute timed_out?, result
     stdout
   end
 
