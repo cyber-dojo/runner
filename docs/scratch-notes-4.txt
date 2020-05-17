@@ -3,13 +3,13 @@ Not using json. Using plain tar pipes.
 Checked whether compression made it faster.
 No detectable difference.
 
-# TODO: 1. Cache for rag-lambdas
+# TODO: 1. Cache for rag-lambdas. In place. Loggings needs adding.
 # TODO: 2. Only gather text files if manifest['hidden_filenames'] is set
 
 # TODO: add time-out tests gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
 # TODO: add tmp-dir for home/sandbox and make container --readonly. Check on all LTFs
-# TODO: split docker-run into run+exec as before ready for container cache
-# TODO: read stderr pipe and log if non empty
+# TODO: split docker-run into run+exec as before ready for container cache?
+# TODO: Setup stderr pipe in main Process.spawn() and log stderr-string if non empty
 # TODO: drop jq and xargs installs in image_dockerfile_augmenter
 
 Thinking about container-caches.
