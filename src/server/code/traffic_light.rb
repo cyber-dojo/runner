@@ -44,19 +44,18 @@ class TrafficLight
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
-  COLOURS =
 
   def wrapped(image_name, bulb)
     lambda { |stdout,stderr,status|
       begin
-        colour = bulb.call(stdout,stderr,status.to_i)
+        colour = bulb.call(stdout,stderr,status.to_i).to_s
         if is_working?(colour)
-          colour.to_s
+          colour
         else
-          :faulty.to_s
+          'faulty'
         end
       rescue Exception
-        :faulty.to_s
+        'faulty'
       end
     }
   end
@@ -72,8 +71,10 @@ class TrafficLight
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def is_working?(colour)
-    [ :red, :amber, :green ].include?(colour)
+    COLOURS.include?(colour.to_s)
   end
+
+  COLOURS = [ 'red', 'amber', 'green' ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

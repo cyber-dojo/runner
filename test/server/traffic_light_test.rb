@@ -44,7 +44,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB0', %w( status is an integer ) do
+  test 'sB0', %w( status is an integer ) do
     gcc_assert = 'cyberdojofoundation/gcc_assert'
     assert_equal 'green', externals.traffic_light.colour(gcc_assert, '', '', '0')
   end
@@ -86,7 +86,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB6', %w(
-  image_name with rag-labda which raises when called gives colour==faulty
+  image_name with rag-lambda which raises when called gives colour==faulty
   ) do
     externals.bash = BashStub.new
     command = docker_run_command
@@ -103,7 +103,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB7', %w(
-  image_name with rag-labda which returns non red/amber/green gives colour==faulty
+  image_name with rag-lambda which returns non red/amber/green gives colour==faulty
   ) do
     externals.bash = BashStub.new
     command = docker_run_command
@@ -115,6 +115,22 @@ class TrafficLightTest < TestBase
       @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
     }
     assert_equal 'faulty', @bulb
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'CB8', %w(
+  allow rag-lambda to return symbol or string colors (Postel's Law) ) do
+    externals.bash = BashStub.new
+    command = docker_run_command
+    stdout = "lambda{|so,se,st| 'red' }"
+    stderr = ''
+    status = 0
+    externals.bash.stub_run(command, stdout, stderr, status)
+    with_captured_log {
+      @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    }
+    assert_equal 'red', @bulb
   end
 
   private
