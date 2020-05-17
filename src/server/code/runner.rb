@@ -317,7 +317,8 @@ class Runner
   end
 
   def random_id
-    HEX_DIGITS.shuffle[0,8].join
+    # Benchmarked showed this to be fastest implementation.
+    Array.new(8){HEX_DIGITS.sample}.join
   end
 
   HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
