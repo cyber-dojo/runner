@@ -475,27 +475,3 @@ end
 # It seems a head in a pipe can cause problems! Tests failed.
 # See https://stackoverflow.com/questions/26461014
 # There is already a ulimit on files.
-
-
-=begin
-  def read_traffic_light_file
-    docker_cat_rag_file =
-      <<~SHELL.strip
-      docker run              \
-        --entrypoint=cat      \
-        --rm                  \
-        --user=#{UID}:#{GID}  \
-        #{image_name}         \
-        /usr/local/bin/red_amber_green.rb
-      SHELL
-
-    stdout,stderr,status = shell.exec(docker_cat_rag_file)
-    if status === 0
-      rag_src = stdout
-    else
-      @result['diagnostic'] = { 'stderr' => stderr }
-      rag_src = nil
-    end
-    @result['rag_src'] = rag_src
-  end
-=end
