@@ -23,9 +23,9 @@ class RandomHexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'c92', %w( fastest version size=0 doesnt work ) do
-    v3(0)
-  rescue ArgumentError
+  test 'c92', %w( size=0 doesnt work but I don't need that anyway ) do
+    error = assert_raises(ArgumentError) { RandomHex.id(0) }
+    assert_equal 'wrong number of arguments (given 1, expected 0)', error.message
   end
 
   # - - - - - - - - - - - - - - - - -
