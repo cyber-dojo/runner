@@ -56,13 +56,6 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def log(message)
-    @result['log'] += message
-    #if message[-1] != "\n"
-    #  result['log'] += "\n"
-    #end
-  end
-
   def run
     files_in = sandboxed(files)
     writer = Tar::Writer.new(files_in)
@@ -443,6 +436,13 @@ class Runner
   def traffic_light
     @externals.traffic_light
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def log(message)
+    @result['log'] += message
+  end
+
 
   SPACE = ' '
 
