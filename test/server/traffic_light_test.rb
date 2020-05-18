@@ -2,6 +2,7 @@
 require_relative 'test_base'
 require_relative 'data/python_pytest'
 require_relative 'bash_stub'
+require_src 'result_logger'
 require 'tmpdir'
 
 class TrafficLightTest < TestBase
@@ -46,7 +47,7 @@ class TrafficLightTest < TestBase
 
   test 'sB0', %w( status is an integer ) do
     gcc_assert = 'cyberdojofoundation/gcc_assert'
-    assert_equal 'green', externals.traffic_light.colour(gcc_assert, '', '', '0')
+    assert_equal 'green', externals.traffic_light.colour(logger, gcc_assert, '', '', '0')
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -77,10 +78,8 @@ class TrafficLightTest < TestBase
     stderr = ''
     status = 0
     externals.bash.stub_run(command, stdout, stderr, status)
-    with_captured_log {
-      @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    }
-    assert_equal 'faulty', @bulb
+    bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    assert_equal 'faulty', bulb
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -94,10 +93,8 @@ class TrafficLightTest < TestBase
     stderr = ''
     status = 0
     externals.bash.stub_run(command, stdout, stderr, status)
-    with_captured_log {
-      @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    }
-    assert_equal 'faulty', @bulb
+    bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    assert_equal 'faulty', bulb
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -111,10 +108,8 @@ class TrafficLightTest < TestBase
     stderr = ''
     status = 0
     externals.bash.stub_run(command, stdout, stderr, status)
-    with_captured_log {
-      @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    }
-    assert_equal 'faulty', @bulb
+    bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    assert_equal 'faulty', bulb
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -127,10 +122,8 @@ class TrafficLightTest < TestBase
     stderr = ''
     status = 0
     externals.bash.stub_run(command, stdout, stderr, status)
-    with_captured_log {
-      @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    }
-    assert_equal 'red', @bulb
+    bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    assert_equal 'red', bulb
   end
 
   private
@@ -138,7 +131,15 @@ class TrafficLightTest < TestBase
   include Test::Data
 
   def traffic_light(stdout, stderr, status)
-    externals.traffic_light.colour(python_pytest_image_name, stdout, stderr, status)
+    externals.traffic_light.colour(logger, python_pytest_image_name, stdout, stderr, status)
+  end
+
+  def result
+    @result ||= { 'log' => '' }
+  end
+
+  def logger
+    @logger ||= ResultLogger.new(result)
   end
 
   def docker_run_command

@@ -3,21 +3,31 @@ Not using json. Using plain tar pipes.
 Checked whether compression made it faster.
 No detectable difference.
 
-# TODO: error logging for TrafficLight.
-# TODO: capture stderr of shell.exec() calls and log those
-# TODO: capture status of Process.spawn and log that too?
-# TODO: lose with_captured_log() calls
+TODO: could @result go into externals? Would give universal access.
+      eg to traffic_light class...
+      No. that is a singleton.
+      Logger class. Passed @result.
+      it appends to @result['log']
+      Should it append to @result['run_cyber_dojo_sh']['log'] ?
 
-# TODO: add tmp-dir for home/sandbox.
+TODO: error logging for TrafficLight.
+TODO: capture status of Process.spawn and log that too?
+TODO: lose with_captured_log() calls
 
-# BIG TODO: 1. cache for rag-lambdas. In place. Loggings needs adding.
-# ??? TODO: 2. only gather text files if manifest['hidden_filenames'] is set?
+TODO: Sometimes get...
+      docker stop --time 1 cyber_dojo_runner_1B5DB3_c9da051c
+TODO: capture stderr of shell.exec() calls and log those
 
-# TODO: test time-outs gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
+TODO: add tmp-dir for home/sandbox.
 
-# TODO: make container --readonly. Check on all LTFs
-# TODO: split docker-run into run+exec as before ready for container cache?
-# TODO: drop jq and xargs installs in image_dockerfile_augmenter
+BIG TODO: 1. cache for rag-lambdas. In place. Loggings needs adding.
+??? TODO: 2. only gather text files if manifest['hidden_filenames'] is set?
+
+TODO: test time-outs gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
+
+TODO: make container --readonly. Check on all LTFs
+TODO: split docker-run into run+exec as before ready for container cache?
+TODO: drop jq and xargs installs in image_dockerfile_augmenter
 
 
 Thinking about container-caches.

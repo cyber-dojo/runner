@@ -3,6 +3,7 @@ require_relative 'files_delta'
 require_relative 'gnu_zip'
 require_relative 'gnu_unzip'
 require_relative 'random_hex'
+require_relative 'result_logger'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
@@ -37,6 +38,7 @@ class Runner
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
     @result = { 'log' => '' }
+    @result_logger = ResultLogger.new(@result)
     run
     @result
   end
@@ -80,7 +82,7 @@ class Runner
     end
 
     args = [image_name, stdout['content'], stderr['content'], status]
-    colour = traffic_light.colour(*args)
+    colour = traffic_light.colour(@result_logger, *args)
 
     @result['colour'] = colour
     @result['run_cyber_dojo_sh'] = {

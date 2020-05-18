@@ -9,13 +9,13 @@ class TrafficLight
     @map = Concurrent::Map.new
   end
 
-  def colour(image_name, stdout, stderr, status)
-    self[image_name].call(stdout, stderr, status)
+  def colour(logger, image_name, stdout, stderr, status)
+    self[image_name, logger].call(stdout, stderr, status)
   end
 
   private
 
-  def [](image_name)
+  def [](image_name, logger)
     light = @map[image_name]
     return light unless light.nil?
 
