@@ -126,15 +126,6 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def packaged_untgz(tgz)
-    reader = Tar::Reader.new(Gnu::unzip(tgz))
-    reader.files.each.with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(content)
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def sandboxed(files)
     # 'hiker.cs' ==> 'sandbox/hiker.cs'
     files.each.with_object({}) do |(filename,content),memo|
@@ -145,6 +136,13 @@ class Runner
   def unrooted(path)
     # Tar does not like absolute pathnames so strip leading /
     path[1..-1]
+  end
+
+  def packaged_untgz(tgz)
+    reader = Tar::Reader.new(Gnu::unzip(tgz))
+    reader.files.each.with_object({}) do |(filename,content),memo|
+      memo[filename] = packaged(content)
+    end
   end
 
   def unsandboxed(files)
