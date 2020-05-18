@@ -12,8 +12,6 @@ No detectable difference.
 # TODO: add test for cyber-dojo.sh writing string to stdout but without a newline.
         I think trap handler needs to flush >stdout pipe and 2>stderr pipe.
 
-# TODO: test for cyber-dojo.sh killing everything under sandbox (including itself). DONE. 62C
-
 # TODO: add tmp-dir for home/sandbox.
 # TODO: make container --readonly. Check on all LTFs
 # TODO: split docker-run into run+exec as before ready for container cache?

@@ -25,13 +25,22 @@ class TimedOutTest < TestBase
   and does not produce output
   then stdout is empty,
   and stderr is empty,
-  and status is 137 (==128+KILLED),
+  and status is 137,
   and timed_out is true,
   and the traffic-light colour is set
   ) do
     named_args = {
-      changed: { 'hiker.c' => quiet_infinite_loop },
-      max_seconds: 2
+      max_seconds: 2,
+      changed: { 'hiker.c' =>
+        <<~C_SOURCE
+        #include "hiker.h"
+        int answer(void)
+        {
+            for(;;);
+            return 6 * 7;
+        }
+        C_SOURCE
+      }
     }
     with_captured_log {
       run_cyber_dojo_sh(named_args)
@@ -55,47 +64,33 @@ class TimedOutTest < TestBase
   and the traffic-light colour is set
   ) do
     named_args = {
-      changed: { 'hiker.c' => loud_infinite_loop },
-      max_seconds: 2
+      max_seconds: 2,
+      changed: { 'hiker.c' =>
+        <<~C_SOURCE
+        #include "hiker.h"
+        #include <stdio.h>
+        int answer(void)
+        {
+            // Can't fputs inside the infinite loop as it
+            // busts a file-size ulimit, terminates, no time-out
+            for(int i = 0; i != 10000; i++)
+              fputs("Hello\\n", stdout);
+            for(;;);
+            return 6 * 7;
+        }
+        C_SOURCE
+      }
     }
     with_captured_log {
       run_cyber_dojo_sh(named_args)
     }
-    assert timed_out?, :timed_out
     assert stdout.include?('Hello'), :stdout
     assert_equal '', stderr, :stderr
     assert_equal 137, status, :status
     assert_equal 'amber', colour, :colour
-  end
-
-  private
-
-  def quiet_infinite_loop
-    <<~SOURCE
-    #include "hiker.h"
-    int answer(void)
-    {
-        for(;;);
-        return 6 * 7;
-    }
-    SOURCE
+    assert timed_out?, :timed_out
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def loud_infinite_loop
-    <<~SOURCE
-    #include "hiker.h"
-    #include <stdio.h>
-    int answer(void)
-    {
-        for (int i = 0; i != 1000; i++)
-          fputs("Hello\\n", stdout);
-        fflush(stdout);
-        for(;;);
-        return 6 * 7;
-    }
-    SOURCE
-  end
 
 end
