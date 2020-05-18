@@ -1,33 +1,33 @@
-/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
-/test/server/traffic_light_test.rb:11: warning: previous definition of id58_prefix was here
-Run options: --seed 4039
+/test/server/traffic_light_test.rb:11: warning: method redefined; discarding old id58_prefix
+/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
+Run options: --seed 23921
 
 # Running:
 
-...........
+.............
 
-Finished in 0.595858s, 18.4608 runs/s, 109.0863 assertions/s.
+Finished in 0.631762s, 20.5774 runs/s, 144.0415 assertions/s.
 
-11 runs, 65 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 5662 / 13697 LOC (41.34%) covered.
+13 runs, 91 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 5677 / 13715 LOC (41.39%) covered.
 
 Slowest 5 tests are...
-0.2882 - 22ExJ7:traffic_light_test.rb:49:status is an integer                    
-0.2875 - 22ECB2:traffic_light_test.rb:88:for a working amber, the colour is returned, nothing is added to the log
-0.0027 - 22ECB6:traffic_light_test.rb:145:image_name with rag-lambda which raises when called, gives colour==faulty, adds message to log
-0.0019 - 22ECB1:traffic_light_test.rb:77:for a working red, the colour is returned, nothing is added to the log
-0.0011 - 22ECB4:traffic_light_test.rb:110:image_name without a rag-lambda file, always gives colour==faulty, adds message to log
-0.0005 - 22ECB5:traffic_light_test.rb:127:image_name with rag-lambda which raises when eval'd, gives colour==faulty, adds message to log
+0.3252 - 22ExJ7:traffic_light_test.rb:49:status is an integer                    
+0.2849 - 22ECB3:traffic_light_test.rb:99:for a working green, the colour is returned, nothing is added to the log
+0.0022 - 22ECB9:traffic_light_test.rb:194:image_name with rag-lambda which returns non red/amber/green, gives colour==faulty, adds message to log
+0.0020 - 22ECB6:traffic_light_test.rb:143:image_name with rag-lambda which raises when called, gives colour==faulty, adds message to log
+0.0010 - 22ECB4:traffic_light_test.rb:110:image_name without a rag-lambda file, always gives colour==faulty, adds message to log
+0.0006 - 22ExJ9:traffic_light_test.rb:66:allow rag-lambda to return string symbol (Postel's Law)
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |     0.6   <=   100 | [32m true [0m
-                    tests |      11   >=     1 | [32m true [0m
+        duration(test)[s] |    0.63   <=   100 | [32m true [0m
+                    tests |      13   >=     1 | [32m true [0m
       coverage(tested)[%] |   58.13   >=   100 | [31m false [0m
-      coverage(tester)[%] |   40.58   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.55   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.17   >=   1.1 | [32m true [0m
+      coverage(tester)[%] |   41.31   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.59   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.27   >=   1.1 | [32m true [0m
 

@@ -116,9 +116,8 @@ class TrafficLightTest < TestBase
     stub_stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
     bash_stub_run(docker_run_command, '', stub_stderr, 1)
     with_captured_log {
-      @bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
+      assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     }
-    assert_equal 'faulty', @bulb
     assert_docker_cat_logged('image_name must have /usr/local/bin/red_amber_green.rb file')
   end
 
@@ -132,8 +131,7 @@ class TrafficLightTest < TestBase
     externals.bash = BashStub.new
     bad_lambda_source = 'not-a-lambda'
     bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
-    bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    assert_equal 'faulty', bulb
+    assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     context = "exception when eval'ing lambda source"
     klass = 'SyntaxError'
     message = "/app/code/empty.rb:5: syntax error, unexpected '-'\\nnot-a-lambda\\n   ^"
@@ -150,9 +148,8 @@ class TrafficLightTest < TestBase
     externals.bash = BashStub.new
     bad_lambda_source = "lambda{ |_so,_se,_st| fail RuntimeError, '42' }"
     bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
-    bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    assert_equal 'faulty', bulb
-    context = "exception when calling lambda source"
+    assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    context = 'exception when calling lambda source'
     klass = 'RuntimeError'
     message = '42'
     assert_bad_lambda_logged(context, bad_lambda_source, klass, message)
@@ -161,6 +158,40 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB7', %w(
+  image_name with rag-lambda with too few parameters,
+  gives colour==faulty,
+  adds message to log
+  ) do
+    externals.bash = BashStub.new
+    bad_lambda_source = 'lambda{ |_1,_2| :red }'
+    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    context = 'exception when calling lambda source'
+    klass = 'ArgumentError'
+    message = 'wrong number of arguments (given 3, expected 2)'
+    assert_bad_lambda_logged(context, bad_lambda_source, klass, message)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'CB8', %w(
+  image_name with rag-lambda with too many parameters,
+  gives colour==faulty,
+  adds message to log
+  ) do
+    externals.bash = BashStub.new
+    bad_lambda_source = 'lambda{ |_1,_2,_3,_4| :red }'
+    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
+    context = 'exception when calling lambda source'
+    klass = 'ArgumentError'
+    message = 'wrong number of arguments (given 3, expected 4)'
+    assert_bad_lambda_logged(context, bad_lambda_source, klass, message)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'CB9', %w(
   image_name with rag-lambda which returns non red/amber/green,
   gives colour==faulty,
   adds message to log
