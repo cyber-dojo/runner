@@ -69,9 +69,9 @@ class RobustNessTest < TestBase
     })
     assert log.empty?, pretty_result(:log_empty)
     assert stdout.empty? || stdout.include?('fopen() != NULL'), pretty_result(:stdout)
-    assert stderr.include?('profiling:/sandbox/hiker.gcda:Cannot open'), stderr
-    assert_equal 0, status, :status
-    assert_equal 'green', colour, :colour
+    assert stderr.empty? || stderr.include?('profiling:/sandbox/hiker.gcda:Cannot open'), pretty_result(:stderr)
+    assert [0,42].include?(status), pretty_result(:status)
+    assert_equal 'green', colour, pretty_result(:colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -115,7 +115,7 @@ class RobustNessTest < TestBase
     assert log.include?(message_1) || log.include?(message_2), pretty_result(:resource_unavailable)
     assert stdout.empty?, pretty_result(:stdout_empty)
     assert stderr.empty?, pretty_result(:stderr_empty)
-    assert_equal 42, status, pretty_result(:status)
+    assert_equal 42, status, pretty_result(:status) # Gzip Error
   end
 
   private
