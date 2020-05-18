@@ -58,33 +58,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
-    # pipe for sending tgz into container's stdin
-    r_stdin, w_stdin = IO.pipe
-    # pipe for getting tgz from container's stdout
-    r_stdout, w_stdout = IO.pipe
-
     files_in = sandboxed(files)
-    w_stdin.write(tgz(files_in))
-    w_stdin.close
-
-    stdout,timed_out = nil,nil
-    command = docker_run_cyber_dojo_sh_command
-    pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
-    begin
-      Timeout::timeout(max_seconds) do # [C]
-        Process.waitpid(pid)
-        timed_out = false
-      end
-    rescue Timeout::Error
-      shell.exec(docker_stop_command)
-      Process_kill_group(pid)
-      Process_detach(pid)
-      timed_out = true
-    ensure
-      w_stdout.close unless w_stdout.closed?
-      stdout = r_stdout.read
-      r_stdout.close
-    end
+    stdout, timed_out = *docker_tar_pipe(files_in)
 
     begin
       sss,files_out = *untgz(stdout)
@@ -112,6 +87,36 @@ class Runner
       deleted: unsandboxed(deleted).keys.sort,
       changed: unsandboxed(changed)
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def docker_tar_pipe(files_in)
+    stdout,timed_out = nil,nil
+
+    r_stdin, w_stdin = IO.pipe   # to send tgz into container's stdin
+    w_stdin.write(tgz(files_in))
+    w_stdin.close
+
+    r_stdout, w_stdout = IO.pipe # to get tgz from container's stdout
+    command = docker_run_cyber_dojo_sh_command
+    pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
+    begin
+      Timeout::timeout(max_seconds) do # [C]
+        Process.waitpid(pid)
+        timed_out = false
+      end
+    rescue Timeout::Error
+      shell.exec(docker_stop_command)
+      Process_kill_group(pid)
+      Process_detach(pid)
+      timed_out = true
+    ensure
+      w_stdout.close unless w_stdout.closed?
+      stdout = r_stdout.read
+      r_stdout.close
+    end
+    [ stdout, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
