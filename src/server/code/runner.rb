@@ -62,25 +62,32 @@ class Runner
     stdout, timed_out = *docker_tar_pipe(files_in)
 
     begin
-      sss,files_out = *untgz(stdout)
+      #sss,files_out = *untgz(stdout)
+      files_out = packaged_untgz(stdout)
+      stdout = files_out.delete('stdout')
+      stderr = files_out.delete('stderr')
+      status = files_out.delete('status')
       created,deleted,changed = *files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
-      sss = empty_sss
+      #sss = empty_sss
+      stdout = packaged('')
+      stderr = packaged('')
+      status = { 'content' => '42' }
       created,deleted,changed = {},{},{}
     end
 
     args = []
     args << image_name
-    args << sss['stdout']['content']
-    args << sss['stderr']['content']
-    args << sss['status']['content']
+    args << stdout['content']
+    args << stderr['content']
+    args << status['content']
     colour = traffic_light.colour(*args)
 
     @result['colour'] = colour
     @result['run_cyber_dojo_sh'] = {
-      stdout: sss['stdout'],
-      stderr: sss['stderr'],
-      status: sss['status']['content'].to_i,
+      stdout: stdout,
+      stderr: stderr,
+      status: status['content'].to_i,
       timed_out: timed_out,
       colour: colour,
       created: unsandboxed(created),
@@ -95,7 +102,7 @@ class Runner
     stdout,timed_out = nil,nil
 
     r_stdin, w_stdin = IO.pipe   # to send tgz into container's stdin
-    w_stdin.write(tgz(files_in))
+    w_stdin.write(augmented_tgz(files_in))
     w_stdin.close
 
     r_stdout, w_stdout = IO.pipe # to get tgz from container's stdout
@@ -121,24 +128,20 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tgz(files)
+  def augmented_tgz(files)
     writer = Tar::Writer.new(files)
     writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
     writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
     Gnu::zip(writer.tar_file)
   end
 
-  def untgz(tgz)
-    sss,sandbox = {},{}
+  def packaged_untgz(tgz)
+    result = {}
     reader = Tar::Reader.new(Gnu::unzip(tgz))
     reader.files.each do |filename,content|
-      if %w( stdout stderr status ).include?(filename)
-        sss[filename] = packaged(content)
-      else
-        sandbox[filename] = packaged(content)
-      end
+      result[filename] = packaged(content)
     end
-    [ sss, sandbox ]
+    result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -160,15 +163,6 @@ class Runner
     files.keys.each_with_object({}) do |filename,h|
       h[filename[SANDBOX_DIR.size..-1]] = files[filename]
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def empty_sss
-    { 'stdout' => packaged(''),
-      'stderr' => packaged(''),
-      'status' => { 'content' => '42' }
-    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

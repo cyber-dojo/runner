@@ -1,46 +1,45 @@
 /test/server/traffic_light_test.rb:9: warning: method redefined; discarding old id58_prefix
 /test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 40612
+Run options: --seed 4542
 
 # Running:
 
-............................................Unable to find image 'cyberdojofoundation/csharp_nunit_d06ab7:latest' locally
-docker: Error response from daemon: pull access denied for cyberdojofoundation/csharp_nunit_d06ab7, repository does not exist or may require 'docker login': denied: requested access to the resource is denied.
-See 'docker run --help'.
-..................................................................../tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+..../tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+./tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 ../tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-./tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-.
+............Unable to find image 'cyberdojofoundation/csharp_nunit_d06ab7:latest' locally
+docker: Error response from daemon: pull access denied for cyberdojofoundation/csharp_nunit_d06ab7, repository does not exist or may require 'docker login': denied: requested access to the resource is denied.
+See 'docker run --help'.
+.................................................................................................
 
-Finished in 60.523778s, 1.9166 runs/s, 389.4007 assertions/s.
+Finished in 60.625566s, 1.9134 runs/s, 388.7469 assertions/s.
 
 116 runs, 23568 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6912 / 13653 LOC (50.63%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6918 / 13667 LOC (50.62%) covered.
 
 Slowest 5 tests are...
-4.2964 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
-3.1388 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
-2.5527 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
-2.4783 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
-2.4782 - 9E94D7:feature_timed_out_test.rb:48:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and stderr is empty, and status is 137, and timed_out is true, and the traffic-light colour is set
-2.4361 - 9E9B2B:feature_timed_out_test.rb:23:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and stderr is empty, and status is 137 (==128+KILLED), and timed_out is true, and the traffic-light colour is set
+4.4910 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
+3.4167 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
+2.6465 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.5767 - 9E94D7:feature_timed_out_test.rb:48:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and stderr is empty, and status is 137, and timed_out is true, and the traffic-light colour is set
+2.5583 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.4940 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   60.52   <=   100 | [32m true [0m
+        duration(test)[s] |   60.63   <=   100 | [32m true [0m
                     tests |     116   >=     1 | [32m true [0m
-      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tested)[%] |   97.94   >=   100 | [31m false [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.52   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    0.93   >=   0.9 | [32m true [0m
+     lines(tester/tested) |    2.43   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    0.87   >=   0.9 | [31m false [0m
 
