@@ -37,6 +37,15 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test 'xJ5', %w( lambdas are cached ) do
+    gcc_assert = 'cyberdojofoundation/gcc_assert'
+    f1 = externals.traffic_light.send('[]', gcc_assert)
+    f2 = externals.traffic_light.send('[]', gcc_assert)
+    assert f1.equal?(f2), :caching
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test 'xJ6', %w( sanity check FaultyBulbError class ) do
     info = { abc:'sanity', def:'check' }
     fail TrafficLight::Fault, info
