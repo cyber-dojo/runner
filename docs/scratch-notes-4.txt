@@ -14,6 +14,9 @@ TODO: lose with_captured_log() calls?
 TODO: add tmp-dir for home/sandbox.
 
 TODO: only gather text files if manifest['hidden_filenames'] is set?
+      Speed up: 0.45 => 0.35  C#, Alpine
+                0.40 => 0.36  VB, Ubuntu
+                0.42 => 0.37  Python, Debian
 
 TODO: test time-outs gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
 
