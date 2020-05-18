@@ -37,14 +37,14 @@ class Runner
     logger.write(stderr_out)
 
     begin
-      files_out = packaged_untgz(tgz_out)
+      files_out = truncated_untgz(tgz_out)
       stdout = files_out.delete('stdout')
       stderr = files_out.delete('stderr')
       status = files_out.delete('status')['content']
       created,deleted,changed = *files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
-      stdout = packaged('')
-      stderr = packaged('')
+      stdout = truncated('')
+      stderr = truncated('')
       status = '42'
       created,deleted,changed = {},{},{}
     end
@@ -118,23 +118,33 @@ class Runner
     end
   end
 
-  def unrooted(path)
-    # Tar does not like absolute pathnames so strip leading /
-    path[1..-1]
-  end
-
-  def packaged_untgz(tgz)
-    reader = Tar::Reader.new(Gnu::unzip(tgz))
-    reader.files.each.with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(content)
-    end
-  end
-
   def unsandboxed(files)
     # 'sandbox/hiker.cs' ==> 'hiker.cs'
     files.each.with_object({}) do |(filename,content),memo|
       memo[filename[SANDBOX_DIR.size..-1]] = content
     end
+  end
+
+  def unrooted(path)
+    # Tar does not like absolute pathnames so strip leading /
+    path[1..-1]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def truncated_untgz(tgz)
+    reader = Tar::Reader.new(Gnu::unzip(tgz))
+    reader.files.each.with_object({}) do |(filename,content),memo|
+      memo[filename] = truncated(content)
+    end
+  end
+
+  def truncated(raw_content)
+    content = Utf8.clean(raw_content)
+    {
+        'content' => content[0...MAX_FILE_SIZE],
+      'truncated' => content.size > MAX_FILE_SIZE
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -391,22 +401,6 @@ class Runner
     read = f.read
     f.close
     read
-  end
-
-  def packaged(raw_content)
-    content = Utf8.clean(raw_content)
-    {
-        'content' => truncated(content),
-      'truncated' => truncated?(content)
-    }
-  end
-
-  def truncated(content)
-    content[0...MAX_FILE_SIZE]
-  end
-
-  def truncated?(content)
-    content.size > MAX_FILE_SIZE
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
