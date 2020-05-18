@@ -1,10 +1,37 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class BombRobustNessTest < TestBase
+class RobustNessTest < TestBase
 
   def self.id58_prefix
     '1B5'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  multi_os_test 'CD4',
+  'cyber-dojo.sh killing its own processes is contained' do
+    run_cyber_dojo_sh_kill_pid_for('init')
+    run_cyber_dojo_sh_kill_pid_for('main.sh')
+    run_cyber_dojo_sh_kill_pid_for('cyber-dojo.sh')
+  end
+
+  def run_cyber_dojo_sh_kill_pid_for(command)
+    run_cyber_dojo_sh(
+      changed: {
+        'cyber-dojo.sh' => kill_pid_for(command)
+      }
+    )
+  end
+
+  def kill_pid_for(command)
+    ps = os === :Alpine ? 'ps -a' : 'ps -ax'
+    [
+      "#{ps} | tail -n +2 > /tmp/ps.txt",
+      "PID=$(cat /tmp/ps.txt | grep #{command} | awk '{print $1;}')",
+      "echo PID=:${PID}:",
+      "kill -9 ${PID}"
+    ].join("\n")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
