@@ -34,21 +34,21 @@ class TrafficLight
   def [](image_name)
     light = @map[image_name]
     return light unless light.nil?
-
     #shell.assert("docker pull #{image_name}")
-    lambda_source = read_lambda_source_from(image_name)
-    fn = ruby_eval(lambda_source)
-    @map.compute(image_name) { checked_bulb_lambda(fn, lambda_source) }
+    lambda_source = checked_read_lambda_source(image_name)
+    fn = checked_ruby_eval(lambda_source)
+    @map.compute(image_name) {
+      lambda { |stdout,stderr,status|
+        colour = checked_call(fn, lambda_source, stdout, stderr, status)
+        checked_colour(colour, lambda_source)
+      }
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_lambda_source_from(image_name)
-    command = [
-      'docker run --rm --entrypoint=cat',
-      image_name,
-      RAG_LAMBDA_FILENAME
-    ].join(' ')
+  def checked_read_lambda_source(image_name)
+    command = [ 'docker run --rm --entrypoint=cat', image_name, RAG_LAMBDA_FILENAME ].join(' ')
     stdout,stderr,status = shell.exec(command)
     if status === 0
       stdout
@@ -64,9 +64,11 @@ class TrafficLight
     end
   end
 
+  RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def ruby_eval(lambda_source)
+  def checked_ruby_eval(lambda_source)
     Empty.binding.eval(lambda_source)
   rescue Exception => error
     info = {
@@ -80,36 +82,34 @@ class TrafficLight
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
+  def checked_call(fn, lambda_source, stdout, stderr, status)
+    fn.call(stdout,stderr,status.to_i).to_s
+  rescue Exception => error
+    info = {
+      context: "exception when calling lambda source",
+      lambda_source: lambda_source,
+      class: error.class.name,
+      message: error.message
+    }
+    fail TrafficLight::Fault, info
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def checked_colour(colour, lambda_source)
+    if LEGAL_COLOURS.include?(colour)
+      colour
+    else
+      info = {
+        context: "illegal colour; must be one of ['red','amber','green']",
+        illegal_colour: colour,
+        lambda_source: lambda_source
+      }
+      fail TrafficLight::Fault, info
+    end
+  end
 
   LEGAL_COLOURS = [ 'red', 'amber', 'green' ]
-
-  def checked_bulb_lambda(fn, lambda_source)
-    lambda { |stdout,stderr,status|
-      begin
-        colour = fn.call(stdout,stderr,status.to_i).to_s
-      rescue Exception => error
-        info = {
-          context: "exception when calling lambda source",
-          lambda_source: lambda_source,
-          class: error.class.name,
-          message: error.message
-        }
-        fail TrafficLight::Fault, info
-      end
-
-      if LEGAL_COLOURS.include?(colour)
-        colour
-      else
-        info = {
-          context: "illegal colour; must be one of ['red','amber','green']",
-          illegal_colour: colour,
-          lambda_source: lambda_source
-        }
-        fail TrafficLight::Fault, info
-      end
-    }
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
