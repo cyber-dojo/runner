@@ -146,8 +146,4 @@ class RobustNessTest < TestBase
     assert log.include?(expected), diagnostic
   end
 
-  def pretty_result(context)
-    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
-  end
-
 end

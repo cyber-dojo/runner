@@ -42,14 +42,12 @@ class TimedOutTest < TestBase
         SOURCE
       }
     }
-    with_captured_log {
-      run_cyber_dojo_sh(named_args)
-    }
-    assert timed_out?, :timed_out
-    assert_equal '', stdout, :stdout
-    assert_equal '', stderr, :stderr
-    assert_equal 137, status, :status
-    assert_equal 'amber', colour, :colour
+    run_cyber_dojo_sh(named_args)
+    assert timed_out?, pretty_result(:timed_out)
+    assert stdout.empty?, pretty_result(:stdout)
+    assert stderr.empty?, pretty_result(:stderr)
+    assert_equal 137, status, pretty_result(:status)
+    assert_equal 'amber', colour, pretty_result(:colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,14 +80,12 @@ class TimedOutTest < TestBase
         SOURCE
       }
     }
-    with_captured_log {
-      run_cyber_dojo_sh(named_args)
-    }
-    assert timed_out?, :timed_out
-    assert stdout.include?('Hello'), :stdout
-    assert_equal '', stderr, :stderr
-    assert_equal 137, status, :status
-    assert_equal 'amber', colour, :colour
+    run_cyber_dojo_sh(named_args)
+    assert timed_out?, pretty_result(:timed_out)
+    assert stdout.include?('Hello'), pretty_result(:stdout)
+    assert stderr.empty?, pretty_result(:stderr)
+    assert_equal 137, status, pretty_result(:status)
+    assert_equal 'amber', colour, pretty_result(:colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,14 +115,12 @@ class TimedOutTest < TestBase
         SOURCE
       }
     }
-    with_captured_log {
-      run_cyber_dojo_sh(named_args)
-    }
-    assert_equal '', stdout, :stdout
-    assert_equal '', stderr, :stderr
-    assert_equal 137, status, :status
-    assert_equal 'amber', colour, :colour
-    assert timed_out?, :timed_out
+    run_cyber_dojo_sh(named_args)
+    assert stdout.empty?, pretty_result(:stdout)
+    assert stderr.empty?, pretty_result(:stderr)
+    assert_equal 137, status, pretty_result(:status)
+    assert_equal 'amber', colour, pretty_result(:colour)
+    assert timed_out?, pretty_result(:timed_out)
   end
 
 end

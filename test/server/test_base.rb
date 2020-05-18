@@ -19,31 +19,21 @@ class TestBase < Id58TestBase
     $externals
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def runner
     Runner.new(externals)
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def shell
     externals.shell
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def alive?
     runner.alive?['alive?']
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def ready?
     runner.ready?['ready?']
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def sha
     runner.sha['sha']
@@ -57,6 +47,15 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_cyber_dojo_sh(script)
+    named_args = {
+      :changed => { 'cyber-dojo.sh' => script }
+    }
+    run_cyber_dojo_sh(named_args)
+    refute timed_out?, result
+    stdout
+  end
 
   def run_cyber_dojo_sh(named_args = {})
     unchanged_files = starting_files
@@ -95,6 +94,10 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   attr_reader :result
+
+  def pretty_result(context)
+    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
+  end
 
   def run_result
     result['run_cyber_dojo_sh']
@@ -148,17 +151,6 @@ class TestBase < Id58TestBase
 
   def assert_changed(expected)
     assert_hash_equal(expected, changed)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_sh(script)
-    named_args = {
-      :changed => { 'cyber-dojo.sh' => script }
-    }
-    run_cyber_dojo_sh(named_args)
-    refute timed_out?, result
-    stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
