@@ -7,6 +7,7 @@ No detectable difference.
 # TODO: capture stderr of shell.exec() calls and log those
 # TODO: capture status of Process.spawn and log that too.
 # TODO: lose with_captured_log() calls
+
 # TODO: add tmp-dir for home/sandbox.
 
 # BIG TODO: 1. cache for rag-lambdas. In place. Loggings needs adding.

@@ -35,7 +35,7 @@ class RobustNessTest < TestBase
     })
     assert timed_out?, pretty_result(:timed_out)
     diagnostic = '/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable'
-    assert_logged(diagnostic)
+    assert log.empty? || log.include?(diagnostic), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -148,10 +148,6 @@ class RobustNessTest < TestBase
 
   def pretty_result(context)
     JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
-  end
-
-  def log
-    result['log']
   end
 
 end
