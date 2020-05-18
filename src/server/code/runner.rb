@@ -127,12 +127,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def packaged_untgz(tgz)
-    result = {}
     reader = Tar::Reader.new(Gnu::unzip(tgz))
-    reader.files.each do |filename,content|
-      result[filename] = packaged(content)
+    reader.files.each_with_object({}) do |(filename,content),memo|
+      memo[filename] = packaged(content)
     end
-    result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
