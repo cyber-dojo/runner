@@ -6,7 +6,6 @@ require_relative 'random_hex'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
-require 'httpray'
 require 'securerandom'
 require 'timeout'
 
