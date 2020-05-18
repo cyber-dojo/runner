@@ -227,9 +227,7 @@ class Runner
         gzip -c "${TAR_FILE}"
       }
       cd #{SANDBOX_DIR}
-      bash ./cyber-dojo.sh \
-         > "${TMP_DIR}/stdout" \
-        2> "${TMP_DIR}/stderr"
+      bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
       STATUS=$?
       SHELL
 
