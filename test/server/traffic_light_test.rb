@@ -54,12 +54,21 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB0', %w(
-  allow rag-lambda to return symbol or string colors (Postel's Law) ) do
+  test 'xJ8', %w(
+  allow rag-lambda to return string colour (Postel's Law) ) do
     externals.bash = BashStub.new
-    postel = "lambda{|so,se,st| 'red' }"
+    postel = "lambda{|_so,_se,_st| 'red' }"
     bash_stub_run(docker_run_command, postel, '', 0)
-    bulb = traffic_light('ignored', 'ignored', 0)
+    assert_equal 'red', traffic_light('ignored', 'ignored', 0)
+    assert pretty_log.empty?, pretty_log
+  end
+
+  test 'xJ9', %w(
+  allow rag-lambda to return string symbol (Postel's Law) ) do
+    externals.bash = BashStub.new
+    postel = "lambda{|_so,_se,_st| :red }"
+    bash_stub_run(docker_run_command, postel, '', 0)
+    assert_equal 'red', traffic_light('ignored', 'ignored', 0)
     assert pretty_log.empty?, pretty_log
   end
 
@@ -161,7 +170,7 @@ class TrafficLightTest < TestBase
     bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
     bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
     assert_equal 'faulty', bulb
-    context = 'illegal colour'
+    context = "illegal colour; must be one of ['red','amber','green']"
     illegal_colour = 'orange'
     assert_illegal_colour_logged(context, bad_lambda_source, illegal_colour)
   end

@@ -102,8 +102,7 @@ class TrafficLight
         colour
       else
         info = {
-          context: 'illegal colour',
-          legal_colours: LEGAL_COLOURS,
+          context: "illegal colour; must be one of ['red','amber','green']",
           illegal_colour: colour,
           lambda_source: lambda_source
         }
