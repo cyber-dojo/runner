@@ -63,7 +63,7 @@ class Runner
     writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
     writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
     tgz_in = Gnu::zip(writer.tar_file)
-    tgz_out, _stderr_out, timed_out = *docker_tar_pipe(tgz_in)
+    tgz_out, _stderr_out, timed_out = *run_docker_tar_pipe(tgz_in)
 
     begin
       files_out = packaged_untgz(tgz_out)
@@ -96,7 +96,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_tar_pipe(tgz_in)
+  def run_docker_tar_pipe(tgz_in)
     r_stdin, w_stdin = IO.pipe # into container
     w_stdin.write(tgz_in)
     w_stdin.close
