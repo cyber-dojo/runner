@@ -63,7 +63,7 @@ class Runner
     writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
     writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
     tgz_in = Gnu::zip(writer.tar_file)
-    tgz_out, timed_out = *docker_tar_pipe(tgz_in)
+    tgz_out, _stderr_out, timed_out = *docker_tar_pipe(tgz_in)
 
     begin
       files_out = packaged_untgz(tgz_out)
@@ -101,8 +101,9 @@ class Runner
     w_stdin.write(tgz_in)
     w_stdin.close
     r_stdout, w_stdout = IO.pipe # to get tgz from container's stdout
+    r_stderr, w_stderr = IO.pipe # to get container's stderr
     command = docker_run_cyber_dojo_sh_command
-    pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
+    pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr)
     tgz_out,timed_out = nil,nil
     begin
       Timeout::timeout(max_seconds) do # [C]
@@ -116,10 +117,13 @@ class Runner
       timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
+      w_stderr.close unless w_stderr.closed?
       tgz_out = r_stdout.read
+      stderr_out = r_stderr.read
       r_stdout.close
+      r_stderr.close
     end
-    [ tgz_out, timed_out ]
+    [ tgz_out, stderr_out, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

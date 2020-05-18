@@ -211,8 +211,13 @@ class TestBase < Id58TestBase
     define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
   end
 
+  def self.debian_test(id_suffix, *lines, &block)
+    define_test(:Debian, 'Python, pytest', id_suffix, *lines, &block)
+  end
+
   def self.multi_os_test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
+    debian_test(id_suffix, *lines, &block)
     ubuntu_test(id_suffix, *lines, &block)
   end
 

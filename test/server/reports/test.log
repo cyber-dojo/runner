@@ -1,46 +1,36 @@
-/test/server/traffic_light_test.rb:9: warning: method redefined; discarding old id58_prefix
-/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 31895
+/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
+/test/server/traffic_light_test.rb:9: warning: previous definition of id58_prefix was here
+Run options: --seed 6325
 
 # Running:
 
-.................../tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-./tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-./tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-..............................................Unable to find image 'cyberdojofoundation/csharp_nunit_d06ab7:latest' locally
-docker: Error response from daemon: pull access denied for cyberdojofoundation/csharp_nunit_d06ab7, repository does not exist or may require 'docker login': denied: requested access to the resource is denied.
-See 'docker run --help'.
-.................................................
+.................."Baseline speed:0.3629395473981276 cyberdojofoundation/csharp_nunit"
+."Baseline speed:0.3486885210033506 cyberdojofoundation/python_pytest"
+."Baseline speed:0.3404423894127831 cyberdojofoundation/visual-basic_nunit"
+......................................................................................................................
 
-Finished in 61.522257s, 1.8855 runs/s, 383.0809 assertions/s.
+Finished in 71.363136s, 1.9338 runs/s, 332.8469 assertions/s.
 
-116 runs, 23568 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6911 / 13652 LOC (50.62%) covered.
+138 runs, 23753 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6918 / 13658 LOC (50.65%) covered.
 
 Slowest 5 tests are...
-4.2168 - 1B5CD5:feature_bomb_robustness_test.rb:12:c fork-bomb is contained      
-3.1415 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb is contained  
-2.7070 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.4872 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
-2.4707 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
-2.4350 - 9E9B2B:feature_timed_out_test.rb:23:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and stderr is empty, and status is 137 (==128+KILLED), and timed_out is true, and the traffic-light colour is set
+3.1396 - 1B5CD6:feature_bomb_robustness_test.rb:46:shell fork-bomb is contained  
+2.6621 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.5512 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
+2.4414 - 9E94D7:feature_timed_out_test.rb:48:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and stderr is empty, and status is 137, and timed_out is true, and the traffic-light colour is set
+2.4320 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.4209 - 9E9B2B:feature_timed_out_test.rb:23:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and stderr is empty, and status is 137 (==128+KILLED), and timed_out is true, and the traffic-light colour is set
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   61.52   <=   100 | [32m true [0m
-                    tests |     116   >=     1 | [32m true [0m
+        duration(test)[s] |   71.36   <=   100 | [32m true [0m
+                    tests |     138   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.52   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    0.90   >=   0.9 | [32m true [0m
+     lines(tester/tested) |    2.49   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.17   >=   0.9 | [32m true [0m
 

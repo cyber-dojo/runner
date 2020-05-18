@@ -19,7 +19,8 @@ class BaselineSpeedTest < TestBase
       }
     }
     average = t /  n
-    assert average < max=1000, "average=#{average}, max=#{max}"
+    #p "Baseline speed:#{average} #{image_name}"
+    assert average < max=800, "average=#{average}, max=#{max}"
   end
 
 end
