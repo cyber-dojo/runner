@@ -8,31 +8,46 @@ class ResultLoggerTest < TestBase
     'qR9'
   end
 
+  def id58_setup
+    @result = {}
+    @logger = ResultLogger.new(@result)
+  end
+
+  attr_reader :logger
+
+  def log
+    @result['log']
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'dF6', %w( log is initially empty ) do
+    assert_equal '', log
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   test 'dF7', %w( write(s) is a no-op when s is empty ) do
-    result = { 'log' => 'xxx' }
-    logger = ResultLogger.new(result)
     logger.write('')
-    assert_equal 'xxx', result['log']
+    assert_equal '', log
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'dF8', %w( write(s) logs s and a trailing newline if s does not end in a newline ) do
-    result = { 'log' => "xxx\n" }
-    logger = ResultLogger.new(result)
     logger.write('hello')
-    assert_equal "xxx\nhello\n", result['log']
+    assert_equal "hello\n", log
+    logger.write('world')
+    assert_equal "hello\nworld\n", log
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'dF9', %w( write(s) logs s only if s already ends in a newline ) do
-    result = { 'log' => "xxx\n" }
-    logger = ResultLogger.new(result)
     logger.write("hello\n")
-    assert_equal "xxx\nhello\n", result['log']
+    assert_equal "hello\n", log
+    logger.write("world\n")
+    assert_equal "hello\nworld\n", log
   end
 
 end

@@ -4,6 +4,7 @@ class ResultLogger
 
   def initialize(result)
     @result = result
+    @result['log'] = ''
   end
 
   def write(message)

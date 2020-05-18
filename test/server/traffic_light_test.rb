@@ -143,7 +143,7 @@ class TrafficLightTest < TestBase
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     context = "exception when eval'ing lambda source"
     klass = 'SyntaxError'
-    message = "/app/code/empty.rb:5: syntax error, unexpected '-'\\nnot-a-lambda\\n   ^"
+    message = "/app/code/empty.rb:6: syntax error, unexpected '-'\\nnot-a-lambda\\n   ^"
     assert_bad_lambda_logged(context, bad_lambda_source, klass, message)
   end
 

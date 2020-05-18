@@ -35,6 +35,7 @@ class RobustNessTest < TestBase
     })
     diagnostic = '/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable'
     assert log.empty? || log.include?(diagnostic), pretty_result(:log)
+    assert ['red','amber','green'].include?(colour), pretty_result(:colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -71,7 +72,7 @@ class RobustNessTest < TestBase
     assert stdout.empty? || stdout.include?('fopen() != NULL'), pretty_result(:stdout)
     assert stderr.empty? || stderr.include?('profiling:/sandbox/hiker.gcda:Cannot open'), pretty_result(:stderr)
     assert [0,42].include?(status), pretty_result(:status)
-    assert_equal 'green', colour, pretty_result(:colour)
+    assert ['red','amber','green'].include?(colour), pretty_result(:colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -80,9 +81,11 @@ class RobustNessTest < TestBase
   'cyber-dojo.sh killing its own processes is contained' do
     run_cyber_dojo_sh_kill_pid_for('init')
     assert log.empty?, pretty_result(:log_empty)
+    assert ['red','amber','green'].include?(colour), pretty_result(:colour)
 
     run_cyber_dojo_sh_kill_pid_for('main.sh')
     assert log.empty?, pretty_result(:log_empty)
+    assert ['red','amber','green'].include?(colour), pretty_result(:colour)
 
     run_cyber_dojo_sh_kill_pid_for('cyber-dojo.sh')
     assert_logged([
@@ -90,6 +93,7 @@ class RobustNessTest < TestBase
       '12 Killed                  ',
       'bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr'
     ].join(''))
+    assert ['red','amber','green'].include?(colour), pretty_result(:colour)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,6 +120,7 @@ class RobustNessTest < TestBase
     assert stdout.empty?, pretty_result(:stdout_empty)
     assert stderr.empty?, pretty_result(:stderr_empty)
     assert_equal 42, status, pretty_result(:status) # Gzip Error
+    assert ['red','amber','green'].include?(colour), pretty_result(:colour)
   end
 
   private

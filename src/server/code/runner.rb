@@ -12,53 +12,21 @@ require 'timeout'
 
 class Runner
 
-  def initialize(externals)
+  def initialize(externals, args)
     @externals = externals
-  end
-
-  def alive?(_={})
-    { 'alive?' => true }
-  end
-
-  def ready?(_={})
-    { 'ready?' => true }
-  end
-
-  def sha(_={})
-    { 'sha' => ENV['SHA'] }
+    @id = args['id']
+    @files = args['files']
+    @image_name = args['manifest']['image_name']
+    @max_seconds = args['manifest']['max_seconds']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   attr_reader :id, :files, :image_name, :max_seconds
 
-  def run_cyber_dojo_sh(args)
-    @id = args['id']
-    @files = args['files']
-    @image_name = args['manifest']['image_name']
-    @max_seconds = args['manifest']['max_seconds']
-    @result = { 'log' => '' }
-    @result_logger = ResultLogger.new(@result)
-    run
-    @result
-  end
-
-  private
-
-  include FilesDelta
-
-  UID = 41966               # [A] sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966               # [A] sandbox group - runs /sandbox/cyber-dojo.sh
-  SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
-                            # not /home/sandbox; /sandbox is faster tmp-dir
-  KB = 1024
-  MB = 1024 * KB
-  GB = 1024 * MB
-  MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run
+  def run_cyber_dojo_sh
+    result = {}
+    logger = ResultLogger.new(result)
     files_in = sandboxed(files)
     writer = Tar::Writer.new(files_in)
     writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
@@ -66,7 +34,7 @@ class Runner
     tgz_in = Gnu::zip(writer.tar_file)
     tgz_out, stderr_out, timed_out = *run_docker_tar_pipe(tgz_in)
 
-    log(stderr_out)
+    logger.write(stderr_out)
 
     begin
       files_out = packaged_untgz(tgz_out)
@@ -82,10 +50,10 @@ class Runner
     end
 
     args = [image_name, stdout['content'], stderr['content'], status]
-    colour = traffic_light.colour(@result_logger, *args)
+    colour = traffic_light.colour(logger, *args)
 
-    @result['colour'] = colour
-    @result['run_cyber_dojo_sh'] = {
+    result['colour'] = colour
+    result['run_cyber_dojo_sh'] = {
       stdout: stdout,
       stderr: stderr,
       status: status.to_i,
@@ -95,7 +63,21 @@ class Runner
       deleted: unsandboxed(deleted).keys.sort,
       changed: unsandboxed(changed)
     }
+    result
   end
+
+  private
+
+  include FilesDelta
+
+  UID = 41966              # [A] sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966              # [A] sandbox group - runs /sandbox/cyber-dojo.sh
+  SANDBOX_DIR = '/sandbox' # where files are saved to in the container
+                           # not /home/sandbox; /sandbox is faster tmp-dir
+  KB = 1024
+  MB = 1024 * KB
+  GB = 1024 * MB
+  MAX_FILE_SIZE = 50 * KB  # of stdout, stderr, created, changed
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -159,13 +141,13 @@ class Runner
 
   TEXT_FILENAMES_SH_PATH = '/tmp/text_filenames.sh'
 
-  # [D] Support Approval style test frameworks.
-  # [A] Dependencies: truncate,file
-  # file incorrectly reports very small files as binary.
-  # tar does not like absolute pathnames so strip leading /
-  # grep -q is --quiet, we are generating text file names.
-  # grep -v is --invert-match.
   TEXT_FILENAMES_SH =
+    # [D] Support Approval style test frameworks.
+    # [A] Dependencies: truncate,file
+    # file incorrectly reports very small files as binary.
+    # tar does not like absolute pathnames so strip leading /
+    # grep -q is --quiet, we are generating text file names.
+    # grep -v is --invert-match.
     <<~SHELL.strip
       function text_filenames()
       {
@@ -204,10 +186,10 @@ class Runner
 
   MAIN_SH_PATH = '/tmp/main.sh'
 
-  # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
-  # 2nd tar: -C / so sandbox files are pathed
-  # [E] See notes re adding head into cyber-dojo.sh redirect pipes.
   MAIN_SH =
+    # 1st tar: -C TMP_DIR so stdout/stderr/status are not pathed
+    # 2nd tar: -C / so sandbox files are pathed
+    # [E] See notes re adding head into cyber-dojo.sh redirect pipes.
     <<~SHELL.strip
       source #{TEXT_FILENAMES_SH_PATH}
       TMP_DIR=$(mktemp -d /tmp/XXXXXX)
@@ -437,12 +419,6 @@ class Runner
 
   def traffic_light
     @externals.traffic_light
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def log(message)
-    @result['log'] += message
   end
 
   SPACE = ' '

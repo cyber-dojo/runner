@@ -2,6 +2,7 @@ require_relative '../id58_test_base'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_src 'externals'
+require_src 'prober'
 require_src 'runner'
 require 'stringio'
 
@@ -19,24 +20,24 @@ class TestBase < Id58TestBase
     $externals
   end
 
-  def runner
-    Runner.new(externals)
+  def prober(args)
+    Prober.new(externals,args)
   end
 
-  def shell
-    externals.shell
+  def runner(args)
+    Runner.new(externals,args)
   end
 
   def alive?
-    runner.alive?['alive?']
+    prober({}).alive?['alive?']
   end
 
   def ready?
-    runner.ready?['ready?']
+    prober({}).ready?['ready?']
   end
 
   def sha
-    runner.sha['sha']
+    prober({}).sha['sha']
   end
 
   def assert_sha(string)
@@ -81,7 +82,7 @@ class TestBase < Id58TestBase
         'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
       }
     }
-    @result = runner.run_cyber_dojo_sh(args)
+    @result = runner(args).run_cyber_dojo_sh
     nil
   end
 

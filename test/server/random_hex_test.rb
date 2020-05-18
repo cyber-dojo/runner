@@ -12,8 +12,8 @@ class RandomHexTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'c91', %w( hex_id(8) is size 8, each char is hex-digit ) do
-    size = 8
     512.times do
+      size = 8
       assert is_hex?(size, RandomHex.id(size), 0)
       assert is_hex?(size, v1(size), 1)
       assert is_hex?(size, v2(size), 2)
@@ -23,14 +23,14 @@ class RandomHexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'c92', %w( size=0 doesnt work but I don't need that anyway ) do
+  test 'c92', %w( size=0 doesn't work but I don't need that anyway ) do
     error = assert_raises(ArgumentError) { RandomHex.id(0) }
     assert_equal 'wrong number of arguments (given 1, expected 0)', error.message
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'c94', %w( its the fastest of the 4 algorithm I tried ) do
+  test 'c94', %w( its the fastest of the 4 algorithms I tried ) do
     n,size = 512,8
     t3 = Benchmark.realtime { n.times { v3(size) } }
     t2 = Benchmark.realtime { n.times { v2(size) } }
