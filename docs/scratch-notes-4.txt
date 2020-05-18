@@ -3,20 +3,19 @@ Not using json. Using plain tar pipes.
 Checked whether compression made it faster.
 No detectable difference.
 
-# TODO: 0. error logging for TrafficLight
-# TODO: 1. cache for rag-lambdas. In place. Loggings needs adding.
-# TODO: 2. only gather text files if manifest['hidden_filenames'] is set?
+# TODO: error logging for TrafficLight
+# TODO: capture stderr of shell.exec() calls and log those
+# TODO: capture status of Process.spawn and log that too.
+# TODO: lose with_captured_log() calls
+# TODO: add tmp-dir for home/sandbox.
+
+# BIG TODO: 1. cache for rag-lambdas. In place. Loggings needs adding.
+# ??? TODO: 2. only gather text files if manifest['hidden_filenames'] is set?
 
 # TODO: test time-outs gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
 
-# TODO: add test for cyber-dojo.sh writing string to stdout but without a newline.
-        I think trap handler needs to flush >stdout pipe and 2>stderr pipe.
-
-# TODO: add tmp-dir for home/sandbox.
 # TODO: make container --readonly. Check on all LTFs
 # TODO: split docker-run into run+exec as before ready for container cache?
-# TODO: setup stderr pipe in main Process.spawn() and log stderr-string if non empty
-# TODO: capture status of Process.spawn and log that too.
 # TODO: drop jq and xargs installs in image_dockerfile_augmenter
 
 Thinking about container-caches.
