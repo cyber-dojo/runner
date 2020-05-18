@@ -32,14 +32,14 @@ class TimedOutTest < TestBase
     named_args = {
       max_seconds: 1,
       changed: { 'hiker.c' =>
-        <<~C_SOURCE
+        <<~'SOURCE'
         #include "hiker.h"
         int answer(void)
         {
             for(;;);
             return 6 * 7;
         }
-        C_SOURCE
+        SOURCE
       }
     }
     with_captured_log {
@@ -66,7 +66,7 @@ class TimedOutTest < TestBase
     named_args = {
       max_seconds: 1,
       changed: { 'hiker.c' =>
-        <<~C_SOURCE
+        <<~'SOURCE'
         #include "hiker.h"
         #include <stdio.h>
         int answer(void)
@@ -79,7 +79,7 @@ class TimedOutTest < TestBase
             for(;;);
             return 6 * 7;
         }
-        C_SOURCE
+        SOURCE
       }
     }
     with_captured_log {
@@ -106,7 +106,7 @@ class TimedOutTest < TestBase
     named_args = {
       max_seconds: 1,
       changed: { 'hiker.c' =>
-        <<~C_SOURCE
+        <<~'SOURCE'
         #include "hiker.h"
         #include <stdio.h>
         int answer(void)
@@ -116,7 +116,7 @@ class TimedOutTest < TestBase
             for(;;);
             return 6 * 7;
         }
-        C_SOURCE
+        SOURCE
       }
     }
     with_captured_log {

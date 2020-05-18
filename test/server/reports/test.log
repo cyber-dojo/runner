@@ -1,36 +1,38 @@
 /test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
 /test/server/traffic_light_test.rb:9: warning: previous definition of id58_prefix was here
-Run options: --seed 6325
+Run options: --seed 7475
 
 # Running:
 
-.................."Baseline speed:0.3629395473981276 cyberdojofoundation/csharp_nunit"
-."Baseline speed:0.3486885210033506 cyberdojofoundation/python_pytest"
-."Baseline speed:0.3404423894127831 cyberdojofoundation/visual-basic_nunit"
-......................................................................................................................
+.............................................................................{
+  "command": "docker stop --time 1 cyber_dojo_runner_1B5DB3_c6a2c850",
+  "stdout": "",
+  "stderr": "Error response from daemon: No such container: cyber_dojo_runner_1B5DB3_c6a2c850\n",
+  "status": 1
+}................................................................
 
-Finished in 71.363136s, 1.9338 runs/s, 332.8469 assertions/s.
+Finished in 78.284519s, 1.8011 runs/s, 303.9298 assertions/s.
 
-138 runs, 23753 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6918 / 13658 LOC (50.65%) covered.
+141 runs, 23793 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6948 / 13688 LOC (50.76%) covered.
 
 Slowest 5 tests are...
-3.1396 - 1B5CD6:feature_bomb_robustness_test.rb:46:shell fork-bomb is contained  
-2.6621 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.5512 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
-2.4414 - 9E94D7:feature_timed_out_test.rb:48:when run_cyber_dojo_sh does not complete in max_seconds and produces output on stdout the captured stdout still gets sent (thanks to trap handler) and stderr is empty, and status is 137, and timed_out is true, and the traffic-light colour is set
-2.4320 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
-2.4209 - 9E9B2B:feature_timed_out_test.rb:23:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and stderr is empty, and status is 137 (==128+KILLED), and timed_out is true, and the traffic-light colour is set
+3.2353 - 1B5CD5:feature_robustness_test.rb:30:c fork-bomb is contained           
+2.6343 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.4904 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.4189 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+2.3942 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
+2.2703 - 1598A6:feature_baseline_speed_test.rb:13:baseline average speed is less than 1 secs
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   71.36   <=   100 | [32m true [0m
-                    tests |     138   >=     1 | [32m true [0m
+        duration(test)[s] |   78.28   <=   100 | [32m true [0m
+                    tests |     141   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.49   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.17   >=   0.9 | [32m true [0m
+     lines(tester/tested) |    2.53   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.29   >=   1.1 | [32m true [0m
 

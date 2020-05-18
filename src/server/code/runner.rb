@@ -37,7 +37,7 @@ class Runner
     @files = args['files']
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
-    @result = {}
+    @result = { 'log' => '' }
     run
     @result
   end
@@ -57,13 +57,22 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def log(message)
+    @result['log'] += message
+    #if message[-1] != "\n"
+    #  result['log'] += "\n"
+    #end
+  end
+
   def run
     files_in = sandboxed(files)
     writer = Tar::Writer.new(files_in)
     writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
     writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
     tgz_in = Gnu::zip(writer.tar_file)
-    tgz_out, _stderr_out, timed_out = *run_docker_tar_pipe(tgz_in)
+    tgz_out, stderr_out, timed_out = *run_docker_tar_pipe(tgz_in)
+
+    log(stderr_out)
 
     begin
       files_out = packaged_untgz(tgz_out)
