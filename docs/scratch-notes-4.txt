@@ -3,7 +3,7 @@ Not using json. Using plain tar pipes.
 Checked whether compression made it faster.
 No detectable difference.
 
-# TODO: error logging for TrafficLight
+# TODO: error logging for TrafficLight.
 # TODO: capture stderr of shell.exec() calls and log those
 # TODO: capture status of Process.spawn and log that too?
 # TODO: lose with_captured_log() calls

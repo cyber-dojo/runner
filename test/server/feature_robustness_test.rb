@@ -33,7 +33,6 @@ class RobustNessTest < TestBase
         SOURCE
       }
     })
-    assert timed_out?, pretty_result(:timed_out)
     diagnostic = '/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable'
     assert log.empty? || log.include?(diagnostic), pretty_result(:log)
   end
