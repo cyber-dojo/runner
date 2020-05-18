@@ -34,7 +34,7 @@ class TrafficLight
   def [](image_name)
     light = @map[image_name]
     return light unless light.nil?
-    #shell.assert("docker pull #{image_name}")
+    #shell.exec("docker pull #{image_name}")
     lambda_source = checked_read_lambda_source(image_name)
     fn = checked_ruby_eval(lambda_source)
     @map.compute(image_name) {

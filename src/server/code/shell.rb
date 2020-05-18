@@ -13,17 +13,6 @@ class Shell
     bash_run(command)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def assert(command)
-    stdout,stderr,status = bash_run(command)
-    unless success?(status)
-      args = [command,stdout,stderr,status]
-      raise ShellAssertError.new(*args)
-    end
-    stdout
-  end
-
   private
 
   SUCCESS = 0

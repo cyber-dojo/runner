@@ -445,7 +445,6 @@ class Runner
     @result['log'] += message
   end
 
-
   SPACE = ' '
 
 end

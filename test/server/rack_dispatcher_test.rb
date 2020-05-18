@@ -162,33 +162,19 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
-    image_stub = "runner_test_stub:#{id}"
-    Dir.mktmpdir do |dir|
-      dockerfile = [
-        "FROM #{image_name}",
-        'RUN rm /usr/local/bin/red_amber_green.rb'
-      ].join("\n")
-      IO.write("#{dir}/Dockerfile", dockerfile)
-      shell.assert("docker build --tag #{image_stub} #{dir}")
-    end
+    args = run_cyber_dojo_sh_args
+    args['manifest']['image_name'] = 'alpine:latest'
+    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
+    rack_call(env)
 
-    begin
-      args = run_cyber_dojo_sh_args
-      args['manifest']['image_name'] = image_stub
-      env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
-      rack_call(env)
-
-      assert_200('run_cyber_dojo_sh')
-      expected_stdout = ''
-      expected_stderr = "cat: /usr/local/bin/red_amber_green.rb: No such file or directory\n"
-      expected_status = 1
-      assert_logged('stdout', expected_stdout)
-      assert_logged('stderr', expected_stderr)
-      assert_logged('status', expected_status)
-    ensure
-      shell.assert("docker image rm #{image_stub}")
-    end
-  end
+    assert_200('run_cyber_dojo_sh')
+    expected_stdout = ''
+    expected_stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory\n"
+    expected_status = 1
+    assert_logged('stdout', expected_stdout)
+    assert_logged('stderr', expected_stderr)
+    assert_logged('status', expected_status)
+  end 
 
   # - - - - - - - - - - - - - - - - -
 
@@ -201,12 +187,10 @@ class RackDispatcherTest < TestBase
     raiser = BashStubRaiser.new('fubar')
     externals.bash = raiser
     rack = RackDispatcher.new(externals)
-    with_captured_stdout_stderr {
-      response = rack.call(env, RackRequestStub)
-      assert raiser.fired_once?
-      status = response[0]
-      assert_equal 500, status
-    }
+    response = rack.call(env, RackRequestStub)
+    assert raiser.fired_once?
+    status = response[0]
+    assert_equal 500, status
   end
 
   private # = = = = = = = = = = = = =

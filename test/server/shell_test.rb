@@ -72,58 +72,6 @@ class ShellTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # shell.assert(command)
-  # - - - - - - - - - - - - - - - - -
-
-  test '247',
-  %w( when assert(command) has status of zero,
-      it returns stdout,
-      it logs nothing
-  ) do
-    log,_ = with_captured_log {
-      stdout = shell.assert('printf Hello')
-      assert_equal 'Hello', stdout, :stdout
-    }
-    assert_equal '', log, :log
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '248',
-  %w( when assert(command) has a status of non-zero,
-      it raises a ShellAssertError holding [command,stdout,stderr,status],
-      it logs [command,stdout,stderr,status]
-  ) do
-    command = 'printf Hello && false'
-    log,_ = with_captured_log {
-      error = assert_raises(ShellAssertError) { shell.assert(command) }
-      assert_error_contains(error, 'command', command)
-      assert_error_contains(error, 'stdout', 'Hello')
-      assert_error_contains(error, 'stderr', '')
-      assert_error_contains(error, 'status', 1)
-    }
-    assert_log_contains(log, 'command', command)
-    assert_log_contains(log, 'stdout', 'Hello')
-    assert_log_contains(log, 'stderr', '')
-    assert_log_contains(log, 'status', 1)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test '249', %w(
-  when assert(command) raises
-  the exception is untouched,
-  it logs nothing
-  ) do
-    log,_ = with_captured_log {
-      error = assert_raises(Errno::ENOENT) { shell.assert('xxx Hello') }
-      expected = 'No such file or directory - xxx'
-      assert_equal expected, error.message, :error_message
-    }
-    assert_equal '', log, :log
-  end
-
-  # - - - - - - - - - - - - - - - - -
   # special test for silencing known CircleCI error message
   # - - - - - - - - - - - - - - - - -
 
@@ -170,15 +118,6 @@ class ShellTest < TestBase
     diagnostic = "log does not contain key:#{key}\n#{log}"
     assert json.has_key?(key), diagnostic
     assert_equal value, json[key], log
-  end
-
-  def assert_error_contains(error, key, value)
-    refute_nil error
-    refute_nil error.message
-    json = JSON.parse(error.message)
-    diagnostic = "error.message does not contain key:#{key}\n#{error.message}"
-    assert json.has_key?(key), diagnostic
-    assert_equal value, json[key], error.message
   end
 
 end
