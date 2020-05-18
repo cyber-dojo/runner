@@ -97,11 +97,11 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_tar_pipe(tgz_in)
-    r_stdin, w_stdin = IO.pipe # to send tgz into container's stdin
+    r_stdin, w_stdin = IO.pipe # into container
     w_stdin.write(tgz_in)
     w_stdin.close
-    r_stdout, w_stdout = IO.pipe # to get tgz from container's stdout
-    r_stderr, w_stderr = IO.pipe # to get container's stderr
+    r_stdout, w_stdout = IO.pipe # from container
+    r_stderr, w_stderr = IO.pipe # from container
     command = docker_run_cyber_dojo_sh_command
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr)
     tgz_out,timed_out = nil,nil
@@ -116,12 +116,10 @@ class Runner
       Process_detach(pid)
       timed_out = true
     ensure
-      w_stdout.close unless w_stdout.closed?
-      w_stderr.close unless w_stderr.closed?
-      tgz_out = r_stdout.read
-      stderr_out = r_stderr.read
-      r_stdout.close
-      r_stderr.close
+      close_once(w_stdout)
+      close_once(w_stderr)
+      tgz_out = closed_read(r_stdout)
+      stderr_out = closed_read(r_stderr)
     end
     [ tgz_out, stderr_out, timed_out ]
   end
@@ -405,6 +403,16 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # file content helpers
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def close_once(f)
+    f.close unless f.closed?
+  end
+
+  def closed_read(f)
+    read = f.read
+    f.close
+    read
+  end
 
   def packaged(raw_content)
     content = Utf8.clean(raw_content)

@@ -9,8 +9,6 @@ No detectable difference.
 
 # TODO: test time-outs gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
 
-# TODO: add test for cyber-dojo killing its own main.sh process. I think it will cause exceptions in Ruby
-
 # TODO: add test for cyber-dojo.sh writing to stdout but without newlines.
         I think trap handler needs to flush >stdout pipe and 2>stderr pipe.
 
