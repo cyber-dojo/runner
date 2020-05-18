@@ -137,8 +137,8 @@ class Runner
 
   def sandboxed(files)
     # 'hiker.cs' ==> 'sandbox/hiker.cs'
-    files.keys.each_with_object({}) do |filename,h|
-      h["#{unrooted(SANDBOX_DIR)}/#{filename}"] = files[filename]
+    files.each_with_object({}) do |(filename,content),memo|
+      memo["#{unrooted(SANDBOX_DIR)}/#{filename}"] = content
     end
   end
 
@@ -149,8 +149,8 @@ class Runner
 
   def unsandboxed(files)
     # 'sandbox/hiker.cs' ==> 'hiker.cs'
-    files.keys.each_with_object({}) do |filename,h|
-      h[filename[SANDBOX_DIR.size..-1]] = files[filename]
+    files.each_with_object({}) do |(filename,content),memo|
+      memo[filename[SANDBOX_DIR.size..-1]] = content
     end
   end
 
