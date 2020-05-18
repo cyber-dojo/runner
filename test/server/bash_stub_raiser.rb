@@ -10,7 +10,7 @@ class BashStubRaiser
     @fired_count === 1
   end
 
-  def run(command)
+  def exec(command)
     @fired_count += 1
     raise ArgumentError.new(@message)
   end

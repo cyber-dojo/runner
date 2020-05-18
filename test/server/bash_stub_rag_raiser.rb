@@ -11,7 +11,7 @@ class BashStubRagRaiser
     @fired_count === 1
   end
 
-  def run(command)
+  def exec(command)
     if command.end_with?("cat /usr/local/bin/red_amber_green.rb'")
       @fired_count += 1
       raise ArgumentError.new(@message)

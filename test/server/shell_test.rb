@@ -85,7 +85,7 @@ class ShellTest < TestBase
       Class.new do
         def initialize; @fired_count = 0; end
         def fired?(n); @fired_count === n; end
-        def run(command)
+        def exec(command)
           @fired_count += 1
           ['',KNOWN_CIRCLE_CI_WARNING,0]
         end

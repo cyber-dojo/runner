@@ -24,7 +24,7 @@ class BashStub
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def stub_run(command, stdout, stderr, status)
+  def stub_exec(command, stdout, stderr, status)
     stubs = read
     stub = {
       command:command,
@@ -37,21 +37,21 @@ class BashStub
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def run(command)
+  def exec(command)
     stubs = read
     stub = stubs.shift
     write(stubs)
     if stub.nil?
       raise [
         self.class.name,
-        "run(command) - no stub",
+        "exec(command) - no stub",
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
     unless command === stub['command']
       raise [
         self.class.name,
-        "run(command) - does not match stub",
+        "exec(command) - does not match stub",
         "actual-command: #{command}",
         "stubbed-command: #{stub['command']}"
       ].join("\n") + "\n"

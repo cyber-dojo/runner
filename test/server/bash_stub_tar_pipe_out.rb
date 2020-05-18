@@ -11,7 +11,7 @@ class BashStubTarPipeOut
     @fired_count === 1
   end
 
-  def run(command)
+  def exec(command)
     if command.include?('source /tmp/echo_truncated_textfilenames.sh')
       @fired_count += 1
       return stdout=@content,stderr='',status=1

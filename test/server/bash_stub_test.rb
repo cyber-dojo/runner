@@ -18,8 +18,8 @@ class BashStubTest < TestBase
 
   test '4A5',
   %w( teardown does not raise
-      when no run()s are stubbed
-      and no run()s are made
+      when no exec()s are stubbed
+      and no exec()s are made
   ) do
     bash.teardown
   end
@@ -27,29 +27,29 @@ class BashStubTest < TestBase
   # - - - - - - - - - - - - - - -
 
   test '652',
-  %w( run() raises when run() is not stubbed
+  %w( exec() raises when exec() is not stubbed
   ) do
-    assert_raises { bash.run(pwd) }
+    assert_raises { bash.exec(pwd) }
   end
 
   # - - - - - - - - - - - - - - -
 
   test '181',
-  %w( run() raises when run() is stubbed but for a different command
+  %w( exec() raises when exec() is stubbed but for a different command
   ) do
-    bash.stub_run(pwd, wd, stderr='', success)
-    assert_raises { bash.run(not_pwd = "cd #{wd}") }
+    bash.stub_exec(pwd, wd, stderr='', success)
+    assert_raises { bash.exec(not_pwd = "cd #{wd}") }
   end
 
   # - - - - - - - - - - - - - - -
 
   test 'B4E',
   %w( teardown does not raise
-      when one run() is stubbed
-      and a matching run() is made
+      when one exec() is stubbed
+      and a matching exec() is made
   ) do
-    bash.stub_run(pwd, wd, stderr='', success)
-    stdout,stderr,status = bash.run('pwd')
+    bash.stub_exec(pwd, wd, stderr='', success)
+    stdout,stderr,status = bash.exec('pwd')
     assert_equal wd, stdout
     assert_equal '', stderr
     assert_equal success, status
@@ -60,10 +60,10 @@ class BashStubTest < TestBase
 
   test 'D0C',
   %w( teardown raises
-      when a run() is stubbed
-      and no run() is made
+      when a exec() is stubbed
+      and no exec() is made
   ) do
-    bash.stub_run(pwd, wd, stderr='', success)
+    bash.stub_exec(pwd, wd, stderr='', success)
     assert_raises { bash.teardown }
   end
 
@@ -73,7 +73,7 @@ class BashStubTest < TestBase
   %w( teardown does not raise
       when there is an uncaught exception
   ) do
-    bash.stub_run(pwd, wd, stderr='', success)
+    bash.stub_exec(pwd, wd, stderr='', success)
     error = assert_raises {
       begin
         raise 'forced'
