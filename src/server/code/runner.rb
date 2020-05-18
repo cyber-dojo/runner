@@ -114,7 +114,7 @@ class Runner
         timed_out = false
       end
     rescue Timeout::Error
-      shell.exec(docker_stop_command)
+      bash.exec(docker_stop_command)
       Process_kill_group(pid)
       Process_detach(pid)
       timed_out = true
@@ -431,8 +431,8 @@ class Runner
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def shell
-    @externals.shell
+  def bash
+    @externals.bash
   end
 
   def traffic_light

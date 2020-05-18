@@ -11,7 +11,7 @@ class BaselineSpeedTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A6',
-  'baseline average speed is less than 1 secs' do
+  'baseline average speed is less than 0.6 secs' do
     n = 5
     t = Benchmark.realtime {
       n.times {
@@ -20,7 +20,7 @@ class BaselineSpeedTest < TestBase
     }
     average = t /  n
     #p "Baseline speed:#{average} #{image_name}"
-    assert average < max=800, "average=#{average}, max=#{max}"
+    assert average < max=600, "average=#{average}, max=#{max}"
   end
 
 end

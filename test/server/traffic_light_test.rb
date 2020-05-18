@@ -67,7 +67,7 @@ class TrafficLightTest < TestBase
   allow rag-lambda to return string colour (Postel's Law) ) do
     externals.bash = BashStub.new
     postel = "lambda{|_so,_se,_st| 'red' }"
-    bash_stub_run(docker_run_command, postel, '', 0)
+    stub_bash_exec(docker_run_command, postel, '', 0)
     assert_equal 'red', traffic_light('ignored', 'ignored', 0)
     assert pretty_log.empty?, pretty_log
   end
@@ -76,7 +76,7 @@ class TrafficLightTest < TestBase
   allow rag-lambda to return string symbol (Postel's Law) ) do
     externals.bash = BashStub.new
     postel = "lambda{|_so,_se,_st| :red }"
-    bash_stub_run(docker_run_command, postel, '', 0)
+    stub_bash_exec(docker_run_command, postel, '', 0)
     assert_equal 'red', traffic_light('ignored', 'ignored', 0)
     assert pretty_log.empty?, pretty_log
   end
@@ -123,7 +123,7 @@ class TrafficLightTest < TestBase
   ) do
     externals.bash = BashStub.new
     stub_stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
-    bash_stub_run(docker_run_command, '', stub_stderr, 1)
+    stub_bash_exec(docker_run_command, '', stub_stderr, 1)
     with_captured_log {
       assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     }
@@ -139,7 +139,7 @@ class TrafficLightTest < TestBase
   ) do
     externals.bash = BashStub.new
     bad_lambda_source = 'not-a-lambda'
-    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     context = "exception when eval'ing lambda source"
     klass = 'SyntaxError'
@@ -156,7 +156,7 @@ class TrafficLightTest < TestBase
   ) do
     externals.bash = BashStub.new
     bad_lambda_source = "lambda{ |_so,_se,_st| fail RuntimeError, '42' }"
-    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     context = 'exception when calling lambda source'
     klass = 'RuntimeError'
@@ -173,7 +173,7 @@ class TrafficLightTest < TestBase
   ) do
     externals.bash = BashStub.new
     bad_lambda_source = 'lambda{ |_1,_2| :red }'
-    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     context = 'exception when calling lambda source'
     klass = 'ArgumentError'
@@ -190,7 +190,7 @@ class TrafficLightTest < TestBase
   ) do
     externals.bash = BashStub.new
     bad_lambda_source = 'lambda{ |_1,_2,_3,_4| :red }'
-    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     context = 'exception when calling lambda source'
     klass = 'ArgumentError'
@@ -207,7 +207,7 @@ class TrafficLightTest < TestBase
   ) do
     externals.bash = BashStub.new
     bad_lambda_source = 'lambda{|so,se,st| :orange }'
-    bash_stub_run(docker_run_command, bad_lambda_source, '', 0)
+    stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
     assert_equal 'faulty', bulb
     context = "illegal colour; must be one of ['red','amber','green']"
@@ -244,8 +244,8 @@ class TrafficLightTest < TestBase
 
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
 
-  def bash_stub_run(command, stdout, stderr, status)
-    externals.bash.stub_run(command, stdout, stderr, status)
+  def stub_bash_exec(command, stdout, stderr, status)
+    externals.bash.stub_exec(command, stdout, stderr, status)
     @command = command
     @command_stdout = stdout
     @command_stderr = stderr

@@ -1,31 +1,33 @@
 /test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
 /test/server/traffic_light_test.rb:11: warning: previous definition of id58_prefix was here
-Run options: --seed 33387
+Run options: --seed 40467
 
 # Running:
 
-....
+........................................................................................................................................
 
-Finished in 0.015020s, 266.3121 runs/s, 1597.8728 assertions/s.
+Finished in 71.109894s, 1.9125 runs/s, 334.8339 assertions/s.
 
-4 runs, 24 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 5529 / 13680 LOC (40.42%) covered.
+136 runs, 23810 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6808 / 13499 LOC (50.43%) covered.
 
-Slowest 4 tests are...
-0.0044 - C89245:shell_test.rb:55:when exec(command) is non-zero, it does not raise, it returns [stdout,stderr,status], it logs [command,stdout,stderr,status] in json format
-0.0023 - C89244:shell_test.rb:38:when exec(command)'s status is zero, it does not raise, it returns [stdout,stderr,status], it logs nothing
-0.0015 - C89243:shell_test.rb:23:when exec(command) raises an exception, then the exception is untouched then nothing is logged
-0.0001 - C89250:shell_test.rb:82:known warning message on CircleCI is not logged - helps reveal other warnings
+Slowest 5 tests are...
+3.2182 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+2.7953 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+2.6124 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.5362 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
+2.5030 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.1523 - 1B5CD6:feature_robustness_test.rb:97:shell fork-bomb is contained (bash)
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    0.02   <=   100 | [32m true [0m
-                    tests |       4   >=     1 | [32m true [0m
-      coverage(tested)[%] |   49.13   >=   100 | [31m false [0m
-      coverage(tester)[%] |   35.46   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.53   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    0.62   >=   1.1 | [31m false [0m
+        duration(test)[s] |   71.11   <=   100 | [32m true [0m
+                    tests |     136   >=     1 | [32m true [0m
+      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
+     lines(tester/tested) |    2.51   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.27   >=   1.1 | [32m true [0m
 

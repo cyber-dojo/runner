@@ -34,7 +34,7 @@ class TrafficLight
   def [](image_name)
     light = @map[image_name]
     return light unless light.nil?
-    #shell.exec("docker pull #{image_name}")
+    #bash.exec("docker pull #{image_name}")
     lambda_source = checked_read_lambda_source(image_name)
     fn = checked_ruby_eval(lambda_source)
     @map.compute(image_name) {
@@ -49,7 +49,7 @@ class TrafficLight
 
   def checked_read_lambda_source(image_name)
     command = [ 'docker run --rm --entrypoint=cat', image_name, RAG_LAMBDA_FILENAME ].join(' ')
-    stdout,stderr,status = shell.exec(command)
+    stdout,stderr,status = bash.exec(command)
     if status === 0
       stdout
     else
@@ -113,8 +113,8 @@ class TrafficLight
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def shell
-    @externals.shell
+  def bash
+    @externals.bash
   end
 
 end

@@ -3,13 +3,13 @@ Not using json. Using plain tar pipes.
 Checked whether compression made it faster.
 No detectable difference.
 
-TODO: RackDispatcherTest AB7 force 500 error by monkey-patching Runner object
 TODO: capture status of Process.spawn and log that too?
-TODO: just use shell. Drop bash
-TODO: lose with_captured_log() calls?
+
 TODO: capture stderr of shell.exec() calls and log those
       Sometimes get (from DB3) ...
       docker stop --time 1 cyber_dojo_runner_1B5DB3_c9da051c
+
+TODO: lose with_captured_log() calls?
 
 TODO: add tmp-dir for home/sandbox.
 

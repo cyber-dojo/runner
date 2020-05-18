@@ -1,5 +1,3 @@
-require_relative 'bash_stub_raiser'
-require_relative 'bash_stub_tar_pipe_out'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 require_src 'rack_dispatcher'
@@ -161,39 +159,19 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
-    args = run_cyber_dojo_sh_args
-    args['manifest']['image_name'] = 'alpine:latest'
-    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
-    rack_call(env)
-
-    assert_200('run_cyber_dojo_sh')
-    expected_stdout = ''
-    expected_stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory\n"
-    expected_status = 1
-    assert_logged('stdout', expected_stdout)
-    assert_logged('stderr', expected_stderr)
-    assert_logged('status', expected_status)
-  end 
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB7', 'server error results in 500 status response' do
-    path_info = 'run_cyber_dojo_sh'
-    args = run_cyber_dojo_sh_args
-    # Have to avoid cache to ensure bash.run() call is made
-    args['manifest']['image_name'] += "_#{id58.downcase}"
-    env = { path_info:path_info, body:args.to_json }
-    raiser = BashStubRaiser.new('fubar')
-    externals.bash = raiser
+  c_assert_test 'AB7', 'server error results in 500 status response' do
     rack = RackDispatcher.new(externals)
-    response = rack.call(env, RackRequestStub)
-    assert raiser.fired_once?
-    status = response[0]
-    assert_equal 500, status
+    with_captured_stdout_stderr {
+      response = rack.call({}, nil)
+      status = response[0]
+      assert_equal 500, status
+    }
+    assert_equal '', @stdout
+    json = JSON.parse(@stderr)
+    assert json.has_key?('exception')
   end
 
-  private # = = = = = = = = = = = = =
+  private
 
   def assert_rack_call_run_missing(args, name)
     expected = "#{name} is missing"
@@ -283,14 +261,6 @@ class RackDispatcherTest < TestBase
   def assert_nothing_logged
     assert_equal '', @stdout, 'stdout is not empty'
     assert_equal '', @stderr, 'stderr is not empty'
-  end
-
-  def assert_logged(key, value)
-    refute_nil @stdout
-    json = JSON.parse(@stdout)
-    diagnostic = "log does not contain key:#{key}\n#{@stdout}"
-    assert json.has_key?(key), diagnostic
-    assert_equal value, json[key], @stdout
   end
 
   # - - - - - - - - - - - - - - - - -
