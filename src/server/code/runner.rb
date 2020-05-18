@@ -128,7 +128,7 @@ class Runner
 
   def packaged_untgz(tgz)
     reader = Tar::Reader.new(Gnu::unzip(tgz))
-    reader.files.each_with_object({}) do |(filename,content),memo|
+    reader.files.each.with_object({}) do |(filename,content),memo|
       memo[filename] = packaged(content)
     end
   end
@@ -137,7 +137,7 @@ class Runner
 
   def sandboxed(files)
     # 'hiker.cs' ==> 'sandbox/hiker.cs'
-    files.each_with_object({}) do |(filename,content),memo|
+    files.each.with_object({}) do |(filename,content),memo|
       memo["#{unrooted(SANDBOX_DIR)}/#{filename}"] = content
     end
   end
@@ -149,7 +149,7 @@ class Runner
 
   def unsandboxed(files)
     # 'sandbox/hiker.cs' ==> 'hiker.cs'
-    files.each_with_object({}) do |(filename,content),memo|
+    files.each.with_object({}) do |(filename,content),memo|
       memo[filename[SANDBOX_DIR.size..-1]] = content
     end
   end
