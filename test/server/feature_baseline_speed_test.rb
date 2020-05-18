@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
+require 'benchmark'
 
 class BaselineSpeedTest < TestBase
 
@@ -10,19 +11,15 @@ class BaselineSpeedTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A6',
-  'baseline average speed is less than 1.7 secs' do
-    timings = []
-    (1..5).each do
-      started_at = Time.now
-      assert_cyber_dojo_sh('true')
-      stopped_at = Time.now
-      diff = Time.at(stopped_at - started_at).utc
-      secs = diff.strftime("%S").to_i
-      millisecs = diff.strftime("%L").to_i
-      timings << (secs * 1000 + millisecs)
-    end
-    mean = timings.reduce(0, :+) / timings.size
-    assert mean < max=1700, "mean=#{mean}, max=#{max}"
+  'baseline average speed is less than 1 secs' do
+    n = 5
+    t = Benchmark.realtime {
+      n.times {
+        assert_cyber_dojo_sh('true')
+      }
+    }
+    average = t /  n
+    assert average < max=1000, "average=#{average}, max=#{max}"
   end
 
 end

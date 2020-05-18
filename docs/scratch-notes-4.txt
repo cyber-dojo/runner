@@ -5,12 +5,22 @@ No detectable difference.
 
 # TODO: 0. error logging for TrafficLight
 # TODO: 1. cache for rag-lambdas. In place. Loggings needs adding.
-# TODO: 2. only gather text files if manifest['hidden_filenames'] is set
+# TODO: 2. only gather text files if manifest['hidden_filenames'] is set?
 
-# TODO: add time-out tests gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
-# TODO: add tmp-dir for home/sandbox and make container --readonly. Check on all LTFs
+# TODO: test time-outs gather stdout (viz trap handler fires) for Debian+Alpine (do in injected bash?)
+
+# TODO: add test for cyber-dojo killing its own main.sh process. I think it will cause exceptions in Ruby
+
+# TODO: add test for cyber-dojo.sh writing to stdout but without newlines.
+        I think trap handler needs to flush >stdout pipe and 2>stderr pipe.
+
+# TODO: test for cyber-dojo.sh killing everything under sandbox (including itself). DONE. 62C
+
+# TODO: add tmp-dir for home/sandbox.
+# TODO: make container --readonly. Check on all LTFs
 # TODO: split docker-run into run+exec as before ready for container cache?
-# TODO: Setup stderr pipe in main Process.spawn() and log stderr-string if non empty
+# TODO: setup stderr pipe in main Process.spawn() and log stderr-string if non empty
+# TODO: capture status of Process.spawn and log that too.
 # TODO: drop jq and xargs installs in image_dockerfile_augmenter
 
 Thinking about container-caches.
