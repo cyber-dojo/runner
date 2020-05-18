@@ -59,35 +59,33 @@ class Runner
 
   def run
     files_in = sandboxed(files)
-    stdout, timed_out = *docker_tar_pipe(files_in)
+    writer = Tar::Writer.new(files_in)
+    writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
+    writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
+    tgz_in = Gnu::zip(writer.tar_file)
+    tgz_out, timed_out = *docker_tar_pipe(tgz_in)
 
     begin
-      #sss,files_out = *untgz(stdout)
-      files_out = packaged_untgz(stdout)
+      files_out = packaged_untgz(tgz_out)
       stdout = files_out.delete('stdout')
       stderr = files_out.delete('stderr')
-      status = files_out.delete('status')
+      status = files_out.delete('status')['content']
       created,deleted,changed = *files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
-      #sss = empty_sss
       stdout = packaged('')
       stderr = packaged('')
-      status = { 'content' => '42' }
+      status = '42'
       created,deleted,changed = {},{},{}
     end
 
-    args = []
-    args << image_name
-    args << stdout['content']
-    args << stderr['content']
-    args << status['content']
+    args = [image_name, stdout['content'], stderr['content'], status]
     colour = traffic_light.colour(*args)
 
     @result['colour'] = colour
     @result['run_cyber_dojo_sh'] = {
       stdout: stdout,
       stderr: stderr,
-      status: status['content'].to_i,
+      status: status.to_i,
       timed_out: timed_out,
       colour: colour,
       created: unsandboxed(created),
@@ -98,16 +96,14 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_tar_pipe(files_in)
-    stdout,timed_out = nil,nil
-
-    r_stdin, w_stdin = IO.pipe   # to send tgz into container's stdin
-    w_stdin.write(augmented_tgz(files_in))
+  def docker_tar_pipe(tgz_in)
+    r_stdin, w_stdin = IO.pipe # to send tgz into container's stdin
+    w_stdin.write(tgz_in)
     w_stdin.close
-
     r_stdout, w_stdout = IO.pipe # to get tgz from container's stdout
     command = docker_run_cyber_dojo_sh_command
     pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout)
+    tgz_out,timed_out = nil,nil
     begin
       Timeout::timeout(max_seconds) do # [C]
         Process.waitpid(pid)
@@ -120,20 +116,13 @@ class Runner
       timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
-      stdout = r_stdout.read
+      tgz_out = r_stdout.read
       r_stdout.close
     end
-    [ stdout, timed_out ]
+    [ tgz_out, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def augmented_tgz(files)
-    writer = Tar::Writer.new(files)
-    writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
-    writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
-    Gnu::zip(writer.tar_file)
-  end
 
   def packaged_untgz(tgz)
     result = {}
