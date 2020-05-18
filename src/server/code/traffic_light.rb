@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 require_relative 'empty'
 require 'concurrent'
+require 'json'
 
 class TrafficLight
+
+  class Fault < RuntimeError
+    def initialize(info)
+      super(JSON.pretty_generate(info))
+    end
+  end
 
   def initialize(externals)
     @externals = externals
@@ -10,71 +17,100 @@ class TrafficLight
   end
 
   def colour(logger, image_name, stdout, stderr, status)
-    self[image_name, logger].call(stdout, stderr, status)
+    self[image_name].call(stdout, stderr, status)
+  rescue Exception => error
+    logger.write("Faulty TrafficLight.colour(image_name,stdout,stderr,status):")
+    logger.write("image_name:#{image_name}:")
+    logger.write("stdout:#{stdout}:")
+    logger.write("stderr:#{stderr}:")
+    logger.write("status:#{status}:")
+    logger.write("exception:#{error.class.name}:")
+    logger.write("message:#{error.message}:")
+    'faulty'
   end
 
   private
 
-  def [](image_name, logger)
+  def [](image_name)
     light = @map[image_name]
     return light unless light.nil?
 
     #shell.assert("docker pull #{image_name}")
+    lambda_source = read_lambda_source_from(image_name)
+    fn = ruby_eval(lambda_source)
+    @map.compute(image_name) { checked_bulb_lambda(fn, lambda_source) }
+  end
 
-    docker_run_command = [
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def read_lambda_source_from(image_name)
+    command = [
       'docker run --rm --entrypoint=cat',
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(' ')
-
-    lambda_src,_stderr,status = shell.exec(docker_run_command)
-    if status != 0
-      return faulty(image_name)
+    stdout,stderr,status = shell.exec(command)
+    if status === 0
+      stdout
+    else
+      info = {
+        context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
+        command: command,
+        stdout: stdout,
+        stderr: stderr,
+        status: status
+      }
+      fail TrafficLight::Fault, info
     end
+  end
 
-    begin
-      bulb = Empty.binding.eval(lambda_src)
-    rescue Exception
-      return faulty(image_name)
-    end
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    @map.compute(image_name) { wrapped(image_name, bulb) }
+  def ruby_eval(lambda_source)
+    Empty.binding.eval(lambda_source)
+  rescue Exception => error
+    info = {
+      context: "exception when eval'ing lambda source",
+      lambda_source: lambda_source,
+      class: error.class.name,
+      message: error.message
+    }
+    fail TrafficLight::Fault, info
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
 
-  def wrapped(image_name, bulb)
+  LEGAL_COLOURS = [ 'red', 'amber', 'green' ]
+
+  def checked_bulb_lambda(fn, lambda_source)
     lambda { |stdout,stderr,status|
       begin
-        colour = bulb.call(stdout,stderr,status.to_i).to_s
-        if is_working?(colour)
-          colour
-        else
-          'faulty'
-        end
-      rescue Exception
-        'faulty'
+        colour = fn.call(stdout,stderr,status.to_i).to_s
+      rescue Exception => error
+        info = {
+          context: "exception when calling lambda source",
+          lambda_source: lambda_source,
+          class: error.class.name,
+          message: error.message
+        }
+        fail TrafficLight::Fault, info
+      end
+
+      if LEGAL_COLOURS.include?(colour)
+        colour
+      else
+        info = {
+          context: 'illegal colour',
+          legal_colours: LEGAL_COLOURS,
+          illegal_colour: colour,
+          lambda_source: lambda_source
+        }
+        fail TrafficLight::Fault, info
       end
     }
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def faulty(image_name)
-    lambda { |_stdout, _stderr, _status|
-      'faulty'
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def is_working?(colour)
-    COLOURS.include?(colour.to_s)
-  end
-
-  COLOURS = [ 'red', 'amber', 'green' ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
