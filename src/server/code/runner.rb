@@ -28,11 +28,7 @@ class Runner
     result = {}
     logger = ResultLogger.new(result)
     files_in = sandboxed(files)
-    writer = Tar::Writer.new(files_in)
-    writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
-    writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
-    tgz_in = Gnu::zip(writer.tar_file)
-    tgz_out, stderr_out, timed_out = *run_docker_tar_pipe(tgz_in)
+    tgz_out, stderr_out, timed_out = *run_docker_tar_pipe(tgz(files_in))
 
     logger.write(stderr_out)
 
@@ -78,6 +74,15 @@ class Runner
   MB = 1024 * KB
   GB = 1024 * MB
   MAX_FILE_SIZE = 50 * KB  # of stdout, stderr, created, changed
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tgz(files)
+    writer = Tar::Writer.new(files)
+    writer.write(unrooted(TEXT_FILENAMES_SH_PATH), TEXT_FILENAMES_SH)
+    writer.write(unrooted(MAIN_SH_PATH), MAIN_SH)
+    Gnu::zip(writer.tar_file)
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
