@@ -25,7 +25,7 @@ class Runner
 
   def run_cyber_dojo_sh
     files_in = sandboxed(files)
-    tgz_out, timed_out = *run_docker_tar_pipe(tgz(files_in))
+    tgz_out, timed_out = *docker_tar_pipe(tgz(files_in))
     begin
       files_out = truncated_untgz(tgz_out)
       stdout = files_out.delete('stdout')
@@ -83,24 +83,21 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_docker_tar_pipe(tgz_in)
+  def docker_tar_pipe(tgz_in)
     r_stdin , w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
     w_stdin.write(tgz_in)
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
-    pid = Process.spawn(run_docker_cyber_dojo_sh, options)
+    pid = Process.spawn(docker_run_cyber_dojo_sh, options)
     timed_out = false
     begin
-      Timeout::timeout(max_seconds) do # [C]
-        Process.waitpid(pid)
-      end
+      Timeout::timeout(max_seconds) { Process.wait(pid) } # [C]
     rescue Timeout::Error
       timed_out = true
-      bash.exec(docker_stop_command)
-      Process_kill_group(pid)
-      Process_detach(pid)
+      docker_stop_container
+      kill_process_group(pid)
     ensure
       tgz_out = pipe_close(r_stdout, w_stdout)
       stderr_out = pipe_close(r_stderr, w_stderr)
@@ -235,11 +232,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_stop_command
-    "docker stop --time 1 #{container_name}"
+  def docker_stop_container
+    bash.exec("docker stop --time 1 #{container_name}")
   end
 
-  def run_docker_cyber_dojo_sh
+  def docker_run_cyber_dojo_sh
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir in the container and runs /tmp/main.sh which runs
     # /sandbox/cyber-dojo.sh
@@ -325,7 +322,7 @@ class Runner
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
     options = [
-      ulimit('core'  ,   0   ),           # core file size
+      ulimit('core'  ,   0   ),           # no core file
       ulimit('fsize' ,  16*MB),           # file size
       ulimit('locks' , 128   ),           # number of file locks
       ulimit('nofile', 256   ),           # number of files
@@ -337,7 +334,8 @@ class Runner
       '--security-opt=no-new-privileges', # no escalation
     ]
     unless clang?(image_name)
-      # [ulimit data] prevents clang's -fsanitize=address option.
+      # [ulimit data] prevents clang's
+      # -fsanitize=address option.
       options << ulimit('data', 4*GB)     # data segment size
     end
     options.join(SPACE)
@@ -354,38 +352,40 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
+  # Add a random-id to the container name. A container-name
+  # based on _only_ the id will fail when a container with
+  # that id exists and is alive. Easily possible in tests.
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def container_name
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id exists and is alive. Easily possible in tests.
     @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # process helpers
+  # process
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # Kill the [docker run] process running on the host.
+  # This does not kill the docker container.
+  # The docker container is killed by
+  # o) the --rm option to [docker run]
+  # o) the [docker stop --time 1] if there is a timeout.
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  KILL_SIGNAL = 9
-
-  def Process_kill_group(pid)
-    # The [docker run] process running on the _host_ is
-    # killed by this Process.kill. This does _not_ kill the
-    # cyber-dojo.sh process running _inside_ the docker
-    # container. The container is killed by the docker-daemon
-    # via [docker run]'s --rm option.
-    Process.kill(-KILL_SIGNAL, pid) # -ve means kill process-group
+  def kill_process_group(pid)
+    # Kill the [docker run]. There is a
+    # timeout race here; there might not
+    # be a process at pid any longer.
+    Process.kill(KILL_PROCESS_GROUP_SIGNAL, pid)
   rescue Errno::ESRCH
-    # There may no longer be a process at pid (timeout race).
-    # If not, you get an exception Errno::ESRCH: No such process
+    # We lost the race. Nothing to do.
+  ensure
+    # Prevent zombie child-process.
+    # Don't wait for detach status.
+    # No exception if we lost the race.
+    Process.detach(pid)
   end
 
-  def Process_detach(pid)
-    # Prevents zombie child-process. Don't wait for detach status.
-    Process.detach(pid)
-    # There may no longer be a process at pid (timeout race).
-    # If not, you don't get an exception.
-  end
+  KILL_PROCESS_GROUP_SIGNAL = -9
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals

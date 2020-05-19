@@ -2,6 +2,8 @@
 
 TODO: capture status of Process.spawn and log that too?
 
+TODO: pass logger to bash.exec()
+
 TODO: capture stderr of shell.exec() calls and log those
       1. docker run - but this is inside the Process.spawn(), best is to get status?
       2. docker stop
