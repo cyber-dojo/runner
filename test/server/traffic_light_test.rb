@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 require_relative 'data/python_pytest'
-require_relative 'bash_stub'
+require_relative 'external_bash_stub'
 require_src 'result_logger'
-require_src 'traffic_light'
 require 'json'
 
 class TrafficLightTest < TestBase
@@ -13,7 +12,7 @@ class TrafficLightTest < TestBase
   end
 
   def id58_setup
-    @result = { 'log' => '' }
+    @result = {}
     @logger = ResultLogger.new(@result)
     @original_bash = externals.bash
   end
@@ -232,7 +231,7 @@ class TrafficLightTest < TestBase
   end
 
   def python_pytest_image_name
-    if externals.bash.is_a?(BashStub)
+    if externals.bash.is_a?(ExternalBashStub)
       # Have to avoid cache to ensure bash.run() call is made
       "cyberdojofoundation/python_pytest_#{id58.downcase}"
     else

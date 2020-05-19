@@ -1,4 +1,5 @@
 require_relative '../id58_test_base'
+require_relative 'external_bash_stub'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_src 'externals'
@@ -20,7 +21,7 @@ class TestBase < Id58TestBase
     $externals
   end
 
-  def stub_bash(stub = BashStub.new)
+  def stub_bash(stub = ExternalBashStub.new)
     externals.instance_exec { @bash = stub }
   end
 

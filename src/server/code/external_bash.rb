@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'open3'
 
-class Bash
+class ExternalBash
 
   def exec(command)
     stdout,stderr,r = Open3.capture3(command)

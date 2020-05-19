@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_relative 'data/python_pytest'
-require_relative 'bash_stub'
-require_src 'result_logger'
-require_src 'traffic_light'
-require 'json'
 
 class LogEmptyTest < TestBase
 

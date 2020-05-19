@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class BashStub
+class ExternalBashStub
 
   def initialize
     test_id = ENV['ID58']

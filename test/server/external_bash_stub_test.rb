@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_relative 'bash_stub'
+require_relative 'external_bash_stub'
 
-class BashStubTest < TestBase
+class ExternalBashStubTest < TestBase
 
   def self.id58_prefix
     'F03'
   end
 
   def id58_setup
-    @bash = BashStub.new
+    @bash = ExternalBashStub.new
   end
 
   attr_reader :bash
@@ -84,7 +84,7 @@ class BashStubTest < TestBase
     assert_equal 'forced', error.message
   end
 
-  private # = = = = = = = = = = = = = = =
+  private
 
   def pwd
     'pwd'
