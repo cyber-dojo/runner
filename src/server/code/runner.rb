@@ -18,20 +18,15 @@ class Runner
     @files = args['files']
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
+    @result = {}
+    @logger = ResultLogger.new(result)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  attr_reader :id, :files, :image_name, :max_seconds
-
   def run_cyber_dojo_sh
-    result = {}
-    logger = ResultLogger.new(result)
     files_in = sandboxed(files)
-    tgz_out, stderr_out, timed_out = *run_docker_tar_pipe(tgz(files_in))
-
-    logger.write(stderr_out)
-
+    tgz_out, timed_out = *run_docker_tar_pipe(tgz(files_in))
     begin
       files_out = truncated_untgz(tgz_out)
       stdout = files_out.delete('stdout')
@@ -66,6 +61,9 @@ class Runner
 
   include FilesDelta
 
+  attr_reader :id, :files, :image_name, :max_seconds
+  attr_reader :result, :logger
+
   UID = 41966              # [A] sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966              # [A] sandbox group - runs /sandbox/cyber-dojo.sh
   SANDBOX_DIR = '/sandbox' # where files are saved to in the container
@@ -87,13 +85,13 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_docker_tar_pipe(tgz_in)
-    r_stdin, w_stdin = IO.pipe # into container
-    w_stdin.write(tgz_in)
-    w_stdin.close
+    r_stdin , w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
-    command = docker_run_cyber_dojo_sh_command
-    pid = Process.spawn(command, pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr)
+    w_stdin.write(tgz_in)
+    w_stdin.close
+    options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
+    pid = Process.spawn(run_docker_cyber_dojo_sh, options)
     tgz_out,timed_out = nil,nil
     begin
       Timeout::timeout(max_seconds) do # [C]
@@ -106,12 +104,18 @@ class Runner
       Process_detach(pid)
       timed_out = true
     ensure
-      close_once(w_stdout)
-      close_once(w_stderr)
-      tgz_out = closed_read(r_stdout)
-      stderr_out = closed_read(r_stderr)
+      tgz_out = pipe_close(r_stdout, w_stdout)
+      stderr_out = pipe_close(r_stderr, w_stderr)
     end
-    [ tgz_out, stderr_out, timed_out ]
+    logger.write(stderr_out)
+    [ tgz_out, timed_out ]
+  end
+
+  def pipe_close(r, w)
+    w.close unless w.closed?
+    read = r.read
+    r.close
+    read
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -237,21 +241,21 @@ class Runner
     "docker stop --time 1 #{container_name}"
   end
 
-  def docker_run_cyber_dojo_sh_command
+  def run_docker_cyber_dojo_sh
     # Assumes a tgz of files on stdin. Untars this into the
-    # /sandbox/ dir in the container and runs main.sh which runs
+    # /sandbox/ dir in the container and runs /tmp/main.sh which runs
     # /sandbox/cyber-dojo.sh
     # [1] For clang/clang++'s -fsanitize=address
-    # [2] Init process also makes container removal much faster
+    # [2] Init process for proper signal handling and zombie reaping.
+    #     Also makes container removal much faster.
     # [3] tar is installed and has the --touch option [A].
     #     (not true in a default Alpine)
     #     --touch means 'dont extract file modified time' (stat %y).
     #     With --touch untarred files get a 'now' modification date.
     #     However, in default Alpine, date-time file-stamps have a
-    #     granularity of only 1 second. In other words, the date-time
-    #     file-stamps always have a microseconds value of 000000000
-    #     Alpine images are augmented [A] with a coreutils update
-    #     to get non-zero microseconds.
+    #     granularity of only 1 second; the microseconds value is
+    #     always 000000000. Alpine images are augmented [A] with the
+    #     coreutils update to get non-zero microseconds.
     <<~SHELL.strip
       docker run                          \
         --cap-add=SYS_PTRACE      `# [1]` \
@@ -281,8 +285,6 @@ class Runner
       env_var('SANDBOX',    SANDBOX_DIR)
     ].join(SPACE)
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def env_var(name, value)
     # value must not contain single-quotes
@@ -344,13 +346,9 @@ class Runner
     options.join(SPACE)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def ulimit(name, limit)
     "--ulimit #{name}=#{limit}"
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang')
@@ -385,27 +383,11 @@ class Runner
     # If not, you get an exception Errno::ESRCH: No such process
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def Process_detach(pid)
     # Prevents zombie child-process. Don't wait for detach status.
     Process.detach(pid)
     # There may no longer be a process at pid (timeout race).
     # If not, you don't get an exception.
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # file content helpers
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def close_once(f)
-    f.close unless f.closed?
-  end
-
-  def closed_read(f)
-    read = f.read
-    f.close
-    read
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

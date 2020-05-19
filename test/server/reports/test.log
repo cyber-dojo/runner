@@ -1,31 +1,33 @@
-/test/server/traffic_light_test.rb:11: warning: method redefined; discarding old id58_prefix
-/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 41330
+/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
+/test/server/traffic_light_test.rb:11: warning: previous definition of id58_prefix was here
+Run options: --seed 53416
 
 # Running:
 
-"Baseline speed:0.41498985460493715 cyberdojofoundation/csharp_nunit"
-."Baseline speed:0.41676090019755063 cyberdojofoundation/visual-basic_nunit"
-."Baseline speed:0.41809157179668544 cyberdojofoundation/python_pytest"
-.
+.........................................................................................................................................
 
-Finished in 6.255833s, 0.4796 runs/s, 5.2751 assertions/s.
+Finished in 74.038972s, 1.8504 runs/s, 321.8035 assertions/s.
 
-3 runs, 33 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6009 / 13500 LOC (44.51%) covered.
+137 runs, 23826 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6808 / 13497 LOC (50.44%) covered.
 
-Slowest 1 tests are...
-2.0910 - 1598A6:feature_baseline_speed_test.rb:13:baseline average speed is less than 0.6 secs
+Slowest 5 tests are...
+3.2318 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+3.1455 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.5380 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+2.5113 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
+2.4304 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.1348 - 1B5CD6:feature_robustness_test.rb:101:shell fork-bomb is contained (bash)
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    6.26   <=   100 | [32m true [0m
-                    tests |       3   >=     1 | [32m true [0m
-      coverage(tested)[%] |   76.12   >=   100 | [31m false [0m
-      coverage(tester)[%] |   31.02   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.55   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    8.68   >=   1.1 | [32m true [0m
+        duration(test)[s] |   74.04   <=   100 | [32m true [0m
+                    tests |     137   >=     1 | [32m true [0m
+      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
+     lines(tester/tested) |    2.56   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.18   >=   1.1 | [32m true [0m
 
