@@ -36,7 +36,7 @@ class TrafficLight
     return light unless light.nil?
     #bash.exec("docker pull #{image_name}")
     lambda_source = checked_read_lambda_source(image_name)
-    fn = checked_ruby_eval(lambda_source)
+    fn = checked_eval(lambda_source)
     @map.compute(image_name) {
       lambda { |stdout,stderr,status|
         colour = checked_call(fn, lambda_source, stdout, stderr, status)
@@ -68,7 +68,7 @@ class TrafficLight
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def checked_ruby_eval(lambda_source)
+  def checked_eval(lambda_source)
     Empty.binding.eval(lambda_source)
   rescue Exception => error
     info = {

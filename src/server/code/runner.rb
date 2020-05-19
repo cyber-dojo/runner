@@ -91,17 +91,16 @@ class Runner
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     pid = Process.spawn(run_docker_cyber_dojo_sh, options)
-    tgz_out,timed_out = nil,nil
+    timed_out = false
     begin
       Timeout::timeout(max_seconds) do # [C]
         Process.waitpid(pid)
-        timed_out = false
       end
     rescue Timeout::Error
+      timed_out = true
       bash.exec(docker_stop_command)
       Process_kill_group(pid)
       Process_detach(pid)
-      timed_out = true
     ensure
       tgz_out = pipe_close(r_stdout, w_stdout)
       stderr_out = pipe_close(r_stderr, w_stderr)

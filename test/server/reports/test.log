@@ -1,33 +1,33 @@
-/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
-/test/server/traffic_light_test.rb:11: warning: previous definition of id58_prefix was here
-Run options: --seed 53416
+/test/server/traffic_light_test.rb:11: warning: method redefined; discarding old id58_prefix
+/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
+Run options: --seed 58397
 
 # Running:
 
 .........................................................................................................................................
 
-Finished in 74.038972s, 1.8504 runs/s, 321.8035 assertions/s.
+Finished in 73.572850s, 1.8621 runs/s, 323.8423 assertions/s.
 
 137 runs, 23826 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6808 / 13497 LOC (50.44%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6787 / 13406 LOC (50.63%) covered.
 
 Slowest 5 tests are...
-3.2318 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
-3.1455 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
-2.5380 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
-2.5113 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
-2.4304 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.1348 - 1B5CD6:feature_robustness_test.rb:101:shell fork-bomb is contained (bash)
+3.2155 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+2.6185 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.5135 - 1B5DB3:feature_robustness_test.rb:43:file-handles quickly become exhausted
+2.5122 - 1B5CD6:feature_robustness_test.rb:101:shell fork-bomb is contained (bash)
+2.4749 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
+2.4506 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   74.04   <=   100 | [32m true [0m
+        duration(test)[s] |   73.57   <=   100 | [32m true [0m
                     tests |     137   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.56   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.18   >=   1.1 | [32m true [0m
+     lines(tester/tested) |    2.58   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.09   >=   1.1 | [31m false [0m
 
