@@ -7,7 +7,6 @@ require_relative 'result_logger'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
-require 'securerandom'
 require 'timeout'
 
 class Runner
@@ -161,12 +160,12 @@ class Runner
   TEXT_FILENAMES_SH_PATH = '/tmp/text_filenames.sh'
 
   TEXT_FILENAMES_SH =
-    # [D] Support Approval style test frameworks.
     # [A] Dependencies: truncate,file
     # file incorrectly reports very small files as binary.
     # tar does not like absolute pathnames so strip leading /
     # grep -q is --quiet, we are generating text file names.
     # grep -v is --invert-match.
+    # [D] Support Approval style test frameworks.
     <<~SHELL.strip
       function text_filenames()
       {
@@ -287,7 +286,6 @@ class Runner
   end
 
   def env_var(name, value)
-    # value must not contain single-quotes
     "--env CYBER_DOJO_#{name}='#{value}'"
   end
 
