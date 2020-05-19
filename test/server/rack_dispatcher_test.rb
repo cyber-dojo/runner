@@ -10,10 +10,6 @@ class RackDispatcherTest < TestBase
     'D06'
   end
 
-  def id58_teardown
-    externals.bash = nil
-  end
-
   # - - - - - - - - - - - - - - - - -
 
   test 'BAF',

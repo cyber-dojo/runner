@@ -1,33 +1,33 @@
-/test/server/traffic_light_test.rb:11: warning: method redefined; discarding old id58_prefix
-/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 54138
+/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
+/test/server/traffic_light_test.rb:11: warning: previous definition of id58_prefix was here
+Run options: --seed 61775
 
 # Running:
 
 .........................................................................................................................................
 
-Finished in 74.612254s, 1.8362 runs/s, 319.3309 assertions/s.
+Finished in 69.349887s, 1.9755 runs/s, 343.5622 assertions/s.
 
 137 runs, 23826 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6784 / 13403 LOC (50.62%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6782 / 13401 LOC (50.61%) covered.
 
 Slowest 5 tests are...
-3.2195 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
-2.6733 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.6132 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
-2.5195 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
-2.4628 - 1B5DB3:feature_robustness_test.rb:43:file-handles quickly become exhausted
-2.1611 - 1B5CD6:feature_robustness_test.rb:101:shell fork-bomb is contained (bash)
+3.1998 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+2.7328 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.4823 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+2.4773 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
+2.4082 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.3784 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   74.61   <=   100 | [32m true [0m
+        duration(test)[s] |   69.35   <=   100 | [32m true [0m
                     tests |     137   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.60   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.09   >=   1.0 | [32m true [0m
+     lines(tester/tested) |    2.61   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.18   >=   1.0 | [32m true [0m
 

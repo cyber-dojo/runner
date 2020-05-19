@@ -4,15 +4,11 @@ require_relative 'traffic_light'
 
 class Externals
 
-  def bash
-    @bash ||= Bash.new
-  end
-  def bash=(o)
-    @bash = o
+  def initialize
+    @bash = Bash.new
+    @traffic_light = TrafficLight.new(self)
   end
 
-  def traffic_light
-    @traffic_light ||= TrafficLight.new(self)
-  end
+  attr_reader :bash, :traffic_light
 
 end

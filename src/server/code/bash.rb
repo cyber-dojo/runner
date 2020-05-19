@@ -7,4 +7,7 @@ class Bash
     [ stdout, stderr, r.exitstatus ]
   end
 
+  def teardown
+  end
+  
 end

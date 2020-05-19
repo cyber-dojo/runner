@@ -15,14 +15,16 @@ class TrafficLightTest < TestBase
   def id58_setup
     @result = { 'log' => '' }
     @logger = ResultLogger.new(@result)
+    @original_bash = externals.bash
   end
 
   def id58_teardown
-    bash = externals.bash
-    externals.bash = nil
-    if bash.is_a?(BashStub)
-      bash.teardown
-    end
+    externals.bash.teardown
+    stub_bash(@original_bash)
+  end
+
+  def stub_bash(stub = BashStub.new)
+    externals.instance_exec { @bash = stub }
   end
 
   attr_reader :result, :logger
@@ -46,7 +48,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'xJ6', %w( sanity check FaultyBulbError class ) do
+  test 'xJ6', %w( TrafficLight::Fault holds message as JSON ) do
     info = { abc:'sanity', def:'check' }
     fail TrafficLight::Fault, info
   rescue TrafficLight::Fault => error
@@ -55,7 +57,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'xJ7', %w( status is an integer ) do
+  test 'xJ7', %w( lambda status argument is an integer ) do
     gcc_assert = 'cyberdojofoundation/gcc_assert'
     assert_equal 'green', externals.traffic_light.colour(logger, gcc_assert, '', '', '0')
     assert pretty_log.empty?, pretty_log
@@ -64,19 +66,19 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'xJ8', %w(
-  allow rag-lambda to return string colour (Postel's Law) ) do
-    externals.bash = BashStub.new
-    postel = "lambda{|_so,_se,_st| 'red' }"
-    stub_bash_exec(docker_run_command, postel, '', 0)
+  allow rag-lambda to return string or symbol (Postel's Law) ) do
+    stub_bash
+    returns_string = "lambda{|_so,_se,_st| 'red' }"
+    stub_bash_exec(docker_run_command, returns_string, '', 0)
     assert_equal 'red', traffic_light('ignored', 'ignored', 0)
     assert pretty_log.empty?, pretty_log
   end
 
   test 'xJ9', %w(
   allow rag-lambda to return string symbol (Postel's Law) ) do
-    externals.bash = BashStub.new
-    postel = "lambda{|_so,_se,_st| :red }"
-    stub_bash_exec(docker_run_command, postel, '', 0)
+    stub_bash
+    returns_symbol = "lambda{|_so,_se,_st| :red }"
+    stub_bash_exec(docker_run_command, returns_symbol, '', 0)
     assert_equal 'red', traffic_light('ignored', 'ignored', 0)
     assert pretty_log.empty?, pretty_log
   end
@@ -121,7 +123,7 @@ class TrafficLightTest < TestBase
   always gives colour==faulty,
   adds message to log
   ) do
-    externals.bash = BashStub.new
+    stub_bash
     stub_stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
     stub_bash_exec(docker_run_command, '', stub_stderr, 1)
     with_captured_log {
@@ -137,7 +139,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    externals.bash = BashStub.new
+    stub_bash
     bad_lambda_source = 'not-a-lambda'
     stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
@@ -154,7 +156,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    externals.bash = BashStub.new
+    stub_bash
     bad_lambda_source = "lambda{ |_so,_se,_st| fail RuntimeError, '42' }"
     stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
@@ -171,7 +173,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    externals.bash = BashStub.new
+    stub_bash
     bad_lambda_source = 'lambda{ |_1,_2| :red }'
     stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
@@ -188,7 +190,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    externals.bash = BashStub.new
+    stub_bash
     bad_lambda_source = 'lambda{ |_1,_2,_3,_4| :red }'
     stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
@@ -205,7 +207,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    externals.bash = BashStub.new
+    stub_bash
     bad_lambda_source = 'lambda{|so,se,st| :orange }'
     stub_bash_exec(docker_run_command, bad_lambda_source, '', 0)
     bulb = traffic_light(PythonPytest::STDOUT_RED, '', 0)
