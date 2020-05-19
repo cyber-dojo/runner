@@ -34,7 +34,7 @@ class RobustNessTest < TestBase
       }
     })
     diagnostic = '/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable'
-    assert log.empty? || log.include?(diagnostic), pretty_result(:log)
+    assert log_empty? || log.include?(diagnostic), pretty_result(:log)
     assert ['red','amber','green'].include?(colour), pretty_result(:colour)
   end
 
@@ -68,7 +68,7 @@ class RobustNessTest < TestBase
         SOURCE
         }
     })
-    assert log.empty?, pretty_result(:log_empty)
+    assert log_empty?, pretty_result(:log_empty)
     assert stdout.empty? || stdout.include?('fopen() != NULL'), pretty_result(:stdout)
     assert stderr.empty? || stderr.include?('profiling:/sandbox/hiker.gcda:Cannot open'), pretty_result(:stderr)
     assert [0,42].include?(status), pretty_result(:status)

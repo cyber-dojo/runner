@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'open3'
 
 class Bash
@@ -9,5 +10,5 @@ class Bash
 
   def teardown
   end
-  
+
 end

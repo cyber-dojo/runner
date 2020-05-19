@@ -86,14 +86,14 @@ class Runner
   def docker_tar_pipe(tgz_in)
     r_stdin , w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
-    r_stderr, w_stderr = IO.pipe # from container
+    r_stderr, w_stderr = IO.pipe # from [docker run]
     w_stdin.write(tgz_in)
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
-    pid = Process.spawn(docker_run_cyber_dojo_sh, options)
+    pid = process.spawn(docker_run_cyber_dojo_sh, options)
     timed_out = false
     begin
-      Timeout::timeout(max_seconds) { Process.wait(pid) } # [C]
+      Timeout::timeout(max_seconds) { process.wait(pid) } # [C]
     rescue Timeout::Error
       timed_out = true
       docker_stop_container
@@ -375,14 +375,14 @@ class Runner
     # Kill the [docker run]. There is a
     # timeout race here; there might not
     # be a process at pid any longer.
-    Process.kill(KILL_PROCESS_GROUP_SIGNAL, pid)
+    process.kill(KILL_PROCESS_GROUP_SIGNAL, pid)
   rescue Errno::ESRCH
     # We lost the race. Nothing to do.
   ensure
     # Prevent zombie child-process.
     # Don't wait for detach status.
     # No exception if we lost the race.
-    Process.detach(pid)
+    process.detach(pid)
   end
 
   KILL_PROCESS_GROUP_SIGNAL = -9
@@ -393,6 +393,10 @@ class Runner
 
   def bash
     @externals.bash
+  end
+
+  def process
+    @externals.process
   end
 
   def traffic_light

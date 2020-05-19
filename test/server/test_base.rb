@@ -20,12 +20,16 @@ class TestBase < Id58TestBase
     $externals
   end
 
+  def stub_bash(stub = BashStub.new)
+    externals.instance_exec { @bash = stub }
+  end
+
   def prober(args)
-    Prober.new(externals,args)
+    Prober.new(externals, args)
   end
 
   def runner(args)
-    Runner.new(externals,args)
+    Runner.new(externals, args)
   end
 
   def alive?
@@ -136,9 +140,27 @@ class TestBase < Id58TestBase
     run_result[:colour]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def log
     result['log']
   end
+
+  def log_empty?
+    log.empty? || (on_ci? && known_circleci_warning?)
+  end
+
+  def on_ci?
+    ENV['CIRCLECI'] === 'true'
+  end
+
+  def known_circleci_warning?
+     log === KNOWN_CIRCLE_CI_WARNING
+  end
+
+  KNOWN_CIRCLE_CI_WARNING =
+    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
+    "Memory limited without swap.\n"
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

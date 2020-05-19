@@ -23,10 +23,6 @@ class TrafficLightTest < TestBase
     stub_bash(@original_bash)
   end
 
-  def stub_bash(stub = BashStub.new)
-    externals.instance_exec { @bash = stub }
-  end
-
   attr_reader :result, :logger
 
   def pretty_log
