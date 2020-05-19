@@ -95,7 +95,7 @@ class TimedOutTest < TestBase
   and produces output on stdout,
   any flushed stdout is captured (there is none),
   and stderr is empty,
-  and status is 137,
+  and status is usually 137, but occasionally 42 (gzip error),
   and timed_out is true,
   and the traffic-light colour is set
   ) do
@@ -118,7 +118,7 @@ class TimedOutTest < TestBase
     run_cyber_dojo_sh(named_args)
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
-    assert_equal 137, status, pretty_result(:status)
+    assert [42,137].include?(status), pretty_result(:status)
     assert_equal 'amber', colour, pretty_result(:colour)
     assert timed_out?, pretty_result(:timed_out)
   end
