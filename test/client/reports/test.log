@@ -1,31 +1,31 @@
-Run options: --seed 3904
+Run options: --seed 8880
 
 # Running:
 
 ...............................
 
-Finished in 31.293229s, 0.9906 runs/s, 4.7295 assertions/s.
+Finished in 31.950371s, 0.9703 runs/s, 4.6322 assertions/s.
 
 31 runs, 148 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to //tmp/reports. 2481 / 4330 LOC (57.3%) covered.
 
 Slowest 5 tests are...
-8.8750 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
-3.9404 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-2.8832 - 46D3DB:large_file_test.rb:12:run with very large file                   
-2.7125 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
-2.6746 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
-0.9103 - 2D1161:round_trip_test.rb:22:created binary files are not returned in json payload but created text files are
+9.2513 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
+3.9707 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
+3.0135 - 46D3DB:large_file_test.rb:12:run with very large file                   
+2.8055 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
+2.7286 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
+0.8973 - 2D1161:round_trip_test.rb:22:created binary files are not returned in json payload but created text files are
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   31.29   <=    50 | [32m true [0m
+        duration(test)[s] |   31.95   <=    50 | [32m true [0m
                     tests |      31   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.65   >=   2.5 | [32m true [0m
-      hits(tested/tester) |    7.07   >=   6.6 | [32m true [0m
+      hits(tested/tester) |    6.85   >=   6.6 | [32m true [0m
 
