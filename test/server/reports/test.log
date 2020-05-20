@@ -1,28 +1,53 @@
-/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
-/test/server/traffic_light_test.rb:10: warning: previous definition of id58_prefix was here
-Run options: --seed 2854
+/test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
+/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
+Run options: --seed 42293
 
 # Running:
 
-.
+................................................................................................................./tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
+../tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: Interrupted system call
+./tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
+./tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+./tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
+./tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: Interrupted system call
+./tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/main.sh: fork: Interrupted system call
+.................
 
-Finished in 2.714886s, 0.3683 runs/s, 0.7367 assertions/s.
+Finished in 74.365082s, 1.8423 runs/s, 320.2309 assertions/s.
 
-1 runs, 2 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6002 / 13462 LOC (44.58%) covered.
+137 runs, 23814 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6792 / 13457 LOC (50.47%) covered.
 
-Slowest 1 tests are...
-2.7109 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
+Slowest 5 tests are...
+3.3626 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
+3.2788 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
+3.2452 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+2.5014 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.4321 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.3817 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    2.71   <=   150 | [32m true [0m
-                    tests |       1   >=     1 | [32m true [0m
-      coverage(tested)[%] |   69.29   >=    90 | [31m false [0m
-      coverage(tester)[%] |   31.28   >=    99 | [31m false [0m
-     lines(tester/tested) |    2.23   >=   2.2 | [32m true [0m
-      hits(tested/tester) |    0.98   >=   1.0 | [31m false [0m
+        duration(test)[s] |   74.37   <=   150 | [32m true [0m
+                    tests |     137   >=     1 | [32m true [0m
+      coverage(tested)[%] |   89.49   >=    80 | [32m true [0m
+      coverage(tester)[%] |   99.89   >=    99 | [32m true [0m
+     lines(tester/tested) |    2.20   >=   2.2 | [32m true [0m
+      hits(tested/tester) |    1.04   >=   1.0 | [32m true [0m
 

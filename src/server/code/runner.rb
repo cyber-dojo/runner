@@ -123,6 +123,8 @@ class Runner
       stderr_out = pipe_close(r_stderr, w_stderr)
     end
     logger.write(stderr_out)
+    $stdout.write(stderr_out)
+    $stdout.flush
     [ tgz_out, timed_out ]
   end
 
@@ -203,8 +205,8 @@ class Runner
       {
         if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
           truncate --size #{MAX_FILE_SIZE+1} "${1}" # [B]
-        else
-          touch "${1}"
+        #else
+        #  touch "${1}"
         fi
       }
       function unrooted()
