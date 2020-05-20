@@ -136,11 +136,4 @@ class RobustNessTest < TestBase
     ].join("\n")
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_logged(expected)
-    diagnostic = "#{pretty_result(:log)}\nExpected log to contain: #{expected}"
-    assert log.include?(expected), diagnostic
-  end
-
 end
