@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require 'json'
+require_relative 'prober'
+require_relative 'runner'
 
 class HttpJsonArgs
 
@@ -24,10 +26,10 @@ class HttpJsonArgs
 
   def get(path)
     case path
-    when '/sha'                then ['sha',{}]
-    when '/alive'              then ['alive?',{}]
-    when '/ready'              then ['ready?',{}]
-    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh',run_args]
+    when '/sha'                then [Prober,'sha',{}]
+    when '/alive'              then [Prober,'alive?',{}]
+    when '/ready'              then [Prober,'ready?',{}]
+    when '/run_cyber_dojo_sh'  then [Runner,'run_cyber_dojo_sh',run_args]
     else
       raise request_error('unknown path')
     end
@@ -63,8 +65,10 @@ class HttpJsonArgs
   def existing_run_args
     { 'id' => id,
       'files' => files,
-      'image_name' => image_name,
-      'max_seconds' => max_seconds
+      'manifest' => {
+        'image_name' => image_name,
+        'max_seconds' => max_seconds
+      }
     }
   end
 
