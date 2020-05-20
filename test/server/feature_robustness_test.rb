@@ -80,19 +80,12 @@ class RobustNessTest < TestBase
   multi_os_test 'CD4',
   'cyber-dojo.sh killing its own processes is contained' do
     run_cyber_dojo_sh_kill_pid_for('init')
-    assert log.empty?, pretty_result(:log_empty)
     assert ['red','amber','green'].include?(colour), pretty_result(:colour)
 
     run_cyber_dojo_sh_kill_pid_for('main.sh')
-    assert log.empty?, pretty_result(:log_empty)
     assert ['red','amber','green'].include?(colour), pretty_result(:colour)
 
     run_cyber_dojo_sh_kill_pid_for('cyber-dojo.sh')
-    assert_logged([
-      '/tmp/main.sh: line 22:    ',
-      '12 Killed                  ',
-      'bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr'
-    ].join(''))
     assert ['red','amber','green'].include?(colour), pretty_result(:colour)
   end
 
