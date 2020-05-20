@@ -81,38 +81,40 @@ class TestBase < Id58TestBase
     nil
   end
 
-  attr_reader :result
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def defaulted_arg(named_args, arg_name, arg_default)
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  attr_reader :result
+
+  def run_result
+    result['run_cyber_dojo_sh']
+  end
+
   def stdout
-    result['run_cyber_dojo_sh'][:stdout]['content']
+    run_result[:stdout]['content']
   end
 
   def stderr
-    result['run_cyber_dojo_sh'][:stderr]['content']
+    run_result[:stderr]['content']
   end
 
   def timed_out?
-    result['run_cyber_dojo_sh'][:timed_out]
+    run_result[:timed_out]
   end
 
   def created
-    result['run_cyber_dojo_sh'][:created]
+    run_result[:created]
   end
 
   def deleted
-    result['run_cyber_dojo_sh'][:deleted]
+    run_result[:deleted]
   end
 
   def changed
-    result['run_cyber_dojo_sh'][:changed]
+    run_result[:changed]
   end
 
   def colour

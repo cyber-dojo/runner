@@ -2,6 +2,7 @@
 require_relative 'files_delta'
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
+require_relative 'random_hex'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'traffic_light'
@@ -17,15 +18,9 @@ class Runner
     @files = args['files']
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id exists and is alive. Easily possible in tests.
-    # Note that remove_container() backgrounds the [docker rm].
-    random_id = HEX_DIGITS.shuffle[0,8].join
-    @container_name = ['cyber_dojo_runner', id, random_id].join('_')
   end
 
-  attr_reader :id, :image_name, :max_seconds, :files, :container_name
+  attr_reader :id, :image_name, :max_seconds, :files
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -285,6 +280,16 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # Add a random-id to the container name. A container-name
+  # based on _only_ the id will fail when a container with
+  # that id exists and is alive. Easily possible in tests.
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def container_name
+    @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def create_container

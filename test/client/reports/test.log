@@ -1,31 +1,31 @@
-Run options: --seed 38687
+Run options: --seed 31991
 
 # Running:
 
 ...............................
 
-Finished in 35.574469s, 0.8714 runs/s, 4.1603 assertions/s.
+Finished in 41.991840s, 0.7382 runs/s, 3.5007 assertions/s.
 
-31 runs, 148 assertions, 0 failures, 0 errors, 0 skips
+31 runs, 147 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to //tmp/reports. 2481 / 4330 LOC (57.3%) covered.
 
 Slowest 5 tests are...
-9.6893 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
-4.1232 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-3.5468 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
-3.2984 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
-2.3137 - 46D3DB:large_file_test.rb:12:run with very large file                   
-1.1566 - D59FDD:timed_out_test.rb:12:[C,assert] run which does not timeout       
+10.5731 - 46DED4:large_file_test.rb:29:stdout greater than 50K is truncated       
+9.3733 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
+3.9327 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
+3.0888 - 46D3DB:large_file_test.rb:12:run with very large file                   
+2.7610 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
+2.7027 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   35.57   <=    50 | [32m true [0m
+        duration(test)[s] |   41.99   <=    50 | [32m true [0m
                     tests |      31   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.65   >=   2.5 | [32m true [0m
-      hits(tested/tester) |    7.18   >=   6.6 | [32m true [0m
+      hits(tested/tester) |    6.76   >=   6.6 | [32m true [0m
 
