@@ -4,7 +4,7 @@ MIN = {
   app_coverage:100,
   test_coverage:100,
   line_ratio:2.5,
-  hits_ratio:6.5
+  hits_ratio:6.6
 }
 
 MAX = {

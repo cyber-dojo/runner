@@ -22,7 +22,7 @@ readonly server_user="${CYBER_DOJO_RUNNER_SERVER_USER}"
 
 ${SH_DIR}/build_images.sh
 ${SH_DIR}/tag_image.sh
-if [ "${1:-}" == '--build-only' ] || [ "${1:-}" == '-bo' ] ; then
+if [ "${1:-}" == '--build-only' ] || [ "${1:-}" == '-b' ] ; then
   exit 0
 fi
 ${SH_DIR}/tear_down.sh

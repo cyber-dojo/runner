@@ -1,13 +1,9 @@
 require_relative '../id58_test_base'
-require_relative 'external_bash_stub'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_src 'externals'
-require_src 'prober'
 require_src 'runner'
 require 'stringio'
-
-$externals = Externals.new
 
 class TestBase < Id58TestBase
 
@@ -18,31 +14,37 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def externals
-    $externals
+    @externals ||= Externals.new
   end
 
-  def stub_bash(stub = ExternalBashStub.new)
-    externals.instance_exec { @bash = stub }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def runner
+    @runner ||= Runner.new(externals)
   end
 
-  def prober(args)
-    Prober.new(externals, args)
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def shell
+    externals.shell
   end
 
-  def runner(args)
-    Runner.new(externals, args)
-  end
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def alive?
-    prober({}).alive?['alive?']
+    runner.alive?['alive?']
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def ready?
-    prober({}).ready?['ready?']
+    runner.ready?['ready?']
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def sha
-    prober({}).sha['sha']
+    runner.sha['sha']
   end
 
   def assert_sha(string)
@@ -53,15 +55,6 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_sh(script)
-    named_args = {
-      :changed => { 'cyber-dojo.sh' => script }
-    }
-    run_cyber_dojo_sh(named_args)
-    refute timed_out?, result
-    stdout
-  end
 
   def run_cyber_dojo_sh(named_args = {})
     unchanged_files = starting_files
@@ -87,9 +80,11 @@ class TestBase < Id58TestBase
         'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
       }
     }
-    @result = runner(args).run_cyber_dojo_sh
+    @result = runner.run_cyber_dojo_sh(args)
     nil
   end
+
+  attr_reader :result
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -99,69 +94,47 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  attr_reader :result
-
-  def pretty_result(context)
-    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
-  end
-
-  def run_result
-    result['run_cyber_dojo_sh']
-  end
-
   def stdout
-    run_result[:stdout]['content']
+    result['run_cyber_dojo_sh'][:stdout]['content']
   end
 
   def stderr
-    run_result[:stderr]['content']
-  end
-
-  def status
-    run_result[:status]
+    result['run_cyber_dojo_sh'][:stderr]['content']
   end
 
   def timed_out?
-    run_result[:timed_out]
+    result['run_cyber_dojo_sh'][:timed_out]
   end
 
   def created
-    run_result[:created]
+    result['run_cyber_dojo_sh'][:created]
   end
 
   def deleted
-    run_result[:deleted]
+    result['run_cyber_dojo_sh'][:deleted]
   end
 
   def changed
-    run_result[:changed]
+    result['run_cyber_dojo_sh'][:changed]
   end
 
   def colour
-    run_result[:colour]
+    result['colour']
   end
 
-  def log
-    run_result[:log]
+  def diagnostic
+    result['diagnostic']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def log_empty?
-    log.empty? || (on_ci? && known_circleci_warning?)
+  def assert_timed_out
+    assert timed_out?, result
   end
 
-  def on_ci?
-    ENV['CIRCLECI'] === 'true'
+  def refute_timed_out
+    refute timed_out?, result
   end
-
-  def known_circleci_warning?
-     log === KNOWN_CIRCLE_CI_WARNING
-  end
-
-  KNOWN_CIRCLE_CI_WARNING =
-    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
-    "Memory limited without swap.\n"
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -177,11 +150,15 @@ class TestBase < Id58TestBase
     assert_hash_equal(expected, changed)
   end
 
-  def assert_hash_equal(expected, actual)
-    assert_equal expected.keys.sort, actual.keys.sort
-    expected.keys.each do |key|
-      assert_equal expected[key], actual[key], key
-    end
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_cyber_dojo_sh(script)
+    named_args = {
+      :changed => { 'cyber-dojo.sh' => script }
+    }
+    run_cyber_dojo_sh(named_args)
+    refute_timed_out
+    stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -222,8 +199,6 @@ class TestBase < Id58TestBase
     HttpAdapter.new
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def self.test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
   end
@@ -236,13 +211,8 @@ class TestBase < Id58TestBase
     define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
   end
 
-  def self.debian_test(id_suffix, *lines, &block)
-    define_test(:Debian, 'Python, pytest', id_suffix, *lines, &block)
-  end
-
   def self.multi_os_test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
-    debian_test(id_suffix, *lines, &block)
     ubuntu_test(id_suffix, *lines, &block)
   end
 
@@ -256,14 +226,36 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def with_captured_log
+    begin
+      old_stdout = $stdout
+      $stdout = StringIO.new('', 'w')
+      yield
+      $stdout.string
+    ensure
+      $stdout = old_stdout
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def intact(content)
     { 'content' => content, 'truncated' => false }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def assert_hash_equal(expected, actual)
+    assert_equal expected.keys.sort, actual.keys.sort
+    expected.keys.each do |key|
+      assert_equal expected[key], actual[key], key
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def stat_cmd
-    # Works on Ubuntu, Debian, Alpine
+    # Works on Ubuntu and Alpine
     'stat -c "%n %A %u %G %s %y" *'
     # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
     # |        |           |      |          |    |          |

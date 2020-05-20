@@ -1,3 +1,5 @@
+require_relative 'bash_stub_raiser'
+require_relative 'bash_stub_tar_pipe_out'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 require_src 'rack_dispatcher'
@@ -137,7 +139,7 @@ class RackDispatcherTest < TestBase
 
     assert_200('run_cyber_dojo_sh')
     assert_gcc_starting
-    #assert_nothing_logged
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -150,24 +152,44 @@ class RackDispatcherTest < TestBase
 
     assert_200('run_cyber_dojo_sh')
     assert_gcc_starting
-    #assert_nothing_logged
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'AB7', 'server error results in 500 status response' do
+  c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
+    args = run_cyber_dojo_sh_args
+    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
+    stub = BashStubTarPipeOut.new('fail')
+    rack_call(env, Externals.new({ 'bash' => stub }))
+
+    assert stub.fired_once?
+    assert_200('run_cyber_dojo_sh')
+    assert_log_contains('command', 'docker exec')
+    assert_logged('stdout', 'fail')
+    assert_logged('stderr', '')
+    assert_logged('status', 1)
+    assert_gcc_starting
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AB7', 'server error results in 500 status response' do
+    path_info = 'run_cyber_dojo_sh'
+    args = run_cyber_dojo_sh_args
+    env = { path_info:path_info, body:args.to_json }
+    raiser = BashStubRaiser.new('fubar')
+    externals = Externals.new({ 'bash' => raiser })
     rack = RackDispatcher.new(externals)
     with_captured_stdout_stderr {
-      response = rack.call({}, nil)
+      response = rack.call(env, RackRequestStub)
+      assert raiser.fired_once?
       status = response[0]
       assert_equal 500, status
     }
-    assert_equal '', @stdout
-    json = JSON.parse(@stderr)
-    assert json.has_key?('exception')
   end
 
-  private
+  private # = = = = = = = = = = = = =
 
   def assert_rack_call_run_missing(args, name)
     expected = "#{name} is missing"
@@ -257,6 +279,22 @@ class RackDispatcherTest < TestBase
   def assert_nothing_logged
     assert_equal '', @stdout, 'stdout is not empty'
     assert_equal '', @stderr, 'stderr is not empty'
+  end
+
+  def assert_logged(key, value)
+    refute_nil @stdout
+    json = JSON.parse(@stdout)
+    diagnostic = "log does not contain key:#{key}\n#{@stdout}"
+    assert json.has_key?(key), diagnostic
+    assert_equal value, json[key], @stdout
+  end
+
+  def assert_log_contains(key, value)
+    refute_nil @stdout
+    json = JSON.parse(@stdout)
+    diagnostic = "log does not contain key:#{key}\n#{@stdout}"
+    assert json.has_key?(key), diagnostic
+    assert json[key].include?(value), @stdout
   end
 
   # - - - - - - - - - - - - - - - - -

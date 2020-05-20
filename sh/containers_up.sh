@@ -109,7 +109,7 @@ warn_if_unclean()
     echo OK
   else
     echo FAIL
-    echo_docker_log "${name}" "${log}"
+    echo_docker_log "${name}" "${docker_log}"
     exit 42
   fi
 }

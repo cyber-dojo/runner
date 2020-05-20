@@ -14,10 +14,8 @@ class LargeFileTruncationTest < TestBase
     filename = 'large_file.txt'
     script = "od -An -x /dev/urandom | head -c#{51*1024} > #{filename}"
     script += ";stat -c%s #{filename}"
-
     assert_cyber_dojo_sh(script)
-    assert_equal "#{51*1024}", stdout.strip, :stdout
-    assert_equal [filename], created.keys, :present
+    assert_equal "#{51*1024}\n", stdout, :stdout
     assert created[filename]['truncated'], :truncated
     assert_equal 50*1024, created[filename]['content'].size, :size
     assert_deleted([])

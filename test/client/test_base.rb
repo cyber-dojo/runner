@@ -93,39 +93,35 @@ class TestBase < Id58TestBase
   attr_reader :result
 
   def stdout
-    inner_result['stdout']['content']
+    result['run_cyber_dojo_sh']['stdout']['content']
   end
 
   def stderr
-    inner_result['stderr']['content']
+    result['run_cyber_dojo_sh']['stderr']['content']
   end
 
   def status
-    inner_result['status']
+    result['run_cyber_dojo_sh']['status']
   end
 
   def created
-    inner_result['created']
+    result['run_cyber_dojo_sh']['created']
   end
 
   def deleted
-    inner_result['deleted']
+    result['run_cyber_dojo_sh']['deleted']
   end
 
   def changed
-    inner_result['changed']
+    result['run_cyber_dojo_sh']['changed']
   end
 
   def timed_out?
-    inner_result['timed_out']
+    result['run_cyber_dojo_sh']['timed_out']
   end
 
   def traffic_light
-    inner_result['colour']
-  end
-
-  def inner_result
-    result['run_cyber_dojo_sh']
+    result['colour']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

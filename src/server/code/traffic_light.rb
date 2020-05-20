@@ -1,120 +1,73 @@
 # frozen_string_literal: true
 require_relative 'empty'
-require 'concurrent'
-require 'json'
 
-class TrafficLight
+module TrafficLight
 
-  class Fault < RuntimeError
-    def initialize(info)
-      super(JSON.pretty_generate(info))
+  def set_traffic_light
+    if @result['run_cyber_dojo_sh'][:timed_out]
+      return
     end
-  end
 
-  def initialize(externals)
-    @externals = externals
-    @map = Concurrent::Map.new
-  end
-
-  def colour(logger, image_name, stdout, stderr, status)
-    self[image_name].call(stdout, stderr, status)
-  rescue Exception => error
-    logger.write("Faulty TrafficLight.colour(image_name,stdout,stderr,status):")
-    logger.write("image_name:#{image_name}:")
-    logger.write("stdout:#{stdout}:")
-    logger.write("stderr:#{stderr}:")
-    logger.write("status:#{status}:")
-    logger.write("exception:#{error.class.name}:")
-    logger.write("message:#{error.message}:")
-    'faulty'
-  end
-
-  private
-
-  def [](image_name)
-    light = @map[image_name]
-    return light unless light.nil?
-    #bash.exec("docker pull #{image_name}")
-    lambda_source = checked_read_lambda_source(image_name)
-    fn = checked_eval(lambda_source)
-    @map.compute(image_name) {
-      lambda { |stdout,stderr,status|
-        colour = checked_call(fn, lambda_source, stdout, stderr, status)
-        checked_colour(colour, lambda_source)
-      }
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def checked_read_lambda_source(image_name)
-    command = [ 'docker run --rm --entrypoint=cat', image_name, RAG_LAMBDA_FILENAME ].join(' ')
-    stdout,stderr,status = bash.exec(command)
-    if status === 0
-      stdout
-    else
-      info = {
-        context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
-        command: command,
-        stdout: stdout,
-        stderr: stderr,
-        status: status
-      }
-      fail TrafficLight::Fault, info
+    rag_src = @result['rag_src']
+    if rag_src.nil?
+      @result.merge!({ 'colour' => 'faulty' })
+      @result['diagnostic'] ||= {}
+      @result['diagnostic'].merge!({
+        'image_name' => image_name,
+        'id' => id,
+        'info' => "no /usr/local/bin/red_amber_green.rb in #{image_name}"
+      })
+      return
     end
-  end
 
-  RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def checked_eval(lambda_source)
-    Empty.binding.eval(lambda_source)
-  rescue Exception => error
-    info = {
-      context: "exception when eval'ing lambda source",
-      lambda_source: lambda_source,
-      class: error.class.name,
-      message: error.message
-    }
-    fail TrafficLight::Fault, info
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def checked_call(fn, lambda_source, stdout, stderr, status)
-    fn.call(stdout,stderr,status.to_i).to_s
-  rescue Exception => error
-    info = {
-      context: "exception when calling lambda source",
-      lambda_source: lambda_source,
-      class: error.class.name,
-      message: error.message
-    }
-    fail TrafficLight::Fault, info
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def checked_colour(colour, lambda_source)
-    if LEGAL_COLOURS.include?(colour)
-      colour
-    else
-      info = {
-        context: "illegal colour; must be one of ['red','amber','green']",
-        illegal_colour: colour,
-        lambda_source: lambda_source
-      }
-      fail TrafficLight::Fault, info
+    begin
+      rag_lambda = Empty.binding.eval(rag_src)
+    rescue Exception => error
+      @result.merge!({ 'colour' => 'faulty' })
+      @result['diagnostic'] ||= {}
+      @result['diagnostic'].merge!({
+        'image_name' => image_name,
+        'id' => id,
+        'info' => 'eval(rag_lambda) raised an exception',
+        'name' => error.class.name,
+        'message' => error.message.split("\n"),
+        'rag_lambda' => rag_src.split("\n")
+      })
+      return
     end
-  end
 
-  LEGAL_COLOURS = [ 'red', 'amber', 'green' ]
+    begin
+      stdout = @result['run_cyber_dojo_sh'][:stdout]['content']
+      stderr = @result['run_cyber_dojo_sh'][:stderr]['content']
+      status = @result['run_cyber_dojo_sh'][:status]
+      colour = rag_lambda.call(stdout, stderr, status).to_s
+    rescue => error
+      @result.merge!({ 'colour' => 'faulty' })
+      @result['diagnostic'] ||= {}
+      @result['diagnostic'].merge!({
+        'image_name' => image_name,
+        'id' => id,
+        'info' => 'rag_lambda.call raised an exception',
+        'name' => error.class.name,
+        'message' => error.message.split("\n"),
+        'rag_lambda' => rag_src.split("\n")
+      })
+      return
+    end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+    unless colour === 'red' || colour === 'amber' || colour === 'green'
+      @result.merge!({ 'colour' => 'faulty' })
+      @result['diagnostic'] ||= {}
+      @result['diagnostic'].merge!({
+        'image_name' => image_name,
+        'id' => id,
+        'info' => "rag_lambda.call is '#{colour}' which is not 'red'|'amber'|'green'",
+        'rag_lambda' => rag_src.split("\n")
+      })
+      return
+    end
 
-  def bash
-    @externals.bash
+    @result.merge!({ 'colour' => colour })
   end
 
 end
