@@ -222,6 +222,8 @@ class TestBase < Id58TestBase
     HttpAdapter.new
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def self.test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
   end
@@ -250,22 +252,6 @@ class TestBase < Id58TestBase
 
   def self.clang_assert_test(id_suffix, *lines, &block)
     define_test(:Ubuntu, 'C (clang), assert', id_suffix, *lines, &block)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def with_captured_log
-    begin
-      old_stdout = $stdout
-      old_stderr = $stderr
-      $stdout = StringIO.new('', 'w')
-      $stderr = StringIO.new('', 'w')
-      yield
-      [ $stdout.string, $stderr.string ]
-    ensure
-      $stderr = old_stderr
-      $stdout = old_stdout
-    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
