@@ -51,8 +51,6 @@ class Runner
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
 
-  HEX_DIGITS = [*('a'..'z'),*('A'..'Z'),*('0'..'9')]
-
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
