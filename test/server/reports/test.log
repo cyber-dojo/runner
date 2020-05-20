@@ -1,28 +1,33 @@
-/test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
-/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 5725
+/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
+/test/server/traffic_light_test.rb:10: warning: previous definition of id58_prefix was here
+Run options: --seed 22112
 
 # Running:
 
-.
+..........................................................................................................................................
 
-Finished in 3.206513s, 0.3119 runs/s, 0.9356 assertions/s.
+Finished in 75.715983s, 1.8226 runs/s, 314.5967 assertions/s.
 
-1 runs, 3 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6019 / 13433 LOC (44.81%) covered.
+138 runs, 23820 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6812 / 13432 LOC (50.71%) covered.
 
-Slowest 1 tests are...
-3.2019 - 6f2dFA:log_empty_test.rb:13:log_empty? helper method ignores known circleci warning
+Slowest 5 tests are...
+3.2192 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+2.7610 - 1B5CD6:feature_robustness_test.rb:94:shell fork-bomb is contained (bash)
+2.6951 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
+2.4440 - 6f2dFA:log_empty_test.rb:13:log_empty? helper method ignores known circleci warning
+2.4111 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+2.4105 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    3.21   <=   150 | [32m true [0m
-                    tests |       1   >=     1 | [32m true [0m
-      coverage(tested)[%] |   77.09   >=   100 | [31m false [0m
-      coverage(tester)[%] |   32.21   >=    99 | [31m false [0m
-     lines(tester/tested) |    2.57   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.09   >=   1.0 | [32m true [0m
+        duration(test)[s] |   75.72   <=   150 | [32m true [0m
+                    tests |     138   >=     1 | [32m true [0m
+      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tester)[%] |   100.0   >=    99 | [32m true [0m
+     lines(tester/tested) |    2.55   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.08   >=   1.0 | [32m true [0m
 

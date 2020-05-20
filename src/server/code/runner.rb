@@ -93,7 +93,9 @@ class Runner
     pid = process.spawn(docker_run_cyber_dojo_sh, options)
     timed_out = false
     begin
-      Timeout::timeout(max_seconds) { process.wait(pid) } # [C]
+      Timeout::timeout(max_seconds) {
+        process.waitpid(pid) # [C]
+      }
     rescue Timeout::Error
       timed_out = true
       docker_stop_container

@@ -6,8 +6,8 @@ class ExternalProcess
     Process.spawn(command, options)
   end
 
-  def wait(pid)
-    Process.wait(pid)
+  def waitpid(pid)
+    Process.waitpid(pid)
   end
 
   def kill(signal, pid)
