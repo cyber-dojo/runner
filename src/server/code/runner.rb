@@ -54,35 +54,34 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
-    command = main_docker_run_command
-    stdout,stderr,status,timed_out = nil,nil,nil,nil
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     w_stdin.write(tgz_of_files)
     w_stdin.close
-    pid = Process.spawn(command, {
+    pid = Process.spawn(docker_exec_cyber_dojo_sh, {
       pgroup:true,     # become process leader
           in:r_stdin,  # redirection
          out:w_stdout, # redirection
          err:w_stderr  # redirection
     })
+
+    stdout,stderr,status = nil,nil,nil
+    timed_out = false
     begin
       Timeout::timeout(max_seconds) do
         _, ps = Process.waitpid2(pid)
         status = ps.exitstatus
-        timed_out = killed?(status)
       end
     rescue Timeout::Error
-      process_kill_group(pid)
-      process_detach(pid)
-      status = KILLED_STATUS
+      kill_process_group(pid)
+      status = 128+9
       timed_out = true
     ensure
       w_stdout.close unless w_stdout.closed?
       w_stderr.close unless w_stderr.closed?
-      stdout = packaged(read_max(r_stdout))
-      stderr = packaged(read_max(r_stderr))
+      stdout = truncated(read_max(r_stdout))
+      stderr = truncated(read_max(r_stderr))
       r_stdout.close
       r_stderr.close
     end
@@ -108,7 +107,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def main_docker_run_command
+  def docker_exec_cyber_dojo_sh
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir (which must exist [X]) inside the container
     # and runs /sandbox/cyber-dojo.sh
@@ -230,7 +229,7 @@ class Runner
   def read_tar_file(tar_file)
     reader = Tar::Reader.new(tar_file)
     reader.files.each_with_object({}) do |(filename,content),memo|
-      memo[filename] = packaged(content)
+      memo[filename] = truncated(content)
     end
   end
 
@@ -291,6 +290,7 @@ class Runner
   def create_container
     docker_run_command = [
       'docker run',
+        '--entrypoint=""',
         "--name=#{container_name}",
         docker_run_options(image_name, id),
         image_name,
@@ -382,6 +382,8 @@ class Runner
   # temporary file systems
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
+
   TMP_FS_SANDBOX_DIR =
     "--tmpfs #{SANDBOX_DIR}:" +
     'exec,' +       # [1]
@@ -404,63 +406,42 @@ class Runner
     #     [2] limit size of tmp-fs.
     #     [3] set ownership.
 
-  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
-
   # - - - - - - - - - - - - - - - - - - - - - -
-  # process helpers
+  # process
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # Kill the [docker run] process running on the host.
+  # This does not kill the docker container.
+  # The docker container is killed by
+  # o) the --rm option to [docker run]
+  # o) the [docker stop --time 1] if there is a timeout.
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def process_kill_group(pid)
-    # The [docker run] process running on the _host_ is
-    # killed by this Process.kill. This does _not_ kill the
-    # cyber-dojo.sh process running _inside_ the docker
-    # container. The container is killed by remove_container()
-    # with a fall-back via [docker run]'s --rm option.
-    Process.kill(-KILL_SIGNAL, pid) # -ve means kill process-group
+  def kill_process_group(pid)
+    # Kill the [docker run]. There is a
+    # timeout race here; there might not
+    # be a process at pid any longer.
+    Process.kill(KILL_PROCESS_GROUP_SIGNAL, pid)
   rescue Errno::ESRCH
-    # There may no longer be a process at pid (timeout race).
-    # If not, you get an exception Errno::ESRCH: No such process
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def process_detach(pid)
-    # Prevents zombie child-process. Don't wait for detach status.
+    # We lost the race. Nothing to do.
+  ensure
+    # Prevent zombie child-process.
+    # Don't wait for detach status.
+    # No exception if we lost the race.
     Process.detach(pid)
-    # There may no longer be a process at pid (timeout race).
-    # If not, you don't get an exception.
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def killed?(status)
-    status === KILLED_STATUS
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  KILL_SIGNAL = 9
-
-  KILLED_STATUS = 128 + KILL_SIGNAL
+  KILL_PROCESS_GROUP_SIGNAL = -9
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # file content helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def packaged(raw_content)
+  def truncated(raw_content)
     content = Utf8.clean(raw_content)
     {
-        'content' => truncated(content),
-      'truncated' => truncated?(content)
+        'content' => content[0...MAX_FILE_SIZE],
+      'truncated' => content.size > MAX_FILE_SIZE
     }
-  end
-
-  def truncated(content)
-    content[0...MAX_FILE_SIZE]
-  end
-
-  def truncated?(content)
-    content.size > MAX_FILE_SIZE
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
