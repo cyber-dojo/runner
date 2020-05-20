@@ -281,6 +281,7 @@ class Runner
         #{TMP_FS_SANDBOX_DIR}             \
         #{TMP_FS_TMP_DIR}                 \
         --rm                              \
+        --sig-proxy=true                  \
         --user=#{UID}:#{GID}      `# [A]` \
         #{ulimits(image_name)}            \
         #{image_name}                     \
