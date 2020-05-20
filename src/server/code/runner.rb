@@ -54,20 +54,6 @@ class Runner
         log: logger.log
       }
     }
-=begin
-    result['colour'] = colour
-    result['run_cyber_dojo_sh'] = {
-      stdout: stdout,
-      stderr: stderr,
-      status: status.to_i,
-      timed_out: timed_out,
-      colour: colour,
-      created: unsandboxed(created),
-      deleted: unsandboxed(deleted).keys.sort,
-      changed: unsandboxed(changed)
-    }
-    result
-=end
   end
 
   private
