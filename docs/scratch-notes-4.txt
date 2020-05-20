@@ -2,17 +2,22 @@
 
 TODO: capture status of Process.spawn and log that too?
 
+TODO: Write Process wrapper test for gzip exception
+
 TODO: pass logger to bash.exec()
+      capture stderr of bash.exec() calls and log it
+      o) docker stop
+      o) docker pull in TrafficLight
+      o) docker run cat in TrafficLight
+         Sometimes get (from DB3) ...
+         docker stop --time 1 cyber_dojo_runner_1B5DB3_c9da051c
 
-TODO: capture stderr of shell.exec() calls and log those
-      1. docker run - but this is inside the Process.spawn(), best is to get status?
-      2. docker stop
-      3. docker pull in TrafficLight
-      4. docker run cat in TrafficLight
-        Sometimes get (from DB3) ...
-        docker stop --time 1 cyber_dojo_runner_1B5DB3_c9da051c
-
-TODO: lose with_captured_log() calls in tests?
+TODO: On Debian stat command at bottom of server/test_base.rb
+      stat -c "%n %A %u %G %s %y" *
+      Gives
+      sysctl.conf -rw-r--r-- 0 root 2351 2018-05-31 09:42:46.000000000 +0000
+      Looks like date-time filestamps are 1second granularity, like Alpine.
+      Drop the --touch on the tar command?
 
 TODO: add tmp-dir for home/sandbox.
 
