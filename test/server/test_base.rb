@@ -255,17 +255,11 @@ class TestBase < Id58TestBase
 
   def stat_cmd
     # Works on Ubuntu and Alpine
-    'stat -c "%n %A %u %G %s %y" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05 07:03:14.539952547
-    # |        |           |      |          |    |          |
-    # filename permissions uid    group      size date       time
-    # 0        1           2      3          4    5          6
-
-    # Stat
-    #  %z == time of last status change
-    #  %y == time of last data modification <<=====
-    #  %x == time of last access
-    #  %w == time of file birth
+    'stat -c "%n %A %u %G %s" *'
+    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05
+    # |        |           |      |          |    |
+    # filename permissions uid    group      size date
+    # 0        1           2      3          4    5
   end
 
 end
