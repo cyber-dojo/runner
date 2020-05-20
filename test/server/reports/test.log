@@ -1,53 +1,274 @@
 /test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
 /test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 42293
+Run options: --seed 22146
 
 # Running:
 
-................................................................................................................./tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
-../tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/main.sh: fork: Interrupted system call
+/tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
 ./tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
-./tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
-/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 ./tmp/main.sh: line 22:    12 Killed                  bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
 ./tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: Interrupted system call
-./tmp/main.sh: fork: retry: Resource temporarily unavailable
+{
+  "colour": "red",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "red",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: Interrupted system call\n"
+  }
+}
+CONTEXT:not_timed_out:
+F./tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+{
+  "colour": "amber",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "amber",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n"
+  }
+}
+CONTEXT:not_timed_out:
+F/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
+{
+  "colour": "amber",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "amber",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n"
+  }
+}
+CONTEXT:not_timed_out:
+Ftar: stdout: file changed as we read it
+/tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: retry: Resource temporarily unavailable
 /tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable
 /tmp/main.sh: fork: Interrupted system call
-.................
+{
+  "colour": "amber",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "amber",
+    "created": {
+    },
+    "deleted": [
 
-Finished in 74.365082s, 1.8423 runs/s, 320.2309 assertions/s.
+    ],
+    "changed": {
+    },
+    "log": "tar: stdout: file changed as we read it\n/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: Interrupted system call\n"
+  }
+}
+CONTEXT:not_timed_out:
+FSimpleCov failed with exit 1
 
-137 runs, 23814 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6792 / 13457 LOC (50.47%) covered.
+Finished in 17.456227s, 0.4583 runs/s, 2.4060 assertions/s.
 
-Slowest 5 tests are...
-3.3626 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
-3.2788 - 7B79DB:feature_traffic_light_test.rb:29:red traffic-light, no diagnostics
-3.2452 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
-2.5014 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
-2.4321 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.3817 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+  1) Failure:
+RobustNessTest#test_
+id='CD6'
+os=Debian
+'shell fork-bomb is contained (bash)' [/test/server/feature_robustness_test.rb:131]:
+{
+  "colour": "red",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "red",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: Interrupted system call\n"
+  }
+}
+CONTEXT:not_timed_out:
 
 
-                 failures |       0   <=     0 | [32m true [0m
+  2) Failure:
+RobustNessTest#test_
+id='CD5'
+os=Debian
+'c fork-bomb is contained' [/test/server/feature_robustness_test.rb:44]:
+{
+  "colour": "amber",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "amber",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n"
+  }
+}
+CONTEXT:not_timed_out:
+
+
+  3) Failure:
+RobustNessTest#test_
+id='CD6'
+os=Alpine
+'shell fork-bomb is contained (bash)' [/test/server/feature_robustness_test.rb:131]:
+{
+  "colour": "amber",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "amber",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n"
+  }
+}
+CONTEXT:not_timed_out:
+
+
+  4) Failure:
+RobustNessTest#test_
+id='CD6'
+os=Ubuntu
+'shell fork-bomb is contained (bash)' [/test/server/feature_robustness_test.rb:131]:
+{
+  "colour": "amber",
+  "run_cyber_dojo_sh": {
+    "stdout": {
+      "content": "",
+      "truncated": false
+    },
+    "stderr": {
+      "content": "",
+      "truncated": false
+    },
+    "status": 42,
+    "timed_out": true,
+    "colour": "amber",
+    "created": {
+    },
+    "deleted": [
+
+    ],
+    "changed": {
+    },
+    "log": "tar: stdout: file changed as we read it\n/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: retry: Resource temporarily unavailable\n/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable\n/tmp/main.sh: fork: Interrupted system call\n"
+  }
+}
+CONTEXT:not_timed_out:
+
+
+8 runs, 42 assertions, 4 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6057 / 13446 LOC (45.05%) covered.
+
+Slowest 2 tests are...
+2.3495 - 1B5DB3:feature_robustness_test.rb:49:file-handles quickly become exhausted
+1.4352 - 1B5CD4:feature_robustness_test.rb:87:cyber-dojo.sh killing its own processes is contained
+
+
+                 failures |       4   <=     0 | [31m false [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   74.37   <=   150 | [32m true [0m
-                    tests |     137   >=     1 | [32m true [0m
-      coverage(tested)[%] |   89.49   >=    80 | [32m true [0m
-      coverage(tester)[%] |   99.89   >=    99 | [32m true [0m
-     lines(tester/tested) |    2.20   >=   2.2 | [32m true [0m
-      hits(tested/tester) |    1.04   >=   1.0 | [32m true [0m
+        duration(test)[s] |   17.46   <=   150 | [32m true [0m
+                    tests |       8   >=     1 | [32m true [0m
+      coverage(tested)[%] |   72.62   >=    80 | [31m false [0m
+      coverage(tester)[%] |   33.26   >=    99 | [31m false [0m
+     lines(tester/tested) |    2.18   >=   2.2 | [31m false [0m
+      hits(tested/tester) |   10.52   >=   1.0 | [32m true [0m
 
