@@ -141,11 +141,11 @@ class TestBase < Id58TestBase
     run_result[:colour]
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def log
-    result['log']
+    run_result[:log]
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def log_empty?
     log.empty? || (on_ci? && known_circleci_warning?)
@@ -175,6 +175,13 @@ class TestBase < Id58TestBase
 
   def assert_changed(expected)
     assert_hash_equal(expected, changed)
+  end
+
+  def assert_hash_equal(expected, actual)
+    assert_equal expected.keys.sort, actual.keys.sort
+    expected.keys.each do |key|
+      assert_equal expected[key], actual[key], key
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -265,15 +272,6 @@ class TestBase < Id58TestBase
 
   def intact(content)
     { 'content' => content, 'truncated' => false }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_hash_equal(expected, actual)
-    assert_equal expected.keys.sort, actual.keys.sort
-    expected.keys.each do |key|
-      assert_equal expected[key], actual[key], key
-    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

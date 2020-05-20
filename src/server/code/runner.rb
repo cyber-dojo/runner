@@ -3,7 +3,7 @@ require_relative 'files_delta'
 require_relative 'gnu_zip'
 require_relative 'gnu_unzip'
 require_relative 'random_hex'
-require_relative 'result_logger'
+require_relative 'string_logger'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
@@ -17,8 +17,7 @@ class Runner
     @files = args['files']
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
-    @result = {}
-    @logger = ResultLogger.new(result)
+    @logger = StringLogger.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -42,6 +41,20 @@ class Runner
     args = [image_name, stdout['content'], stderr['content'], status]
     colour = traffic_light.colour(logger, *args)
 
+    { 'colour' => colour,
+      'run_cyber_dojo_sh' => {
+        stdout: stdout,
+        stderr: stderr,
+        status: status.to_i,
+        timed_out: timed_out,
+        colour: colour,
+        created: unsandboxed(created),
+        deleted: unsandboxed(deleted).keys.sort,
+        changed: unsandboxed(changed),
+        log: logger.log
+      }
+    }
+=begin
     result['colour'] = colour
     result['run_cyber_dojo_sh'] = {
       stdout: stdout,
@@ -54,6 +67,7 @@ class Runner
       changed: unsandboxed(changed)
     }
     result
+=end
   end
 
   private
@@ -61,7 +75,7 @@ class Runner
   include FilesDelta
 
   attr_reader :id, :files, :image_name, :max_seconds
-  attr_reader :result, :logger
+  attr_reader :logger
 
   UID = 41966              # [A] sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966              # [A] sandbox group - runs /sandbox/cyber-dojo.sh

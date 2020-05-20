@@ -1,22 +1,21 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'result_logger'
+require_src 'string_logger'
 
-class ResultLoggerTest < TestBase
+class StringLoggerTest < TestBase
 
   def self.id58_prefix
-    'qR9'
+    'qS9'
   end
 
   def id58_setup
-    @result = {}
-    @logger = ResultLogger.new(@result)
+    @logger = StringLogger.new
   end
 
   attr_reader :logger
 
   def log
-    @result['log']
+    @logger.log
   end
 
   # - - - - - - - - - - - - - - - - -

@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require_relative 'data/python_pytest'
 require_relative 'external_bash_stub'
-require_src 'result_logger'
+require_src 'string_logger'
 require 'json'
 
 class TrafficLightTest < TestBase
@@ -12,24 +12,13 @@ class TrafficLightTest < TestBase
   end
 
   def id58_setup
-    @result = {}
-    @logger = ResultLogger.new(@result)
+    @logger = StringLogger.new
     @original_bash = externals.bash
   end
 
   def id58_teardown
     externals.bash.teardown
     stub_bash(@original_bash)
-  end
-
-  attr_reader :result, :logger
-
-  def pretty_log
-    @result['log']
-  end
-
-  def assert_pretty_log_include?(expected, context)
-    assert pretty_log.include?(expected), pretty_log + "\nCONTEXT:#{context}\n"
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -55,7 +44,7 @@ class TrafficLightTest < TestBase
   test 'xJ7', %w( lambda status argument is an integer ) do
     gcc_assert = 'cyberdojofoundation/gcc_assert'
     assert_equal 'green', externals.traffic_light.colour(logger, gcc_assert, '', '', '0')
-    assert pretty_log.empty?, pretty_log
+    assert_logger_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -66,7 +55,7 @@ class TrafficLightTest < TestBase
     returns_string = "lambda{|_so,_se,_st| 'red' }"
     stub_bash_exec(docker_run_command, returns_string, '', 0)
     assert_equal 'red', traffic_light('ignored', 'ignored', 0)
-    assert pretty_log.empty?, pretty_log
+    assert_logger_log_empty
   end
 
   test 'xJ9', %w(
@@ -75,7 +64,7 @@ class TrafficLightTest < TestBase
     returns_symbol = "lambda{|_so,_se,_st| :red }"
     stub_bash_exec(docker_run_command, returns_symbol, '', 0)
     assert_equal 'red', traffic_light('ignored', 'ignored', 0)
-    assert pretty_log.empty?, pretty_log
+    assert_logger_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -85,8 +74,8 @@ class TrafficLightTest < TestBase
   the colour is returned,
   nothing is added to the log
   ) do
-    assert_equal 'red', traffic_light(PythonPytest::STDOUT_RED, '', 0), pretty_log
-    assert pretty_log.empty?, pretty_log
+    assert_equal 'red', traffic_light(PythonPytest::STDOUT_RED, '', 0), logger.log
+    assert_logger_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -96,8 +85,8 @@ class TrafficLightTest < TestBase
   the colour is returned,
   nothing is added to the log
   ) do
-    assert_equal 'amber', traffic_light(PythonPytest::STDOUT_AMBER, '', 0)
-    assert pretty_log.empty?, pretty_log
+    assert_equal 'amber', traffic_light(PythonPytest::STDOUT_AMBER, '', 0), logger.log
+    assert_logger_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -107,8 +96,8 @@ class TrafficLightTest < TestBase
   the colour is returned,
   nothing is added to the log
   ) do
-    assert_equal 'green', traffic_light(PythonPytest::STDOUT_GREEN, '', 0)
-    assert pretty_log.empty?, pretty_log
+    assert_equal 'green', traffic_light(PythonPytest::STDOUT_GREEN, '', 0), logger.log
+    assert_logger_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -121,9 +110,7 @@ class TrafficLightTest < TestBase
     stub_bash
     stub_stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
     stub_bash_exec(docker_run_command, '', stub_stderr, 1)
-    with_captured_log {
-      assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
-    }
+    assert_equal 'faulty', traffic_light(PythonPytest::STDOUT_RED, '', 0)
     assert_docker_cat_logged('image_name must have /usr/local/bin/red_amber_green.rb file')
   end
 
@@ -216,6 +203,8 @@ class TrafficLightTest < TestBase
 
   include Test::Data
 
+  attr_reader :logger
+
   def traffic_light(stdout, stderr, status)
     @stdout = stdout
     @stderr = stderr
@@ -250,44 +239,52 @@ class TrafficLightTest < TestBase
   end
 
   def assert_docker_cat_logged(context)
-    assert_call_info_log
-    assert_pretty_log_include?("exception:TrafficLight::Fault:", :exception)
-    assert_pretty_log_include?('message:{', :start_of_json)
-    assert_pretty_log_include?("  \"context\": \"#{context}\"", :context)
-    assert_pretty_log_include?("  \"command\": \"#{@command}\"", :command)
-    assert_pretty_log_include?("  \"stdout\": \"#{@command_stdout}\"", :command_stdout)
-    assert_pretty_log_include?("  \"stderr\": \"#{@command_stderr}\"", :command_stderr)
-    assert_pretty_log_include?("  \"status\": #{@command_status}", :command_status)
-    assert_pretty_log_include?('}', :end_of_json)
+    assert_call_info_logged
+    assert_log_include?("exception:TrafficLight::Fault:", :exception)
+    assert_log_include?('message:{', :start_of_json)
+    assert_log_include?("  \"context\": \"#{context}\"", :context)
+    assert_log_include?("  \"command\": \"#{@command}\"", :command)
+    assert_log_include?("  \"stdout\": \"#{@command_stdout}\"", :command_stdout)
+    assert_log_include?("  \"stderr\": \"#{@command_stderr}\"", :command_stderr)
+    assert_log_include?("  \"status\": #{@command_status}", :command_status)
+    assert_log_include?('}', :end_of_json)
   end
 
   def assert_bad_lambda_logged(context, lambda_source, klass, message)
-    assert_call_info_log
-    assert_pretty_log_include?("exception:TrafficLight::Fault:", :exception)
-    assert_pretty_log_include?('message:{', :start_of_json)
-    assert_pretty_log_include?("  \"context\": \"#{context}\"", :context)
-    assert_pretty_log_include?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
-    assert_pretty_log_include?("  \"class\": \"#{klass}\"", :class)
-    assert_pretty_log_include?("  \"message\": \"#{message}\"", :message)
-    assert_pretty_log_include?('}', :end_of_json)
+    assert_call_info_logged
+    assert_log_include?("exception:TrafficLight::Fault:", :exception)
+    assert_log_include?('message:{', :start_of_json)
+    assert_log_include?("  \"context\": \"#{context}\"", :context)
+    assert_log_include?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
+    assert_log_include?("  \"class\": \"#{klass}\"", :class)
+    assert_log_include?("  \"message\": \"#{message}\"", :message)
+    assert_log_include?('}', :end_of_json)
   end
 
   def assert_illegal_colour_logged(context, lambda_source, illegal_colour)
-    assert_call_info_log
-    assert_pretty_log_include?("exception:TrafficLight::Fault:", :exception)
-    assert_pretty_log_include?('message:{', :start_of_json)
-    assert_pretty_log_include?("  \"context\": \"#{context}\"", :context)
-    assert_pretty_log_include?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
-    assert_pretty_log_include?("  \"illegal_colour\": \"#{illegal_colour}\"", :message)
-    assert_pretty_log_include?('}', :end_of_json)
+    assert_call_info_logged
+    assert_log_include?("exception:TrafficLight::Fault:", :exception)
+    assert_log_include?('message:{', :start_of_json)
+    assert_log_include?("  \"context\": \"#{context}\"", :context)
+    assert_log_include?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
+    assert_log_include?("  \"illegal_colour\": \"#{illegal_colour}\"", :message)
+    assert_log_include?('}', :end_of_json)
   end
 
-  def assert_call_info_log
-    assert_pretty_log_include?('Faulty TrafficLight.colour(image_name,stdout,stderr,status):', :banner)
-    assert_pretty_log_include?("image_name:#{python_pytest_image_name}:", :image_name)
-    assert_pretty_log_include?("stdout:#{@stdout}:", :stdout)
-    assert_pretty_log_include?("stderr:#{@stderr}:", :stderr)
-    assert_pretty_log_include?("status:#{@status}:", :status)
+  def assert_call_info_logged
+    assert_log_include?('Faulty TrafficLight.colour(image_name,stdout,stderr,status):', :banner)
+    assert_log_include?("image_name:#{python_pytest_image_name}:", :image_name)
+    assert_log_include?("stdout:#{@stdout}:", :stdout)
+    assert_log_include?("stderr:#{@stderr}:", :stderr)
+    assert_log_include?("status:#{@status}:", :status)
+  end
+
+  def assert_log_include?(expected, context)
+    assert logger.log.include?(expected), logger.log + "\nCONTEXT:#{context}\n"
+  end
+
+  def assert_logger_log_empty
+    assert logger.log.empty?, logger.log
   end
 
 end

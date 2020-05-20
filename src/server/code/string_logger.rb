@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
-class ResultLogger
+class StringLogger
 
-  def initialize(result)
-    @result = result
-    @result['log'] = ''
+  def initialize
+    @log = ''
   end
 
+  attr_reader :log
+  
   def write(message)
     return if message.empty?
     message += "\n" if message[-1] != "\n"
-    @result['log'] += message
+    @log += message
   end
 
 end
