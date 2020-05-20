@@ -226,7 +226,7 @@ class Runner
         gzip -c "${TAR_FILE}"
       }
       cd #{SANDBOX_DIR}
-      bash ./cyber-dojo.sh > "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
+      bash ./cyber-dojo.sh 1> "${TMP_DIR}/stdout" 2> "${TMP_DIR}/stderr"
       STATUS=$?
       SHELL
 
@@ -432,8 +432,9 @@ end
 #
 # [E] I tried limiting the size of stdout/stderr "in-place" using...
 # bash ./cyber-dojo.sh \
-#   > >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
-#  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
-# It seems a head in a pipe can cause problems! Tests failed.
-# See https://stackoverflow.com/questions/26461014
-# There is already a ulimit on files.
+#  1> >(head -c#{MAX_FILE_SIZE+1} > "${TMP_DIR}/stdout") \
+#  2> >(head -c#{MAX_FILE_SIZE+1} > "${TMP_DIR}/stderr")
+# Timed-out test 4D7 failed. It seems head buffers and
+# prevents some output reaching the tgz outpipe.
+# So truncating in zip_sss().
+# Note: There is already a ulimit on files.
