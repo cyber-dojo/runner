@@ -109,7 +109,7 @@ class RobustNessTest < TestBase
     assert timed_out?, pretty_result(:timed_out)
     message_1 = '/tmp/text_filenames.sh: fork: retry: Resource temporarily unavailable'
     message_2 = '/tmp/main.sh: fork: retry: Resource temporarily unavailable'
-    assert log.include?(message_1) || log.include?(message_2), pretty_result(:resource_unavailable)
+    assert log.empty? || log.include?(message_1) || log.include?(message_2), pretty_result(:resource_unavailable)
     assert stdout.empty?, pretty_result(:stdout_empty)
     assert stderr.empty?, pretty_result(:stderr_empty)
     assert_equal 42, status, pretty_result(:status) # Gzip Error

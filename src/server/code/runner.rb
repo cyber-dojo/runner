@@ -2,6 +2,7 @@
 require_relative 'files_delta'
 require_relative 'gnu_zip'
 require_relative 'gnu_unzip'
+require_relative 'capture3_with_timeout'
 require_relative 'random_hex'
 require_relative 'string_logger'
 require_relative 'tar_reader'
@@ -37,6 +38,8 @@ class Runner
       status = '42'
       created,deleted,changed = {},{},{}
     end
+
+    docker_stop_container
 
     args = [image_name, stdout['content'], stderr['content'], status]
     colour = traffic_light.colour(logger, *args)
@@ -84,6 +87,21 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_tar_pipe(tgz_in)
+    options = {
+      stdin_data:tgz_in,
+      binmode:true,
+      timeout:max_seconds,
+      pgroup:true
+    }
+    result = capture3_with_timeout(docker_run_cyber_dojo_sh, options)
+    [ result[:stdout], result[:timeout] ]
+  end
+
+  def docker_stop_container
+    bash.exec("docker stop --time 1 #{container_name} &")
+  end
+
+  def X_docker_tar_pipe(tgz_in)
     r_stdin , w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from [docker run]
@@ -233,10 +251,6 @@ class Runner
       SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def docker_stop_container
-    bash.exec("docker stop --time 1 #{container_name}")
-  end
 
   def docker_run_cyber_dojo_sh
     # Assumes a tgz of files on stdin. Untars this into the
