@@ -74,8 +74,8 @@ class Runner
         timed_out = killed?(status)
       end
     rescue Timeout::Error
-      Process_kill_group(pid)
-      Process_detach(pid)
+      process_kill_group(pid)
+      process_detach(pid)
       status = KILLED_STATUS
       timed_out = true
     ensure
@@ -288,8 +288,6 @@ class Runner
     @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def create_container
     docker_run_command = [
       'docker run',
@@ -304,8 +302,6 @@ class Runner
     # the docker_run_options.
     shell.assert(docker_run_command)
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def remove_container
     # Backgrounded for a small speed-up.
@@ -340,38 +336,10 @@ class Runner
     ].join(SPACE)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def env_var(name, value)
     # Note: value must not contain a single-quote
     "--env CYBER_DOJO_#{name}='#{value}'"
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  TMP_FS_SANDBOX_DIR =
-    "--tmpfs #{SANDBOX_DIR}:" +
-    'exec,' +       # [1]
-    'size=50M,' +   # [2]
-    "uid=#{UID}," + # [3]
-    "gid=#{GID}"    # [3]
-    # Making the sandbox dir a tmpfs should improve speed.
-    # By default, tmp-fs's are setup as secure mountpoints.
-    # If you use only '--tmpfs #{SANDBOX_DIR}'
-    # then a [cat /etc/mtab] will reveal something like
-    # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
-    #   o) rw = Mount the filesystem read-write.
-    #   o) nosuid = Do not allow set-user-identifier or
-    #      set-group-identifier bits to take effect.
-    #   o) nodev = Do not interpret character or block special devices.
-    #   o) noexec = Do not allow direct execution of any binaries.
-    #   o) relatime = Update inode access times relative to modify/change time.
-    #   So...
-    #     [1] set exec to make binaries and scripts executable.
-    #     [2] limit size of tmp-fs.
-    #     [3] set ownership.
-
-  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -402,23 +370,47 @@ class Runner
     options.join(SPACE)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def ulimit(name, limit)
     "--ulimit #{name}=#{limit}"
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # temporary file systems
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  TMP_FS_SANDBOX_DIR =
+    "--tmpfs #{SANDBOX_DIR}:" +
+    'exec,' +       # [1]
+    'size=50M,' +   # [2]
+    "uid=#{UID}," + # [3]
+    "gid=#{GID}"    # [3]
+    # Making the sandbox dir a tmpfs should improve speed.
+    # By default, tmp-fs's are setup as secure mountpoints.
+    # If you use only '--tmpfs #{SANDBOX_DIR}'
+    # then a [cat /etc/mtab] will reveal something like
+    # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
+    #   o) rw = Mount the filesystem read-write.
+    #   o) nosuid = Do not allow set-user-identifier or
+    #      set-group-identifier bits to take effect.
+    #   o) nodev = Do not interpret character or block special devices.
+    #   o) noexec = Do not allow direct execution of any binaries.
+    #   o) relatime = Update inode access times relative to modify/change time.
+    #   So...
+    #     [1] set exec to make binaries and scripts executable.
+    #     [2] limit size of tmp-fs.
+    #     [3] set ownership.
+
+  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
+
+  # - - - - - - - - - - - - - - - - - - - - - -
   # process helpers
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def Process_kill_group(pid)
+  def process_kill_group(pid)
     # The [docker run] process running on the _host_ is
     # killed by this Process.kill. This does _not_ kill the
     # cyber-dojo.sh process running _inside_ the docker
@@ -432,7 +424,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def Process_detach(pid)
+  def process_detach(pid)
     # Prevents zombie child-process. Don't wait for detach status.
     Process.detach(pid)
     # There may no longer be a process at pid (timeout race).
