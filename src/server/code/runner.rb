@@ -86,7 +86,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_tar_pipe(tgz_in)
+  def XXX_docker_tar_pipe(tgz_in)
     options = {
       stdin_data:tgz_in,
       binmode:true,
@@ -101,7 +101,7 @@ class Runner
     bash.exec("docker stop --time 1 #{container_name} &")
   end
 
-  def X_docker_tar_pipe(tgz_in)
+  def docker_tar_pipe(tgz_in)
     r_stdin , w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from [docker run]
@@ -269,10 +269,14 @@ class Runner
     #     coreutils update to get non-zero microseconds.
     <<~SHELL.strip
       docker run                          \
+        --attach stdin                    \
+        --attach stdout                   \
+        --attach stderr                   \
         --cap-add=SYS_PTRACE      `# [1]` \
         #{env_vars(id, image_name)}       \
         --init                    `# [2]` \
         --interactive                     \
+        --log-driver=none                 \
         --name=#{container_name}          \
         #{TMP_FS_SANDBOX_DIR}             \
         #{TMP_FS_TMP_DIR}                 \

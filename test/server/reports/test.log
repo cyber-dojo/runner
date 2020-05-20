@@ -1,41 +1,33 @@
 /test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
 /test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 17928
+Run options: --seed 56541
 
 # Running:
 
-...........................................................................................................................t=0.0024858920369297266 , t1 is faster 0.0019112229347229004 
-F..............SimpleCov failed with exit 1
+..........................................................................................................................................
 
-Finished in 76.765729s, 1.7977 runs/s, 310.2556 assertions/s.
+Finished in 79.076724s, 1.7451 runs/s, 301.2138 assertions/s.
 
-  1) Failure:
-RandomHexTest#test_
-id='c94'
-os=Alpine
-'its the fastest of the 4 algorithms I tried' [/test/server/random_hex_test.rb:40]:
-t=0.0024858920369297266 , t1 is faster 0.0019112229347229004 
-
-138 runs, 23817 assertions, 1 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6826 / 13462 LOC (50.71%) covered.
+138 runs, 23819 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6798 / 13462 LOC (50.5%) covered.
 
 Slowest 5 tests are...
-2.7171 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
-2.6669 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
-2.4867 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
-2.4781 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
-2.4568 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
-2.2409 - 1B5DB3:feature_robustness_test.rb:43:file-handles quickly become exhausted
+3.2374 - 1B5CD5:feature_robustness_test.rb:12:c fork-bomb is contained           
+2.7087 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+2.6918 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
+2.5785 - E4A52B:feature_large_file_truncation_test.rb:29:source files bigger than 10K are not truncated
+2.4472 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
+2.4347 - 9E9B2A:feature_timed_out_test.rb:12:when timed_out is false, then the traffic-light colour is set
 
 
-                 failures |       1   <=     0 | [31m false [0m
+                 failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   76.77   <=   150 | [32m true [0m
+        duration(test)[s] |   79.08   <=   150 | [32m true [0m
                     tests |     138   >=     1 | [32m true [0m
-      coverage(tested)[%] |   92.63   >=   100 | [31m false [0m
-      coverage(tester)[%] |   99.67   >=    99 | [32m true [0m
-     lines(tester/tested) |    2.23   >=   2.4 | [31m false [0m
-      hits(tested/tester) |    1.02   >=   1.0 | [32m true [0m
+      coverage(tested)[%] |   89.43   >=    90 | [31m false [0m
+      coverage(tester)[%] |   99.89   >=    99 | [32m true [0m
+     lines(tester/tested) |    2.23   >=   2.2 | [32m true [0m
+      hits(tested/tester) |    0.97   >=   1.0 | [31m false [0m
 
