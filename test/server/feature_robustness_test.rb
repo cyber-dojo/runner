@@ -1,4 +1,4 @@
-  # frozen_string_literal: true
+# frozen_string_literal: true
 require_relative 'test_base'
 
 class FeatureRobustNessTest < TestBase
@@ -9,33 +9,32 @@ class FeatureRobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'CD5',
-  'fork-bomb does not run indefinitely' do
-    with_captured_log {
-      run_cyber_dojo_sh(
-        traffic_light: TrafficLightStub::amber,
-        max_seconds: 3,
-        changed: { 'hiker.c' =>
-          <<~'C_FORK_BOMB'
-          #include "hiker.h"
-          #include <stdio.h>
-          #include <unistd.h>
-          int answer(void)
-          {
-              for(;;)
-              {
-                  int pid = fork();
-                  fprintf(stdout, "fork() => %d\n", pid);
-                  fflush(stdout);
-                  if (pid == -1)
-                      break;
-              }
-              return 6 * 7;
-          }
-          C_FORK_BOMB
+  c_assert_test 'CD5', %w(
+  fork-bomb does not run indefinitely
+  ) do
+    run_cyber_dojo_sh(
+      traffic_light: TrafficLightStub::amber,
+      max_seconds: 3,
+      changed: { 'hiker.c' =>
+        <<~'C_FORK_BOMB'
+        #include "hiker.h"
+        #include <stdio.h>
+        #include <unistd.h>
+        int answer(void)
+        {
+            for(;;)
+            {
+                int pid = fork();
+                fprintf(stdout, "fork() => %d\n", pid);
+                fflush(stdout);
+                if (pid == -1)
+                    break;
+            }
+            return 6 * 7;
         }
-      )
-    }
+        C_FORK_BOMB
+      }
+    )
     assert timed_out? ||
       printed?('fork()') ||
         daemon_error? ||
@@ -44,25 +43,23 @@ class FeatureRobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'CD6',
-  'bash fork-bomb does not run indefinitely' do
-    with_captured_log {
-      run_cyber_dojo_sh(
-        traffic_light: TrafficLightStub::amber,
-        max_seconds: 3,
-        changed: { 'cyber-dojo.sh' =>
-          <<~'SHELL_FORK_BOMB'
-          bomb()
-          {
-            echo "bomb"
-            bomb | bomb &
-          }
-          bomb
-          SHELL_FORK_BOMB
+  multi_os_test 'CD6', %w(
+  bash fork-bomb does not run indefinitely
+  ) do
+    run_cyber_dojo_sh(
+      traffic_light: TrafficLightStub::amber,
+      max_seconds: 3,
+      changed: { 'cyber-dojo.sh' =>
+        <<~'SHELL_FORK_BOMB'
+        bomb()
+        {
+          echo "bomb"
+          bomb | bomb &
         }
-      )
-    }
-
+        bomb
+        SHELL_FORK_BOMB
+      }
+    )
     cant_fork = (os === :Alpine ? "can't fork" : 'Cannot fork')
     assert \
       timed_out? ||
@@ -74,37 +71,36 @@ class FeatureRobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'DB3',
-  'file-handles quickly become exhausted' do
-    with_captured_log {
-      run_cyber_dojo_sh(
-        traffic_light: TrafficLightStub::amber,
-        max_seconds: 3,
-        changed: { 'hiker.c' =>
-          <<~'FILE_HANDLE_BOMB'
-          #include "hiker.h"
-          #include <stdio.h>
-          int answer(void)
+  c_assert_test 'DB3', %w(
+  file-handles quickly become exhausted
+  ) do
+    run_cyber_dojo_sh(
+      traffic_light: TrafficLightStub::amber,
+      max_seconds: 3,
+      changed: { 'hiker.c' =>
+        <<~'FILE_HANDLE_BOMB'
+        #include "hiker.h"
+        #include <stdio.h>
+        int answer(void)
+        {
+          for (int i = 0;;i++)
           {
-            for (int i = 0;;i++)
+            char filename[42];
+            sprintf(filename, "wibble%d.txt", i);
+            FILE * f = fopen(filename, "w");
+            if (f)
+              fprintf(stdout, "fopen() != NULL %s\n", filename);
+            else
             {
-              char filename[42];
-              sprintf(filename, "wibble%d.txt", i);
-              FILE * f = fopen(filename, "w");
-              if (f)
-                fprintf(stdout, "fopen() != NULL %s\n", filename);
-              else
-              {
-                fprintf(stdout, "fopen() == NULL %s\n", filename);
-                break;
-              }
+              fprintf(stdout, "fopen() == NULL %s\n", filename);
+              break;
             }
-            return 6 * 7;
           }
-          FILE_HANDLE_BOMB
+          return 6 * 7;
         }
-      )
-    }
+        FILE_HANDLE_BOMB
+      }
+    )
     assert printed?('fopen() != NULL') ||
       daemon_error? ||
         no_such_container_error?,  result
@@ -116,9 +112,8 @@ class FeatureRobustNessTest < TestBase
   multi_os_test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
     stub = BashStub.new # BashStubTarPipeOut.new('fail')
-
     @externals = Externals.new(bash:stub)
-    with_captured_log { run_cyber_dojo_sh(traffic_light: TrafficLightStub::amber) }
+    run_cyber_dojo_sh(traffic_light: TrafficLightStub::amber)
     assert stub.fired_once?
     assert_created({})
     assert_deleted([])

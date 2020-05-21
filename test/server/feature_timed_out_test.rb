@@ -25,9 +25,7 @@ class FeatureTimedOutTest < TestBase
         SOURCE
       }
     }
-    with_captured_log {
-      run_cyber_dojo_sh(named_args)
-    }
+    run_cyber_dojo_sh(named_args)
     assert_timed_out
     assert stdout.empty?, stdout
     assert stderr.empty?, stderr
@@ -53,9 +51,7 @@ class FeatureTimedOutTest < TestBase
         SOURCE
       }
     }
-    with_captured_log {
-      run_cyber_dojo_sh(named_args)
-    }
+    run_cyber_dojo_sh(named_args)
     assert_timed_out
     refute stdout.empty?, stdout
   end

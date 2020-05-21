@@ -11,9 +11,7 @@ class FeatureContainerPropertiesTest < TestBase
 
   test 'D91', %w(
   requires bash, won't run in sh ) do
-    with_captured_log {
-      run_cyber_dojo_sh(image_name:'alpine:latest') # has sh but not bash
-    }
+    run_cyber_dojo_sh(image_name:'alpine:latest') # has sh but not bash
     assert stdout.empty? || stdout.start_with?('cannot exec in a stopped state:'), ":#{stdout}:"
     assert stderr.empty? || stderr.start_with?('Error response from daemon:'), ":#{stderr}:"
     assert_equal 'faulty', colour

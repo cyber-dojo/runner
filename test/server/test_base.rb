@@ -237,19 +237,6 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def with_captured_log
-    begin
-      old_stdout = $stdout
-      $stdout = StringIO.new('', 'w')
-      yield
-      $stdout.string
-    ensure
-      $stdout = old_stdout
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def intact(content)
     { 'content' => content, 'truncated' => false }
   end
