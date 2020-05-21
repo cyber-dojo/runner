@@ -15,8 +15,8 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def externals
-    @externals ||= Externals.new
+  def externals(options = {})
+    @externals ||= Externals.new(options)
   end
 
   def runner(args)
@@ -117,7 +117,7 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def clean?(log_ = log)
-    log.empty? || (on_ci? && known_circleci_warning?)
+    log_.empty? || (on_ci? && known_circleci_warning?)
   end
 
   def log_empty?

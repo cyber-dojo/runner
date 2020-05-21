@@ -3,6 +3,9 @@ require 'open3'
 
 class Bash
 
+  def initialize(_logger)
+  end
+
   def exec(command)
     stdout,stderr,r = Open3.capture3(command)
     [ stdout, stderr, r.exitstatus ]
@@ -15,5 +18,5 @@ class Bash
 
   def teardown
   end
-  
+
 end

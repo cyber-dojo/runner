@@ -3,7 +3,6 @@ require_relative 'files_delta'
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
 require_relative 'random_hex'
-require_relative 'string_logger'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'utf8_clean'
@@ -17,7 +16,6 @@ class Runner
     @files = args['files']
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
-    @logger = StringLogger.new
   end
 
   attr_reader :id, :image_name, :max_seconds, :files
@@ -27,7 +25,7 @@ class Runner
     files_in = sandboxed(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
     created,deleted,changed = *exec_text_file_changes(files_in)
-    colour = traffic_light.colour(logger, image_name, stdout['content'], stderr['content'], status)
+    colour = traffic_light.colour(image_name, stdout['content'], stderr['content'], status)
     {
       colour: colour,
       run_cyber_dojo_sh: {
@@ -49,8 +47,6 @@ class Runner
   private
 
   include FilesDelta
-
-  attr_reader :logger
 
   KB = 1024
   MB = 1024 * KB
@@ -416,6 +412,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def logger
+    @externals.logger
+  end
 
   def shell
     @externals.shell

@@ -112,7 +112,7 @@ class FeatureRobustNessTest < TestBase
   multi_os_test '62B',
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
     stub = BashStubTarPipeOut.new('fail')
-    @externals = Externals.new({ 'bash' => stub })
+    @externals = Externals.new(bash:stub)
     with_captured_log { run_cyber_dojo_sh }
     assert stub.fired_once?
     assert_created({})

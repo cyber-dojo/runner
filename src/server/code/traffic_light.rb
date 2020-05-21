@@ -16,7 +16,7 @@ class TrafficLight
     @map = Concurrent::Map.new
   end
 
-  def colour(logger, image_name, stdout, stderr, status)
+  def colour(image_name, stdout, stderr, status)
     self[image_name].call(stdout, stderr, status)
   rescue Exception => error
     logger.write("Faulty TrafficLight.colour(image_name,stdout,stderr,status):")
@@ -111,6 +111,10 @@ class TrafficLight
 
   def bash
     @externals.bash
+  end
+
+  def logger
+    @externals.logger
   end
 
 end

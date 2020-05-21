@@ -160,7 +160,7 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
     stub = BashStubTarPipeOut.new('fail')
-    rack_call(env, Externals.new({ 'bash' => stub }))
+    rack_call(env, Externals.new(bash:stub)) 
 
     assert stub.fired_once?
     assert_200('run_cyber_dojo_sh')
