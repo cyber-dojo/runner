@@ -6,9 +6,7 @@ require_relative 'random_hex'
 require_relative 'string_logger'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
-require_relative 'traffic_light_setter'
 require_relative 'utf8_clean'
-require 'securerandom'
 require 'timeout'
 
 class Runner
@@ -30,7 +28,6 @@ class Runner
     begin
       run
       read_text_file_changes
-      #set_traffic_light
       @result
     ensure
       remove_container
@@ -40,7 +37,6 @@ class Runner
   private
 
   include FilesDelta
-  include TrafficLightSetter
 
   attr_reader :logger
 
@@ -88,7 +84,6 @@ class Runner
       r_stderr.close
     end
 
-    # Use new traffic_light here...
     args = [image_name, stdout['content'], stderr['content'], status]
     colour = traffic_light.colour(logger, *args)
 
@@ -155,11 +150,9 @@ class Runner
     # tar-piping out all text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
     #
-    # [1] Extract /usr/local/bin/red_amber_green.rb if it exists.
-    # [2] Ensure filenames are not read as tar command options.
+    # [1] Ensure filenames are not read as tar command options.
     #     Eg -J... is a tar compression option.
     #     This option is not available on Ubuntu 16.04
-    rag_filename = SecureRandom.urlsafe_base64
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
       docker exec                                       \
@@ -167,15 +160,14 @@ class Runner
         #{container_name}                               \
         bash -c                                         \
           '                         `# open quote`      \
-          #{copy_rag(rag_filename)} `# [1]`;            \
-          #{ECHO_TRUNCATED_TEXTFILE_NAMES}              \
+          ;#{ECHO_TRUNCATED_TEXTFILE_NAMES}             \
           |                                             \
           tar                                           \
             -C                                          \
             #{SANDBOX_DIR}                              \
             -zcf                    `# create tgz file` \
             -                       `# write to stdout` \
-            --verbatim-files-from   `# [2]`             \
+            --verbatim-files-from   `# [1]`             \
             -T                      `# using filenames` \
             -                       `# from stdin`      \
           '                         `# close quote`
@@ -186,40 +178,16 @@ class Runner
     stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = truncated_untgz(stdout)
-      rag_src = extract_rag(files_now, rag_filename)
       created,deleted,changed = *files_delta(files, files_now)
     else
       @result['diagnostic'] = { 'stderr' => stderr }
-      rag_src = nil
       created,deleted,changed = {}, {}, {}
     end
-    @result['rag_src'] = rag_src
     @result['run_cyber_dojo_sh'].merge!({
       created:created,
       deleted:deleted.keys.sort,
       changed:changed
     })
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def copy_rag(rag_filename)
-    rag_src = '/usr/local/bin/red_amber_green.rb'
-    rag_dst = "#{SANDBOX_DIR}/#{rag_filename}"
-    # This command must not write anything to stdout/stderr
-    # since it would be taken as a filename by tar's -T option.
-    "[ -f #{rag_src} ] && cp #{rag_src} #{rag_dst}"
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def extract_rag(files_now, rag_filename)
-    rag_file = files_now.delete(rag_filename)
-    if rag_file.nil?
-      nil
-    else
-      rag_file['content']
-    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

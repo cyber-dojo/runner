@@ -9,17 +9,6 @@ class TimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'B2A', %w(
-  when timed_out is false,
-  then the traffic-light colour is set
-  ) do
-    run_cyber_dojo_sh
-    refute_timed_out
-    assert_equal 'red', colour, :colour
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   c_assert_test 'B2B', %w(
   when run_cyber_dojo_sh does not complete within max_seconds
   and does not produce output
@@ -58,12 +47,6 @@ class TimedOutTest < TestBase
   end
 
   private
-
-  def colour?
-    result.has_key?('colour')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def quiet_infinite_loop
     <<~SOURCE

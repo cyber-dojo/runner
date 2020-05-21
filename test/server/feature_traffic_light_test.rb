@@ -29,6 +29,7 @@ class TrafficLightTest < TestBase
   multi_os_test '9DB', %w( red traffic-light, no diagnostics ) do
     run_cyber_dojo_sh
     assert_equal 'red', colour, JSON.pretty_generate(result)
+    refute_timed_out
     assert log_empty?, :log_empty
   end
 
@@ -38,6 +39,7 @@ class TrafficLightTest < TestBase
     syntax_error = starting_files[filename_6x9].sub('6 * 9', '6 * 9sdf')
     run_cyber_dojo_sh({changed:{filename_6x9=>syntax_error}})
     assert_equal 'amber', colour, JSON.pretty_generate(result)
+    refute_timed_out
     assert log_empty?, :log_empty
   end
 
@@ -47,6 +49,7 @@ class TrafficLightTest < TestBase
     passing = starting_files[filename_6x9].sub('6 * 9', '6 * 7')
     run_cyber_dojo_sh({changed:{filename_6x9=>passing}})
     assert_equal 'green', colour, JSON.pretty_generate(result)
+    refute_timed_out    
     assert log_empty?, :log_empty
   end
 
