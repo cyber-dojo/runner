@@ -1,6 +1,7 @@
 require_relative '../id58_test_base'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
+require_relative 'traffic_light_stub'
 require_src 'externals'
 require_src 'prober'
 require_src 'runner'
@@ -19,8 +20,8 @@ class TestBase < Id58TestBase
     @externals ||= Externals.new(options)
   end
 
-  def runner(args)
-    Runner.new(externals, args)
+  def runner(args, options = {})
+    Runner.new(externals(options), args)
   end
 
   def shell
@@ -29,25 +30,23 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_cyber_dojo_sh(script)
-    named_args = {
-      :changed => { 'cyber-dojo.sh' => script }
-    }
-    run_cyber_dojo_sh(named_args)
+  def assert_cyber_dojo_sh(script, options = {})
+    options[:changed] = { 'cyber-dojo.sh' => script }
+    run_cyber_dojo_sh(options)
     refute_timed_out
     stdout
   end
 
-  def run_cyber_dojo_sh(named_args = {})
+  def run_cyber_dojo_sh(options = {})
     unchanged_files = starting_files
 
-    created_files = defaulted_arg(named_args, :created, {})
+    created_files = defaulted_arg(options, :created, {})
     created_files.keys.each do |filename|
       info = "#{filename} is not a created_file (it already exists)"
       refute unchanged_files.keys.include?(filename), info
     end
 
-    changed_files = defaulted_arg(named_args, :changed, {})
+    changed_files = defaulted_arg(options, :changed, {})
     changed_files.keys.each do |filename|
       info = "#{filename} is not a changed_file (it does not already exist)"
       assert unchanged_files.keys.include?(filename), info
@@ -58,11 +57,11 @@ class TestBase < Id58TestBase
       'id' => id,
       'files' => [ *unchanged_files, *changed_files, *created_files ].to_h,
       'manifest' => {
-        'image_name' => defaulted_arg(named_args, :image_name, image_name),
-        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
+        'image_name' => defaulted_arg(options, :image_name, image_name),
+        'max_seconds' => defaulted_arg(options, :max_seconds, 10)
       }
     }
-    @result = runner(args).run_cyber_dojo_sh
+    @result = runner(args,options).run_cyber_dojo_sh
     nil
   end
 

@@ -32,13 +32,13 @@ class FeatureTrafficLightTest < TestBase
     assert clean?, :log_not_clean
 
     syntax_error = starting_files[filename_6x9].sub('6 * 9', '6 * 9sdf')
-    run_cyber_dojo_sh({changed:{filename_6x9=>syntax_error}})
+    run_cyber_dojo_sh({changed:{filename_6x9 => syntax_error}})
     assert_equal 'amber', colour, pretty_result(:clean_amber)
     refute_timed_out
     assert clean?, :log_not_clean
 
     passing = starting_files[filename_6x9].sub('6 * 9', '6 * 7')
-    run_cyber_dojo_sh({changed:{filename_6x9=>passing}})
+    run_cyber_dojo_sh({changed:{filename_6x9 => passing}})
     assert_equal 'green', colour, pretty_result(:clean_green)
     refute_timed_out
     assert clean?, :log_not_clean
