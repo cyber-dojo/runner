@@ -1,4 +1,3 @@
-require_relative 'bash_stub_raiser'
 require_relative 'bash_stub_tar_pipe_out'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
@@ -178,12 +177,9 @@ class RackDispatcherTest < TestBase
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
-    raiser = BashStubRaiser.new('fubar')
-    externals = Externals.new({ 'bash' => raiser })
     rack = RackDispatcher.new(externals)
     with_captured_stdout_stderr {
-      response = rack.call(env, RackRequestStub)
-      assert raiser.fired_once?
+      response = rack.call(env, nil)
       status = response[0]
       assert_equal 500, status
     }
