@@ -67,7 +67,6 @@ class Runner
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     pid = Process.spawn(docker_exec_cyber_dojo_sh, options)
-
     timed_out = true
     status = 128+9
     begin
@@ -79,29 +78,27 @@ class Runner
     rescue Timeout::Error
       kill_process_group(pid)
     ensure
-      w_stdout.close unless w_stdout.closed?
-      w_stderr.close unless w_stderr.closed?
-      stdout = truncated(read_max(r_stdout))
-      stderr = truncated(read_max(r_stderr))
-      r_stdout.close
-      r_stderr.close
+      stdout = pipe_close(r_stdout, w_stdout)
+      stderr = pipe_close(r_stderr, w_stderr)
     end
     [ stdout, stderr, status, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_max(fd)
-    fd.read(MAX_FILE_SIZE + 1) || ''
+  def pipe_close(r, w)
+    w.close unless w.closed?
+    read = truncated(r.read(MAX_FILE_SIZE + 1) || '')
+    r.close
+    read
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_exec_cyber_dojo_sh
     # Assumes a tgz of files on stdin. Untars this into the
-    # /sandbox/ dir (which must exist [X]) inside the container
-    # and runs /sandbox/cyber-dojo.sh
-    #
+    # /sandbox/ dir ([X]) inside the container and runs
+    # /sandbox/cyber-dojo.sh
     # [1] The uid/gid are for the user/group called sandbox [X].
     #     Untars files as this user to set their ownership.
     # [2] tar is installed [X].
@@ -128,7 +125,7 @@ class Runner
   def exec_text_file_changes(files_in, timed_out)
     if timed_out
       return [ {}, {}, {} ]
-    end    
+    end
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text

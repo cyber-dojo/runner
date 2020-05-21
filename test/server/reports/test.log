@@ -1,41 +1,41 @@
-Run options: --seed 913
+Run options: --seed 27235
 
 # Running:
 
 ..........................................................................................................
 
-Finished in 85.554120s, 1.2390 runs/s, 275.5449 assertions/s.
+Finished in 93.886161s, 1.1290 runs/s, 251.0913 assertions/s.
 
 106 runs, 23574 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6729 / 13373 LOC (50.32%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6727 / 13371 LOC (50.31%) covered.
 
 Slowest 15 tests are...
-6.7520 - 7B79DB:feature_traffic_light_test.rb:28:red/amber/green traffic-light, no diagnostics
-4.0721 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.5 secs
-3.4773 - 1B5CD5:feature_robustness_test.rb:12:fork-bomb does not run indefinitely
-3.2102 - 7B7Hd7:feature_traffic_light_test.rb:20:return colour in outermost JSON till clients upgrade
-3.1434 - 9E94D7:feature_timed_out_test.rb:36:when run_cyber_dojo_sh does not complete in max_seconds (not producing output)
-3.1027 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
-2.9160 - 9E9B2B:feature_timed_out_test.rb:12:when run_cyber_dojo_sh does not complete in max_seconds (producing output)
-2.9043 - 1B5CD6:feature_robustness_test.rb:46:bash fork-bomb does not run indefinitely
-2.8745 - E4A52B:feature_large_file_truncation_test.rb:27:source files bigger than 10K are not truncated
-2.4505 - 1B5DB3:feature_robustness_test.rb:74:file-handles quickly become exhausted
-2.4163 - D280BB:feature_clang_sanitize_address_test.rb:12:clang sanitize address => no ulimit on data
-1.8743 - D8D12A:feature_sandbox_sub_dir_test.rb:12:browser can create files in sandbox/ sub-dirs
-1.8286 - D8D12C:feature_sandbox_sub_dir_test.rb:29:cyber-dojo.sh can delete files from sandbox/ sub-dir
-1.8114 - D8D12B:feature_sandbox_sub_dir_test.rb:21:cyber-dojo.sh can create files in sandbox/ sub-dirs
-1.1713 - D06SA2:rack_dispatcher_test.rb:134:run_cyber_dojo_sh with new args (no logging)
-1.1371 - D06AB5:rack_dispatcher_test.rb:147:run_cyber_dojo_sh with no logging    
+5.7648 - 7B79DB:feature_traffic_light_test.rb:28:red/amber/green traffic-light, no diagnostics
+4.2960 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
+4.1262 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.5 secs
+3.8987 - 9E94D7:feature_timed_out_test.rb:36:when run_cyber_dojo_sh does not complete in max_seconds (not producing output)
+3.5487 - 1B5CD5:feature_robustness_test.rb:12:fork-bomb does not run indefinitely
+3.2028 - 1B5DB3:feature_robustness_test.rb:74:file-handles quickly become exhausted
+3.1783 - 7B7Hd7:feature_traffic_light_test.rb:20:return colour in outermost JSON till clients upgrade
+3.1085 - 9E9B2B:feature_timed_out_test.rb:12:when run_cyber_dojo_sh does not complete in max_seconds (producing output)
+3.0102 - E4A52B:feature_large_file_truncation_test.rb:27:source files bigger than 10K are not truncated
+3.0089 - 1B5CD6:feature_robustness_test.rb:46:bash fork-bomb does not run indefinitely
+2.3071 - D280BB:feature_clang_sanitize_address_test.rb:12:clang sanitize address => no ulimit on data
+1.8694 - D8D12A:feature_sandbox_sub_dir_test.rb:12:browser can create files in sandbox/ sub-dirs
+1.8404 - D8D12B:feature_sandbox_sub_dir_test.rb:21:cyber-dojo.sh can create files in sandbox/ sub-dirs
+1.8075 - D8D12C:feature_sandbox_sub_dir_test.rb:29:cyber-dojo.sh can delete files from sandbox/ sub-dir
+1.4339 - ECF526:feature_returned_text_files_test.rb:27:created text files, including dot files, are returned
+1.2910 - D06AB5:rack_dispatcher_test.rb:147:run_cyber_dojo_sh with no logging    
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   85.55   <=   200 | [32m true [0m
+        duration(test)[s] |   93.89   <=   200 | [32m true [0m
                     tests |     106   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   98.85   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.38   >=   2.4 | [31m false [0m
-      hits(tested/tester) |    0.77   >=   1.0 | [31m false [0m
+     lines(tester/tested) |    2.40   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    0.78   >=   1.0 | [31m false [0m
 
