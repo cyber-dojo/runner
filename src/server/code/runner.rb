@@ -55,7 +55,8 @@ class Runner
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-    w_stdin.write(tgz(files))
+    files_in = sandboxed(files)
+    w_stdin.write(tgz(files_in))
     w_stdin.close
     pid = Process.spawn(docker_exec_cyber_dojo_sh, {
       pgroup:true,     # become process leader
@@ -119,24 +120,22 @@ class Runner
     #
     # [1] The uid/gid are for the user/group called sandbox [X].
     #     Untars files as this user to set their ownership.
-    # [2] Don't use [docker exec --workdir] as that requires API version
+    # [2] tar is installed [X].
+    # [3] Don't use [docker exec --workdir] as that requires API version
     #     1.35 but CircleCI is currently using Docker Daemon API 1.32
-    # [3] tar is installed [X].
     <<~SHELL.strip
-      docker exec                                     \
-        --interactive            `# piping stdin`     \
-        --user=#{UID}:#{GID}     `# [1]`              \
-        #{container_name}                             \
-        bash -c                                       \
-          '                      `# open quote`       \
-          cd #{SANDBOX_DIR}      `# [2]`              \
-          &&                                          \
-          tar                    `# [3]`              \
-            -zxf                 `# extract tgz file` \
-            -                    `# read from stdin`  \
-          &&                                          \
-          bash ./cyber-dojo.sh                        \
-          '                      `# close quote`
+      docker exec                                      \
+        --interactive             `# piping stdin`     \
+        --user=#{UID}:#{GID}      `# [1]`              \
+        #{container_name}                              \
+        bash -c                                        \
+          '                       `# open quote`       \
+          tar -C /                `# [2]`              \
+            -zxf                  `# extract tgz file` \
+            -                     `# read from stdin`  \
+          && cd #{SANDBOX_DIR}    `# [3]`              \
+          && bash ./cyber-dojo.sh                      \
+          '                       `# close quote`
     SHELL
   end
 
@@ -190,11 +189,25 @@ class Runner
     })
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def sandboxed(files)
+    # 'hiker.cs' ==> 'sandbox/hiker.cs'
+    files.each.with_object({}) do |(filename,content),memo|
+      memo["#{unrooted(SANDBOX_DIR)}/#{filename}"] = content
+    end
+  end
+
   def unsandboxed(files)
     # 'sandbox/hiker.cs' ==> 'hiker.cs'
     files.each.with_object({}) do |(filename,content),memo|
       memo[filename[SANDBOX_DIR.size..-1]] = content
     end
+  end
+
+  def unrooted(path)
+    # Tar does not like absolute pathnames so strip leading /
+    path[1..-1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
