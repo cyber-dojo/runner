@@ -23,14 +23,27 @@ class Runner
   attr_reader :id, :image_name, :max_seconds, :files
 
   def run_cyber_dojo_sh
-    @result = {}
     create_container
-    begin
-      run
-      @result
-    ensure
-      remove_container
-    end
+    files_in = sandboxed(files)
+    stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
+    created,deleted,changed = *exec_text_file_changes(files_in)
+    colour = traffic_light.colour(logger, image_name, stdout['content'], stderr['content'], status)
+    {
+      'colour' => colour,
+      'run_cyber_dojo_sh' => {
+        stdout:stdout,
+        stderr:stderr,
+        status:status,
+        timed_out:timed_out,
+        colour:colour,
+        created:unsandboxed(created),
+        deleted:unsandboxed(deleted).keys.sort,
+        changed:unsandboxed(changed),
+        log: logger.log
+      }
+    }
+  ensure
+    remove_container
   end
 
   private
@@ -47,32 +60,6 @@ class Runner
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def run
-    files_in = sandboxed(files)
-
-    stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
-
-    args = [image_name, stdout['content'], stderr['content'], status]
-    colour = traffic_light.colour(logger, *args)
-
-    created,deleted,changed = *read_text_file_changes
-
-    @result['colour'] = colour
-    @result['run_cyber_dojo_sh'] = {
-      stdout:stdout,
-      stderr:stderr,
-      status:status,
-      timed_out:timed_out,
-      colour:colour,
-      created:created,
-      deleted:deleted.keys.sort,
-      changed:changed,
-      log: logger.log
-    }
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -142,7 +129,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_text_file_changes
+  def exec_text_file_changes(files_in)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -176,9 +163,8 @@ class Runner
     # Be careful if you switch to shell.assert() here.
     stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
-      files_now = truncated_untgz(stdout)
-      s = unsandboxed(files_now)
-      files_delta(files, s)
+      files_out = truncated_untgz(stdout)
+      files_delta(files_in, files_out)
     else
       logger.write(stderr)
       [ {}, {}, {} ]
