@@ -24,7 +24,7 @@ class Runner
     create_container
     files_in = sandboxed(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
-    created,deleted,changed = *exec_text_file_changes(files_in)
+    created,deleted,changed = *exec_text_file_changes(files_in, timed_out)
     colour = traffic_light.colour(image_name, stdout['content'], stderr['content'], status)
     {
       colour: colour,
@@ -125,7 +125,10 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_text_file_changes(files_in)
+  def exec_text_file_changes(files_in, timed_out)
+    if timed_out
+      return [ {}, {}, {} ]
+    end    
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
