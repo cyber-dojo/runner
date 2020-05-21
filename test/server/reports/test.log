@@ -1,28 +1,36 @@
-Run options: --seed 61327
+Run options: --seed 1000
 
 # Running:
 
-.....
+...........
 
-Finished in 17.941496s, 0.2787 runs/s, 1.6721 assertions/s.
+Finished in 0.944060s, 11.6518 runs/s, 97.4514 assertions/s.
 
-5 runs, 30 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6100 / 13559 LOC (44.99%) covered.
+11 runs, 92 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 5991 / 13556 LOC (44.19%) covered.
 
-Slowest 3 tests are...
-6.8536 - 7B79DB:feature_traffic_light_test.rb:28:red/amber/green traffic-light, no diagnostics
-3.3029 - 7B7Hd7:feature_traffic_light_test.rb:20:return colour in outermost JSON till clients upgrade
-1.2878 - 7B7p3W:feature_traffic_light_test.rb:12:stdout is not being whitespace stripped
+Slowest 11 tests are...
+0.3258 - 22ECB1:traffic_light_test.rb:57:for a red,amber,green, nothing is added to the log
+0.3010 - 22ExJ5:traffic_light_test.rb:16:lambdas are cached                      
+0.2987 - 22ExJ7:traffic_light_test.rb:34:lambda status argument is an integer in a string
+0.0024 - 22ECB6:traffic_light_test.rb:103:rag-lambda which raises when called, gives colour==faulty, adds message to log
+0.0021 - 22ExJ8:traffic_light_test.rb:41:rag-lambda can return a string or a symbol (Postel's Law)
+0.0017 - 22ECB4:traffic_light_test.rb:74:image_name without a rag-lambda file, always gives colour==faulty, adds message to log
+0.0007 - 22ECB8:traffic_light_test.rb:135:rag-lambda with too many parameters, gives colour==faulty, adds message to log
+0.0006 - 22ECB7:traffic_light_test.rb:119:rag-lambda with too few parameters, gives colour==faulty, adds message to log
+0.0005 - 22ECB5:traffic_light_test.rb:87:rag-lambda which raises when eval'd, gives colour==faulty, adds message to log
+0.0004 - 22ECB9:traffic_light_test.rb:151:rag-lambda which returns non red/amber/green, gives colour==faulty, adds message to log
+0.0001 - 22ExJ6:traffic_light_test.rb:25:TrafficLight::Fault holds message as JSON
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   17.94   <=   200 | [32m true [0m
-                    tests |       5   >=     1 | [32m true [0m
-      coverage(tested)[%] |   79.06   >=   100 | [31m false [0m
-      coverage(tester)[%] |   33.17   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.45   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    5.51   >=   1.0 | [32m true [0m
+        duration(test)[s] |    0.94   <=   200 | [32m true [0m
+                    tests |      11   >=     1 | [32m true [0m
+      coverage(tested)[%] |   57.14   >=   100 | [31m false [0m
+      coverage(tester)[%] |   41.33   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.44   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.35   >=   1.0 | [32m true [0m
 

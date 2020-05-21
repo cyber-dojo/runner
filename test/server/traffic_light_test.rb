@@ -44,10 +44,7 @@ class TrafficLightTest < TestBase
     bash_stub_exec(bash = BashStub.new, docker_run_command, rag, '', 0)
     assert_equal 'red', traffic_light_colour(bash:bash)
     assert clean?(log), log
-  end
 
-  test 'xJ9', %w(
-  rag-lambda can return a string or a symbol (Postel's Law) ) do
     rag = "lambda{|so,se,st| :red }"
     bash_stub_exec(bash = BashStub.new, docker_run_command, rag, '', 0)
     assert_equal 'red', traffic_light_colour(bash:bash)
@@ -58,29 +55,15 @@ class TrafficLightTest < TestBase
   # red, amber, green
 
   test 'CB1', %w(
-  for a red,
+  for a red,amber,green,
   nothing is added to the log
   ) do
     assert_equal 'red', traffic_light_colour(stdout:PythonPytest::STDOUT_RED), log
     assert clean?(log), log
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 'CB2', %w(
-  for an amber,
-  nothing is added to the log
-  ) do
     assert_equal 'amber', traffic_light_colour(stdout:PythonPytest::STDOUT_AMBER), log
     assert clean?(log), log
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 'CB3', %w(
-  for a green,
-  nothing is added to the log
-  ) do
     assert_equal 'green', traffic_light_colour(stdout:PythonPytest::STDOUT_GREEN), log
     assert clean?(log), log
   end
