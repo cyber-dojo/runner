@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require_relative 'empty'
-require 'concurrent'
 require 'json'
 
 class TrafficLight
@@ -13,7 +12,6 @@ class TrafficLight
 
   def initialize(externals)
     @externals = externals
-    @map = Concurrent::Map.new
   end
 
   def colour(image_name, stdout, stderr, status)
@@ -32,12 +30,12 @@ class TrafficLight
   private
 
   def [](image_name)
-    light = @map[image_name]
+    light = rag_lambdas[image_name]
     return light unless light.nil?
     #bash.exec("docker pull #{image_name}")
     lambda_source = checked_read_lambda_source(image_name)
     fn = checked_eval(lambda_source)
-    @map.compute(image_name) {
+    rag_lambdas.compute(image_name) {
       lambda { |stdout,stderr,status|
         colour = checked_call(fn, lambda_source, stdout, stderr, status)
         checked_colour(colour, lambda_source)
@@ -115,6 +113,10 @@ class TrafficLight
 
   def logger
     @externals.logger
+  end
+
+  def rag_lambdas
+    @externals.rag_lambdas
   end
 
 end

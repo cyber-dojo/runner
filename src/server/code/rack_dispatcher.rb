@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 require_relative 'http_json_args'
+require_relative 'externals'
 require 'rack'
 require 'json'
 
 class RackDispatcher
 
-  def initialize(externals)
-    @externals = externals
+  def initialize(options)
+    @options = options
   end
 
   def call(env, request_class = Rack::Request)
@@ -14,7 +15,8 @@ class RackDispatcher
     path = request.path_info
     body = request.body.read
     klass,name,args = HttpJsonArgs.new(body).get(path)
-    result = klass.new(@externals,args).public_send(name)
+    externals = Externals.new(@options)
+    result = klass.new(externals, args).public_send(name)
     json_response_pass(200, result)
   rescue HttpJsonArgs::Error => error
     json_response_fail(400, diagnostic(path, body, error))
@@ -25,17 +27,17 @@ class RackDispatcher
   private
 
   def json_response_pass(status, json)
-    s = JSON.fast_generate(json)
-    [ status, CONTENT_TYPE_JSON, [s] ]
+    body = JSON.fast_generate(json)
+    [ status, CONTENT_TYPE_JSON, [body] ]
   end
 
   # - - - - - - - - - - - - - - - -
 
   def json_response_fail(status, json)
-    s = JSON.pretty_generate(json)
-    $stderr.puts(s)
+    body = JSON.pretty_generate(json)
+    $stderr.puts(body)
     $stderr.flush
-    [ status, CONTENT_TYPE_JSON, [s] ]
+    [ status, CONTENT_TYPE_JSON, [body] ]
   end
 
   # - - - - - - - - - - - - - - - -

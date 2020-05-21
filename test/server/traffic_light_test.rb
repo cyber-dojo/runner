@@ -4,7 +4,6 @@ require_relative 'data/python_pytest'
 require_relative 'bash_stub'
 require_src 'externals'
 require 'json'
-require 'ostruct'
 
 class TrafficLightTest < TestBase
 
@@ -184,11 +183,10 @@ class TrafficLightTest < TestBase
   include Test::Data
 
   def traffic_light_colour(options)
-    name = options.delete(:image_name) || python_pytest_image_name
     @stdout = options.delete(:stdout) || PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || '0'
-    externals(options).traffic_light.colour(name, @stdout, @stderr, @status)
+    externals(options).traffic_light.colour(python_pytest_image_name, @stdout, @stderr, @status)
   end
 
   def logger
