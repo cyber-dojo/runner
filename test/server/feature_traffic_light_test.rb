@@ -29,7 +29,7 @@ class FeatureTrafficLightTest < TestBase
     run_cyber_dojo_sh
     assert_equal 'red', colour, pretty_result(:clean_red)
     refute_timed_out
-    assert log_empty?, :log_empty
+    assert clean?, :log_not_clean
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -39,7 +39,7 @@ class FeatureTrafficLightTest < TestBase
     run_cyber_dojo_sh({changed:{filename_6x9=>syntax_error}})
     assert_equal 'amber', colour, pretty_result(:clean_amber)
     refute_timed_out
-    assert log_empty?, :log_empty
+    assert clean?, :log_not_clean
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ class FeatureTrafficLightTest < TestBase
     run_cyber_dojo_sh({changed:{filename_6x9=>passing}})
     assert_equal 'green', colour, pretty_result(:clean_green)
     refute_timed_out
-    assert log_empty?, :log_empty
+    assert clean?, :log_not_clean
   end
 
   private

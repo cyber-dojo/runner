@@ -116,6 +116,10 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def clean?(log_ = log)
+    log.empty? || (on_ci? && known_circleci_warning?)
+  end
+
   def log_empty?
     log.empty? || (on_ci? && known_circleci_warning?)
   end

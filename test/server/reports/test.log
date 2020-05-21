@@ -1,29 +1,31 @@
-Run options: --seed 63907
+Run options: --seed 16372
 
 # Running:
 
-......
+..............
 
-Finished in 19.306223s, 0.3108 runs/s, 0.8287 assertions/s.
+Finished in 1.476746s, 9.4803 runs/s, 62.2991 assertions/s.
 
-6 runs, 16 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6134 / 13591 LOC (45.13%) covered.
+14 runs, 92 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 5992 / 13589 LOC (44.09%) covered.
 
-Slowest 4 tests are...
-5.7423 - 1B5CD5:feature_robustness_test.rb:12:fork-bomb does not run indefinitely
-3.2058 - 1B5CD6:feature_robustness_test.rb:46:shell fork-bomb does not run indefinitely
-2.8763 - 1B5DB3:feature_robustness_test.rb:75:file-handles quickly become exhausted
-1.7800 - 1B562B:feature_robustness_test.rb:112:a crippled container, eg from a fork-bomb, returns everything unchanged
+Slowest 5 tests are...
+0.3165 - 22ECB1:traffic_light_test.rb:27:for a working red, the colour is returned, nothing is added to the log
+0.2932 - 22ExJ5:traffic_light_test.rb:60:lambdas are cached                      
+0.2868 - 22ECB3:traffic_light_test.rb:49:for a working green, the colour is returned, nothing is added to the log
+0.2817 - 22ECB2:traffic_light_test.rb:38:for a working amber, the colour is returned, nothing is added to the log
+0.2811 - 22ExJ7:traffic_light_test.rb:79:lambda status argument is an integer in a string
+0.0020 - 22ExJ8:traffic_light_test.rb:86:allow rag-lambda to return string or symbol (Postel's Law)
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   19.31   <=   200 | [32m true [0m
-                    tests |       6   >=     1 | [32m true [0m
-      coverage(tested)[%] |   84.91   >=   100 | [31m false [0m
-      coverage(tester)[%] |    32.2   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.64   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    6.03   >=   1.0 | [32m true [0m
+        duration(test)[s] |    1.48   <=   200 | [32m true [0m
+                    tests |      14   >=     1 | [32m true [0m
+      coverage(tested)[%] |   54.22   >=   100 | [31m false [0m
+      coverage(tester)[%] |   41.97   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.63   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    1.34   >=   1.0 | [32m true [0m
 
