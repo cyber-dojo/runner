@@ -10,7 +10,7 @@ class FeatureClangSanitizeAddressTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   clang_assert_test '0BB',
-  %w( clang sanitize address ) do
+  %w( clang sanitize address => no ulimit on data ) do
     diagnostic = 'AddressSanitizer: heap-use-after-free on address'
     run_cyber_dojo_sh(traffic_light:TrafficLightStub::red)
     refute stderr.include?(diagnostic), stderr
