@@ -1,31 +1,26 @@
-Run options: --seed 38491
+Run options: --seed 44207
 
 # Running:
 
-......................................................................................................................
+..
 
-Finished in 109.565533s, 1.0770 runs/s, 215.7065 assertions/s.
+Finished in 6.078440s, 0.3290 runs/s, 0.9871 assertions/s.
 
-118 runs, 23634 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 4764 / 8369 LOC (56.92%) covered.
+2 runs, 6 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3854 / 8369 LOC (46.05%) covered.
 
-Slowest 5 tests are...
-5.4587 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
-3.7962 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-3.3232 - 9E94D7:feature_timed_out_test.rb:45:when run_cyber_dojo_sh does not complete in max_seconds and produces output then stdout is not empty, and timed_out is true, and the traffic-light colour is not set
-3.1678 - 7B7421:feature_traffic_light_test.rb:46:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
-3.0671 - 7B7427:feature_traffic_light_test.rb:198:when the rag-lambda has an eval SyntaxError exception, then the colour is faulty, and diagnostics are added to the json result
-3.0553 - 7B7422:feature_traffic_light_test.rb:77:when rag-lambda has an eval exception, then the colour is faulty, and diagnostics are added to the json result
+Slowest 1 tests are...
+2.3283 - 7B79DD:feature_traffic_light_test.rb:37:green traffic-light, no diagnostics
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  109.57   <=   200 | [32m true [0m
-                    tests |     118   >=     1 | [32m true [0m
-      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
-      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
+        duration(test)[s] |    6.08   <=   200 | [32m true [0m
+                    tests |       2   >=     1 | [32m true [0m
+      coverage(tested)[%] |   76.18   >=   100 | [31m false [0m
+      coverage(tester)[%] |   29.39   >=   100 | [31m false [0m
      lines(tester/tested) |    2.71   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.07   >=   1.0 | [32m true [0m
+      hits(tested/tester) |    2.03   >=   1.0 | [32m true [0m
 

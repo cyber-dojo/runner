@@ -5,7 +5,7 @@ require_relative 'gnu_zip'
 require_relative 'random_hex'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
-require_relative 'traffic_light'
+require_relative 'traffic_light_setter'
 require_relative 'utf8_clean'
 require 'securerandom'
 require 'timeout'
@@ -40,7 +40,7 @@ class Runner
   private
 
   include FilesDelta
-  include TrafficLight
+  include TrafficLightSetter
 
   KB = 1024
   MB = 1024 * KB

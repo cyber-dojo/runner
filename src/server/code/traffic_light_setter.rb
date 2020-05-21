@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'empty'
 
-module TrafficLight
+module TrafficLightSetter
 
   def set_traffic_light
     if @result['run_cyber_dojo_sh'][:timed_out]
