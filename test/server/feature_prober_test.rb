@@ -31,4 +31,22 @@ class ProberTest < TestBase
     assert_sha(sha)
   end
 
+  private
+
+  def prober
+    Prober.new(externals, {})
+  end
+
+  def alive?
+    prober.alive?['alive?']
+  end
+
+  def ready?
+    prober.ready?['ready?']
+  end
+
+  def sha
+    prober.sha['sha']
+  end
+
 end

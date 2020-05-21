@@ -22,35 +22,10 @@ class TestBase < Id58TestBase
     Runner.new(externals, args)
   end
 
-  def prober
-    Prober.new(externals, {})
-  end
-
   def shell
     externals.shell
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def alive?
-    prober.alive?['alive?']
-  end
-
-  def ready?
-    prober.ready?['ready?']
-  end
-
-  def sha
-    prober.sha['sha']
-  end
-
-  def assert_sha(string)
-    assert_equal 40, string.size
-    string.each_char do |ch|
-      assert '0123456789abcdef'.include?(ch)
-    end
-  end
-
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh(named_args = {})
@@ -260,6 +235,15 @@ class TestBase < Id58TestBase
     # |        |           |      |          |    |
     # filename permissions uid    group      size date
     # 0        1           2      3          4    5
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_sha(string)
+    assert_equal 40, string.size
+    string.each_char do |ch|
+      assert '0123456789abcdef'.include?(ch)
+    end
   end
 
 end
