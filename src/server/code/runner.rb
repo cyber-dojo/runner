@@ -163,8 +163,7 @@ class Runner
           ;#{ECHO_TRUNCATED_TEXTFILE_NAMES}             \
           |                                             \
           tar                                           \
-            -C                                          \
-            #{SANDBOX_DIR}                              \
+            -C /                                        \
             -zcf                    `# create tgz file` \
             -                       `# write to stdout` \
             --verbatim-files-from   `# [1]`             \
@@ -178,7 +177,8 @@ class Runner
     stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_now = truncated_untgz(stdout)
-      created,deleted,changed = *files_delta(files, files_now)
+      s = unsandboxed(files_now)
+      created,deleted,changed = *files_delta(files, s)
     else
       @result['diagnostic'] = { 'stderr' => stderr }
       created,deleted,changed = {}, {}, {}
@@ -188,6 +188,13 @@ class Runner
       deleted:deleted.keys.sort,
       changed:changed
     })
+  end
+
+  def unsandboxed(files)
+    # 'sandbox/hiker.cs' ==> 'hiker.cs'
+    files.each.with_object({}) do |(filename,content),memo|
+      memo[filename[SANDBOX_DIR.size..-1]] = content
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -238,15 +245,15 @@ class Runner
           false; \
         fi; \
       }; \
-      depathed() \
+      unrooted() \
       { \
-        echo "${1:2}"; \
+        echo "${1:1}"; \
       }; \
       export -f truncate_file; \
       export -f is_text_file; \
-      export -f depathed; \
-      (cd #{SANDBOX_DIR} && find . -type f -exec \
-        bash -c "is_text_file {} && depathed {}" \\;)
+      export -f unrooted; \
+      (find #{SANDBOX_DIR} -type f -exec \
+        bash -c "is_text_file {} && unrooted {}" \\;)
     SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
