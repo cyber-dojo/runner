@@ -24,39 +24,6 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB1', %w(
-  for a working red,
-  the colour is returned,
-  nothing is added to the log
-  ) do
-    assert_equal 'red', traffic_light_colour(stdout:PythonPytest::STDOUT_RED), log
-    assert clean?(log), log
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'CB2', %w(
-  for a working amber,
-  the colour is returned,
-  nothing is added to the log
-  ) do
-    assert_equal 'amber', traffic_light_colour(stdout:PythonPytest::STDOUT_AMBER), log
-    assert clean?(log), log
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'CB3', %w(
-  for a working green,
-  the colour is returned,
-  nothing is added to the log
-  ) do
-    assert_equal 'green', traffic_light_colour(stdout:PythonPytest::STDOUT_GREEN), log
-    assert clean?(log), log
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   test 'xJ5', %w( lambdas are cached ) do
     externals = OpenStruct.new(bash:Bash.new)
     traffic_light = TrafficLight.new(externals)
@@ -84,24 +51,56 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'xJ8', %w(
-  allow rag-lambda to return string or symbol (Postel's Law) ) do
+  rag-lambda can return a string or a symbol (Postel's Law) ) do
     bash = BashStub.new
-    rag = "lambda{|_so,_se,_st| 'red' }"
+    rag = "lambda{|so,se,st| 'red' }"
     bash_stub_exec(bash, docker_run_command, rag, '', 0)
     assert_equal 'red', traffic_light_colour(bash:bash)
     assert clean?(log), log
   end
 
   test 'xJ9', %w(
-  allow rag-lambda to return string symbol (Postel's Law) ) do
+  rag-lambda can return a string or a symbol (Postel's Law) ) do
     bash = BashStub.new
-    rag = "lambda{|_so,_se,_st| :red }"
+    rag = "lambda{|so,se,st| :red }"
     bash_stub_exec(bash, docker_run_command, rag, '', 0)
     assert_equal 'red', traffic_light_colour(bash:bash)
     assert clean?(log), log
   end
 
   # - - - - - - - - - - - - - - - - -
+  # red, amber, green
+
+  test 'CB1', %w(
+  for a red,
+  nothing is added to the log
+  ) do
+    assert_equal 'red', traffic_light_colour(stdout:PythonPytest::STDOUT_RED), log
+    assert clean?(log), log
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'CB2', %w(
+  for an amber,
+  nothing is added to the log
+  ) do
+    assert_equal 'amber', traffic_light_colour(stdout:PythonPytest::STDOUT_AMBER), log
+    assert clean?(log), log
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'CB3', %w(
+  for a green,
+  nothing is added to the log
+  ) do
+    assert_equal 'green', traffic_light_colour(stdout:PythonPytest::STDOUT_GREEN), log
+    assert clean?(log), log
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  # faulty
 
   test 'CB4', %w(
   image_name without a rag-lambda file,
@@ -118,7 +117,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB5', %w(
-  image_name with rag-lambda which raises when eval'd,
+  rag-lambda which raises when eval'd,
   gives colour==faulty,
   adds message to log
   ) do
@@ -135,12 +134,12 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB6', %w(
-  image_name with rag-lambda which raises when called,
+  rag-lambda which raises when called,
   gives colour==faulty,
   adds message to log
   ) do
     bash = BashStub.new
-    bad_lambda_source = "lambda{ |_so,_se,_st| fail RuntimeError, '42' }"
+    bad_lambda_source = "lambda{ |so,se,st| fail RuntimeError, '42' }"
     bash_stub_exec(bash, docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour(bash:bash)
     context = 'exception when calling lambda source'
@@ -152,7 +151,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB7', %w(
-  image_name with rag-lambda with too few parameters,
+  rag-lambda with too few parameters,
   gives colour==faulty,
   adds message to log
   ) do
@@ -169,7 +168,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB8', %w(
-  image_name with rag-lambda with too many parameters,
+  rag-lambda with too many parameters,
   gives colour==faulty,
   adds message to log
   ) do
@@ -186,7 +185,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'CB9', %w(
-  image_name with rag-lambda which returns non red/amber/green,
+  rag-lambda which returns non red/amber/green,
   gives colour==faulty,
   adds message to log
   ) do
@@ -279,7 +278,7 @@ class TrafficLightTest < TestBase
   end
 
   def assert_log_include?(expected, context)
-    assert logger.log.include?(expected), logger.log + "\nCONTEXT:#{context}\n"
+    assert log.include?(expected), logger.log + "\nCONTEXT:#{context}\n"
   end
 
 end
