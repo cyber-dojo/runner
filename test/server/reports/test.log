@@ -1,26 +1,29 @@
-Run options: --seed 44207
+Run options: --seed 31879
 
 # Running:
 
-..
+....
 
-Finished in 6.078440s, 0.3290 runs/s, 0.9871 assertions/s.
+Finished in 0.025576s, 156.3995 runs/s, 234.5993 assertions/s.
 
-2 runs, 6 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 3854 / 8369 LOC (46.05%) covered.
+4 runs, 6 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3213 / 8402 LOC (38.24%) covered.
 
-Slowest 1 tests are...
-2.3283 - 7B79DD:feature_traffic_light_test.rb:37:green traffic-light, no diagnostics
+Slowest 4 tests are...
+0.0000 - qS9dF8:string_logger_test.rb:36:write(s) logs s and a trailing newline if s does not end in a newline
+0.0000 - qS9dF9:string_logger_test.rb:45:write(s) logs s only if s already ends in a newline
+0.0000 - qS9dF6:string_logger_test.rb:23:log is initially empty                  
+0.0000 - qS9dF7:string_logger_test.rb:29:write(s) is a no-op when s is empty     
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    6.08   <=   200 | [32m true [0m
-                    tests |       2   >=     1 | [32m true [0m
-      coverage(tested)[%] |   76.18   >=   100 | [31m false [0m
-      coverage(tester)[%] |   29.39   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.71   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    2.03   >=   1.0 | [32m true [0m
+        duration(test)[s] |    0.03   <=   200 | [32m true [0m
+                    tests |       4   >=     1 | [32m true [0m
+      coverage(tested)[%] |   42.82   >=   100 | [31m false [0m
+      coverage(tester)[%] |   30.55   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.72   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    0.61   >=   1.0 | [31m false [0m
 
