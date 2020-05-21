@@ -14,7 +14,10 @@ class FeatureContainerPropertiesTest < TestBase
     assert_equal '/bin/bash', assert_cyber_dojo_sh('printf ${SHELL}')
     image_name = 'alpine:latest' # has sh but not bash
     with_captured_log {
-      run_cyber_dojo_sh({image_name:image_name})
+      run_cyber_dojo_sh(
+        image_name:image_name,
+        traffic_light:TrafficLightStub::red
+      )
     }
 
     # main command is [docker run --detach IMAGE bash -c 'sleep 10']
@@ -41,7 +44,7 @@ class FeatureContainerPropertiesTest < TestBase
       "ulimit -a                         > #{sandbox_dir}/ulimit.all"
     ].join(' && ')
 
-    assert_cyber_dojo_sh(cyber_dojo_sh)
+    assert_cyber_dojo_sh(cyber_dojo_sh, traffic_light:TrafficLightStub::red)
 
     # [1] must be first so as not to see newly created files.
     # [2] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'
