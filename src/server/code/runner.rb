@@ -272,11 +272,11 @@ class Runner
         image_name,
           "bash -c 'sleep #{max_seconds+2}'"
     ].join(SPACE)
-    # This shell.assert will catch errors in the 'outer' docker-run
+    # This bash.assert will catch errors in the 'outer' docker-run
     # command but not errors in the 'inner' sleep command. For example,
     # if the container has no bash [X]. Note that --detach is one of
     # the docker_run_options.
-    shell.assert(docker_run_command)
+    bash.assert(docker_run_command)
   end
 
   def remove_container
@@ -419,10 +419,6 @@ class Runner
 
   def logger
     @externals.logger
-  end
-
-  def shell
-    @externals.shell
   end
 
   def traffic_light

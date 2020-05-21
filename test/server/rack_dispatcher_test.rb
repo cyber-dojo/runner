@@ -1,4 +1,3 @@
-require_relative 'bash_stub_tar_pipe_out'
 require_relative 'rack_request_stub'
 require_relative 'test_base'
 require_src 'rack_dispatcher'
@@ -156,21 +155,15 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+=begin
   c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
     args = run_cyber_dojo_sh_args
     env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
     stub = BashStubTarPipeOut.new('fail')
     rack_call(env, Externals.new(bash:stub))
-
-    #assert stub.fired_once?
-    #assert_200('run_cyber_dojo_sh')
-    #refute log.empty?, log
-    #assert_log_contains('command', 'docker exec')
-    #assert_logged('stdout', 'fail')
-    #assert_logged('stderr', '')
-    #assert_logged('status', 1)
-    #assert_gcc_starting
+    #TODO
   end
+=end
 
   # - - - - - - - - - - - - - - - - -
 

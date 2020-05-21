@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require_relative 'bash'
 require_relative 'log'
-require_relative 'shell'
 require_relative 'string_logger'
 require_relative 'traffic_light'
 require_relative 'rag_lambdas'
@@ -16,10 +15,9 @@ class Externals
     @traffic_light = options[:traffic_light] || TrafficLight.new(self)
 
     @log = options['log'] || Log.new
-    @shell = Shell.new(self)
   end
 
-  attr_reader :bash, :log, :logger, :shell
+  attr_reader :bash, :log, :logger
   attr_reader :rag_lambdas, :traffic_light
 
 end
