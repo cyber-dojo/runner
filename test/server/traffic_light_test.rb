@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 require_relative 'data/python_pytest'
-require_relative 'external_bash_stub'
+require_relative 'bash_stub'
 require_src 'string_logger'
 require 'json'
 
@@ -19,6 +19,10 @@ class TrafficLightTest < TestBase
   def id58_teardown
     externals.bash.teardown
     stub_bash(@original_bash)
+  end
+
+  def stub_bash(stub = BashStub.new)
+    externals.instance_exec { @bash = stub }
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -220,7 +224,7 @@ class TrafficLightTest < TestBase
   end
 
   def python_pytest_image_name
-    if externals.bash.is_a?(ExternalBashStub)
+    if externals.bash.is_a?(BashStub)
       # Have to avoid cache to ensure bash.run() call is made
       "cyberdojofoundation/python_pytest_#{id58.downcase}"
     else
