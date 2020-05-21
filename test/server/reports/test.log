@@ -1,28 +1,28 @@
-/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
-/test/server/traffic_light_test.rb:10: warning: previous definition of id58_prefix was here
-Run options: --seed 44644
+/test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
+/test/server/feature_traffic_light_test.rb:6: warning: previous definition of id58_prefix was here
+Run options: --seed 40797
 
 # Running:
 
 .
 
-Finished in 3.426745s, 0.2918 runs/s, 0.5836 assertions/s.
+Finished in 3.065994s, 0.3262 runs/s, 0.6523 assertions/s.
 
 1 runs, 2 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6073 / 13608 LOC (44.63%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6072 / 13606 LOC (44.63%) covered.
 
 Slowest 1 tests are...
-3.4190 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
+3.0613 - 6f2dFA:log_empty_test.rb:12:log_empty? helper method ignores known circleci warning
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    3.43   <=   200 | [32m true [0m
+        duration(test)[s] |    3.07   <=   200 | [32m true [0m
                     tests |       1   >=     1 | [32m true [0m
       coverage(tested)[%] |   79.03   >=   100 | [31m false [0m
-      coverage(tester)[%] |    31.2   >=   100 | [31m false [0m
+      coverage(tester)[%] |   31.17   >=   100 | [31m false [0m
      lines(tester/tested) |    2.68   >=   2.4 | [32m true [0m
       hits(tested/tester) |    1.23   >=   1.0 | [32m true [0m
 

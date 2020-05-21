@@ -15,7 +15,9 @@ class LogEmptyTest < TestBase
     run_cyber_dojo_sh
     assert_equal 'red', colour, pretty_result(:red)
     unless log.empty?
+      # :nocov:
       log += KNOWN_CIRCLE_CI_WARNING
+      # :nocov:
     end
     original_ENV_CIRCLECI = ENV['CIRCLECI']
     ENV['CIRCLECI'] = 'true'

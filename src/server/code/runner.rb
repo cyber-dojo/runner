@@ -29,8 +29,8 @@ class Runner
     created,deleted,changed = *exec_text_file_changes(files_in)
     colour = traffic_light.colour(logger, image_name, stdout['content'], stderr['content'], status)
     {
-      'colour' => colour,
-      'run_cyber_dojo_sh' => {
+      colour: colour,
+      run_cyber_dojo_sh: {
         stdout:stdout,
         stderr:stderr,
         status:status,

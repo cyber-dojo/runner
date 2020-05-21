@@ -79,7 +79,7 @@ class TestBase < Id58TestBase
   end
 
   def run_result
-    result['run_cyber_dojo_sh']
+    result[:run_cyber_dojo_sh]
   end
 
   def stdout
