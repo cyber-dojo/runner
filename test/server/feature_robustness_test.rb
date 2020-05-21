@@ -12,7 +12,8 @@ class FeatureRobustNessTest < TestBase
   c_assert_test 'CD5',
   'fork-bomb does not run indefinitely' do
     with_captured_log {
-      run_cyber_dojo_sh({
+      run_cyber_dojo_sh(
+        traffic_light: TrafficLightStub::amber,
         max_seconds: 3,
         changed: { 'hiker.c' =>
           <<~'C_FORK_BOMB'
@@ -33,7 +34,7 @@ class FeatureRobustNessTest < TestBase
           }
           C_FORK_BOMB
         }
-      })
+      )
     }
     assert timed_out? ||
       printed?('fork()') ||
@@ -46,7 +47,8 @@ class FeatureRobustNessTest < TestBase
   multi_os_test 'CD6',
   'bash fork-bomb does not run indefinitely' do
     with_captured_log {
-      run_cyber_dojo_sh({
+      run_cyber_dojo_sh(
+        traffic_light: TrafficLightStub::amber,
         max_seconds: 3,
         changed: { 'cyber-dojo.sh' =>
           <<~'SHELL_FORK_BOMB'
@@ -58,7 +60,7 @@ class FeatureRobustNessTest < TestBase
           bomb
           SHELL_FORK_BOMB
         }
-      })
+      )
     }
 
     cant_fork = (os === :Alpine ? "can't fork" : 'Cannot fork')
@@ -75,7 +77,8 @@ class FeatureRobustNessTest < TestBase
   c_assert_test 'DB3',
   'file-handles quickly become exhausted' do
     with_captured_log {
-      run_cyber_dojo_sh({
+      run_cyber_dojo_sh(
+        traffic_light: TrafficLightStub::amber,
         max_seconds: 3,
         changed: { 'hiker.c' =>
           <<~'FILE_HANDLE_BOMB'
@@ -100,7 +103,7 @@ class FeatureRobustNessTest < TestBase
           }
           FILE_HANDLE_BOMB
         }
-      })
+      )
     }
     assert printed?('fopen() != NULL') ||
       daemon_error? ||
@@ -113,7 +116,7 @@ class FeatureRobustNessTest < TestBase
   %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
     stub = BashStubTarPipeOut.new('fail')
     @externals = Externals.new(bash:stub)
-    with_captured_log { run_cyber_dojo_sh }
+    with_captured_log { run_cyber_dojo_sh(traffic_light: TrafficLightStub::amber) }
     assert stub.fired_once?
     assert_created({})
     assert_deleted([])

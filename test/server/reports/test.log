@@ -1,34 +1,29 @@
-Run options: --seed 52242
+Run options: --seed 49998
 
 # Running:
 
-..................
+......
 
-Finished in 18.606453s, 0.9674 runs/s, 5.6969 assertions/s.
+Finished in 18.862664s, 0.3181 runs/s, 0.8482 assertions/s.
 
-18 runs, 106 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6147 / 13564 LOC (45.32%) covered.
+6 runs, 16 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6134 / 13569 LOC (45.21%) covered.
 
-Slowest 9 tests are...
-1.1011 - ECF533:feature_returned_text_files_test.rb:120:single-char new text files are detected
-1.0696 - ECF529:feature_returned_text_files_test.rb:61:text files created in sub-dirs are returned
-1.0482 - ECF524:feature_returned_text_files_test.rb:12:created text-file filenames are returned even when their names have leading hyphens which could easily be read as a tar-pipe option
-1.0289 - ECF532:feature_returned_text_files_test.rb:106:empty new text files are detected
-1.0270 - ECF527:feature_returned_text_files_test.rb:45:created binary files are not returned
-1.0027 - ECF526:feature_returned_text_files_test.rb:27:created text files, including dot files, are returned
-1.0006 - ECF530:feature_returned_text_files_test.rb:79:deleted files are detected
-0.9944 - ECF531:feature_returned_text_files_test.rb:92:changed files are detected
-0.9657 - ECF62C:feature_returned_text_files_test.rb:135:no text files under /sandbox at all, returns everything deleted
+Slowest 4 tests are...
+5.5025 - 1B5CD5:feature_robustness_test.rb:12:fork-bomb does not run indefinitely
+2.9263 - 1B562B:feature_robustness_test.rb:115:a crippled container, eg from a fork-bomb, returns everything unchanged
+2.8756 - 1B5CD6:feature_robustness_test.rb:47:bash fork-bomb does not run indefinitely
+2.5734 - 1B5DB3:feature_robustness_test.rb:77:file-handles quickly become exhausted
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   18.61   <=   200 | [32m true [0m
-                    tests |      18   >=     1 | [32m true [0m
-      coverage(tested)[%] |   79.56   >=   100 | [31m false [0m
-      coverage(tester)[%] |   36.72   >=   100 | [31m false [0m
-     lines(tester/tested) |    2.45   >=   2.4 | [32m true [0m
-      hits(tested/tester) |   10.19   >=   1.0 | [32m true [0m
+        duration(test)[s] |   18.86   <=   200 | [32m true [0m
+                    tests |       6   >=     1 | [32m true [0m
+      coverage(tested)[%] |   81.03   >=   100 | [31m false [0m
+      coverage(tester)[%] |   32.56   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.44   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    5.29   >=   1.0 | [32m true [0m
 
