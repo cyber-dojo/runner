@@ -1,33 +1,33 @@
-/test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
-/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 28672
+/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
+/test/server/traffic_light_test.rb:10: warning: previous definition of id58_prefix was here
+Run options: --seed 7204
 
 # Running:
 
 ...............................................................................................................................
 
-Finished in 105.002178s, 1.2095 runs/s, 225.4144 assertions/s.
+Finished in 104.410363s, 1.2164 runs/s, 226.6921 assertions/s.
 
 127 runs, 23669 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6976 / 13600 LOC (51.29%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 6975 / 13599 LOC (51.29%) covered.
 
 Slowest 5 tests are...
-5.8110 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-5.5232 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
-3.9283 - 9E94D7:feature_timed_out_test.rb:41:when run_cyber_dojo_sh does not complete in max_seconds and produces output then stdout is not empty, and timed_out is true
-3.3679 - 9E9B2B:feature_timed_out_test.rb:12:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and timed_out is true
-3.2058 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb does not run indefinitely
-3.1438 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
+5.4811 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
+5.4020 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
+3.8996 - 9E94D7:feature_timed_out_test.rb:41:when run_cyber_dojo_sh does not complete in max_seconds and produces output then stdout is not empty, and timed_out is true
+3.4654 - 9E9B2B:feature_timed_out_test.rb:12:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and timed_out is true
+3.1991 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb does not run indefinitely
+3.1739 - 7B7Hd7:feature_traffic_light_test.rb:21:return colour in outermost JSON till clients upgrade
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       2   <=     2 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   105.0   <=   200 | [32m true [0m
+        duration(test)[s] |  104.41   <=   200 | [32m true [0m
                     tests |     127   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.59   >=   2.4 | [32m true [0m
+     lines(tester/tested) |    2.60   >=   2.4 | [32m true [0m
       hits(tested/tester) |    1.02   >=   1.0 | [32m true [0m
 
