@@ -87,7 +87,7 @@ class BashStubTest < TestBase
     assert_equal 'forced', error.message
   end
 
-  private # = = = = = = = = = = = = = = =
+  private
 
   def pwd
     'pwd'

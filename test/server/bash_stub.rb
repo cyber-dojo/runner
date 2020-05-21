@@ -2,21 +2,16 @@
 class BashStub
 
   def initialize
-    test_id = ENV['ID58']
-    @filename = Dir.tmpdir + '/cyber_dojo_bash_stub_' + test_id + '.json'
-    unless File.file?(filename)
-      write([])
-    end
+    @stubs = []
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def teardown
     unless uncaught_exception?
-      stubs = read
-      pretty = JSON.pretty_generate(stubs)
-      unless stubs === []
-        raise "#{filename}: uncalled stubs(#{pretty})"
+      unless @stubs === []
+        pretty = JSON.pretty_generate(@stubs)
+        raise "#{ENV['ID58']}: uncalled stubs(#{pretty})"
       end
     end
   end
@@ -24,50 +19,32 @@ class BashStub
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def stub_exec(command, stdout, stderr, status)
-    stubs = read
-    stub = {
+    @stubs << {
       command:command,
        stdout:stdout,
        stderr:stderr,
        status:status
     }
-    write(stubs << stub)
   end
 
   def exec(command)
-    stubs = read
-    stub = stubs.shift
-    write(stubs)
+    stub = @stubs.shift
     if stub.nil?
       raise [
         self.class.name,
-        "run(command) - no stub",
+        "exec(command) - no stub",
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
-    unless command === stub['command']
+    unless command === stub[:command]
       raise [
         self.class.name,
-        "run(command) - does not match stub",
-        "actual-command: #{command}",
-        "stubbed-command: #{stub['command']}"
+        "exec(command) - does not match stub",
+        " actual-command:#{command}:",
+        "stubbed-command:#{stub[:command]}:"
       ].join("\n") + "\n"
     end
-    [stub['stdout'], stub['stderr'], stub['status']]
-  end
-
-  private
-
-  def read
-    JSON.parse(IO.read(filename))
-  end
-
-  def write(stubs)
-    IO.write(filename, JSON.unparse(stubs))
-  end
-
-  def filename
-    @filename
+    [stub[:stdout], stub[:stderr], stub[:status]]
   end
 
   def uncaught_exception?
