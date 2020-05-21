@@ -4,6 +4,7 @@ require_relative 'services/languages_start_points'
 require_src 'externals'
 require_src 'prober'
 require_src 'runner'
+require 'json'
 require 'stringio'
 
 class TestBase < Id58TestBase
@@ -72,6 +73,10 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   attr_reader :result
+
+  def pretty_result(context)
+    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
+  end
 
   def run_result
     result['run_cyber_dojo_sh']

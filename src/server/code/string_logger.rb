@@ -7,7 +7,7 @@ class StringLogger
   end
 
   attr_reader :log
-  
+
   def write(message)
     return if message.empty?
     message += "\n" if message[-1] != "\n"

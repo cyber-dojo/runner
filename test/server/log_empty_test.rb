@@ -9,7 +9,6 @@ class LogEmptyTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-=begin
   test 'dFA', %w(
   log_empty? helper method ignores known circleci warning
   ) do
@@ -24,6 +23,5 @@ class LogEmptyTest < TestBase
   ensure
     ENV['CIRCLECI'] = original_ENV_CIRCLECI
   end
-=end
 
 end
