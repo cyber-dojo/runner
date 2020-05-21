@@ -30,6 +30,10 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  def assert_sss(script)
+    assert_cyber_dojo_sh(script, traffic_light:TrafficLightStub::red)
+  end
+
   def assert_cyber_dojo_sh(script, options = {})
     options[:changed] = { 'cyber-dojo.sh' => script }
     run_cyber_dojo_sh(options)

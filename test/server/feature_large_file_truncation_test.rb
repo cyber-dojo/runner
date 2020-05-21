@@ -14,7 +14,7 @@ class FeatureLargeFileTruncationTest < TestBase
     filename = 'large_file.txt'
     script = "od -An -x /dev/urandom | head -c#{51*1024} > #{filename}"
     script += ";stat -c%s #{filename}"
-    assert_cyber_dojo_sh(script, traffic_light:TrafficLightStub::red)
+    assert_sss(script)
     assert_equal "#{51*1024}\n", stdout, :stdout
     assert created[filename]['truncated'], :truncated
     assert_equal 50*1024, created[filename]['content'].size, :size

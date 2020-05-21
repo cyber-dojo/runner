@@ -10,7 +10,7 @@ class FeatureTrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test 'p3W', %w( stdout is not being whitespace stripped ) do
-    stdout = assert_cyber_dojo_sh('printf " hel\nlo "')
+    stdout = assert_sss('printf " hel\nlo "')
     assert_equal " hel\nlo ", stdout
     # NB: A trailing newline _is_ being stripped
   end

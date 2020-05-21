@@ -11,18 +11,9 @@ class FeatureContainerPropertiesTest < TestBase
 
   test 'D91', %w(
   requires bash, won't run in sh ) do
-    assert_equal '/bin/bash', assert_cyber_dojo_sh('printf ${SHELL}')
-    image_name = 'alpine:latest' # has sh but not bash
     with_captured_log {
-      run_cyber_dojo_sh(
-        image_name:image_name,
-        traffic_light:TrafficLightStub::red
-      )
+      run_cyber_dojo_sh(image_name:'alpine:latest') # has sh but not bash
     }
-
-    # main command is [docker run --detach IMAGE bash -c 'sleep 10']
-    # The --detach means lack of bash is not a [docker run] error.
-    # Subsequent failure behavior is dependent on non determinstic timings.
     assert stdout.empty? || stdout.start_with?('cannot exec in a stopped state:'), ":#{stdout}:"
     assert stderr.empty? || stderr.start_with?('Error response from daemon:'), ":#{stderr}:"
     assert_equal 'faulty', colour
@@ -44,7 +35,7 @@ class FeatureContainerPropertiesTest < TestBase
       "ulimit -a                         > #{sandbox_dir}/ulimit.all"
     ].join(' && ')
 
-    assert_cyber_dojo_sh(cyber_dojo_sh, traffic_light:TrafficLightStub::red)
+    assert_sss(cyber_dojo_sh)
 
     # [1] must be first so as not to see newly created files.
     # [2] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'

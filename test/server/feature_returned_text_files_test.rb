@@ -16,7 +16,7 @@ class FeatureReturnedTextFilesTest < TestBase
   ) do
     leading_hyphen = '-JPlOLNY7yt_fFndapHwIg'
     script = "printf 'xxx' > '#{leading_hyphen}';"
-    assert_cyber_dojo_sh(script, TrafficLightStub::red)
+    assert_sss(script)
     assert_created({leading_hyphen => intact('xxx')})
     assert_deleted([])
     assert_changed({})
@@ -27,11 +27,10 @@ class FeatureReturnedTextFilesTest < TestBase
   multi_os_test '526', %w(
   created text files, including dot files, are returned
   ) do
-    script = [
+    assert_sss([
       'printf "xxx" > newfile.txt',
       'printf "yyy" > .dotfile'
-    ].join(';')
-    assert_cyber_dojo_sh(script, TrafficLightStub::amber)
+    ].join(';'))
     assert_created({
       'newfile.txt' => intact('xxx'),
       '.dotfile' => intact('yyy')
@@ -49,7 +48,7 @@ class FeatureReturnedTextFilesTest < TestBase
       'dd if=/dev/zero of=binary.dat bs=1c count=42',
       'file --mime-encoding binary.dat'
     ].join(';')
-    assert_cyber_dojo_sh(script, TrafficLightStub::green)
+    assert_sss(script)
     assert stdout.include?('binary.dat: binary')
     assert_created({})
     assert_deleted([])
@@ -68,7 +67,7 @@ class FeatureReturnedTextFilesTest < TestBase
       "mkdir #{dirname}",
       "printf '#{content}' > #{path}"
     ].join(';')
-    assert_cyber_dojo_sh(script, TrafficLightStub::red)
+    assert_sss(script)
     assert_created({ path => intact(content) })
     assert_deleted([])
     assert_changed({})
@@ -81,7 +80,7 @@ class FeatureReturnedTextFilesTest < TestBase
   ) do
     filename = any_src_file
     script = "rm #{filename}"
-    assert_cyber_dojo_sh(script, TrafficLightStub::amber)
+    assert_sss(script)
     assert_created({})
     assert_deleted([filename])
     assert_changed({})
@@ -95,7 +94,7 @@ class FeatureReturnedTextFilesTest < TestBase
     filename = any_src_file
     content = 'XXX'
     script = "printf '#{content}' > #{filename}"
-    assert_cyber_dojo_sh(script, TrafficLightStub::green)
+    assert_sss(script)
     assert_created({})
     assert_deleted([])
     assert_changed({filename => intact(content)})
@@ -109,7 +108,7 @@ class FeatureReturnedTextFilesTest < TestBase
     # The file utility says empty files are binary files!
     filename = 'empty.txt'
     script = "touch #{filename}"
-    assert_cyber_dojo_sh(script, TrafficLightStub::red)
+    assert_sss(script)
     assert_created({filename => intact('')})
     assert_deleted([])
     assert_changed({})
@@ -124,7 +123,7 @@ class FeatureReturnedTextFilesTest < TestBase
     filename = 'one-char.txt'
     ch = 'x'
     script = "printf '#{ch}' > #{filename}"
-    assert_cyber_dojo_sh(script, TrafficLightStub::amber)
+    assert_sss(script)
     assert_created({filename => intact(ch)})
     assert_deleted([])
     assert_changed({})
@@ -135,13 +134,13 @@ class FeatureReturnedTextFilesTest < TestBase
   multi_os_test '62C', %w(
   no text files under /sandbox at all, returns everything deleted
   ) do
-    assert_cyber_dojo_sh('rm -rf /sandbox/* /sandbox/.*', TrafficLightStub::green)
+    assert_sss('rm -rf /sandbox/* /sandbox/.*')
     assert_created({})
     assert_deleted(manifest['visible_files'].keys.sort)
     assert_changed({})
   end
 
-  private # = = = = = = = = = = = = =
+  private
 
   def any_src_file
     manifest['visible_files'].keys.find do |filename|
