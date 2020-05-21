@@ -33,7 +33,7 @@ class Shell
   end
 
   def bash_run(command)
-    stdout,stderr,status = bash.run(command)
+    stdout,stderr,status = bash.exec(command)
     unless success?(status) && ignore?(stderr)
       args = [command,stdout,stderr,status]
       log << ShellAssertError.new(*args).message

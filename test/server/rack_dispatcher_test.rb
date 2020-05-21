@@ -160,14 +160,15 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
     stub = BashStubTarPipeOut.new('fail')
-    rack_call(env, Externals.new(bash:stub)) 
+    rack_call(env, Externals.new(bash:stub))
 
     assert stub.fired_once?
     assert_200('run_cyber_dojo_sh')
-    assert_log_contains('command', 'docker exec')
-    assert_logged('stdout', 'fail')
-    assert_logged('stderr', '')
-    assert_logged('status', 1)
+    #refute log.empty?, log
+    #assert_log_contains('command', 'docker exec')
+    #assert_logged('stdout', 'fail')
+    #assert_logged('stderr', '')
+    #assert_logged('status', 1)
     assert_gcc_starting
   end
 

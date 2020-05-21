@@ -156,8 +156,8 @@ class Runner
       SHELL
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
-    # Be careful if you switch to shell.assert() here.
-    stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
+    # Be careful if you switch to bash.assert() here.
+    stdout,stderr,status = bash.exec(docker_tar_pipe_text_files_out)
     if status === 0
       files_out = truncated_untgz(stdout)
       files_delta(files_in, files_out)
@@ -281,7 +281,7 @@ class Runner
 
   def remove_container
     # Backgrounded for a small speed-up.
-    shell.exec("docker rm #{container_name} --force &")
+    bash.exec("docker rm #{container_name} --force &")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -412,6 +412,10 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def bash
+    @externals.bash
+  end
 
   def logger
     @externals.logger

@@ -44,7 +44,7 @@ class FeatureRobustNessTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'CD6',
-  'shell fork-bomb does not run indefinitely' do
+  'bash fork-bomb does not run indefinitely' do
     with_captured_log {
       run_cyber_dojo_sh({
         max_seconds: 3,
