@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ProberTest < TestBase
+class FeatureProberTest < TestBase
 
   def self.id58_prefix
     '6de'

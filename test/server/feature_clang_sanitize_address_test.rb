@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ClangSanitizeAddressTest < TestBase
+class FeatureClangSanitizeAddressTest < TestBase
 
   def self.id58_prefix
     'D28'

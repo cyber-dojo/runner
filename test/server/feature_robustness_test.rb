@@ -13,8 +13,26 @@ class FeatureRobustNessTest < TestBase
   'fork-bomb does not run indefinitely' do
     with_captured_log {
       run_cyber_dojo_sh({
-        changed: { 'hiker.c' => C_FORK_BOMB },
-        max_seconds: 3
+        max_seconds: 3,
+        changed: { 'hiker.c' =>
+          <<~'C_FORK_BOMB'
+          #include "hiker.h"
+          #include <stdio.h>
+          #include <unistd.h>
+          int answer(void)
+          {
+              for(;;)
+              {
+                  int pid = fork();
+                  fprintf(stdout, "fork() => %d\n", pid);
+                  fflush(stdout);
+                  if (pid == -1)
+                      break;
+              }
+              return 6 * 7;
+          }
+          C_FORK_BOMB
+        }
       })
     }
     assert timed_out? ||
@@ -29,8 +47,17 @@ class FeatureRobustNessTest < TestBase
   'shell fork-bomb does not run indefinitely' do
     with_captured_log {
       run_cyber_dojo_sh({
-        changed: { 'cyber-dojo.sh' => SHELL_FORK_BOMB },
-        max_seconds: 3
+        max_seconds: 3,
+        changed: { 'cyber-dojo.sh' =>
+          <<~'SHELL_FORK_BOMB'
+          bomb()
+          {
+            echo "bomb"
+            bomb | bomb &
+          }
+          bomb
+          SHELL_FORK_BOMB
+        }
       })
     }
 
@@ -49,8 +76,30 @@ class FeatureRobustNessTest < TestBase
   'file-handles quickly become exhausted' do
     with_captured_log {
       run_cyber_dojo_sh({
-        changed: { 'hiker.c' => FILE_HANDLE_BOMB },
-        max_seconds: 3
+        max_seconds: 3,
+        changed: { 'hiker.c' =>
+          <<~'FILE_HANDLE_BOMB'
+          #include "hiker.h"
+          #include <stdio.h>
+          int answer(void)
+          {
+            for (int i = 0;;i++)
+            {
+              char filename[42];
+              sprintf(filename, "wibble%d.txt", i);
+              FILE * f = fopen(filename, "w");
+              if (f)
+                fprintf(stdout, "fopen() != NULL %s\n", filename);
+              else
+              {
+                fprintf(stdout, "fopen() == NULL %s\n", filename);
+                break;
+              }
+            }
+            return 6 * 7;
+          }
+          FILE_HANDLE_BOMB
+        }
       })
     }
     assert printed?('fopen() != NULL') ||
@@ -71,62 +120,7 @@ class FeatureRobustNessTest < TestBase
     assert_changed({})
   end
 
-  private # = = = = = = = = = = = = = = = = = = = = = =
-
-  C_FORK_BOMB = <<~'CODE'
-    #include "hiker.h"
-    #include <stdio.h>
-    #include <unistd.h>
-    int answer(void)
-    {
-        for(;;)
-        {
-            int pid = fork();
-            fprintf(stdout, "fork() => %d\n", pid);
-            fflush(stdout);
-            if (pid == -1)
-                break;
-        }
-        return 6 * 7;
-    }
-  CODE
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  SHELL_FORK_BOMB = <<~CODE
-    bomb()
-    {
-      echo "bomb"
-      bomb | bomb &
-    }
-    bomb
-  CODE
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  FILE_HANDLE_BOMB = <<~'CODE'
-    #include "hiker.h"
-    #include <stdio.h>
-    int answer(void)
-    {
-      for (int i = 0;;i++)
-      {
-        char filename[42];
-        sprintf(filename, "wibble%d.txt", i);
-        FILE * f = fopen(filename, "w");
-        if (f)
-          fprintf(stdout, "fopen() != NULL %s\n", filename);
-        else
-        {
-          fprintf(stdout, "fopen() == NULL %s\n", filename);
-          break;
-        }
-      }
-      return 6 * 7;
-    }
-  CODE
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  private
 
   # :nocov:
   def printed?(text)

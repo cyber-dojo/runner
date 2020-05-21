@@ -156,6 +156,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+=begin
   c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
     args = run_cyber_dojo_sh_args
     env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
@@ -170,6 +171,7 @@ class RackDispatcherTest < TestBase
     assert_logged('status', 1)
     assert_gcc_starting
   end
+=end
 
   # - - - - - - - - - - - - - - - - -
 
@@ -185,7 +187,7 @@ class RackDispatcherTest < TestBase
     }
   end
 
-  private # = = = = = = = = = = = = =
+  private
 
   def assert_rack_call_run_missing(args, name)
     expected = "#{name} is missing"

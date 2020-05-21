@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class LargeFileTruncationTest < TestBase
+class FeatureLargeFileTruncationTest < TestBase
 
   def self.id58_prefix
     'E4A'

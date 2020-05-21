@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ContainerPropertiesTest < TestBase
+class FeatureContainerPropertiesTest < TestBase
 
   def self.id58_prefix
     '3A8'
