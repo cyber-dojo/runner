@@ -3,6 +3,7 @@ require_relative 'files_delta'
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
 require_relative 'random_hex'
+require_relative 'string_logger'
 require_relative 'tar_reader'
 require_relative 'tar_writer'
 require_relative 'traffic_light_setter'
@@ -18,6 +19,7 @@ class Runner
     @files = args['files']
     @image_name = args['manifest']['image_name']
     @max_seconds = args['manifest']['max_seconds']
+    @logger = StringLogger.new
   end
 
   attr_reader :id, :image_name, :max_seconds, :files
@@ -57,7 +59,7 @@ class Runner
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
-    w_stdin.write(tgz_of_files)
+    w_stdin.write(tgz(files))
     w_stdin.close
     pid = Process.spawn(docker_exec_cyber_dojo_sh, {
       pgroup:true,     # become process leader
@@ -85,6 +87,8 @@ class Runner
       r_stdout.close
       r_stderr.close
     end
+
+    
     @result['run_cyber_dojo_sh'] = {
       stdout:stdout,
       stderr:stderr,
@@ -95,7 +99,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tgz_of_files
+  def tgz(files)
     Gnu.zip(Tar::Writer.new(files).tar_file)
   end
 
@@ -175,18 +179,18 @@ class Runner
     # Be careful if you switch to shell.assert() here.
     stdout,stderr,status = shell.exec(docker_tar_pipe_text_files_out)
     if status === 0
-      files_now = read_tar_file(Gnu.unzip(stdout))
+      files_now = truncated_untgz(stdout)
       rag_src = extract_rag(files_now, rag_filename)
       created,deleted,changed = *files_delta(files, files_now)
     else
       @result['diagnostic'] = { 'stderr' => stderr }
       rag_src = nil
-      created,deleted,changed = {}, [], {}
+      created,deleted,changed = {}, {}, {}
     end
     @result['rag_src'] = rag_src
     @result['run_cyber_dojo_sh'].merge!({
       created:created,
-      deleted:deleted,
+      deleted:deleted.keys.sort,
       changed:changed
     })
   end
@@ -214,11 +218,19 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def read_tar_file(tar_file)
-    reader = Tar::Reader.new(tar_file)
+  def truncated_untgz(tgz)
+    reader = Tar::Reader.new(Gnu.unzip(tgz))
     reader.files.each_with_object({}) do |(filename,content),memo|
       memo[filename] = truncated(content)
     end
+  end
+
+  def truncated(raw_content)
+    content = Utf8.clean(raw_content)
+    {
+        'content' => content[0...MAX_FILE_SIZE],
+      'truncated' => content.size > MAX_FILE_SIZE
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -340,7 +352,7 @@ class Runner
     # So a piece of code running on 2 cores, both 100%
     # utilized could be killed after 5 seconds.
     options = [
-      ulimit('core'  ,   0   ),           # core file size
+      ulimit('core'  ,   0   ),           # no core file
       ulimit('fsize' ,  16*MB),           # file size
       ulimit('locks' , 128   ),           # number of file locks
       ulimit('nofile', 256   ),           # number of files
@@ -352,7 +364,8 @@ class Runner
       '--security-opt=no-new-privileges', # no escalation
     ]
     unless clang?(image_name)
-      # [ulimit data] prevents clang's -fsanitize=address option.
+      # [ulimit data] prevents clang's
+      # -fsanitize=address option.
       options << ulimit('data', 4*GB)     # data segment size
     end
     options.join(SPACE)
@@ -419,18 +432,6 @@ class Runner
   end
 
   KILL_PROCESS_GROUP_SIGNAL = -9
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # file content helpers
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def truncated(raw_content)
-    content = Utf8.clean(raw_content)
-    {
-        'content' => content[0...MAX_FILE_SIZE],
-      'truncated' => content.size > MAX_FILE_SIZE
-    }
-  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
