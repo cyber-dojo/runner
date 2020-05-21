@@ -52,38 +52,9 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def run
-    r_stdin,  w_stdin  = IO.pipe
-    r_stdout, w_stdout = IO.pipe
-    r_stderr, w_stderr = IO.pipe
     files_in = sandboxed(files)
-    w_stdin.write(tgz(files_in))
-    w_stdin.close
-    pid = Process.spawn(docker_exec_cyber_dojo_sh, {
-      pgroup:true,     # become process leader
-          in:r_stdin,  # redirection
-         out:w_stdout, # redirection
-         err:w_stderr  # redirection
-    })
 
-    stdout,stderr,status = nil,nil,nil
-    timed_out = false
-    begin
-      Timeout::timeout(max_seconds) do
-        _, ps = Process.waitpid2(pid)
-        status = ps.exitstatus
-      end
-    rescue Timeout::Error
-      kill_process_group(pid)
-      status = 128+9
-      timed_out = true
-    ensure
-      w_stdout.close unless w_stdout.closed?
-      w_stderr.close unless w_stderr.closed?
-      stdout = truncated(read_max(r_stdout))
-      stderr = truncated(read_max(r_stderr))
-      r_stdout.close
-      r_stderr.close
-    end
+    stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
 
     args = [image_name, stdout['content'], stderr['content'], status]
     colour = traffic_light.colour(logger, *args)
@@ -101,8 +72,34 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tgz(files)
-    Gnu.zip(Tar::Writer.new(files).tar_file)
+  def exec_cyber_dojo_sh(files_in)
+    r_stdin,  w_stdin  = IO.pipe # into container
+    r_stdout, w_stdout = IO.pipe # from container
+    r_stderr, w_stderr = IO.pipe # from container
+    w_stdin.write(tgz(files_in))
+    w_stdin.close
+    options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
+    pid = Process.spawn(docker_exec_cyber_dojo_sh, options)
+
+    timed_out = true
+    status = 128+9
+    begin
+      Timeout::timeout(max_seconds) do
+        _, ps = Process.waitpid2(pid)
+        timed_out = false
+        status = ps.exitstatus
+      end
+    rescue Timeout::Error
+      kill_process_group(pid)
+    ensure
+      w_stdout.close unless w_stdout.closed?
+      w_stderr.close unless w_stderr.closed?
+      stdout = truncated(read_max(r_stdout))
+      stderr = truncated(read_max(r_stderr))
+      r_stdout.close
+      r_stderr.close
+    end
+    [ stdout, stderr, status, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -211,6 +208,10 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def tgz(files)
+    Gnu.zip(Tar::Writer.new(files).tar_file)
+  end
 
   def truncated_untgz(tgz)
     reader = Tar::Reader.new(Gnu.unzip(tgz))
