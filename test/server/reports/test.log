@@ -1,33 +1,34 @@
-/test/server/traffic_light_test.rb:10: warning: method redefined; discarding old id58_prefix
-/test/server/feature_traffic_light_test.rb:7: warning: previous definition of id58_prefix was here
-Run options: --seed 10561
+/test/server/feature_container_properties_test.rb:26: warning: assigned but unused variable - expected_info
+/test/server/feature_traffic_light_test.rb:7: warning: method redefined; discarding old id58_prefix
+/test/server/traffic_light_test.rb:10: warning: previous definition of id58_prefix was here
+Run options: --seed 43385
 
 # Running:
 
-........................................................................................................................................
+................................................................................................................................
 
-Finished in 123.568460s, 1.1006 runs/s, 192.0474 assertions/s.
+Finished in 104.705741s, 1.2225 runs/s, 226.0143 assertions/s.
 
-136 runs, 23731 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 7190 / 13836 LOC (51.97%) covered.
+128 runs, 23665 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 7026 / 13730 LOC (51.17%) covered.
 
 Slowest 5 tests are...
-5.4843 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
-4.4014 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
-3.7802 - 7B7421:feature_traffic_light_test.rb:46:when rag-lambda is missing, then the colour is faulty, and diagnostics are added to the json result
-3.7206 - 7B7423:feature_traffic_light_test.rb:100:when rag-lambda has a call exception, then the colour is faulty, and diagnostics are added to the json result
-3.4122 - 7B7422:feature_traffic_light_test.rb:77:when rag-lambda has an eval exception, then the colour is faulty, and diagnostics are added to the json result
-3.3624 - 7B79DD:feature_traffic_light_test.rb:37:green traffic-light, no diagnostics
+5.4805 - 1B5CD5:feature_bomb_robustness_test.rb:12:fork-bomb does not run indefinitely
+4.0535 - 1598A6:feature_baseline_speed_test.rb:12:baseline average speed is less than 1.7 secs
+3.9678 - 9E94D7:feature_timed_out_test.rb:43:when run_cyber_dojo_sh does not complete in max_seconds and produces output then stdout is not empty, and timed_out is true
+3.4322 - 9E9B2B:feature_timed_out_test.rb:23:when run_cyber_dojo_sh does not complete within max_seconds and does not produce output then stdout is empty, and timed_out is true
+3.1528 - 1B5CD6:feature_bomb_robustness_test.rb:28:shell fork-bomb does not run indefinitely
+3.1512 - 7B79DD:feature_traffic_light_test.rb:46:green traffic-light, no diagnostics
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
-                 warnings |       2   <=     2 | [32m true [0m
+                 warnings |       3   <=     2 | [31m false [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  123.57   <=   200 | [32m true [0m
-                    tests |     136   >=     1 | [32m true [0m
-      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
-      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.75   >=   2.4 | [32m true [0m
-      hits(tested/tester) |    1.10   >=   1.0 | [32m true [0m
+        duration(test)[s] |  104.71   <=   200 | [32m true [0m
+                    tests |     128   >=     1 | [32m true [0m
+      coverage(tested)[%] |   93.74   >=   100 | [31m false [0m
+      coverage(tester)[%] |    99.9   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.42   >=   2.4 | [32m true [0m
+      hits(tested/tester) |    0.94   >=   1.0 | [31m false [0m
 

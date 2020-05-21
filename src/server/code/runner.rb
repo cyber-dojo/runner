@@ -24,15 +24,13 @@ class Runner
 
   attr_reader :id, :image_name, :max_seconds, :files
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def run_cyber_dojo_sh
     @result = {}
     create_container
     begin
       run
       read_text_file_changes
-      set_traffic_light
+      #set_traffic_light
       @result
     ensure
       remove_container
@@ -43,6 +41,8 @@ class Runner
 
   include FilesDelta
   include TrafficLightSetter
+
+  attr_reader :logger
 
   KB = 1024
   MB = 1024 * KB
@@ -88,12 +88,18 @@ class Runner
       r_stderr.close
     end
 
-    
+    # Use new traffic_light here...
+    args = [image_name, stdout['content'], stderr['content'], status]
+    colour = traffic_light.colour(logger, *args)
+
+    @result['colour'] = colour
     @result['run_cyber_dojo_sh'] = {
       stdout:stdout,
       stderr:stderr,
       status:status,
-      timed_out:timed_out
+      timed_out:timed_out,
+      colour:colour,
+      log: logger.log
     }
   end
 
@@ -439,6 +445,10 @@ class Runner
 
   def shell
     @externals.shell
+  end
+
+  def traffic_light
+    @externals.traffic_light
   end
 
   SPACE = ' '

@@ -20,16 +20,9 @@ class ContainerPropertiesTest < TestBase
     # main command is [docker run --detach IMAGE bash -c 'sleep 10']
     # The --detach means lack of bash is not a [docker run] error.
     # Subsequent failure behavior is dependent on non determinstic timings.
-    assert stdout === '' || stdout.start_with?('cannot exec in a stopped state:'), ":#{stdout}:"
-    assert stderr === '' || stderr.start_with?('Error response from daemon:'), ":#{stderr}:"
-
-    expected_info = "no /usr/local/bin/red_amber_green.rb in #{image_name}"
+    assert stdout.empty? || stdout.start_with?('cannot exec in a stopped state:'), ":#{stdout}:"
+    assert stderr.empty? || stderr.start_with?('Error response from daemon:'), ":#{stderr}:"
     assert_equal 'faulty', colour
-    assert_equal image_name, diagnostic['image_name'], :image_name
-    assert_equal id, diagnostic['id'], :id
-    assert_equal expected_info, diagnostic['info'], :info
-    assert_nil diagnostic['message'], :message
-    assert_nil diagnostic['rag_lambda'], :rag_lambda
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

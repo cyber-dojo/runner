@@ -25,8 +25,17 @@ class TestBase < Id58TestBase
   def shell
     externals.shell
   end
-  
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_cyber_dojo_sh(script)
+    named_args = {
+      :changed => { 'cyber-dojo.sh' => script }
+    }
+    run_cyber_dojo_sh(named_args)
+    refute_timed_out
+    stdout
+  end
 
   def run_cyber_dojo_sh(named_args = {})
     unchanged_files = starting_files
@@ -80,6 +89,10 @@ class TestBase < Id58TestBase
     run_result[:timed_out]
   end
 
+  def colour
+    run_result[:colour]
+  end
+
   def created
     run_result[:created]
   end
@@ -92,13 +105,27 @@ class TestBase < Id58TestBase
     run_result[:changed]
   end
 
-  def colour
-    result['colour']
+  def log
+    run_result[:log]
   end
 
-  def diagnostic
-    result['diagnostic']
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def log_empty?
+    log.empty? || (on_ci? && known_circleci_warning?)
   end
+
+  def on_ci?
+    ENV['CIRCLECI'] === 'true'
+  end
+
+  def known_circleci_warning?
+     log === KNOWN_CIRCLE_CI_WARNING
+  end
+
+  KNOWN_CIRCLE_CI_WARNING =
+    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
+    "Memory limited without swap.\n"
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -129,17 +156,6 @@ class TestBase < Id58TestBase
     expected.keys.each do |key|
       assert_equal expected[key], actual[key], key
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_sh(script)
-    named_args = {
-      :changed => { 'cyber-dojo.sh' => script }
-    }
-    run_cyber_dojo_sh(named_args)
-    refute_timed_out
-    stdout
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
