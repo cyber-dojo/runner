@@ -16,15 +16,24 @@ class TimedOutTest < TestBase
   and timed_out is true
   ) do
     named_args = {
-      changed: { 'hiker.c' => quiet_infinite_loop },
-      max_seconds: 2
+      max_seconds: 2,
+      changed: { 'hiker.c' =>
+        <<~'SOURCE'
+        #include "hiker.h"
+        int answer(void)
+        {
+            for(;;);
+            return 6 * 7;
+        }
+        SOURCE
+      }
     }
     with_captured_log {
       run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
-    assert_equal '', stdout, :stdout
-    assert_equal '', stderr, :stderr
+    assert stdout.empty?, stdout
+    assert stderr.empty?, stderr
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,42 +45,25 @@ class TimedOutTest < TestBase
   and timed_out is true
   ) do
     named_args = {
-      changed: { 'hiker.c' => loud_infinite_loop },
-      max_seconds: 2
+      max_seconds: 2,
+      changed: { 'hiker.c' =>
+        <<~'SOURCE'
+        #include "hiker.h"
+        #include <stdio.h>
+        int answer(void)
+        {
+            for(;;)
+                puts("Hello");
+            return 6 * 7;
+        }
+        SOURCE
+      }
     }
     with_captured_log {
       run_cyber_dojo_sh(named_args)
     }
     assert_timed_out
-    refute_equal '', stdout, :stdout
-  end
-
-  private
-
-  def quiet_infinite_loop
-    <<~SOURCE
-    #include "hiker.h"
-    int answer(void)
-    {
-        for(;;);
-        return 6 * 7;
-    }
-    SOURCE
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def loud_infinite_loop
-    <<~SOURCE
-    #include "hiker.h"
-    #include <stdio.h>
-    int answer(void)
-    {
-        for(;;)
-            puts("Hello");
-        return 6 * 7;
-    }
-    SOURCE
+    refute stdout.empty?, stdout
   end
 
 end
