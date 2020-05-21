@@ -1,7 +1,7 @@
-# frozen_string_literal: true
+  # frozen_string_literal: true
 require_relative 'test_base'
 
-class BombRobustNessTest < TestBase
+class FeatureRobustNessTest < TestBase
 
   def self.id58_prefix
     '1B5'

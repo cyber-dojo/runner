@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class TrafficLightTest < TestBase
+class FeatureTrafficLightTest < TestBase
 
   def self.id58_prefix
     '7B7'
