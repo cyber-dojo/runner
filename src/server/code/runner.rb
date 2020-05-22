@@ -166,20 +166,31 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def sandboxed(files)
-    # {'hiker.cs' => content} ==> { 'sandbox/hiker.cs' => content }
-    unrooted_sandbox_dir = SANDBOX_DIR[1..-1] # Tar likes relative paths
-    files.each.with_object({}) do |(filename,content),memo|
-      sandboxed_filename = "#{unrooted_sandbox_dir}/#{filename}"
-      memo[sandboxed_filename] = content
+  def sandboxed(arg)
+    #     arg {         'hiker.cs' => content }
+    # returns { 'sandbox/hiker.cs' => content }
+    if arg.is_a?(Hash)
+      # files
+      arg.each.with_object({}) do |(filename,content),memo|
+        memo[sandboxed(filename)] = content
+      end
+    else
+      # filename: Tar likes relative paths
+      [ SANDBOX_DIR[1..-1], arg ].join('/')
     end
-  end
+  end 
 
-  def unsandboxed(files)
-    # 'sandbox/hiker.cs' ==> 'hiker.cs'
-    files.each.with_object({}) do |(filename,content),memo|
-      unsandboxed_filename = filename[SANDBOX_DIR.size..-1]
-      memo[unsandboxed_filename] = content
+  def unsandboxed(arg)
+    #     arg { 'sandbox/hiker.cs' => content }
+    # returns {         'hiker.cs' => content }
+    if arg.is_a?(Hash)
+      # files
+      arg.each.with_object({}) do |(filename,content),memo|
+        memo[unsandboxed(filename)] = content
+      end
+    else
+      # filename
+      arg[SANDBOX_DIR.size..-1] # same size with / at front or back
     end
   end
 
