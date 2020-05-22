@@ -18,4 +18,11 @@ class GnuZipTest < TestBase
     assert_equal expected, actual
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '4A2', %w( how to get empty tgz for stubbing ) do
+    zipped = Gnu.zip(Tar::Writer.new.tar_file)
+    assert_equal({}, Tar::Reader.new(Gnu.unzip(zipped)).files)
+  end
+
 end
