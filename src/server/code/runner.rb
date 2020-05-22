@@ -167,22 +167,20 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def sandboxed(files)
-    # 'hiker.cs' ==> 'sandbox/hiker.cs'
+    # {'hiker.cs' => content} ==> { 'sandbox/hiker.cs' => content }
+    unrooted_sandbox_dir = SANDBOX_DIR[1..-1] # Tar likes relative paths
     files.each.with_object({}) do |(filename,content),memo|
-      memo["#{unrooted(SANDBOX_DIR)}/#{filename}"] = content
+      sandboxed_filename = "#{unrooted_sandbox_dir}/#{filename}"
+      memo[sandboxed_filename] = content
     end
   end
 
   def unsandboxed(files)
     # 'sandbox/hiker.cs' ==> 'hiker.cs'
     files.each.with_object({}) do |(filename,content),memo|
-      memo[filename[SANDBOX_DIR.size..-1]] = content
+      unsandboxed_filename = filename[SANDBOX_DIR.size..-1]
+      memo[unsandboxed_filename] = content
     end
-  end
-
-  def unrooted(path)
-    # Tar does not like absolute pathnames so strip leading /
-    path[1..-1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
