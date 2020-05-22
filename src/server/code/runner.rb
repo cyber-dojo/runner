@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require_relative 'files_delta'
 require_relative 'random_hex'
+require_relative 'sandbox'
 require_relative 'tgz'
 require_relative 'utf8_clean'
 require 'timeout'
@@ -19,7 +20,7 @@ class Runner
 
   def run_cyber_dojo_sh
     create_container
-    files_in = sandboxed(files)
+    files_in = Sandbox.in(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
     created,deleted,changed = *exec_text_file_changes(files_in, timed_out)
     colour = traffic_light.colour(image_name, stdout['content'], stderr['content'], status)
@@ -31,9 +32,9 @@ class Runner
         status:status,
         timed_out:timed_out,
         colour:colour,
-        created:unsandboxed(created),
-        deleted:unsandboxed(deleted).keys.sort,
-        changed:unsandboxed(changed),
+        created:Sandbox.out(created),
+        deleted:Sandbox.out(deleted).keys.sort,
+        changed:Sandbox.out(changed),
         log: logger.log
       }
     }
@@ -49,7 +50,6 @@ class Runner
   MB = 1024 * KB
   GB = 1024 * MB
 
-  SANDBOX_DIR = '/sandbox'  # where files are saved to in the container
   UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
@@ -111,7 +111,7 @@ class Runner
           tar -C /                `# [2]`              \
             -zxf                  `# extract tgz file` \
             -                     `# read from stdin`  \
-          && cd #{SANDBOX_DIR}    `# [3]`              \
+          && cd #{Sandbox::DIR}   `# [3]`              \
           && bash ./cyber-dojo.sh                      \
           '                       `# close quote`
     SHELL
@@ -120,9 +120,6 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def exec_text_file_changes(files_in, timed_out)
-    if timed_out
-      return [ {}, {}, {} ]
-    end
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -154,44 +151,16 @@ class Runner
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
     # Be careful if you switch to bash.assert() here.
+    if timed_out
+      return [ {}, {}, {} ]
+    end
     stdout,stderr,status = bash.exec(docker_tar_pipe_text_files_out)
-    if status === 0
-      files_out = truncated_untgz(stdout)
-      files_delta(files_in, files_out)
-    else
+    if status != 0
       logger.write(stderr)
-      [ {}, {}, {} ]
+      return [ {}, {}, {} ]
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def sandboxed(arg)
-    #     arg {         'hiker.cs' => content }
-    # returns { 'sandbox/hiker.cs' => content }
-    if arg.is_a?(Hash)
-      # files
-      arg.each.with_object({}) do |(filename,content),memo|
-        memo[sandboxed(filename)] = content
-      end
-    else
-      # filename: Tar likes relative paths
-      [ SANDBOX_DIR[1..-1], arg ].join('/')
-    end
-  end 
-
-  def unsandboxed(arg)
-    #     arg { 'sandbox/hiker.cs' => content }
-    # returns {         'hiker.cs' => content }
-    if arg.is_a?(Hash)
-      # files
-      arg.each.with_object({}) do |(filename,content),memo|
-        memo[unsandboxed(filename)] = content
-      end
-    else
-      # filename
-      arg[SANDBOX_DIR.size..-1] # same size with / at front or back
-    end
+    files_out = truncated_untgz(stdout)
+    files_delta(files_in, files_out)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -248,7 +217,7 @@ class Runner
       export -f truncate_file; \
       export -f is_text_file; \
       export -f unrooted; \
-      (find #{SANDBOX_DIR} -type f -exec \
+      (find #{Sandbox::DIR} -type f -exec \
         bash -c "is_text_file {} && unrooted {}" \\;)
     SHELL
 
@@ -309,7 +278,7 @@ class Runner
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
-      env_var('SANDBOX',    SANDBOX_DIR)
+      env_var('SANDBOX',    Sandbox::DIR)
     ].join(SPACE)
   end
 
@@ -363,14 +332,14 @@ class Runner
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   TMP_FS_SANDBOX_DIR =
-    "--tmpfs #{SANDBOX_DIR}:" +
+    "--tmpfs #{Sandbox::DIR}:" +
     'exec,' +       # [1]
     'size=50M,' +   # [2]
     "uid=#{UID}," + # [3]
     "gid=#{GID}"    # [3]
     # Making the sandbox dir a tmpfs should improve speed.
     # By default, tmp-fs's are setup as secure mountpoints.
-    # If you use only '--tmpfs #{SANDBOX_DIR}'
+    # If you use only '--tmpfs #{Sandbox::DIR}'
     # then a [cat /etc/mtab] will reveal something like
     # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
     #   o) rw = Mount the filesystem read-write.
