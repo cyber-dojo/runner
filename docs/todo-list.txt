@@ -9,14 +9,21 @@ Speedup - deployment stages....
  - merge two docker execs into one.
 
 Hidden Filenames
+----------------
   - can be used as a marker to indicate when a run
     should extract generated text files. LTFs that do that now and dont
     have a hidden_filenames entry will need to create one that == []
     That's only Java-Approval and Ruby-Approval
+    Slimed try out...
+          Speed up: 0.45 => 0.35  C#, Alpine
+                    0.40 => 0.36  VB, Ubuntu
+                    0.42 => 0.37  Python, Debian
+
   - runner should then also process the generated files and apply
     the hidden_filenames filter before returning @created,@deleted,@changed
 
 API change
+----------
   - run_cyber_dojo_sh(id, manifest)
      - id is who is making the call.
      - manifest contains:
@@ -25,14 +32,33 @@ API change
        - visible_files  (from browser) <----- Directly from start-point manifest?
        - hidden_filenames
 
-Make TMP-FS for /home/sandbox
 
-Add --read-only docker run option
+readonly containers
+-------------------
+Make TMP-FS for /home/sandbox
+Further, if the docker-run used --read-only it would mean
+all LTFs were using /tmp and /sandbox only.
+That would even make it possible to recycle containers.
+You'd only really need to clear out /tmp and /sandbox.
+They should be readonly anyway...
+What happens to tests with --read-only added...
+Only 2 failures
+TrafficLightTest
+9DB Ubuntu L23
+9DD Ubuntu L41
+Access to the path /home/sandbox/.mono is denied.
+Need to make another tmp-fs for /home/sandbox
+TMP_FS_HOME_DIR = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
+--read-only
+And all pass :-)
+Need to try on all LTFs
 
 Image_name:TAG
+--------------
   - will now acts as key for cache holding the rag-lambdas.
 
-RAG Lambds in Python
+RAG Lambdas in Python
+--------------------
   - visible_files can contain red_amber_green.rb !!!!!
     If present, and different to cached source, then could use it inside
     a runner call that uses Ruby image. This opens up the option of
@@ -49,6 +75,8 @@ logger.error()
 TrafficLightTest Hd7 return json in outermost JSON - can be stubbed
 
 log_empty test dFA - can also use stubbing
+
+drop jq and xargs installs in image_dockerfile_augmenter
 
 create a custom BashStub which has methods for the specific bash calls...
       1) docker run --entrypoint=""

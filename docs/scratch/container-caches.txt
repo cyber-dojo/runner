@@ -1,0 +1,25 @@
+
+
+Thinking about container-caches.
+--------------------------------
+Suppose a container was created with an entrypoint whose script
+1) waited for a signal
+2) untarred tgz on stdin
+3) ran /tmp/main.sh
+Now cache could create such container.
+And request could get container from cache and docker-exec it
+Good step would be to re-split the docker-run into a docker-run and
+a docker-exec again. Look at older commit
+   1. create_container(id, image_name)
+      this is a docker run (did a sleep before)
+   2. run(files, max_seconds)
+      this is a docker exec wrapped in a Timeout.
+Now, cache holds containers keyed on image_name.
+When cache gives out 1 container (from the cache) it makes an async
+http post to runner say it just used 1 cached container.
+https://github.com/gworley3/httpray
+https://medium.com/adstage-engineering/httpray-for-your-http-requests-in-ruby-7783f85436f7
+A runner replica would receive the post, and would create zero or
+more new containers to get it to its cache limit. You could
+send out N posts to hit more replicas. This might be useful
+if payload contained info from sender, eg rate of emptying/filling the cache.

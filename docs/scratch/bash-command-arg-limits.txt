@@ -1,0 +1,19 @@
+
+The limit for an indivual argument is from <limits.h>
+https://unix.stackexchange.com/questions/120642
+
+Debian (gcc_assert)
+$ getconf ARG_MAX
+2097152
+==2048K
+
+Ubuntu (clang_assert)
+$ getconf ARG_MAX
+2097152
+==2048K
+
+Alpine (csharp_nunit)
+$ getconf ARG_MAX
+131072
+==
+128K

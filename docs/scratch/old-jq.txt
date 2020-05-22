@@ -1,4 +1,8 @@
 
+
+Old notes considering using JSON as output format.
+Dropped in favour of tgz files.
+
 I'd like for the text file reading to not happen in a 2nd docker exec.
 Suppose I injected this script into the tar file...
 
@@ -65,24 +69,3 @@ jq -n \
   '{stdout:$stdout, stderr:$stderr, status:$status}'
 
 #---------------------------------------------------------------
-
-This relies on being to use a large bash command line
-Check on images...
-The limit for an indivual argument is from <limits.h>
-https://unix.stackexchange.com/questions/120642
-
-Debian (gcc_assert)
-$ getconf ARG_MAX
-2097152
-==2048K
-
-Ubuntu (clang_assert)
-$ getconf ARG_MAX
-2097152
-==2048K
-
-Alpine (csharp_nunit)
-$ getconf ARG_MAX
-131072
-==
-128K
