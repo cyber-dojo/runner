@@ -17,15 +17,6 @@ class FeatureTrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'Hd7', %w( return colour in outermost JSON till clients upgrade ) do
-    # TODO: Stub Process and Bash calls so this just tests the result format
-    run_cyber_dojo_sh
-    assert_equal 'red', result[:colour], pretty_result(:old_api)
-    assert_equal 'red', result[:run_cyber_dojo_sh][:colour], pretty_result(:new_api)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   multi_os_test '9DB', %w( red/amber/green traffic-light, no diagnostics ) do
     run_cyber_dojo_sh
     assert_equal 'red', colour, pretty_result(:clean_red)

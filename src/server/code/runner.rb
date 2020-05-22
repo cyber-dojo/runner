@@ -24,9 +24,7 @@ class Runner
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
     created,deleted,changed = *exec_text_file_changes(files_in, timed_out)
     colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
-    {
-      colour: colour,
-      run_cyber_dojo_sh: {
+    { run_cyber_dojo_sh: {
         stdout:stdout,
         stderr:stderr,
         status:status,
