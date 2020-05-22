@@ -2,7 +2,7 @@
 require 'rubygems/package'  # Gem::Package::TarReader
 require 'stringio'
 
-module Tar
+module TarFile
 
   class Reader
 

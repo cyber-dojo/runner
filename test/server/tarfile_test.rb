@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'tar_reader'
-require_src 'tar_writer'
+require_src 'tarfile_reader'
+require_src 'tarfile_writer'
 
-class TarTest < TestBase
+class TarFileTest < TestBase
 
   def self.id58_prefix
     '80B'
@@ -12,7 +12,7 @@ class TarTest < TestBase
   # - - - - - - - - - - - - - - - - - -
 
   test '364', 'simple tar round-trip' do
-    writer = Tar::Writer.new
+    writer = TarFile::Writer.new
     expected = {
       'hello.txt' => 'greetings earthlings...',
       'hiker.c' => '#include <stdio.h>'
@@ -20,7 +20,7 @@ class TarTest < TestBase
     expected.each do |filename, content|
       writer.write(filename, content)
     end
-    reader = Tar::Reader.new(writer.tar_file)
+    reader = TarFile::Reader.new(writer.tar_file)
     actual = reader.files
     assert_equal expected, actual
   end
@@ -30,17 +30,17 @@ class TarTest < TestBase
   test '365', 'writing content where .size != .bytesize does not throw' do
     utf8 = [226].pack('U*')
     refute_equal utf8.size, utf8.bytesize
-    Tar::Writer.new.write('hello.txt', utf8)
+    TarFile::Writer.new.write('hello.txt', utf8)
     assert doesnt_throw=true
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   test '366', 'empty file round-trip' do
-    writer = Tar::Writer.new
+    writer = TarFile::Writer.new
     filename = 'greeting.txt'
     writer.write(filename, '')
-    read = Tar::Reader.new(writer.tar_file).files[filename]
+    read = TarFile::Reader.new(writer.tar_file).files[filename]
     assert_equal '', read
   end
 

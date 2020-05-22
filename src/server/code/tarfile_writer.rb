@@ -1,7 +1,7 @@
 require 'rubygems/package'  # Gem::Package::TarWriter
 require 'stringio'
 
-module Tar
+module TarFile
 
   class Writer
 
