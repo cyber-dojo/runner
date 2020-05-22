@@ -24,10 +24,6 @@ class TestBase < Id58TestBase
     Runner.new(externals(options), args)
   end
 
-  def shell
-    externals.shell
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_sss(script)
