@@ -2,12 +2,15 @@
 
 class ExternalProcess
 
+  def initialize(_externals)
+  end
+
   def spawn(command, options)
     Process.spawn(command, options)
   end
 
-  def waitpid(pid)
-    Process.waitpid(pid)
+  def waitpid2(pid)
+    Process.waitpid2(pid)
   end
 
   def kill(signal, pid)
