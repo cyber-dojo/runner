@@ -9,8 +9,11 @@ class FeatureBaselineSpeedTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A6',
-  'baseline average speed is less than 1.5 secs' do
+  multi_os_test '8A6', %w(
+  baseline average speed is less than 1.7 secs,
+  locally much faster than that,
+  but for CI 1.7 is about right
+  ) do
     timings = []
     (1..5).each do
       started_at = Time.now
@@ -22,7 +25,7 @@ class FeatureBaselineSpeedTest < TestBase
       timings << (secs * 1000 + millisecs)
     end
     mean = timings.reduce(0, :+) / timings.size
-    assert mean < max=1500, "mean=#{mean}, max=#{max}"
+    assert mean < max=1700, "mean=#{mean}, max=#{max}"
   end
 
 end
