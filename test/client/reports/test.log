@@ -1,31 +1,51 @@
-Run options: --seed 20309
+Run options: --seed 21391
 
 # Running:
 
 ...............................
 
-Finished in 42.864595s, 0.7232 runs/s, 3.4294 assertions/s.
+Finished in 44.155272s, 0.7021 runs/s, 3.3292 assertions/s.
 
 31 runs, 147 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 2481 / 4330 LOC (57.3%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 2482 / 4331 LOC (57.31%) covered.
 
-Slowest 5 tests are...
-10.5552 - 46DED4:large_file_test.rb:29:stdout greater than 50K is truncated       
-9.1683 - FAA3DD:traffic_light_test.rb:26:test red/amber/green in parallel threads
-4.4023 - D59FDC:timed_out_test.rb:20:run with infinite loop times out            
-2.7818 - FAA3DB:traffic_light_test.rb:18:test current API red/amber/green traffic-light
-2.6548 - FAA3DA:traffic_light_test.rb:12:test new API red/amber/green traffic-light
-2.1854 - 46D3DB:large_file_test.rb:12:run with very large file                   
+Slowest 25 tests are...
+10.6735 - 46DED4 - Alpine - C#, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
+9.8956 - FAA3DD - Debian - C (gcc), assert - test red/amber/green in parallel threads - traffic_light_test.rb:26
+3.9998 - D59FDC - Debian - C (gcc), assert - run with infinite loop times out - timed_out_test.rb:20
+3.1694 - 46D3DB - Alpine - C#, NUnit - run with very large file - large_file_test.rb:12
+2.9052 - FAA3DA - Debian - C (gcc), assert - test new API red/amber/green traffic-light - traffic_light_test.rb:12
+2.8523 - FAA3DB - Debian - C (gcc), assert - test current API red/amber/green traffic-light - traffic_light_test.rb:18
+2.6611 - 46D3DB - Ubuntu - VisualBasic, NUnit - run with very large file - large_file_test.rb:12
+0.9869 - 2D1160 - Debian - C (gcc), assert - round-tripping: example of no file changes - round_trip_test.rb:12
+0.9409 - D59FDD - Debian - C (gcc), assert - [C,assert] run which does not timeout - timed_out_test.rb:12
+0.9370 - 2D1161 - Debian - C (gcc), assert - created binary files are not returned in json payload but created text files are - round_trip_test.rb:22
+0.8728 - 2D1162 - Alpine - C#, NUnit - created text files in sub-dirs are returned in json payload - round_trip_test.rb:38
+0.8558 - 2D1163 - Debian - C (gcc), assert - changed text files are returned in json payload - round_trip_test.rb:48
+0.8254 - 46DED4 - Ubuntu - VisualBasic, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
+0.8161 - 2378A1 - Alpine - C#, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
+0.7961 - 2378A1 - Ubuntu - VisualBasic, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
+0.7919 - 2D1164 - Debian - C (gcc), assert - created empty text files is returned in json payload - round_trip_test.rb:58
+0.0776 - 14D2F5 - Ubuntu - VisualBasic, NUnit - call to existing method with bad argument type becomes RunnerService::Error - run_cyber_dojo_sh_test.rb:11
+0.0536 - 14D2F5 - Alpine - C#, NUnit - call to existing method with bad argument type becomes RunnerService::Error - run_cyber_dojo_sh_test.rb:11
+0.0075 - 1B6882 - Alpine - C#, NUnit - sha - sha_test.rb:12                      
+0.0038 - A8615D - Alpine - C#, NUnit - its ready - ready_test.rb:12              
+0.0024 - 74CCA2 - Alpine - C#, NUnit - its alive - alive_test.rb:12              
+0.0015 - 3752F1 - Ubuntu - VisualBasic, NUnit - raises when response.body is not JSON - http_json_responder_test.rb:25
+0.0013 - 3752F2 - Alpine - C#, NUnit - raises response.body is not JSON Hash - http_json_responder_test.rb:34
+0.0001 - 3752F4 - Alpine - C#, NUnit - raises when response.body has no key matching path - http_json_responder_test.rb:54
+0.0001 - 3752F3 - Alpine - C#, NUnit - raises when response.body has embedded exception - http_json_responder_test.rb:43
+0.0001 - 3752F0 - Alpine - C#, NUnit - response.body is used when it has a key matching the path - http_json_responder_test.rb:13
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   42.86   <=    50 | [32m true [0m
+        duration(test)[s] |   44.16   <=    50 | [32m true [0m
                     tests |      31   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
      lines(tester/tested) |    2.65   >=   2.5 | [32m true [0m
-      hits(tested/tester) |    7.20   >=   6.6 | [32m true [0m
+      hits(tested/tester) |    7.10   >=   6.6 | [32m true [0m
 

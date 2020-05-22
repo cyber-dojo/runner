@@ -41,8 +41,8 @@ class ExternalBashTest < TestBase
   it returns [stdout,stderr,status],
   it logs nothing
   ) do
-    stdout,stderr,status = bash.exec('printf Hello')
-    assert_equal 'Hello', stdout, :stdout
+    stdout,stderr,status = bash.exec('printf Specs')
+    assert_equal 'Specs', stdout, :stdout
     assert_equal '', stderr, :stderr
     assert_equal 0, status, :status
     assert log.empty?, log
@@ -58,16 +58,12 @@ class ExternalBashTest < TestBase
   it returns [stdout,stderr,status],
   it logs [command,stdout,stderr,status]
   ) do
-    command = 'printf Bye && false'
+    command = 'printf Croc && >&2 printf Fish && false'
     stdout,stderr,status = bash.exec(command)
-    assert_equal 'Bye', stdout, :stdout
-    assert_equal '', stderr, :stderr
+    assert_equal 'Croc', stdout, :stdout
+    assert_equal 'Fish', stderr, :stderr
     assert_equal 1, status, :status
-
-    assert_log_contains('command', command)
-    assert_log_contains('stdout', 'Bye')
-    assert_log_contains('stderr', '')
-    assert_log_contains('status', 1)
+    assert_log_contains(command, 'Croc', 'Fish', 1)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -80,27 +76,25 @@ class ExternalBashTest < TestBase
   it returns [stdout,stderr,status],
   it logs [command,stdout,stderr,status]
   ) do
-    command = '>&2 printf Bye && true'
+    command = 'printf Rabbit && >&2 printf Mole && true'
     stdout,stderr,status = bash.exec(command)
-    assert_equal '', stdout, :stdout
-    assert_equal 'Bye', stderr, :stderr
+    assert_equal 'Rabbit', stdout, :stdout
+    assert_equal 'Mole', stderr, :stderr
     assert_equal 0, status, :status
-
-    assert_log_contains('command', command)
-    assert_log_contains('stdout', '')
-    assert_log_contains('stderr', 'Bye')
-    assert_log_contains('status', 0)
+    assert_log_contains(command, 'Rabbit', 'Mole', 0)
   end
 
   # - - - - - - - - - - - - - - - - -
   # bash.assert(command)
   # - - - - - - - - - - - - - - - - -
 
-=begin
-  test 'f47',
-  %w( when assert(command) has status of zero,
-      it returns stdout,
-      it logs nothing
+  test 'f46',
+  %w(
+  when assert(command)'s
+  status is zero,
+  and stderr is empty,
+  it returns stdout,
+  it logs nothing
   ) do
     stdout = bash.assert('printf Hello')
     assert_equal 'Hello', stdout, :stdout
@@ -109,23 +103,33 @@ class ExternalBashTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'f48',
-  %w( when assert(command) has a status of non-zero,
-      it raises a ShellAssertError holding [command,stdout,stderr,status],
-      it logs [command,stdout,stderr,status]
+  test 'f47',
+  %w(
+  when assert(command)'s
+  status is zero,
+  and stderr is not empty,
+  it returns stdout,
+  it logs the assert
   ) do
-    command = 'printf Hello && false'
-    log = with_captured_log {
-      error = assert_raises(ShellAssertError) { shell.assert(command) }
-      assert_error_contains(error, 'command', command)
-      assert_error_contains(error, 'stdout', 'Hello')
-      assert_error_contains(error, 'stderr', '')
-      assert_error_contains(error, 'status', 1)
-    }
-    assert_log_contains(log, 'command', command)
-    assert_log_contains(log, 'stdout', 'Hello')
-    assert_log_contains(log, 'stderr', '')
-    assert_log_contains(log, 'status', 1)
+    command = 'printf Welcome && >&2 printf Bonjour && true'
+    stdout = bash.assert(command)
+    assert_equal 'Welcome', stdout, :stdout
+    assert_log_contains(command, 'Welcome', 'Bonjour', 0)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'f48', %w(
+  when assert(command)'s
+  status is non-zero,
+  and stderr is not empty,
+  it logs [command,stdout,stderr,status],
+  it raises a ExternalBash::AssertError holding [command,stdout,stderr,status],
+  ) do
+    command = 'printf Pencil && >&2 printf Jello && false'
+    error = assert_raises(ExternalBash::AssertError) { bash.assert(command) }
+    assert_log_contains(command, 'Pencil', 'Jello', 1)
+    assert_error_contains(error, command, 'Pencil', 'Jello', 1)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -135,20 +139,42 @@ class ExternalBashTest < TestBase
   the exception is untouched,
   it logs nothing
   ) do
-    log = with_captured_log {
-      error = assert_raises(Errno::ENOENT) { shell.assert('xxx Hello') }
-      expected = 'No such file or directory - xxx'
-      assert_equal expected, error.message, :error_message
-    }
-    assert_equal '', log, :log
+    error = assert_raises(Errno::ENOENT) { bash.assert('xxx Hello') }
+    expected = 'No such file or directory - xxx'
+    assert_equal expected, error.message, :error_message
+    assert log.empty?, log
   end
-=end
 
   private
 
-  def assert_log_contains(key, value)
+  def assert_error_contains(error, command, stdout, stderr, status)
+    refute_nil error
+    refute_nil error.message
+    json = JSON.parse(error.message)
+    assert_error_contains_key(error, json, 'command', command)
+    assert_error_contains_key(error, json, 'stdout', stdout)
+    assert_error_contains_key(error, json, 'stderr', stderr)
+    assert_error_contains_key(error, json, 'status', status)
+  end
+
+  def assert_error_contains_key(error, json, key, value)
+    diagnostic = "JSON(error.message) does not contain key:#{key}:\n:#{error.message}:"
+    assert json.has_key?(key), diagnostic
+    assert_equal value, json[key], error.message
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_log_contains(command, stdout, stderr, status)
     refute_nil log
-    diagnostic = "log does not contain  #{key}:#{value}\n#{log}"
+    assert_log_contains_key('command', command)
+    assert_log_contains_key('stdout', stdout)
+    assert_log_contains_key('stderr', stderr)
+    assert_log_contains_key('status', status)
+  end
+
+  def assert_log_contains_key(key, value)
+    diagnostic = "log does not contain  #{key}:#{value}:\n:log:#{log}:"
     assert log.include?("#{key}:#{value}:"), diagnostic
   end
 
