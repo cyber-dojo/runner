@@ -191,9 +191,9 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
-    manifest['visible_files'].map do |filename,file|
-      [ filename, file['content'] ]
-    end.to_h
+    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
+      memo[filename] = file['content']
+    end
   end
 
   def manifest
