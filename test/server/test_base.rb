@@ -86,11 +86,11 @@ class TestBase < Id58TestBase
   end
 
   def stdout
-    run_result[:stdout]['content']
+    run_result[:stdout][:content]
   end
 
   def stderr
-    run_result[:stderr]['content']
+    run_result[:stderr][:content]
   end
 
   def timed_out?
@@ -238,7 +238,7 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def intact(content)
-    { 'content' => content, 'truncated' => false }
+    { content: content, truncated: false }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

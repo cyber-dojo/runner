@@ -23,7 +23,7 @@ class Runner
     files_in = Sandbox.in(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
     created,deleted,changed = *exec_text_file_changes(files_in, timed_out)
-    colour = traffic_light.colour(image_name, stdout['content'], stderr['content'], status)
+    colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
     {
       colour: colour,
       run_cyber_dojo_sh: {
@@ -174,8 +174,8 @@ class Runner
   def truncated(raw_content)
     content = Utf8.clean(raw_content)
     {
-        'content' => content[0...MAX_FILE_SIZE],
-      'truncated' => content.size > MAX_FILE_SIZE
+        content: content[0...MAX_FILE_SIZE],
+      truncated: content.size > MAX_FILE_SIZE
     }
   end
 

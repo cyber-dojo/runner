@@ -20,7 +20,7 @@ module Sandbox
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
+
   def self.out(arg)
     #     arg { 'sandbox/hiker.cs' => content }
     # returns {         'hiker.cs' => content }

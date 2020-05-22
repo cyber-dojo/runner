@@ -13,11 +13,12 @@ class FeatureLargeFileTruncationTest < TestBase
   %w( generated text files bigger than 50K are truncated ) do
     filename = 'large_file.txt'
     script = "od -An -x /dev/urandom | head -c#{51*1024} > #{filename}"
-    script += ";stat -c%s #{filename}"
+    script += ';'
+    script += "stat -c%s #{filename}"
     assert_sss(script)
     assert_equal "#{51*1024}\n", stdout, :stdout
-    assert created[filename]['truncated'], :truncated
-    assert_equal 50*1024, created[filename]['content'].size, :size
+    assert created[filename][:truncated], :truncated
+    assert_equal 50*1024, created[filename][:content].size, :size
     assert_deleted([])
     assert_changed({})
   end

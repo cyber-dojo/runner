@@ -158,7 +158,7 @@ class FeatureContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def created_file(filename)
-    created[filename]['content']
+    created[filename][:content]
   end
 
 end

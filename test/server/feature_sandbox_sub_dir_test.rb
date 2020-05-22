@@ -64,8 +64,8 @@ class FeatureSandboxSubDirTest < TestBase
     assert_stats(filename, '-rw-r--r--', content.length)
     expected = {
       "#{sub_dir}/#{filename}" => {
-        'content' => content,
-        'truncated' => false
+        content: content,
+        truncated: false
       }
     }
     assert_equal(expected, created, :created)
