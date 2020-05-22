@@ -11,6 +11,6 @@ end
 require_relative 'code/rag_lambdas'
 require_relative 'code/rack_dispatcher'
 require 'rack'
-options = {rag_lambdas:RagLambdas.new}
+options = { rag_lambdas:RagLambdas.new }
 dispatcher = RackDispatcher.new(options)
 run dispatcher

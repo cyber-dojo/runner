@@ -36,7 +36,8 @@ class Id58TestBase < MiniTest::Test
           t1 = Time.now
           self.instance_eval(&test_block)
           t2 = Time.now
-          @@timings[id58+':'+src_file+':'+src_line+':'+name58] = (t2 - t1)
+          info = [ id58, os.to_s, display_name, name58, "#{src_file}:#{src_line}" ].join(' - ')
+          @@timings[info] = (t2 - t1)
         ensure
           puts $!.message unless $!.nil?
           id58_teardown
@@ -53,7 +54,7 @@ class Id58TestBase < MiniTest::Test
   ObjectSpace.define_finalizer(self, proc {
     slow = @@timings.select{ |_name,secs| secs > 0.000 }
     sorted = slow.sort_by{ |name,secs| -secs }.to_h
-    size = sorted.size < 15 ? sorted.size : 15
+    size = sorted.size < 25 ? sorted.size : 25
     puts
     puts "Slowest #{size} tests are..." if size != 0
     sorted.each_with_index { |(name,secs),index|
