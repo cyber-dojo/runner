@@ -210,6 +210,13 @@ class TestBase < Id58TestBase
     alpine_test(id_suffix, *lines, &block)
   end
 
+  def self.multi_os_test(id_suffix, *lines, &block)
+    alpine_test(id_suffix, *lines, &block)
+    ubuntu_test(id_suffix, *lines, &block)
+  end
+
+  # OS specific tests
+
   def self.alpine_test(id_suffix, *lines, &block)
     define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
   end
@@ -218,10 +225,7 @@ class TestBase < Id58TestBase
     define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
   end
 
-  def self.multi_os_test(id_suffix, *lines, &block)
-    alpine_test(id_suffix, *lines, &block)
-    ubuntu_test(id_suffix, *lines, &block)
-  end
+  # Language-Test-Framework specific tests
 
   def self.c_assert_test(id_suffix, *lines, &block)
     define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
