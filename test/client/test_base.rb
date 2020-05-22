@@ -17,6 +17,13 @@ class TestBase < Id58TestBase
     alpine_test(id_suffix, *lines, &block)
   end
 
+  def self.multi_os_test(id_suffix, *lines, &block)
+    alpine_test(id_suffix, *lines, &block)
+    ubuntu_test(id_suffix, *lines, &block)
+  end
+
+  # OS specific
+
   def self.alpine_test(id_suffix, *lines, &block)
     define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
   end
@@ -25,10 +32,7 @@ class TestBase < Id58TestBase
     define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
   end
 
-  def self.multi_os_test(id_suffix, *lines, &block)
-    alpine_test(id_suffix, *lines, &block)
-    ubuntu_test(id_suffix, *lines, &block)
-  end
+  # Language Test Framework specific
 
   def self.c_assert_test(id_suffix, *lines, &block)
     define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
@@ -49,6 +53,15 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_cyber_dojo_sh(sh_script)
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => sh_script }
+    })
+    refute timed_out?, result
+    assert stderr.empty?, stderr
+    stdout
+  end
 
   def run_cyber_dojo_sh(named_args = {})
 
@@ -86,6 +99,10 @@ class TestBase < Id58TestBase
     end
     @result = runner.run_cyber_dojo_sh(args)
     nil
+  end
+
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -130,16 +147,9 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_cyber_dojo_sh(sh_script)
-    run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => sh_script }
-    })
-    refute timed_out?, result
-    assert_equal '', stderr
-    stdout
+  def id
+    id58[0..5]
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_name
     manifest['image_name']
@@ -147,34 +157,18 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def id
-    id58[0..5]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def starting_files
-    manifest['visible_files'].map do |filename,file|
-      [ filename, file['content'] ]
-    end.to_h
+    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
+      memo[filename] = file['content']
+    end
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def manifest
     @manifest ||= languages_start_points.manifest(display_name)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def hiker_c
     starting_files['hiker.c']
-  end
-
-  private
-
-  def defaulted_arg(named_args, arg_name, arg_default)
-    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
 end
