@@ -11,7 +11,7 @@ class ProcessStubTest < TestBase
   # - - - - - - - - - - - - - - -
 
   test 'Kb1',
-  %w( a block supplies the stub, no block uses the stub ) do
+  %w( use with a block to supply the stub, use without a block gets the stub ) do
     stub = ProcessStub.new
     stub.spawn { 42 }
     assert_equal 42, stub.spawn
