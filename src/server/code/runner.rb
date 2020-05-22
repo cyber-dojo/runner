@@ -138,7 +138,7 @@ class Runner
       docker exec                                       \
         --user=#{UID}:#{GID}                            \
         #{container_name}                               \
-        bash -c                     `# [1]              \
+        bash -c                     `# [1]`             \
           '                         `# open quote`      \
           ;#{ECHO_TRUNCATED_TEXTFILE_NAMES}             \
           |                                             \
