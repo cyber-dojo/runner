@@ -50,9 +50,9 @@ class Runner
   MB = 1024 * KB
   GB = 1024 * MB
 
-  UID = 41966               # sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966               # sandbox group - runs /sandbox/cyber-dojo.sh
-  MAX_FILE_SIZE = 50 * KB   # of stdout, stderr, created, changed
+  UID = 41966             # sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966             # sandbox group - runs /sandbox/cyber-dojo.sh
+  MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -72,7 +72,9 @@ class Runner
         timed_out = false
         status = ps.exitstatus
       end
-    rescue Timeout::Error
+    rescue Timeout::Error => error
+      logger.write(error.class.name)
+      logger.write(error.message)
       kill_process_group(pid)
     ensure
       stdout = pipe_close(r_stdout, w_stdout)
@@ -126,8 +128,9 @@ class Runner
     # ready for human inspection. cyber-dojo supports this by
     # tar-piping out all text files (generated inside the container)
     # under /sandbox after cyber-dojo.sh has run.
-    #
-    # [1] Ensure filenames are not read as tar command options.
+    # [1] You must use [bash -c] on a docker exec.
+    #     See https://docs.docker.com/engine/reference/commandline/exec/
+    # [2] Ensure filenames are not read as tar command options.
     #     Eg -J... is a tar compression option.
     #     This option is not available on Ubuntu 16.04
     docker_tar_pipe_text_files_out =
@@ -135,7 +138,7 @@ class Runner
       docker exec                                       \
         --user=#{UID}:#{GID}                            \
         #{container_name}                               \
-        bash -c                                         \
+        bash -c                     `# [1]              \
           '                         `# open quote`      \
           ;#{ECHO_TRUNCATED_TEXTFILE_NAMES}             \
           |                                             \
@@ -143,7 +146,7 @@ class Runner
             -C /                                        \
             -zcf                    `# create tgz file` \
             -                       `# write to stdout` \
-            --verbatim-files-from   `# [1]`             \
+            --verbatim-files-from   `# [2]`             \
             -T                      `# using filenames` \
             -                       `# from stdin`      \
           '                         `# close quote`
