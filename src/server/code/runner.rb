@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 require_relative 'files_delta'
-require_relative 'gnu_unzip'
-require_relative 'gnu_zip'
 require_relative 'random_hex'
-require_relative 'tar_reader'
-require_relative 'tar_writer'
+require_relative 'tgz'
 require_relative 'utf8_clean'
 require 'timeout'
 
@@ -63,7 +60,7 @@ class Runner
     r_stdin,  w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
-    w_stdin.write(tgz(files_in))
+    w_stdin.write(TGZ.of(files_in))
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     pid = process.spawn(docker_exec_cyber_dojo_sh, options)
@@ -190,13 +187,8 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def tgz(files)
-    Gnu.zip(Tar::Writer.new(files).tar_file)
-  end
-
   def truncated_untgz(tgz)
-    reader = Tar::Reader.new(Gnu.unzip(tgz))
-    reader.files.each_with_object({}) do |(filename,content),memo|
+    TGZ.files(tgz).each.with_object({}) do |(filename,content),memo|
       memo[filename] = truncated(content)
     end
   end
