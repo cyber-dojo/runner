@@ -32,6 +32,13 @@ Add --read-only docker run option
 Image_name:TAG
   - will now acts as key for cache holding the rag-lambdas.
 
+RAG Lambds in Python
+  - visible_files can contain red_amber_green.rb !!!!!
+    If present, and different to cached source, then could use it inside
+    a runner call that uses Ruby image. This opens up the option of
+    allowing lambdas in other languages. Eg Python. Based on the extension.
+    And use a known python image.
+
 
 SMALLER
 =======
@@ -58,13 +65,6 @@ Dispatcher test that mimics config.ru setup
   Make 2 calls
   Verify stub only gets asked to cat ragfile from image once
 
-
----------------------------------------------------------------------
-- visible_files can contain red_amber_green.rb !!!!!
-  If present, and different to cached source, then could use it inside
-  a runner call that uses Ruby image. This opens up the option of
-  allowing lambdas in other languages. Eg Python. Based on the extension.
-  And use a known python image.
 
 ---------------------------------------------------------------------
 

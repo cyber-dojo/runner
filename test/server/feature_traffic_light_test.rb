@@ -17,7 +17,7 @@ class FeatureTrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '9DB', %w( red/amber/green traffic-light, no diagnostics ) do
+  multi_os_test '9DB', %w( red/amber/green traffic-light, clean log ) do
     run_cyber_dojo_sh
     assert_equal 'red', colour, pretty_result(:clean_red)
     refute_timed_out
