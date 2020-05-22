@@ -169,11 +169,13 @@ class TrafficLightTest < TestBase
     @stdout = options.delete(:stdout) || PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || '0'
-    externals(options).traffic_light.colour(python_pytest_image_name, @stdout, @stderr, @status)
+    e = externals(options)
+    @logger = e.logger
+    e.traffic_light.colour(python_pytest_image_name, @stdout, @stderr, @status)
   end
 
   def logger
-    @externals.logger
+    @logger
   end
 
   def log
