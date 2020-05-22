@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_relative 'bash'
+require_relative 'external_bash'
 require_relative 'external_process'
 require_relative 'string_logger'
 require_relative 'traffic_light'
@@ -9,7 +9,7 @@ class Externals
 
   def initialize(options = {})
     #stdout = options[:stdout] || StdoutWriter.new(self)
-    @bash = options[:bash] || Bash.new(self)
+    @bash = options[:bash] || ExternalBash.new(self)
     @logger = options[:logger] || StringLogger.new(self)
     @process = options[:process] || ExternalProcess.new(self)
     @rag_lambdas = options[:rag_lambdas] || RagLambdas.new

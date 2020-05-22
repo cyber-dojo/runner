@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'open3'
 
-class Bash
+class ExternalBash
 
   def initialize(_externals)
   end
