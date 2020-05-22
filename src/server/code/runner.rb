@@ -157,9 +157,8 @@ class Runner
     if timed_out
       return [ {}, {}, {} ]
     end
-    stdout,stderr,status = bash.exec(docker_tar_pipe_text_files_out)
+    stdout,_stderr,status = bash.exec(docker_tar_pipe_text_files_out)
     if status != 0
-      logger.write(stderr)
       return [ {}, {}, {} ]
     end
     files_out = truncated_untgz(stdout)

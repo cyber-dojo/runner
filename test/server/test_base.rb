@@ -148,21 +148,21 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_created(expected)
-    assert_hash_equal(expected, created)
+    assert_hash_equal(expected, created, :created)
   end
 
   def assert_deleted(expected)
-    assert_equal(expected, deleted)
+    assert_equal(expected, deleted, :deleted)
   end
 
   def assert_changed(expected)
-    assert_hash_equal(expected, changed)
+    assert_hash_equal(expected, changed, :changed)
   end
 
-  def assert_hash_equal(expected, actual)
-    assert_equal expected.keys.sort, actual.keys.sort
+  def assert_hash_equal(expected, actual, context)
+    assert_equal expected.keys.sort, actual.keys.sort, pretty_result(context)
     expected.keys.each do |key|
-      assert_equal expected[key], actual[key], key
+      assert_equal expected[key], actual[key], pretty_result("#{context}-#{key}")
     end
   end
 

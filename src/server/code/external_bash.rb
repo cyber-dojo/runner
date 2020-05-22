@@ -12,11 +12,14 @@ class ExternalBash
     status = r.exitstatus
     unless status === 0 && stderr.empty?
       logger.write("command:#{command}:")
-      logger.write("status:#{status}:")
+      logger.write("stdout:#{stdout}:")
       logger.write("stderr:#{stderr}:")
+      logger.write("status:#{status}:")
     end
-    [ stdout, stderr, r.exitstatus ]
+    [ stdout, stderr, status ]
   end
+
+  # - - - - - - - - - - - - - - - - - - - - -
 
   def assert(command)
     stdout,stderr,r = Open3.capture3(command)
