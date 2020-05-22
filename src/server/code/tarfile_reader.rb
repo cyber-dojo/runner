@@ -12,8 +12,9 @@ module TarFile
     end
 
     def files
-      # empty files are coming back as nil
-      @reader.map { |e| [e.full_name, e.read || ''] }.to_h
+      @reader.each.with_object({}) do |entry,memo|
+        memo[entry.full_name] = entry.read || '' # avoid nil
+      end
     end
 
   end
