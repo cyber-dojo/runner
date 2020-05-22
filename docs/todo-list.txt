@@ -1,0 +1,94 @@
+
+BIGGER
+======
+Speedup - deployment stages....
+ - cat stdout/stderr to files (and echo those back to stdout/stderr)
+ - write sss to tar file and tgz that.
+ - pipe the echo_textfilenames script into stdin and extract it then run it?
+ - echo fully pathed filenames (unrooted) into tar
+ - merge two docker execs into one.
+
+Hidden Filenames
+  - can be used as a marker to indicate when a run
+    should extract generated text files. LTFs that do that now and dont
+    have a hidden_filenames entry will need to create one that == []
+    That's only Java-Approval and Ruby-Approval
+  - runner should then also process the generated files and apply
+    the hidden_filenames filter before returning @created,@deleted,@changed
+
+API change
+  - run_cyber_dojo_sh(id, manifest)
+     - id is who is making the call.
+     - manifest contains:
+       - max_seconds
+       - image_name:tag
+       - visible_files  (from browser) <----- Directly from start-point manifest?
+       - hidden_filenames
+
+Make TMP-FS for /home/sandbox
+
+Add --read-only docker run option
+
+Image_name:TAG
+  - will now acts as key for cache holding the rag-lambdas.
+
+
+SMALLER
+=======
+logger.warning()
+logger.info()
+logger.error()
+
+TrafficLightTest Hd7 return json in outermost JSON - can be stubbed
+
+log_empty test dFA - can also use stubbing
+
+create a custom BashStub which has methods for the specific bash calls...
+      1) docker run --entrypoint=""
+      2) docker exec to run cyber-dojo.sh
+      3) docker exec to extract text files
+      4) docker run --entrypoint=cat to get rag-lambda
+
+uncomment multi_os_test '62B'  Robustness
+
+uncomment c_assert_test 'AB6   RackDispatcher
+
+Dispatcher test that mimics config.ru setup
+  Use BashStub.
+  Make 2 calls
+  Verify stub only gets asked to cat ragfile from image once
+
+
+---------------------------------------------------------------------
+- visible_files can contain red_amber_green.rb !!!!!
+  If present, and different to cached source, then could use it inside
+  a runner call that uses Ruby image. This opens up the option of
+  allowing lambdas in other languages. Eg Python. Based on the extension.
+  And use a known python image.
+
+---------------------------------------------------------------------
+
+  class CustomBashStub
+    def initialize
+      @stubs = {}
+    end
+    def stub_docker_run(stdout, stderr, status)
+      @stubs[:cyber_dojo_sh] = { stdout:stdout, stderr:stderr, status:status }
+    end
+    def stub_cyber_dojo_sh(stdout, stderr, status) # NO THIS IS Process.spawn()
+      @stubs[:cyber_dojo_sh] = { stdout:stdout, stderr:stderr, status:status }
+    end
+    def stub_read_textfiles(tgz)
+      @stubs[:tgz] = tgz
+    end
+    def stub_docker_cat(rag_lambda)
+      @stubs[:rag_lambda] = rag_lambda
+    end
+    def assert(command)
+      if command.include?('sleep')
+        [@stdout,@stderr,@status]
+      end
+    end
+    def exec(command)
+    end
+  end
