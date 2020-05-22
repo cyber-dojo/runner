@@ -7,7 +7,7 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
 **max_seconds**.
 - [JSON-in](#json-in) parameters
   * **id:String** for tracing
-  * **files:Hash{String=>String}** assumed to contain a file called `"cyber-dojo.sh"`
+  * **files:Hash{filename:String=>content:String}** assumed to contain a file called `"cyber-dojo.sh"`
   * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
   * **max_seconds:Integer** between `1` and `20`
   * eg
@@ -17,7 +17,7 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
         "cyber-dojo.sh": "coverage3 run --source='.' -m pytest *test*.py\n...",      
         "hiker.py": "#class Hiker:...",
         "test_hiker.py": "import hiker\n...",
-        "readme.txt": "You task is to..."
+        "readme.txt": "Your task is to..."
       },
       "manifest": {
         "image_name": "cyberdojofoundation/python_pytest",
@@ -25,7 +25,7 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
       }
     }
     ```
-- returns the [JSON-out](#json-out) results, keyed on `"run_cyber_dojo_sh"`
+- returns the [JSON-out](#json-out) result, keyed on `"run_cyber_dojo_sh"`
   * **stdout:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
   * **stderr:String** of running `/sandbox/cyber-dojo.sh` truncated to 50K
   * **status:Integer** of running `/sandbox/cyber-dojo.sh` (0 to 255)
@@ -58,7 +58,8 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
           }
         },
         "deleted": [],
-        "changed": {}
+        "changed": {},
+        "log": ""
       }
     }
     ```
