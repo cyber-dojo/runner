@@ -2,8 +2,6 @@
 require_relative 'test_base'
 require_relative 'data/python_pytest'
 require_relative 'bash_stub'
-require_src 'externals'
-require 'json'
 
 class TrafficLightTest < TestBase
 
