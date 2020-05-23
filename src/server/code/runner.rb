@@ -12,13 +12,18 @@ class Runner
     @externals = externals
     @id = args['id']
     @files = args['files']
-    manifest = args['manifest']
-    @image_name = manifest['image_name']
-    @max_seconds = manifest['max_seconds']
+    @manifest = args['manifest']
   end
 
   attr_reader :id, :files
-  attr_reader :image_name, :max_seconds
+
+  def image_name
+    @manifest['image_name']
+  end
+
+  def max_seconds
+    @manifest['max_seconds']
+  end
 
   def run_cyber_dojo_sh
     create_container
