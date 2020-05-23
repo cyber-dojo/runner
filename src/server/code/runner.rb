@@ -58,7 +58,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # properties
-  
+
   attr_reader :id, :files
 
   def image_name
@@ -92,15 +92,15 @@ class Runner
       logger.write(error.message)
       kill_process_group(pid)
     ensure
-      stdout = pipe_close(r_stdout, w_stdout)
-      stderr = pipe_close(r_stderr, w_stderr)
+      stdout = truncated_pipe_read_close(r_stdout, w_stdout)
+      stderr = truncated_pipe_read_close(r_stderr, w_stderr)
     end
     [ stdout, stderr, status, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def pipe_close(r, w)
+  def truncated_pipe_read_close(r, w)
     w.close unless w.closed?
     read = truncated(r.read(MAX_FILE_SIZE + 1) || '')
     r.close
