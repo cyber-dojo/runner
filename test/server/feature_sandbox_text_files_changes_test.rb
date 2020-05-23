@@ -230,7 +230,6 @@ class FeatureSandboxTextFilesChangesTest < TestBase
                 uid: attr[2].to_i, # eg 40045
               group: attr[3],      # eg cyber-dojo
                size: attr[4].to_i, # eg 136
-         time_stamp: attr[6],      # eg 07:03:14.539952547
       }]
     }.to_h
   end
