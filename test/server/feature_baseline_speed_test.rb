@@ -25,7 +25,7 @@ class FeatureBaselineSpeedTest < TestBase
       timings << (secs * 1000 + millisecs)
     end
     mean = timings.reduce(0, :+) / timings.size
-    assert mean < max=1700, "mean=#{mean}, max=#{max}"
+    assert mean < max=2000, "mean=#{mean}, max=#{max}"
   end
 
 end
