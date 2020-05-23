@@ -152,10 +152,10 @@ class FeatureSandboxTextFilesChangesTest < TestBase
   def assert_browser_can_create_files_in_sandbox_sub_dir(sub_dir)
     filename = 'hello.txt'
     content = 'the boy stood on the burning deck'
-    run_cyber_dojo_sh({
-      created: { "#{sub_dir}/#{filename}" => content },
-      changed: { 'cyber-dojo.sh' => "cd #{sub_dir} && #{stat_cmd}" }
-    })
+    assert_cyber_dojo_sh(
+      "cd #{sub_dir} && #{stat_cmd}",
+      created: { "#{sub_dir}/#{filename}" => content }
+    )
     assert_stats(filename, '-rw-r--r--', content.length)
     assert_equal({}, created, :created)
     assert_equal({}, changed, :changed)
@@ -167,15 +167,12 @@ class FeatureSandboxTextFilesChangesTest < TestBase
   def assert_cyber_dojo_sh_can_create_files_in_sandbox_sub_dir(sub_dir)
     filename = 'bonjour.txt'
     content = 'xyzzy'
-    cmd = [
+    assert_sss([
       "mkdir -p #{sub_dir}",
       "printf #{content} > #{sub_dir}/#{filename}",
       "cd #{sub_dir}",
       stat_cmd
-    ].join(' && ')
-    run_cyber_dojo_sh({
-      changed: { 'cyber-dojo.sh' => cmd }
-    })
+    ].join(' && '))
     assert_stats(filename, '-rw-r--r--', content.length)
     expected = {
       "#{sub_dir}/#{filename}" => {
@@ -198,10 +195,10 @@ class FeatureSandboxTextFilesChangesTest < TestBase
       "cd #{sub_dir}",
       stat_cmd
     ].join(' && ')
-    run_cyber_dojo_sh({
+    run_cyber_dojo_sh(
       created: { filename => content },
       changed: { 'cyber-dojo.sh' => cmd }
-    })
+    )
     assert_equal([], stdout_stats.keys, :keys)
     assert_equal({}, created, :created)
     assert_equal({}, changed, :changed)
