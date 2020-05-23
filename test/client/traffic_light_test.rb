@@ -9,16 +9,10 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test '3DA', 'test new API red/amber/green traffic-light' do
+  c_assert_test '3DA', 'test API red/amber/green traffic-light' do
     red_traffic_light_test
     amber_traffic_light_test
     green_traffic_light_test
-  end
-
-  c_assert_test '3DB', 'test current API red/amber/green traffic-light' do
-    red_traffic_light_test(:current)
-    amber_traffic_light_test(:current)
-    green_traffic_light_test(:current)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -27,13 +21,13 @@ class TrafficLightTest < TestBase
     rag1 = in_parallel_red_amber_green
     rag2 = in_parallel_red_amber_green
     rag3 = in_parallel_red_amber_green
-    rag3.each{|t| t.join}
-    rag2.each{|t| t.join}
-    rag1.each{|t| t.join}
+    rag3.each{ |t| t.join }
+    rag2.each{ |t| t.join }
+    rag1.each{ |t| t.join }
   end
 
   def in_parallel_red_amber_green
-    red = Thread.new { red_traffic_light_test }
+      red = Thread.new {   red_traffic_light_test }
     amber = Thread.new { amber_traffic_light_test }
     green = Thread.new { green_traffic_light_test }
     [red,amber,green]
@@ -41,9 +35,9 @@ class TrafficLightTest < TestBase
 
   private
 
-  def red_traffic_light_test(api = :new)
-    run_cyber_dojo_sh({api:api})
-    assert_equal 'red', traffic_light
+  def red_traffic_light_test
+    run_cyber_dojo_sh
+    assert_equal 'red', colour
     diagnostic = 'stdout is not empty!'
     expected_stdout = ''
     assert_equal expected_stdout, stdout, diagnostic
@@ -62,7 +56,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def amber_traffic_light_test(api = :new)
+  def amber_traffic_light_test
     expected_stdout = ''
     expected_stderr = [
       'hiker.c:5:16: error: invalid suffix "sd" on integer constant',
@@ -71,13 +65,12 @@ class TrafficLightTest < TestBase
     ]
     expected_status = 2
 
-    run_cyber_dojo_sh({
-      api: api,
+    run_cyber_dojo_sh(
       changed_files: {
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
       }
-    })
-    assert_equal 'amber', traffic_light
+    )
+    assert_equal 'amber', colour
     assert_equal expected_stdout, stdout, :stdout
     expected_stderr.each do |line|
       diagnostic = "Expected stderr to include the line #{line}\n#{stderr}"
@@ -88,14 +81,13 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def green_traffic_light_test(api = :new)
-    run_cyber_dojo_sh({
-      api: api,
+  def green_traffic_light_test
+    run_cyber_dojo_sh(
       changed_files: {
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
       }
-    })
-    assert_equal 'green', traffic_light, result
+    )
+    assert_equal 'green', colour, result
     assert_equal '', stderr
     assert_equal 0, status
   end

@@ -133,7 +133,7 @@ class TestBase < Id58TestBase
     run_result['timed_out']
   end
 
-  def traffic_light
+  def colour
     run_result['colour']
   end
 
