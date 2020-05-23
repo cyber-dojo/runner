@@ -29,8 +29,15 @@ class Runner
     create_container
     files_in = Sandbox.in(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
-    created,deleted,changed = *exec_text_file_changes(files_in, timed_out)
-    colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
+
+    if timed_out
+      created,deleted,changed = {},{},{}
+      colour = ""
+    else
+      created,deleted,changed = *exec_text_file_changes(files_in)
+      colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
+    end
+
     { run_cyber_dojo_sh: {
         stdout:stdout,
         stderr:stderr,
@@ -126,7 +133,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_text_file_changes(files_in, timed_out)
+  def exec_text_file_changes(files_in)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -159,9 +166,6 @@ class Runner
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
     # Be careful if you switch to bash.assert() here.
-    if timed_out
-      return [ {}, {}, {} ]
-    end
     stdout,_stderr,status = bash.exec(docker_tar_pipe_text_files_out)
     if status != 0
       return [ {}, {}, {} ]
