@@ -67,7 +67,7 @@ class Runner
 
   def max_seconds
     @manifest['max_seconds']
-  end 
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 

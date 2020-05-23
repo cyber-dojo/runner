@@ -68,15 +68,11 @@ RAG Lambdas in Python
 
 SMALLER
 =======
-logger.warning()
-logger.info()
-logger.error()
+logger.warning()?
+logger.info()?
+logger.error()?
 
-TrafficLightTest Hd7 return json in outermost JSON - can be stubbed
-
-log_empty test dFA - can also use stubbing
-
-drop jq and xargs installs in image_dockerfile_augmenter
+rescue Errno::ESRCH ; Add logging
 
 create a custom BashStub which has methods for the specific bash calls...
       1) docker run --entrypoint=""

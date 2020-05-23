@@ -12,5 +12,5 @@ MAX = {
   errors:0,
   warnings:0,
   skips:0,
-  duration:50,
+  duration:100,
 }
