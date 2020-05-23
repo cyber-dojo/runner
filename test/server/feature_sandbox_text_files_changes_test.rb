@@ -9,10 +9,10 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '524', %w(
+  test '524', %w(
   created text files are returned when
   their names have leading hyphens which must not
-  be read as a tar-pipe option
+  be read as a tar option
   ) do
     leading_hyphen = '-JPlOLNY7yt_fFndapHwIg'
     script = "printf 'xxx' > '#{leading_hyphen}';"
@@ -24,7 +24,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '526', %w(
+  test '526', %w(
   created text files, including dot files, are returned
   ) do
     assert_sss([
@@ -41,7 +41,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '527', %w(
+  test '527', %w(
   created binary files are not returned
   ) do
     script = [
@@ -57,7 +57,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '530', %w(
+  test '530', %w(
   deleted text filenames are returned
   ) do
     filename = any_src_file
@@ -70,7 +70,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '531', %w(
+  test '531', %w(
   changed text files are returned
   ) do
     filename = any_src_file
@@ -84,7 +84,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '532', %w(
+  test '532', %w(
   empty new text files are returned
   ) do
     # The file utility says empty files are binary files!
@@ -98,7 +98,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '533', %w(
+  test '533', %w(
   single-char new text files are returned
   ) do
     # The file utility says single-char files are binary files!
@@ -113,7 +113,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '62C', %w(
+  test '62C', %w(
   no text files under /sandbox at all, returns everything deleted
   ) do
     assert_sss('rm -rf /sandbox/* /sandbox/.*')
@@ -124,7 +124,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '12A',
+  test '12A',
   %w( create text files in /sandbox sub-dirs are returned ) do
     # The tar-pipe handles creating dir structure
     assert_browser_can_create_files_in_sandbox_sub_dir('s1')
@@ -133,7 +133,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '12B',
+  test '12B',
   %w( created text files in /sandbox sub-dirs are returned ) do
     assert_cyber_dojo_sh_can_create_files_in_sandbox_sub_dir('d1')
     assert_cyber_dojo_sh_can_create_files_in_sandbox_sub_dir('d1/d2/d3')
@@ -141,7 +141,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '12C',
+  test '12C',
   %w( deleted text filenames from /sandbox sub-dir are returned ) do
     assert_cyber_dojo_sh_can_delete_files_from_sandbox_sub_dir('c1')
     assert_cyber_dojo_sh_can_delete_files_from_sandbox_sub_dir('c1/c2/c3')
@@ -157,7 +157,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
       created: { "#{sub_dir}/#{filename}" => content }
     )
     assert_stats(filename, '-rw-r--r--', content.length)
-    # Text file changes must occur after cyber-dojo.sh runs.
+    # Text file changes occur after cyber-dojo.sh runs.
     # Browser-created text files are untarred into /sandbox
     # *before* cyber-dojo.sh runs and so are not changes.
     assert_equal({}, created, :created)
