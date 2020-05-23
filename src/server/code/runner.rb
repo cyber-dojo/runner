@@ -12,11 +12,13 @@ class Runner
     @externals = externals
     @id = args['id']
     @files = args['files']
-    @image_name = args['manifest']['image_name']
-    @max_seconds = args['manifest']['max_seconds']
+    manifest = args['manifest']
+    @image_name = manifest['image_name']
+    @max_seconds = manifest['max_seconds']
   end
 
-  attr_reader :id, :image_name, :max_seconds, :files
+  attr_reader :id, :files
+  attr_reader :image_name, :max_seconds
 
   def run_cyber_dojo_sh
     create_container
@@ -245,7 +247,7 @@ class Runner
     # This bash.assert will catch errors in the 'outer' docker-run
     # command but not errors in the 'inner' sleep command. For example,
     # if the container has no bash [X]. Note that --detach is one of
-    # the docker_run_options. 
+    # the docker_run_options.
     bash.assert(docker_run_command)
   end
 

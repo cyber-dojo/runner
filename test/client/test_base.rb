@@ -80,23 +80,15 @@ class TestBase < Id58TestBase
       refute unchanged_files.keys.include?(filename), diagnostic
     end
 
-    if named_args[:api] === :new
-      args = {
-        'id' => defaulted_arg(named_args, :id, id),
-        'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
-        'manifest' => {
-          'image_name' => defaulted_arg(named_args, :image_name, image_name),
-          'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
-        }
-      }
-    else
-      args = {
-        'id' => defaulted_arg(named_args, :id, id),
-        'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
+    args = {
+      'id' => defaulted_arg(named_args, :id, id),
+      'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
+      'manifest' => {
         'image_name' => defaulted_arg(named_args, :image_name, image_name),
-        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
+        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10),
+        'hidden_filenames' => defaulted_arg(named_args, :hidden_filenames, nil)
       }
-    end
+    }
     @result = runner.run_cyber_dojo_sh(args)
     nil
   end
@@ -153,6 +145,10 @@ class TestBase < Id58TestBase
 
   def image_name
     manifest['image_name']
+  end
+
+  def hidden_filenames
+    manifest['hidden_filenames']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

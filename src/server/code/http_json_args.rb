@@ -29,7 +29,7 @@ class HttpJsonArgs
     when '/sha'                then [Prober,'sha',{}]
     when '/alive'              then [Prober,'alive?',{}]
     when '/ready'              then [Prober,'ready?',{}]
-    when '/run_cyber_dojo_sh'  then [Runner,'run_cyber_dojo_sh',run_args]
+    when '/run_cyber_dojo_sh'  then [Runner,'run_cyber_dojo_sh',args]
     else
       raise request_error('unknown path')
     end
@@ -45,80 +45,19 @@ class HttpJsonArgs
     end
   end
 
-  # - - - - - - - - - - - - - - - -
-
-  def run_args
-    if arg_exists?('manifest')
-      new_run_args
-    else
-      existing_run_args
-    end
-  end
-
-  def new_run_args
-    { 'id' => id,
-      'files' => files,
-      'manifest' => manifest
+  def args
+    { 'id' => arg('id'),
+      'files' => arg('files'),
+      'manifest' => arg('manifest')
     }
   end
 
-  def existing_run_args
-    { 'id' => id,
-      'files' => files,
-      'manifest' => {
-        'image_name' => image_name,
-        'max_seconds' => max_seconds
-      }
-    }
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def id
-    exists_arg('id')
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def files
-    exists_arg('files')
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def manifest
-    exists_arg('manifest')
-  end
-
-  def image_name
-    exists_arg('image_name')
-  end
-
-  def max_seconds
-    exists_arg('max_seconds')
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def exists_arg(name)
-    unless arg_exists?(name)
-      raise missing(name)
+  def arg(name)
+    unless @args.has_key?(name)
+      raise request_error("#{name} is missing")
     end
-    arg = @args[name]
-    arg
+    @args[name]
   end
-
-  def arg_exists?(name)
-    @args.has_key?(name)
-  end
-
-  # - - - - - - - - - - - - - - - -
-
-  def missing(arg_name)
-    request_error("#{arg_name} is missing")
-  end
-
-  # - - - - - - - - - - - - - - - - -
 
   def request_error(text)
     # Exception messages use the words 'body' and 'path'

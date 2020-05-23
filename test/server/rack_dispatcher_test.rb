@@ -51,34 +51,11 @@ class RackDispatcherTest < TestBase
   # missing arguments
   # - - - - - - - - - - - - - - - - -
 
-  test 'AA2',
-  %w( missing image_name becomes exception ) do
-    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'image_name')
-  end
-
-  test 'AA3',
-  %w( missing id becomes exception ) do
-    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'id')
-  end
-
-  test 'AA4',
-  %w( missing max_seconds becomes exception ) do
-    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'max_seconds')
-  end
-
-  test 'AA5',
-  %w( missing files becomes exception ) do
-    assert_rack_call_run_missing(run_cyber_dojo_sh_current_args, 'files')
-  end
-
   test 'AA6',
-  %w( new API: missing id becomes exception ) do
+  %w( new API: missing argument becomes exception ) do
     assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'id')
-  end
-
-  test 'AA7',
-  %w( new API: missing files becomes exception ) do
     assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'files')
+    assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'manifest')
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -124,19 +101,6 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'ready' })
     ready = assert_200('ready?')
     assert ready
-    assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # run_cyber_dojo_sh with current method API
-  # - - - - - - - - - - - - - - - - -
-
-  c_assert_test 'SA2', 'run_cyber_dojo_sh with new args (no logging)' do
-    args = run_cyber_dojo_sh_current_args
-    rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
-
-    assert_200('run_cyber_dojo_sh')
-    assert_gcc_starting
     assert_nothing_logged
   end
 
@@ -331,15 +295,6 @@ class RackDispatcherTest < TestBase
         'image_name' => image_name,
         'max_seconds' => 10
       }
-    }
-  end
-
-  def run_cyber_dojo_sh_current_args
-    {
-      'image_name' => image_name,
-      'id' => id,
-      'files' => starting_files,
-      'max_seconds' => 10
     }
   end
 
