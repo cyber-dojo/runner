@@ -16,7 +16,7 @@ class LogEmptyTest < TestBase
     assert_equal 'red', colour, pretty_result(:red)
     unless log.empty?
       # :nocov:
-      log += KNOWN_CIRCLE_CI_WARNING
+      log.write(KNOWN_CIRCLE_CI_WARNING)
       # :nocov:
     end
     original_ENV_CIRCLECI = ENV['CIRCLECI']
