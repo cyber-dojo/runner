@@ -220,15 +220,16 @@ class FeatureSandboxTextFilesChangesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stdout_stats
-    stdout.lines.collect { |line|
+    stdout.lines.map.with_object({}) do |line,memo|
       attr = line.split
-      [attr[0], {         # filename eg hiker.h
+      filename = attr[0]           # eg hiker.h
+      memo[filename] = {
         permissions: attr[1],      # eg -rwxr--r--
                 uid: attr[2].to_i, # eg 40045
               group: attr[3],      # eg cyber-dojo
                size: attr[4].to_i, # eg 136
-      }]
-    }.to_h
+      }
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
