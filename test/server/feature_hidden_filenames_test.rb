@@ -33,6 +33,13 @@ class FeatureHiddenFilenamesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test 'c73', %w(
+  when hidden_filenames is [] with at least one Regex
+  /sandbox created/changed files are NOT returned
+  if they match ANY Regexp
+  ) do
+    # TODO
+  end
 
   private
 
