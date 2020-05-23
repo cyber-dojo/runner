@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class FeatureLargeFileTruncationTest < TestBase
+class FeatureFileTruncationTest < TestBase
 
   def self.id58_prefix
     'E4A'
@@ -26,6 +26,23 @@ class FeatureLargeFileTruncationTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '52B',
+  %w( stdout and stderr are truncated to 50K ) do
+    script = [
+      "od -An -x /dev/urandom | head -c#{51*1024} > /tmp/stdout",
+      "od -An -x /dev/urandom | head -c#{51*1024} > /tmp/stderr",
+      "cat /tmp/stdout",
+      "1>&2 cat /tmp/stderr"
+    ].join(';')
+    assert_sss(script)
+    assert_equal 50*1024, run_result[:stdout][:content].size, :stdout_content_is_truncated
+    assert run_result[:stdout][:truncated], :stdout_truncated_property_is_true
+    assert_equal 50*1024, run_result[:stderr][:content].size, :stderr_content_is_truncated
+    assert run_result[:stderr][:truncated], :stderr_truncated_property_is_true
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '52C',
   %w( source files bigger than 10K are not truncated ) do
     filename = 'Hiker.cs'
     src = starting_files[filename]
