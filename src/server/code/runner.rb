@@ -15,16 +15,6 @@ class Runner
     @manifest = args['manifest']
   end
 
-  attr_reader :id, :files
-
-  def image_name
-    @manifest['image_name']
-  end
-
-  def max_seconds
-    @manifest['max_seconds']
-  end
-
   def run_cyber_dojo_sh
     create_container
     files_in = Sandbox.in(files)
@@ -65,6 +55,19 @@ class Runner
   UID = 41966             # sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966             # sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # properties
+  
+  attr_reader :id, :files
+
+  def image_name
+    @manifest['image_name']
+  end
+
+  def max_seconds
+    @manifest['max_seconds']
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
