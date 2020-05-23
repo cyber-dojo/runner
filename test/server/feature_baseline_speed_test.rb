@@ -10,9 +10,9 @@ class FeatureBaselineSpeedTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A6', %w(
-  baseline average speed is less than 1.7 secs,
+  baseline average speed is less than 2 secs,
   locally much faster than that,
-  but for CI 1.7 is about right
+  but for CI 2 is about right
   ) do
     timings = []
     (1..5).each do
