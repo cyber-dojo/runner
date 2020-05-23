@@ -90,13 +90,27 @@ class TestBase < Id58TestBase
     run_result[:stderr][:content]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def timed_out?
     run_result[:timed_out]
   end
 
+  def assert_timed_out
+    assert timed_out?, result
+  end
+
+  def refute_timed_out
+    refute timed_out?, result
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def colour
     run_result[:colour]
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def created
     run_result[:created]
@@ -109,44 +123,6 @@ class TestBase < Id58TestBase
   def changed
     run_result[:changed]
   end
-
-  def log
-    run_result[:log]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def clean?(log_ = log)
-    log_.empty? || (on_ci? && known_circleci_warning?)
-  end
-
-  def log_empty?
-    log.empty? || (on_ci? && known_circleci_warning?)
-  end
-
-  def on_ci?
-    ENV['CIRCLECI'] === 'true'
-  end
-
-  def known_circleci_warning?
-     log === KNOWN_CIRCLE_CI_WARNING
-  end
-
-  KNOWN_CIRCLE_CI_WARNING =
-    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
-    "Memory limited without swap.\n"
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_timed_out
-    assert timed_out?, result
-  end
-
-  def refute_timed_out
-    refute timed_out?, result
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_created(expected)
     assert_hash_equal(expected, created, :created)
@@ -165,6 +141,20 @@ class TestBase < Id58TestBase
     expected.keys.each do |key|
       assert_equal expected[key], actual[key], pretty_result("#{context}-#{key}")
     end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def log
+    run_result[:log]
+  end
+
+  def clean?(log_ = log)
+    log_.empty?
+  end
+
+  def log_empty?
+    log.empty?
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
