@@ -157,6 +157,9 @@ class FeatureSandboxTextFilesChangesTest < TestBase
       created: { "#{sub_dir}/#{filename}" => content }
     )
     assert_stats(filename, '-rw-r--r--', content.length)
+    # Text file changes must occur after cyber-dojo.sh runs.
+    # Browser-created text files are untarred into /sandbox
+    # *before* cyber-dojo.sh runs and so are not changes.
     assert_equal({}, created, :created)
     assert_equal({}, changed, :changed)
     assert_equal([], deleted, :deleted)
