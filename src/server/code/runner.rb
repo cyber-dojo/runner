@@ -20,7 +20,7 @@ class Runner
     files_in = Sandbox.in(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
 
-    if timed_out || hidden_filenames.nil?
+    if timed_out
       created,deleted,changed = {},{},{}
       colour = ''
     else
@@ -67,11 +67,7 @@ class Runner
 
   def max_seconds
     @manifest['max_seconds']
-  end
-
-  def hidden_filenames
-    @manifest['hidden_filenames']
-  end
+  end 
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
