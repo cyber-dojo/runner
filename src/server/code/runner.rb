@@ -20,9 +20,9 @@ class Runner
     files_in = Sandbox.in(files)
     stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
 
-    if timed_out
+    if timed_out || hidden_filenames.nil?
       created,deleted,changed = {},{},{}
-      colour = ""
+      colour = ''
     else
       created,deleted,changed = *exec_text_file_changes(files_in)
       colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
@@ -37,7 +37,7 @@ class Runner
         created:Sandbox.out(created),
         deleted:Sandbox.out(deleted).keys.sort,
         changed:Sandbox.out(changed),
-        log: logger.log
+        log:logger.log
       }
     }
   ensure
@@ -67,6 +67,10 @@ class Runner
 
   def max_seconds
     @manifest['max_seconds']
+  end
+
+  def hidden_filenames
+    @manifest['hidden_filenames']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
