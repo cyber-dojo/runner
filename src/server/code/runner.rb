@@ -340,9 +340,9 @@ class Runner
 
   TMP_FS_SANDBOX_DIR =
   [
-    "--tmpfs #{Sandbox::DIR}:"
-    'exec,'                  # [1]
-    'size=50M,'              # [2]
+    "--tmpfs #{Sandbox::DIR}:",
+    'exec,',                 # [1]
+    'size=50M,',             # [2]
     "uid=#{UID},gid=#{GID}"  # [3]
   ].join
     # Making the sandbox dir a tmpfs should improve speed.
