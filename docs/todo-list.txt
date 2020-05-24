@@ -2,11 +2,40 @@
 BIGGER
 ======
 Speedup - deployment stages....
- - cat stdout/stderr to files (and echo those back to stdout/stderr)
- - write sss to tar file and tgz that.
- - pipe the echo_textfilenames script into stdin and extract it then run it?
+ - cyber-dojo.sh cat stdout/stderr to files (and echo those back to stdout/stderr)
+ - cyber-dojo.sh write sss to tar file and tgz that.
+ - main.sh pipe the echo_textfilenames script into stdin and extract it then run it
  - echo fully pathed filenames (unrooted) into tar
- - merge two docker execs into one.
+ - merge two docker execs into one docker exec
+ - merge docker run and docker exec into one docker run
+
+
+Tidy up entry/exit
+------------------
+Once there is a single tgz being piped into a single docker run
+I can put helper functions into a 'library' .sh file which can
+be sourced in cyber-dojo.sh
+>>>>>>This can provide function to clean out report/ dir before cyber-dojo.sh runs
+o) cyber_dojo_enter() ...
+It can also provide
+o) delete_files()
+o) delete_dirs()
+o) send_tgz() which can be renamed cyber_dojo_exit()
+o) zip_sss()
+o) zip_sandbox()
+o) truncate_dont_extend()
+o) is_truncated_text_file()
+o) unrooted()
+So main.sh will look like this:
+    source #{CYBER_DOJO_LIB_SH_PATH}
+    cyber_dojo_enter
+    trap "cyber_dojo_exit" EXIT
+    TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+    cd #{SANDBOX_DIR}
+    bash ./cyber-dojo.sh \
+           1> "${TMP_DIR}/stdout" \
+           2> "${TMP_DIR}/stderr"
+    echo $? > "${TMP_DIR}/status"
 
 
 readonly containers
@@ -51,7 +80,7 @@ logger.error()?
 TarWriter has this...
   @writer.add_file_simple(filename, 0o644, size) do |fd|
   Perhaps I could set cyber-dojo.sh to +x automatically?
-  Might allow a clean command line.
+  Might allow a cleaner command line. Probably not.
 
 rescue Errno::ESRCH ; 200; add logging
 

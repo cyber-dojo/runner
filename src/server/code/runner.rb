@@ -16,15 +16,15 @@ class Runner
   end
 
   def run_cyber_dojo_sh
-    create_container
     files_in = Sandbox.in(files)
-    stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(files_in)
+    container_name = create_container
+    stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(container_name, files_in)
 
     if timed_out
       created,deleted,changed = {},{},{}
       colour = ''
     else
-      created,deleted,changed = *exec_text_file_changes(files_in)
+      created,deleted,changed = *exec_text_file_changes(container_name, files_in)
       colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
     end
 
@@ -41,7 +41,7 @@ class Runner
       }
     }
   ensure
-    remove_container
+    remove_container(container_name)
   end
 
   private
@@ -71,14 +71,15 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_cyber_dojo_sh(files_in)
+  def exec_cyber_dojo_sh(container_name, files_in)
     r_stdin,  w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
     w_stdin.write(TGZ.of(files_in))
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
-    pid = process.spawn(docker_exec_cyber_dojo_sh, options)
+    command = docker_exec_cyber_dojo_sh(container_name)
+    pid = process.spawn(command, options)
     timed_out = true
     status = 128+9
     begin
@@ -109,7 +110,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_exec_cyber_dojo_sh
+  def docker_exec_cyber_dojo_sh(container_name)
     # Assumes a tgz of files on stdin. Untars this into the
     # /sandbox/ dir ([X]) inside the container and runs
     # /sandbox/cyber-dojo.sh
@@ -136,7 +137,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_text_file_changes(files_in)
+  def exec_text_file_changes(container_name, files_in)
     # Approval-style test-frameworks compare actual-text against
     # expected-text held inside a 'golden-master' file and, if the
     # comparison fails, generate a file holding the actual-text
@@ -238,16 +239,12 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
-  # Add a random-id to the container name. A container-name
-  # based on _only_ the id will fail when a container with
-  # that id exists and is alive. Easily possible in tests.
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def container_name
-    @container_name ||= ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
-  end
 
   def create_container
+    # Add a random-id to the container name. A container-name
+    # based on _only_ the id will fail when a container with
+    # that id already exists.
+    container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
     docker_run_command = [
       'docker run',
         '--entrypoint=""',
@@ -261,9 +258,10 @@ class Runner
     # if the container has no bash [X]. Note that --detach is one of
     # the docker_run_options.
     bash.assert(docker_run_command)
+    container_name
   end
 
-  def remove_container
+  def remove_container(container_name)
     # Backgrounded for a small speed-up.
     bash.exec("docker rm #{container_name} --force &")
   end
