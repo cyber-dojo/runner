@@ -38,6 +38,52 @@ So main.sh will look like this:
     echo $? > "${TMP_DIR}/status"
 
 
+Ensuring container is stopped
+-----------------------------
+io-var-tar branch did this...
+    tgz_out, timed_out = *docker_tar_pipe(tgz(files_in))
+    begin
+      files_out = truncated_untgz(tgz_out)
+      ...
+    rescue Zlib::GzipFile::Error
+      ...
+    end
+    docker_stop_container
+I think it would be better like this...
+  tgz_out, timed_out = *docker_tar_pipe(tgz(files_in))
+  docker_stop_container
+  begin
+    files_out = truncated_untgz(tgz_out)
+    ...
+  rescue Zlib::GzipFile::Error
+    ...
+  end
+The docker-stop will flush its stdout. So spawned
+process should then be able to read that on its stdin.
+In fact, the docker-stop should be encapsulated inside
+the docker_tar_pipe(tgz(files_in)) method. Yes, it did
+that.
+main docker-tar-pipe also did this...
+    begin
+      Timeout::timeout(max_seconds) {
+        process.waitpid(pid) # [C]
+      }
+    rescue Timeout::Error
+      timed_out = true
+      docker_stop_container
+      kill_process_group(pid)
+    ensure
+      tgz_out = pipe_close(r_stdout, w_stdout)
+      stderr_out = pipe_close(r_stderr, w_stderr)
+    end
+This doesn't look right...
+The kill_process_group(pid) call is before the calls
+to read the pipes. Are the pipes tied to the
+spawned process? Worth extracting some code (or using)
+capture3_with_timeout.rb ?
+
+
+
 readonly containers
 -------------------
 Make TMP-FS for /home/sandbox
