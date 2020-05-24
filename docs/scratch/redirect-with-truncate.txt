@@ -1,0 +1,7 @@
+
+https://stackoverflow.com/questions/61794952
+
+cd /sandbox
+./cyber-dojo.sh \
+  >  >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
+  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
