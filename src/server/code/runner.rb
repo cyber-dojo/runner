@@ -379,7 +379,7 @@ class Runner
     # Kill the [docker run]. There is a
     # timeout race here; there might not
     # be a process at pid any longer.
-    process.kill(KILL_PROCESS_GROUP_SIGNAL, pid)
+    process.kill('SIGKILL', -pid)
   rescue Errno::ESRCH
     # We lost the race. Nothing to do.
   ensure
@@ -388,8 +388,6 @@ class Runner
     # No exception if we lost the race.
     process.detach(pid)
   end
-
-  KILL_PROCESS_GROUP_SIGNAL = -9
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
