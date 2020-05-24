@@ -35,14 +35,6 @@ Truncation. If I want to truncate to 50K then I need to truncate to 50K+1
 This is so that inside the runner I can tell.
 If it is 50K+1 truncate it by 1 byte and mark it as truncated.
 
-Better, truncate stdout/stderr at creation:
-https://stackoverflow.com/questions/61794952
-
-cd /sandbox
-./cyber-dojo.sh \
-  >  >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
-  2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
-
 So...
 #---------------------------------------------------------------
 
