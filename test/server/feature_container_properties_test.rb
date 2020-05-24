@@ -144,15 +144,16 @@ class FeatureContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def files_stat
-    created_file('files.stat').lines.collect { |line|
+    created_file('files.stat').lines.map.with_object({}) { |line,memo|
       attr = line.split
-      [attr[0], { # filename
+      filename = attr[0]
+      memo[filename] = {
         permissions: attr[1],
                 uid: attr[2].to_i,
               group: attr[3],
-               size: attr[4].to_i # [5] === date
-      }]
-    }.to_h
+               size: attr[4].to_i
+      }
+    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

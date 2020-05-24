@@ -238,7 +238,7 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def stat_cmd
-    # Works on Ubuntu and Alpine
+    # Works on Alpine, Debain, Ubuntu
     'stat -c "%n %A %u %G %s" *'
     # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05
     # |        |           |      |          |    |
@@ -248,10 +248,11 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_sha(string)
-    assert_equal 40, string.size
-    string.each_char do |ch|
-      assert '0123456789abcdef'.include?(ch)
+  def assert_sha(sha)
+    assert sha.is_a?(String), :class
+    assert_equal 40, sha.size, :size
+    sha.each_char do |ch|
+      assert '0123456789abcdef'.include?(ch), ch
     end
   end
 
