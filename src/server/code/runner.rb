@@ -375,8 +375,11 @@ class Runner
     # Kill the [docker run]. There is a
     # timeout race here; there might not
     # be a process at pid any longer.
-    process.kill('SIGKILL', -pid)
-  rescue Errno::ESRCH
+    process.kill(:KILL, -pid)
+  rescue Errno::ESRCH => error
+    # :nocov:
+    logger.write(error.message)
+    # :nocov:
     # We lost the race. Nothing to do.
   ensure
     # Prevent zombie child-process.
