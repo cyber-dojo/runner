@@ -12,6 +12,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # test on one or many OS
 
   def self.test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
@@ -22,7 +23,7 @@ class TestBase < Id58TestBase
     ubuntu_test(id_suffix, *lines, &block)
   end
 
-  # OS specific
+  # OS specific tests
 
   def self.alpine_test(id_suffix, *lines, &block)
     define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
@@ -32,27 +33,14 @@ class TestBase < Id58TestBase
     define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
   end
 
-  # Language Test Framework specific
+  # Language Test Framework specific tests
 
   def self.c_assert_test(id_suffix, *lines, &block)
     define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def runner
-    Runner.new(http_adapter )
-  end
-
-  def languages_start_points
-    LanguagesStartPoints.new(http_adapter)
-  end
-
-  def http_adapter
-    HttpAdapter.new
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # custom assertions to use in the tests
 
   def assert_cyber_dojo_sh(sh_script)
     run_cyber_dojo_sh({
@@ -85,8 +73,7 @@ class TestBase < Id58TestBase
       'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
       'manifest' => {
         'image_name' => defaulted_arg(named_args, :image_name, image_name),
-        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10),
-        'hidden_filenames' => defaulted_arg(named_args, :hidden_filenames, nil)
+        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
       }
     }
     @result = runner.run_cyber_dojo_sh(args)
@@ -97,9 +84,51 @@ class TestBase < Id58TestBase
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
+  attr_reader :result
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # the runner service object and arguments
+
+  def runner
+    Runner.new(http_adapter )
+  end
+
+  def languages_start_points
+    LanguagesStartPoints.new(http_adapter)
+  end
+
+  def http_adapter
+    HttpAdapter.new
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  attr_reader :result
+  def id
+    id58[0..5]
+  end
+
+  def image_name
+    manifest['image_name']
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def starting_files
+    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
+      memo[filename] = file['content']
+    end
+  end
+
+  def manifest
+    @manifest ||= languages_start_points.manifest(display_name)
+  end
+
+  def hiker_c
+    starting_files['hiker.c']
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Results from call runner.run_cyber_dojo_sh
 
   def run_result
     result['run_cyber_dojo_sh']
@@ -135,36 +164,6 @@ class TestBase < Id58TestBase
 
   def colour
     run_result['colour']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def id
-    id58[0..5]
-  end
-
-  def image_name
-    manifest['image_name']
-  end
-
-  def hidden_filenames
-    manifest['hidden_filenames']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def starting_files
-    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
-      memo[filename] = file['content']
-    end
-  end
-
-  def manifest
-    @manifest ||= languages_start_points.manifest(display_name)
-  end
-
-  def hiker_c
-    starting_files['hiker.c']
   end
 
 end

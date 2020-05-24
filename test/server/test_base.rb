@@ -58,8 +58,7 @@ class TestBase < Id58TestBase
       'files' => [ *unchanged_files, *changed_files, *created_files ].to_h,
       'manifest' => {
         'image_name' => defaulted_arg(options, :image_name, image_name),
-        'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds),
-        'hidden_filenames' => defaulted_arg(options, :hidden_filenames, [])
+        'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
       }
     }
     @result = runner(args,options).run_cyber_dojo_sh
@@ -165,10 +164,6 @@ class TestBase < Id58TestBase
 
   def max_seconds
     manifest['max_seconds'] || 10
-  end
-
-  def hidden_filenames
-    manifest['hidden_filenames']
   end
 
   def id
