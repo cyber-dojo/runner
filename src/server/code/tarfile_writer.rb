@@ -5,12 +5,9 @@ module TarFile
 
   class Writer
 
-    def initialize(files = {})
+    def initialize
       @tar_file = StringIO.new('')
       @writer = Gem::Package::TarWriter.new(@tar_file)
-      files.each do |filename, content|
-        write(filename, content)
-      end
     end
 
     def write(filename, content)

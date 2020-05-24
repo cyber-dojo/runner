@@ -10,6 +10,8 @@ class TrafficLight
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def initialize(externals)
     @externals = externals
   end
@@ -46,7 +48,11 @@ class TrafficLight
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def checked_read_lambda_source(image_name)
-    command = [ 'docker run --rm --entrypoint=cat', image_name, RAG_LAMBDA_FILENAME ].join(' ')
+    command = [
+      'docker run --rm --entrypoint=cat',
+      image_name,
+      RAG_LAMBDA_FILENAME
+    ].join(SPACE)
     stdout,stderr,status = bash.exec(command)
     if status === 0
       stdout
@@ -62,6 +68,8 @@ class TrafficLight
   end
 
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
+
+  SPACE = ' '
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

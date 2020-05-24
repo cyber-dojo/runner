@@ -8,30 +8,6 @@ Speedup - deployment stages....
  - echo fully pathed filenames (unrooted) into tar
  - merge two docker execs into one.
 
-Hidden Filenames
-----------------
-  - can be used as a marker to indicate when a run
-    should extract generated text files. LTFs that do that now and dont
-    have a hidden_filenames entry will need to create one that == []
-    That's only Java-Approval and Ruby-Approval
-    Slimed try out...
-          Speed up: 0.45 => 0.35  C#, Alpine
-                    0.40 => 0.36  VB, Ubuntu
-                    0.42 => 0.37  Python, Debian
-
-  - runner should then also process the generated files and apply
-    the hidden_filenames filter before returning @created,@deleted,@changed
-
-API change
-----------
-  - run_cyber_dojo_sh(id, manifest)
-     - id is who is making the call.
-     - manifest contains:
-       - max_seconds
-       - image_name:tag
-       - visible_files  (from browser) <----- Directly from start-point manifest?
-       - hidden_filenames
-
 
 readonly containers
 -------------------
@@ -72,7 +48,14 @@ logger.warning()?
 logger.info()?
 logger.error()?
 
-rescue Errno::ESRCH ; Add logging
+TarWriter has this...
+  @writer.add_file_simple(filename, 0o644, size) do |fd|
+  Perhaps I could set cyber-dojo.sh to +x automatically?
+  Might allow a clean command line.
+
+rescue Errno::ESRCH ; 200; add logging
+
+TGZ exception test ; 500; add StdoutWriter
 
 create a custom BashStub which has methods for the specific bash calls...
       1) docker run --entrypoint=""

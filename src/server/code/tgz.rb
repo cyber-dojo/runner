@@ -7,7 +7,11 @@ require_relative 'tarfile_writer'
 module TGZ
 
   def self.of(files)
-    Gnu.zip(TarFile::Writer.new(files).tar_file)
+    writer = TarFile::Writer.new
+    files.each do |filename, content|
+      writer.write(filename, content)
+    end
+    Gnu.zip(writer.tar_file)
   end
 
   def self.files(tgz)
