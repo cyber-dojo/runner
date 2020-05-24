@@ -64,7 +64,8 @@ class ExternalBash
   end
 
   KNOWN_CIRCLE_CI_WARNING =
-    "WARNING: Your kernel does not support swap limit capabilities or the cgroup is not mounted. " +
+    'WARNING: Your kernel does not support swap limit capabilities ' +
+    'or the cgroup is not mounted. ' +
     "Memory limited without swap.\n"
 
   def logger
