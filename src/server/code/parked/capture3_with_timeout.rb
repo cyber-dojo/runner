@@ -14,13 +14,9 @@ require 'timeout'
 # and opts[:kill_after].  See Process.spawn.
 #
 # If opts[:stdin_data] is specified, it is sent to the command's standard input.
-#
 # If opts[:binmode] is true, internal pipes are set to binary mode.
-#
 # If opts[:timeout] is specified, SIGTERM is sent to the command after specified seconds.
-#
 # If opts[:signal] is specified, it is used instead of SIGTERM on timeout.
-#
 # If opts[:kill_after] is specified, also send a SIGKILL after specified seconds.
 # it is only sent if the command is still running after the initial signal was sent.
 #
@@ -28,9 +24,9 @@ require 'timeout'
 #
 #   {
 #     :pid     => PID of the command,
-#     :status  => Process::Status of the command,
 #     :stdout  => the standard output of the command,
 #     :stderr  => the standard error of the command,
+#     :status  => Process::Status of the command,
 #     :timeout => whether the command was timed out,
 #   }
 

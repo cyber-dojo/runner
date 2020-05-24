@@ -50,6 +50,7 @@ that the docker run process spawned a process itself
 (via the docker daemon). So remember to ensure docker-stop
 is called before pipes are closed and read. Maybe do via
 a block and yield to that.
+Note that capture3_with_timeout does the Process.detach() first...
 
 
 
