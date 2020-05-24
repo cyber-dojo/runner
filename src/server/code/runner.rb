@@ -302,13 +302,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimits(image_name)
-    # There is no cpu-ulimit... a cpu-ulimit of 10
-    # seconds could kill a container after only 5
-    # seconds... The cpu-ulimit assumes one core.
-    # The host system running the docker container
-    # can have multiple cores or use hyperthreading.
-    # So a piece of code running on 2 cores, both 100%
-    # utilized could be killed after 5 seconds.
+    # There is no cpu-ulimit. See
+    # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
       ulimit('core'  ,   0   ),           # no core file
       ulimit('fsize' ,  16*MB),           # file size
@@ -344,11 +339,12 @@ class Runner
   TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   TMP_FS_SANDBOX_DIR =
-    "--tmpfs #{Sandbox::DIR}:" +
-    'exec,' +       # [1]
-    'size=50M,' +   # [2]
-    "uid=#{UID}," + # [3]
-    "gid=#{GID}"    # [3]
+  [
+    "--tmpfs #{Sandbox::DIR}:"
+    'exec,'                  # [1]
+    'size=50M,'              # [2]
+    "uid=#{UID},gid=#{GID}"  # [3]
+  ].join
     # Making the sandbox dir a tmpfs should improve speed.
     # By default, tmp-fs's are setup as secure mountpoints.
     # If you use only '--tmpfs #{Sandbox::DIR}'
