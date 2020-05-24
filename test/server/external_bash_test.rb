@@ -11,10 +11,6 @@ class ExternalBashTest < TestBase
     externals.bash
   end
 
-  def log
-    externals.logger.log
-  end
-
   # - - - - - - - - - - - - - - - - -
   # bash.exec(command)
   # - - - - - - - - - - - - - - - - -

@@ -132,7 +132,6 @@ readonly ROOT_DIR="$( cd "$(dirname "${0}")/.." && pwd )"
 
 export NO_PROMETHEUS=true
 
-echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   up \
