@@ -12,28 +12,27 @@ class FeatureTrafficLightTest < TestBase
   multi_os_test 'p3W', %w( stdout is not being whitespace stripped ) do
     stdout = assert_sss('printf " hel\nlo "')
     assert_equal " hel\nlo ", stdout
-    # NB: A trailing newline _is_ being stripped
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '9DB', %w( red/amber/green traffic-light, clean log ) do
+  multi_os_test '9DB', %w( red/amber/green traffic-light, log is empty ) do
     run_cyber_dojo_sh
-    assert_equal 'red', colour, pretty_result(:clean_red)
+    assert_equal 'red', colour, pretty_result(:red)
     refute_timed_out
-    assert clean?, pretty_result(:log_not_clean)
+    assert log.empty?, pretty_result(:log_not_empty)
 
     syntax_error = starting_files[filename_6x9].sub('6 * 9', '6 * 9sdf')
     run_cyber_dojo_sh({changed:{filename_6x9 => syntax_error}})
-    assert_equal 'amber', colour, pretty_result(:clean_amber)
+    assert_equal 'amber', colour, pretty_result(:amber)
     refute_timed_out
-    assert clean?, pretty_result(:log_not_clean)
+    assert log.empty?, pretty_result(:log_not_empty)
 
     passing = starting_files[filename_6x9].sub('6 * 9', '6 * 7')
     run_cyber_dojo_sh({changed:{filename_6x9 => passing}})
-    assert_equal 'green', colour, pretty_result(:clean_green)
+    assert_equal 'green', colour, pretty_result(:green)
     refute_timed_out
-    assert clean?, pretty_result(:log_not_clean)
+    assert log.empty?, pretty_result(:log_not_empty)
   end
 
   private

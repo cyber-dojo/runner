@@ -31,7 +31,7 @@ class TrafficLightTest < TestBase
 
   test 'xJ7', %w( lambda status argument is an integer in a string ) do
     assert_equal 'red', traffic_light_colour(status:'0')
-    assert clean?(log), log
+    assert_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -41,12 +41,12 @@ class TrafficLightTest < TestBase
     rag = "lambda{|so,se,st| 'red' }"
     bash_stub_exec(bash = BashStub.new, docker_run_command, rag, '', 0)
     assert_equal 'red', traffic_light_colour(bash:bash)
-    assert clean?(log), log
+    assert_log_empty
 
     rag = "lambda{|so,se,st| :red }"
     bash_stub_exec(bash = BashStub.new, docker_run_command, rag, '', 0)
     assert_equal 'red', traffic_light_colour(bash:bash)
-    assert clean?(log), log
+    assert_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -57,13 +57,13 @@ class TrafficLightTest < TestBase
   nothing is added to the log
   ) do
     assert_equal 'red', traffic_light_colour(stdout:PythonPytest::STDOUT_RED), log
-    assert clean?(log), log
+    assert_log_empty
 
     assert_equal 'amber', traffic_light_colour(stdout:PythonPytest::STDOUT_AMBER), log
-    assert clean?(log), log
+    assert_log_empty
 
     assert_equal 'green', traffic_light_colour(stdout:PythonPytest::STDOUT_GREEN), log
-    assert clean?(log), log
+    assert_log_empty
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -164,20 +164,11 @@ class TrafficLightTest < TestBase
   include Test::Data
 
   def traffic_light_colour(options)
+    image_name = python_pytest_image_name
     @stdout = options.delete(:stdout) || PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || '0'
-    e = externals(options)
-    @logger = e.logger
-    e.traffic_light.colour(python_pytest_image_name, @stdout, @stderr, @status)
-  end
-
-  def logger
-    @logger
-  end
-
-  def log
-    logger.log
+    externals(options).traffic_light.colour(image_name, @stdout, @stderr, @status)
   end
 
   def python_pytest_image_name
@@ -245,7 +236,11 @@ class TrafficLightTest < TestBase
   end
 
   def assert_log_include?(expected, context)
-    assert log.include?(expected), logger.log + "\nCONTEXT:#{context}\n"
+    assert log.include?(expected), log + "\nCONTEXT:#{context}\n"
+  end
+
+  def assert_log_empty
+    assert log.empty?, log
   end
 
 end

@@ -3,10 +3,8 @@ require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_relative 'traffic_light_stub'
 require_src 'externals'
-require_src 'prober'
 require_src 'runner'
 require 'json'
-require 'stringio'
 
 class TestBase < Id58TestBase
 
@@ -99,7 +97,9 @@ class TestBase < Id58TestBase
   end
 
   def pretty_result(context)
-    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
+    [ JSON.pretty_generate(result),
+      "CONTEXT:#{context}:"
+    ].join("\n")
   end
 
   def assert_timed_out
@@ -111,15 +111,15 @@ class TestBase < Id58TestBase
   end
 
   def assert_created(expected)
-    assert_hash_equal(expected, created, :created)
+    assert_hash_equal expected, created, :created
   end
 
   def assert_deleted(expected)
-    assert_equal(expected, deleted, :deleted)
+    assert_equal expected, deleted, :deleted
   end
 
   def assert_changed(expected)
-    assert_hash_equal(expected, changed, :changed)
+    assert_hash_equal expected, changed, :changed
   end
 
   def assert_hash_equal(expected, actual, context)
@@ -145,19 +145,11 @@ class TestBase < Id58TestBase
   end
 
   def max_seconds
-    manifest['max_seconds'] || 10
+    manifest['max_seconds']
   end
 
   def id
     id58[0..5]
-  end
-
-  def uid
-    41966
-  end
-
-  def group
-    'sandbox'
   end
 
   def starting_files
@@ -179,7 +171,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 4. results from runner.run_cyber_dojo_sh call
+  # 4. runner.run_cyber_dojo_sh() results
 
   def stdout; run_result[:stdout][:content]; end
   def stderr; run_result[:stderr][:content]; end
@@ -191,18 +183,20 @@ class TestBase < Id58TestBase
   def deleted; run_result[:deleted]; end
   def changed; run_result[:changed]; end
 
-  def log; run_result[:log]; end
-
-  def clean?(log_ = log)
-    log_.empty?
-  end
-
-  def log_empty?
-    log.empty?
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 5. misc helpers
+
+  def log
+    @externals.logger.log
+  end
+
+  def uid
+    41966
+  end
+
+  def group
+    'sandbox'
+  end
 
   def intact(content)
     { content: content, truncated: false }
