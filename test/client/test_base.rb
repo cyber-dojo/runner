@@ -101,8 +101,6 @@ class TestBase < Id58TestBase
     HttpAdapter.new
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def id
     id58[0..5]
   end
@@ -110,8 +108,6 @@ class TestBase < Id58TestBase
   def image_name
     manifest['image_name']
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def starting_files
     manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
@@ -128,7 +124,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Results from call runner.run_cyber_dojo_sh
+  # Results from runner.run_cyber_dojo_sh call
 
   def run_result
     result['run_cyber_dojo_sh']
