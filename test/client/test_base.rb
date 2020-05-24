@@ -12,7 +12,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # test on one or many OS
+  # 1. test on one or many OS
 
   def self.test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
@@ -40,7 +40,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # custom assertions to use in the tests
+  # 2. custom asserts
 
   def assert_cyber_dojo_sh(sh_script)
     run_cyber_dojo_sh({
@@ -87,7 +87,7 @@ class TestBase < Id58TestBase
   attr_reader :result
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # the runner service object and arguments
+  # 3. the runner service object and arguments
 
   def runner
     Runner.new(http_adapter )
@@ -124,42 +124,19 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Results from runner.run_cyber_dojo_sh call
+  # 4. results from runner.run_cyber_dojo_sh call
 
-  def run_result
-    result['run_cyber_dojo_sh']
-  end
+  def run_result; result['run_cyber_dojo_sh']; end
 
-  def stdout
-    run_result['stdout']['content']
-  end
+  def stdout; run_result['stdout']['content']; end
+  def stderr; run_result['stderr']['content']; end
+  def status; run_result['status']; end
 
-  def stderr
-    run_result['stderr']['content']
-  end
+  def timed_out?; run_result['timed_out']; end
+  def colour; run_result['colour']; end
 
-  def status
-    run_result['status']
-  end
-
-  def created
-    run_result['created']
-  end
-
-  def deleted
-    run_result['deleted']
-  end
-
-  def changed
-    run_result['changed']
-  end
-
-  def timed_out?
-    run_result['timed_out']
-  end
-
-  def colour
-    run_result['colour']
-  end
+  def created; run_result['created']; end
+  def deleted; run_result['deleted']; end
+  def changed; run_result['changed']; end
 
 end

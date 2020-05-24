@@ -15,16 +15,39 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 1. test on one or many OS
 
-  def externals(options = {})
-    @externals ||= Externals.new(options)
+  def self.test(id_suffix, *lines, &block)
+    alpine_test(id_suffix, *lines, &block)
   end
 
-  def runner(args, options = {})
-    Runner.new(externals(options), args)
+  def self.multi_os_test(id_suffix, *lines, &block)
+    alpine_test(id_suffix, *lines, &block)
+    ubuntu_test(id_suffix, *lines, &block)
+  end
+
+  # OS specific tests
+
+  def self.alpine_test(id_suffix, *lines, &block)
+    define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
+  end
+
+  def self.ubuntu_test(id_suffix, *lines, &block)
+    define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
+  end
+
+  # Language-Test-Framework specific tests
+
+  def self.c_assert_test(id_suffix, *lines, &block)
+    define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
+  end
+
+  def self.clang_assert_test(id_suffix, *lines, &block)
+    define_test(:Ubuntu, 'C (clang), assert', id_suffix, *lines, &block)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 2. custom asserts
 
   def assert_sss(script)
     assert_cyber_dojo_sh(script, traffic_light:TrafficLightStub::red)
@@ -69,30 +92,14 @@ class TestBase < Id58TestBase
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   attr_reader :result
-
-  def pretty_result(context)
-    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
-  end
 
   def run_result
     result[:run_cyber_dojo_sh]
   end
 
-  def stdout
-    run_result[:stdout][:content]
-  end
-
-  def stderr
-    run_result[:stderr][:content]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def timed_out?
-    run_result[:timed_out]
+  def pretty_result(context)
+    JSON.pretty_generate(result) + "\nCONTEXT:#{context}:\n"
   end
 
   def assert_timed_out
@@ -101,26 +108,6 @@ class TestBase < Id58TestBase
 
   def refute_timed_out
     refute timed_out?, result
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def colour
-    run_result[:colour]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def created
-    run_result[:created]
-  end
-
-  def deleted
-    run_result[:deleted]
-  end
-
-  def changed
-    run_result[:changed]
   end
 
   def assert_created(expected)
@@ -143,20 +130,15 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 3. the runner object and arguments
 
-  def log
-    run_result[:log]
+  def runner(args, options = {})
+    Runner.new(externals(options), args)
   end
 
-  def clean?(log_ = log)
-    log_.empty?
+  def externals(options = {})
+    @externals ||= Externals.new(options)
   end
-
-  def log_empty?
-    log.empty?
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def image_name
     manifest['image_name']
@@ -178,8 +160,6 @@ class TestBase < Id58TestBase
     'sandbox'
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def starting_files
     manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
       memo[filename] = file['content']
@@ -199,54 +179,44 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 4. results from runner.run_cyber_dojo_sh call
 
-  def self.test(id_suffix, *lines, &block)
-    alpine_test(id_suffix, *lines, &block)
+  def stdout; run_result[:stdout][:content]; end
+  def stderr; run_result[:stderr][:content]; end
+
+  def timed_out?; run_result[:timed_out]; end
+  def colour; run_result[:colour]; end
+
+  def created; run_result[:created]; end
+  def deleted; run_result[:deleted]; end
+  def changed; run_result[:changed]; end
+
+  def log; run_result[:log]; end
+
+  def clean?(log_ = log)
+    log_.empty?
   end
 
-  def self.multi_os_test(id_suffix, *lines, &block)
-    alpine_test(id_suffix, *lines, &block)
-    ubuntu_test(id_suffix, *lines, &block)
-  end
-
-  # OS specific tests
-
-  def self.alpine_test(id_suffix, *lines, &block)
-    define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
-  end
-
-  def self.ubuntu_test(id_suffix, *lines, &block)
-    define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
-  end
-
-  # Language-Test-Framework specific tests
-
-  def self.c_assert_test(id_suffix, *lines, &block)
-    define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
-  end
-
-  def self.clang_assert_test(id_suffix, *lines, &block)
-    define_test(:Ubuntu, 'C (clang), assert', id_suffix, *lines, &block)
+  def log_empty?
+    log.empty?
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 5. misc helpers
 
   def intact(content)
     { content: content, truncated: false }
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def stat_cmd
     # Works on Alpine, Debain, Ubuntu
     'stat -c "%n %A %u %G %s" *'
-    # hiker.h  -rw-r--r--  40045  cyber-dojo 136  2016-06-05
-    # |        |           |      |          |    |
-    # filename permissions uid    group      size date
-    # 0        1           2      3          4    5
+    # hiker.h  -rw-r--r--  40045  cyber-dojo 136
+    # |        |           |      |          |
+    # filename permissions uid    group      size
+    # 0        1           2      3          4
+    # %n       %A          %u     %G         %s
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_sha(sha)
     assert sha.is_a?(String), :class
