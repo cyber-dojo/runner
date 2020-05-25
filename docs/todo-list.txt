@@ -10,34 +10,6 @@ Speedup - deployment stages....
  - merge docker run and docker exec into one docker run
 
 
-Tidy up entry/exit
-------------------
-Once there is a single tgz being piped into a single docker run
-I can put helper functions into a 'library' .sh file which can
-be sourced in cyber-dojo.sh
->>>>>>This can provide function to clean out report/ dir before cyber-dojo.sh runs
-o) cyber_dojo_enter() ...
-It can also provide
-o) delete_files()
-o) delete_dirs()
-o) send_tgz() which can be renamed cyber_dojo_exit()
-o) zip_sss()
-o) zip_sandbox()
-o) truncate_dont_extend()
-o) is_truncated_text_file()
-o) unrooted()
-So main.sh will look something like this:
-(Note some cyber-dojo.sh scripts may now rely on the cwd being
-/sandbox so don't rewrite to bash /sandbox/cyber-dojo.sh)
-    source #{CYBER_DOJO_LIB_SH_PATH}
-    trap "cyber_dojo_exit" EXIT SIGTERM
-    cyber_dojo_enter
-    cd #{SANDBOX_DIR}
-    bash ./cyber-dojo.sh  \
-        1> >(head -c#{MAX_FILE_SIZE+1} > /tmp/stdout) \
-        2> >(head -c#{MAX_FILE_SIZE+1} > /tmp/stderr)
-    echo $? > /tmp/status
-
 
 Ensuring container is stopped
 -----------------------------
@@ -98,7 +70,7 @@ TarWriter has this...
   Perhaps I could set cyber-dojo.sh to +x automatically?
   Might allow a cleaner command line. Probably not.
 
-rescue Errno::ESRCH ; 200; add logging
+rescue Errno::ESRCH ; 200; 
 
 TGZ exception test ; 500; add StdoutWriter
 

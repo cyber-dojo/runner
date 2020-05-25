@@ -9,6 +9,34 @@ class FeatureTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  c_assert_test 'Q3e', %w(
+  runner injects an env-var called POD_NAME
+  into the container with the value of its HOSTNAME
+  and this is written to the log on a timeout
+  ) do
+    hostname = ENV['HOSTNAME']
+    ENV['HOSTNAME'] = stub_hostname = 'runner-qs99r'
+    run_cyber_dojo_sh(
+      max_seconds: 2,
+      changed: { 'hiker.c' =>
+        <<~'SOURCE'
+        #include "hiker.h"
+        int answer(void)
+        {
+            for(;;);
+            return 6 * 7;
+        }
+        SOURCE
+      }
+    )
+    assert_timed_out
+    assert log.include?("POD_NAME:#{stub_hostname}"), log
+  ensure
+    ENV['HOSTNAME'] = hostname
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   c_assert_test 'B2A', %w(
   when cyber-dojo.sh modifies files in /sandbox,
   and has an infinite loop,
