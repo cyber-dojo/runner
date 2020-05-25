@@ -30,7 +30,7 @@ class FeatureTimedOutTest < TestBase
       }
     )
     assert_timed_out
-    assert log.include?("POD_NAME:#{stub_hostname}"), log
+    assert log.include?("POD_NAME=#{stub_hostname}"), log
   ensure
     ENV['HOSTNAME'] = hostname
   end

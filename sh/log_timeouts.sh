@@ -1,4 +1,6 @@
 
+NAMESPACE="${1:-prod}"
+
 function nodes()
 {
   kubectl get nodes | tail -n +2 | cut -d' ' -f1
@@ -6,9 +8,10 @@ function nodes()
 
 for node in $(nodes)
 do
-  line=$(kubectl describe node ${node} | grep prod | grep runner)
+  line=$(kubectl describe node ${node} | grep "${NAMESPACE}" | grep runner)
   pod=$(echo ${line} | cut -d' ' -f2)
+  echo
   echo node=${node}
   echo pod=${pod}
-  kubectl logs -n prod "${pod}" | grep POD_NAME | wc
+  kubectl logs -n "${NAMESPACE}" "${pod}" | grep POD_NAME
 done
