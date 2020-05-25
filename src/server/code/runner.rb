@@ -89,7 +89,9 @@ class Runner
         status = ps.exitstatus
       end
     rescue Timeout::Error => error
-      logger.write("POD_NAME:#{ENV['HOSTNAME']}")  
+      message = "POD_NAME:#{ENV['HOSTNAME']}"
+      $stdout.puts(message) 
+      logger.write(message)
       logger.write(error.class.name)
       logger.write(error.message)
       kill_process_group(pid)
