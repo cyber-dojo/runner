@@ -1,18 +1,17 @@
 set -e
 
-# ------------------------------------------------------------------------
-source /tmp/cyber_dojo/delete_dirs.sh
-source /tmp/cyber_dojo/delete_files.sh
-source /tmp/cyber_dojo/reset_dirs.sh
+# --------------------------------------------------------------
 # Text files (under /sandbox) are automatically returned.
+source ~/delete_dirs.sh
+source ~/delete_files.sh
+source ~/reset_dirs.sh
 export CYBER_DOJO_REPORT_DIR=${CYBER_DOJO_SANDBOX}/report
 function cyber_dojo_enter()
 {
   # Reset the REPORT_DIR to return only newly generated reports.
   cyber_dojo_reset_dirs ${CYBER_DOJO_REPORT_DIR}
 }
-cyber_dojo_enter
-# ------------------------------------------------------------------------
+# --------------------------------------------------------------
 trap cyber_dojo_exit EXIT SIGTERM
 function cyber_dojo_exit()
 {
@@ -20,6 +19,7 @@ function cyber_dojo_exit()
   cyber_dojo_delete_dirs .pytest_cache # ...
   #cyber_dojo_delete_files ...
 }
-# ------------------------------------------------------------------------
+# --------------------------------------------------------------
+cyber_dojo_enter
 
-main cyber-dojo.sh content goes here....
+# CORE cyber-dojo.sh content goes here....
