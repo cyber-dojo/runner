@@ -4,6 +4,7 @@ TMP_DIR=$(mktemp -d /tmp/XXXXXX)
 
 function send_tgz()
 {
+  local -r signal="${1}"
   truncate_file "${TMP_DIR}/stdout"
   truncate_file "${TMP_DIR}/stderr"
   tar -rf "${TAR_FILE}" -C "${TMP_DIR}" stdout stderr status
@@ -63,7 +64,8 @@ function unrooted()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-trap "send_tgz" EXIT SIGTERM
+trap "send_tgz EXIT" EXIT
+trap "send_tgz TERM" SIGTERM
 cd "${SANDBOX_DIR}"
 bash ./cyber-dojo.sh  \
        1> "${TMP_DIR}/stdout" \
