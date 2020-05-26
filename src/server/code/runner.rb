@@ -6,6 +6,14 @@ require_relative 'tgz'
 require_relative 'utf8_clean'
 require 'timeout'
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# [X] Runner's requirements on image_name.
+# These are satisfied by image_name being built with
+# https://github.com/cyber-dojo-tools/image_builder
+# 1. sandbox user, uid=41966, gid=51966, home=/home/sandbox
+# 2. bash, file, grep, tar, truncate
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 class Runner
 
   def initialize(externals, args)
@@ -52,8 +60,8 @@ class Runner
   MB = 1024 * KB
   GB = 1024 * MB
 
-  UID = 41966             # sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966             # sandbox group - runs /sandbox/cyber-dojo.sh
+  UID = 41966             # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966             # [X] sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -209,8 +217,7 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # o) Must not contain a single-quote [bash -c '...']
-  # o) grep -q is --quiet
+  # o) grep -q is --quiet, we are generating filenames
   # o) grep -v is --invert-match
   # o) Strip ./ from front of pathed filename in depathed()
   # o) The [file] utility must be installed [X]. However,
