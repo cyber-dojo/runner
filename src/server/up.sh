@@ -2,7 +2,7 @@
 
 readonly MY_DIR="$(cd "$(dirname "${0}")" && pwd)"
 
-export RUBYOPT='-W2'
+#export RUBYOPT='-W2'
 
 rackup \
   --env production \
