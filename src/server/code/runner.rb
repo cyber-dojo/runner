@@ -75,13 +75,13 @@ class Runner
 
   def max_seconds
     @manifest['max_seconds']
-  end
+  end 
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def lib_files
     {
-      unrooted(TRUNCATED_TEXTFILENAMES_SH_PATH) => TRUNCATED_TEXTFILENAMES_SH
+      unrooted(SEND_TGZ_SH_PATH) => SEND_TGZ_SH
     }
   end
 
@@ -169,14 +169,14 @@ class Runner
     #     See https://docs.docker.com/engine/reference/commandline/exec/
     docker_tar_pipe_text_files_out =
       <<~SHELL.strip
-      docker exec                                       \
-        --user=#{UID}:#{GID}                            \
-        #{container_name}                               \
-        bash -c                     `# [1]`             \
-          '                         `# open quote`      \
-          source #{TRUNCATED_TEXTFILENAMES_SH_PATH};    \
-          send_tgz                                      \
-          '                         `# close quote`
+      docker exec                     \
+        --user=#{UID}:#{GID}          \
+        #{container_name}             \
+        bash -c                       \
+          '                           \
+          source #{SEND_TGZ_SH_PATH}; \
+          send_tgz                    \
+          '
       SHELL
     # A crippled container (eg fork-bomb) will likely
     # not be running causing the [docker exec] to fail.
@@ -218,9 +218,9 @@ class Runner
   #     so truncated?() can detect the truncation.
   # [5] tar prefers relative filenames
 
-  TRUNCATED_TEXTFILENAMES_SH_PATH = '/home/sandbox/truncated_text_filenames.sh'
+  SEND_TGZ_SH_PATH = '/home/sandbox/send_tgz.sh'
 
-  TRUNCATED_TEXTFILENAMES_SH =
+  SEND_TGZ_SH =
   <<~SHELL.strip
   function send_tgz()
   {
