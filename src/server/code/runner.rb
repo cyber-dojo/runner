@@ -48,8 +48,6 @@ class Runner
         log:logger.log
       }
     }
-  ensure
-    remove_container(container_name)
   end
 
   private
@@ -311,11 +309,6 @@ class Runner
 
   def docker_stop_container
     bash.exec("docker stop --time 1 #{container_name}")
-  end
-
-  def remove_container(container_name)
-    # Backgrounded for a small speed-up.
-    bash.exec("docker rm #{container_name} --force &")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
