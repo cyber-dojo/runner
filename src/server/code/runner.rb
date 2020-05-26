@@ -8,10 +8,22 @@ require 'timeout'
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # [X] Runner's requirements on image_name.
+# o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
+# o) bash, file, grep, tar, truncate
 # These are satisfied by image_name being built with
 # https://github.com/cyber-dojo-tools/image_builder
-# 1. sandbox user, uid=41966, gid=51966, home=/home/sandbox
-# 2. bash, file, grep, tar, truncate
+# https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+#
+# If image_name is not present on the node, docker will
+# attempt to pull it. The browser's kata/run_tests ajax
+# call can timeout before the pull completes; this browser
+# timeout is different to the Runner.run() call timing out.
+#
+# Approval-style test-frameworks compare actual-text against
+# expected-text held inside a 'golden-master' file and, if the
+# comparison fails, generate a file holding the actual-text
+# for human inspection. runner supports this by returning
+# all text files under /sandbox after cyber-dojo.sh has run.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class Runner
