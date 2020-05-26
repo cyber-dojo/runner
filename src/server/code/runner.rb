@@ -48,6 +48,8 @@ class Runner
         log:logger.log
       }
     }
+  ensure
+      remove_container(container_name)
   end
 
   private
@@ -95,7 +97,7 @@ class Runner
         status = ps.exitstatus
       end
     rescue Timeout::Error => error
-      docker_stop_container
+      #stop_container(container_name)
       message = "POD_NAME=#{ENV['HOSTNAME']}, id=#{id}, image_name=#{image_name}"
       $stdout.puts(message)
       logger.write(message)
@@ -307,8 +309,16 @@ class Runner
     container_name
   end
 
-  def docker_stop_container
-    bash.exec("docker stop --time 1 #{container_name}")
+  #def stop_container(container_name)
+  #  stdout,stderr,status = bash.exec("docker stop --time 1 #{container_name}")
+  #  p "docker stop --time 1 #{container_name}"
+  #  p "stdout:#{stdout}:"
+  #  p "stderr:#{stderr}:"
+  #  p "status:#{status}:"
+  #end
+
+  def remove_container(container_name)
+    bash.exec("docker rm --force #{container_name} &")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
