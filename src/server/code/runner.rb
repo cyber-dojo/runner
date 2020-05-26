@@ -170,7 +170,7 @@ class Runner
         bash -c                     `# [1]`             \
           '                         `# open quote`      \
           source #{TRUNCATED_TEXTFILENAMES_SH_PATH};    \
-          text_filenames                                \
+          truncated_text_filenames                      \
           |                                             \
           tar                                           \
             -C /                                        \
@@ -224,7 +224,7 @@ class Runner
 
   TRUNCATED_TEXTFILENAMES_SH =
   <<~SHELL.strip
-  function text_filenames()
+  function truncated_text_filenames()
   {
     find #{Sandbox::DIR} -type f -exec \\
       bash -c "is_truncated_text_file {} && unrooted {}" \\;
@@ -250,7 +250,7 @@ class Runner
   {
     echo "${1:1}"
   }
-  export -f text_filenames
+  export -f truncated_text_filenames
   export -f is_truncated_text_file
   export -f truncate_dont_extend
   export -f unrooted
