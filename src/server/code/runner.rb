@@ -73,8 +73,12 @@ class Runner
 
   def lib_files
     {
-      TRUNCATED_TEXTFILENAMES_SH_PATH => TRUNCATED_TEXTFILENAMES_SH
+      unrooted(TRUNCATED_TEXTFILENAMES_SH_PATH) => TRUNCATED_TEXTFILENAMES_SH
     }
+  end
+
+  def unrooted(filename)
+    filename[1..-1]
   end
 
   def exec_cyber_dojo_sh(container_name, files_in)
