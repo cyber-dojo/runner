@@ -231,10 +231,20 @@ class Runner
   }
   function is_truncated_text_file()
   {
-    if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
-      truncate_dont_extend "${1}"
+    local -r filename="${1}"
+    if is_text_file ${filename}; then
+      truncate_dont_extend "${filename}"
       true
-    elif [ $(stat -c%s "${1}") -lt 2 ]; then
+    else
+      false
+    fi
+  }
+  function is_text_file()
+  {
+    local -r filename="${1}"
+    if file --mime-encoding ${filename} | grep -qv "${1}:\\sbinary"; then
+      true
+    elif [ $(stat -c%s "${filename}") -lt 2 ]; then
       true
     else
       false
@@ -242,16 +252,19 @@ class Runner
   }
   function truncate_dont_extend()
   {
-    if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
-      truncate --size #{MAX_FILE_SIZE+1} "${1}"
+    local -r filename="${1}"
+    if [ $(stat -c%s "${filename}") -gt #{MAX_FILE_SIZE} ]; then
+      truncate --size #{MAX_FILE_SIZE+1} "${filename}"
     fi
   }
   function unrooted()
   {
-    echo "${1:1}"
+    local -r filename="${1}"
+    echo "${filename:1}"
   }
   export -f truncated_text_filenames
   export -f is_truncated_text_file
+  export -f is_text_file
   export -f truncate_dont_extend
   export -f unrooted
   SHELL
