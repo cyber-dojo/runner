@@ -75,19 +75,9 @@ class Runner
 
   def max_seconds
     @manifest['max_seconds']
-  end 
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def lib_files
-    {
-      unrooted(SEND_TGZ_SH_PATH) => SEND_TGZ_SH
-    }
-  end
-
-  def unrooted(filename)
-    filename[1..-1]
-  end
 
   def exec_cyber_dojo_sh(container_name, files_in)
     r_stdin,  w_stdin  = IO.pipe # into container
@@ -203,6 +193,18 @@ class Runner
         content: content[0...MAX_FILE_SIZE],
       truncated: content.size > MAX_FILE_SIZE
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def lib_files
+    {
+      unrooted(SEND_TGZ_SH_PATH) => SEND_TGZ_SH
+    }
+  end
+
+  def unrooted(filename)
+    filename[1..-1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
