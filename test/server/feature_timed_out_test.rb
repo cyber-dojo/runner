@@ -81,10 +81,10 @@ class FeatureTimedOutTest < TestBase
       }
     )
     assert_timed_out
-    assert stdout.empty?, stdout
-    assert stderr.empty?, stderr
-    assert log.include?("Timeout::Error\n")
-    assert log.include?("execution expired\n")
+    assert_equal '', stdout, :stdout_empty
+    assert_equal '', stderr, :stderr_empty
+    assert log.include?("Timeout::Error\n"), log
+    assert log.include?("execution expired\n"), log
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
