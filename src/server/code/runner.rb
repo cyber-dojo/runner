@@ -221,6 +221,7 @@ class Runner
   #    The truncate utility must be installed [X].
 
   TRUNCATED_TEXTFILENAMES_SH_PATH = '/home/sandbox/truncated_text_filenames.sh'
+
   TRUNCATED_TEXTFILENAMES_SH =
   <<~SHELL.strip
   function text_filenames()
@@ -254,38 +255,6 @@ class Runner
   export -f truncate_dont_extend
   export -f unrooted
   SHELL
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  ECHO_TRUNCATED_TEXTFILE_NAMES =
-    <<~SHELL.strip
-      truncate_file() \
-      { \
-        if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then \
-          truncate -s #{MAX_FILE_SIZE+1} "${1}"; \
-        fi; \
-      }; \
-      is_text_file() \
-      { \
-        if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then \
-          truncate_file "${1}"; \
-          true; \
-        elif [ $(stat -c%s "${1}") -lt 2 ]; then \
-          true; \
-        else \
-          false; \
-        fi; \
-      }; \
-      unrooted() \
-      { \
-        echo "${1:1}"; \
-      }; \
-      export -f truncate_file; \
-      export -f is_text_file; \
-      export -f unrooted; \
-      (find #{Sandbox::DIR} -type f -exec \
-        bash -c "is_text_file {} && unrooted {}" \\;)
-    SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
