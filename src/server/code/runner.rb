@@ -232,8 +232,9 @@ class Runner
   function is_truncated_text_file()
   {
     local -r filename="${1}"
-    if is_text_file ${filename}; then
-      truncate_dont_extend "${filename}"
+    local -r size=$(stat -c%s "${filename}")
+    if is_text_file "${filename}" "${size}" ; then
+      truncate_dont_extend "${filename}" "${size}"
       true
     else
       false
@@ -242,9 +243,10 @@ class Runner
   function is_text_file()
   {
     local -r filename="${1}"
-    if file --mime-encoding ${filename} | grep -qv "${1}:\\sbinary"; then
+    local -r size="${2}"
+    if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
       true
-    elif [ $(stat -c%s "${filename}") -lt 2 ]; then
+    elif [ "${size}" -lt 2 ]; then
       true
     else
       false
@@ -253,7 +255,8 @@ class Runner
   function truncate_dont_extend()
   {
     local -r filename="${1}"
-    if [ $(stat -c%s "${filename}") -gt #{MAX_FILE_SIZE} ]; then
+    local -r size="${2}"
+    if [ "${size}" -gt #{MAX_FILE_SIZE} ]; then
       truncate --size #{MAX_FILE_SIZE+1} "${filename}"
     fi
   }
