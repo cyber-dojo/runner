@@ -71,11 +71,17 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def lib_files
+    {
+      TRUNCATED_TEXTFILENAMES_SH_PATH => TRUNCATED_TEXTFILENAMES_SH
+    }
+  end
+
   def exec_cyber_dojo_sh(container_name, files_in)
     r_stdin,  w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
-    w_stdin.write(TGZ.of(files_in))
+    w_stdin.write(TGZ.of(files_in.merge(lib_files)))
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     command = docker_exec_cyber_dojo_sh(container_name)
@@ -89,7 +95,7 @@ class Runner
         status = ps.exitstatus
       end
     rescue Timeout::Error => error
-      message = "POD_NAME=#{ENV['HOSTNAME']}, id=#{id}, image_name=#{image_name}" 
+      message = "POD_NAME=#{ENV['HOSTNAME']}, id=#{id}, image_name=#{image_name}"
       $stdout.puts(message)
       logger.write(message)
       logger.write(error.class.name)
@@ -159,7 +165,8 @@ class Runner
         #{container_name}                               \
         bash -c                     `# [1]`             \
           '                         `# open quote`      \
-          ;#{ECHO_TRUNCATED_TEXTFILE_NAMES}             \
+          source #{TRUNCATED_TEXTFILENAMES_SH_PATH};    \
+          text_filenames                                \
           |                                             \
           tar                                           \
             -C /                                        \
@@ -208,6 +215,43 @@ class Runner
   # o) truncates text files to MAX_FILE_SIZE+1
   #    This is so truncated?() can detect the truncation.
   #    The truncate utility must be installed [X].
+
+  TRUNCATED_TEXTFILENAMES_SH_PATH = '/home/sandbox/truncated_text_filenames.sh'
+  TRUNCATED_TEXTFILENAMES_SH =
+  <<~SHELL.strip
+  function text_filenames()
+  {
+    find #{Sandbox::DIR} -type f -exec \\
+      bash -c "is_truncated_text_file {} && unrooted {}" \\;
+  }
+  function is_truncated_text_file()
+  {
+    if file --mime-encoding ${1} | grep -qv "${1}:\\sbinary"; then
+      truncate_dont_extend "${1}"
+      true
+    elif [ $(stat -c%s "${1}") -lt 2 ]; then
+      true
+    else
+      false
+    fi
+  }
+  function truncate_dont_extend()
+  {
+    if [ $(stat -c%s "${1}") -gt #{MAX_FILE_SIZE} ]; then
+      truncate --size #{MAX_FILE_SIZE+1} "${1}"
+    fi
+  }
+  function unrooted()
+  {
+    echo "${1:1}"
+  }
+  export -f text_filenames
+  export -f is_truncated_text_file
+  export -f truncate_dont_extend
+  export -f unrooted
+  SHELL
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   ECHO_TRUNCATED_TEXTFILE_NAMES =
     <<~SHELL.strip
