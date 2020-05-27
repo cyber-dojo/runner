@@ -95,7 +95,7 @@ class Runner
     r_stdin,  w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
-    w_stdin.write(TGZ.of(files_in.merge(lib_files)))
+    w_stdin.write(TGZ.of(files_in.merge(home_files)))
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     command = docker_exec_cyber_dojo_sh(container_name)
@@ -135,26 +135,18 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_exec_cyber_dojo_sh(container_name)
-    # Assumes a tgz of files on stdin. Untars this into the
-    # /sandbox/ dir ([X]) inside the container and runs
-    # /sandbox/cyber-dojo.sh
-    # [1] The uid/gid are for the user/group called sandbox [X].
-    #     Untars files as this user to set their ownership.
-    # [2] tar is installed [X].
-    # [3] Don't use [docker exec --workdir] as that requires API version
-    #     1.35 but CircleCI is currently using Docker Daemon API 1.32
+    # Assumes a tgz of files on stdin. 
     <<~SHELL.strip
       docker exec                                      \
         --interactive             `# piping stdin`     \
-        --user=#{UID}:#{GID}      `# [1]`              \
+        --user=#{UID}:#{GID}      `# [X]`              \
         #{container_name}                              \
         bash -c                                        \
           '                       `# open quote`       \
-          tar -C /                `# [2]`              \
+          tar -C /                `# [X]`              \
             -zxf                  `# extract tgz file` \
             -                     `# read from stdin`  \
-          && cd #{Sandbox::DIR}   `# [3]`              \
-          && bash ./cyber-dojo.sh                      \
+          && bash ~/main.sh                            \
           '                       `# close quote`
     SHELL
   end
@@ -210,9 +202,10 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def lib_files
+  def home_files
     {
-      unrooted(SEND_TGZ_SH_PATH) => SEND_TGZ_SH
+      unrooted(SEND_TGZ_SH_PATH) => SEND_TGZ_SH,
+      unrooted(MAIN_SH_PATH) => MAIN_SH
     }
   end
 
@@ -223,7 +216,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # [0] Ensure filenames are not read as tar command options.
   #     Eg -J... is a tar compression option.
-  #     This option is not available on Ubuntu 16.04
+  #     Not on Ubuntu 16.04
   # [1] Must be //; dont add space between // and ;
   # [2] grep -q is --quiet, we are generating filenames
   #     grep -v is --invert-match
@@ -294,6 +287,16 @@ class Runner
   export -f is_text_file
   export -f truncate_dont_extend
   export -f unrooted
+  SHELL
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  MAIN_SH_PATH = '/home/sandbox/main.sh'
+
+  MAIN_SH =
+  <<~SHELL.strip
+  cd #{Sandbox::DIR}
+  bash ./cyber-dojo.sh
   SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
