@@ -95,7 +95,15 @@ module HomeFiles
   def main_sh(sandbox_dir)
     <<~SHELL.strip
     TMP_DIR=$(mktemp -d /tmp/XXXXXX)
-    TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
+    function send_sss()
+    {
+      local -r signal="${1}"
+      { echo stdout; echo stderr; echo status; } \
+        | tar -C ${TMP_DIR} -zcf - --verbatim-files-from -T -
+    }
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    trap "send_sss EXIT" EXIT
+    trap "send_sss TERM" SIGTERM
     cd #{sandbox_dir}
     bash ./cyber-dojo.sh         \
              1> "${TMP_DIR}/stdout" \
@@ -106,8 +114,6 @@ module HomeFiles
     # >&2 echo "stderr:$(cat ${TMP_DIR}/stderr):"
     # >&2 echo "status:$(cat ${TMP_DIR}/status):"
 
-    { echo stdout; echo stderr; echo status; } \
-      | tar -C ${TMP_DIR} -zcf - --verbatim-files-from -T -
     SHELL
   end
 
