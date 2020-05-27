@@ -42,9 +42,9 @@ class Runner
     tgz_out, timed_out = *exec_cyber_dojo_sh(container_name, files_in)
     begin
       files_out = truncated_untgz(tgz_out)
-      stdout = files_out['stdout']
-      stderr = files_out['stderr']
-      status = files_out['status'][:content]
+      stdout = files_out.delete('stdout')
+      stderr = files_out.delete('stderr')
+      status = files_out.delete('status')[:content]
     rescue Zlib::GzipFile::Error
       stdout = truncated('')
       stderr = truncated('')
