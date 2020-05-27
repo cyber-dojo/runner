@@ -98,13 +98,13 @@ module HomeFiles
     TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
     cd #{sandbox_dir}
     bash ./cyber-dojo.sh         \
-           1> "${TMP_DIR}/stdout" \
-           2> "${TMP_DIR}/stderr"
-    echo $? > "${TMP_DIR}/status"
+             1> "${TMP_DIR}/stdout" \
+             2> "${TMP_DIR}/stderr"
+    printf $? > "${TMP_DIR}/status"
 
-    >&2 echo "stdout:$(cat ${TMP_DIR}/stdout):"
-    >&2 echo "stderr:$(cat ${TMP_DIR}/stderr):"
-    >&2 echo "status:$(cat ${TMP_DIR}/status):"
+    # >&2 echo "stdout:$(cat ${TMP_DIR}/stdout):"
+    # >&2 echo "stderr:$(cat ${TMP_DIR}/stderr):"
+    # >&2 echo "status:$(cat ${TMP_DIR}/status):"
 
     { echo stdout; echo stderr; echo status; } \
       | tar -C ${TMP_DIR} -zcf - --verbatim-files-from -T -

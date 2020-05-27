@@ -50,7 +50,7 @@ class TrafficLightTest < TestBase
     diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
     assert r.match(stderr), diagnostic
 
-    expected_status = 2
+    expected_status = '2'
     assert_equal expected_status, status, :status
   end
 
@@ -63,7 +63,7 @@ class TrafficLightTest < TestBase
       'hiker.c:6:1: warning: control reaches end of non-void function [-Wreturn-type]',
       "make: *** [makefile:22: test] Error 1"
     ]
-    expected_status = 2
+    expected_status = '2'
 
     run_cyber_dojo_sh(
       changed_files: {
@@ -89,7 +89,7 @@ class TrafficLightTest < TestBase
     )
     assert_equal 'green', colour, result
     assert_equal '', stderr
-    assert_equal 0, status
+    assert_equal '0', status
   end
 
 end

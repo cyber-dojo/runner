@@ -15,7 +15,8 @@ module TGZ
   end
 
   def self.files(tgz)
-    reader = TarFile::Reader.new(Gnu.unzip(tgz))
+    unzipped = Gnu.unzip(tgz)
+    reader = TarFile::Reader.new(unzipped)
     reader.files.each.with_object({}) do |(filename,content),memo|
       memo[filename] = content
     end

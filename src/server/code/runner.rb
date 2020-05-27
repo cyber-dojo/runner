@@ -114,26 +114,23 @@ class Runner
     command = docker_exec_cyber_dojo_sh(container_name)
     pid = process.spawn(command, options)
     timed_out = true
-    #status = 128+9
     begin
       Timeout::timeout(max_seconds) do
         _, _ps = process.waitpid2(pid)
         timed_out = false
-        #status = ps.exitstatus
       end
     rescue Timeout::Error => error
       #stop_container(container_name)
       message = "POD_NAME=#{ENV['HOSTNAME']}, id=#{id}, image_name=#{image_name}"
       $stdout.puts(message)
       logger.write(message)
-      logger.write(error.class.name)
       logger.write(error.message)
       kill_process_group(pid)
     ensure
-      #stdout = truncated_pipe_read_close(r_stdout, w_stdout)
       tgz_out = pipe_read_close(r_stdout, w_stdout)
-      _stderr = truncated_pipe_read_close(r_stderr, w_stderr)
+      stderr = truncated_pipe_read_close(r_stderr, w_stderr)
     end
+    logger.write(stderr[:content]) 
     [ tgz_out, timed_out ]
   end
 

@@ -21,7 +21,7 @@ class LargeFileTest < TestBase
       created_files: { 'big_file' => 'X'*1023*500 }
     })
     refute timed_out?, result
-    assert_equal 1, status, result
+    assert_equal '1', status, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,7 +36,7 @@ class LargeFileTest < TestBase
     })
     # Occasionally fails with status==137 (128+KILL)
     # if test machine is heavily loaded.
-    if status === 0
+    if status === '0'
       diagnostic = [stdout,stderr,status].to_s
       assert result['run_cyber_dojo_sh']['stdout']['truncated'], diagnostic
     end

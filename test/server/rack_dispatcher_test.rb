@@ -261,7 +261,7 @@ class RackDispatcherTest < TestBase
     stderr = result['stderr']['content']
     assert_assertion_failed(stderr)
     assert_makefile_aborted(stderr)
-    assert_equal 2, result['status'], :status
+    assert_equal '2', result['status'], :status
   end
 
   def assert_assertion_failed(stderr)
