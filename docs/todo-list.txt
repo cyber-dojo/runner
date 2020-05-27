@@ -2,21 +2,24 @@
 BIGGER
 ======
 Speedup - deployment stages....
- - cyber-dojo.sh cat stdout/stderr to files (and echo those back to stdout/stderr)
- - cyber-dojo.sh write sss to tar file and tgz that.
- - main.sh pipe the echo_textfilenames script into stdin and extract it then run it
- - echo fully pathed filenames (unrooted) into tar
- - merge two docker execs into one docker exec
  - merge docker run and docker exec into one docker run
 
 
 
 Ensuring container is stopped
 -----------------------------
-Ensure the docker-stop flushes its stdout before the spawned
+TimedOut test B2B. This takes many seconds to respond to the
+[docker rm --force #] and does not seem to respond at all to
+[docker stop --time 1s #]
+It may be that I need to add a ulimit --cpus=0.9
+or some other value <1 so that it responds.
+This may also help the docker-stop to flush its stdout before the spawned
 process read that on its stdin.
   tgz_out, timed_out = *docker_tar_pipe(tgz(files_in))
   docker_stop_container
+https://docs.docker.com/config/containers/resource_constraints/#cpu
+Also look at kernel-memory
+https://docs.docker.com/config/containers/resource_constraints/#memory
 If using code from capture3_with_timeout.rb remember
 that the docker run process spawned a process itself
 (via the docker daemon). So remember to ensure docker-stop
@@ -46,6 +49,7 @@ TMP_FS_HOME_DIR = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
 And all pass :-)
 Need to try on all LTFs
 
+
 Image_name:TAG
 --------------
   - will now acts as key for cache holding the rag-lambdas.
@@ -70,7 +74,7 @@ TarWriter has this...
   Perhaps I could set cyber-dojo.sh to +x automatically?
   Might allow a cleaner command line. Probably not.
 
-rescue Errno::ESRCH ; 200; 
+rescue Errno::ESRCH ; 200;
 
 TGZ exception test ; 500; add StdoutWriter
 
@@ -87,7 +91,8 @@ uncomment c_assert_test 'AB6   RackDispatcher
 Dispatcher test that mimics config.ru setup
   Use BashStub.
   Make 2 calls
-  Verify stub only gets asked to cat ragfile from image once
+  Verify stub only gets asked to cat ragfile from image once.
+  Delay doing this since call will probably end up as one Process.spawn()
 
 
 ---------------------------------------------------------------------

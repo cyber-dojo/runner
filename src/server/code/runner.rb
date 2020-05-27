@@ -61,15 +61,15 @@ class Runner
     end
 
     { run_cyber_dojo_sh: {
-        stdout:stdout,
-        stderr:stderr,
-        status:status,
-        timed_out:timed_out,
-        colour:colour,
-        created:Sandbox.out(created),
-        deleted:Sandbox.out(deleted).keys.sort,
-        changed:Sandbox.out(changed),
-        log:logger.log
+         stdout: stdout,
+         stderr: stderr,
+         status: status,
+      timed_out: timed_out,
+         colour: colour,
+        created: Sandbox.out(created),
+        deleted: Sandbox.out(deleted).keys.sort,
+        changed: Sandbox.out(changed),
+            log: logger.log
       }
     }
   ensure
