@@ -45,17 +45,17 @@ class Runner
       stdout = files_out.delete('stdout')
       stderr = files_out.delete('stderr')
       status = files_out.delete('status')[:content]
+      created,deleted,changed = files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
       stdout = truncated('')
       stderr = truncated('')
       status = '42'
+      created,deleted,changed = {},{},{}
     end
 
     if timed_out
-      created,deleted,changed = {},{},{}
       colour = ''
     else
-      created,deleted,changed = *exec_text_file_changes(container_name, files_in)
       colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
     end
 
@@ -166,39 +166,6 @@ class Runner
           && bash ~/main.sh                            \
           '                       `# close quote`
     SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def exec_text_file_changes(container_name, files_in)
-    # Approval-style test-frameworks compare actual-text against
-    # expected-text held inside a 'golden-master' file and, if the
-    # comparison fails, generate a file holding the actual-text
-    # ready for human inspection. cyber-dojo supports this by
-    # tar-piping out all text files (generated inside the container)
-    # under /sandbox after cyber-dojo.sh has run.
-    # [1] You must use [bash -c] on a docker exec.
-    #     See https://docs.docker.com/engine/reference/commandline/exec/
-    docker_tar_pipe_text_files_out =
-      <<~SHELL.strip
-      docker exec                     \
-        --user=#{UID}:#{GID}          \
-        #{container_name}             \
-        bash -c                       \
-          '                           \
-          source #{SEND_TGZ_SH_PATH}; \
-          send_tgz                    \
-          '
-      SHELL
-    # A crippled container (eg fork-bomb) will likely
-    # not be running causing the [docker exec] to fail.
-    # Be careful if you switch to bash.assert() here.
-    stdout,_stderr,status = bash.exec(docker_tar_pipe_text_files_out)
-    if status != 0
-      return [ {}, {}, {} ]
-    end
-    files_out = truncated_untgz(stdout)
-    files_delta(files_in, files_out)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

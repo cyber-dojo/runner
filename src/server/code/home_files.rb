@@ -3,8 +3,7 @@ module HomeFiles
 
   def home_files(sandbox_dir, max_file_size)
     {
-      unrooted(MAIN_SH_PATH) => main_sh(sandbox_dir),
-      unrooted(SEND_TGZ_SH_PATH) => send_tgz_sh(sandbox_dir, max_file_size)
+      unrooted(MAIN_SH_PATH) => main_sh(sandbox_dir, max_file_size)
     }
   end
 
@@ -12,7 +11,6 @@ module HomeFiles
     filename[1..-1]
   end
 
-  SEND_TGZ_SH_PATH = '/home/sandbox/send_tgz.sh'
   MAIN_SH_PATH     = '/home/sandbox/main.sh'
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -28,17 +26,19 @@ module HomeFiles
   #     so truncated?() can detect the truncation.
   # [5] tar prefers relative filenames
 
-  def send_tgz_sh(sandbox_dir, max_file_size)
+  def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
+    TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+    TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
     function send_tgz()
     {
-      truncated_text_filenames | tar                \\
-        -C /                                        \\
-        -zcf                    `# create tgz file` \\
-        -                       `# write to stdout` \\
-        --verbatim-files-from   `# [0]`             \\
-        -T                      `# using filenames` \\
-        -                       `# from stdin`
+      local -r signal="${1}"
+      tar -rf "${TAR_FILE}" -C ${TMP_DIR} stdout stderr status
+      truncated_text_filenames | \
+        tar -rf ${TAR_FILE} \
+        -C / \
+        --verbatim-files-from -T - # [0]
+      gzip < "${TAR_FILE}"
     }
     function truncated_text_filenames()
     {
@@ -81,30 +81,13 @@ module HomeFiles
       local -r filename="${1}"
       echo "${filename:1}" # [5]
     }
-    export -f send_tgz
-    export -f truncated_text_filenames
     export -f is_truncated_text_file
     export -f is_text_file
     export -f truncate_dont_extend
     export -f unrooted
-    SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def main_sh(sandbox_dir)
-    <<~SHELL.strip
-    TMP_DIR=$(mktemp -d /tmp/XXXXXX)
-    TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
-    function send_sss()
-    {
-      local -r signal="${1}"
-      tar -rf "${TAR_FILE}" -C ${TMP_DIR} stdout stderr status
-      gzip < "${TAR_FILE}"
-    }
     # - - - - - - - - - - - - - - - - - - -
-    trap "send_sss EXIT" EXIT
-    trap "send_sss TERM" SIGTERM
+    trap "send_tgz EXIT" EXIT
+    trap "send_tgz TERM" SIGTERM
     cd #{sandbox_dir}
     bash ./cyber-dojo.sh         \
              1> "${TMP_DIR}/stdout" \

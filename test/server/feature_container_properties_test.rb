@@ -26,7 +26,9 @@ class FeatureContainerPropertiesTest < TestBase
       "cat /etc/passwd                   > #{sandbox_dir}/passwd",
       "getent group #{group}             > #{sandbox_dir}/group",
       "printf ${HOME}                    > #{sandbox_dir}/home.dir",
-      "env                               > #{sandbox_dir}/env.vars",
+      "env | grep CYBER_DOJO_IMAGE_NAME  > #{sandbox_dir}/env.var.image_name",
+      "env | grep CYBER_DOJO_ID          > #{sandbox_dir}/env.var.id",
+      "env | grep CYBER_DOJO_SANDBOX     > #{sandbox_dir}/env.var.sandbox",
       "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/dir.stat.u",
       "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/dir.stat.g",
       "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/dir.stat.A",
@@ -59,11 +61,9 @@ class FeatureContainerPropertiesTest < TestBase
 
     assert_equal home_dir, created_file('home.dir'), :home_dir
 
-    env = created_file('env.vars')
-    env_vars = Hash[env.split("\n").map{ |line| line.split('=') }]
-    assert_equal  image_name, env_vars['CYBER_DOJO_IMAGE_NAME'], :cyber_dojo_image_name
-    assert_equal          id, env_vars['CYBER_DOJO_ID'], :cyber_dojo_id
-    assert_equal sandbox_dir, env_vars['CYBER_DOJO_SANDBOX'], :cyber_dojo_sandbox
+    assert_equal  image_name, env_var('image_name'), :cyber_dojo_image_name
+    assert_equal          id, env_var('id'), :cyber_dojo_id
+    assert_equal sandbox_dir, env_var('sandbox'), :cyber_dojo_sandbox
 
     assert_equal uid.to_s,     created_file('dir.stat.u'), :uid
     assert_equal gid.to_s,     created_file('dir.stat.g'), :gid
@@ -154,6 +154,12 @@ class FeatureContainerPropertiesTest < TestBase
                size: attr[4].to_i
       }
     }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  def env_var(name)
+    created_file("env.var.#{name}").split('=')[1].strip
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
