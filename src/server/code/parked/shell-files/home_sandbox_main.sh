@@ -9,7 +9,7 @@ function send_tgz()
   truncate_file "${TMP_DIR}/stderr"
   tar -rf "${TAR_FILE}" -C "${TMP_DIR}" stdout stderr status
   text_filenames | tar -C / -rf ${TAR_FILE} --verbatim-files-from -T -
-  zip -c "${TAR_FILE}"
+  gzip < "${TAR_FILE}"
 }
 
 function text_filenames()
