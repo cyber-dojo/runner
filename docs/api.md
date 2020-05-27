@@ -2,12 +2,12 @@
 
 - - - -
 ## GET run_cyber_dojo_sh(id,files,manifest)
-Creates a docker container from **manifest**'s **image_name**, inserts **files** into the
-container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
-**manifest**'s **max_seconds**.
+Creates a docker container from **manifest**'s **image_name**.  
+Inserts **files** into the container in its  `/sandbox` dir.  
+Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
 - [JSON-in](#json-in) parameters
   * **id:String** for tracing
-  * **files:Hash{filename:String => content:String}** assumed to contain a file called `"cyber-dojo.sh"`
+  * **files:Hash{filename:String => content:String}** assumed to contain a file called `cyber-dojo.sh`
   * **manifest:Hash** containing
     * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
     * **max_seconds:Integer** between `1` and `20`
@@ -47,7 +47,7 @@ container in its  `/sandbox` dir, runs `/sandbox/cyber-dojo.sh` for at most
           "content": "",
           "truncated": false
         },
-        "status": '2',
+        "status": "2",
         "timed_out": false,
         "colour": "red",
         "created": {
