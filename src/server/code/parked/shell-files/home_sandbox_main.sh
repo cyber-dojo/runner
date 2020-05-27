@@ -20,8 +20,8 @@ function text_filenames()
 
 function is_truncated_text_file()
 {
-  filename="${1}"
-  size=$(stat -c%s "${filename}")
+  local -r filename="${1}"
+  local -r size=$(stat -c%s "${filename}")
   if is_text_file "${filename}" "${size}"; then
     truncate_file "${filename}" "${size}"
     true
@@ -34,8 +34,8 @@ function is_text_file()
 {
   # grep -q is --quiet, we are generating text file names.
   # grep -v is --invert-match.
-  filename="${1}"
-  size="${2}"
+  local -r filename="${1}"
+  local -r size="${2}"
   if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary"; then
     true
   elif [ "${size}" -lt 2 ]; then
@@ -50,8 +50,8 @@ function truncate_file()
 {
   # Beware; truncate can extend OR strink the size of a file.
   # The +1 is so Ruby can detect and lop off the final extra byte.
-  filename="${1}"
-  size="${2}"
+  local -r filename="${1}"
+  local -r size="${2}"
   if [ "${size}" -gt ${MAX_FILE_SIZE} ]; then
     truncate --size ${MAX_FILE_SIZE+1} "${filename}"
   fi
@@ -60,7 +60,8 @@ function truncate_file()
 function unrooted()
 {
   # tar prefer relative pathnames so strip leading /
-  echo "${1:1}"
+  local -r filename="${1}"
+  echo "${filename:1}"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
