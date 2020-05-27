@@ -39,13 +39,12 @@ class Runner
   def run_cyber_dojo_sh
     container_name = create_container
     files_in = Sandbox.in(files)
-    #stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(container_name, files_in)
     tgz_out, timed_out = *exec_cyber_dojo_sh(container_name, files_in)
     begin
-      files_out = TGZ.files(tgz_out)
-      stdout = truncated(files_out.delete('stdout'))
-      stderr = truncated(files_out.delete('stderr'))
-      status = files_out.delete('status')
+      files_out = truncated_untgz(tgz_out)
+      stdout = files_out['stdout']
+      stderr = files_out['stderr']
+      status = files_out['status'][:content]
     rescue Zlib::GzipFile::Error
       stdout = truncated('')
       stderr = truncated('')
@@ -130,7 +129,7 @@ class Runner
       tgz_out = pipe_read_close(r_stdout, w_stdout)
       stderr = truncated_pipe_read_close(r_stderr, w_stderr)
     end
-    logger.write(stderr[:content]) 
+    logger.write(stderr[:content])
     [ tgz_out, timed_out ]
   end
 
