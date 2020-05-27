@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'files_delta'
+require_relative 'home_files'
 require_relative 'random_hex'
 require_relative 'sandbox'
 require_relative 'tgz'
@@ -67,6 +68,7 @@ class Runner
   private
 
   include FilesDelta
+  include HomeFiles
 
   KB = 1024
   MB = 1024 * KB
@@ -95,7 +97,7 @@ class Runner
     r_stdin,  w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
-    w_stdin.write(TGZ.of(files_in.merge(home_files)))
+    w_stdin.write(TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE))))  
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     command = docker_exec_cyber_dojo_sh(container_name)
@@ -135,7 +137,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_exec_cyber_dojo_sh(container_name)
-    # Assumes a tgz of files on stdin. 
+    # Assumes a tgz of files on stdin.
     <<~SHELL.strip
       docker exec                                      \
         --interactive             `# piping stdin`     \
@@ -199,105 +201,6 @@ class Runner
       truncated: content.size > MAX_FILE_SIZE
     }
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def home_files
-    {
-      unrooted(SEND_TGZ_SH_PATH) => SEND_TGZ_SH,
-      unrooted(MAIN_SH_PATH) => MAIN_SH
-    }
-  end
-
-  def unrooted(filename)
-    filename[1..-1]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # [0] Ensure filenames are not read as tar command options.
-  #     Eg -J... is a tar compression option.
-  #     Not on Ubuntu 16.04
-  # [1] Must be //; dont add space between // and ;
-  # [2] grep -q is --quiet, we are generating filenames
-  #     grep -v is --invert-match
-  # [3] file incorrectly reports very small files as binary.
-  #     If size==0,1 assume a text file.
-  # [4] truncates text files to MAX_FILE_SIZE+1
-  #     so truncated?() can detect the truncation.
-  # [5] tar prefers relative filenames
-
-  SEND_TGZ_SH_PATH = '/home/sandbox/send_tgz.sh'
-
-  SEND_TGZ_SH =
-  <<~SHELL.strip
-  function send_tgz()
-  {
-    truncated_text_filenames | tar                \\
-      -C /                                        \\
-      -zcf                    `# create tgz file` \\
-      -                       `# write to stdout` \\
-      --verbatim-files-from   `# [0]`             \\
-      -T                      `# using filenames` \\
-      -                       `# from stdin`
-  }
-  function truncated_text_filenames()
-  {
-    find #{Sandbox::DIR} -type f -exec \\
-      bash -c "is_truncated_text_file {} && unrooted {}" \\; # [1]
-  }
-  function is_truncated_text_file()
-  {
-    local -r filename="${1}"
-    local -r size=$(stat -c%s "${filename}")
-    if is_text_file "${filename}" "${size}" ; then
-      truncate_dont_extend "${filename}" "${size}"
-      true
-    else
-      false
-    fi
-  }
-  function is_text_file()
-  {
-    local -r filename="${1}"
-    local -r size="${2}"
-    if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary" ; then # [2]
-      true
-    elif [ "${size}" -lt 2 ]; then # [3]
-      true
-    else
-      false
-    fi
-  }
-  function truncate_dont_extend()
-  {
-    local -r filename="${1}"
-    local -r size="${2}"
-    if [ "${size}" -gt #{MAX_FILE_SIZE} ] ; then
-      truncate --size #{MAX_FILE_SIZE+1} "${filename}" # [4]
-    fi
-  }
-  function unrooted()
-  {
-    local -r filename="${1}"
-    echo "${filename:1}" # [5]
-  }
-  export -f send_tgz
-  export -f truncated_text_filenames
-  export -f is_truncated_text_file
-  export -f is_text_file
-  export -f truncate_dont_extend
-  export -f unrooted
-  SHELL
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  MAIN_SH_PATH = '/home/sandbox/main.sh'
-
-  MAIN_SH =
-  <<~SHELL.strip
-  cd #{Sandbox::DIR}
-  bash ./cyber-dojo.sh
-  SHELL
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # container
