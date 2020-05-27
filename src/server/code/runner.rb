@@ -39,7 +39,8 @@ class Runner
   def run_cyber_dojo_sh
     container_name = create_container
     files_in = Sandbox.in(files)
-    tgz_out, timed_out = *exec_cyber_dojo_sh(container_name, files_in)
+    tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
+    tgz_out, timed_out = *exec_cyber_dojo_sh(container_name, tgz_in)
     begin
       files_out = truncated_untgz(tgz_out)
       stdout = files_out.delete('stdout')
@@ -103,11 +104,11 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_cyber_dojo_sh(container_name, files_in)
-    r_stdin,  w_stdin  = IO.pipe # into container
-    r_stdout, w_stdout = IO.pipe # from container
-    r_stderr, w_stderr = IO.pipe # from container
-    w_stdin.write(TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE))))
+  def exec_cyber_dojo_sh(container_name, tgz_in)
+    r_stdin,  w_stdin  = IO.pipe
+    r_stdout, w_stdout = IO.pipe
+    r_stderr, w_stderr = IO.pipe 
+    w_stdin.write(tgz_in)
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     command = docker_exec_cyber_dojo_sh(container_name)
