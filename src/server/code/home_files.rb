@@ -13,7 +13,7 @@ module HomeFiles
   end
 
   SEND_TGZ_SH_PATH = '/home/sandbox/send_tgz.sh'
-  MAIN_SH_PATH = '/home/sandbox/main.sh'
+  MAIN_SH_PATH     = '/home/sandbox/main.sh'
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # [0] Ensure filenames are not read as tar command options.
@@ -94,8 +94,20 @@ module HomeFiles
 
   def main_sh(sandbox_dir)
     <<~SHELL.strip
+    TMP_DIR=$(mktemp -d /tmp/XXXXXX)
+    TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
     cd #{sandbox_dir}
-    bash ./cyber-dojo.sh
+    bash ./cyber-dojo.sh         \
+           1> "${TMP_DIR}/stdout" \
+           2> "${TMP_DIR}/stderr"
+    echo $? > "${TMP_DIR}/status"
+
+    >&2 echo "stdout:$(cat ${TMP_DIR}/stdout):"
+    >&2 echo "stderr:$(cat ${TMP_DIR}/stderr):"
+    >&2 echo "status:$(cat ${TMP_DIR}/status):"
+
+    { echo stdout; echo stderr; echo status; } \
+      | tar -C ${TMP_DIR} -zcf - --verbatim-files-from -T -
     SHELL
   end
 

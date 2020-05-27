@@ -13,7 +13,9 @@ module TarFile
 
     def files
       @reader.each.with_object({}) do |entry,memo|
-        memo[entry.full_name] = entry.read || '' # avoid nil
+        filename = entry.full_name
+        content = entry.read || '' # avoid nil
+        memo[filename] = content
       end
     end
 

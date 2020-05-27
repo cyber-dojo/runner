@@ -37,9 +37,20 @@ class Runner
   end
 
   def run_cyber_dojo_sh
-    files_in = Sandbox.in(files)
     container_name = create_container
-    stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(container_name, files_in)
+    files_in = Sandbox.in(files)
+    #stdout,stderr,status,timed_out = *exec_cyber_dojo_sh(container_name, files_in)
+    tgz_out, timed_out = *exec_cyber_dojo_sh(container_name, files_in)
+    begin
+      files_out = TGZ.files(tgz_out)
+      stdout = truncated(files_out.delete('stdout'))
+      stderr = truncated(files_out.delete('stderr'))
+      status = files_out.delete('status')
+    rescue Zlib::GzipFile::Error
+      stdout = truncated('')
+      stderr = truncated('')
+      status = '42'
+    end
 
     if timed_out
       created,deleted,changed = {},{},{}
@@ -62,7 +73,7 @@ class Runner
       }
     }
   ensure
-      remove_container(container_name)
+    remove_container(container_name)
   end
 
   private
@@ -97,18 +108,18 @@ class Runner
     r_stdin,  w_stdin  = IO.pipe # into container
     r_stdout, w_stdout = IO.pipe # from container
     r_stderr, w_stderr = IO.pipe # from container
-    w_stdin.write(TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE))))  
+    w_stdin.write(TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE))))
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     command = docker_exec_cyber_dojo_sh(container_name)
     pid = process.spawn(command, options)
     timed_out = true
-    status = 128+9
+    #status = 128+9
     begin
       Timeout::timeout(max_seconds) do
-        _, ps = process.waitpid2(pid)
+        _, _ps = process.waitpid2(pid)
         timed_out = false
-        status = ps.exitstatus
+        #status = ps.exitstatus
       end
     rescue Timeout::Error => error
       #stop_container(container_name)
@@ -119,13 +130,21 @@ class Runner
       logger.write(error.message)
       kill_process_group(pid)
     ensure
-      stdout = truncated_pipe_read_close(r_stdout, w_stdout)
-      stderr = truncated_pipe_read_close(r_stderr, w_stderr)
+      #stdout = truncated_pipe_read_close(r_stdout, w_stdout)
+      tgz_out = pipe_read_close(r_stdout, w_stdout)
+      _stderr = truncated_pipe_read_close(r_stderr, w_stderr)
     end
-    [ stdout, stderr, status, timed_out ]
+    [ tgz_out, timed_out ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def pipe_read_close(r, w)
+    w.close unless w.closed?
+    bytes = r.read
+    r.close
+    bytes
+  end
 
   def truncated_pipe_read_close(r, w)
     w.close unless w.closed?
