@@ -184,6 +184,7 @@ class Runner
       --init                    `# pid-1 process [1]`  \
       --interactive             `# tgz on stdin`       \
       --name=#{container_name}                         \
+      #{TMP_FS_HOME_DIR}                               \
       #{TMP_FS_SANDBOX_DIR}                            \
       #{TMP_FS_TMP_DIR}                                \
       #{ulimits}                                       \
@@ -252,31 +253,26 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # temporary file systems
   # - - - - - - - - - - - - - - - - - - - - - -
+  # Making the sandbox dir a tmpfs should improve speed.
+  # By default, tmp-fs's are setup as secure mountpoints.
+  # If you use only '--tmpfs #{Sandbox::DIR}'
+  # then a [cat /etc/mtab] will reveal something like
+  # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
+  #   o) rw = Mount the filesystem read-write.
+  #   o) nosuid = Do not allow set-user-identifier or
+  #      set-group-identifier bits to take effect.
+  #   o) nodev = Do not interpret character or block special devices.
+  #   o) noexec = Do not allow direct execution of any binaries.
+  #   o) relatime = Update inode access times relative to modify/change time.
+  #   So...
+  #     [1] set exec to make binaries and scripts executable.
+  #     [2] limit size of tmp-fs.
+  #     [3] set ownership.
+  # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_TMP_DIR = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
-
-  TMP_FS_SANDBOX_DIR =
-  [
-    "--tmpfs #{Sandbox::DIR}:",
-    'exec,',                 # [1]
-    'size=50M,',             # [2]
-    "uid=#{UID},gid=#{GID}"  # [3]
-  ].join
-    # Making the sandbox dir a tmpfs should improve speed.
-    # By default, tmp-fs's are setup as secure mountpoints.
-    # If you use only '--tmpfs #{Sandbox::DIR}'
-    # then a [cat /etc/mtab] will reveal something like
-    # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
-    #   o) rw = Mount the filesystem read-write.
-    #   o) nosuid = Do not allow set-user-identifier or
-    #      set-group-identifier bits to take effect.
-    #   o) nodev = Do not interpret character or block special devices.
-    #   o) noexec = Do not allow direct execution of any binaries.
-    #   o) relatime = Update inode access times relative to modify/change time.
-    #   So...
-    #     [1] set exec to make binaries and scripts executable.
-    #     [2] limit size of tmp-fs.
-    #     [3] set ownership.
+  TMP_FS_HOME_DIR    = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"  
+  TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # process
