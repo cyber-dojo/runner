@@ -129,14 +129,10 @@ class Runner
       logger.write(error.message)
       kill_process_group(pid)
     ensure
-      tgz_out = pipe_close(r_stdout, w_stdout) do |r|
-        r.read
-      end
-      stderr = pipe_close(r_stderr, w_stderr) do |r|
-        truncated(r.read(MAX_FILE_SIZE + 1) || '')
-      end
+      tgz_out = pipe_close(r_stdout, w_stdout)
+      stderr = pipe_close(r_stderr, w_stderr)
     end
-    logger.write(stderr[:content])
+    logger.write(stderr)
 
     [ tgz_out, timed_out ]
   end
@@ -149,7 +145,7 @@ class Runner
 
   def pipe_close(r, w)
     w.close unless w.closed?
-    bytes = yield r
+    bytes = r.read
     r.close
     bytes
   end
