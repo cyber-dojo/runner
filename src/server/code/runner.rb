@@ -102,9 +102,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id already exists.
+    # A container-name based on _only_ the id will fail
+    # when a container with that id already exists.
     container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
 
     r_stdin,  w_stdin  = IO.pipe
@@ -134,29 +133,12 @@ class Runner
       stderr = truncated_pipe_read_close(r_stderr, w_stderr)
     end
     logger.write(stderr[:content])
-    
+
     [ tgz_out, timed_out ]
   end
 
   def stop_container(container_name)
     bash.exec("docker stop --time 1 #{container_name}")
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def docker_run_cyber_dojo_sh_command(container_name)
-    [
-      'docker run',
-        docker_run_options(container_name),
-        image_name,
-        'bash -c',
-        "'",                      # open quote
-        'tar -C /',               # [X]
-        '-zxf',                   # extract tgz file
-        '-',                      # read from stdin
-        '&& bash ~/main.sh',
-        "'"                       # close quote
-    ].join(SPACE)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -193,24 +175,30 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_options(container_name)
-    # [1] For clang/clang++'s -fsanitize=address
-    # [2] Makes container removal much faster
+  def docker_run_cyber_dojo_sh_command(container_name)
+    # [1] Makes container removal much faster
     <<~SHELL.strip
+      docker run                                       \
       --entrypoint=""                                  \
       #{env_vars}                                      \
+      --init                    `# pid-1 process [1]`  \
+      --interactive             `# tgz on stdin`       \
       --name=#{container_name}                         \
       #{TMP_FS_SANDBOX_DIR}                            \
       #{TMP_FS_TMP_DIR}                                \
       #{ulimits}                                       \
-      --cap-add=SYS_PTRACE      `# [1]`                \
-      --init                    `# pid-1 process [2]`  \
-      --interactive             `# tgz on stdin`       \
       --rm                      `# auto rm on exit`    \
-      --user=#{UID}:#{GID}      `# not root`
+      --user=#{UID}:#{GID}      `# not root`           \
+      #{image_name}                                    \
+      bash -c                                          \
+        '                      `# open quote`          \
+        tar -C /               `# [X]`                 \
+        -zxf                   `# extract tgz file`    \
+        -                      `# read from stdin`     \
+        && bash ~/main.sh                              \
+        '                      `# close quote`
     SHELL
   end
-
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -244,8 +232,10 @@ class Runner
       '--pids-limit=128',                 # no fork bombs
       '--security-opt=no-new-privileges', # no escalation
     ]
-    unless clang?
-      # [ulimit data] prevents clang's -fsanitize=address option.
+    # Special handling of clang/clang++'s -fsanitize=address
+    if clang?
+      options << '--cap-add=SYS_PTRACE'
+    else
       options << ulimit('data', 4*GB)     # data segment size
     end
     options.join(SPACE)
