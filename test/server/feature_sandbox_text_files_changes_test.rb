@@ -125,7 +125,7 @@ class FeatureSandboxTextFilesChangesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '12A',
-  %w( create text files in /sandbox sub-dirs are returned ) do
+  %w( created text files in /sandbox sub-dirs are returned ) do
     # The tar-pipe handles creating dir structure
     assert_browser_can_create_files_in_sandbox_sub_dir('s1')
     assert_browser_can_create_files_in_sandbox_sub_dir('s1/s2')
