@@ -27,8 +27,8 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
     }
     ```
 - returns the [JSON-out](#json-out) result, keyed on `"run_cyber_dojo_sh"`
-  * **stdout:Hash** of running `/sandbox/cyber-dojo.sh` truncated to 50K
-  * **stderr:Hash** of running `/sandbox/cyber-dojo.sh` truncated to 50K
+  * **stdout:Hash** of running `/sandbox/cyber-dojo.sh` truncated to 50K. See example below
+  * **stderr:Hash** of running `/sandbox/cyber-dojo.sh` truncated to 50K. See example below
   * **status:String** of running `/sandbox/cyber-dojo.sh` (0 to 255)
   * **colour:String** see below
   * **timed_out:Boolean** true if execution completed in **max_seconds**
