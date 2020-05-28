@@ -30,17 +30,22 @@ class RandomHexTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'c94', %w( its the fastest of the 4 algorithms I tried ) do
+=begin
+  test 'c94', %w(
+  its the fastest of the 4 algorithms I tried
+  but environment too variable for consistent results
+  ) do
     n,size = 512,8
     t3 = Benchmark.realtime { n.times { v3(size) } }
     t2 = Benchmark.realtime { n.times { v2(size) } }
     t1 = Benchmark.realtime { n.times { v1(size) } }
     # occasionally t1 is close. Do t0 last to give it best chance!
     t0 = Benchmark.realtime { n.times { RandomHex.id(size) } }
-    #assert t0 < t1, "t=#{t0} , t1 is faster #{t1} "
+    assert t0 < t1, "t=#{t0} , t1 is faster #{t1} "
     assert t0 < t2, "t=#{t0} , t2 is faster #{t2} "
     assert t0 < t3, "t=#{t0} , t3 is faster #{t3} "
   end
+=end
 
   # - - - - - - - - - - - - - - - - -
 
