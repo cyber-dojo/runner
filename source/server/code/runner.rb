@@ -21,10 +21,9 @@ require 'timeout'
 # timeout is different to the Runner.run() call timing out.
 #
 # Approval-style test-frameworks compare actual-text against
-# expected-text held inside a 'golden-master' file and, if the
-# comparison fails, generate a file holding the actual-text
-# for human inspection. runner supports this by returning
-# all text files under /sandbox after cyber-dojo.sh has run.
+# expected-text and writing the actual-text to a file for human
+# inspection. runner supports this by returning all text files
+# under /sandbox after cyber-dojo.sh has run.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class Runner
@@ -130,8 +129,12 @@ class Runner
       logger.write(error.message)
       kill_process_group(pid)
     ensure
-      tgz_out = pipe_read_close(r_stdout, w_stdout)
-      stderr = truncated_pipe_read_close(r_stderr, w_stderr)
+      tgz_out = pipe_close(r_stdout, w_stdout) do |r|
+        r.read
+      end
+      stderr = pipe_close(r_stderr, w_stderr) do |r|
+        truncated(r.read(MAX_FILE_SIZE + 1) || '')
+      end
     end
     logger.write(stderr[:content])
 
@@ -144,16 +147,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def pipe_read_close(r, w)
+  def pipe_close(r, w)
     w.close unless w.closed?
-    bytes = r.read
-    r.close
-    bytes
-  end
-
-  def truncated_pipe_read_close(r, w)
-    w.close unless w.closed?
-    bytes = truncated(r.read(MAX_FILE_SIZE + 1) || '')
+    bytes = yield r
     r.close
     bytes
   end

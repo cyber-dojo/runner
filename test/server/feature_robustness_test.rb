@@ -38,7 +38,8 @@ class FeatureRobustNessTest < TestBase
     assert timed_out? ||
       printed?('fork()') ||
         daemon_error? ||
-          no_such_container_error?, result
+          no_such_container_error? ||
+            gzip_exception?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -66,7 +67,8 @@ class FeatureRobustNessTest < TestBase
         printed?(cant_fork) ||
           printed?('bomb') ||
             daemon_error? ||
-              no_such_container_error?, result
+              no_such_container_error? ||
+                gzip_exception?, result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -103,8 +105,10 @@ class FeatureRobustNessTest < TestBase
     )
     assert printed?('fopen() != NULL') ||
       daemon_error? ||
-        no_such_container_error?,  result
+        no_such_container_error? ||
+          gzip_exception?,  result
   end
+
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -153,5 +157,9 @@ class FeatureRobustNessTest < TestBase
     stderr.start_with?('Error: No such container: cyber_dojo_runner_')
   end
   # :nocov:
+
+  def gzip_exception?
+    stderr.include?('not in gzip format')
+  end
 
 end
