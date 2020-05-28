@@ -72,8 +72,6 @@ class Runner
             log: logger.log
       }
     }
-  ensure
-    remove_container(container_name)
   end
 
   private
@@ -107,7 +105,7 @@ class Runner
   def exec_cyber_dojo_sh(container_name, tgz_in)
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
-    r_stderr, w_stderr = IO.pipe 
+    r_stderr, w_stderr = IO.pipe
     w_stdin.write(tgz_in)
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
@@ -120,7 +118,7 @@ class Runner
         timed_out = false
       end
     rescue Timeout::Error => error
-      #stop_container(container_name)
+      stop_container(container_name)
       message = "POD_NAME=#{ENV['HOSTNAME']}, id=#{id}, image_name=#{image_name}"
       $stdout.puts(message)
       logger.write(message)
@@ -210,16 +208,8 @@ class Runner
     container_name
   end
 
-  #def stop_container(container_name)
-  #  stdout,stderr,status = bash.exec("docker stop --time 1 #{container_name}")
-  #  p "docker stop --time 1 #{container_name}"
-  #  p "stdout:#{stdout}:"
-  #  p "stderr:#{stderr}:"
-  #  p "status:#{status}:"
-  #end
-
-  def remove_container(container_name)
-    bash.exec("docker rm --force #{container_name} &")
+  def stop_container(container_name)
+    bash.exec("docker stop --time 1 #{container_name}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
