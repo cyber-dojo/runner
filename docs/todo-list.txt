@@ -1,32 +1,15 @@
 
 BIGGER
 ======
-Speedup - deployment stages....
- - merge docker run and docker exec into one docker run
 
-
-
-Ensuring container is stopped
------------------------------
-TimedOut test B2B. This takes many seconds to respond to the
-[docker rm --force #] and does not seem to respond at all to
-[docker stop --time 1s #]
-It may be that I need to add a ulimit --cpus=0.9
-or some other value <1 so that it responds.
-This may also help the docker-stop to flush its stdout before the spawned
-process read that on its stdin.
-  tgz_out, timed_out = *docker_tar_pipe(tgz(files_in))
-  docker_stop_container
-https://docs.docker.com/config/containers/resource_constraints/#cpu
-Also look at kernel-memory
-https://docs.docker.com/config/containers/resource_constraints/#memory
+Try to get some output from B2B timedout test
+---------------------------------------------
 If using code from capture3_with_timeout.rb remember
 that the docker run process spawned a process itself
 (via the docker daemon). So remember to ensure docker-stop
 is called before pipes are closed and read. Maybe do via
 a block and yield to that.
 Note that capture3_with_timeout does the Process.detach() first...
-
 
 
 readonly containers
@@ -54,6 +37,7 @@ Image_name:TAG
 --------------
   - will now acts as key for cache holding the rag-lambdas.
 
+
 RAG Lambdas in Python
 --------------------
   - visible_files can contain red_amber_green.rb !!!!!
@@ -69,20 +53,9 @@ logger.warning()?
 logger.info()?
 logger.error()?
 
-TarWriter has this...
-  @writer.add_file_simple(filename, 0o644, size) do |fd|
-  Perhaps I could set cyber-dojo.sh to +x automatically?
-  Might allow a cleaner command line. Probably not.
-
 rescue Errno::ESRCH ; 200;
 
 TGZ exception test ; 500; add StdoutWriter
-
-create a custom BashStub which has methods for the specific bash calls...
-      1) docker run --entrypoint=""
-      2) docker exec to run cyber-dojo.sh
-      3) docker exec to extract text files
-      4) docker run --entrypoint=cat to get rag-lambda
 
 uncomment multi_os_test '62B'  Robustness
 
@@ -93,31 +66,3 @@ Dispatcher test that mimics config.ru setup
   Make 2 calls
   Verify stub only gets asked to cat ragfile from image once.
   Delay doing this since call will probably end up as one Process.spawn()
-
-
----------------------------------------------------------------------
-
-  class CustomBashStub
-    def initialize
-      @stubs = {}
-    end
-    def stub_docker_run(stdout, stderr, status)
-      @stubs[:cyber_dojo_sh] = { stdout:stdout, stderr:stderr, status:status }
-    end
-    def stub_cyber_dojo_sh(stdout, stderr, status) # NO THIS IS Process.spawn()
-      @stubs[:cyber_dojo_sh] = { stdout:stdout, stderr:stderr, status:status }
-    end
-    def stub_read_textfiles(tgz)
-      @stubs[:tgz] = tgz
-    end
-    def stub_docker_cat(rag_lambda)
-      @stubs[:rag_lambda] = rag_lambda
-    end
-    def assert(command)
-      if command.include?('sleep')
-        [@stdout,@stderr,@status]
-      end
-    end
-    def exec(command)
-    end
-  end
