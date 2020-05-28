@@ -49,4 +49,25 @@ class StringLoggerTest < TestBase
     assert_equal "hello\nworld\n", log
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test 'Pj2', %w(
+  write(s) does not write s when
+  s is known warning on CircleCI
+  ) do
+    original_ENV_CIRCLECI = ENV['CIRCLECI']
+    ENV['CIRCLECI'] = 'true'
+    logger.write(KNOWN_CIRCLE_CI_WARNING)
+    assert log.empty?, pretty_result(:circleci_warning_is_ignored_when_on_ci)
+  ensure
+    ENV['CIRCLECI'] = original_ENV_CIRCLECI
+  end
+
+  private
+  
+  KNOWN_CIRCLE_CI_WARNING =
+    'WARNING: Your kernel does not support swap limit capabilities ' +
+    'or the cgroup is not mounted. ' +
+    "Memory limited without swap.\n"
+
 end

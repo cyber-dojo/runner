@@ -141,26 +141,7 @@ class ExternalBashTest < TestBase
     assert log.empty?, log
   end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 'Pj2', %w(
-  log method does not write to logger when
-  stderr is known warning on CircleCI
-  ) do
-    original_ENV_CIRCLECI = ENV['CIRCLECI']
-    ENV['CIRCLECI'] = 'true'
-    bash.send('log', 'command', 'stdout', KNOWN_CIRCLE_CI_WARNING, 0)
-    assert log.empty?, pretty_result(:circleci_warning_is_ignored_when_on_ci)
-  ensure
-    ENV['CIRCLECI'] = original_ENV_CIRCLECI
-  end
-
   private
-
-  KNOWN_CIRCLE_CI_WARNING =
-    'WARNING: Your kernel does not support swap limit capabilities ' +
-    'or the cgroup is not mounted. ' +
-    "Memory limited without swap.\n"
 
   def assert_error_contains(error, command, stdout, stderr, status)
     refute_nil error
