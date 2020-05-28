@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'sandbox'
+require_source 'sandbox'
 
 class SandboxTest < TestBase
 

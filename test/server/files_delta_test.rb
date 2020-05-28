@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'files_delta'
+require_source 'files_delta'
 
 class FilesDeltaTest < TestBase
 

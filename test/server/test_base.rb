@@ -2,8 +2,8 @@ require_relative '../id58_test_base'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_relative 'traffic_light_stub'
-require_src 'externals'
-require_src 'runner'
+require_source 'externals'
+require_source 'runner'
 require 'json'
 
 class TestBase < Id58TestBase

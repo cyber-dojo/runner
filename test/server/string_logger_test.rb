@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'string_logger'
+require_source 'string_logger'
 
 class StringLoggerTest < TestBase
 
@@ -64,7 +64,7 @@ class StringLoggerTest < TestBase
   end
 
   private
-  
+
   KNOWN_CIRCLE_CI_WARNING =
     'WARNING: Your kernel does not support swap limit capabilities ' +
     'or the cgroup is not mounted. ' +

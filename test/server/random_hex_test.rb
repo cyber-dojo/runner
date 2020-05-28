@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'random_hex'
+require_source 'random_hex'
 require 'benchmark'
 
 class RandomHexTest < TestBase

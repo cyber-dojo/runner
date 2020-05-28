@@ -1,6 +1,6 @@
 require_relative 'rack_request_stub'
 require_relative 'test_base'
-require_src 'rack_dispatcher'
+require_source 'rack_dispatcher'
 require 'json'
 require 'stringio'
 

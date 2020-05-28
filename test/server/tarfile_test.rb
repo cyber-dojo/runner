@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'tarfile_reader'
-require_src 'tarfile_writer'
+require_source 'tarfile_reader'
+require_source 'tarfile_writer'
 
 class TarFileTest < TestBase
 

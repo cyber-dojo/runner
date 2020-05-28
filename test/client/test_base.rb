@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require_relative '../id58_test_base'
-require_src 'http_adapter'
-require_src 'languages_start_points'
-require_src 'runner'
+require_source 'http_adapter'
+require_source 'languages_start_points'
+require_source 'runner'
 require 'json'
 
 class TestBase < Id58TestBase

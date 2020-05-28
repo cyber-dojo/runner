@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'tgz'
+require_source 'tgz'
 
 class TgzTest < TestBase
 

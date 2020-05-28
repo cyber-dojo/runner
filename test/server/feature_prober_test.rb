@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_src 'prober'
+require_source 'prober'
 
 class FeatureProberTest < TestBase
 
