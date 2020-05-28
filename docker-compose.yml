@@ -5,7 +5,7 @@ services:
 
   runner-client:
     build:
-      context: src/client
+      context: source/client
       args: [ CYBER_DOJO_RUNNER_DEMO_PORT ]
     container_name: test-runner-client
     depends_on: [ runner-server ]
@@ -24,7 +24,7 @@ services:
 
   runner-server:
     build:
-      context: src/server
+      context: source/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     container_name: test-runner-server
     depends_on: [ languages-start-points ]
