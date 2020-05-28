@@ -37,10 +37,9 @@ class Runner
   end
 
   def run_cyber_dojo_sh
-    container_name = create_container
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-    tgz_out, timed_out = *exec_cyber_dojo_sh(container_name, tgz_in)
+    tgz_out, timed_out = *docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
     begin
       files_out = truncated_untgz(tgz_out)
       stdout = files_out.delete('stdout')
@@ -102,14 +101,20 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def exec_cyber_dojo_sh(container_name, tgz_in)
+  def docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
+    # Add a random-id to the container name. A container-name
+    # based on _only_ the id will fail when a container with
+    # that id already exists.
+    container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
+
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
     w_stdin.write(tgz_in)
     w_stdin.close
     options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
-    command = docker_exec_cyber_dojo_sh(container_name)
+
+    command = docker_run_cyber_dojo_sh_command(container_name)
     pid = process.spawn(command, options)
     timed_out = true
     begin
@@ -134,6 +139,25 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def docker_run_cyber_dojo_sh_command(container_name)
+    [
+      'docker run',
+        '--entrypoint=""',
+        "--name=#{container_name}",
+        docker_run_options(image_name, id),
+        image_name,
+        'bash -c',
+        "'",                      # open quote
+        'tar -C /',               # [X]
+        '-zxf',                   # extract tgz file
+        '-',                      # read from stdin
+        '&& bash ~/main.sh',
+        "'"                       # close quote
+    ].join(SPACE)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
   def pipe_read_close(r, w)
     w.close unless w.closed?
     bytes = r.read
@@ -146,25 +170,6 @@ class Runner
     read = truncated(r.read(MAX_FILE_SIZE + 1) || '')
     r.close
     read
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def docker_exec_cyber_dojo_sh(container_name)
-    # Assumes a tgz of files on stdin.
-    <<~SHELL.strip
-      docker exec                                      \
-        --interactive             `# piping stdin`     \
-        --user=#{UID}:#{GID}      `# [X]`              \
-        #{container_name}                              \
-        bash -c                                        \
-          '                       `# open quote`       \
-          tar -C /                `# [X]`              \
-            -zxf                  `# extract tgz file` \
-            -                     `# read from stdin`  \
-          && bash ~/main.sh                            \
-          '                       `# close quote`
-    SHELL
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -187,27 +192,6 @@ class Runner
   # container
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def create_container
-    # Add a random-id to the container name. A container-name
-    # based on _only_ the id will fail when a container with
-    # that id already exists.
-    container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
-    docker_run_command = [
-      'docker run',
-        '--entrypoint=""',
-        "--name=#{container_name}",
-        docker_run_options(image_name, id),
-        image_name,
-          "bash -c 'sleep #{max_seconds+2}'"
-    ].join(SPACE)
-    # This bash.assert will catch errors in the 'outer' docker-run
-    # command but not errors in the 'inner' sleep command. For example,
-    # if the container has no bash [X]. Note that --detach is one of
-    # the docker_run_options.
-    bash.assert(docker_run_command)
-    container_name
-  end
-
   def stop_container(container_name)
     bash.exec("docker stop --time 1 #{container_name}")
   end
@@ -223,8 +207,8 @@ class Runner
       #{TMP_FS_TMP_DIR}                                \
       #{ulimits(image_name)}                           \
       --cap-add=SYS_PTRACE      `# [1]`                \
-      --detach                  `# later docker execs` \
       --init                    `# pid-1 process [2]`  \
+      --interactive             `# tgz on stdin`       \
       --rm                      `# auto rm on exit`    \
       --user=#{UID}:#{GID}      `# not root`
     SHELL
