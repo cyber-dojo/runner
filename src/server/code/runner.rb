@@ -134,7 +134,12 @@ class Runner
       stderr = truncated_pipe_read_close(r_stderr, w_stderr)
     end
     logger.write(stderr[:content])
+    
     [ tgz_out, timed_out ]
+  end
+
+  def stop_container(container_name)
+    bash.exec("docker stop --time 1 #{container_name}")
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -142,9 +147,7 @@ class Runner
   def docker_run_cyber_dojo_sh_command(container_name)
     [
       'docker run',
-        '--entrypoint=""',
-        "--name=#{container_name}",
-        docker_run_options(image_name, id),
+        docker_run_options(container_name),
         image_name,
         'bash -c',
         "'",                      # open quote
@@ -189,23 +192,17 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # container
-  # - - - - - - - - - - - - - - - - - - - - - -
 
-  def stop_container(container_name)
-    bash.exec("docker stop --time 1 #{container_name}")
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def docker_run_options(image_name, id)
+  def docker_run_options(container_name)
     # [1] For clang/clang++'s -fsanitize=address
     # [2] Makes container removal much faster
     <<~SHELL.strip
-      #{env_vars(image_name, id)}                      \
+      --entrypoint=""                                  \
+      #{env_vars}                                      \
+      --name=#{container_name}                         \
       #{TMP_FS_SANDBOX_DIR}                            \
       #{TMP_FS_TMP_DIR}                                \
-      #{ulimits(image_name)}                           \
+      #{ulimits}                                       \
       --cap-add=SYS_PTRACE      `# [1]`                \
       --init                    `# pid-1 process [2]`  \
       --interactive             `# tgz on stdin`       \
@@ -214,9 +211,10 @@ class Runner
     SHELL
   end
 
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def env_vars(image_name, id)
+  def env_vars
     [
       env_var('IMAGE_NAME', image_name),
       env_var('ID',         id),
@@ -231,7 +229,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def ulimits(image_name)
+  def ulimits
     # There is no cpu-ulimit. See
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
@@ -246,9 +244,8 @@ class Runner
       '--pids-limit=128',                 # no fork bombs
       '--security-opt=no-new-privileges', # no escalation
     ]
-    unless clang?(image_name)
-      # [ulimit data] prevents clang's
-      # -fsanitize=address option.
+    unless clang?
+      # [ulimit data] prevents clang's -fsanitize=address option.
       options << ulimit('data', 4*GB)     # data segment size
     end
     options.join(SPACE)
@@ -258,7 +255,7 @@ class Runner
     "--ulimit #{name}=#{limit}"
   end
 
-  def clang?(image_name)
+  def clang?
     image_name.start_with?('cyberdojofoundation/clang')
   end
 
