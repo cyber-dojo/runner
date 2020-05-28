@@ -102,38 +102,43 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
-    # A container-name based on _only_ the id will fail
-    # when a container with that id already exists.
-    container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
-
     r_stdin,  w_stdin  = IO.pipe
     r_stdout, w_stdout = IO.pipe
     r_stderr, w_stderr = IO.pipe
+    w_stdin.sync = true
+    w_stdin.binmode
+    r_stdout.binmode
+    r_stderr.binmode
+
     w_stdin.write(tgz_in)
     w_stdin.close
-    options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
 
+    # A container-name based on _only_ the id will fail
+    # when a container with that id already exists.
+    container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
     command = docker_run_cyber_dojo_sh_command(container_name)
+    options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
     pid = process.spawn(command, options)
-    timed_out = true
+    timed_out = false
     begin
-      Timeout::timeout(max_seconds) do
-        _, _ps = process.waitpid2(pid)
-        timed_out = false
-      end
+      Timeout::timeout(max_seconds) { process.waitpid(pid) }
     rescue Timeout::Error => error
+      timed_out = true
       stop_container(container_name)
-      message = "POD_NAME=#{ENV['HOSTNAME']}, id=#{id}, image_name=#{image_name}"
+      kill_process_group(pid)
+      message = [
+        "POD_NAME=#{ENV['HOSTNAME']}",
+        "id=#{id}",
+        "image_name=#{image_name}"
+      ].join(', ')
       $stdout.puts(message)
       logger.write(message)
       logger.write(error.message)
-      kill_process_group(pid)
     ensure
       tgz_out = pipe_close(r_stdout, w_stdout)
       stderr = pipe_close(r_stderr, w_stderr)
+      logger.write(stderr)
     end
-    logger.write(stderr)
-
     [ tgz_out, timed_out ]
   end
 
@@ -258,9 +263,9 @@ class Runner
   #   o) noexec = Do not allow direct execution of any binaries.
   #   o) relatime = Update inode access times relative to modify/change time.
   #   So...
-  #     [1] set exec to make binaries and scripts executable.
-  #     [2] limit size of tmp-fs.
-  #     [3] set ownership.
+  #     - set exec to make binaries and scripts executable.
+  #     - limit size of tmp-fs.
+  #     - set ownership.
   # - - - - - - - - - - - - - - - - - - - - - -
 
   TMP_FS_HOME_DIR    = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
