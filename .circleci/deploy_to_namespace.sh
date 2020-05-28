@@ -7,7 +7,7 @@
 # not have docker. So doing it directly from versioner's git repo
 export $(curl https://raw.githubusercontent.com/cyber-dojo/versioner/master/app/.env)
 
-readonly NAMESPACE="${1}" # eg beta
+readonly NAMESPACE="${1}" # beta | prod
 readonly IMAGE="${CYBER_DOJO_RUNNER_IMAGE}"
 readonly PORT="${CYBER_DOJO_RUNNER_PORT}"
 readonly TAG="${CIRCLE_SHA1:0:7}"

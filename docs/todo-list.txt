@@ -9,28 +9,24 @@ that the docker run process spawned a process itself
 (via the docker daemon). So remember to ensure docker-stop
 is called before pipes are closed and read. Maybe do via
 a block and yield to that.
-Note that capture3_with_timeout does the Process.detach() first...
+Note that capture3_with_timeout does the Process.detach() _first_
 
 
 readonly containers
 -------------------
-Make TMP-FS for /home/sandbox
-Further, if the docker-run used --read-only it would mean
+If the docker-run used --read-only it would mean
 all LTFs were using /tmp and /sandbox only.
-That would even make it possible to recycle containers.
+That might make it possible to recycle containers (per image).
 You'd only really need to clear out /tmp and /sandbox.
-They should be readonly anyway...
+They should be readonly for better security anyway...
 What happens to tests with --read-only added...
 Only 2 failures
 TrafficLightTest
 9DB Ubuntu L23
 9DD Ubuntu L41
 Access to the path /home/sandbox/.mono is denied.
-Need to make another tmp-fs for /home/sandbox
-TMP_FS_HOME_DIR = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
---read-only
-And all pass :-)
-Need to try on all LTFs
+--read-only And all tests pass :-)
+Need to try on all LTFs...
 
 
 Image_name:TAG

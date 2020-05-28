@@ -46,7 +46,8 @@ class Runner
       stderr = files_out.delete('stderr')
       status = files_out.delete('status')[:content]
       created,deleted,changed = files_delta(files_in, files_out)
-    rescue Zlib::GzipFile::Error
+    rescue Zlib::GzipFile::Error => error
+      logger.write(error.message)
       stdout = truncated('')
       stderr = truncated('')
       status = '42'
@@ -152,9 +153,9 @@ class Runner
 
   def truncated_pipe_read_close(r, w)
     w.close unless w.closed?
-    read = truncated(r.read(MAX_FILE_SIZE + 1) || '')
+    bytes = truncated(r.read(MAX_FILE_SIZE + 1) || '')
     r.close
-    read
+    bytes
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -178,26 +179,26 @@ class Runner
   def docker_run_cyber_dojo_sh_command(container_name)
     # [1] Makes container removal much faster
     <<~SHELL.strip
-      docker run                                       \
-      --entrypoint=""                                  \
-      #{env_vars}                                      \
-      --init                    `# pid-1 process [1]`  \
-      --interactive             `# tgz on stdin`       \
-      --name=#{container_name}                         \
-      #{TMP_FS_HOME_DIR}                               \
-      #{TMP_FS_SANDBOX_DIR}                            \
-      #{TMP_FS_TMP_DIR}                                \
-      #{ulimits}                                       \
-      --rm                      `# auto rm on exit`    \
-      --user=#{UID}:#{GID}      `# not root`           \
-      #{image_name}                                    \
-      bash -c                                          \
-        '                      `# open quote`          \
-        tar -C /               `# [X]`                 \
-        -zxf                   `# extract tgz file`    \
-        -                      `# read from stdin`     \
-        && bash ~/main.sh                              \
-        '                      `# close quote`
+      docker run                                      \
+      --entrypoint=""                                 \
+      #{env_vars}                                     \
+      --init                   `# pid-1 process [1]`  \
+      --interactive            `# tgz on stdin`       \
+      --name=#{container_name}                        \
+      #{TMP_FS_HOME_DIR}                              \
+      #{TMP_FS_SANDBOX_DIR}                           \
+      #{TMP_FS_TMP_DIR}                               \
+      #{ulimits}                                      \
+      --rm                     `# auto rm on exit`    \
+      --user=#{UID}:#{GID}     `# not root`           \
+      #{image_name}                                   \
+      bash -c                                         \
+        '                     `# open quote`          \
+        tar -C /              `# [X]`                 \
+        -zxf                  `# extract tgz file`    \
+        -                     `# read from stdin`     \
+        && bash ~/main.sh                             \
+        '                     `# close quote`
     SHELL
   end
 
@@ -271,7 +272,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   TMP_FS_HOME_DIR    = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"  
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
