@@ -267,7 +267,7 @@ class Runner
       ulimit('nofile', 256   ),           # number of files
       ulimit('nproc' , 128   ),           # number of processes
       ulimit('stack' ,   8*MB),           # stack size
-      '--memory=768m',                    # max 768MB ram
+      '--memory=768m',                    # max 768MB ram, same swap
       '--net=none',                       # no network
       '--pids-limit=128',                 # no fork bombs
       '--security-opt=no-new-privileges', # no escalation
