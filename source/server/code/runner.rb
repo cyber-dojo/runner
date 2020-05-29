@@ -182,7 +182,6 @@ class Runner
       --init                   `# pid-1 process [1]`  \
       --interactive            `# tgz on stdin`       \
       --name=#{container_name}                        \
-      #{TMP_FS_HOME_DIR}                              \
       #{TMP_FS_SANDBOX_DIR}                           \
       #{TMP_FS_TMP_DIR}                               \
       #{ulimits}                                      \
@@ -268,7 +267,6 @@ class Runner
   #     - set ownership.
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_HOME_DIR    = "--tmpfs /home/sandbox:exec,size=50M,uid=#{UID},gid=#{GID}"
   TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
