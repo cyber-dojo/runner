@@ -36,7 +36,6 @@ class FeatureTimedOutTest < TestBase
       "image_name=#{image_name}"
     ].join(', ')
     assert log.include?(expected), log
-    assert log.include?("execution expired\n"), log
   ensure
     ENV['HOSTNAME'] = hostname
   end
@@ -119,7 +118,6 @@ class FeatureTimedOutTest < TestBase
     assert_timed_out
     #refute stdout.empty?, stdout
     assert stderr.empty?, stderr
-    assert log.include?("execution expired\n")
   end
 
 end

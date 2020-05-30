@@ -109,57 +109,29 @@ class FeatureRobustNessTest < TestBase
           gzip_exception?,  result
   end
 
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-=begin
-  multi_os_test '62B',
-  %w( a crippled container, eg from a fork-bomb, returns everything unchanged ) do
-    stub = BashStub.new # BashStubTarPipeOut.new('fail')
-    @externals = Externals.new(bash:stub)
-    run_cyber_dojo_sh(traffic_light: TrafficLightStub::amber)
-    assert stub.fired_once?
-    assert_created({})
-    assert_deleted([])
-    assert_changed({})
-  end
-=end
-
   private
 
   # :nocov:
   def printed?(text)
     (stdout+stderr).lines.any? { |line| line.include?(text) }
   end
-  # :nocov:
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  # :nocov:
   def daemon_error?
     printed?('Error response from daemon: No such container') ||
       regexp?(/Error response from daemon: Container .* is not running/)
   end
-  # :nocov:
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  # :nocov:
   def regexp?(pattern)
     (stdout+stderr) =~ pattern
   end
-  # :nocov:
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  # :nocov:
   def no_such_container_error?
     stderr.start_with?('Error: No such container: cyber_dojo_runner_')
   end
-  # :nocov:
 
   def gzip_exception?
     stderr.include?('not in gzip format')
   end
+  # :nocov:
 
 end

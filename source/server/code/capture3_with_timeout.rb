@@ -30,7 +30,7 @@ require 'timeout'
 #     :timeout => whether the command was timed out,
 #   }
 
-def capture3_with_timeout(*cmd)
+def capture3_with_timeout(process, *cmd)
   spawn_opts = Hash === cmd.last ? cmd.pop.dup : {}
   opts = {
     :stdin_data => spawn_opts.delete(:stdin_data) || "",
@@ -69,8 +69,8 @@ def capture3_with_timeout(*cmd)
 
   begin
     Timeout.timeout(opts[:timeout]) do
-      result[:pid] = spawn(*cmd, spawn_opts)
-      wait_thr = Process.detach(result[:pid])
+      result[:pid] = process.spawn(*cmd, spawn_opts)
+      wait_thr = process.detach(result[:pid])
       in_r.close
       out_w.close
       err_w.close
@@ -86,12 +86,13 @@ def capture3_with_timeout(*cmd)
   rescue Timeout::Error
     result[:timeout] = true
     pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
-    Process.kill(opts[:signal], pid)
+    process.kill(opts[:signal], pid)
     if opts[:kill_after]
       unless wait_thr.join(opts[:kill_after])
-        Process.kill(:KILL, pid)
+        process.kill(:KILL, pid)
       end
     end
+    yield if block_given?
   ensure
     result[:status] = wait_thr.value if wait_thr
     result[:stdout] = out_reader.value if out_reader

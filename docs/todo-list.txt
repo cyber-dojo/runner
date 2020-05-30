@@ -32,7 +32,7 @@ Need to try on all LTFs...
 Image_name:TAG
 --------------
   - will now acts as key for cache holding the rag-lambdas.
-
+  - LTF repos need to create 2 images; one for the start-point, one for LTF
 
 RAG Lambdas in Python
 --------------------
@@ -45,6 +45,7 @@ RAG Lambdas in Python
 
 SMALLER
 =======
+
 logger.warning()?
 logger.info()?
 logger.error()?

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'capture3_with_timeout'
 require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'random_hex'
@@ -15,15 +16,15 @@ require 'timeout'
 # https://github.com/cyber-dojo-tools/image_builder
 # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 #
+# Approval-style test-frameworks compare actual-text against
+# expected-text and write the actual-text to a file for human
+# inspection. runner supports this by returning all text files
+# under /sandbox after cyber-dojo.sh has run.
+#
 # If image_name is not present on the node, docker will
 # attempt to pull it. The browser's kata/run_tests ajax
 # call can timeout before the pull completes; this browser
 # timeout is different to the Runner.run() call timing out.
-#
-# Approval-style test-frameworks compare actual-text against
-# expected-text and writing the actual-text to a file for human
-# inspection. runner supports this by returning all text files
-# under /sandbox after cyber-dojo.sh has run.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class Runner
@@ -54,6 +55,7 @@ class Runner
     end
 
     if timed_out
+      log('timeout')
       colour = ''
     else
       colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
@@ -102,57 +104,37 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
-    r_stdin,  w_stdin  = IO.pipe
-    r_stdout, w_stdout = IO.pipe
-    r_stderr, w_stderr = IO.pipe
-    w_stdin.sync = true
-    w_stdin.binmode
-    r_stdout.binmode
-    r_stderr.binmode
-
-    w_stdin.write(tgz_in)
-    w_stdin.close
-
-    # A container-name based on _only_ the id will fail
-    # when a container with that id already exists.
-    container_name = ['cyber_dojo_runner', id, RandomHex.id(8)].join('_')
-    command = docker_run_cyber_dojo_sh_command(container_name)
-    options = { pgroup:true, in:r_stdin, out:w_stdout, err:w_stderr }
-    pid = process.spawn(command, options)
-    timed_out = false
-    begin
-      Timeout::timeout(max_seconds) { process.waitpid(pid) }
-    rescue Timeout::Error => error
-      timed_out = true
-      stop_container(container_name)
-      kill_process_group(pid)
-      message = [
-        "POD_NAME=#{ENV['HOSTNAME']}",
-        "id=#{id}",
-        "image_name=#{image_name}"
-      ].join(', ')
-      $stdout.puts(message)
-      logger.write(message)
-      logger.write(error.message)
-    ensure
-      tgz_out = pipe_close(r_stdout, w_stdout)
-      stderr = pipe_close(r_stderr, w_stderr)
-      logger.write(stderr)
+    container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
+    docker_run_command = docker_run_cyber_dojo_sh_command(container_name)
+    options = {
+      :stdin_data => tgz_in,
+      :binmode => true,
+      :timeout => max_seconds,
+      :kill_after => 1
+    }
+    run_result = capture3_with_timeout(process, docker_run_command, options) do
+      docker_stop_command = "docker stop --time 1 #{container_name}"
+      stop_result = capture3_with_timeout(process, docker_stop_command, { :timeout => 4 })
+      unless stop_result[:status] === 0
+        # :nocov:
+        log(docker_stop_command)
+        # :nocov:
+      end
     end
-    [ tgz_out, timed_out ]
-  end
-
-  def stop_container(container_name)
-    bash.exec("docker stop --time 1 #{container_name}")
+    [ run_result[:stdout], run_result[:timeout] ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def pipe_close(r, w)
-    w.close unless w.closed?
-    bytes = r.read
-    r.close
-    bytes
+  def log(kind)
+    message = [
+      "POD_NAME=#{ENV['HOSTNAME']}",
+      "id=#{id}",
+      "image_name=#{image_name}",
+      "(#{kind})"
+    ].join(', ')
+    $stdout.puts(message)
+    logger.write(message)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -271,39 +253,8 @@ class Runner
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # process
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # Kill the [docker run] process running on the host.
-  # This does not kill the docker container.
-  # The docker container is killed by
-  # o) the --rm option to [docker run]
-  # o) the [docker stop --time 1] if there is a timeout.
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def kill_process_group(pid)
-    # Kill the [docker run]. There is a
-    # timeout race here; there might not
-    # be a process at pid any longer.
-    process.kill(:KILL, -pid)
-  rescue Errno::ESRCH => error
-    # :nocov:
-    logger.write(error.message)
-    # :nocov:
-    # We lost the race. Nothing to do.
-  ensure
-    # Prevent zombie child-process.
-    # Don't wait for detach status.
-    # No exception if we lost the race.
-    process.detach(pid)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
-
-  def bash
-    @externals.bash
-  end
 
   def logger
     @externals.logger
