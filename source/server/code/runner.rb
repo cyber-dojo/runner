@@ -167,6 +167,8 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimits
+    # [1] the nproc --limit is per user across all containers. See
+    # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
     # There is no cpu-ulimit. See
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
@@ -174,7 +176,7 @@ class Runner
       ulimit('fsize' ,  16*MB),           # file size
       ulimit('locks' , 128   ),           # number of file locks
       ulimit('nofile', 256   ),           # number of files
-      ulimit('nproc' , 128   ),           # number of processes
+      ulimit('nproc' , 512   ),           # number of processes [1]
       ulimit('stack' ,   8*MB),           # stack size
       '--memory=768m',                    # max 768MB ram, same swap
       '--net=none',                       # no network
