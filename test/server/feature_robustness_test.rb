@@ -78,7 +78,7 @@ class FeatureRobustNessTest < TestBase
   ) do
     run_cyber_dojo_sh(
       traffic_light: TrafficLightStub::amber,
-      max_seconds: 3,
+      max_seconds: 10,
       changed: { 'hiker.c' =>
         <<~'FILE_HANDLE_BOMB'
         #include "hiker.h"

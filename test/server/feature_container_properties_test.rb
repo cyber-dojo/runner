@@ -80,17 +80,18 @@ class FeatureContainerPropertiesTest < TestBase
     assert_equal gid.to_s,     created_file('dir.stat.g'), :gid
     assert_equal 'drwxrwxrwt', created_file('dir.stat.A'), :permission
 
+    block_size = 1024
     expected_max_data_size  =  clang? ? 0 : 4*GB / KB
-    expected_max_file_size  = 16*MB / (block_size = 1024)
-    expected_max_stack_size =  8*MB / KB
+    expected_max_file_size  = 16*MB / block_size
+    expected_max_stack_size = 16*MB / block_size
 
     assert_ulimit 0,                       :core_size
     assert_ulimit expected_max_data_size,  :data_size
     assert_ulimit expected_max_file_size,  :file_size
-    assert_ulimit 128,                     :file_locks
-    assert_ulimit 256,                     :file_count
+    assert_ulimit 1024,                    :file_locks
+    assert_ulimit 1024,                    :file_count
     assert_ulimit expected_max_stack_size, :stack_size
-    assert_ulimit 512,                     :process_count
+    assert_ulimit 1024,                    :process_count
 
     assert_equal 768*MB, created_file('memory.limit_in_bytes').to_i, :memory_limit
     assert_equal 768*MB, created_file('memory.kmem.limit_in_bytes').to_i, :kmem_memory_limit

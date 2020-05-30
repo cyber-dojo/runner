@@ -174,10 +174,10 @@ class Runner
     options = [
       ulimit('core'  ,   0   ),           # no core file
       ulimit('fsize' ,  16*MB),           # file size
-      ulimit('locks' , 128   ),           # number of file locks
-      ulimit('nofile', 256   ),           # number of files
-      ulimit('nproc' , 512   ),           # number of processes [1]
-      ulimit('stack' ,   8*MB),           # stack size
+      ulimit('locks' , 1024  ),           # number of file locks
+      ulimit('nofile', 1024  ),           # number of files
+      ulimit('nproc' , 1024   ),          # number of processes [1]
+      ulimit('stack' ,  16*MB),           # stack size
       '--kernel-memory=768m',             # limited
       '--memory=768m',                    # max 768MB ram (same swap)
       '--net=none',                       # no network
