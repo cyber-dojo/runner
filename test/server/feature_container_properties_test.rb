@@ -12,9 +12,11 @@ class FeatureContainerPropertiesTest < TestBase
   test 'D91', %w(
   requires bash, won't run in sh ) do
     run_cyber_dojo_sh(image_name:'alpine:latest') # has sh but not bash
-    assert stdout.empty? || stdout.start_with?('cannot exec in a stopped state:'), ":#{stdout}:"
-    assert stderr.empty? || stderr.start_with?('Error response from daemon:'), ":#{stderr}:"
-    assert_equal 'faulty', colour
+    assert stdout.empty?, pretty_result(:stdout)
+    assert stderr.empty?, pretty_result(:stderr)
+    assert_equal 'faulty', colour, pretty_result(:colour)
+    assert log.include?('(Zlib::GzipFile::Error'), pretty_result(:log)
+    assert log.include?('Faulty TrafficLight.colour'), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
