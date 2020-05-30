@@ -46,8 +46,8 @@ class Runner
       stderr = files_out.delete('stderr')
       status = files_out.delete('status')[:content]
       created,deleted,changed = files_delta(files_in, files_out)
-    rescue Zlib::GzipFile::Error => error
-      logger.write(error.message)
+    rescue Zlib::GzipFile::Error
+      log('Zlib::GzipFile::Error')
       stdout = truncated('')
       stderr = truncated('')
       status = '42'
@@ -77,6 +77,7 @@ class Runner
 
   private
 
+  include Capture3WithTimeout
   include FilesDelta
   include HomeFiles
 

@@ -30,76 +30,80 @@ require 'timeout'
 #     :timeout => whether the command was timed out,
 #   }
 
-def capture3_with_timeout(process, *cmd)
-  spawn_opts = Hash === cmd.last ? cmd.pop.dup : {}
-  opts = {
-    :stdin_data => spawn_opts.delete(:stdin_data) || "",
-    :binmode    => spawn_opts.delete(:binmode) || false,
-    :timeout    => spawn_opts.delete(:timeout),
-    :signal     => spawn_opts.delete(:signal) || :TERM,
-    :kill_after => spawn_opts.delete(:kill_after),
-  }
+module Capture3WithTimeout
 
-  in_r,  in_w  = IO.pipe
-  out_r, out_w = IO.pipe
-  err_r, err_w = IO.pipe
-  in_w.sync = true
+  def capture3_with_timeout(process, *cmd)
+    spawn_opts = Hash === cmd.last ? cmd.pop.dup : {}
+    opts = {
+      :stdin_data => spawn_opts.delete(:stdin_data) || "",
+      :binmode    => spawn_opts.delete(:binmode) || false,
+      :timeout    => spawn_opts.delete(:timeout),
+      :signal     => spawn_opts.delete(:signal) || :TERM,
+      :kill_after => spawn_opts.delete(:kill_after),
+    }
 
-  if opts[:binmode]
-    in_w.binmode
-    out_r.binmode
-    err_r.binmode
-  end
+    in_r,  in_w  = IO.pipe
+    out_r, out_w = IO.pipe
+    err_r, err_w = IO.pipe
+    in_w.sync = true
 
-  spawn_opts[:in]  = in_r
-  spawn_opts[:out] = out_w
-  spawn_opts[:err] = err_w
-
-  result = {
-    :pid     => nil,
-    :status  => nil,
-    :stdout  => nil,
-    :stderr  => nil,
-    :timeout => false,
-  }
-
-  out_reader = nil
-  err_reader = nil
-  wait_thr = nil
-
-  begin
-    Timeout.timeout(opts[:timeout]) do
-      result[:pid] = process.spawn(*cmd, spawn_opts)
-      wait_thr = process.detach(result[:pid])
-      in_r.close
-      out_w.close
-      err_w.close
-
-      out_reader = Thread.new { out_r.read }
-      err_reader = Thread.new { err_r.read }
-
-      in_w.write opts[:stdin_data]
-      in_w.close
-
-      result[:status] = wait_thr.value
+    if opts[:binmode]
+      in_w.binmode
+      out_r.binmode
+      err_r.binmode
     end
-  rescue Timeout::Error
-    result[:timeout] = true
-    pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
-    process.kill(opts[:signal], pid)
-    if opts[:kill_after]
-      unless wait_thr.join(opts[:kill_after])
-        process.kill(:KILL, pid)
+
+    spawn_opts[:in]  = in_r
+    spawn_opts[:out] = out_w
+    spawn_opts[:err] = err_w
+
+    result = {
+      :pid     => nil,
+      :status  => nil,
+      :stdout  => nil,
+      :stderr  => nil,
+      :timeout => false,
+    }
+
+    out_reader = nil
+    err_reader = nil
+    wait_thr = nil
+
+    begin
+      Timeout.timeout(opts[:timeout]) do
+        result[:pid] = process.spawn(*cmd, spawn_opts)
+        wait_thr = process.detach(result[:pid])
+        in_r.close
+        out_w.close
+        err_w.close
+
+        out_reader = Thread.new { out_r.read }
+        err_reader = Thread.new { err_r.read }
+
+        in_w.write opts[:stdin_data]
+        in_w.close
+
+        result[:status] = wait_thr.value
       end
+    rescue Timeout::Error
+      result[:timeout] = true
+      pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
+      process.kill(opts[:signal], pid)
+      if opts[:kill_after]
+        unless wait_thr.join(opts[:kill_after])
+          process.kill(:KILL, pid)
+        end
+      end
+      yield if block_given?
+    ensure
+      result[:status] = wait_thr.value if wait_thr
+      result[:stdout] = out_reader.value if out_reader
+      result[:stderr] = err_reader.value if err_reader
+      out_r.close unless out_r.closed?
+      err_r.close unless err_r.closed?
     end
-    yield if block_given?
-  ensure
-    result[:status] = wait_thr.value if wait_thr
-    result[:stdout] = out_reader.value if out_reader
-    result[:stderr] = err_reader.value if err_reader
-    out_r.close unless out_r.closed?
-    err_r.close unless err_r.closed?
+
+    result
   end
 
-  result
 end
