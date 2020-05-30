@@ -1,0 +1,9 @@
+
+Instead of using capture3_with_timout()
+I have tried using the [docker run] options
+
+--cpus=0.9
+--stop-signal=SIGKILL
+--stop-timeout=#{max_seconds}
+
+but I cannot get them to stop a container in an infinite loop :-(
