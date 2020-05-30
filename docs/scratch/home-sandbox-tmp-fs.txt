@@ -1,0 +1,9 @@
+
+If I start using a readonly file-system
+then /home/sandbox will need a tmpfs
+so the home_files can be untarred into it.
+
+This will break language-test-frameworks
+that install to /home/sandbox
+I think there are very few of these.
+javascript-cucumber may be the only one.

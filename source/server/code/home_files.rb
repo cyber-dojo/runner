@@ -1,30 +1,45 @@
 
 module HomeFiles
 
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # main.sh
+  # o) runs /sandbox/cyber-dojo.sh
+  # o) captures its stdout/stderr/status
+  # o) writes them to tgz file on stdout
+  # o) reads all text files under /sandbox
+  # o) writes them to tgz file in stdout
+
   def home_files(sandbox_dir, max_file_size)
     {
-      unrooted(MAIN_SH_PATH) => main_sh(sandbox_dir, max_file_size)
+      unrooted(MAIN_SH_PATH) => main_sh(sandbox_dir, max_file_size),
+      unrooted(DELETE_DIRS_PATH) => DELETE_DIRS,
+      unrooted(DELETE_FILES_PATH) => DELETE_FILES,
+      unrooted(RESET_DIRS_PATH) => RESET_DIRS
     }
   end
 
-  def unrooted(filename)
-    filename[1..-1]
-  end
+  HOME_DIR = '/home/sandbox'
 
-  MAIN_SH_PATH     = '/home/sandbox/main.sh'
+  MAIN_SH_PATH      = "#{HOME_DIR}/main.sh"
+  DELETE_DIRS_PATH  = "#{HOME_DIR}/delete_dirs.sh"
+  DELETE_FILES_PATH = "#{HOME_DIR}/delete_files.sh"
+  RESET_DIRS_PATH   = "#{HOME_DIR}/reset_dirs.sh"
+
+  def unrooted(filename)
+    filename[1..-1] # tar prefers relative paths
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
   # [0] Ensure filenames are not read as tar command options.
-  #     Eg -J... is a tar compression option.
-  #     Not on Ubuntu 16.04
+  #     Eg -J... is a tar compression option. Not on Ubuntu 16.04
   # [1] Must be //; dont add space between // and ;
   # [2] grep -q is --quiet, we are generating filenames
   #     grep -v is --invert-match
-  # [3] file incorrectly reports very small files as binary.
+  # [3] /usr/bin/file reports small text files as binary.
   #     If size==0,1 assume a text file.
-  # [4] truncates text files to MAX_FILE_SIZE+1
-  #     so truncated?() can detect the truncation.
-  # [5] tar prefers relative filenames
+  # [4] truncates text files to MAX_FILE_SIZE+1 so
+  #     runner.rb's truncated?() can detect the truncation.
+  # [5] tar prefers relative paths
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
@@ -96,5 +111,48 @@ module HomeFiles
     printf $? > "${TMP_DIR}/status"
     SHELL
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # Text files (under /sandbox) are automatically returned
+  # to the browser; cyber-dojo.sh should:
+  # o) remove text files its doesn't want returned to the browser.
+  #      cyber_dojo_delete_dirs()
+  #      cyber_dojo_delete_files()
+  # o) reset the REPORT_DIR to return only newly generated reports.
+  #      cyber_dojo_reset_dirs()
+
+  DELETE_DIRS =
+    <<~SHELL.strip
+    function cyber_dojo_delete_dirs()
+    {
+      for dirname in "$@"
+      do
+          rm -rf "${dirname}" 2> /dev/null || true
+      done
+    }
+    SHELL
+
+  DELETE_FILES =
+    <<~SHELL.strip
+    function cyber_dojo_delete_files()
+    {
+      for filename in "$@"
+      do
+          rm "${filename}" 2> /dev/null || true
+      done
+    }
+    SHELL
+
+  RESET_DIRS =
+    <<~SHELL.strip
+    function cyber_dojo_reset_dir()
+    {
+      for dirname in "$@"
+      do
+        cyber_dojo_delete_dirs ${dirname}
+        mkdir -p ${dirname}
+      done
+    }
+    SHELL
 
 end

@@ -1,4 +1,0 @@
-
-If .sh files go into /home/sandbox
-and I start using a readonly file-system
-then /home/sandbox will need a tmpfs.
