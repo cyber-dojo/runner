@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProcessDecorator
-  
+
   def initialize(decorated, options)
     @decorated = decorated
     @options = options

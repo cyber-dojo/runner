@@ -1,6 +1,6 @@
 #!/bin/bash -Eeu
 
-readonly MY_DIR="$( cd "$( dirname "${0}" )" && pwd )"
+readonly MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export COVERAGE_ROOT="${1}" # /tmp/coverage
 readonly TEST_LOG="${2}"    # test.log
 readonly TYPE="${3}"        # client|server
