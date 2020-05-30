@@ -42,7 +42,7 @@ class FeatureContainerPropertiesTest < TestBase
       "ulimit -x                         > #{sandbox_dir}/ulimit.file_locks",
       "ulimit -u                         > #{sandbox_dir}/ulimit.process_count",
       "ulimit -s                         > #{sandbox_dir}/ulimit.stack_size",
-      "cat #{memory_dir}/memory.limit_in_bytes > #{sandbox_dir}/memory.limit_in_bytes",
+      "cat #{memory_dir}/memory.limit_in_bytes      > #{sandbox_dir}/memory.limit_in_bytes",
       "cat #{memory_dir}/memory.kmem.limit_in_bytes > #{sandbox_dir}/memory.kmem.limit_in_bytes"
     ].join(' && ')
 
@@ -80,10 +80,9 @@ class FeatureContainerPropertiesTest < TestBase
     assert_equal gid.to_s,     created_file('dir.stat.g'), :gid
     assert_equal 'drwxrwxrwt', created_file('dir.stat.A'), :permission
 
-    block_size = 1024
-    expected_max_data_size  =  clang? ? 0 : 4*GB / KB
-    expected_max_file_size  = 16*MB / block_size
-    expected_max_stack_size = 16*MB / block_size
+    expected_max_data_size  =  clang? ? 0 : 4*GB / BLOCK_SIZE
+    expected_max_file_size  = 16*MB / BLOCK_SIZE
+    expected_max_stack_size = 16*MB / BLOCK_SIZE
 
     assert_ulimit 0,                       :core_size
     assert_ulimit expected_max_data_size,  :data_size
@@ -131,6 +130,7 @@ class FeatureContainerPropertiesTest < TestBase
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
+  BLOCK_SIZE = 1024
 
   def clang?
     image_name.start_with?('cyberdojofoundation/clang')
