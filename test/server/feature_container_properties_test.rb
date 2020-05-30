@@ -34,7 +34,13 @@ class FeatureContainerPropertiesTest < TestBase
       "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/dir.stat.u",
       "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/dir.stat.g",
       "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/dir.stat.A",
-      "ulimit -a                         > #{sandbox_dir}/ulimit.all"
+      "ulimit -c                         > #{sandbox_dir}/ulimit.core_size",
+      "ulimit -d                         > #{sandbox_dir}/ulimit.data_size",
+      "ulimit -f                         > #{sandbox_dir}/ulimit.file_size",
+      "ulimit -n                         > #{sandbox_dir}/ulimit.file_count",
+      "ulimit -x                         > #{sandbox_dir}/ulimit.file_locks",
+      "ulimit -u                         > #{sandbox_dir}/ulimit.process_count",
+      "ulimit -s                         > #{sandbox_dir}/ulimit.stack_size"
     ].join(' && ')
 
     assert_sss(cyber_dojo_sh)
@@ -74,13 +80,14 @@ class FeatureContainerPropertiesTest < TestBase
     expected_max_data_size  =  clang? ? 0 : 4 * GB / KB
     expected_max_file_size  = 16 * MB / (block_size = 1024)
     expected_max_stack_size =  8 * MB / KB
-    assert_equal expected_max_data_size,  ulimit(:data_size),  :data_size
-    assert_equal expected_max_file_size,  ulimit(:file_size),  :file_size
-    assert_equal expected_max_stack_size, ulimit(:stack_size), :stack_size
-    assert_equal 0,                       ulimit(:core_size),  :core_size
-    assert_equal 128,                     ulimit(:file_locks), :file_locks
-    assert_equal 256,                     ulimit(:open_files), :open_files
-    assert_equal 128,                     ulimit(:processes),  :processes
+
+    assert_ulimit 0,                       :core_size
+    assert_ulimit expected_max_data_size,  :data_size
+    assert_ulimit expected_max_file_size,  :file_size
+    assert_ulimit 128,                     :file_locks
+    assert_ulimit 256,                     :file_count
+    assert_ulimit expected_max_stack_size, :stack_size
+    assert_ulimit 128,                     :process_count
 
     stats = files_stat
     assert_equal starting_files.keys.sort, stats.keys.sort
@@ -124,23 +131,9 @@ class FeatureContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  ULIMIT_TABLE = {
-    :core_size  => 'core file size',
-    :data_size  => 'data seg size',
-    :file_locks => 'file locks',
-    :file_size  => 'file size',
-    :open_files => 'open files',
-    :processes  => 'max user processes',
-    :stack_size => 'stack size'
-  }
-
-  def ulimit(key)
-    ulimit = created_file('ulimit.all')
-    text = ULIMIT_TABLE[key]
-    diagnostic = "#{ulimit}\nno ulimit for #{key}"
-    refute_nil text, diagnostic
-    entry = ulimit.lines.find { |line| line.start_with?(text) }
-    entry.split[-1].to_i
+  def assert_ulimit(expected, key)
+    actual = created_file("ulimit.#{key}").to_i
+    assert_equal expected, actual, key
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
