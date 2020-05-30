@@ -33,6 +33,7 @@ module HomeFiles
     function send_tgz()
     {
       local -r signal="${1}"
+      # >&2 echo "signal:${signal}:"
       tar -rf "${TAR_FILE}" -C ${TMP_DIR} stdout stderr status
       truncated_text_filenames | \
         tar -rf ${TAR_FILE} \
@@ -93,11 +94,6 @@ module HomeFiles
              1> "${TMP_DIR}/stdout" \
              2> "${TMP_DIR}/stderr"
     printf $? > "${TMP_DIR}/status"
-
-    # >&2 echo "stdout:$(cat ${TMP_DIR}/stdout):"
-    # >&2 echo "stderr:$(cat ${TMP_DIR}/stderr):"
-    # >&2 echo "status:$(cat ${TMP_DIR}/status):"
-
     SHELL
   end
 

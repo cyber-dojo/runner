@@ -39,20 +39,8 @@ class Runner
   def run_cyber_dojo_sh
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-    tgz_out, timed_out = *docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
-    begin
-      files_out = truncated_untgz(tgz_out)
-      stdout = files_out.delete('stdout')
-      stderr = files_out.delete('stderr')
-      status = files_out.delete('status')[:content]
-      created,deleted,changed = files_delta(files_in, files_out)
-    rescue Zlib::GzipFile::Error
-      log('Zlib::GzipFile::Error')
-      stdout = truncated('')
-      stderr = truncated('')
-      status = '42'
-      created,deleted,changed = {},{},{}
-    end
+    tgz_out, timed_out = *docker_run_cyber_dojo_sh(tgz_in)
+    stdout,stderr,status, created,deleted,changed = *truncated_untgz(files_in, tgz_out)
 
     if timed_out
       log('timeout')
@@ -104,7 +92,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_tar_pipe_cyber_dojo_sh(tgz_in)
+  def docker_run_cyber_dojo_sh(tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     docker_run_command = docker_run_cyber_dojo_sh_command(container_name)
     options = {
@@ -127,23 +115,23 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def log(kind)
-    message = [
-      "POD_NAME=#{ENV['HOSTNAME']}",
-      "id=#{id}",
-      "image_name=#{image_name}",
-      "(#{kind})"
-    ].join(', ')
-    $stdout.puts(message)
-    logger.write(message)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def truncated_untgz(tgz)
-    TGZ.files(tgz).each.with_object({}) do |(filename,content),memo|
-      memo[filename] = truncated(content)
+  def truncated_untgz(files_in, tgz_out)
+    begin
+      files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
+        memo[filename] = truncated(content)
+      end
+      stdout = files_out.delete('stdout')
+      stderr = files_out.delete('stderr') 
+      status = files_out.delete('status')[:content]
+      created,deleted,changed = files_delta(files_in, files_out)
+    rescue Zlib::GzipFile::Error
+      log('Zlib::GzipFile::Error')
+      stdout = truncated('')
+      stderr = truncated('')
+      status = '42'
+      created,deleted,changed = {},{},{}
     end
+    [ stdout, stderr, status, created, deleted, changed ]
   end
 
   def truncated(raw_content)
@@ -161,7 +149,9 @@ class Runner
     <<~SHELL.strip
       docker run                                      \
       --entrypoint=""                                 \
-      #{env_vars}                                     \
+      --env CYBER_DOJO_IMAGE_NAME='#{image_name}'     \
+      --env CYBER_DOJO_ID='#{id}'                     \
+      --env CYBER_DOJO_SANDBOX='#{Sandbox::DIR}'      \
       --init                   `# pid-1 process [1]`  \
       --interactive            `# tgz on stdin`       \
       --name=#{container_name}                        \
@@ -179,21 +169,6 @@ class Runner
         && bash ~/main.sh                             \
         '                     `# close quote`
     SHELL
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def env_vars
-    [
-      env_var('IMAGE_NAME', image_name),
-      env_var('ID',         id),
-      env_var('SANDBOX',    Sandbox::DIR)
-    ].join(SPACE)
-  end
-
-  def env_var(name, value)
-    # Note: value must not contain a single-quote
-    "--env CYBER_DOJO_#{name}='#{value}'"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -256,6 +231,17 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
   # externals
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def log(kind)
+    message = [
+      "POD_NAME=#{ENV['HOSTNAME']}",
+      "id=#{id}",
+      "image_name=#{image_name}",
+      "(#{kind})"
+    ].join(', ')
+    $stdout.puts(message)
+    logger.write(message)
+  end
 
   def logger
     @externals.logger
