@@ -6,7 +6,6 @@ require_relative 'random_hex'
 require_relative 'sandbox'
 require_relative 'tgz'
 require_relative 'utf8_clean'
-require 'timeout'
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # [X] Runner's requirements on image_name.
@@ -121,7 +120,7 @@ class Runner
         memo[filename] = truncated(content)
       end
       stdout = files_out.delete('stdout')
-      stderr = files_out.delete('stderr') 
+      stderr = files_out.delete('stderr')
       status = files_out.delete('status')[:content]
       created,deleted,changed = files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
@@ -131,7 +130,7 @@ class Runner
       status = '42'
       created,deleted,changed = {},{},{}
     end
-    [ stdout, stderr, status, created, deleted, changed ]
+    [ stdout,stderr,status, created,deleted,changed ]
   end
 
   def truncated(raw_content)
@@ -145,29 +144,23 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_cyber_dojo_sh_command(container_name)
-    # [1] Makes container removal much faster
+    # --init makes container removal much faster
     <<~SHELL.strip
-      docker run                                      \
-      --entrypoint=""                                 \
-      --env CYBER_DOJO_IMAGE_NAME='#{image_name}'     \
-      --env CYBER_DOJO_ID='#{id}'                     \
-      --env CYBER_DOJO_SANDBOX='#{Sandbox::DIR}'      \
-      --init                   `# pid-1 process [1]`  \
-      --interactive            `# tgz on stdin`       \
-      --name=#{container_name}                        \
-      #{TMP_FS_SANDBOX_DIR}                           \
-      #{TMP_FS_TMP_DIR}                               \
-      #{ulimits}                                      \
-      --rm                     `# auto rm on exit`    \
-      --user=#{UID}:#{GID}     `# not root`           \
-      #{image_name}                                   \
-      bash -c                                         \
-        '                     `# open quote`          \
-        tar -C /              `# [X]`                 \
-        -zxf                  `# extract tgz file`    \
-        -                     `# read from stdin`     \
-        && bash ~/main.sh                             \
-        '                     `# close quote`
+      docker run                                  \
+      --entrypoint=""                             \
+      --env CYBER_DOJO_IMAGE_NAME='#{image_name}' \
+      --env CYBER_DOJO_ID='#{id}'                 \
+      --env CYBER_DOJO_SANDBOX='#{Sandbox::DIR}'  \
+      --init                   \
+      --interactive            \
+      --name=#{container_name} \
+      #{TMP_FS_SANDBOX_DIR}    \
+      #{TMP_FS_TMP_DIR}        \
+      #{ulimits}               \
+      --rm                     \
+      --user=#{UID}:#{GID}     \
+      #{image_name}            \
+      bash -c 'tar -C / -zxf - && bash ~/main.sh'
     SHELL
   end
 
