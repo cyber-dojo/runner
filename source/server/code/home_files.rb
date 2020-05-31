@@ -21,9 +21,9 @@ module HomeFiles
   HOME_DIR = '/home/sandbox'
 
   MAIN_SH_PATH      = "#{HOME_DIR}/main.sh"
-  DELETE_DIRS_PATH  = "#{HOME_DIR}/delete_dirs.sh"
-  DELETE_FILES_PATH = "#{HOME_DIR}/delete_files.sh"
-  RESET_DIRS_PATH   = "#{HOME_DIR}/reset_dirs.sh"
+  DELETE_DIRS_PATH  = "#{HOME_DIR}/cyber_dojo_delete_dirs.sh"
+  DELETE_FILES_PATH = "#{HOME_DIR}/cyber_dojo_delete_files.sh"
+  RESET_DIRS_PATH   = "#{HOME_DIR}/cyber_dojo_reset_dirs.sh"
 
   def unrooted(filename)
     filename[1..-1] # tar prefers relative paths
@@ -145,7 +145,7 @@ module HomeFiles
 
   RESET_DIRS =
     <<~SHELL.strip
-    function cyber_dojo_reset_dir()
+    function cyber_dojo_reset_dirs()
     {
       for dirname in "$@"
       do
