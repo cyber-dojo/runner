@@ -34,7 +34,6 @@ class TrafficLight
   def [](image_name)
     light = rag_lambdas[image_name]
     return light unless light.nil?
-    #bash.exec("docker pull #{image_name}")
     lambda_source = checked_read_lambda_source(image_name)
     fn = checked_eval(lambda_source)
     rag_lambdas.compute(image_name) {
