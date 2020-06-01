@@ -18,14 +18,7 @@ class BashStub
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert(command)
-    stdout,stderr,r = Open3.capture3(command)
-    [ stdout, stderr, r.exitstatus ]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - -
-
-  def stub_exec(command, stdout, stderr, status)
+  def stub_execute(command, stdout, stderr, status)
     @stubs << {
       command:command,
        stdout:stdout,
@@ -34,19 +27,19 @@ class BashStub
     }
   end
 
-  def exec(command)
+  def execute(command)
     stub = @stubs.shift
     if stub.nil?
       raise [
         self.class.name,
-        "exec(command) - no stub",
+        "execute(command) - no stub",
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
     unless command === stub[:command]
       raise [
         self.class.name,
-        "exec(command) - does not match stub",
+        "execute(command) - does not match stub",
         " actual-command:#{command}:",
         "stubbed-command:#{stub[:command]}:"
       ].join("\n") + "\n"

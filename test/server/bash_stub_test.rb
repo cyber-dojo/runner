@@ -19,8 +19,8 @@ class BashStubTest < TestBase
   test '4A5',
   %w(
   teardown does not raise
-  when no exec()s are stubbed
-  and no exec()s are made
+  when no execute()s are stubbed
+  and no execute()s are made
   ) do
     bash.teardown
   end
@@ -28,18 +28,18 @@ class BashStubTest < TestBase
   # - - - - - - - - - - - - - - -
 
   test '652',
-  %w( exec() raises when exec() is not stubbed
+  %w( execute() raises when execute() is not stubbed
   ) do
-    assert_raises { bash.exec(pwd) }
+    assert_raises { bash.execute(pwd) }
   end
 
   # - - - - - - - - - - - - - - -
 
   test '181',
-  %w( exec() raises when exec() is stubbed but for a different command
+  %w( execute() raises when execute() is stubbed but for a different command
   ) do
-    bash.stub_exec(pwd, wd, stderr='', success)
-    assert_raises { bash.exec(not_pwd = "cd #{wd}") }
+    bash.stub_execute(pwd, wd, stderr='', success)
+    assert_raises { bash.execute(not_pwd = "cd #{wd}") }
   end
 
   # - - - - - - - - - - - - - - -
@@ -47,11 +47,11 @@ class BashStubTest < TestBase
   test 'B4E',
   %w(
   teardown does not raise
-  when one exec() is stubbed
-  and a matching exec() is made
+  when one execute() is stubbed
+  and a matching execute() is made
   ) do
-    bash.stub_exec(pwd, wd, stderr='', success)
-    stdout,stderr,status = bash.exec('pwd')
+    bash.stub_execute(pwd, wd, stderr='', success)
+    stdout,stderr,status = bash.execute('pwd')
     assert_equal wd, stdout
     assert_equal '', stderr
     assert_equal success, status
@@ -63,10 +63,10 @@ class BashStubTest < TestBase
   test 'D0C',
   %w(
   teardown raises
-  when a exec() is stubbed
-  and no exec() is made
+  when a execute() is stubbed
+  and no execute() is made
   ) do
-    bash.stub_exec(pwd, wd, stderr='', success)
+    bash.stub_execute(pwd, wd, stderr='', success)
     assert_raises { bash.teardown }
   end
 
@@ -76,7 +76,7 @@ class BashStubTest < TestBase
   %w( teardown does not raise
       when there is an uncaught exception
   ) do
-    bash.stub_exec(pwd, wd, stderr='', success)
+    bash.stub_execute(pwd, wd, stderr='', success)
     error = assert_raises {
       begin
         raise 'forced'

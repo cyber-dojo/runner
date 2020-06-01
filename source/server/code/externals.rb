@@ -8,7 +8,7 @@ require_relative 'rag_lambdas'
 class Externals
 
   def initialize(options = {})
-    #stdout = options[:stdout] || StdoutWriter.new(self)
+    #@stdout = options[:stdout] || StdoutWriter.new(self)
     @bash = options[:bash] || ExternalBash.new(self)
     @logger = options[:logger] || StringLogger.new(self)
     @process = options[:process] || ExternalProcess.new(self)

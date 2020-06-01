@@ -52,7 +52,7 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
-    stdout,stderr,status = bash.exec(command)
+    stdout,stderr,status = bash.execute(command)
     if status === 0
       stdout
     else
