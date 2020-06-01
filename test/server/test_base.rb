@@ -222,4 +222,17 @@ class TestBase < Id58TestBase
     end
   end
 
+  def assert_stdouted(message)
+    # stdout of runner service, not stdout in run_cyber_dojo_sh result
+    stdout_spied = externals.stdout.spied
+    stdout_count = stdout_spied.count { |line| line.include?(message) }
+    assert_equal 1, stdout_count, stdout_spied
+  end
+
+  def assert_logged(message)
+    logged = externals.logger.log
+    logged_count = logged.lines.count { |line| line.include?(message) }
+    assert_equal 1, logged_count, logged
+  end
+
 end

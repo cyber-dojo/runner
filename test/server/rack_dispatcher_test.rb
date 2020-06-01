@@ -68,7 +68,8 @@ class RackDispatcherTest < TestBase
     rack_call(body:'', path_info:'ready')
     ready = assert_200('ready?')
     assert ready
-    assert_nothing_logged
+    assert_nothing_stdouted
+    assert_nothing_stderred
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -79,7 +80,8 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'sha' })
     sha = assert_200('sha')
     assert_sha(sha)
-    assert_nothing_logged
+    assert_nothing_stdouted
+    assert_nothing_stderred
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -90,7 +92,8 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'alive' })
     alive = assert_200('alive?')
     assert alive
-    assert_nothing_logged
+    assert_nothing_stdouted
+    assert_nothing_stderred
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -101,7 +104,8 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'ready' })
     ready = assert_200('ready?')
     assert ready
-    assert_nothing_logged
+    assert_nothing_stdouted
+    assert_nothing_stderred
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -114,19 +118,11 @@ class RackDispatcherTest < TestBase
 
     assert_200('run_cyber_dojo_sh')
     assert_gcc_starting
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-=begin
-  c_assert_test 'AB6', 'run_cyber_dojo_sh with some logging' do
-    args = run_cyber_dojo_sh_args
-    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
-    stub = BashStubTarPipeOut.new('fail')
-    rack_call(env, Externals.new(bash:stub))
-    #TODO
+    message = 'Read red-amber-green lambda for cyberdojofoundation/gcc_assert'
+    assert_stdouted(message)
+    assert_logged(message)
   end
-=end
 
   # - - - - - - - - - - - - - - - - -
 
@@ -135,11 +131,11 @@ class RackDispatcherTest < TestBase
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
     rack = RackDispatcher.new(externals)
-    with_captured_stdout_stderr {
-      response = rack.call(env, nil)
-      status = response[0]
-      assert_equal 500, status
+    response = with_captured_stdout_stderr {
+      rack.call(env)
     }
+    status = response[0]
+    assert_equal 500, status
   end
 
   private
@@ -176,11 +172,11 @@ class RackDispatcherTest < TestBase
       rack.call(env, RackRequestStub)
     }
     @status = response[0]
-    @type = response[1]
     @body = response[2][0]
 
     expected_type = { 'Content-Type' => 'application/json' }
-    assert_equal expected_type, @type, response
+    actual_type = response[1]
+    assert_equal expected_type, actual_type, response
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -231,26 +227,13 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_nothing_logged
-    assert_equal '', @stdout, 'stdout is not empty'
-    assert_equal '', @stderr, 'stderr is not empty'
+  def assert_nothing_stdouted
+    assert_equal '', @stdout, 'stdout is empty'
   end
 
-  #def assert_logged(key, value)
-  #  refute_nil @stdout
-  #  json = JSON.parse(@stdout)
-  #  diagnostic = "log does not contain key:#{key}\n#{@stdout}"
-  #  assert json.has_key?(key), diagnostic
-  #  assert_equal value, json[key], @stdout
-  #end
-
-  #def assert_log_contains(key, value)
-  #  refute_nil @stdout
-  #  json = JSON.parse(@stdout)
-  #  diagnostic = "log does not contain key:#{key}\n#{@stdout}"
-  #  assert json.has_key?(key), diagnostic
-  #  assert json[key].include?(value), @stdout
-  #end
+  def assert_nothing_stderred
+    assert_equal '', @stderr, 'stderr is empty'
+  end
 
   # - - - - - - - - - - - - - - - - -
 

@@ -30,6 +30,13 @@ class FeatureTimedOutTest < TestBase
     assert_created({}) # {'a/b/xxx.txt' => intact('xxx')}
     assert_changed({})
     assert_equal '', colour
+
+    gzip_error_message = 'id=9E9B2A, image_name=cyberdojofoundation/gcc_assert, (Zlib::GzipFile::Error)'
+    assert_stdouted(gzip_error_message)
+    assert_logged(gzip_error_message)
+    timed_out_message = 'id=9E9B2A, image_name=cyberdojofoundation/gcc_assert, (timed_out)'
+    assert_stdouted(timed_out_message)
+    assert_logged(timed_out_message)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -83,7 +90,6 @@ class FeatureTimedOutTest < TestBase
       }
     )
     assert_timed_out
-    #refute stdout.empty?, stdout
     assert stderr.empty?, stderr
   end
 

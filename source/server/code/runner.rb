@@ -61,7 +61,7 @@ class Runner
     stdout,stderr,status, created,deleted,changed = *truncated_untgz(files_in, tgz_out)
 
     if timed_out
-      log('timeout')
+      log('timed_out')
       colour = ''
     else
       sss = [ stdout[:content], stderr[:content], status[:content] ]
