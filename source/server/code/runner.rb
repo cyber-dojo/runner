@@ -45,13 +45,14 @@ class Runner
       log('timeout')
       colour = ''
     else
-      colour = traffic_light.colour(image_name, stdout[:content], stderr[:content], status)
+      sss = [ stdout[:content], stderr[:content], status[:content] ]
+      colour = traffic_light.colour(image_name, *sss)
     end
 
     { run_cyber_dojo_sh: {
          stdout: stdout,
          stderr: stderr,
-         status: status,
+         status: status[:content],
       timed_out: timed_out,
          colour: colour,
         created: Sandbox.out(created),
@@ -119,15 +120,15 @@ class Runner
       files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
         memo[filename] = truncated(content)
       end
-      stdout = files_out.delete('stdout')
-      stderr = files_out.delete('stderr')
-      status = files_out.delete('status')[:content]
+      stdout = files_out.delete('stdout') || truncated('')
+      stderr = files_out.delete('stderr') || truncated('')
+      status = files_out.delete('status') || truncated('142')
       created,deleted,changed = files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
       log('Zlib::GzipFile::Error')
       stdout = truncated('')
       stderr = truncated('')
-      status = '42'
+      status = truncated('142')
       created,deleted,changed = {},{},{}
     end
     [ stdout,stderr,status, created,deleted,changed ]

@@ -5,3 +5,12 @@ cd /sandbox
 ./cyber-dojo.sh \
   >  >(head -c$((50*1024+1)) > "${TMP_DIR}/stdout") \
   2> >(head -c$((50*1024+1)) > "${TMP_DIR}/stderr")
+
+This breaks test 7B7p3W
+  stdout = assert_sss('printf " hel\nlo "')
+  assert_equal " hel\nlo ", stdout
+This fails with stdout == "\n"
+
+It seems the head in the pipe can cause characters
+to get stuck in the pipe...
+# See https://eklitzke.org/stdout-buffering
