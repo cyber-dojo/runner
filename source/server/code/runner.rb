@@ -160,7 +160,7 @@ class Runner
       --rm                     \
       --user=#{UID}:#{GID}     \
       #{image_name}            \
-      bash -c 'tar -C / -zxf - && bash ~/main.sh'
+      bash -c 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'
     SHELL
   end
 

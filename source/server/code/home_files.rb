@@ -12,18 +12,14 @@ module HomeFiles
   def home_files(sandbox_dir, max_file_size)
     {
       unrooted(MAIN_SH_PATH) => main_sh(sandbox_dir, max_file_size),
-      unrooted(DELETE_DIRS_PATH) => DELETE_DIRS,
-      unrooted(DELETE_FILES_PATH) => DELETE_FILES,
-      unrooted(RESET_DIRS_PATH) => RESET_DIRS
+      unrooted(FS_CLEANERS_PATH) => FS_CLEANERS
     }
   end
 
   HOME_DIR = '/home/sandbox'
 
-  MAIN_SH_PATH      = "#{HOME_DIR}/main.sh"
-  DELETE_DIRS_PATH  = "#{HOME_DIR}/cyber_dojo_delete_dirs.sh"
-  DELETE_FILES_PATH = "#{HOME_DIR}/cyber_dojo_delete_files.sh"
-  RESET_DIRS_PATH   = "#{HOME_DIR}/cyber_dojo_reset_dirs.sh"
+  MAIN_SH_PATH      = "#{HOME_DIR}/cyber_dojo_main.sh"
+  FS_CLEANERS_PATH  = "#{HOME_DIR}/cyber_dojo_fs_cleaners.sh"
 
   def unrooted(filename)
     filename[1..-1] # tar prefers relative paths
@@ -113,15 +109,15 @@ module HomeFiles
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # Text files (under /sandbox) are automatically returned
-  # to the browser; cyber-dojo.sh should:
-  # o) remove text files its doesn't want returned to the browser.
-  #      cyber_dojo_delete_dirs()
-  #      cyber_dojo_delete_files()
-  # o) reset the REPORT_DIR to return only newly generated reports.
-  #      cyber_dojo_reset_dirs()
+  # Text files under /sandbox are automatically returned.
+  # cyber-dojo.sh should:
+  # 1) Only return newly generated reports.
+  #      cyber_dojo_reset_dirs ${REPORT_DIR}
+  # 2) remove files we don't want returned.
+  #      cyber_dojo_delete_dirs ...
+  #      cyber_dojo_delete_files ...
 
-  DELETE_DIRS =
+  FS_CLEANERS =
     <<~SHELL.strip
     function cyber_dojo_delete_dirs()
     {
@@ -130,10 +126,6 @@ module HomeFiles
           rm -rf "${dirname}" 2> /dev/null || true
       done
     }
-    SHELL
-
-  DELETE_FILES =
-    <<~SHELL.strip
     function cyber_dojo_delete_files()
     {
       for filename in "$@"
@@ -141,10 +133,6 @@ module HomeFiles
           rm "${filename}" 2> /dev/null || true
       done
     }
-    SHELL
-
-  RESET_DIRS =
-    <<~SHELL.strip
     function cyber_dojo_reset_dirs()
     {
       for dirname in "$@"
