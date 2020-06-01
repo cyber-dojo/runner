@@ -170,8 +170,8 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def rack_call(env, options = {})
-    rack = RackDispatcher.new(options)
+  def rack_call(env)
+    rack = RackDispatcher.new(externals)
     response = with_captured_stdout_stderr {
       rack.call(env, RackRequestStub)
     }
@@ -182,6 +182,8 @@ class RackDispatcherTest < TestBase
     expected_type = { 'Content-Type' => 'application/json' }
     assert_equal expected_type, @type, response
   end
+
+  # - - - - - - - - - - - - - - - - -
 
   def with_captured_stdout_stderr
     begin

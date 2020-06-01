@@ -8,13 +8,13 @@ require_relative 'rag_lambdas'
 
 class Externals
 
-  def initialize(options = {})
-    @bash = options[:bash] || ExternalBash.new(self)
-    @logger = options[:logger] || StringLogger.new(self)
-    @process = options[:process] || ExternalProcess.new(self)
-    @rag_lambdas = options[:rag_lambdas] || RagLambdas.new
-    @stdout = options[:stdout] || StdoutWriter.new(self)
-    @traffic_light = options[:traffic_light] || TrafficLight.new(self)
+  def initialize
+    @bash = ExternalBash.new(self)
+    @logger = StringLogger.new(self)
+    @process = ExternalProcess.new(self)
+    @rag_lambdas = RagLambdas.new
+    @stdout = StdoutWriter.new(self)
+    @traffic_light = TrafficLight.new(self)
   end
 
   attr_reader :bash, :logger, :process, :rag_lambdas, :stdout, :traffic_light

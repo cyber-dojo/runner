@@ -138,8 +138,8 @@ class TestBase < Id58TestBase
     Runner.new(externals, args)
   end
 
-  def externals(options = {})
-    @externals ||= Externals.new(options)
+  def externals
+    @externals ||= Externals.new
   end
 
   def image_name
