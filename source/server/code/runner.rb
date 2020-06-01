@@ -30,10 +30,29 @@ class Runner
 
   def initialize(externals, args)
     @externals = externals
-    @id = args['id']
-    @files = args['files']
-    @manifest = args['manifest']
+    @args = args
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+  # args
+
+  def id
+    @args['id']
+  end
+
+  def files
+    @args['files']
+  end
+
+  def image_name
+    @args['manifest']['image_name']
+  end
+
+  def max_seconds
+    @args['manifest']['max_seconds']
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh
     files_in = Sandbox.in(files)
@@ -46,7 +65,7 @@ class Runner
       colour = ''
     else
       sss = [ stdout[:content], stderr[:content], status[:content] ]
-      colour = traffic_light.colour(image_name, *sss)
+      colour = @externals.traffic_light.colour(image_name, *sss)
     end
 
     { run_cyber_dojo_sh: {
@@ -58,7 +77,7 @@ class Runner
         created: Sandbox.out(created),
         deleted: Sandbox.out(deleted).keys.sort,
         changed: Sandbox.out(changed),
-            log: logger.log
+            log: @externals.logger.log
       }
     }
   end
@@ -78,19 +97,6 @@ class Runner
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # properties
-
-  attr_reader :id, :files
-
-  def image_name
-    @manifest['image_name']
-  end
-
-  def max_seconds
-    @manifest['max_seconds']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_cyber_dojo_sh(tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
@@ -101,9 +107,9 @@ class Runner
       :timeout => max_seconds,
       :kill_after => 1
     }
-    run_result = capture3_with_timeout(process, docker_run_command, options) do
+    run_result = capture3_with_timeout(@externals.process, docker_run_command, options) do
       docker_stop_command = "docker stop --time 1 #{container_name}"
-      stop_result = capture3_with_timeout(process, docker_stop_command, { :timeout => 4 })
+      stop_result = capture3_with_timeout(@externals.process, docker_stop_command, { :timeout => 4 })
       unless stop_result[:status] === 0
         # :nocov:
         log(docker_stop_command)
@@ -226,30 +232,11 @@ class Runner
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # externals
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def log(kind)
-    message = [
-      "POD_NAME=#{ENV['HOSTNAME']}",
-      "id=#{id}",
-      "image_name=#{image_name}",
-      "(#{kind})"
-    ].join(', ')
-    $stdout.puts(message)
-    logger.write(message)
-  end
-
-  def logger
-    @externals.logger
-  end
-
-  def process
-    @externals.process
-  end
-
-  def traffic_light
-    @externals.traffic_light
+    message = [ "id=#{id}", "image_name=#{image_name}", "(#{kind})" ].join(', ')
+    @externals.stdout.write(message)
+    @externals.logger.write(message)
   end
 
   SPACE = ' '

@@ -13,5 +13,5 @@ do
   echo
   echo node=${node}
   echo pod=${pod}
-  kubectl logs -n "${NAMESPACE}" "${pod}" | grep POD_NAME
+  kubectl logs -n "${NAMESPACE}" "${pod}"
 done

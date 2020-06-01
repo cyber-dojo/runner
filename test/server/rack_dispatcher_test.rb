@@ -108,13 +108,12 @@ class RackDispatcherTest < TestBase
   # run_cyber_dojo_sh
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'AB5', 'run_cyber_dojo_sh with no logging' do
+  c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
     args = run_cyber_dojo_sh_args
     rack_call({ path_info:'run_cyber_dojo_sh', body:args.to_json })
 
     assert_200('run_cyber_dojo_sh')
     assert_gcc_starting
-    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -

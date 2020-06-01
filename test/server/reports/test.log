@@ -1,57 +1,51 @@
-Run options: --seed 17274
+Run options: --seed 39033
 
 # Running:
 
-...................................................................POD_NAME=d5b9bd943f8b, id=1B5CD6, image_name=cyberdojofoundation/csharp_nunit
-.POD_NAME=d5b9bd943f8b, id=1B5CD6, image_name=cyberdojofoundation/visual-basic_nunit
-.....POD_NAME=d5b9bd943f8b, id=9E9B2C, image_name=cyberdojofoundation/gcc_assert
-.POD_NAME=d5b9bd943f8b, id=9E9B2A, image_name=cyberdojofoundation/gcc_assert
-.POD_NAME=d5b9bd943f8b, id=9E9B2B, image_name=cyberdojofoundation/gcc_assert
-.POD_NAME=runner-qs99r, id=9E9Q3e, image_name=cyberdojofoundation/gcc_assert
-.......................
+....................................................................................................
 
-Finished in 54.442315s, 1.8184 runs/s, 430.9515 assertions/s.
+Finished in 71.176469s, 1.4050 runs/s, 329.1959 assertions/s.
 
-99 runs, 23462 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6818 / 13452 LOC (50.68%) covered.
+100 runs, 23431 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6825 / 13458 LOC (50.71%) covered.
 
 Slowest 25 tests are...
-5.6473 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light, log is empty - feature_traffic_light_test.rb:19
-4.1555 - 1B5CD6 - Alpine - C#, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:46
-4.1545 - 1B5CD6 - Ubuntu - VisualBasic, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:46
-4.0321 - 7B79DB - Ubuntu - VisualBasic, NUnit - red/amber/green traffic-light, log is empty - feature_traffic_light_test.rb:19
-3.2097 - 9E9Q3e - Debian - C (gcc), assert - runner injects an env-var called POD_NAME into the container with the value of its HOSTNAME and this is written to the log on a timeout - feature_timed_out_test.rb:12
-3.1997 - 9E9B2B - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, which does not write to stdout, it times-out after max_seconds. - feature_timed_out_test.rb:71
-3.1967 - 9E9B2C - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, it times-out after max_seconds, some text is written to stdout, and ideally some of stdout is retreived. - feature_timed_out_test.rb:96
-3.1829 - 9E9B2A - Debian - C (gcc), assert - when cyber-dojo.sh modifies files in /sandbox, and has an infinite loop, then none of the /sandbox modifications are seen, and the colour is set to the empty string - feature_timed_out_test.rb:46
-2.3520 - E4A52C - Alpine - C#, NUnit - source files bigger than 10K are not truncated - feature_file_truncation_test.rb:45
-2.1238 - 1598A6 - Alpine - C#, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
-2.0785 - 1B5DB3 - Debian - C (gcc), assert - file-handles quickly become exhausted - feature_robustness_test.rb:74
-2.0592 - 1598A6 - Ubuntu - VisualBasic, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
-1.3690 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:12
-1.1669 - 1B5CD5 - Debian - C (gcc), assert - fork-bomb does not run indefinitely - feature_robustness_test.rb:12
-1.1198 - ECF12A - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:127
-1.0302 - ECF12C - Alpine - C#, NUnit - deleted text filenames from /sandbox sub-dir are returned - feature_sandbox_text_files_changes_test.rb:144
-0.8057 - D06AB5 - Debian - C (gcc), assert - run_cyber_dojo_sh with no logging - rack_dispatcher_test.rb:111
-0.7574 - ECF12B - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:136
-0.6803 - 6698A2 - Alpine - C#, NUnit - os<-->image correspondence - os_test.rb:13
-0.6556 - 6698A2 - Ubuntu - VisualBasic, NUnit - os<-->image correspondence - os_test.rb:13
-0.5789 - 3A8D98 - Alpine - C#, NUnit - multiple container properties - feature_container_properties_test.rb:22
-0.5513 - 3A8D91 - Alpine - C#, NUnit - requires bash, won't run in sh - feature_container_properties_test.rb:12
-0.5080 - 3A8D98 - Ubuntu - VisualBasic, NUnit - multiple container properties - feature_container_properties_test.rb:22
-0.3961 - ECF527 - Alpine - C#, NUnit - created binary files are not returned - feature_sandbox_text_files_changes_test.rb:44
-0.3956 - E4A52A - Alpine - C#, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
-0.3948 - ECF526 - Alpine - C#, NUnit - created text files, including dot files, are returned - feature_sandbox_text_files_changes_test.rb:27
+6.7207 - 1B5DB3 - Debian - C (gcc), assert - file-handles quickly become exhausted - feature_robustness_test.rb:76
+5.7720 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:27
+5.2333 - 1B5CD5 - Debian - C (gcc), assert - fork-bomb does not run indefinitely - feature_robustness_test.rb:12
+5.1649 - 1B5CD6 - Alpine - C#, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
+5.1648 - 1B5CD6 - Ubuntu - VisualBasic, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
+4.2203 - 9E9B2A - Debian - C (gcc), assert - when cyber-dojo.sh modifies files in /sandbox, and has an infinite loop, then none of the /sandbox modifications are seen, and the colour is set to the empty string - feature_timed_out_test.rb:12
+4.1987 - 9E9B2B - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, which does not write to stdout, it times-out after max_seconds. - feature_timed_out_test.rb:37
+4.1880 - 9E9B2C - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, it times-out after max_seconds, some text is written to stdout, and ideally some of stdout is retreived. - feature_timed_out_test.rb:62
+4.1347 - 7B79DB - Ubuntu - VisualBasic, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:27
+2.6392 - E4A52C - Alpine - C#, NUnit - source files bigger than 10K are not truncated - feature_file_truncation_test.rb:45
+2.1442 - 1598A6 - Alpine - C#, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
+1.9292 - 1598A6 - Ubuntu - VisualBasic, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
+1.5347 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:12
+1.0343 - 3A8D98 - Alpine - C#, NUnit - multiple container properties - feature_container_properties_test.rb:24
+1.0180 - ECF12B - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:136
+1.0085 - ECF12A - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:127
+0.9971 - ECF12C - Alpine - C#, NUnit - deleted text filenames from /sandbox sub-dir are returned - feature_sandbox_text_files_changes_test.rb:144
+0.8284 - 3A8D98 - Ubuntu - VisualBasic, NUnit - multiple container properties - feature_container_properties_test.rb:24
+0.7987 - D06AB5 - Debian - C (gcc), assert - run_cyber_dojo_sh 200 - rack_dispatcher_test.rb:111
+0.7238 - ECF533 - Alpine - C#, NUnit - single-char new text files are returned - feature_sandbox_text_files_changes_test.rb:101
+0.7182 - E4A52B - Alpine - C#, NUnit - stdout and stderr are truncated to 50K - feature_file_truncation_test.rb:28
+0.7162 - 7B7p3W - Ubuntu - VisualBasic, NUnit - stdout is not being whitespace stripped - feature_traffic_light_test.rb:12
+0.6867 - E4A52A - Ubuntu - VisualBasic, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
+0.6778 - ECF532 - Alpine - C#, NUnit - empty new text files are returned - feature_sandbox_text_files_changes_test.rb:87
+0.6757 - E4A52A - Alpine - C#, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
+0.6714 - ECF526 - Alpine - C#, NUnit - created text files, including dot files, are returned - feature_sandbox_text_files_changes_test.rb:27
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   54.44   <=   200 | [32m true [0m
-                    tests |      99   >=     1 | [32m true [0m
+        duration(test)[s] |   71.18   <=   200 | [32m true [0m
+                    tests |     100   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=    98 | [32m true [0m
-     lines(tester/tested) |    2.26   >=   2.2 | [32m true [0m
-      hits(tested/tester) |    1.02   >=   0.7 | [32m true [0m
+     lines(tester/tested) |    2.19   >=   2.1 | [32m true [0m
+      hits(tested/tester) |    1.63   >=   0.7 | [32m true [0m
 

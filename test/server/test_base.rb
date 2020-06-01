@@ -1,6 +1,7 @@
 require_relative '../id58_test_base'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
+require_relative 'stdout_writer_spy'
 require_relative 'traffic_light_stub'
 require_source 'externals'
 require_source 'runner'
@@ -10,6 +11,7 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
+    externals.instance_exec { @stdout = StdoutWriterSpy.new }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,7 +84,7 @@ class TestBase < Id58TestBase
         'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
       }
     }
-    @result = runner(args,options).run_cyber_dojo_sh
+    @result = runner(args).run_cyber_dojo_sh
     nil
   end
 
@@ -132,8 +134,8 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 3. the runner object and arguments
 
-  def runner(args, options = {})
-    Runner.new(externals(options), args)
+  def runner(args)
+    Runner.new(externals, args)
   end
 
   def externals(options = {})
@@ -187,7 +189,7 @@ class TestBase < Id58TestBase
   # 5. misc helpers
 
   def log
-    @externals.logger.log
+    externals.logger.log
   end
 
   def uid

@@ -52,8 +52,11 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
-    stdout,stderr,status = bash.execute(command)
+    stdout,stderr,status = @externals.bash.execute(command)
     if status === 0
+      message = "Read red-amber-green lambda for #{image_name}"
+      @externals.stdout.write(message)
+      @externals.logger.write(message)
       stdout
     else
       fail TrafficLight::Fault, {
@@ -113,10 +116,6 @@ class TrafficLight
   LEGAL_COLOURS = [ 'red', 'amber', 'green' ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def bash
-    @externals.bash
-  end
 
   def logger
     @externals.logger
