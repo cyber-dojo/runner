@@ -11,7 +11,7 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    externals.instance_exec { @stdout = StreamWriterSpy.new }
+    externals(stdout:StreamWriterSpy.new, stderr: StreamWriterSpy.new)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,8 +138,7 @@ class TestBase < Id58TestBase
     Runner.new(externals, args)
   end
 
-  def externals
-    options = {}
+  def externals(options = {})
     @externals ||= Externals.new(options)
   end
 
