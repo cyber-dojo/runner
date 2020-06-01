@@ -9,7 +9,7 @@ class StringLoggerTest < TestBase
   end
 
   def id58_setup
-    @logger = StringLogger.new(nil)
+    @logger = StringLogger.new
   end
 
   attr_reader :logger

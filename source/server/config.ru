@@ -11,8 +11,8 @@ unless ENV['NO_PROMETHEUS']
   use Prometheus::Middleware::Exporter
 end
 
-require_relative 'code/externals'
+require_relative 'code/rag_lambdas'
 require_relative 'code/rack_dispatcher'
-externals = Externals.new
-dispatcher = RackDispatcher.new(externals)
+options = { rag_lambdas: RagLambdas.new }
+dispatcher = RackDispatcher.new(options)
 run dispatcher

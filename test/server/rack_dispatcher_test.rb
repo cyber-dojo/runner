@@ -130,10 +130,7 @@ class RackDispatcherTest < TestBase
     path_info = 'run_cyber_dojo_sh'
     args = run_cyber_dojo_sh_args
     env = { path_info:path_info, body:args.to_json }
-    rack = RackDispatcher.new(externals)
-    response = with_captured_stdout_stderr {
-      rack.call(env)
-    }
+    response = rack_call(env, {})
     status = response[0]
     assert_equal 500, status
   end
@@ -152,8 +149,8 @@ class RackDispatcherTest < TestBase
     env = { path_info:path_info, body:body }
     rack_call(env)
     assert_400
-
-    [@body, @stderr].each do |s|
+    stderred = @options[:stderr].spied.join
+    [response_body,stderred].each do |s|
       refute_nil s
       json = JSON.parse(s)
       ex = json['exception']
@@ -166,79 +163,86 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def rack_call(env)
-    rack = RackDispatcher.new(externals)
-    response = with_captured_stdout_stderr {
-      rack.call(env, RackRequestStub)
+  def rack_call(env, klass = RackRequestStub)
+    @options = {
+      stdout: StreamWriterSpy.new,
+      stderr: StreamWriterSpy.new,
+      logger: StringLogger.new
     }
-    @status = response[0]
-    @body = response[2][0]
-
+    rack = RackDispatcher.new(@options)
+    @response = rack.call(env, klass)
     expected_type = { 'Content-Type' => 'application/json' }
-    actual_type = response[1]
-    assert_equal expected_type, actual_type, response
+    actual_type = @response[1]
+    assert_equal expected_type, actual_type, @response
+    @response
   end
 
-  # - - - - - - - - - - - - - - - - -
+  def response_status
+    @response[0]
+  end
 
-  def with_captured_stdout_stderr
-    begin
-      old_stdout = $stdout
-      old_stderr = $stderr
-      $stdout = StringIO.new('', 'w')
-      $stderr = StringIO.new('', 'w')
-      response = yield
-      @stderr = $stderr.string
-      @stdout = $stdout.string
-      response
-    ensure
-      $stderr = old_stderr
-      $stdout = old_stdout
-    end
+  def response_body
+    @response[2][0]
   end
 
   # - - - - - - - - - - - - - - - - -
 
   def assert_200(name)
-    assert_equal 200, @status, "stdout:\n#{@stdout}\nstderr:\n#{@stderr}"
+    assert_equal 200, response_status, @response
     assert_body_contains(name)
     refute_body_contains('exception')
     refute_body_contains('trace')
-    JSON.parse(@body)[name]
+    JSON.parse(response_body)[name]
   end
 
   def assert_400
-    assert_equal 400, @status, "body:#{@body}"
+    assert_equal 400, response_status, @response
   end
 
   # - - - - - - - - - - - - - - - - -
 
   def assert_body_contains(key)
-    refute_nil @body, '@body is nil'
-    json = JSON.parse(@body)
+    refute_nil response_body, 'response body is nil'
+    json = JSON.parse(response_body)
     assert json.has_key?(key), "assert json.has_key?(#{key}) keys are #{json.keys}"
   end
 
   def refute_body_contains(key)
-    refute_nil @body, '@body is nil'
-    json = JSON.parse(@body)
+    refute_nil response_body, 'respose body is nil'
+    json = JSON.parse(response_body)
     refute json.has_key?(key), "refute json.has_key?(#{key}) keys are #{json.keys}"
   end
 
   # - - - - - - - - - - - - - - - - -
 
   def assert_nothing_stdouted
-    assert_equal '', @stdout, 'stdout is empty'
+    stdout = @options[:stdout].spied.join("\n")
+    assert_equal '', stdout, 'stdout is empty'
   end
 
   def assert_nothing_stderred
-    assert_equal '', @stderr, 'stderr is empty'
+    stderr = @options[:stderr].spied.join("\n")
+    assert_equal '', stderr, 'stderr is empty'
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_stdouted(message)
+    stdout = @options[:stdout].spied.join("\n")
+    stdout_count = stdout.lines.count { |line| line.include?(message) }
+    assert_equal 1, stdout_count, ":#{stdout.lines}:"
+  end
+
+  def assert_logged(message)
+    log = @options[:logger].log
+    logged_count = log.lines.count { |line| line.include?(message) }
+    assert_equal 1, logged_count, ":#{log}:"
   end
 
   # - - - - - - - - - - - - - - - - -
 
   def assert_gcc_starting
-    result = JSON.parse(@body)['run_cyber_dojo_sh']
+    result = JSON.parse(response_body)['run_cyber_dojo_sh']
     stdout = result['stdout']['content']
     diagnostic = 'stdout is not empty!'
     assert_equal '', stdout, diagnostic

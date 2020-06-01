@@ -1,11 +1,16 @@
-# frozen_string_literal: true
 
-class StdoutWriter
+class StreamWriterSpy
+
+  def initialize
+    @spied = []
+  end
+
+  attr_reader :spied
 
   def write(message)
     return if message.empty?
     message += "\n" if message[-1] != "\n"
-    $stdout.write(message)
+    @spied << message
   end
 
 end

@@ -2,7 +2,7 @@
 
 class StringLogger
 
-  def initialize(_externals)
+  def initialize
     @log = ''
   end
 

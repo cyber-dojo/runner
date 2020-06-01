@@ -1,7 +1,7 @@
 require_relative 'test_base'
-require_source 'stdout_writer'
+require_relative 'stream_writer_spy'
 
-class StdoutWriterTest < TestBase
+class StreamWriterSpyTest < TestBase
 
   def self.id58_prefix
     '60e'
@@ -28,20 +28,9 @@ class StdoutWriterTest < TestBase
   private
 
   def write(s)
-    writer = StdoutWriter.new(nil)
-    captured_stdout { writer.write(s) }
-  end
-
-  def captured_stdout
-    begin
-      old_stdout = $stdout
-      $stdout = StringIO.new('', 'w')
-      yield
-      captured = $stdout.string
-    ensure
-      $stdout = old_stdout
-    end
-    captured
+    spy = StreamWriterSpy.new
+    spy.write(s)
+    spy.spied.join
   end
 
 end

@@ -1,16 +1,11 @@
+# frozen_string_literal: true
 
-class StdoutWriterSpy
-
-  def initialize
-    @spied = []
-  end
-
-  attr_reader :spied
+class StderrWriter
 
   def write(message)
     return if message.empty?
     message += "\n" if message[-1] != "\n"
-    @spied << message
+    $stderr.write(message)
   end
 
 end

@@ -93,4 +93,18 @@ class FeatureTimedOutTest < TestBase
     assert stderr.empty?, stderr
   end
 
+  private
+
+  def assert_stdouted(message)
+    spied = externals.stdout.spied
+    stdout_count = spied.count { |line| line.include?(message) }
+    assert_equal 1, stdout_count, ":#{spied}:"
+  end
+
+  def assert_logged(message)
+    log = externals.logger.log
+    logged_count = log.lines.count { |line| line.include?(message) }
+    assert_equal 1, logged_count, ":#{log}:"
+  end
+
 end

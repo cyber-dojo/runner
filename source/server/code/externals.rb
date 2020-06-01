@@ -2,21 +2,23 @@
 require_relative 'external_bash'
 require_relative 'external_process'
 require_relative 'stdout_writer'
+require_relative 'stderr_writer'
 require_relative 'string_logger'
 require_relative 'traffic_light'
 require_relative 'rag_lambdas'
 
 class Externals
 
-  def initialize
-    @bash = ExternalBash.new(self)
-    @logger = StringLogger.new(self)
-    @process = ExternalProcess.new(self)
-    @rag_lambdas = RagLambdas.new
-    @stdout = StdoutWriter.new(self)
-    @traffic_light = TrafficLight.new(self)
+  def initialize(options)
+    @bash = options[:bash] || ExternalBash.new
+    @logger = options[:logger] || StringLogger.new
+    @process = options[:process] || ExternalProcess.new
+    @rag_lambdas = options[:rag_lambdas] || RagLambdas.new
+    @stdout = options[:stdout] || StdoutWriter.new
+    @stderr = options[:stderr] || StderrWriter.new
+    @traffic_light = options[:traffic_lights] || TrafficLight.new(self)
   end
 
-  attr_reader :bash, :logger, :process, :rag_lambdas, :stdout, :traffic_light
+  attr_reader :bash, :logger, :process, :rag_lambdas, :stdout, :stderr, :traffic_light
 
 end

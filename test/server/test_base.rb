@@ -1,7 +1,7 @@
 require_relative '../id58_test_base'
 require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
-require_relative 'stdout_writer_spy'
+require_relative 'stream_writer_spy'
 require_relative 'traffic_light_stub'
 require_source 'externals'
 require_source 'runner'
@@ -11,7 +11,7 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    externals.instance_exec { @stdout = StdoutWriterSpy.new }
+    externals.instance_exec { @stdout = StreamWriterSpy.new }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -139,7 +139,8 @@ class TestBase < Id58TestBase
   end
 
   def externals
-    @externals ||= Externals.new
+    options = {}
+    @externals ||= Externals.new(options)
   end
 
   def image_name
@@ -220,19 +221,6 @@ class TestBase < Id58TestBase
     sha.each_char do |ch|
       assert '0123456789abcdef'.include?(ch), ch
     end
-  end
-
-  def assert_stdouted(message)
-    # stdout of runner service, not stdout in run_cyber_dojo_sh result
-    stdout_spied = externals.stdout.spied
-    stdout_count = stdout_spied.count { |line| line.include?(message) }
-    assert_equal 1, stdout_count, stdout_spied
-  end
-
-  def assert_logged(message)
-    logged = externals.logger.log
-    logged_count = logged.lines.count { |line| line.include?(message) }
-    assert_equal 1, logged_count, logged
   end
 
 end

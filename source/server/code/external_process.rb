@@ -2,9 +2,6 @@
 
 class ExternalProcess
 
-  def initialize(_externals)
-  end
-
   def spawn(command, options)
     Process.spawn(command, options)
   end
