@@ -1,51 +1,46 @@
-Run options: --seed 47574
+Run options: --seed 12141
 
 # Running:
 
-..........................................................................................................
+........undefined method `log' for nil:NilClass
+E.SimpleCov failed with exit 1
 
-Finished in 111.120815s, 0.9539 runs/s, 210.9776 assertions/s.
+Finished in 1.109668s, 9.0117 runs/s, 382.0962 assertions/s.
 
-106 runs, 23444 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6887 / 13520 LOC (50.94%) covered.
+  1) Error:
+RackDispatcherTest#test_
+id='AB5'
+os=Debian
+'run_cyber_dojo_sh 200':
+NoMethodError: undefined method `log' for nil:NilClass
+    /test/server/rack_dispatcher_test.rb:238:in `assert_logged'
+    /test/server/rack_dispatcher_test.rb:125:in `block in <class:RackDispatcherTest>'
+    /test/id58_test_base.rb:37:in `instance_eval'
+    /test/id58_test_base.rb:37:in `block in define_test'
 
-Slowest 25 tests are...
-11.8154 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:27
-11.6803 - E4A52C - Alpine - C#, NUnit - source files bigger than 10K are not truncated - feature_file_truncation_test.rb:45
-8.1242 - 1B5DB3 - Debian - C (gcc), assert - file-handles quickly become exhausted - feature_robustness_test.rb:76
-6.3957 - 7B79DB - Ubuntu - VisualBasic, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:27
-5.3536 - 9E9B2A - Debian - C (gcc), assert - when cyber-dojo.sh modifies files in /sandbox, and has an infinite loop, then none of the /sandbox modifications are seen, and the colour is set to the empty string - feature_timed_out_test.rb:12
-5.3376 - 1B5CD5 - Debian - C (gcc), assert - fork-bomb does not run indefinitely - feature_robustness_test.rb:12
-5.3313 - 1B5CD6 - Alpine - C#, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
-5.1632 - 1B5CD6 - Ubuntu - VisualBasic, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
-4.6917 - 9E9B2B - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, which does not write to stdout, it times-out after max_seconds. - feature_timed_out_test.rb:44
-4.4565 - 9E9B2C - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, it times-out after max_seconds, some text is written to stdout, and ideally some of stdout is retreived. - feature_timed_out_test.rb:69
-3.8026 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:12
-2.9878 - ECF12C - Alpine - C#, NUnit - deleted text filenames from /sandbox sub-dir are returned - feature_sandbox_text_files_changes_test.rb:144
-2.6279 - E4A52B - Alpine - C#, NUnit - stdout and stderr are truncated to 50K - feature_file_truncation_test.rb:28
-2.4942 - 1598A6 - Alpine - C#, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
-2.4526 - 1598A6 - Ubuntu - VisualBasic, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
-2.1889 - ECF526 - Alpine - C#, NUnit - created text files, including dot files, are returned - feature_sandbox_text_files_changes_test.rb:27
-1.7713 - ECF530 - Alpine - C#, NUnit - deleted text filenames are returned - feature_sandbox_text_files_changes_test.rb:60
-1.7156 - ECF527 - Alpine - C#, NUnit - created binary files are not returned - feature_sandbox_text_files_changes_test.rb:44
-1.7106 - ECF532 - Alpine - C#, NUnit - empty new text files are returned - feature_sandbox_text_files_changes_test.rb:87
-1.4895 - 7B7p3W - Ubuntu - VisualBasic, NUnit - stdout is not being whitespace stripped - feature_traffic_light_test.rb:12
-1.4646 - ECF533 - Alpine - C#, NUnit - single-char new text files are returned - feature_sandbox_text_files_changes_test.rb:101
-1.4555 - 6698A2 - Alpine - C#, NUnit - os<-->image correspondence - os_test.rb:13
-1.3429 - E4A52A - Alpine - C#, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
-1.3170 - ECF12B - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:136
-1.3107 - ECF12A - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:127
-1.2984 - E4A52A - Ubuntu - VisualBasic, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
+10 runs, 424 assertions, 0 failures, 1 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6259 / 13520 LOC (46.29%) covered.
+
+Slowest 9 tests are...
+0.0065 - D06AB7 - Alpine - C#, NUnit - server error results in 500 status response - rack_dispatcher_test.rb:130
+0.0046 - D06BB0 - Alpine - C#, NUnit - malformed json in http payload becomes exception - rack_dispatcher_test.rb:29
+0.0038 - D06BB1 - Alpine - C#, NUnit - json not Hash in http payload becomes exception - rack_dispatcher_test.rb:40
+0.0034 - D06AA6 - Alpine - C#, NUnit - new API: missing argument becomes exception - rack_dispatcher_test.rb:55
+0.0017 - D06BAF - Alpine - C#, NUnit - unknown path becomes exception - rack_dispatcher_test.rb:16
+0.0003 - D06A9E - Alpine - C#, NUnit - its ready - rack_dispatcher_test.rb:104   
+0.0002 - D06AB0 - Alpine - C#, NUnit - sha - rack_dispatcher_test.rb:80          
+0.0002 - D0682d - Alpine - C#, NUnit - allow '' instead of {} to allow kubernetes liveness/readyness http probes - rack_dispatcher_test.rb:66
+0.0001 - D0615D - Alpine - C#, NUnit - its alive - rack_dispatcher_test.rb:92    
 
 
                  failures |       0   <=     0 | [32m true [0m
-                   errors |       0   <=     0 | [32m true [0m
+                   errors |       1   <=     0 | [31m false [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |  111.12   <=   200 | [32m true [0m
-                    tests |     106   >=     1 | [32m true [0m
-      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
-      coverage(tester)[%] |   100.0   >=    98 | [32m true [0m
+        duration(test)[s] |    1.11   <=   200 | [32m true [0m
+                    tests |      10   >=     1 | [32m true [0m
+      coverage(tested)[%] |    89.1   >=   100 | [31m false [0m
+      coverage(tester)[%] |   44.11   >=    98 | [31m false [0m
      lines(tester/tested) |    2.34   >=   2.1 | [32m true [0m
-      hits(tested/tester) |    1.78   >=   0.7 | [32m true [0m
+      hits(tested/tester) |    1.92   >=   0.7 | [32m true [0m
 
