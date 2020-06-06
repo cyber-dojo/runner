@@ -1,0 +1,16 @@
+
+I'm working towards LTF images being tagged. eg
+cyberdojofoundation/java_junit:23de45a
+
+How will such images get docker pulled?
+If an image is not present on the node then
+docker-run will attempt to pull it.
+This may succeed with the timeout for small Alpine images.
+But, empirically, for large Ubuntu images there is not
+enough time to download the image before the timeout.
+Now, the image _layers_ may be small enough that each
+[test] causes a docker-pull which gets the next layer
+and eventually the image is downloaded.
+But this is clearly not satisfactory.
+And empirically it seems that some images have layers that
+are sufficiently big that they never finish downloading.

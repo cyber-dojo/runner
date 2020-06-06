@@ -100,23 +100,31 @@ class Runner
 
   def docker_run_cyber_dojo_sh(tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
-    docker_run_command = docker_run_cyber_dojo_sh_command(container_name)
+    command = docker_run_cyber_dojo_sh_command(container_name)
     options = {
       :stdin_data => tgz_in,
       :binmode => true,
       :timeout => max_seconds,
       :kill_after => 1
     }
-    run_result = capture3_with_timeout(@externals.process, docker_run_command, options) do
-      docker_stop_command = "docker stop --time 1 #{container_name}"
-      stop_result = capture3_with_timeout(@externals.process, docker_stop_command, { :timeout => 4 })
-      unless stop_result[:status] === 0
-        # :nocov:
-        log(docker_stop_command)
-        # :nocov:
-      end
+    result = capture3_with_timeout(@externals.process, command, options) do
+      docker_stop_container(container_name)
     end
-    [ run_result[:stdout], run_result[:timeout] ]
+    [ result[:stdout], result[:timeout] ]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def docker_stop_container(container_name)
+    # yielding to this block means the [docker run] command timed-out
+    command = "docker stop --time 1 #{container_name}"
+    options = { :timeout => 4 }
+    result = capture3_with_timeout(@externals.process, command, options)
+    unless result[:status] === 0
+      # :nocov:
+      log(docker_stop_command)
+      # :nocov:
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

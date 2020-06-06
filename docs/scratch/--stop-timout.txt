@@ -6,4 +6,4 @@ I have tried using the [docker run] options
 --stop-signal=SIGKILL
 --stop-timeout=#{max_seconds}
 
-but I cannot get them to stop a container in an infinite loop :-(
+but I cannot get this to stop a container in an infinite loop :-(
