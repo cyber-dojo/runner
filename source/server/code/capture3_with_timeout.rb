@@ -69,6 +69,7 @@ module Capture3WithTimeout
     wait_thr = nil
 
     process = externals.process
+    threader = externals.threader
     begin
       Timeout.timeout(opts[:timeout]) do
         result[:pid] = process.spawn(command, spawn_opts)
@@ -77,8 +78,8 @@ module Capture3WithTimeout
         out_w.close
         err_w.close
 
-        out_reader = Thread.new { out_r.read }
-        err_reader = Thread.new { err_r.read }
+        out_reader = threader.thread { out_r.read }
+        err_reader = threader.thread { err_r.read }
 
         in_w.write(opts[:stdin_data])
         in_w.close

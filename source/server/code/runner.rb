@@ -110,7 +110,7 @@ class Runner
       #   1) the image is available, but cyber-dojo.sh has an infinite loop
       #   2) the image is not yet on the node...
       docker_stop_container(container_name) # [1]
-      docker_pull_in_background             # [2]
+      docker_pull_image                     # [2]
     end
     [ result[:stdout], result[:timeout] ]
   end
@@ -134,7 +134,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_pull_in_background
+  def docker_pull_image
     # If image_name is not on the node, the [docker run] will
     # automatically pull it. Empirically, some images have large
     # layers that never finish downloading. Hence this method.
