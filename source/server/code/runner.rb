@@ -139,10 +139,10 @@ class Runner
     # automatically pull it. Empirically, some images have large
     # layers that never finish downloading. Hence this method.
     if @externals.rag_lambdas[image_name].nil?
+      process = @externals.process
       command = "docker pull #{image_name}"
-      pid = @externals.process.spawn(command, { pgroup:true })
-      @externals.process.detach(pid)
-      p command
+      pid = process.spawn(command, { pgroup:true })
+      process.detach(pid)
     end
   end
 
