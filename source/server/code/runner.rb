@@ -20,10 +20,8 @@ require_relative 'utf8_clean'
 # inspection. runner supports this by returning all text files
 # under /sandbox after cyber-dojo.sh has run.
 #
-# If image_name is not present on the node, docker will
-# attempt to pull it. The browser's kata/run_tests ajax
-# call can timeout before the pull completes; this browser
-# timeout is different to the Runner.run() call timing out.
+# Note: The browser's kata/run_tests ajax call timeout is
+# different to the Runner.run() call timing out.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class Runner
@@ -108,7 +106,11 @@ class Runner
       :kill_after => 1
     }
     result = capture3_with_timeout(@externals.process, command, options) do
-      docker_stop_container(container_name)
+      # The [docker run] command timed-out. Why?
+      #   1) the image is available, but cyber-dojo.sh has an infinite loop
+      #   2) the image is not yet on the node...
+      docker_stop_container(container_name) # [1]
+      docker_pull_in_background             # [2]
     end
     [ result[:stdout], result[:timeout] ]
   end
@@ -116,14 +118,31 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_stop_container(container_name)
-    # yielding to this block means the [docker run] command timed-out
+    # If the container is running, stop it.
+    # Note: I have tried using the [docker run] --stop-timeout option
+    # instead of using capture3_with_timeout().
+    # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
     options = { :timeout => 4 }
     result = capture3_with_timeout(@externals.process, command, options)
     unless result[:status] === 0
       # :nocov:
-      log(docker_stop_command)
+      log(command)
       # :nocov:
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def docker_pull_in_background
+    # If image_name is not on the node, the [docker run] will
+    # automatically pull it. Empirically, some images have large
+    # layers that never finish downloading. Hence this method.
+    if @externals.rag_lambdas[image_name].nil?
+      command = "docker pull #{image_name}"
+      pid = @externals.process.spawn(command, { pgroup:true })
+      @externals.process.detach(pid)
+      p command
     end
   end
 

@@ -28,4 +28,18 @@ class TimedOutTest < TestBase
     assert timed_out?, result
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  visual_basic_nunit_test 'FDE',
+  'run with infinite loop times out' do
+    hiker_vb = starting_files['Hiker.vb']
+    from = 'Return 6 * 9'
+    to = "    while true\nend while\nReturn 6 * 9"
+    run_cyber_dojo_sh({
+      changed_files: { 'Hiker.vb' => hiker_vb.sub(from, to) },
+        max_seconds: 3
+    })
+    assert timed_out?, result
+  end
+
 end

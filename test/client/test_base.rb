@@ -39,6 +39,10 @@ class TestBase < Id58TestBase
     define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
   end
 
+  def self.visual_basic_nunit_test(id_suffix, *lines, &block)
+    define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 2. custom asserts
 
