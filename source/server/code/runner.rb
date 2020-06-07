@@ -123,7 +123,7 @@ class Runner
     # instead of using capture3_with_timeout().
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
-    options = { :timeout => 4 }
+    options = { timeout:4 }
     result = capture3_with_timeout(@externals, command, options)
     unless result[:status] === 0
       # :nocov:
@@ -141,7 +141,8 @@ class Runner
     if @externals.rag_lambdas[image_name].nil?
       process = @externals.process
       command = "docker pull #{image_name}"
-      pid = process.spawn(command, { pgroup:true })
+      options = { pgroup:true }
+      pid = process.spawn(command, options)
       process.detach(pid)
     end
   end
