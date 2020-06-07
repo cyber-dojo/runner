@@ -26,14 +26,18 @@ class TestBase < Id58TestBase
   # OS specific tests
 
   def self.alpine_test(id_suffix, *lines, &block)
-    define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
+    self.csharp_nunit_test(id_suffix, *lines, &block)
   end
 
   def self.ubuntu_test(id_suffix, *lines, &block)
-    define_test(:Ubuntu, 'VisualBasic, NUnit', id_suffix, *lines, &block)
+    self.visual_basic_nunit_test(id_suffix, *lines, &block)
   end
 
   # Language Test Framework specific tests
+
+  def self.csharp_nunit_test(id_suffix, *lines, &block)
+    define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
+  end
 
   def self.c_assert_test(id_suffix, *lines, &block)
     define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
