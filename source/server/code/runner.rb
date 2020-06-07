@@ -105,7 +105,7 @@ class Runner
       :timeout => max_seconds,
       :kill_after => 1
     }
-    result = capture3_with_timeout(@externals.process, command, options) do
+    result = capture3_with_timeout(@externals, command, options) do
       # The [docker run] command timed-out. Why?
       #   1) the image is available, but cyber-dojo.sh has an infinite loop
       #   2) the image is not yet on the node...
@@ -124,7 +124,7 @@ class Runner
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
     options = { :timeout => 4 }
-    result = capture3_with_timeout(@externals.process, command, options)
+    result = capture3_with_timeout(@externals, command, options)
     unless result[:status] === 0
       # :nocov:
       log(command)

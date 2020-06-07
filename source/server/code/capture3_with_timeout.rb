@@ -32,8 +32,7 @@ require 'timeout'
 
 module Capture3WithTimeout
 
-  def capture3_with_timeout(process, *cmd)
-    spawn_opts = Hash === cmd.last ? cmd.pop.dup : {}
+  def capture3_with_timeout(externals, command, spawn_opts)
     opts = {
       :stdin_data => spawn_opts.delete(:stdin_data) || "",
       :binmode    => spawn_opts.delete(:binmode) || false,
@@ -69,9 +68,10 @@ module Capture3WithTimeout
     err_reader = nil
     wait_thr = nil
 
+    process = externals.process
     begin
       Timeout.timeout(opts[:timeout]) do
-        result[:pid] = process.spawn(*cmd, spawn_opts)
+        result[:pid] = process.spawn(command, spawn_opts)
         wait_thr = process.detach(result[:pid])
         in_r.close
         out_w.close
@@ -80,7 +80,7 @@ module Capture3WithTimeout
         out_reader = Thread.new { out_r.read }
         err_reader = Thread.new { err_r.read }
 
-        in_w.write opts[:stdin_data]
+        in_w.write(opts[:stdin_data])
         in_w.close
 
         result[:status] = wait_thr.value
