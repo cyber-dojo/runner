@@ -32,6 +32,10 @@ class TestBase < Id58TestBase
     self.csharp_nunit_test(id_suffix, *lines, &block)
   end
 
+  def self.debian_test(id_suffix, *lines, &block)
+    self.c_assert_test(id_suffix, *lines, &block)
+  end
+
   def self.ubuntu_test(id_suffix, *lines, &block)
     self.clang_assert_test(id_suffix, *lines, &block)
   end

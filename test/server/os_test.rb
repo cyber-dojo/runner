@@ -10,8 +10,21 @@ class OsTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  multi_os_test '8A2',
-  %w( os<-->image correspondence ) do
+  alpine_test '8A2', %w( os<-->image correspondence ) do
+    assert_cat_etc_issue
+  end
+
+  debian_test '8A3', %w( os<-->image correspondence ) do
+    assert_cat_etc_issue
+  end
+
+  ubuntu_test '8A4', %w( os<-->image correspondence ) do
+    assert_cat_etc_issue
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  def assert_cat_etc_issue
     etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
     diagnostic = [
       "image_name=:#{image_name}:",
