@@ -29,10 +29,9 @@ containers:
         name: docker-socket
     resources:
       requests:
-        cpu: 10m
+        cpu: 20m
         memory: 256Mi
       limits:
-        cpu: 250m
         memory: 1Gi
     livenessProbe:
       path: /alive?
