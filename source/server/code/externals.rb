@@ -12,7 +12,7 @@ class Externals
   def initialize(options)
     @bash = options[:bash] || ExternalBash.new
     @process = options[:process] || ExternalProcess.new
-    @threader = options[:threder] || ExternalThreader.new
+    @threader = options[:threader] || ExternalThreader.new
 
     @logger = options[:logger] || StringLogger.new
     @stdout = options[:stdout] || StreamWriter.new($stdout)

@@ -1,76 +1,76 @@
-Run options: --seed 33350
+Run options: --seed 64814
 
 # Running:
 
-................................................................................................Using default tag: latest
+......................Using default tag: latest
+latest: Pulling from cyberdojofoundation/gcc_assert
+Digest: sha256:3ca094b7a40d9c42f44b96e72353c9e0f79fbcff5f7ef6e695cf4f3842be220e
+Status: Image is up to date for cyberdojofoundation/gcc_assert:latest
+docker.io/cyberdojofoundation/gcc_assert:latest
+..............Using default tag: latest
+.latest: Pulling from cyberdojofoundation/gcc_assert
+Digest: sha256:3ca094b7a40d9c42f44b96e72353c9e0f79fbcff5f7ef6e695cf4f3842be220e
+Status: Image is up to date for cyberdojofoundation/gcc_assert:latest
+docker.io/cyberdojofoundation/gcc_assert:latest
+.......................................Using default tag: latest
+latest: Pulling from cyberdojofoundation/csharp_nunit
+Digest: sha256:352919fdbd5d302fc46c2631661350b346ec3fd1339b8fcbe645203c13c0771c
+Status: Image is up to date for cyberdojofoundation/csharp_nunit:latest
+docker.io/cyberdojofoundation/csharp_nunit:latest
+.Using default tag: latest
 latest: Pulling from cyberdojofoundation/clang_assert
 Digest: sha256:7fbb3aa09f588e00105b40ac62f38a64ea0522db8c79653d9ff10a56a9b2af0e
-Status: Image is up to date for cyberdojofoundation/clang_assert:latest
+Status: Downloaded newer image for cyberdojofoundation/clang_assert:latest
 docker.io/cyberdojofoundation/clang_assert:latest
 .Using default tag: latest
 latest: Pulling from cyberdojofoundation/gcc_assert
 Digest: sha256:3ca094b7a40d9c42f44b96e72353c9e0f79fbcff5f7ef6e695cf4f3842be220e
 Status: Image is up to date for cyberdojofoundation/gcc_assert:latest
 docker.io/cyberdojofoundation/gcc_assert:latest
-.......Using default tag: latest
-.Using default tag: latest
-latest: Pulling from cyberdojofoundation/gcc_assert
-Digest: sha256:3ca094b7a40d9c42f44b96e72353c9e0f79fbcff5f7ef6e695cf4f3842be220e
-Status: Image is up to date for cyberdojofoundation/gcc_assert:latest
-docker.io/cyberdojofoundation/gcc_assert:latest
-latest: Pulling from cyberdojofoundation/csharp_nunit
-Digest: sha256:352919fdbd5d302fc46c2631661350b346ec3fd1339b8fcbe645203c13c0771c
-Status: Image is up to date for cyberdojofoundation/csharp_nunit:latest
-docker.io/cyberdojofoundation/csharp_nunit:latest
-.Using default tag: latest
+.............................
 
+Finished in 69.473691s, 1.5402 runs/s, 337.7106 assertions/s.
 
-Finished in 69.198821s, 1.5318 runs/s, 339.0376 assertions/s.
-
-106 runs, 23461 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6923 / 13556 LOC (51.07%) covered.
+107 runs, 23462 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6936 / 13570 LOC (51.11%) covered.
 
 Slowest 25 tests are...
-7.6370 - 1B5DB3 - Debian - C (gcc), assert - file-handles quickly become exhausted - feature_robustness_test.rb:76
-5.8591 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:27
-5.2752 - 1B5CD5 - Debian - C (gcc), assert - fork-bomb does not run indefinitely - feature_robustness_test.rb:12
-5.1831 - 1B5CD6 - Alpine - C#, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
-5.1710 - 1B5CD6 - Ubuntu - C (clang), assert - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
-4.3089 - 9E9B2A - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, it times out after max_seconds, and modified files in /sandbox, are not seen, and anything written to stdout|stderr is not seen, and the colour is set to the empty string - feature_timed_out_test.rb:12
-4.2256 - 9E9B2C - Debian - C (gcc), assert - when a program cyber-dojo.sh runs has an infinite loop, it times out after max_seconds, and modified files in /sandbox, are not seen, and anything written to stdout|stderr is not seen, and the colour is set to the empty string - feature_timed_out_test.rb:47
-3.0329 - 7B79DB - Ubuntu - C (clang), assert - red/amber/green traffic-light - feature_traffic_light_test.rb:27
-2.8229 - E4A52C - Alpine - C#, NUnit - source files bigger than 10K are not truncated - feature_file_truncation_test.rb:45
-2.1989 - 1598A6 - Ubuntu - C (clang), assert - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
-2.1298 - 1598A6 - Alpine - C#, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
-1.6150 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:12
-1.1028 - ECF12B - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:136
-1.0689 - 3A8D98 - Alpine - C#, NUnit - multiple container properties - feature_container_properties_test.rb:24
-1.0557 - ECF12A - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:127
-1.0125 - ECF12C - Alpine - C#, NUnit - deleted text filenames from /sandbox sub-dir are returned - feature_sandbox_text_files_changes_test.rb:144
-1.0078 - 3A8D98 - Ubuntu - C (clang), assert - multiple container properties - feature_container_properties_test.rb:24
-0.8135 - D06AB5 - Debian - C (gcc), assert - run_cyber_dojo_sh 200 - rack_dispatcher_test.rb:116
-0.7344 - E4A52A - Alpine - C#, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
-0.7309 - 6698A3 - Debian - C (gcc), assert - os<-->image correspondence - os_test.rb:17
-0.7124 - ECF532 - Alpine - C#, NUnit - empty new text files are returned - feature_sandbox_text_files_changes_test.rb:87
-0.6941 - E4A52A - Ubuntu - C (clang), assert - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
-0.6901 - ECF526 - Alpine - C#, NUnit - created text files, including dot files, are returned - feature_sandbox_text_files_changes_test.rb:27
-0.6887 - 6698A4 - Ubuntu - C (clang), assert - os<-->image correspondence - os_test.rb:21
-0.6858 - 6698A2 - Alpine - C#, NUnit - os<-->image correspondence - os_test.rb:13
-0.6827 - E4A52B - Alpine - C#, NUnit - stdout and stderr are truncated to 50K - feature_file_truncation_test.rb:28
+6.7224 - 1B5DB3 - Debian - C (gcc), assert - file-handles quickly become exhausted - feature_robustness_test.rb:76
+5.4203 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:27
+5.2214 - 1B5CD5 - Debian - C (gcc), assert - fork-bomb does not run indefinitely - feature_robustness_test.rb:12
+5.2014 - 1B5CD6 - Ubuntu - C (clang), assert - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
+5.1580 - 1B5CD6 - Alpine - C#, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
+4.2717 - 9E9B2A - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, it times out after max_seconds, and modified files in /sandbox, are not seen, and anything written to stdout|stderr is not seen, and the colour is set to the empty string - feature_timed_out_test.rb:12
+4.2712 - 9E9B2C - Debian - C (gcc), assert - when a program cyber-dojo.sh runs has an infinite loop, it times out after max_seconds, and modified files in /sandbox, are not seen, and anything written to stdout|stderr is not seen, and the colour is set to the empty string - feature_timed_out_test.rb:47
+2.8091 - 7B79DB - Ubuntu - C (clang), assert - red/amber/green traffic-light - feature_traffic_light_test.rb:27
+2.7554 - E4A52C - Alpine - C#, NUnit - source files bigger than 10K are not truncated - feature_file_truncation_test.rb:45
+2.6266 - 0fKq8E - Alpine - C#, NUnit - faulty untgz is logged and typically results in amber traffic-light - feature_tgz_error_test.rb:12
+2.1985 - 1598A6 - Ubuntu - C (clang), assert - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
+1.9823 - 1598A6 - Alpine - C#, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
+1.5085 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:12
+1.0283 - ECF12B - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:136
+1.0136 - ECF12A - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:127
+0.9973 - 3A8D98 - Alpine - C#, NUnit - multiple container properties - feature_container_properties_test.rb:24
+0.9519 - ECF12C - Alpine - C#, NUnit - deleted text filenames from /sandbox sub-dir are returned - feature_sandbox_text_files_changes_test.rb:144
+0.9486 - 6698A4 - Ubuntu - C (clang), assert - os<-->image correspondence - os_test.rb:21
+0.9017 - 3A8D98 - Ubuntu - C (clang), assert - multiple container properties - feature_container_properties_test.rb:24
+0.8530 - E4A52A - Alpine - C#, NUnit - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
+0.8285 - 6698A3 - Debian - C (gcc), assert - os<-->image correspondence - os_test.rb:17
+0.7925 - D06AB5 - Debian - C (gcc), assert - run_cyber_dojo_sh 200 - rack_dispatcher_test.rb:116
+0.7261 - 6698A2 - Alpine - C#, NUnit - os<-->image correspondence - os_test.rb:13
+0.7114 - E4A52B - Alpine - C#, NUnit - stdout and stderr are truncated to 50K - feature_file_truncation_test.rb:28
+0.7024 - ECF532 - Alpine - C#, NUnit - empty new text files are returned - feature_sandbox_text_files_changes_test.rb:87
+0.6857 - ECF526 - Alpine - C#, NUnit - created text files, including dot files, are returned - feature_sandbox_text_files_changes_test.rb:27
 
-latest: Pulling from cyberdojofoundation/gcc_assert
-Digest: sha256:3ca094b7a40d9c42f44b96e72353c9e0f79fbcff5f7ef6e695cf4f3842be220e
-Status: Image is up to date for cyberdojofoundation/gcc_assert:latest
-docker.io/cyberdojofoundation/gcc_assert:latest
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    69.2   <=   200 | [32m true [0m
-                    tests |     106   >=     1 | [32m true [0m
+        duration(test)[s] |   69.47   <=   200 | [32m true [0m
+                    tests |     107   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=    98 | [32m true [0m
-     lines(tester/tested) |    2.24   >=   2.1 | [32m true [0m
-      hits(tested/tester) |    1.74   >=   0.7 | [32m true [0m
+     lines(tester/tested) |    2.27   >=   2.1 | [32m true [0m
+      hits(tested/tester) |    1.78   >=   0.7 | [32m true [0m
 
