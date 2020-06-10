@@ -12,9 +12,9 @@ class FeatureTrafficLightTest < TestBase
   multi_os_test 'p3W', %w( stdout is not being whitespace stripped ) do
     stdout = assert_sss('printf " hel\nlo "')
     assert_equal " hel\nlo ", stdout
-    # When ~/cyber_dojo_main.sh puts a head in the pipe like this...
-    #   cd /sandbox
-    #   ./cyber-dojo.sh \
+    # When home_files.rb's ~/cyber_dojo_main.sh puts a head in the pipe...
+    #   cd #{sandbox_dir}
+    #   bash ./cyber-dojo.sh \
     #    1> >(head -c#{max_file_size+1} > "${TMP_DIR}/stdout") \
     #    2> >(head -c#{max_file_size+1} > "${TMP_DIR}/stderr")
     # Then this test fails and stdout contains only a single newline.

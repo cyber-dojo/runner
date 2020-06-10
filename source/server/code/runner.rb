@@ -56,12 +56,16 @@ class Runner
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
     tgz_out, timed_out = *docker_run_cyber_dojo_sh(tgz_in)
-    stdout,stderr,status, created,deleted,changed = *truncated_untgz(files_in, tgz_out)
 
     if timed_out
       log('timed_out')
+      stdout = truncated('')
+      stderr = truncated('')
+      status = truncated('142')
+      created,deleted,changed = {},{},{}
       colour = ''
     else
+      stdout,stderr,status, created,deleted,changed = *truncated_untgz(files_in, tgz_out)
       sss = [ stdout[:content], stderr[:content], status[:content] ]
       colour = @externals.traffic_light.colour(image_name, *sss)
     end
@@ -135,9 +139,9 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_pull_image
-    # If image_name is not on the node, the [docker run] will
-    # automatically pull it. Empirically, some images have large
-    # layers that never finish downloading. Hence this method.
+    # If image_name is not on the node, [docker run] will pull
+    # it. Empirically, some large image layers never finish
+    # downloading. Hence this method. Note spawn+detach.
     if @externals.rag_lambdas[image_name].nil?
       process = @externals.process
       command = "docker pull #{image_name}"

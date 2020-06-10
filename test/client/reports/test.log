@@ -1,51 +1,51 @@
-Run options: --seed 14671
+Run options: --seed 51246
 
 # Running:
 
-..............................
+...............................
 
-Finished in 24.851056s, 1.2072 runs/s, 6.9615 assertions/s.
+Finished in 28.269682s, 1.0966 runs/s, 6.1904 assertions/s.
 
-30 runs, 173 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 2496 / 4309 LOC (57.93%) covered.
+31 runs, 175 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 2506 / 4319 LOC (58.02%) covered.
 
 Slowest 25 tests are...
-6.5550 - FAA3DD - Debian - C (gcc), assert - test red/amber/green in parallel threads - traffic_light_test.rb:20
-5.3046 - D59FDC - Debian - C (gcc), assert - run with infinite loop times out - timed_out_test.rb:20
-2.7121 - FAA3DA - Debian - C (gcc), assert - test API red/amber/green traffic-light - traffic_light_test.rb:12
-2.4379 - 46D3DB - Alpine - C#, NUnit - run with very large file - large_file_test.rb:12
-2.0516 - 46D3DB - Ubuntu - VisualBasic, NUnit - run with very large file - large_file_test.rb:12
-1.2352 - D59FDD - Debian - C (gcc), assert - [C,assert] run which does not timeout - timed_out_test.rb:12
-0.8709 - 2D1160 - Debian - C (gcc), assert - round-tripping: example of no file changes - round_trip_test.rb:12
-0.7500 - 46DED4 - Alpine - C#, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
-0.5714 - 2D1161 - Debian - C (gcc), assert - created binary files are not returned in json payload but created text files are - round_trip_test.rb:22
-0.4197 - 2D1164 - Debian - C (gcc), assert - created empty text files is returned in json payload - round_trip_test.rb:58
-0.3961 - 2D1162 - Alpine - C#, NUnit - created text files in sub-dirs are returned in json payload - round_trip_test.rb:38
-0.3873 - 2378A1 - Alpine - C#, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
-0.3785 - 2D1163 - Debian - C (gcc), assert - changed text files are returned in json payload - round_trip_test.rb:48
-0.3516 - 46DED4 - Ubuntu - VisualBasic, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
-0.3465 - 2378A1 - Ubuntu - VisualBasic, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
-0.0468 - 14D2F5 - Alpine - C#, NUnit - call to existing method with bad argument type becomes RunnerService::Error - run_cyber_dojo_sh_test.rb:11
-0.0083 - 14D2F5 - Ubuntu - VisualBasic, NUnit - call to existing method with bad argument type becomes RunnerService::Error - run_cyber_dojo_sh_test.rb:11
-0.0018 - 74C882 - Alpine - C#, NUnit - sha is SHA of git commit which created docker image - probe_test.rb:28
-0.0017 - 74CCA2 - Alpine - C#, NUnit - alive? is true, useful for k8s liveness probes - probe_test.rb:12
-0.0015 - 74C15D - Alpine - C#, NUnit - ready? is true, useful for k8s readyness probes - probe_test.rb:20
-0.0001 - 3752F1 - Ubuntu - VisualBasic, NUnit - raises when response.body is not JSON - http_json_responder_test.rb:25
+5.7753 - FAA3DD - Debian - C (gcc), assert - test red/amber/green in parallel threads - traffic_light_test.rb:20
+5.2175 - D59FDC - Debian - C (gcc), assert - run with infinite loop times out - timed_out_test.rb:20
+5.2064 - D59FDE - Ubuntu - VisualBasic, NUnit - run with infinite loop times out - timed_out_test.rb:33
+2.8520 - 46D3DB - Alpine - C#, NUnit - run with very large file - large_file_test.rb:12
+1.9886 - 46D3DB - Ubuntu - VisualBasic, NUnit - run with very large file - large_file_test.rb:12
+1.6397 - FAA3DA - Debian - C (gcc), assert - test API red/amber/green traffic-light - traffic_light_test.rb:12
+0.8228 - D59FDD - Debian - C (gcc), assert - [C,assert] run which does not timeout - timed_out_test.rb:12
+0.7001 - 2378A1 - Alpine - C#, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
+0.6554 - 2378A1 - Ubuntu - VisualBasic, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
+0.6060 - 2D1161 - Debian - C (gcc), assert - created binary files are not returned in json payload but created text files are - round_trip_test.rb:22
+0.5810 - 2D1160 - Debian - C (gcc), assert - round-tripping: example of no file changes - round_trip_test.rb:12
+0.4980 - 2D1162 - Alpine - C#, NUnit - created text files in sub-dirs are returned in json payload - round_trip_test.rb:38
+0.4715 - 2D1164 - Debian - C (gcc), assert - created empty text files is returned in json payload - round_trip_test.rb:58
+0.4183 - 2D1163 - Debian - C (gcc), assert - changed text files are returned in json payload - round_trip_test.rb:48
+0.4012 - 46DED4 - Ubuntu - VisualBasic, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
+0.3736 - 46DED4 - Alpine - C#, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
+0.0209 - 14D2F5 - Alpine - C#, NUnit - call to existing method with bad argument type becomes RunnerService::Error - run_cyber_dojo_sh_test.rb:11
+0.0084 - 14D2F5 - Ubuntu - VisualBasic, NUnit - call to existing method with bad argument type becomes RunnerService::Error - run_cyber_dojo_sh_test.rb:11
+0.0043 - 74C15D - Alpine - C#, NUnit - ready? is true, useful for k8s readyness probes - probe_test.rb:20
+0.0032 - 74CCA2 - Alpine - C#, NUnit - alive? is true, useful for k8s liveness probes - probe_test.rb:12
+0.0030 - 74C882 - Alpine - C#, NUnit - sha is SHA of git commit which created docker image - probe_test.rb:28
+0.0002 - 3752F4 - Alpine - C#, NUnit - raises when response.body has no key matching path - http_json_responder_test.rb:54
+0.0002 - 3752F3 - Ubuntu - VisualBasic, NUnit - raises when response.body has embedded exception - http_json_responder_test.rb:43
 0.0001 - 3752F4 - Ubuntu - VisualBasic, NUnit - raises when response.body has no key matching path - http_json_responder_test.rb:54
-0.0001 - 3752F3 - Alpine - C#, NUnit - raises when response.body has embedded exception - http_json_responder_test.rb:43
-0.0001 - 3752F3 - Ubuntu - VisualBasic, NUnit - raises when response.body has embedded exception - http_json_responder_test.rb:43
-0.0001 - 3752F1 - Alpine - C#, NUnit - raises when response.body is not JSON - http_json_responder_test.rb:25
-0.0001 - 3752F4 - Alpine - C#, NUnit - raises when response.body has no key matching path - http_json_responder_test.rb:54
+0.0001 - 3752F2 - Alpine - C#, NUnit - raises response.body is not JSON Hash - http_json_responder_test.rb:34
+0.0001 - 3752F1 - Ubuntu - VisualBasic, NUnit - raises when response.body is not JSON - http_json_responder_test.rb:25
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   24.85   <=   100 | [32m true [0m
-                    tests |      30   >=     1 | [32m true [0m
+        duration(test)[s] |   28.27   <=   100 | [32m true [0m
+                    tests |      31   >=     1 | [32m true [0m
       coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    2.50   >=   2.5 | [32m true [0m
-      hits(tested/tester) |    6.61   >=   6.1 | [32m true [0m
+     lines(tester/tested) |    2.58   >=   2.5 | [32m true [0m
+      hits(tested/tester) |    6.85   >=   6.1 | [32m true [0m
 
