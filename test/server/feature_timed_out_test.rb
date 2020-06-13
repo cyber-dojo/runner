@@ -37,7 +37,7 @@ class FeatureTimedOutTest < TestBase
     assert_changed({})
     assert_equal '', colour
 
-    timed_out_message = 'id=9E9B2A, image_name=cyberdojofoundation/gcc_assert, (timed_out)'
+    timed_out_message = "id=9E9B2A, image_name=#{image_name}, (timed_out)"
     assert_stdouted(timed_out_message)
     assert_logged(timed_out_message)
   end
@@ -79,7 +79,7 @@ class FeatureTimedOutTest < TestBase
     assert_changed({})
     assert_equal '', colour
 
-    timed_out_message = 'id=9E9B2C, image_name=cyberdojofoundation/gcc_assert, (timed_out)'
+    timed_out_message = "id=9E9B2C, image_name=#{image_name}, (timed_out)"
     assert_stdouted(timed_out_message)
     assert_logged(timed_out_message)
   end
