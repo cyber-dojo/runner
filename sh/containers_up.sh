@@ -12,7 +12,6 @@ ip_address()
 readonly IP_ADDRESS=$(ip_address)
 
 # - - - - - - - - - - - - - - - - - - - -
-
 readonly READY_FILENAME='/tmp/curl-ready-output'
 
 wait_until_ready()
@@ -41,7 +40,6 @@ wait_until_ready()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-
 ready()
 {
   local -r port="${1}"
@@ -56,7 +54,6 @@ ready()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-
 wait_till_up()
 {
   local n=10
@@ -81,9 +78,17 @@ strip_known_warning()
   local -r warning=$(printf "${log}" | grep --extended-regexp "${pattern}")
   local -r stripped=$(printf "${log}" | grep --invert-match --extended-regexp "${pattern}")
   if [ "${log}" != "${stripped}" ]; then
-    >&2 echo "SERVICE START-UP WARNING: ${warning}"
+    stderr "SERVICE START-UP WARNING: ${warning}"
+  else
+    stderr "DID _NOT_ FIND WARNING!!: ${known_warning}"
   fi
   echo "${stripped}"
+}
+
+# - - - - - - - - - - - - - - - - - - - -
+stderr()
+{
+  >&2 echo "${1}"
 }
 
 # - - - - - - - - - - - - - - - - - - - -
@@ -115,7 +120,6 @@ warn_if_unclean()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-
 echo_docker_log()
 {
   local -r name="${1}"
@@ -127,7 +131,6 @@ echo_docker_log()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-
 readonly ROOT_DIR="$( cd "$(dirname "${0}")/.." && pwd )"
 
 export NO_PROMETHEUS=true
