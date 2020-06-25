@@ -110,11 +110,8 @@ class Runner
       :kill_after => 1
     }
     result = capture3_with_timeout(@externals, command, options) do
-      # The [docker run] command timed-out. Why?
-      #   1) the image is available, but cyber-dojo.sh has an infinite loop
-      #   2) the image is not yet on the node...
-      docker_stop_container(container_name) # [1]
-      docker_pull_image                     # [2]
+      # The [docker run] command timed-out.
+      docker_stop_container(container_name)
     end
     [ result[:stdout], result[:timeout] ]
   end
@@ -133,21 +130,6 @@ class Runner
       # :nocov:
       log(command)
       # :nocov:
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def docker_pull_image
-    # If image_name is not on the node, [docker run] will pull
-    # it. Empirically, some large image layers never finish
-    # downloading. Hence this method. Note spawn+detach.
-    if @externals.rag_lambdas[image_name].nil?
-      process = @externals.process
-      command = "docker pull #{image_name}"
-      options = { pgroup:true }
-      pid = process.spawn(command, options)
-      process.detach(pid)
     end
   end
 
