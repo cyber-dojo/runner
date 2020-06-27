@@ -1,17 +1,4 @@
 
-BIGGER
-======
-
-Try to get some output from B2B timedout test
----------------------------------------------
-If using code from capture3_with_timeout.rb remember
-that the docker run process spawned a process itself
-(via the docker daemon). So remember to ensure docker-stop
-is called before pipes are closed and read. Maybe do via
-a block and yield to that.
-Note that capture3_with_timeout does the Process.detach() _first_
-
-
 readonly containers
 -------------------
 If the docker-run used --read-only it would mean
@@ -29,10 +16,6 @@ Access to the path /home/sandbox/.mono is denied.
 Need to try on all LTFs...
 
 
-Image_name:TAG
---------------
-  - will now acts as key for cache holding the rag-lambdas.
-  - LTF repos need to create 2 images; one for the start-point, one for LTF
 
 RAG Lambdas in Python
 --------------------
@@ -41,25 +24,3 @@ RAG Lambdas in Python
     a runner call that uses Ruby image. This opens up the option of
     allowing lambdas in other languages. Eg Python. Based on the extension.
     And use a known python image.
-
-
-SMALLER
-=======
-
-logger.warning()?
-logger.info()?
-logger.error()?
-
-rescue Errno::ESRCH ; 200;
-
-TGZ exception test ; 500; add StdoutWriter
-
-uncomment multi_os_test '62B'  Robustness
-
-uncomment c_assert_test 'AB6   RackDispatcher
-
-Dispatcher test that mimics config.ru setup
-  Use BashStub.
-  Make 2 calls
-  Verify stub only gets asked to cat ragfile from image once.
-  Delay doing this since call will probably end up as one Process.spawn()
