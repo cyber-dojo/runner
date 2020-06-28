@@ -17,6 +17,9 @@ volumes:
       path: /var/run/docker.sock
       type: File
 
+env:
+  PULL_LANGUAGE_DOCKER_IMAGES_AT: SERVER_DEPLOYMENT
+
 containers:
   - name: runner
     securityContext:
