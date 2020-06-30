@@ -103,7 +103,7 @@ class TrafficLightTest < TestBase
     assert_equal 'faulty', traffic_light_colour
     context = "exception when eval'ing lambda source"
     klass = 'SyntaxError'
-    message = "/app/code/empty.rb:6: syntax error, unexpected '-'\\nnot-a-lambda\\n   ^"
+    message = "/app/code/empty.rb:6: syntax error, unexpected '-'\\nnot-a-lambda\\n   ^\\n"
     assert_bad_lambda_logged(context, bad_lambda_source, klass, message)
   end
 
@@ -270,7 +270,7 @@ class TrafficLightTest < TestBase
   end
 
   def assert_log_include?(expected, context)
-    assert log.include?(expected), log + "\nCONTEXT:#{context}\n"
+    assert log.include?(expected), log + "\nCONTEXT:#{context}:\nEXPECTED:#{expected}:\n"
   end
 
 end

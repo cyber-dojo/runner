@@ -1,28 +1,57 @@
-Run options: --seed 18054
+Run options: --seed 37608
 
 # Running:
 
-...
+....................../app/code/empty.rb:6: warning: `_1' is reserved for numbered parameter; consider another name
+/app/code/empty.rb:6: warning: `_2' is reserved for numbered parameter; consider another name
+.../app/code/empty.rb:6: warning: `_1' is reserved for numbered parameter; consider another name
+/app/code/empty.rb:6: warning: `_2' is reserved for numbered parameter; consider another name
+/app/code/empty.rb:6: warning: `_3' is reserved for numbered parameter; consider another name
+/app/code/empty.rb:6: warning: `_4' is reserved for numbered parameter; consider another name
+..................................................................................
 
-Finished in 12.814261s, 0.2341 runs/s, 1.8729 assertions/s.
+Finished in 68.880554s, 1.5534 runs/s, 340.6186 assertions/s.
 
-3 runs, 24 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6135 / 13571 LOC (45.21%) covered.
+107 runs, 23462 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 7433 / 14656 LOC (50.72%) covered.
 
-Slowest 3 tests are...
-7.6379 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:12
-2.7925 - 7B79DB - Ubuntu - C (clang), assert - red/amber/green traffic-light - feature_traffic_light_test.rb:12
-2.3764 - 7B79DB - Debian - C (gcc), assert - red/amber/green traffic-light - feature_traffic_light_test.rb:12
+Slowest 25 tests are...
+6.6164 - 1B5DB3 - Debian - C (gcc), assert - file-handles quickly become exhausted - feature_robustness_test.rb:76
+5.5987 - 7B79DB - Alpine - C#, NUnit - red/amber/green traffic-light - feature_traffic_light_test.rb:12
+5.2668 - 1B5CD6 - Ubuntu - C (clang), assert - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
+5.2628 - 1B5CD5 - Debian - C (gcc), assert - fork-bomb does not run indefinitely - feature_robustness_test.rb:12
+5.1776 - 1B5CD6 - Alpine - C#, NUnit - bash fork-bomb does not run indefinitely - feature_robustness_test.rb:47
+4.1918 - 9E9B2A - Debian - C (gcc), assert - when cyber-dojo.sh has an infinite loop, it times out after max_seconds, and modified files in /sandbox, are not seen, and anything written to stdout|stderr is not seen, and the colour is set to the empty string - feature_timed_out_test.rb:12
+4.1831 - 9E9B2C - Debian - C (gcc), assert - when a program cyber-dojo.sh runs has an infinite loop, it times out after max_seconds, and modified files in /sandbox, are not seen, and anything written to stdout|stderr is not seen, and the colour is set to the empty string - feature_timed_out_test.rb:47
+3.1193 - 0fKq8E - Alpine - C#, NUnit - faulty untgz is logged and typically results in amber traffic-light - feature_tgz_error_test.rb:12
+2.7814 - E4A52C - Alpine - C#, NUnit - source files bigger than 10K are not truncated - feature_file_truncation_test.rb:45
+2.2581 - 7B79DB - Ubuntu - C (clang), assert - red/amber/green traffic-light - feature_traffic_light_test.rb:12
+2.1199 - 1598A6 - Alpine - C#, NUnit - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
+2.0386 - 1598A6 - Ubuntu - C (clang), assert - baseline average speed is less than 2 secs, locally much faster than that, but for CI 2 is about right - feature_baseline_speed_test.rb:12
+1.4970 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:12
+1.0139 - ECF12B - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:136
+1.0100 - 3A8D98 - Alpine - C#, NUnit - multiple container properties - feature_container_properties_test.rb:24
+1.0016 - ECF12A - Alpine - C#, NUnit - created text files in /sandbox sub-dirs are returned - feature_sandbox_text_files_changes_test.rb:127
+0.9755 - ECF12C - Alpine - C#, NUnit - deleted text filenames from /sandbox sub-dir are returned - feature_sandbox_text_files_changes_test.rb:144
+0.8850 - D06AB5 - Debian - C (gcc), assert - run_cyber_dojo_sh 200 - rack_dispatcher_test.rb:116
+0.8764 - 3A8D98 - Ubuntu - C (clang), assert - multiple container properties - feature_container_properties_test.rb:24
+0.7094 - ECF526 - Alpine - C#, NUnit - created text files, including dot files, are returned - feature_sandbox_text_files_changes_test.rb:27
+0.6827 - ECF527 - Alpine - C#, NUnit - created binary files are not returned - feature_sandbox_text_files_changes_test.rb:44
+0.6816 - E4A52A - Ubuntu - C (clang), assert - generated text files bigger than 50K are truncated - feature_file_truncation_test.rb:12
+0.6778 - ECF524 - Alpine - C#, NUnit - created text files are returned when their names have leading hyphens which must not be read as a tar option - feature_sandbox_text_files_changes_test.rb:12
+0.6755 - 7B7p3W - Ubuntu - C (clang), assert - stdout is not being whitespace stripped - feature_traffic_light_test.rb:30
+0.6726 - 6698A4 - Ubuntu - C (clang), assert - os<-->image correspondence - os_test.rb:21
+0.6583 - 6698A2 - Alpine - C#, NUnit - os<-->image correspondence - os_test.rb:13
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
-                 warnings |       0   <=     0 | [32m true [0m
+                 warnings |       6   <=     0 | [31m false [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |   12.81   <=   200 | [32m true [0m
-                    tests |       3   >=     1 | [32m true [0m
-      coverage(tested)[%] |   78.67   >=   100 | [31m false [0m
-      coverage(tester)[%] |   34.11   >=    98 | [31m false [0m
-     lines(tester/tested) |    2.27   >=   2.1 | [32m true [0m
-      hits(tested/tester) |    7.11   >=   0.7 | [32m true [0m
+        duration(test)[s] |   68.88   <=   200 | [32m true [0m
+                    tests |     107   >=     1 | [32m true [0m
+      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tester)[%] |   100.0   >=    98 | [32m true [0m
+     lines(tester/tested) |    2.32   >=   2.1 | [32m true [0m
+      hits(tested/tester) |    1.81   >=   0.7 | [32m true [0m
 

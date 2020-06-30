@@ -80,7 +80,7 @@ strip_known_warning()
   if [ "${log}" != "${stripped}" ]; then
     stderr "SERVICE START-UP WARNING: ${warning}"
   else
-    stderr "DID _NOT_ FIND WARNING!!: ${known_warning}"
+    stderr "DID _NOT_ FIND WARNING!!: ${pattern}"
   fi
   echo "${stripped}"
 }
@@ -102,10 +102,10 @@ warn_if_unclean()
   #log=$(strip_known_warning "${log}" "${daemon_warning}")
 
   # Puma warnings
-  local -r last_arg_warning="puma.rb:(.*): warning: (.*) the last argument was passed as a single Hash"
-  log=$(strip_known_warning "${log}" "${last_arg_warning}")
-  local -r splat_keyword_warning="server.rb:(.*): warning: although a splat keyword arguments here"
-  log=$(strip_known_warning "${log}" "${splat_keyword_warning}")
+  #local -r last_arg_warning="puma.rb:(.*): warning: (.*) the last argument was passed as a single Hash"
+  #log=$(strip_known_warning "${log}" "${last_arg_warning}")
+  #local -r splat_keyword_warning="server.rb:(.*): warning: although a splat keyword arguments here"
+  #log=$(strip_known_warning "${log}" "${splat_keyword_warning}")
 
   local -r line_count=$(echo -n "${log}" | grep --count '^')
   echo -n "Checking ${name} started cleanly..."
