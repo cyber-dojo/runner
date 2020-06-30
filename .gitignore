@@ -1,7 +1,5 @@
 test/server/reports/*
 test/server/reports/.*
-!test/server/reports/test.log
 
 test/client/reports/*
 test/client/reports/.*
-!test/client/reports/test.log
