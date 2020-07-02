@@ -11,6 +11,11 @@ unless ENV['NO_PROMETHEUS']
   use Prometheus::Middleware::Exporter
 end
 
+Signal.trap('TERM') {
+  $stdout.puts('Goodbye from this runner')
+  exit(0)
+}
+
 require_relative 'code/rag_lambdas'
 require_relative 'code/rack_dispatcher'
 options = { rag_lambdas: RagLambdas.new }
