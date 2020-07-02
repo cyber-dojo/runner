@@ -30,7 +30,6 @@ services:
     depends_on: [ languages-start-points ]
     environment: [ NO_PROMETHEUS, CIRCLECI ] # [1]
     image: ${CYBER_DOJO_RUNNER_IMAGE}
-    init: true
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     restart: 'no'
