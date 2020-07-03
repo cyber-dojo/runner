@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_source 'tagged_image_name'
 require_relative 'data/image_names'
+require_source 'tagged_image_name'
 
 class TaggedImageNameTest < TestBase
 

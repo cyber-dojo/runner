@@ -4,21 +4,17 @@ require 'net/http'
 class HttpAdapter
 
   def get(uri)
-    KLASS::Get.new(uri)
+    Net::HTTP::Get.new(uri)
   end
 
   def post(uri)
-    KLASS::Post.new(uri)
+    Net::HTTP::Post.new(uri)
   end
 
   def start(hostname, port, req)
-    KLASS.start(hostname, port) do |http|
+    Net::HTTP.start(hostname, port) do |http|
       http.request(req)
     end
   end
-
-  private
-
-  KLASS = Net::HTTP
 
 end
