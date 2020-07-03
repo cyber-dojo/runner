@@ -13,15 +13,15 @@ class TrafficLightTest < TestBase
   # red, amber, green
 
   test 'CB0', %w( red traffic-light ) do
-    assert_equal 'red', traffic_light_colour(stdout:PythonPytest::STDOUT_RED), log
+    assert_equal 'red', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_RED), log
   end
 
   test 'CB1', %w( amber traffic-light ) do
-    assert_equal 'amber', traffic_light_colour(stdout:PythonPytest::STDOUT_AMBER), log
+    assert_equal 'amber', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_AMBER), log
   end
 
   test 'CB2', %w( green traffic-light ) do
-    assert_equal 'green', traffic_light_colour(stdout:PythonPytest::STDOUT_GREEN), log
+    assert_equal 'green', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_GREEN), log
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -29,10 +29,10 @@ class TrafficLightTest < TestBase
   test 'CB3', %w( read rag-lambda message is logged once ) do
     assert_log_read_rag_lambda_count 0
     assert_stdout_read_rag_lambda_count 0
-    assert_equal 'green', traffic_light_colour(stdout:PythonPytest::STDOUT_GREEN), log
+    assert_equal 'green', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_GREEN), log
     assert_log_read_rag_lambda_count 1
     assert_stdout_read_rag_lambda_count 1
-    assert_equal 'red', traffic_light_colour(stdout:PythonPytest::STDOUT_RED), log
+    assert_equal 'red', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_RED), log
     assert_log_read_rag_lambda_count 1
     assert_stdout_read_rag_lambda_count 1
   end
@@ -176,8 +176,6 @@ class TrafficLightTest < TestBase
 
   private
 
-  include Test::Data
-
   def assert_log_read_rag_lambda_count(expected)
     lines = log.lines
     actual = read_red_amber_green_lambda_message_count(lines)
@@ -199,7 +197,7 @@ class TrafficLightTest < TestBase
 
   def traffic_light_colour(options = {})
     image_name = python_pytest_image_name
-    @stdout = options.delete(:stdout) || PythonPytest::STDOUT_RED
+    @stdout = options.delete(:stdout) || Test::Data::PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || '0'
     externals.traffic_light.colour(image_name, @stdout, @stderr, @status)

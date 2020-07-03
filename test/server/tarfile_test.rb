@@ -31,7 +31,7 @@ class TarFileTest < TestBase
     utf8 = [226].pack('U*')
     refute_equal utf8.size, utf8.bytesize
     TarFile::Writer.new.write('hello.txt', utf8)
-    assert doesnt_throw=true
+    assert does_not_throw=true
   end
 
   # - - - - - - - - - - - - - - - - - -

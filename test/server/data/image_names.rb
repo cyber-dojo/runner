@@ -1,6 +1,8 @@
+# frozen_string_literal: true
 
-module ImageNames
-  module TestData
+module Test
+  module Data
+    module ImageNames
 
     TAG_NO_DIGEST_NO =
       %w(
@@ -100,5 +102,6 @@ module ImageNames
         "gcc@sha256#{HEX*32}",    # hex-digits must start with :
       ]
 
+    end
   end
 end
