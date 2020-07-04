@@ -9,9 +9,11 @@ docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   stop
 
-docker logs test-runner-server > "${TMP_DIR}/test-runner-server.docker.log"
+docker logs test-runner-client &> "${TMP_DIR}/test-runner-client.docker.log"
+docker logs test-runner-server &> "${TMP_DIR}/test-runner-server.docker.log"
 
 echo
+grep "Goodbye from this runner-client" "${TMP_DIR}/test-runner-client.docker.log"
 grep "Goodbye from this runner-server" "${TMP_DIR}/test-runner-server.docker.log"
 echo
 
