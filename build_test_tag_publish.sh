@@ -31,4 +31,3 @@ ${SH_DIR}/on_ci_pull_dependent_images.sh
 ${SH_DIR}/test_in_containers.sh "${client_user}" "${server_user}" "$@"
 ${SH_DIR}/containers_down.sh
 ${SH_DIR}/on_ci_publish_tagged_images.sh
-#${SH_DIR}/trigger_dependent_images.sh
