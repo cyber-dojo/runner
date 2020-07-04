@@ -45,7 +45,7 @@ class RackDispatcher
     { 'exception' => {
         'path' => path,
         'body' => body,
-        'class' => 'RunnerService',
+        'class' => 'Runner',
         'message' => error.message,
         'backtrace' => error.backtrace
       }

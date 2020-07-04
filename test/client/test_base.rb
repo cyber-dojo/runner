@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require_relative '../id58_test_base'
 require_source 'http_adapter'
-require_source 'languages_start_points'
-require_source 'runner'
+require_source 'languages_start_points_http_proxy'
+require_source 'runner_http_proxy'
 require 'json'
 
 class TestBase < Id58TestBase
@@ -98,11 +98,11 @@ class TestBase < Id58TestBase
   # 3. the runner service object and arguments
 
   def runner
-    Runner.new(http_adapter )
+    RunnerHttpProxy.new(http_adapter )
   end
 
   def languages_start_points
-    LanguagesStartPoints.new(http_adapter)
+    LanguagesStartPointsHttpProxy.new(http_adapter)
   end
 
   def http_adapter

@@ -2,7 +2,7 @@
 require_relative 'http_json/requester'
 require_relative 'http_json/responder'
 
-class Runner
+class RunnerHttpProxy
 
   class Error < RuntimeError
     def initialize(message)

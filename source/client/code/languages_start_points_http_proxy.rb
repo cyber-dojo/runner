@@ -2,7 +2,7 @@
 require_relative 'http_json/requester'
 require_relative 'http_json/responder'
 
-class LanguagesStartPoints
+class LanguagesStartPointsHttpProxy
 
   def initialize(http)
     requester = HttpJson::Requester.new(http, 'languages-start-points', 4524)
@@ -10,7 +10,9 @@ class LanguagesStartPoints
   end
 
   def manifest(name)
-    @http.get(__method__, { name:name })
+    @http.get(__method__, {
+      name:name
+    })
   end
 
 end

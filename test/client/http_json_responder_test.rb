@@ -15,7 +15,7 @@ class HttpJsonResponderTest < TestBase
     path = 'sha'
     json_body = { path => 42 }.to_json
     requester = HttpJsonRequesterStub.new(json_body)
-    responder = HttpJson::Responder.new(requester, RunnerServiceErrorStub)
+    responder = HttpJson::Responder.new(requester, RunnerErrorStub)
     response = responder.get(path, nil)
     assert_equal 42, response
   end
@@ -71,7 +71,7 @@ class HttpJsonResponderTest < TestBase
     end
   end
 
-  class RunnerServiceErrorStub < RuntimeError
+  class RunnerErrorStub < RuntimeError
     def initialize(message)
       super
     end
@@ -79,8 +79,8 @@ class HttpJsonResponderTest < TestBase
 
   def assert_responder_raises(json_body, path=nil)
     requester = HttpJsonRequesterStub.new(json_body)
-    responder = HttpJson::Responder.new(requester, RunnerServiceErrorStub)
-    error = assert_raises(RunnerServiceErrorStub) {
+    responder = HttpJson::Responder.new(requester, RunnerErrorStub)
+    error = assert_raises(RunnerErrorStub) {
       responder.get(path, nil)
     }
     yield error.message

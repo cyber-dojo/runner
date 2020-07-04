@@ -2,7 +2,7 @@ require 'rack'
 require_relative 'code/demo'
 
 Signal.trap('TERM') {
-  $stdout.puts('Goodbye from runner client')
+  $stdout.puts('SIGTERM: Goodbye from runner client')
   exit(0)
 }
 

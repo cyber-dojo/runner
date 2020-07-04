@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'http_adapter'
-require_relative 'languages_start_points'
-require_relative 'runner'
+require_relative 'languages_start_points_http_proxy'
+require_relative 'runner_http_proxy'
 require 'json'
 
 class Demo
@@ -104,11 +104,11 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    Runner.new(http_adapter)
+    RunnerHttpProxy.new(http_adapter)
   end
 
   def languages_start_points
-    LanguagesStartPoints.new(http_adapter)
+    LanguagesStartPointsHttpProxy.new(http_adapter)
   end
 
   def http_adapter

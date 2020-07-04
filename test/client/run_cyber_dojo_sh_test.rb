@@ -9,15 +9,15 @@ class RunCyberDojoShTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '2F5',
-  'call to existing method with bad argument type becomes RunnerService::Error' do
-    error = assert_raises(Runner::Error) {
+  'call to existing method with bad argument type becomes RunnerHttpProxy::Error' do
+    error = assert_raises(RunnerHttpProxy::Error) {
       with_captured_stdout {
         run_cyber_dojo_sh({ max_seconds:'xxx' })
       }
     }
     json = JSON.parse(error.message)
     assert_equal '/run_cyber_dojo_sh', json['path']
-    assert_equal 'RunnerService', json['class']
+    assert_equal 'Runner', json['class']
   end
 
   private

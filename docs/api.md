@@ -134,7 +134,7 @@ The 40 character git commit sha used to create the Docker image.
   { "exception": {
       "path": "/run_cyber_dojo_sh",
       "body": "",
-      "class": "RunnerService",
+      "class": "Runner",
       "message": "image_name is missing",
       "backtrace": [
         ...
