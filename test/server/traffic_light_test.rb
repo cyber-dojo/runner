@@ -131,7 +131,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    bad_lambda_source = 'lambda{ |_1,_2| :red }'
+    bad_lambda_source = 'lambda{ |_a,_b| :red }'
     externals.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
@@ -148,7 +148,7 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
-    bad_lambda_source = 'lambda{ |_1,_2,_3,_4| :red }'
+    bad_lambda_source = 'lambda{ |_a,_b,_c,_d| :red }'
     externals.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
