@@ -1,7 +1,6 @@
-FROM cyberdojo/docker-base:7976545
+FROM cyberdojo/docker-base:d0da6ee
 LABEL maintainer=jon@jaggersoft.com
 
-RUN apk add --no-cache tini
 RUN gem install --no-document 'concurrent-ruby'
 
 COPY . /app

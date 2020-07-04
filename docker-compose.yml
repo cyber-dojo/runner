@@ -10,7 +10,6 @@ services:
     container_name: test-runner-client
     depends_on: [ runner-server ]
     image: cyberdojo/runner-client
-    init: true
     ports: [ "${CYBER_DOJO_RUNNER_DEMO_PORT}:${CYBER_DOJO_RUNNER_DEMO_PORT}" ]
     read_only: true
     restart: 'no'
