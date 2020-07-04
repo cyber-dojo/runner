@@ -12,7 +12,7 @@ unless ENV['NO_PROMETHEUS']
 end
 
 Signal.trap('TERM') {
-  $stdout.puts('Goodbye from this runner-server')
+  $stdout.puts('Goodbye from runner server')
   exit(0)
 }
 

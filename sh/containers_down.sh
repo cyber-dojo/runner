@@ -1,20 +1,15 @@
 #!/bin/bash -Eeu
 
 readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly TMP_DIR=$(mktemp -d /tmp/cyber-dojo.runner.XXXXXX)
-remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }
-trap remove_tmp_dir EXIT
 
+echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   stop
 
-docker logs test-runner-client &> "${TMP_DIR}/test-runner-client.docker.log"
-docker logs test-runner-server &> "${TMP_DIR}/test-runner-server.docker.log"
-
 echo
-grep "Goodbye from this runner-client" "${TMP_DIR}/test-runner-client.docker.log"
-grep "Goodbye from this runner-server" "${TMP_DIR}/test-runner-server.docker.log"
+docker logs test-runner-client 2>&1 | grep "Goodbye from runner client"
+docker logs test-runner-server 2>&1 | grep "Goodbye from runner server"
 echo
 
 docker-compose \
