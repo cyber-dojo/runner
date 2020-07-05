@@ -3,7 +3,7 @@ require 'json'
 require_relative 'prober'
 require_relative 'runner'
 
-class HttpJsonArgs
+class Dispatcher
 
   class Error < RuntimeError
     def initialize(message)
@@ -62,7 +62,7 @@ class HttpJsonArgs
   def request_error(text)
     # Exception messages use the words 'body' and 'path'
     # to match RackDispatcher's exception keys.
-    HttpJsonArgs::Error.new(text)
+    Dispatcher::Error.new(text)
   end
 
 end
