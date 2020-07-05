@@ -16,6 +16,10 @@ class SynchronizedSet
     @mutex.synchronize { @values.include?(value) }
   end
 
+  def add(value)
+    @mutex.synchronize { @values.add(value) }    
+  end
+
   def add?(value)
     @mutex.synchronize { @values.add?(value) }
   end

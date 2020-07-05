@@ -32,7 +32,7 @@ class SynchronizedSetTest < TestBase
   added values are included
   ) do
     s = SynchronizedSet.new
-    s.add?(42)
+    s.add(42)
     assert s.include?(42)
     assert_equal 1, s.size
   end
@@ -43,7 +43,7 @@ class SynchronizedSetTest < TestBase
   deleted values are not included
   ) do
     s = SynchronizedSet.new
-    s.add?(42)
+    s.add(42)
     s.delete(42)
     refute s.include?(42)
     assert_equal 0, s.size
