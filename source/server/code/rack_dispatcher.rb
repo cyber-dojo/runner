@@ -19,9 +19,9 @@ class RackDispatcher
     result = klass.new(externals).public_send(name, args)
     json_response_pass(200, result)
   rescue HttpJsonArgs::Error => error
-    json_response_fail(400, diagnostic(path, body, error))
+    json_response_fail(400, path, body, error)
   rescue Exception => error
-    json_response_fail(500, diagnostic(path, body, error))
+    json_response_fail(500, path, body, error)
   end
 
   private
@@ -33,7 +33,8 @@ class RackDispatcher
 
   # - - - - - - - - - - - - - - - -
 
-  def json_response_fail(status, json)
+  def json_response_fail(status, path, body, error)
+    json = diagnostic(path, body, error)
     body = JSON.pretty_generate(json)
     Externals.new(@options).stderr.write(body)
     [ status, CONTENT_TYPE_JSON, [body] ]
