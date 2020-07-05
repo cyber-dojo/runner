@@ -2,7 +2,7 @@
 
 class Prober
 
-  def initialize(_externals)
+  def initialize(_context)
   end
 
   def alive?

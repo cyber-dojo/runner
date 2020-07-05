@@ -7,10 +7,6 @@ class ExternalBashTest < TestBase
     'C89'
   end
 
-  def bash
-    externals.bash
-  end
-
   # - - - - - - - - - - - - - - - - -
 
   test '243',
@@ -54,6 +50,12 @@ class ExternalBashTest < TestBase
     assert_equal 'Fish', stderr, :stderr
     assert_equal 1, status, :status
     assert log.empty?, log
+  end
+
+  private
+  
+  def bash
+    context.bash
   end
 
 end

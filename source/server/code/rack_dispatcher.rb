@@ -5,9 +5,9 @@ require 'json'
 
 class RackDispatcher
 
-  def initialize(externals)
-    @dispatcher = Dispatcher.new(externals)
-    @logger = externals.logger
+  def initialize(context)
+    @context = context
+    @dispatcher = Dispatcher.new(context)
   end
 
   def call(env, request_class = Rack::Request)
@@ -34,7 +34,7 @@ class RackDispatcher
   def json_response_fail(status, path, body, error)
     response = diagnostic(path, body, error)
     json = JSON.pretty_generate(response)
-    @logger.write(json)
+    @context.logger.write(json)
     [ status, CONTENT_TYPE_JSON, [json] ]
   end
 

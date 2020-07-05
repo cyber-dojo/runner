@@ -12,8 +12,8 @@ class TrafficLight
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def initialize(externals)
-    @externals = externals
+  def initialize(context)
+    @context = context
   end
 
   def colour(image_name, stdout, stderr, status)
@@ -52,7 +52,7 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
-    stdout,stderr,status = @externals.bash.execute(command)
+    stdout,stderr,status = @context.bash.execute(command)
     if status === 0
       message = "Read red-amber-green lambda for #{image_name}"
       logger.write(message)
@@ -117,11 +117,11 @@ class TrafficLight
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def logger
-    @externals.logger
+    @context.logger
   end
 
   def rag_lambdas
-    @externals.rag_lambdas
+    @context.rag_lambdas
   end
 
 end

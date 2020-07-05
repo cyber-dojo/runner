@@ -8,7 +8,7 @@ require_relative 'stream_writer'
 require_relative 'traffic_light'
 require_relative 'rag_lambdas'
 
-class Externals
+class Context
 
   def initialize(options = {})
     @prober = options[:prober] || Prober.new(self)

@@ -13,8 +13,8 @@ class FeatureTgzErrorTest < TestBase
   faulty untgz
   is logged
   and typically results in amber traffic-light ) do
-    # override externals logger (already set in TestBase c'tor)
-    @externals = Externals.new(
+    # override logger (already set in TestBase c'tor)
+    @context = Context.new(
       threader:ThreaderStub.new,
       logger:StreamWriterSpy.new
     )

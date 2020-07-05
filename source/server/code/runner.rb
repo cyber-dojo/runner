@@ -26,8 +26,8 @@ require_relative 'utf8_clean'
 
 class Runner
 
-  def initialize(externals)
-    @externals = externals
+  def initialize(context)
+    @context = context
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ class Runner
     else
       stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
       sss = [ stdout[:content], stderr[:content], status[:content] ]
-      colour = @externals.traffic_light.colour(image_name, *sss)
+      colour = @context.traffic_light.colour(image_name, *sss)
     end
 
     {
@@ -89,7 +89,7 @@ class Runner
       :timeout => max_seconds,
       :kill_after => 1
     }
-    result = capture3_with_timeout(@externals, command, options) do
+    result = capture3_with_timeout(@context, command, options) do
       # The [docker run] command timed-out.
       docker_stop_container(id, image_name, container_name)
     end
@@ -105,7 +105,7 @@ class Runner
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
     options = { timeout:4 }
-    result = capture3_with_timeout(@externals, command, options)
+    result = capture3_with_timeout(@context, command, options)
     unless result[:status] === 0
       # :nocov:
       log(id, image_name, command)
@@ -227,9 +227,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def log(id, image_name, kind)
-    message = [ "id=#{id}", "image_name=#{image_name}", "(#{kind})" ].join(', ')
-    @externals.logger.write(message)
+  def log(id, image_name, message)
+    message = [ "id=#{id}", "image_name=#{image_name}", "(#{message})" ].join(', ')
+    @context.logger.write(message)
   end
 
   SPACE = ' '

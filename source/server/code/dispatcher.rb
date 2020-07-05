@@ -1,7 +1,4 @@
 # frozen_string_literal: true
-require_relative 'externals'
-require_relative 'prober'
-require_relative 'runner'
 require 'json'
 
 class Dispatcher
@@ -14,9 +11,8 @@ class Dispatcher
 
   # - - - - - - - - - - - - - - - -
 
-  def initialize(externals)
-    @prober = externals.prober    
-    @runner = externals.runner
+  def initialize(context)
+    @context = context
   end
 
   # - - - - - - - - - - - - - - - -
@@ -24,10 +20,10 @@ class Dispatcher
   def call(path, body)
     args = parse_json_args(body)
     case path
-    when '/sha'                then ['sha',    @prober.sha(**args)]
-    when '/alive'              then ['alive?', @prober.alive?(**args)]
-    when '/ready'              then ['ready?', @prober.ready?(**args)]
-    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', @runner.run_cyber_dojo_sh(**args)]
+    when '/sha'                then ['sha',    prober.sha(**args)]
+    when '/alive'              then ['alive?', prober.alive?(**args)]
+    when '/ready'              then ['ready?', prober.ready?(**args)]
+    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', runner.run_cyber_dojo_sh(**args)]
     else raise request_error('unknown path')
     end
   rescue JSON::JSONError
@@ -58,6 +54,16 @@ class Dispatcher
     # Exception messages use the words 'body' and 'path'
     # to match RackDispatcher's exception keys.
     Dispatcher::RequestError.new(text)
+  end
+
+  # - - - - - - - - - - - - - - - -
+
+  def prober
+    @context.prober
+  end
+
+  def runner
+    @context.runner
   end
 
 end

@@ -3,7 +3,7 @@ require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_relative 'stream_writer_spy'
 require_relative 'traffic_light_stub'
-require_source 'externals'
+require_source 'context'
 require_source 'runner'
 require 'json'
 
@@ -11,7 +11,15 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    externals(logger:StreamWriterSpy.new)
+    context(logger:StreamWriterSpy.new)
+  end
+
+  def context(options = {})
+    @context ||= Context.new(options)
+  end
+
+  def runner
+    Runner.new(context)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -143,15 +151,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 3. the runner object and arguments
-
-  def runner
-    Runner.new(externals)
-  end
-
-  def externals(options = {})
-    @externals ||= Externals.new(options)
-  end
+  # 3. arguments
 
   def id
     id58[0..5]
@@ -200,7 +200,7 @@ class TestBase < Id58TestBase
   # 5. misc helpers
 
   def log
-    externals.logger.written
+    context.logger.written
   end
 
   def uid

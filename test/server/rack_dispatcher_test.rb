@@ -134,8 +134,8 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB8', 'server error in Dispatcher results in 500 status response' do
-    externals = Externals.new(process:{}, logger:StreamWriterSpy.new)
-    rack = RackDispatcher.new(externals)
+    context = Context.new(process:{}, logger:StreamWriterSpy.new)
+    rack = RackDispatcher.new(context)
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
     env = { path_info:path_info, body:body }
@@ -174,8 +174,8 @@ class RackDispatcherTest < TestBase
 
   def rack_call(env, klass = RackRequestStub)
     @options = { logger: StreamWriterSpy.new }
-    externals = Externals.new(@options)
-    rack = RackDispatcher.new(externals)
+    context = Context.new(@options)
+    rack = RackDispatcher.new(context)
     @response = rack.call(env, klass)
     expected_type = { 'Content-Type' => 'application/json' }
     actual_type = @response[1]

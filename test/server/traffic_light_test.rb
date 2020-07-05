@@ -37,8 +37,8 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'xJ5', %w( lambdas are cached ) do
-    f1 = externals.traffic_light.send('[]', image_name)
-    f2 = externals.traffic_light.send('[]', image_name)
+    f1 = traffic_light.send('[]', image_name)
+    f2 = traffic_light.send('[]', image_name)
     assert f1.equal?(f2), :caching
   end
 
@@ -61,7 +61,7 @@ class TrafficLightTest < TestBase
 
   test 'xJ8', %w(
   rag-lambda can return a string or a symbol (Postel's Law) ) do
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
 
     rag = "lambda{|so,se,st| 'red' }"
     bash_stub_execute(docker_run_command, rag, '', 0)
@@ -81,7 +81,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, '', stderr, 1)
     assert_equal 'faulty', traffic_light_colour
     assert_no_lambda_logged('image_name must have /usr/local/bin/red_amber_green.rb file')
@@ -95,7 +95,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'not-a-lambda'
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = "exception when eval'ing lambda source"
@@ -112,7 +112,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = "lambda{ |so,se,st| fail RuntimeError, '42' }"
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
@@ -129,7 +129,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'lambda{ |_a,_b| :red }'
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
@@ -146,7 +146,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'lambda{ |_a,_b,_c,_d| :red }'
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
@@ -163,7 +163,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'lambda{|so,se,st| :orange }'
-    externals.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @bash = BashStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = "illegal colour; must be one of ['red','amber','green']"
@@ -172,6 +172,10 @@ class TrafficLightTest < TestBase
   end
 
   private
+
+  def traffic_light
+    context.traffic_light
+  end
 
   def assert_log_read_rag_lambda_count(expected)
     lines = log.split("\n")
@@ -191,7 +195,7 @@ class TrafficLightTest < TestBase
     @stdout = options.delete(:stdout) || Test::Data::PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || '0'
-    externals.traffic_light.colour(image_name, @stdout, @stderr, @status)
+    traffic_light.colour(image_name, @stdout, @stderr, @status)
   end
 
   def python_pytest_image_name
@@ -210,7 +214,7 @@ class TrafficLightTest < TestBase
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
 
   def bash_stub_execute(command, stdout, stderr, status)
-    externals.bash.stub_execute(command, stdout, stderr, status)
+    context.bash.stub_execute(command, stdout, stderr, status)
     @command = command
     @command_stdout = stdout
     @command_stderr = stderr

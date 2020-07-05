@@ -22,8 +22,8 @@ def require_code(name)
   require_relative "code/#{name}"
 end
 
-require_code 'externals'
+require_code 'context'
 require_code 'rack_dispatcher'
 
-externals = Externals.new
-run RackDispatcher.new(externals)
+context = Context.new
+run RackDispatcher.new(context)
