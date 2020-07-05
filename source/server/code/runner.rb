@@ -63,8 +63,7 @@ class Runner
          colour: colour,
         created: Sandbox.out(created),
         deleted: Sandbox.out(deleted).keys.sort,
-        changed: Sandbox.out(changed),
-            log: @externals.logger.log
+        changed: Sandbox.out(changed)
       }
     }
   end
@@ -234,7 +233,6 @@ class Runner
 
   def log(id, image_name, kind)
     message = [ "id=#{id}", "image_name=#{image_name}", "(#{kind})" ].join(', ')
-    @externals.stdout.write(message)
     @externals.logger.write(message)
   end
 

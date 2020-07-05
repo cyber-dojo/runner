@@ -36,7 +36,7 @@ class RackDispatcher
   def json_response_fail(status, path, body, error)
     json = diagnostic(path, body, error)
     body = JSON.pretty_generate(json)
-    Externals.new(@options).stderr.write(body)
+    Externals.new(@options).logger.write(body)
     [ status, CONTENT_TYPE_JSON, [body] ]
   end
 

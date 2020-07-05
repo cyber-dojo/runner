@@ -38,7 +38,6 @@ class FeatureTimedOutTest < TestBase
     assert_equal '', colour
 
     timed_out_message = "id=9E9B2A, image_name=#{image_name}, (timed_out)"
-    assert_stdouted(timed_out_message)
     assert_logged(timed_out_message)
   end
 
@@ -80,20 +79,12 @@ class FeatureTimedOutTest < TestBase
     assert_equal '', colour
 
     timed_out_message = "id=9E9B2C, image_name=#{image_name}, (timed_out)"
-    assert_stdouted(timed_out_message)
     assert_logged(timed_out_message)
   end
 
   private
 
-  def assert_stdouted(message)
-    spied = externals.stdout.spied
-    stdout_count = spied.count { |line| line.include?(message) }
-    assert_equal 1, stdout_count, ":#{spied}:"
-  end
-
   def assert_logged(message)
-    log = externals.logger.log
     logged_count = log.lines.count { |line| line.include?(message) }
     assert_equal 1, logged_count, ":#{log}:"
   end

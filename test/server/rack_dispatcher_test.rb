@@ -69,8 +69,7 @@ class RackDispatcherTest < TestBase
     rack_call(body:'', path_info:'ready')
     ready = assert_200('ready?')
     assert ready
-    assert_nothing_stdouted
-    assert_nothing_stderred
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -81,8 +80,7 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'sha' })
     sha = assert_200('sha')
     assert_sha(sha)
-    assert_nothing_stdouted
-    assert_nothing_stderred
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -93,8 +91,7 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'alive' })
     alive = assert_200('alive?')
     assert alive
-    assert_nothing_stdouted
-    assert_nothing_stderred
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -105,8 +102,7 @@ class RackDispatcherTest < TestBase
     rack_call({ body:{}.to_json, path_info:'ready' })
     ready = assert_200('ready?')
     assert ready
-    assert_nothing_stdouted
-    assert_nothing_stderred
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -121,7 +117,6 @@ class RackDispatcherTest < TestBase
     assert_gcc_starting
 
     message = 'Read red-amber-green lambda for cyberdojofoundation/gcc_assert'
-    assert_stdouted(message)
     assert_logged(message)
   end
 
@@ -150,8 +145,8 @@ class RackDispatcherTest < TestBase
     env = { path_info:path_info, body:body }
     rack_call(env)
     assert_400
-    stderred = @options[:stderr].spied.join
-    [response_body,stderred].each do |s|
+    log = @options[:logger].written
+    [response_body,log].each do |s|
       refute_nil s
       json = JSON.parse(s)
       ex = json['exception']
@@ -165,11 +160,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, klass = RackRequestStub)
-    @options = {
-      stdout: StreamWriterSpy.new,
-      stderr: StreamWriterSpy.new,
-      logger: StringLogger.new
-    }
+    @options = { logger: StreamWriterSpy.new }
     rack = RackDispatcher.new(@options)
     @response = rack.call(env, klass)
     expected_type = { 'Content-Type' => 'application/json' }
@@ -216,26 +207,12 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_nothing_stdouted
-    stdout = @options[:stdout].spied.join("\n")
-    assert_equal '', stdout, 'stdout is empty'
-  end
-
-  def assert_nothing_stderred
-    stderr = @options[:stderr].spied.join("\n")
-    assert_equal '', stderr, 'stderr is empty'
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def assert_stdouted(message)
-    stdout = @options[:stdout].spied.join("\n")
-    stdout_count = stdout.lines.count { |line| line.include?(message) }
-    assert_equal 1, stdout_count, ":#{stdout.lines}:"
+  def assert_nothing_logged
+    assert_equal '', @options[:logger].written
   end
 
   def assert_logged(message)
-    log = @options[:logger].log
+    log = @options[:logger].written
     logged_count = log.lines.count { |line| line.include?(message) }
     assert_equal 1, logged_count, ":#{log}:"
   end

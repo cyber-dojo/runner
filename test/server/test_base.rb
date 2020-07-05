@@ -12,8 +12,7 @@ class TestBase < Id58TestBase
   def initialize(arg)
     super(arg)
     externals({
-      stdout:StreamWriterSpy.new,
-      stderr: StreamWriterSpy.new
+      logger:StreamWriterSpy.new
     })
   end
 
@@ -201,7 +200,7 @@ class TestBase < Id58TestBase
   # 5. misc helpers
 
   def log
-    externals.logger.log
+    externals.logger.written
   end
 
   def uid

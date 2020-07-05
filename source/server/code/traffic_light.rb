@@ -55,8 +55,7 @@ class TrafficLight
     stdout,stderr,status = @externals.bash.execute(command)
     if status === 0
       message = "Read red-amber-green lambda for #{image_name}"
-      @externals.stdout.write(message)
-      @externals.logger.write(message)
+      logger.write(message)
       stdout
     else
       fail TrafficLight::Fault, {

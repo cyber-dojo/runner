@@ -3,15 +3,16 @@
 class StreamWriterSpy
 
   def initialize
-    @spied = []
+    @written = ''
   end
 
-  attr_reader :spied
+  attr_reader :written
 
   def write(message)
-    return if message.empty?
-    message += "\n" if message[-1] != "\n"
-    @spied << message
+    unless message.empty?
+      message += "\n" if message[-1] != "\n"
+      @written += message
+    end
   end
 
 end

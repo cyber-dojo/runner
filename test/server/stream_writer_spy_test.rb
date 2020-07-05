@@ -30,7 +30,7 @@ class StreamWriterSpyTest < TestBase
   def write(s)
     spy = StreamWriterSpy.new
     spy.write(s)
-    spy.spied.join
+    spy.written
   end
 
 end

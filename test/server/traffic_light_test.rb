@@ -28,13 +28,10 @@ class TrafficLightTest < TestBase
 
   test 'CB3', %w( read rag-lambda message is logged once ) do
     assert_log_read_rag_lambda_count 0
-    assert_stdout_read_rag_lambda_count 0
     assert_equal 'green', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_GREEN), log
     assert_log_read_rag_lambda_count 1
-    assert_stdout_read_rag_lambda_count 1
     assert_equal 'red', traffic_light_colour(stdout:Test::Data::PythonPytest::STDOUT_RED), log
     assert_log_read_rag_lambda_count 1
-    assert_stdout_read_rag_lambda_count 1
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -177,13 +174,7 @@ class TrafficLightTest < TestBase
   private
 
   def assert_log_read_rag_lambda_count(expected)
-    lines = log.lines
-    actual = read_red_amber_green_lambda_message_count(lines)
-    assert_equal expected, actual, lines
-  end
-
-  def assert_stdout_read_rag_lambda_count(expected)
-    lines = externals.stdout.spied
+    lines = log.split("\n")
     actual = read_red_amber_green_lambda_message_count(lines)
     assert_equal expected, actual, lines
   end

@@ -7,9 +7,10 @@ class StreamWriter
   end
 
   def write(message)
-    return if message.empty?
-    message += "\n" if message[-1] != "\n"
-    @stream.write(message)
+    unless message.empty?
+      message += "\n" if message[-1] != "\n"
+      @stream.write(message)
+    end
   end
 
 end
