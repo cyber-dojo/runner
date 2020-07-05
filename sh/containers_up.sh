@@ -92,7 +92,7 @@ stderr()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-warn_if_unclean()
+exit_if_unclean()
 {
   local -r name="${1}"
   local log=$(docker logs "${name}" 2>&1)
@@ -142,6 +142,6 @@ docker-compose \
   --force-recreate
 
 wait_until_ready test-runner-server ${CYBER_DOJO_RUNNER_PORT}
-warn_if_unclean  test-runner-server
+exit_if_unclean  test-runner-server
 
 wait_till_up     test-runner-client
