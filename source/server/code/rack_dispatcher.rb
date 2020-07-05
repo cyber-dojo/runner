@@ -1,26 +1,22 @@
 # frozen_string_literal: true
 require_relative 'dispatcher'
-require_relative 'externals'
 require 'rack'
 require 'json'
 
 class RackDispatcher
 
   def initialize(options)
-    @options = options
+    @externals = Externals.new(options)
+    @dispatcher = Dispatcher.new(@externals)
   end
 
   def call(env, request_class = Rack::Request)
     request = request_class.new(env)
     path = request.path_info
     body = request.body.read
-
-    externals = Externals.new(@options)
-    klass,name,args = Dispatcher.new(body).get(path)
-    result = klass.new(externals).public_send(name, args)
-
-    json_response_pass(200, result)
-  rescue Dispatcher::Error => error
+    name,result = @dispatcher.call(path, body)
+    json_response_pass(200, { name => result })
+  rescue Dispatcher::RequestError => error
     json_response_fail(400, path, body, error)
   rescue Exception => error
     json_response_fail(500, path, body, error)
@@ -28,18 +24,18 @@ class RackDispatcher
 
   private
 
-  def json_response_pass(status, json)
-    body = JSON.fast_generate(json)
-    [ status, CONTENT_TYPE_JSON, [body] ]
+  def json_response_pass(status, response)
+    json = JSON.fast_generate(response)
+    [ status, CONTENT_TYPE_JSON, [json] ]
   end
 
   # - - - - - - - - - - - - - - - -
 
   def json_response_fail(status, path, body, error)
-    json = diagnostic(path, body, error)
-    body = JSON.pretty_generate(json)
-    Externals.new(@options).logger.write(body)
-    [ status, CONTENT_TYPE_JSON, [body] ]
+    response = diagnostic(path, body, error)
+    json = JSON.pretty_generate(response)
+    @externals.logger.write(json)
+    [ status, CONTENT_TYPE_JSON, [json] ]
   end
 
   # - - - - - - - - - - - - - - - -

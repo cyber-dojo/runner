@@ -43,7 +43,7 @@ class Id58TestBase < MiniTest::Test
           id58_teardown
         end
       }
-      name = "id='#{id58_suffix}'\nos=#{os}\n'#{name58}'"
+      name = "id='#{id58}'\nos=#{os}\n'#{name58}'"
       define_method("test_\n#{name}".to_sym, &execute_around)
     end
   end

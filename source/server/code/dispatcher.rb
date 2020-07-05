@@ -1,11 +1,12 @@
 # frozen_string_literal: true
-require 'json'
+require_relative 'externals'
 require_relative 'prober'
 require_relative 'runner'
+require 'json'
 
 class Dispatcher
 
-  class Error < RuntimeError
+  class RequestError < RuntimeError
     def initialize(message)
       super
     end
@@ -13,56 +14,50 @@ class Dispatcher
 
   # - - - - - - - - - - - - - - - -
 
-  def initialize(body)
-    @args = json_parse(body)
-    unless @args.is_a?(Hash)
-      raise request_error('body is not JSON Hash')
-    end
-  rescue JSON::ParserError
-    raise request_error('body is not JSON')
+  def initialize(externals)
+    @prober = Prober.new(externals)
+    @runner = Runner.new(externals)
   end
 
   # - - - - - - - - - - - - - - - -
 
-  def get(path)
+  def call(path, body)
+    args = parse_json_args(body)
     case path
-    when '/sha'                then [Prober,'sha',{}]
-    when '/alive'              then [Prober,'alive?',{}]
-    when '/ready'              then [Prober,'ready?',{}]
-    when '/run_cyber_dojo_sh'  then [Runner,'run_cyber_dojo_sh',args]
-    else
-      raise request_error('unknown path')
+    when '/sha'                then ['sha',    @prober.sha(**args)]
+    when '/alive'              then ['alive?', @prober.alive?(**args)]
+    when '/ready'              then ['ready?', @prober.ready?(**args)]
+    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', @runner.run_cyber_dojo_sh(**args)]
+    else raise request_error('unknown path')
     end
+  rescue JSON::JSONError
+    raise request_error('body is not JSON')
+  rescue ArgumentError => caught
+    if r = caught.message.match('(missing|unknown) keyword(s?): (.*)')
+      raise request_error("#{r[1]} argument#{r[2]}: #{r[3]}")
+    end
+    raise
   end
 
   private
 
-  def json_parse(body)
-    if body === ''
-      {}
-    else
-      JSON.parse(body)
+  def parse_json_args(body)
+    args = {}
+    unless body === ''
+      json = JSON.parse!(body)
+      unless json.is_a?(Hash)
+        raise request_error('body is not JSON Hash')
+      end
+      # double-splat requires top-level symbol keys
+      json.each { |key,value| args[key.to_sym] = value }
     end
-  end
-
-  def args
-    { 'id' => arg('id'),
-      'files' => arg('files'),
-      'manifest' => arg('manifest')
-    }
-  end
-
-  def arg(name)
-    unless @args.has_key?(name)
-      raise request_error("#{name} is missing")
-    end
-    @args[name]
+    args
   end
 
   def request_error(text)
     # Exception messages use the words 'body' and 'path'
     # to match RackDispatcher's exception keys.
-    Dispatcher::Error.new(text)
+    Dispatcher::RequestError.new(text)
   end
 
 end

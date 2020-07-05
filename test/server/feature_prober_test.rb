@@ -13,7 +13,7 @@ class FeatureProberTest < TestBase
   test '190', %w(
   alive? is true, useful for k8s liveness probes
   ) do
-    assert alive?
+    assert prober.alive?
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -21,7 +21,7 @@ class FeatureProberTest < TestBase
   test '191', %w(
   ready? is true, useful for k8s readyness probes
   ) do
-    assert ready?
+    assert prober.ready?
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -29,25 +29,13 @@ class FeatureProberTest < TestBase
   test '192', %w(
   sha is SHA of git commit which created docker image
   ) do
-    assert_sha(sha)
+    assert_sha(prober.sha)
   end
 
   private
 
   def prober
     Prober.new(externals)
-  end
-
-  def alive?
-    prober.alive?['alive?']
-  end
-
-  def ready?
-    prober.ready?['ready?']
-  end
-
-  def sha
-    prober.sha['sha']
   end
 
 end

@@ -32,12 +32,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh(args = {})
-    id = args['id']
-    files = args['files']
-    image_name = args['manifest']['image_name']
-    max_seconds = args['manifest']['max_seconds']
-
+  def run_cyber_dojo_sh(id:, files:, manifest:)
+    image_name = manifest['image_name']
+    max_seconds = manifest['max_seconds']
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
     tgz_out, timed_out = *docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
@@ -55,7 +52,7 @@ class Runner
       colour = @externals.traffic_light.colour(image_name, *sss)
     end
 
-    { run_cyber_dojo_sh: {
+    {
          stdout: stdout,
          stderr: stderr,
          status: status[:content],
@@ -64,7 +61,6 @@ class Runner
         created: Sandbox.out(created),
         deleted: Sandbox.out(deleted).keys.sort,
         changed: Sandbox.out(changed)
-      }
     }
   end
 

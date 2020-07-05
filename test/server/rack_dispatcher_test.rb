@@ -134,7 +134,7 @@ class RackDispatcherTest < TestBase
   private
 
   def assert_rack_call_run_missing(args, name)
-    expected = "#{name} is missing"
+    expected = "missing argument: :#{name}"
     lacking = args.tap{|hs| hs.delete(name)}.to_json
     assert_rack_call_exception(expected, 'run_cyber_dojo_sh', lacking)
   end

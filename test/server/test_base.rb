@@ -87,15 +87,17 @@ class TestBase < Id58TestBase
       unchanged_files.delete(filename)
     end
 
-    args = {
-      'id' => id,
-      'files' => [ *unchanged_files, *changed_files, *created_files ].to_h,
-      'manifest' => {
-        'image_name' => defaulted_arg(options, :image_name, image_name),
-        'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
-      }
+    files = [ *unchanged_files, *changed_files, *created_files ].to_h
+    manifest = {
+      'image_name' => defaulted_arg(options, :image_name, image_name),
+      'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
-    @result = runner.run_cyber_dojo_sh(args)
+
+    @result = runner.run_cyber_dojo_sh(
+      id:id,
+      files:files,
+      manifest:manifest
+    )
     nil
   end
 
@@ -106,7 +108,7 @@ class TestBase < Id58TestBase
   attr_reader :result
 
   def run_result
-    result[:run_cyber_dojo_sh]
+    @result
   end
 
   def pretty_result(context)
@@ -153,14 +155,6 @@ class TestBase < Id58TestBase
     @externals ||= Externals.new(options)
   end
 
-  def image_name
-    manifest['image_name']
-  end
-
-  def max_seconds
-    manifest['max_seconds']
-  end
-
   def id
     id58[0..5]
   end
@@ -173,6 +167,14 @@ class TestBase < Id58TestBase
 
   def manifest
     @manifest ||= languages_start_points.manifest(display_name)
+  end
+
+  def image_name
+    manifest['image_name']
+  end
+
+  def max_seconds
+    manifest['max_seconds']
   end
 
   def languages_start_points
