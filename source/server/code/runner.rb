@@ -26,46 +26,31 @@ require_relative 'utf8_clean'
 
 class Runner
 
-  def initialize(externals, args)
+  def initialize(externals)
     @externals = externals
-    @args = args
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # args
-
-  def id
-    @args['id']
-  end
-
-  def files
-    @args['files']
-  end
-
-  def image_name
-    @args['manifest']['image_name']
-  end
-
-  def max_seconds
-    @args['manifest']['max_seconds']
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def run_cyber_dojo_sh
+  def run_cyber_dojo_sh(args = {})
+    id = args['id']
+    files = args['files']
+    image_name = args['manifest']['image_name']
+    max_seconds = args['manifest']['max_seconds']
+
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-    tgz_out, timed_out = *docker_run_cyber_dojo_sh(tgz_in)
+    tgz_out, timed_out = *docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
 
     if timed_out
-      log('timed_out')
+      log(id, image_name, 'timed_out')
       stdout = truncated('')
       stderr = truncated('')
       status = truncated('142')
       created,deleted,changed = {},{},{}
       colour = ''
     else
-      stdout,stderr,status, created,deleted,changed = *truncated_untgz(files_in, tgz_out)
+      stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
       sss = [ stdout[:content], stderr[:content], status[:content] ]
       colour = @externals.traffic_light.colour(image_name, *sss)
     end
@@ -100,9 +85,9 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_cyber_dojo_sh(tgz_in)
+  def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
-    command = docker_run_cyber_dojo_sh_command(container_name)
+    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     options = {
       :stdin_data => tgz_in,
       :binmode => true,
@@ -111,14 +96,14 @@ class Runner
     }
     result = capture3_with_timeout(@externals, command, options) do
       # The [docker run] command timed-out.
-      docker_stop_container(container_name)
+      docker_stop_container(id, image_name, container_name)
     end
     [ result[:stdout], result[:timeout] ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_stop_container(container_name)
+  def docker_stop_container(id, image_name, container_name)
     # If the container is running, stop it.
     # Note: I have tried using the [docker run] --stop-timeout option
     # instead of using capture3_with_timeout().
@@ -128,14 +113,14 @@ class Runner
     result = capture3_with_timeout(@externals, command, options)
     unless result[:status] === 0
       # :nocov:
-      log(command)
+      log(id, image_name, command)
       # :nocov:
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def truncated_untgz(files_in, tgz_out)
+  def truncated_untgz(id, image_name, files_in, tgz_out)
     begin
       files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
         memo[filename] = truncated(content)
@@ -145,7 +130,7 @@ class Runner
       status = files_out.delete('status') || truncated('142')
       created,deleted,changed = files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
-      log('Zlib::GzipFile::Error')
+      log(id, image_name, 'Zlib::GzipFile::Error')
       stdout = truncated('')
       stderr = truncated('')
       status = truncated('142')
@@ -164,7 +149,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_cyber_dojo_sh_command(container_name)
+  def docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     # --init makes container removal much faster
     <<~SHELL.strip
       docker run                                  \
@@ -177,7 +162,7 @@ class Runner
       --name=#{container_name} \
       #{TMP_FS_SANDBOX_DIR}    \
       #{TMP_FS_TMP_DIR}        \
-      #{ulimits}               \
+      #{ulimits(image_name)}   \
       --rm                     \
       --user=#{UID}:#{GID}     \
       #{image_name}            \
@@ -187,7 +172,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def ulimits
+  def ulimits(image_name)
     # [1] the nproc --limit is per user across all containers. See
     # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
     # There is no cpu-ulimit. See
@@ -206,7 +191,7 @@ class Runner
       '--security-opt=no-new-privileges', # no escalation
     ]
     # Special handling of clang/clang++'s -fsanitize=address
-    if clang?
+    if clang?(image_name)
       options << '--cap-add=SYS_PTRACE'
     else
       options << ulimit('data', 4*GB)     # data segment size
@@ -218,7 +203,7 @@ class Runner
     "--ulimit #{name}=#{limit}"
   end
 
-  def clang?
+  def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang')
   end
 
@@ -247,7 +232,7 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def log(kind)
+  def log(id, image_name, kind)
     message = [ "id=#{id}", "image_name=#{image_name}", "(#{kind})" ].join(', ')
     @externals.stdout.write(message)
     @externals.logger.write(message)

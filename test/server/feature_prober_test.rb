@@ -35,7 +35,7 @@ class FeatureProberTest < TestBase
   private
 
   def prober
-    Prober.new(externals, {})
+    Prober.new(externals)
   end
 
   def alive?

@@ -2,18 +2,18 @@
 
 class Prober
 
-  def initialize(_externals, _args)
+  def initialize(_externals)
   end
 
-  def alive?
+  def alive?(args=nil)
     { 'alive?' => true }
   end
 
-  def ready?
+  def ready?(args=nil)
     { 'ready?' => true }
   end
 
-  def sha
+  def sha(args=nil)
     { 'sha' => ENV['SHA'] }
   end
 

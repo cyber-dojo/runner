@@ -96,7 +96,7 @@ class TestBase < Id58TestBase
         'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
       }
     }
-    @result = runner(args).run_cyber_dojo_sh
+    @result = runner.run_cyber_dojo_sh(args)
     nil
   end
 
@@ -146,8 +146,8 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 3. the runner object and arguments
 
-  def runner(args)
-    Runner.new(externals, args)
+  def runner
+    Runner.new(externals)
   end
 
   def externals(options = {})
