@@ -5,9 +5,9 @@ require 'json'
 
 class RackDispatcher
 
-  def initialize(options = {})
-    @externals = Externals.new(options)
-    @dispatcher = Dispatcher.new(@externals)
+  def initialize(externals)
+    @externals = externals
+    @dispatcher = Dispatcher.new(externals)
   end
 
   def call(env, request_class = Rack::Request)

@@ -32,7 +32,7 @@ class Dispatcher
     end
   rescue JSON::JSONError
     raise request_error('body is not JSON')
-  rescue ArgumentError => caught
+  rescue Exception => caught
     if r = caught.message.match('(missing|unknown) keyword(s?): (.*)')
       raise request_error("#{r[1]} argument#{r[2]}: #{r[3]}")
     end

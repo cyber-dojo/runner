@@ -11,9 +11,7 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    externals({
-      logger:StreamWriterSpy.new
-    })
+    externals(logger:StreamWriterSpy.new)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -8,7 +8,7 @@ require_relative 'rag_lambdas'
 
 class Externals
 
-  def initialize(options)
+  def initialize(options = {})
     @logger = options[:logger] || StreamWriter.new($stdout)
 
     @bash = options[:bash] || ExternalBash.new
@@ -16,7 +16,7 @@ class Externals
     @threader = options[:threader] || ExternalThreader.new
 
     @rag_lambdas = options[:rag_lambdas] || RagLambdas.new
-    @traffic_light = options[:traffic_lights] || TrafficLight.new(self)
+    @traffic_light = options[:traffic_light] || TrafficLight.new(self)
   end
 
   attr_reader :logger
