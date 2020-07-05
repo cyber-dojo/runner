@@ -15,8 +15,8 @@ class Dispatcher
   # - - - - - - - - - - - - - - - -
 
   def initialize(externals)
-    @prober = Prober.new(externals)
-    @runner = Runner.new(externals)
+    @prober = externals.prober    
+    @runner = externals.runner
   end
 
   # - - - - - - - - - - - - - - - -

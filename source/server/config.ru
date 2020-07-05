@@ -18,7 +18,12 @@ Signal.trap('TERM') {
   exit(0)
 }
 
-require_relative 'code/externals'
-require_relative 'code/rack_dispatcher'
+def require_code(name)
+  require_relative "code/#{name}"
+end
+
+require_code 'externals'
+require_code 'rack_dispatcher'
+
 externals = Externals.new
 run RackDispatcher.new(externals)
