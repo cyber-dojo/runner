@@ -18,8 +18,5 @@ Signal.trap('TERM') {
   exit(0)
 }
 
-require_relative 'code/rag_lambdas'
 require_relative 'code/rack_dispatcher'
-options = { rag_lambdas: RagLambdas.new }
-dispatcher = RackDispatcher.new(options)
-run dispatcher
+run RackDispatcher.new

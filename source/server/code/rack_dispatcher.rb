@@ -5,7 +5,7 @@ require 'json'
 
 class RackDispatcher
 
-  def initialize(options)
+  def initialize(options = {})
     @externals = Externals.new(options)
     @dispatcher = Dispatcher.new(@externals)
   end
