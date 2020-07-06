@@ -117,7 +117,9 @@ module HomeFiles
   # 2) remove files we don't want returned.
   #      cyber_dojo_delete_dirs ...
   #      cyber_dojo_delete_files ...
-
+  # For example, see
+  # https://github.com/cyber-dojo-start-points/python-pytest/blob/master/start_point/cyber-dojo.sh
+  
   FS_CLEANERS =
     <<~SHELL.strip
     function cyber_dojo_delete_dirs()
