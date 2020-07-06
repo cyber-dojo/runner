@@ -7,10 +7,10 @@ docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   stop
 
-sleep 2
+#sleep 2
 echo
-docker logs test-runner-client 2>&1 | grep "Goodbye from runner client"
-docker logs test-runner-server 2>&1 | grep "Goodbye from runner server"
+#docker logs test-runner-client 2>&1 | grep "Goodbye from runner client"
+#docker logs test-runner-server 2>&1 | grep "Goodbye from runner server"
 echo
 
 docker-compose \
