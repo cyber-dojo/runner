@@ -26,4 +26,11 @@ require_code 'context'
 require_code 'rack_dispatcher'
 
 context = Context.new
+unless ENV['NO_PULLER_INITIALIZATION']
+  # https://docs.docker.com/engine/reference/commandline/images/#format-the-output
+  ls = `docker image ls --format "{{.Repository}}:{{.Tag}}"`
+  image_names = ls.split("\n").sort.uniq - ['<none>:<none>']
+  image_names.each { |image_name| context.puller.add(image_name) }
+  context.logger.write("#{image_names.size} image names added to Puller")
+end
 run RackDispatcher.new(context)

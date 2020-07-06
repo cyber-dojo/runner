@@ -13,11 +13,13 @@ class SynchronizedSet
   end
 
   def include?(value)
+    # Documentation for Concurrent::Set suggests it locks
+    # after the include, on each access. This should be faster.
     @mutex.synchronize { @values.include?(value) }
   end
 
   def add(value)
-    @mutex.synchronize { @values.add(value) }    
+    @mutex.synchronize { @values.add(value) }
   end
 
   def add?(value)

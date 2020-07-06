@@ -134,6 +134,7 @@ echo_docker_log()
 readonly ROOT_DIR="$( cd "$(dirname "${0}")/.." && pwd )"
 
 export NO_PROMETHEUS=true
+export NO_PULLER_INITIALIZATION=true
 
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
