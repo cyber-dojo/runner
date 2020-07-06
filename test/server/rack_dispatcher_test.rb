@@ -50,7 +50,6 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # run_cyber_dojo_sh
 
   c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
     args = run_cyber_dojo_sh_args
@@ -61,6 +60,12 @@ class RackDispatcherTest < TestBase
 
     message = 'Read red-amber-green lambda for cyberdojofoundation/gcc_assert'
     assert_logged(message)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'A9F', 'pull_image' do
+    # TODO
   end
 
   # = = = = = = = = = = = = = = = = =

@@ -214,7 +214,7 @@ class TestBase < Id58TestBase
   end
 
   def intact(content)
-    { content: content, truncated: false }
+    { content:content, truncated:false }
   end
 
   def stat_cmd
@@ -231,8 +231,12 @@ class TestBase < Id58TestBase
     assert sha.is_a?(String), :class
     assert_equal 40, sha.size, :size
     sha.each_char do |ch|
-      assert '0123456789abcdef'.include?(ch), ch
+      assert hex_char?(ch), ch
     end
+  end
+
+  def hex_char?(ch)
+    '0123456789abcdef'.include?(ch)
   end
 
 end

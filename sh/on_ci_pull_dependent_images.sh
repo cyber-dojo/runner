@@ -14,14 +14,9 @@ on_ci_pull_dependent_images()
     return
   fi
   echo 'on CI so pulling dependent images'
-  # to avoid pulls happening in speed tests
+  # eg, to avoid pulls happening in speed tests
   docker pull cyberdojo/check-test-results
-  docker pull cyberdojofoundation/gcc_assert
-  docker pull cyberdojofoundation/csharp_nunit
-  docker pull cyberdojofoundation/visual-basic_nunit
-  docker pull cyberdojofoundation/python_pytest
-  docker pull cyberdojofoundation/clang_assert
-  docker pull cyberdojofoundation/perl_test_simple
+  docker exec test-runner-server ruby /test/pull_images.rb
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
