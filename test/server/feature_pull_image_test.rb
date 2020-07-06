@@ -18,7 +18,7 @@ class FeaturePullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 't9K', %w(
-  pull an already added image_name returns :pulled
+  pull an already added image_name does not start a new thread and returns :pulled
   ) do
     puller.add(gcc_assert)
     assert_equal :pulled, puller.pull_image(id:id, image_name:gcc_assert)
