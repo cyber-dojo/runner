@@ -2,7 +2,6 @@
 require_relative 'test_base'
 require_source 'rack_dispatcher'
 require 'json'
-require 'stringio'
 
 class RackDispatcherTest < TestBase
 
@@ -10,69 +9,19 @@ class RackDispatcherTest < TestBase
     'D06'
   end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BAF',
-  %w( unknown path becomes exception ) do
-    expected = 'unknown path'
-    assert_rack_call_exception(expected, nil,       '{}')
-    assert_rack_call_exception(expected, [],        '{}')
-    assert_rack_call_exception(expected, {},        '{}')
-    assert_rack_call_exception(expected, true,      '{}')
-    assert_rack_call_exception(expected, 42,        '{}')
-    assert_rack_call_exception(expected, 'unknown', '{}')
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB0',
-  %w( malformed json in http payload becomes exception ) do
-    expected = 'body is not JSON'
-    METHOD_NAMES.each do |method_name|
-      assert_rack_call_exception(expected, method_name, 'sdfsdf')
-      assert_rack_call_exception(expected, method_name, 'nil')
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'BB1',
-  %w( json not Hash in http payload becomes exception ) do
-    expected = 'body is not JSON Hash'
-    METHOD_NAMES.each do |method_name|
-      assert_rack_call_exception(expected, method_name, 'null')
-      assert_rack_call_exception(expected, method_name, '[]')
-      assert_rack_call_exception(expected, method_name, 'true')
-      assert_rack_call_exception(expected, method_name, '42')
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # missing arguments
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AA6',
-  %w( new API: missing argument becomes exception ) do
-    assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'id')
-    assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'files')
-    assert_rack_call_run_missing(run_cyber_dojo_sh_args, 'manifest')
-  end
-
-  # - - - - - - - - - - - - - - - - -
-  # empty body behave as {}
-  # - - - - - - - - - - - - - - - - -
+  # = = = = = = = = = = = = = = = = =
+  # 200
+  # = = = = = = = = = = = = = = = = =
 
   test '82d', %w(
   allow '' instead of {} to allow kubernetes
   liveness/readyness http probes ) do
     rack_call(body:'', path_info:'ready')
     ready = assert_200('ready?')
-    assert ready
+    assert ready.is_a?(TrueClass)
     assert_nothing_logged
   end
 
-  # - - - - - - - - - - - - - - - - -
-  # sha
   # - - - - - - - - - - - - - - - - -
 
   test 'AB0', 'sha' do
@@ -83,30 +32,25 @@ class RackDispatcherTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - -
-  # alive?
-  # - - - - - - - - - - - - - - - - -
 
-  test '15D', 'its alive' do
+  test '15D', 'alive' do
     rack_call({ body:{}.to_json, path_info:'alive' })
     alive = assert_200('alive?')
-    assert alive
+    assert alive.is_a?(TrueClass)
     assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
-  # ready?
-  # - - - - - - - - - - - - - - - - -
 
-  test 'A9E', 'its ready' do
+  test 'A9E', 'ready' do
     rack_call({ body:{}.to_json, path_info:'ready' })
     ready = assert_200('ready?')
-    assert ready
+    assert ready.is_a?(TrueClass)
     assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
   # run_cyber_dojo_sh
-  # - - - - - - - - - - - - - - - - -
 
   c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
     args = run_cyber_dojo_sh_args
@@ -119,7 +63,81 @@ class RackDispatcherTest < TestBase
     assert_logged(message)
   end
 
+  # = = = = = = = = = = = = = = = = =
+  # 400
+  # = = = = = = = = = = = = = = = = =
+
+  test 'BB0',
+  %w( malformed json in http payload becomes 400 exception ) do
+    expected = 'body is not JSON'
+    METHOD_NAMES.each do |method_name|
+      assert_rack_call_400_exception(expected, method_name, 'sdfsdf')
+      assert_rack_call_400_exception(expected, method_name, 'nil')
+    end
+  end
+
   # - - - - - - - - - - - - - - - - -
+
+  test 'BB1',
+  %w( json not Hash in http payload becomes 400 exception ) do
+    expected = 'body is not JSON Hash'
+    METHOD_NAMES.each do |method_name|
+      assert_rack_call_400_exception(expected, method_name, 'null')
+      assert_rack_call_400_exception(expected, method_name, '[]')
+      assert_rack_call_400_exception(expected, method_name, 'true')
+      assert_rack_call_400_exception(expected, method_name, '42')
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'BB2',
+  %w( unknown path becomes 400 exception ) do
+    expected = 'unknown path'
+    assert_rack_call_400_exception(expected, nil,       '{}')
+    assert_rack_call_400_exception(expected, [],        '{}')
+    assert_rack_call_400_exception(expected, {},        '{}')
+    assert_rack_call_400_exception(expected, true,      '{}')
+    assert_rack_call_400_exception(expected, 42,        '{}')
+    assert_rack_call_400_exception(expected, 'unknown', '{}')
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AA6',
+  %w( missing argument becomes 400 exception ) do
+    f = 'run_cyber_dojo_sh'
+    assert_rack_call_400_exception('missing argument: :id', f, {files:{},manifest:{}}.to_json)
+    assert_rack_call_400_exception('missing argument: :files', f, {id:{},manifest:{}}.to_json)
+    assert_rack_call_400_exception('missing argument: :manifest', f, {id:{},files:{}}.to_json)
+  end
+
+  test 'AA7',
+  %w( missing arguments becomes 400 exception ) do
+    f = 'run_cyber_dojo_sh'
+    assert_rack_call_400_exception('missing arguments: :id, :files', f, {manifest:{}}.to_json)
+    assert_rack_call_400_exception('missing arguments: :id, :manifest', f, {files:{}}.to_json)
+    assert_rack_call_400_exception('missing arguments: :files, :manifest', f, {id:{}}.to_json)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'AA8',
+  %w( unknown argument becomes 400 exception ) do
+    assert_rack_call_400_exception('unknown argument: :x', 'sha', {x:{}}.to_json)
+    assert_rack_call_400_exception('unknown argument: :y', 'alive', {y:{}}.to_json)
+    assert_rack_call_400_exception('unknown argument: :z', 'ready', {z:{}}.to_json)
+  end
+
+  test 'AA9',
+  %w( unknown arguments becomes 400 exception ) do
+    assert_rack_call_400_exception('unknown arguments: :x, :y', 'sha', {x:{},y:{}}.to_json)
+    assert_rack_call_400_exception('unknown arguments: :a, :q, :b', 'alive', {a:{},q:{},b:{}}.to_json)
+  end
+
+  # = = = = = = = = = = = = = = = = =
+  # 500
+  # = = = = = = = = = = = = = = = = =
 
   test 'AB7', 'server error in RackDispatcher results in 500 status response' do
     path_info = 'run_cyber_dojo_sh'
@@ -145,15 +163,7 @@ class RackDispatcherTest < TestBase
 
   private
 
-  def assert_rack_call_run_missing(args, name)
-    expected = "missing argument: :#{name}"
-    lacking = args.tap{|hs| hs.delete(name)}.to_json
-    assert_rack_call_exception(expected, 'run_cyber_dojo_sh', lacking)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def assert_rack_call_exception(expected, path_info, body)
+  def assert_rack_call_400_exception(expected, path_info, body)
     env = { path_info:path_info, body:body }
     rack_call(env)
     assert_400
