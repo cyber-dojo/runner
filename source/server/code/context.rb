@@ -16,7 +16,7 @@ class Context
 
     @logger = options[:logger] || StreamWriter.new($stdout)
 
-    @bash = options[:bash] || ExternalBash.new
+    @bash = options[:bash] || ExternalBash.new(self)
     @process = options[:process] || ExternalProcess.new
     @threader = options[:threader] || ExternalThreader.new
 
