@@ -20,6 +20,15 @@ module HttpJson
       fail @exception_class, error.message
     end
 
+    # - - - - - - - - - - - - - - - - - - - - -
+
+    def post(path, args)
+      response = @requester.post(path, args)
+      unpacked(response.body, path.to_s)
+    rescue => error
+      fail @exception_class, error.message
+    end
+
     private
 
     def unpacked(body, path)

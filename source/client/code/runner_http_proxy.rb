@@ -27,8 +27,12 @@ class RunnerHttpProxy
     @http.get(__method__, {})
   end
 
+  def pull_image(args)
+    @http.post(__method__, args)
+  end
+
   def run_cyber_dojo_sh(args)
-    @http.get(__method__, args)
+    @http.post(__method__, args)
   end
 
 end

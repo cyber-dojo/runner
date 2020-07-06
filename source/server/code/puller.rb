@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'synchronized_set'
+require_relative 'tagged_image_name'
 
 class Puller
 
@@ -18,7 +19,7 @@ class Puller
   # - - - - - - - - - - - - - - - - - - -
 
   def pull_image(id:, image_name:)
-    image_name = Docker::tagged_image_name(image_name)
+    image_name = ::Docker::tagged_image_name(image_name)
     if !@pulled.include?(image_name)
       if @pulling.add?(image_name)
         threader.thread do
