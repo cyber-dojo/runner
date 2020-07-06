@@ -7,7 +7,6 @@ require_relative 'puller'
 require_relative 'runner'
 require_relative 'stream_writer'
 require_relative 'traffic_light'
-require_relative 'rag_lambdas'
 
 class Context
 
@@ -21,13 +20,12 @@ class Context
     @process = options[:process] || ExternalProcess.new
     @threader = options[:threader] || ExternalThreader.new
 
-    @rag_lambdas = options[:rag_lambdas] || RagLambdas.new
     @traffic_light = options[:traffic_light] || TrafficLight.new(self)
   end
 
   attr_reader :logger, :prober, :puller, :runner
 
   attr_reader :bash, :process, :threader
-  attr_reader :rag_lambdas, :traffic_light
+  attr_reader :traffic_light
 
 end

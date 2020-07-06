@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-require_relative 'empty'
+require_relative 'empty_binding'
+require_relative 'rag_lambdas'
 require 'json'
 
 class TrafficLight
@@ -14,6 +15,7 @@ class TrafficLight
 
   def initialize(context)
     @context = context
+    @rag_lambdas = RagLambdas.new
   end
 
   def colour(image_name, stdout, stderr, status)
@@ -32,11 +34,11 @@ class TrafficLight
   private
 
   def [](image_name)
-    light = rag_lambdas[image_name]
+    light = @rag_lambdas[image_name]
     return light unless light.nil?
     lambda_source = checked_read_lambda_source(image_name)
     fn = checked_eval(lambda_source)
-    rag_lambdas.compute(image_name) {
+    @rag_lambdas.compute(image_name) {
       lambda { |stdout,stderr,status|
         colour = checked_call(fn, lambda_source, stdout, stderr, status)
         checked_colour(colour, lambda_source)
@@ -118,10 +120,6 @@ class TrafficLight
 
   def logger
     @context.logger
-  end
-
-  def rag_lambdas
-    @context.rag_lambdas
   end
 
 end
