@@ -32,7 +32,7 @@ class Puller
   def threaded_pull_image(id, image_name)
     t0 = Time.now
     command = "docker pull #{image_name}"
-    _,_,status = bash.execute(command)
+    _,_,status = sheller.execute(command)
     if status === 0
       add(image_name)
       t1 = Time.now
@@ -43,8 +43,8 @@ class Puller
     @pulling.delete(image_name)
   end
 
-  def bash
-    @context.bash
+  def sheller
+    @context.sheller
   end
 
   def logger

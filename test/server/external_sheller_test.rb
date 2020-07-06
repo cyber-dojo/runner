@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ExternalBashTest < TestBase
+class ExternalShellerTest < TestBase
 
   def self.id58_prefix
     'C89'
@@ -14,7 +14,7 @@ class ExternalBashTest < TestBase
       then the exception is untouched
       then nothing is logged
   ) do
-    error = assert_raises(Errno::ENOENT) { bash.execute('xxx Hello') }
+    error = assert_raises(Errno::ENOENT) { sheller.execute('xxx Hello') }
     expected = 'No such file or directory - xxx'
     assert_equal expected, error.message, :error_message
     assert log.empty?, log
@@ -28,7 +28,7 @@ class ExternalBashTest < TestBase
   it logs nothing,
   it returns [stdout,stderr,status],
   ) do
-    stdout,stderr,status = bash.execute('printf Specs')
+    stdout,stderr,status = sheller.execute('printf Specs')
     assert_equal 'Specs', stdout, :stdout
     assert_equal '', stderr, :stderr
     assert_equal 0, status, :status
@@ -45,7 +45,7 @@ class ExternalBashTest < TestBase
   it returns [stdout,stderr,status],
   ) do
     command = 'printf Croc && >&2 printf Fish && false'
-    stdout,stderr,status = bash.execute(command)
+    stdout,stderr,status = sheller.execute(command)
     assert_equal 'Croc', stdout, :stdout
     assert_equal 'Fish', stderr, :stderr
     assert_equal 1, status, :status
@@ -57,8 +57,8 @@ class ExternalBashTest < TestBase
 
   private
 
-  def bash
-    context.bash
+  def sheller
+    context.sheller
   end
 
 end

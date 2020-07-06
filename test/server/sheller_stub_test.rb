@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_relative 'bash_stub'
+require_relative 'sheller_stub'
 
-class BashStubTest < TestBase
+class ShellerStubTest < TestBase
 
   def self.id58_prefix
     'F03'
   end
 
   def id58_setup
-    @bash = BashStub.new
+    @sheller = ShellerStub.new
   end
 
-  attr_reader :bash
+  attr_reader :sheller
 
   # - - - - - - - - - - - - - - -
 
@@ -22,7 +22,7 @@ class BashStubTest < TestBase
   when no execute()s are stubbed
   and no execute()s are made
   ) do
-    bash.teardown
+    sheller.teardown
   end
 
   # - - - - - - - - - - - - - - -
@@ -30,7 +30,7 @@ class BashStubTest < TestBase
   test '652',
   %w( execute() raises when execute() is not stubbed
   ) do
-    assert_raises { bash.execute(pwd) }
+    assert_raises { sheller.execute(pwd) }
   end
 
   # - - - - - - - - - - - - - - -
@@ -38,8 +38,8 @@ class BashStubTest < TestBase
   test '181',
   %w( execute() raises when execute() is stubbed but for a different command
   ) do
-    bash.stub_execute(pwd, wd, stderr='', success)
-    assert_raises { bash.execute(not_pwd = "cd #{wd}") }
+    sheller.stub_execute(pwd, wd, stderr='', success)
+    assert_raises { sheller.execute(not_pwd = "cd #{wd}") }
   end
 
   # - - - - - - - - - - - - - - -
@@ -50,12 +50,12 @@ class BashStubTest < TestBase
   when one execute() is stubbed
   and a matching execute() is made
   ) do
-    bash.stub_execute(pwd, wd, stderr='', success)
-    stdout,stderr,status = bash.execute('pwd')
+    sheller.stub_execute(pwd, wd, stderr='', success)
+    stdout,stderr,status = sheller.execute('pwd')
     assert_equal wd, stdout
     assert_equal '', stderr
     assert_equal success, status
-    bash.teardown
+    sheller.teardown
   end
 
   # - - - - - - - - - - - - - - -
@@ -66,8 +66,8 @@ class BashStubTest < TestBase
   when a execute() is stubbed
   and no execute() is made
   ) do
-    bash.stub_execute(pwd, wd, stderr='', success)
-    assert_raises { bash.teardown }
+    sheller.stub_execute(pwd, wd, stderr='', success)
+    assert_raises { sheller.teardown }
   end
 
   # - - - - - - - - - - - - - - -
@@ -76,12 +76,12 @@ class BashStubTest < TestBase
   %w( teardown does not raise
       when there is an uncaught exception
   ) do
-    bash.stub_execute(pwd, wd, stderr='', success)
+    sheller.stub_execute(pwd, wd, stderr='', success)
     error = assert_raises {
       begin
         raise 'forced'
       ensure
-        bash.teardown
+        sheller.teardown
       end
     }
     assert_equal 'forced', error.message

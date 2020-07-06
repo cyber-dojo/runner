@@ -54,7 +54,7 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
-    stdout,stderr,status = @context.bash.execute(command)
+    stdout,stderr,status = @context.sheller.execute(command)
     if status === 0
       message = "Read red-amber-green lambda for #{image_name}"
       logger.write(message)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 require_relative 'data/python_pytest'
-require_relative 'bash_stub'
+require_relative 'sheller_stub'
 require_source 'traffic_light'
 
 class TrafficLightTest < TestBase
@@ -62,7 +62,7 @@ class TrafficLightTest < TestBase
 
   test 'xJ8', %w(
   rag-lambda can return a string or a symbol (Postel's Law) ) do
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
 
     rag = "lambda{|so,se,st| 'red' }"
     bash_stub_execute(docker_run_command, rag, '', 0)
@@ -82,7 +82,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
     bash_stub_execute(docker_run_command, '', stderr, 1)
     assert_equal 'faulty', traffic_light_colour
     assert_no_lambda_logged('image_name must have /usr/local/bin/red_amber_green.rb file')
@@ -96,7 +96,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'not-a-lambda'
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = "exception when eval'ing lambda source"
@@ -113,7 +113,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = "lambda{ |so,se,st| fail RuntimeError, '42' }"
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
@@ -130,7 +130,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'lambda{ |_a,_b| :red }'
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
@@ -147,7 +147,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'lambda{ |_a,_b,_c,_d| :red }'
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
@@ -164,7 +164,7 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     bad_lambda_source = 'lambda{|so,se,st| :orange }'
-    context.instance_exec { @bash = BashStub.new }
+    context.instance_exec { @sheller = ShellerStub.new }
     bash_stub_execute(docker_run_command, bad_lambda_source, '', 0)
     assert_equal 'faulty', traffic_light_colour
     context = "illegal colour; must be one of ['red','amber','green']"
@@ -215,7 +215,7 @@ class TrafficLightTest < TestBase
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
 
   def bash_stub_execute(command, stdout, stderr, status)
-    context.bash.stub_execute(command, stdout, stderr, status)
+    context.sheller.stub_execute(command, stdout, stderr, status)
     @command = command
     @command_stdout = stdout
     @command_stderr = stderr

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'open3'
 
-class ExternalBash
+class ExternalSheller
 
   def initialize(context)
     @context = context
