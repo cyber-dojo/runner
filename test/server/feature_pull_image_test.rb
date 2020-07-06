@@ -18,7 +18,9 @@ class FeaturePullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 't9K', %w(
-  pull an already added image_name does not start a new thread and returns :pulled
+  given gcc_assert has already been pulled,
+  when I call pull_image(id,gcc_assert),
+  then a new thread is not started, no shell command is run, and the result is :pulled
   ) do
     puller.add(gcc_assert)
     assert_equal :pulled, puller.pull_image(id:id, image_name:gcc_assert)
@@ -28,17 +30,19 @@ class FeaturePullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 't9M', %w(
-  pull a new image_name pulls it in a new thread and returns :pulling
+  given gcc_assert has not already been pulled,
+  when I call pull_image(id, gcc_assert),
+  then the docker pull runs in a new thread and the result is :pulling
   ) do
-    @context.sheller.stub_capture(
-      "docker pull #{gcc_assert}",
-      [
+    @context.sheller.capture("docker pull #{gcc_assert}") {
+      stdout = [
         "Status: Downloaded newer image for #{gcc_assert}",
         "docker.io/#{gcc_assert}"
-      ].join("\n"),
-      '',
-      0
-    )
+      ].join("\n")
+      stderr = ''
+      status = 0
+      [stdout,stderr,status]
+    }
     expected = :pulling
     actual = puller.pull_image(id:id, image_name:gcc_assert)
     assert_equal expected, actual

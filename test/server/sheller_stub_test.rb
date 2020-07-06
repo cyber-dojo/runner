@@ -26,18 +26,18 @@ class ShellerStubTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
-  test '652',
-  %w( capture() raises when capture() is not stubbed
+  test '652', %w(
+  capture() raises when capture() is not stubbed
   ) do
     assert_raises { sheller.capture(pwd) }
   end
 
   # - - - - - - - - - - - - - - -
 
-  test '181',
-  %w( capture() raises when capture() is stubbed but for a different command
+  test '181', %w(
+  capture() raises when capture() is stubbed but for a different command
   ) do
-    sheller.stub_capture(pwd, wd, stderr='', success)
+    sheller.capture(pwd) { [wd, stderr='', success] }
     assert_raises { sheller.capture(not_pwd = "cd #{wd}") }
   end
 
@@ -49,7 +49,7 @@ class ShellerStubTest < TestBase
   when one capture() is stubbed
   and a matching capture() is made
   ) do
-    sheller.stub_capture(pwd, wd, stderr='', success)
+    sheller.capture(pwd) { [wd, stderr='', success] }
     stdout,stderr,status = sheller.capture('pwd')
     assert_equal wd, stdout
     assert_equal '', stderr
@@ -65,17 +65,17 @@ class ShellerStubTest < TestBase
   when a capture() is stubbed
   and no capture() is made
   ) do
-    sheller.stub_capture(pwd, wd, stderr='', success)
+    sheller.capture(pwd) { [wd, stderr='', success] }
     assert_raises { sheller.teardown }
   end
 
   # - - - - - - - - - - - - - - -
 
-  test '470',
-  %w( teardown does not raise
-      when there is an uncaught exception
+  test '470', %w(
+  teardown does not raise
+  when there is an uncaught exception
   ) do
-    sheller.stub_capture(pwd, wd, stderr='', success)
+    sheller.capture(pwd) { [wd, stderr='', success] }
     error = assert_raises {
       begin
         raise 'forced'

@@ -214,7 +214,7 @@ class TrafficLightTest < TestBase
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
 
   def bash_stub_capture(command, stdout, stderr, status)
-    context.sheller.stub_capture(command, stdout, stderr, status)
+    context.sheller.capture(command) { [stdout, stderr, status] }
     @command = command
     @command_stdout = stdout
     @command_stderr = stderr

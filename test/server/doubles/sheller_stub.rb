@@ -20,16 +20,23 @@ class ShellerStub
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def stub_capture(command, stdout, stderr, status)
-    @stubs << {
-      command:command,
-       stdout:stdout,
-       stderr:stderr,
-       status:status
-    }
+  def capture(command)
+    if block_given?
+      stub = yield
+      @stubs << {
+        command:command,
+         stdout:stub[0],
+         stderr:stub[1],
+         status:stub[2]
+      }
+    else
+      matching_stub(command)
+    end
   end
 
-  def capture(command)
+  private
+
+  def matching_stub(command)
     stub = @stubs.shift
     if stub.nil?
       raise [
