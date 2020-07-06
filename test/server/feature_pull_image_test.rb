@@ -45,20 +45,7 @@ class FeaturePullImageTest < TestBase
     assert @context.threader.called
   end
 
-  # - - - - - - - - - - - - - - - - -
-
   private
-
-  class ThreaderFake
-    attr_reader :called
-    def initialize
-      @called = false
-    end
-    def thread(&block)
-      @called = true
-      block.call
-    end
-  end
 
   def gcc_assert
     'cyberdojofoundation/gcc_assert:93eefc6'

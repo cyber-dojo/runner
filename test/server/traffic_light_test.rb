@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 require_relative 'data/python_pytest'
-require_relative 'sheller_stub'
 require_source 'traffic_light'
 
 class TrafficLightTest < TestBase

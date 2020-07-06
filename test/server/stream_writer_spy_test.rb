@@ -1,5 +1,4 @@
 require_relative 'test_base'
-require_relative 'stream_writer_spy'
 
 class StreamWriterSpyTest < TestBase
 

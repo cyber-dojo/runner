@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require_relative 'test_base'
-require_relative 'process_stub'
 
 class ProcessStubTest < TestBase
 
