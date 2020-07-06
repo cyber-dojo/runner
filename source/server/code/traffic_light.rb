@@ -54,7 +54,7 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
-    stdout,stderr,status = @context.sheller.execute(command)
+    stdout,stderr,status = sheller.capture(command)
     if status === 0
       message = "Read red-amber-green lambda for #{image_name}"
       logger.write(message)
@@ -120,6 +120,10 @@ class TrafficLight
 
   def logger
     @context.logger
+  end
+
+  def sheller
+    @context.sheller
   end
 
 end

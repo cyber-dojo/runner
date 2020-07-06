@@ -20,7 +20,7 @@ class ShellerStub
 
   # - - - - - - - - - - - - - - - - - - - - - - -
 
-  def stub_execute(command, stdout, stderr, status)
+  def stub_capture(command, stdout, stderr, status)
     @stubs << {
       command:command,
        stdout:stdout,
@@ -29,19 +29,19 @@ class ShellerStub
     }
   end
 
-  def execute(command)
+  def capture(command)
     stub = @stubs.shift
     if stub.nil?
       raise [
         self.class.name,
-        "execute(command) - no stub",
+        "capture(command) - no stub",
         "actual-command: #{command}",
       ].join("\n") + "\n"
     end
     unless command === stub[:command]
       raise [
         self.class.name,
-        "execute(command) - does not match stub",
+        "capture(command) - does not match stub",
         " actual-command:#{command}:",
         "stubbed-command:#{stub[:command]}:"
       ].join("\n") + "\n"

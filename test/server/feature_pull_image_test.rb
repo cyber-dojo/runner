@@ -30,7 +30,7 @@ class FeaturePullImageTest < TestBase
   test 't9M', %w(
   pull a new image_name pulls it in a new thread and returns :pulling
   ) do
-    @context.sheller.stub_execute(
+    @context.sheller.stub_capture(
       "docker pull #{gcc_assert}",
       [
         "Status: Downloaded newer image for #{gcc_assert}",

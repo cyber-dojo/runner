@@ -7,7 +7,7 @@ class ExternalSheller
     @context = context
   end
 
-  def execute(command)
+  def capture(command)
     stdout,stderr,r = Open3.capture3(command)
     status = r.exitstatus
     unless status === 0

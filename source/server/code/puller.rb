@@ -9,9 +9,13 @@ class Puller
     @pulling = SynchronizedSet.new
   end
 
+  # - - - - - - - - - - - - - - - - - - -
+
   def add(image_name)
     @pulled.add(image_name)
   end
+
+  # - - - - - - - - - - - - - - - - - - -
 
   def pull_image(id:, image_name:)
     image_name = Docker::tagged_image_name(image_name)
@@ -32,7 +36,7 @@ class Puller
   def threaded_pull_image(id, image_name)
     t0 = Time.now
     command = "docker pull #{image_name}"
-    _,_,status = sheller.execute(command)
+    _,_,status = sheller.capture(command)
     if status === 0
       add(image_name)
       t1 = Time.now
@@ -43,12 +47,14 @@ class Puller
     @pulling.delete(image_name)
   end
 
-  def sheller
-    @context.sheller
-  end
+  # - - - - - - - - - - - - - - - - - - -
 
   def logger
     @context.logger
+  end
+
+  def sheller
+    @context.sheller
   end
 
   def threader

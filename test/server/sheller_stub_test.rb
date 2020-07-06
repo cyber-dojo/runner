@@ -19,8 +19,8 @@ class ShellerStubTest < TestBase
   test '4A5',
   %w(
   teardown does not raise
-  when no execute()s are stubbed
-  and no execute()s are made
+  when no capture()s are stubbed
+  and no capture()s are made
   ) do
     sheller.teardown
   end
@@ -28,18 +28,18 @@ class ShellerStubTest < TestBase
   # - - - - - - - - - - - - - - -
 
   test '652',
-  %w( execute() raises when execute() is not stubbed
+  %w( capture() raises when capture() is not stubbed
   ) do
-    assert_raises { sheller.execute(pwd) }
+    assert_raises { sheller.capture(pwd) }
   end
 
   # - - - - - - - - - - - - - - -
 
   test '181',
-  %w( execute() raises when execute() is stubbed but for a different command
+  %w( capture() raises when capture() is stubbed but for a different command
   ) do
-    sheller.stub_execute(pwd, wd, stderr='', success)
-    assert_raises { sheller.execute(not_pwd = "cd #{wd}") }
+    sheller.stub_capture(pwd, wd, stderr='', success)
+    assert_raises { sheller.capture(not_pwd = "cd #{wd}") }
   end
 
   # - - - - - - - - - - - - - - -
@@ -47,11 +47,11 @@ class ShellerStubTest < TestBase
   test 'B4E',
   %w(
   teardown does not raise
-  when one execute() is stubbed
-  and a matching execute() is made
+  when one capture() is stubbed
+  and a matching capture() is made
   ) do
-    sheller.stub_execute(pwd, wd, stderr='', success)
-    stdout,stderr,status = sheller.execute('pwd')
+    sheller.stub_capture(pwd, wd, stderr='', success)
+    stdout,stderr,status = sheller.capture('pwd')
     assert_equal wd, stdout
     assert_equal '', stderr
     assert_equal success, status
@@ -63,10 +63,10 @@ class ShellerStubTest < TestBase
   test 'D0C',
   %w(
   teardown raises
-  when a execute() is stubbed
-  and no execute() is made
+  when a capture() is stubbed
+  and no capture() is made
   ) do
-    sheller.stub_execute(pwd, wd, stderr='', success)
+    sheller.stub_capture(pwd, wd, stderr='', success)
     assert_raises { sheller.teardown }
   end
 
@@ -76,7 +76,7 @@ class ShellerStubTest < TestBase
   %w( teardown does not raise
       when there is an uncaught exception
   ) do
-    sheller.stub_execute(pwd, wd, stderr='', success)
+    sheller.stub_capture(pwd, wd, stderr='', success)
     error = assert_raises {
       begin
         raise 'forced'
