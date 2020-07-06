@@ -5,6 +5,7 @@ require_relative 'home_files'
 require_relative 'random_hex'
 require_relative 'sandbox'
 require_relative 'tgz'
+require_relative 'traffic_light'
 require_relative 'utf8_clean'
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,6 +29,7 @@ class Runner
 
   def initialize(context)
     @context = context
+    @traffic_light = TrafficLight.new(context)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +51,7 @@ class Runner
     else
       stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
       sss = [ stdout[:content], stderr[:content], status[:content] ]
-      colour = @context.traffic_light.colour(image_name, *sss)
+      colour = @traffic_light.colour(image_name, *sss)
     end
 
     {

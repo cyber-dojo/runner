@@ -2,6 +2,7 @@
 require_relative 'test_base'
 require_relative 'data/python_pytest'
 require_relative 'bash_stub'
+require_source 'traffic_light'
 
 class TrafficLightTest < TestBase
 
@@ -174,7 +175,7 @@ class TrafficLightTest < TestBase
   private
 
   def traffic_light
-    context.traffic_light
+    @traffic_light ||= TrafficLight.new(context)
   end
 
   def assert_log_read_rag_lambda_count(expected)
