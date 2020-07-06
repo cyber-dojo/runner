@@ -7,6 +7,14 @@ class FeaturePullImageTest < TestBase
     '9j5'
   end
 
+  def id58_setup
+    @context = Context.new(
+      logger:StreamWriterSpy.new,
+      threader:ThreaderFake.new,
+      bash:BashStub.new
+    )
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   test 't9K', %w(
@@ -14,6 +22,7 @@ class FeaturePullImageTest < TestBase
   ) do
     puller.add(gcc_assert)
     assert_equal :pulled, puller.pull_image(id:id, image_name:gcc_assert)
+    refute @context.threader.called
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -21,11 +30,6 @@ class FeaturePullImageTest < TestBase
   test 't9M', %w(
   pull a new image_name pulls it in a new thread and returns :pulling
   ) do
-    @context = Context.new(
-      logger:StreamWriterSpy.new,
-      threader:ThreaderFake.new,
-      bash:BashStub.new
-    )
     @context.bash.stub_execute(
       "docker pull #{gcc_assert}",
       [
