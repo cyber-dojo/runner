@@ -19,7 +19,6 @@ services:
       - ./test:/test/:ro
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # [1] turn off known warning on CircleCI
 
   runner-server:
     build:
@@ -27,7 +26,7 @@ services:
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     container_name: test-runner-server
     depends_on: [ languages-start-points ]
-    environment: [ NO_PROMETHEUS, CIRCLECI ] # [1]
+    environment: [ NO_PROMETHEUS ]
     image: ${CYBER_DOJO_RUNNER_IMAGE}
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
