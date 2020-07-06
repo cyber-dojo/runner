@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require_relative 'http_adapter'
 require_relative 'http_json/service'
 
 class LanguagesStartPoints
@@ -10,8 +10,9 @@ class LanguagesStartPoints
     end
   end
 
-  def initialize(http)
-    @http = HttpJson::service(http, 'languages-start-points', 4524, Error)
+  def initialize
+    adapter = HttpAdapter.new
+    @http = HttpJson::service(adapter, 'languages-start-points', 4524, Error)
   end
 
   def names

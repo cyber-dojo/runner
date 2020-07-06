@@ -1,5 +1,4 @@
 require_relative '../id58_test_base'
-require_relative 'http_adapter'
 require_relative 'services/languages_start_points'
 require_relative 'stream_writer_spy'
 require_relative 'traffic_light_stub'
@@ -176,11 +175,7 @@ class TestBase < Id58TestBase
   end
 
   def languages_start_points
-    LanguagesStartPoints.new(http)
-  end
-
-  def http
-    HttpAdapter.new
+    LanguagesStartPoints.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
