@@ -16,7 +16,7 @@ class FeatureTgzErrorTest < TestBase
     # override logger (already set in TestBase c'tor)
     @context = Context.new(
       threader:ThreaderStub.new,
-      logger:StreamWriterSpy.new
+      logger:LoggerSpy.new
     )
     run_cyber_dojo_sh
     assert log.include?('(Zlib::GzipFile::Error'), pretty_result(:log)

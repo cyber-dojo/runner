@@ -9,7 +9,7 @@ class FeaturePullImageTest < TestBase
 
   def id58_setup
     @context = Context.new(
-      logger:StreamWriterSpy.new,
+      logger:LoggerSpy.new,
       threader:ThreaderFake.new,
       sheller:ShellerStub.new
     )

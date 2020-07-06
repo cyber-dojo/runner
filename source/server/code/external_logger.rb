@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class StreamWriter
+class ExternalLogger
 
-  def initialize(stream)
-    @stream = stream
+  def initialize
+    @stream = $stdout
   end
 
-  def write(message)
+  def log(message)
     unless message.empty?
       message += "\n" if message[-1] != "\n"
       @stream.write(message)

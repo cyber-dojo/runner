@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-class StreamWriterSpy
+class LoggerSpy
 
   def initialize
-    @written = ''
+    @logged = ''
   end
 
-  attr_reader :written
+  attr_reader :logged
 
-  def write(message)
+  def log(message)
     unless message.empty?
       message += "\n" if message[-1] != "\n"
-      @written += message
+      @logged += message
     end
   end
 

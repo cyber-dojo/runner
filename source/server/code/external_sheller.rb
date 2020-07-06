@@ -11,10 +11,13 @@ class ExternalSheller
     stdout,stderr,r = Open3.capture3(command)
     status = r.exitstatus
     unless status === 0
-      logger.write("command:#{command}:")
-      logger.write("stdout:#{stdout}:")
-      logger.write("stderr:#{stderr}:")
-      logger.write("status:#{status}:")
+      message = [
+        "command:#{command}:",
+        "stdout:#{stdout}:",
+        "stderr:#{stderr}:",
+        "status:#{status}:"
+      ].join("\n")
+      logger.log(message)
     end
     [ stdout, stderr, status ]
   end

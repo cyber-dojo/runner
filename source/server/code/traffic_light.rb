@@ -21,13 +21,16 @@ class TrafficLight
   def colour(image_name, stdout, stderr, status)
     self[image_name].call(stdout, stderr, status)
   rescue Exception => error
-    logger.write("Faulty TrafficLight.colour(image_name,stdout,stderr,status):")
-    logger.write("image_name:#{image_name}:")
-    logger.write("stdout:#{stdout}:")
-    logger.write("stderr:#{stderr}:")
-    logger.write("status:#{status}:")
-    logger.write("exception:#{error.class.name}:")
-    logger.write("message:#{error.message}:")
+    message = [
+      "Faulty TrafficLight.colour(image_name,stdout,stderr,status):",
+      "image_name:#{image_name}:",
+      "stdout:#{stdout}:",
+      "stderr:#{stderr}:",
+      "status:#{status}:",
+      "exception:#{error.class.name}:",
+      "message:#{error.message}:"
+    ].join("\n")
+    logger.log(message)
     'faulty'
   end
 
@@ -57,7 +60,7 @@ class TrafficLight
     stdout,stderr,status = sheller.capture(command)
     if status === 0
       message = "Read red-amber-green lambda for #{image_name}"
-      logger.write(message)
+      logger.log(message)
       stdout
     else
       fail TrafficLight::Fault, {

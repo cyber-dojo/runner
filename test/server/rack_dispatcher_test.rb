@@ -133,7 +133,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB8', 'server error in Dispatcher results in 500 status response' do
-    context = Context.new(process:{}, logger:StreamWriterSpy.new)
+    context = Context.new(process:{}, logger:LoggerSpy.new)
     rack = RackDispatcher.new(context)
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
@@ -157,7 +157,7 @@ class RackDispatcherTest < TestBase
     env = { path_info:path_info, body:body }
     rack_call(env)
     assert_400
-    log = @options[:logger].written
+    log = @options[:logger].logged
     [response_body,log].each do |s|
       refute_nil s
       json = JSON.parse(s)
@@ -172,7 +172,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, klass = RackRequestStub)
-    @options = { logger: StreamWriterSpy.new }
+    @options = { logger:LoggerSpy.new }
     context = Context.new(@options)
     rack = RackDispatcher.new(context)
     @response = rack.call(env, klass)
@@ -221,11 +221,11 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def assert_nothing_logged
-    assert_equal '', @options[:logger].written
+    assert_equal '', @options[:logger].logged
   end
 
   def assert_logged(message)
-    log = @options[:logger].written
+    log = @options[:logger].logged
     logged_count = log.lines.count { |line| line.include?(message) }
     assert_equal 1, logged_count, ":#{log}:"
   end

@@ -1,9 +1,9 @@
 require_relative '../id58_test_base'
 require_relative 'http_proxy/languages_start_points'
+require_relative 'doubles/logger_spy'
 require_relative 'doubles/process_stub'
 require_relative 'doubles/rack_request_stub'
 require_relative 'doubles/sheller_stub'
-require_relative 'doubles/stream_writer_spy'
 require_relative 'doubles/traffic_light_stub'
 require_relative 'doubles/threader_fake'
 require_source 'context'
@@ -13,7 +13,7 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    context(logger:StreamWriterSpy.new)
+    context(logger:LoggerSpy.new)
   end
 
   def context(options = {})
@@ -198,7 +198,7 @@ class TestBase < Id58TestBase
   # 5. misc helpers
 
   def log
-    context.logger.written
+    context.logger.logged
   end
 
   def uid

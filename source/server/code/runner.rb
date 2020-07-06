@@ -231,7 +231,7 @@ class Runner
 
   def log(id, image_name, message)
     message = [ "id=#{id}", "image_name=#{image_name}", "(#{message})" ].join(', ')
-    @context.logger.write(message)
+    @context.logger.log(message)
   end
 
   SPACE = ' '

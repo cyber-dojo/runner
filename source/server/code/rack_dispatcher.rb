@@ -34,7 +34,7 @@ class RackDispatcher
   def json_response_fail(status, path, body, error)
     response = diagnostic(path, body, error)
     json = JSON.pretty_generate(response)
-    @context.logger.write(json)
+    @context.logger.log(json)
     [ status, CONTENT_TYPE_JSON, [json] ]
   end
 
