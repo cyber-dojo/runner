@@ -19,7 +19,7 @@ class FeatureTgzErrorTest < TestBase
       logger:LoggerSpy.new
     )
     run_cyber_dojo_sh
-    assert log.include?('(Zlib::GzipFile::Error'), pretty_result(:log)
+    assert logged?('(Zlib::GzipFile::Error'), pretty_result(:log)
     assert_equal 'amber', colour, pretty_result(:colour)
   end
 

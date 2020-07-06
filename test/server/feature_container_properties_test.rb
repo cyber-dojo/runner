@@ -16,7 +16,7 @@ class FeatureContainerPropertiesTest < TestBase
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
     assert_equal 'faulty', colour, pretty_result(:colour)
-    assert log.include?('Faulty TrafficLight.colour'), pretty_result(:log)
+    assert logged?('Faulty TrafficLight.colour'), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

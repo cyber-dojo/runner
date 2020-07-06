@@ -130,7 +130,7 @@ class FeatureRobustNessTest < TestBase
   end
 
   def gzip_exception?
-    log.include?('Zlib::GzipFile::Error')
+    logged?('Zlib::GzipFile::Error')
   end
   # :nocov:
 

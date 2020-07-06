@@ -49,10 +49,10 @@ class ExternalShellerTest < TestBase
     assert_equal 'Croc', stdout, :stdout
     assert_equal 'Fish', stderr, :stderr
     assert_equal 1, status, :status
-    assert log.include?("command:#{command}:"), log
-    assert log.include?('stdout:Croc:'), log
-    assert log.include?('stderr:Fish:'), log
-    assert log.include?('status:1:'), log
+    assert logged?("command:#{command}:"), log
+    assert logged?('stdout:Croc:'), log
+    assert logged?('stderr:Fish:'), log
+    assert logged?('status:1:'), log
   end
 
   private

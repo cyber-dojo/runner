@@ -197,6 +197,10 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 5. misc helpers
 
+  def logged?(message)
+    log.include?(message)
+  end
+
   def log
     context.logger.logged
   end

@@ -223,47 +223,47 @@ class TrafficLightTest < TestBase
 
   def assert_no_lambda_logged(context)
     assert_call_info_logged
-    assert_log_include?("exception:TrafficLight::Fault:", :exception)
-    assert_log_include?('message:{', :start_of_json)
-    assert_log_include?("  \"context\": \"#{context}\"", :context)
-    assert_log_include?("  \"command\": \"#{@command}\"", :command)
-    assert_log_include?("  \"stdout\": \"#{@command_stdout}\"", :command_stdout)
-    assert_log_include?("  \"stderr\": \"#{@command_stderr}\"", :command_stderr)
-    assert_log_include?("  \"status\": #{@command_status}", :command_status)
-    assert_log_include?('}', :end_of_json)
+    assert_logged?("exception:TrafficLight::Fault:", :exception)
+    assert_logged?('message:{', :start_of_json)
+    assert_logged?("  \"context\": \"#{context}\"", :context)
+    assert_logged?("  \"command\": \"#{@command}\"", :command)
+    assert_logged?("  \"stdout\": \"#{@command_stdout}\"", :command_stdout)
+    assert_logged?("  \"stderr\": \"#{@command_stderr}\"", :command_stderr)
+    assert_logged?("  \"status\": #{@command_status}", :command_status)
+    assert_logged?('}', :end_of_json)
   end
 
   def assert_bad_lambda_logged(context, lambda_source, klass, message)
     assert_call_info_logged
-    assert_log_include?("exception:TrafficLight::Fault:", :exception)
-    assert_log_include?('message:{', :start_of_json)
-    assert_log_include?("  \"context\": \"#{context}\"", :context)
-    assert_log_include?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
-    assert_log_include?("  \"class\": \"#{klass}\"", :class)
-    assert_log_include?("  \"message\": \"#{message}\"", :message)
-    assert_log_include?('}', :end_of_json)
+    assert_logged?("exception:TrafficLight::Fault:", :exception)
+    assert_logged?('message:{', :start_of_json)
+    assert_logged?("  \"context\": \"#{context}\"", :context)
+    assert_logged?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
+    assert_logged?("  \"class\": \"#{klass}\"", :class)
+    assert_logged?("  \"message\": \"#{message}\"", :message)
+    assert_logged?('}', :end_of_json)
   end
 
   def assert_illegal_colour_logged(context, lambda_source, illegal_colour)
     assert_call_info_logged
-    assert_log_include?("exception:TrafficLight::Fault:", :exception)
-    assert_log_include?('message:{', :start_of_json)
-    assert_log_include?("  \"context\": \"#{context}\"", :context)
-    assert_log_include?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
-    assert_log_include?("  \"illegal_colour\": \"#{illegal_colour}\"", :message)
-    assert_log_include?('}', :end_of_json)
+    assert_logged?("exception:TrafficLight::Fault:", :exception)
+    assert_logged?('message:{', :start_of_json)
+    assert_logged?("  \"context\": \"#{context}\"", :context)
+    assert_logged?("  \"lambda_source\": \"#{lambda_source}\"", :lambda_source)
+    assert_logged?("  \"illegal_colour\": \"#{illegal_colour}\"", :message)
+    assert_logged?('}', :end_of_json)
   end
 
   def assert_call_info_logged
-    assert_log_include?('Faulty TrafficLight.colour(image_name,stdout,stderr,status):', :banner)
-    assert_log_include?("image_name:#{python_pytest_image_name}:", :image_name)
-    assert_log_include?("stdout:#{@stdout}:", :stdout)
-    assert_log_include?("stderr:#{@stderr}:", :stderr)
-    assert_log_include?("status:#{@status}:", :status)
+    assert_logged?('Faulty TrafficLight.colour(image_name,stdout,stderr,status):', :banner)
+    assert_logged?("image_name:#{python_pytest_image_name}:", :image_name)
+    assert_logged?("stdout:#{@stdout}:", :stdout)
+    assert_logged?("stderr:#{@stderr}:", :stderr)
+    assert_logged?("status:#{@status}:", :status)
   end
 
-  def assert_log_include?(expected, context)
-    assert log.include?(expected), log + "\nCONTEXT:#{context}:\nEXPECTED:#{expected}:\n"
+  def assert_logged?(expected, context)
+    assert logged?(expected), "\nLOG:#{log}:\nCONTEXT:#{context}:\nEXPECTED:#{expected}:\n"
   end
 
 end
