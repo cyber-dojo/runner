@@ -3,7 +3,6 @@ require_relative 'http_proxy/languages_start_points'
 require_relative 'stream_writer_spy'
 require_relative 'traffic_light_stub'
 require_source 'context'
-require_source 'runner'
 require 'json'
 
 class TestBase < Id58TestBase
@@ -18,11 +17,11 @@ class TestBase < Id58TestBase
   end
 
   def runner
-    Runner.new(context)
+    context.runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 1. test on one or many OS
+  # 1. test on one OS or many
 
   def self.test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
