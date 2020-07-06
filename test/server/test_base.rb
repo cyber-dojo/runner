@@ -1,5 +1,5 @@
 require_relative '../id58_test_base'
-require_relative 'services/languages_start_points'
+require_relative 'http_proxy/languages_start_points'
 require_relative 'stream_writer_spy'
 require_relative 'traffic_light_stub'
 require_source 'context'
@@ -175,7 +175,7 @@ class TestBase < Id58TestBase
   end
 
   def languages_start_points
-    LanguagesStartPoints.new
+    HttpProxy::LanguagesStartPoints.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

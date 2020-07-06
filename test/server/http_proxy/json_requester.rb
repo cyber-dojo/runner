@@ -1,11 +1,9 @@
 # frozen_string_literal: true
-
 require 'json'
 require 'uri'
 
-module HttpJson
-
-  class Requester
+module HttpProxy
+  class JsonRequester
 
     def initialize(http, hostname, port)
       @http = http
@@ -36,5 +34,4 @@ module HttpJson
     end
 
   end
-
 end

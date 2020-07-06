@@ -1,10 +1,8 @@
 # frozen_string_literal: true
-
 require 'json'
 
-module HttpJson
-
-  class Responder
+module HttpProxy
+  class JsonResponder
 
     def initialize(requester, exception_class)
       @requester = requester
@@ -64,5 +62,4 @@ module HttpJson
     end
 
   end
-
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'net/http'
 
-class HttpAdapter
+class NetHttpAdapter
 
   def get(uri)
     Net::HTTP::Get.new(uri)
