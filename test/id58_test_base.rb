@@ -27,6 +27,9 @@ class Id58TestBase < MiniTest::Test
       name58 = lines.join(space = ' ')
       execute_around = lambda {
         ENV['ID58'] = id58
+        if ENV['SHOW_TEST_IDS'] === 'true'
+          p id58
+        end
         @_os = os
         @_display_name = display_name
         @_id58 = id58
