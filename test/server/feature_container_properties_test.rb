@@ -20,6 +20,8 @@ class FeatureContainerPropertiesTest < TestBase
     # TODO: Needs work: problem is that after
     #  result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     # result[:status] is not being looked at
+    # It appears this is the only test where it is not true that
+    #   result[:timeout] || result[:status] === 0
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
