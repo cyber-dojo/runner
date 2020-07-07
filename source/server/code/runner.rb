@@ -89,13 +89,14 @@ class Runner
   def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
-    options = {
-      :stdin_data => tgz_in,
+    spawn_opts = {
       :binmode => true,
-      :timeout => max_seconds,
-      :kill_after => 1
+      :kill_after => 1,
+      :pgroup => true,
+      :stdin_data => tgz_in,
+      :timeout => max_seconds
     }
-    capture3_with_timeout(@context, command, options) do
+    capture3_with_timeout(@context, command, spawn_opts) do
       # The [docker run] command timed-out.
       docker_stop_container(id, image_name, container_name)
     end

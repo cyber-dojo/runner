@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'timeout'
 
-# https://gist.github.com/pasela/9392115
+# Based on https://gist.github.com/pasela/9392115
 #
 # Capture the standard output and the standard error of a command.
 # Almost same as Open3.capture3 method except for timeout handling and return value.
@@ -34,7 +34,7 @@ module Capture3WithTimeout
 
   def capture3_with_timeout(context, command, spawn_opts)
     opts = {
-      :stdin_data => spawn_opts.delete(:stdin_data) || "",
+      :stdin_data => spawn_opts.delete(:stdin_data) || '',
       :binmode    => spawn_opts.delete(:binmode) || false,
       :timeout    => spawn_opts.delete(:timeout),
       :signal     => spawn_opts.delete(:signal) || :TERM,
@@ -61,7 +61,7 @@ module Capture3WithTimeout
       :status  => nil,
       :stdout  => nil,
       :stderr  => nil,
-      :timeout => false,
+      :timeout => nil
     }
 
     out_reader = nil
@@ -71,6 +71,7 @@ module Capture3WithTimeout
     process = context.process
     threader = context.threader
     begin
+      result[:timeout] = false
       Timeout.timeout(opts[:timeout]) do
         result[:pid] = process.spawn(command, spawn_opts)
         wait_thr = process.detach(result[:pid])
@@ -103,7 +104,7 @@ module Capture3WithTimeout
       out_r.close unless out_r.closed?
       err_r.close unless err_r.closed?
     end
-    
+
     result
   end
 
