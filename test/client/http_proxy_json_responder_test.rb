@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require 'ostruct'
 
-class HttpJsonResponderTest < TestBase
+class HttpProxyJsonResponderTest < TestBase
 
   def self.id58_prefix
     '375'
@@ -10,19 +10,35 @@ class HttpJsonResponderTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '2F0',
-  'response.body is used when it has a key matching the path' do
-    path = 'sha'
-    json_body = { path => 42 }.to_json
-    requester = HttpProxyJsonRequesterStub.new(json_body)
+  test '2F0', %w(
+  response.body's keyed-value is returned
+  when it has a key matching the path
+  and raw option is false
+  ) do
+    args = { 'sha' => sha }
+    requester = HttpProxyJsonRequesterStub.new(args.to_json)
     responder = HttpProxy::JsonResponder.new(requester, RunnerErrorStub)
-    response = responder.get(path, nil)
-    assert_equal 42, response
+    response = responder.get('sha', nil)
+    assert_equal sha, response
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '2F1',
+  test '3F0', %w(
+  response.body is returned,
+  when it has a key matching the path,
+  and raw option is true
+  ) do
+    args = { 'sha' => sha }
+    requester = HttpProxyJsonRequesterStub.new(args.to_json)
+    responder = HttpProxy::JsonResponder.new(requester, RunnerErrorStub, raw:true)
+    response = responder.get('sha', nil)
+    assert_equal args, response
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  test '2F1',
   'raises when response.body is not JSON' do
     assert_responder_raises('xxxx') do |error_message|
       assert_equal 'http response.body is not JSON:xxxx', error_message
@@ -31,7 +47,7 @@ class HttpJsonResponderTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '2F2',
+  test '2F2',
   'raises response.body is not JSON Hash' do
     assert_responder_raises('[]') do |error_message|
       assert_equal 'http response.body is not JSON Hash:[]', error_message
@@ -40,7 +56,7 @@ class HttpJsonResponderTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '2F3',
+  test '2F3',
   'raises when response.body has embedded exception' do
     json_body = { 'exception' => { 'message' => 'wibble' }}.to_json
     assert_responder_raises(json_body) do |error_message|
@@ -51,7 +67,7 @@ class HttpJsonResponderTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test '2F4',
+  test '2F4',
   'raises when response.body has no key matching path' do
     json_body = { 'not_sha' => 'hello' }.to_json
     assert_responder_raises(json_body, 'sha') do |error_message|
@@ -84,6 +100,10 @@ class HttpJsonResponderTest < TestBase
       responder.get(path, nil)
     }
     yield error.message
+  end
+
+  def sha
+    '0e5c2a24ad27446f97ebf5d8176662560582d449'
   end
 
 end
