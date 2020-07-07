@@ -31,6 +31,6 @@ unless ENV['NO_PULLER_INITIALIZATION']
   ls = `docker image ls --format "{{.Repository}}:{{.Tag}}"`
   image_names = ls.split("\n").sort.uniq - ['<none>:<none>']
   image_names.each { |image_name| context.puller.add(image_name) }
-  context.logger.write("#{image_names.size} image names added to Puller")
+  context.logger.log("#{image_names.size} image names added to Puller")
 end
 run RackDispatcher.new(context)
