@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'json'
 
-module HttpJson
+module HttpProxy
 
-  class Responder
+  class JsonResponder
 
     def initialize(requester, exception_class, options = {})
       @requester = requester

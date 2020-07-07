@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 require_relative '../id58_test_base'
-require_source 'http_adapter'
-require_source 'languages_start_points_http_proxy'
-require_source 'runner_http_proxy'
+require_source 'languages_start_points'
+require_source 'runner'
 require 'json'
 
 class TestBase < Id58TestBase
@@ -48,65 +47,18 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 2. custom asserts
-
-  def assert_cyber_dojo_sh(sh_script)
-    run_cyber_dojo_sh({
-      changed_files: { 'cyber-dojo.sh' => sh_script }
-    })
-    refute timed_out?, result
-    assert stderr.empty?, stderr
-    stdout
-  end
-
-  def run_cyber_dojo_sh(named_args = {})
-
-    unchanged_files = starting_files
-
-    changed_files = defaulted_arg(named_args, :changed_files, {})
-    changed_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a changed_file (it does not already exist)"
-      assert unchanged_files.keys.include?(filename), diagnostic
-      unchanged_files.delete(filename)
-    end
-
-    created_files = defaulted_arg(named_args, :created_files, {})
-    created_files.keys.each do |filename|
-      diagnostic = "#{filename} is not a created_file (it already exists)"
-      refute unchanged_files.keys.include?(filename), diagnostic
-    end
-
-    args = {
-      'id' => defaulted_arg(named_args, :id, id),
-      'files' => [ *created_files, *unchanged_files, *changed_files ].to_h,
-      'manifest' => {
-        'image_name' => defaulted_arg(named_args, :image_name, image_name),
-        'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
-      }
-    }
-    @result = runner.run_cyber_dojo_sh(args)
-    nil
-  end
-
-  def defaulted_arg(named_args, arg_name, arg_default)
-    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
-  end
-
-  attr_reader :result
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 3. the runner service object and arguments
+  # 2. the http-services and arguments
 
   def runner
-    RunnerHttpProxy.new(http_adapter )
+    hostname = 'runner-server'
+    port = 4597
+    Runner.new(hostname, port)
   end
 
   def languages_start_points
-    LanguagesStartPointsHttpProxy.new(http_adapter)
-  end
-
-  def http_adapter
-    HttpAdapter.new
+    hostname = 'languages-start-points'
+    port = 4524
+    LanguagesStartPoints.new(hostname, port)
   end
 
   def id
@@ -132,19 +84,65 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 4. results from runner.run_cyber_dojo_sh call
+  # 3. runner helper
 
-  def run_result; result['run_cyber_dojo_sh']; end
+  def run_cyber_dojo_sh(named_args = {})
 
-  def stdout; run_result['stdout']['content']; end
-  def stderr; run_result['stderr']['content']; end
-  def status; run_result['status']; end
+    unchanged_files = starting_files
 
-  def timed_out?; run_result['timed_out']; end
-  def colour; run_result['colour']; end
+    changed_files = defaulted_arg(named_args, :changed_files, {})
+    changed_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a changed_file (it does not already exist)"
+      assert unchanged_files.keys.include?(filename), diagnostic
+      unchanged_files.delete(filename)
+    end
 
-  def created; run_result['created']; end
-  def deleted; run_result['deleted']; end
-  def changed; run_result['changed']; end
+    created_files = defaulted_arg(named_args, :created_files, {})
+    created_files.keys.each do |filename|
+      diagnostic = "#{filename} is not a created_file (it already exists)"
+      refute unchanged_files.keys.include?(filename), diagnostic
+    end
+
+    id = defaulted_arg(named_args, :id, id)
+    files = [ *created_files, *unchanged_files, *changed_files ].to_h
+    manifest = {
+      'image_name' => defaulted_arg(named_args, :image_name, image_name),
+      'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
+    }
+    @result = runner.run_cyber_dojo_sh(id, files, manifest)
+    nil
+  end
+
+  def defaulted_arg(named_args, arg_name, arg_default)
+    named_args.key?(arg_name) ? named_args[arg_name] : arg_default
+  end
+
+  attr_reader :result
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 4. custom asserts
+
+  def assert_cyber_dojo_sh(sh_script)
+    run_cyber_dojo_sh({
+      changed_files: { 'cyber-dojo.sh' => sh_script }
+    })
+    refute timed_out?, result
+    assert stderr.empty?, stderr
+    stdout
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 5. results from runner.run_cyber_dojo_sh call
+
+  def stdout; @result['stdout']['content']; end
+  def stderr; @result['stderr']['content']; end
+  def status; @result['status']; end
+
+  def timed_out?; @result['timed_out']; end
+  def colour; @result['colour']; end
+
+  def created; @result['created']; end
+  def deleted; @result['deleted']; end
+  def changed; @result['changed']; end
 
 end

@@ -2,9 +2,9 @@
 require 'json'
 require 'uri'
 
-module HttpJson
+module HttpProxy
 
-  class Requester
+  class JsonRequester
 
     def initialize(http, hostname, port)
       @http = http

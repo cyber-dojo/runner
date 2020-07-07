@@ -1,4 +1,5 @@
 require_relative 'test_base'
+require 'stringio'
 
 class RunCyberDojoShTest < TestBase
 
@@ -10,7 +11,7 @@ class RunCyberDojoShTest < TestBase
 
   multi_os_test '2F5',
   'call to existing method with bad argument type becomes RunnerHttpProxy::Error' do
-    error = assert_raises(RunnerHttpProxy::Error) {
+    error = assert_raises(Runner::Error) {
       with_captured_stdout {
         run_cyber_dojo_sh({ max_seconds:'xxx' })
       }

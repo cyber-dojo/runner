@@ -1,7 +1,6 @@
 # frozen_string_literal: true
-require_relative 'http_adapter'
-require_relative 'languages_start_points_http_proxy'
-require_relative 'runner_http_proxy'
+require_relative 'languages_start_points'
+require_relative 'runner'
 require 'json'
 
 class Demo
@@ -104,15 +103,15 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    RunnerHttpProxy.new(http_adapter)
+    hostname = 'runner-server'
+    port = 4597
+    @runner ||= Runner.new(hostname, port)
   end
 
   def languages_start_points
-    LanguagesStartPointsHttpProxy.new(http_adapter)
-  end
-
-  def http_adapter
-    HttpAdapter.new
+    hostname = 'languages-start-points'
+    port = 4524
+    @languages_start_points ||= LanguagesStartPoints.new(hostname, port)
   end
 
   def timed

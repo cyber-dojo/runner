@@ -38,7 +38,7 @@ class LargeFileTest < TestBase
     # if test machine is heavily loaded.
     if status === '0'
       diagnostic = [stdout,stderr,status].to_s
-      assert result['run_cyber_dojo_sh']['stdout']['truncated'], diagnostic
+      assert result['stdout']['truncated'], diagnostic
     end
   end
 

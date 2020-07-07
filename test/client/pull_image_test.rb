@@ -9,20 +9,19 @@ class PullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'g5S', %w(
-  pull_image() first returns 'pulling' and then 'pulled'
-  and :latest tag is added if needed
+  pull_image('busybox') returns 'pulling',
+  then a short while later it returns 'pulled',
+  and pull_image('busybox:latest') also returns 'pulled'
   ) do
     image_name = 'busybox'
-    pulling = { 'pull_image' => 'pulling' }
-    assert_equal pulling, runner.pull_image(id:id58,image_name:image_name)
+    assert_equal 'pulling', runner.pull_image(id58, image_name)
     count = 0
-    pulled = { 'pull_image' => 'pulled' }
-    while runner.pull_image(id:id58,image_name:image_name) != pulled
+    while runner.pull_image(id58, image_name) != 'pulled' && count < 50
       count += 1
-      sleep 0.25
+      sleep 0.1
     end
-    assert count >= 2
-    assert_equal pulled, runner.pull_image(id:id58,image_name:'busybox:latest')
+    assert count > 0
+    assert_equal 'pulled', runner.pull_image(id58, 'busybox:latest')
   end
 
 end

@@ -14,8 +14,8 @@ class HttpJsonResponderTest < TestBase
   'response.body is used when it has a key matching the path' do
     path = 'sha'
     json_body = { path => 42 }.to_json
-    requester = HttpJsonRequesterStub.new(json_body)
-    responder = HttpJson::Responder.new(requester, RunnerErrorStub)
+    requester = HttpProxyJsonRequesterStub.new(json_body)
+    responder = HttpProxy::JsonResponder.new(requester, RunnerErrorStub)
     response = responder.get(path, nil)
     assert_equal 42, response
   end
@@ -62,7 +62,7 @@ class HttpJsonResponderTest < TestBase
 
   private
 
-  class HttpJsonRequesterStub
+  class HttpProxyJsonRequesterStub
     def initialize(body)
       @body = body
     end
@@ -78,8 +78,8 @@ class HttpJsonResponderTest < TestBase
   end
 
   def assert_responder_raises(json_body, path=nil)
-    requester = HttpJsonRequesterStub.new(json_body)
-    responder = HttpJson::Responder.new(requester, RunnerErrorStub)
+    requester = HttpProxyJsonRequesterStub.new(json_body)
+    responder = HttpProxy::JsonResponder.new(requester, RunnerErrorStub)
     error = assert_raises(RunnerErrorStub) {
       responder.get(path, nil)
     }
