@@ -19,9 +19,9 @@ class TrafficLight
   end
 
   def colour(image_name, stdout, stderr, status)
-    self[image_name].call(stdout, stderr, status)
+    [ self[image_name].call(stdout, stderr, status), '' ]
   rescue Exception => error
-    message = [
+    fault_info = [
       "Faulty TrafficLight.colour(image_name,stdout,stderr,status):",
       "image_name:#{image_name}:",
       "stdout:#{stdout}:",
@@ -30,8 +30,8 @@ class TrafficLight
       "exception:#{error.class.name}:",
       "message:#{error.message}:"
     ].join("\n")
-    logger.log(message)
-    'faulty'
+    logger.log(fault_info)
+    [ 'faulty', fault_info ]
   end
 
   private
@@ -86,7 +86,7 @@ class TrafficLight
       context: "exception when eval'ing lambda source",
       lambda_source: lambda_source,
       class: error.class.name,
-      message: error.message
+      error: error.message
     }
   end
 
@@ -99,7 +99,7 @@ class TrafficLight
       context: "exception when calling lambda source",
       lambda_source: lambda_source,
       class: error.class.name,
-      message: error.message
+      error: error.message
     }
   end
 

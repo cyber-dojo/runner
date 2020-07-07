@@ -47,11 +47,11 @@ class Runner
       stderr = truncated('')
       status = truncated('142')
       created,deleted,changed = {},{},{}
-      colour = ''
+      colour,fault_info = '',''
     else
       stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
       sss = [ stdout[:content], stderr[:content], status[:content] ]
-      colour = @traffic_light.colour(image_name, *sss)
+      colour,fault_info = *@traffic_light.colour(image_name, *sss)
     end
 
     {
@@ -62,7 +62,8 @@ class Runner
          colour: colour,
         created: Sandbox.out(created),
         deleted: Sandbox.out(deleted).keys.sort,
-        changed: Sandbox.out(changed)
+        changed: Sandbox.out(changed),
+            log: fault_info
     }
   end
 
