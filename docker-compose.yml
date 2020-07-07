@@ -6,7 +6,7 @@ services:
   runner-client:
     depends_on: [ runner-server ]
     image: cyberdojo/runner-client
-    user: nobody
+    user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     build:
       context: source/client
       args: [ CYBER_DOJO_RUNNER_DEMO_PORT ]
@@ -24,7 +24,7 @@ services:
   runner-server:
     depends_on: [ languages-start-points ]
     image: ${CYBER_DOJO_RUNNER_IMAGE}
-    user: root
+    user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     build:
       context: source/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
