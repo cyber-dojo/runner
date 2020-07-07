@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ExternalShellerTest < TestBase
+class BashShellerTest < TestBase
 
   def self.id58_prefix
     'C89'

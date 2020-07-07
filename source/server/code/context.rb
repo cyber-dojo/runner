@@ -1,8 +1,8 @@
 # frozen_string_literal: true
-require_relative 'external_logger'
-require_relative 'external_process'
-require_relative 'external_sheller'
-require_relative 'external_threader'
+require_relative 'externals/stdout_logger'
+require_relative 'externals/process_adapter'
+require_relative 'externals/bash_sheller'
+require_relative 'externals/asynchronous_threader'
 require_relative 'prober'
 require_relative 'puller'
 require_relative 'runner'
@@ -14,10 +14,10 @@ class Context
     @puller = options[:puller] || Puller.new(self)
     @runner = options[:runner] || Runner.new(self)
 
-    @logger   = options[:logger]   || ExternalLogger.new
-    @process  = options[:process]  || ExternalProcess.new
-    @sheller  = options[:sheller]  || ExternalSheller.new(self)
-    @threader = options[:threader] || ExternalThreader.new
+    @logger   = options[:logger]   || StdoutLogger.new
+    @process  = options[:process]  || ProcessAdapter.new
+    @sheller  = options[:sheller]  || BashSheller.new(self)
+    @threader = options[:threader] || AsynchronousThreader.new
   end
 
   attr_reader :prober, :puller, :runner

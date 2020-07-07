@@ -156,7 +156,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB8', 'server error in Dispatcher results in 500 status response' do
-    context = Context.new(process:{}, logger:LoggerSpy.new)
+    context = Context.new(process:{}, logger:StdoutLoggerSpy.new)
     rack = RackDispatcher.new(context)
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
@@ -187,7 +187,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, klass = RackRequestStub)
-    @options = { logger:LoggerSpy.new }
+    @options = { logger:StdoutLoggerSpy.new }
     context = Context.new(@options)
     rack = RackDispatcher.new(context)
     @response = rack.call(env, klass)

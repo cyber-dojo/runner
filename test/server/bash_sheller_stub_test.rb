@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ShellerStubTest < TestBase
+class BashShellerStubTest < TestBase
 
   def self.id58_prefix
     'F03'
   end
 
   def id58_setup
-    @sheller = ShellerStub.new
+    @sheller = BashShellerStub.new
   end
 
   attr_reader :sheller

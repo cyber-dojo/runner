@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ProcessStub
+class ProcessAdapterStub
 
   def initialize
     @stubs = {}

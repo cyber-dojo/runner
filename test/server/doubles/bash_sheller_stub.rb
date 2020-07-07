@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'json'
 
-class ShellerStub
+class BashShellerStub
 
   def initialize
     @stubs = []

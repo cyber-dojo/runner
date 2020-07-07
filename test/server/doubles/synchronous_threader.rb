@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ThreaderFake
+class SynchronousThreader
 
   attr_reader :called
 
@@ -12,5 +12,5 @@ class ThreaderFake
     @called = true
     block.call
   end
-  
+
 end

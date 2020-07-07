@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ExternalLogger
+class StdoutLogger
 
   def initialize
     @stream = $stdout

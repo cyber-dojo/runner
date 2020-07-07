@@ -1,9 +1,10 @@
 require_relative 'test_base'
+require_source 'externals/stdout_logger'
 
-class LoggerSpyTest < TestBase
+class StdoutLoggerTest < TestBase
 
   def self.id58_prefix
-    '60e'
+    '55t'
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -27,9 +28,22 @@ class LoggerSpyTest < TestBase
   private
 
   def log(message)
-    spy = LoggerSpy.new
-    spy.log(message)
-    spy.logged
+    captured_stdout do
+      logger = StdoutLogger.new
+      logger.log(message)
+    end
+  end
+
+  def captured_stdout
+    begin
+      old_stdout = $stdout
+      $stdout = StringIO.new('', 'w')
+      yield
+      captured = $stdout.string
+    ensure
+      $stdout = old_stdout
+    end
+    captured
   end
 
 end

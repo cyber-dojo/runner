@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ExternalProcess
+class ProcessAdapter
 
   def detach(pid)
     Process.detach(pid)

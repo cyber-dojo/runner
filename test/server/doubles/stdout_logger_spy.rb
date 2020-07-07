@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LoggerSpy
+class StdoutLoggerSpy
 
   def initialize
     @logged = ''

@@ -1,11 +1,11 @@
 require_relative '../id58_test_base'
 require_relative 'http_proxy/languages_start_points'
-require_relative 'doubles/logger_spy'
-require_relative 'doubles/process_stub'
+require_relative 'doubles/stdout_logger_spy'
+require_relative 'doubles/process_adapter_stub'
 require_relative 'doubles/rack_request_stub'
-require_relative 'doubles/sheller_stub'
+require_relative 'doubles/bash_sheller_stub'
 require_relative 'doubles/traffic_light_stub'
-require_relative 'doubles/threader_fake'
+require_relative 'doubles/synchronous_threader'
 require_source 'context'
 require 'json'
 
@@ -13,7 +13,7 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    context(logger:LoggerSpy.new)
+    context(logger:StdoutLoggerSpy.new)
   end
 
   def context(options = {})
