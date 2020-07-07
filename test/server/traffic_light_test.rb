@@ -61,14 +61,14 @@ class TrafficLightTest < TestBase
 
   test 'xJ8', %w(
   rag-lambda can return a string or a symbol (Postel's Law) ) do
-    context.instance_exec { @sheller = BashShellerStub.new }
+    stub_bash_sheller
 
     rag = "lambda{|so,se,st| 'red' }"
-    bash_stub_capture(docker_run_command, rag, '', 0)
+    bash_stub_capture(docker_run_command) { [rag, '', 0] }
     assert_equal 'red', traffic_light_colour
 
     rag = "lambda{|so,se,st| :red }"
-    bash_stub_capture(docker_run_command, rag, '', 0)
+    bash_stub_capture(docker_run_command) { [rag, '', 0] }
     assert_equal 'red', traffic_light_colour
   end
 
@@ -80,9 +80,9 @@ class TrafficLightTest < TestBase
   always gives colour==faulty,
   adds message to log
   ) do
+    stub_bash_sheller
     stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
-    context.instance_exec { @sheller = BashShellerStub.new }
-    bash_stub_capture(docker_run_command, '', stderr, 1)
+    bash_stub_capture(docker_run_command) { ['', stderr, 1] }
     assert_equal 'faulty', traffic_light_colour
     assert_no_lambda_logged('image_name must have /usr/local/bin/red_amber_green.rb file')
   end
@@ -94,9 +94,9 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
+    stub_bash_sheller
     bad_lambda_source = 'not-a-lambda'
-    context.instance_exec { @sheller = BashShellerStub.new }
-    bash_stub_capture(docker_run_command, bad_lambda_source, '', 0)
+    bash_stub_capture(docker_run_command) { [bad_lambda_source, '', 0] }
     assert_equal 'faulty', traffic_light_colour
     context = "exception when eval'ing lambda source"
     klass = 'SyntaxError'
@@ -111,9 +111,9 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
+    stub_bash_sheller
     bad_lambda_source = "lambda{ |so,se,st| fail RuntimeError, '42' }"
-    context.instance_exec { @sheller = BashShellerStub.new }
-    bash_stub_capture(docker_run_command, bad_lambda_source, '', 0)
+    bash_stub_capture(docker_run_command) { [bad_lambda_source, '', 0] }
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
     klass = 'RuntimeError'
@@ -128,9 +128,9 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
+    stub_bash_sheller
     bad_lambda_source = 'lambda{ |_a,_b| :red }'
-    context.instance_exec { @sheller = BashShellerStub.new }
-    bash_stub_capture(docker_run_command, bad_lambda_source, '', 0)
+    bash_stub_capture(docker_run_command) { [bad_lambda_source, '', 0] }
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
     klass = 'ArgumentError'
@@ -145,9 +145,9 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
+    stub_bash_sheller
     bad_lambda_source = 'lambda{ |_a,_b,_c,_d| :red }'
-    context.instance_exec { @sheller = BashShellerStub.new }
-    bash_stub_capture(docker_run_command, bad_lambda_source, '', 0)
+    bash_stub_capture(docker_run_command) { [bad_lambda_source, '', 0] }
     assert_equal 'faulty', traffic_light_colour
     context = 'exception when calling lambda source'
     klass = 'ArgumentError'
@@ -162,9 +162,9 @@ class TrafficLightTest < TestBase
   gives colour==faulty,
   adds message to log
   ) do
+    stub_bash_sheller
     bad_lambda_source = 'lambda{|so,se,st| :orange }'
-    context.instance_exec { @sheller = BashShellerStub.new }
-    bash_stub_capture(docker_run_command, bad_lambda_source, '', 0)
+    bash_stub_capture(docker_run_command) { [bad_lambda_source, '', 0] }
     assert_equal 'faulty', traffic_light_colour
     context = "illegal colour; must be one of ['red','amber','green']"
     illegal_colour = 'orange'
@@ -213,8 +213,13 @@ class TrafficLightTest < TestBase
 
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
 
-  def bash_stub_capture(command, stdout, stderr, status)
-    context.sheller.capture(command) { [stdout, stderr, status] }
+  def stub_bash_sheller
+    context.instance_exec { @sheller = BashShellerStub.new }
+  end
+
+  def bash_stub_capture(command, &block)
+    stdout,stderr,status = *block.call
+    context.sheller.capture(command, &block)
     @command = command
     @command_stdout = stdout
     @command_stderr = stderr
