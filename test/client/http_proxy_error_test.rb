@@ -14,7 +14,7 @@ class HttpProxyErrorTest < TestBase
   with bad argument type
   becomes Runner::Error
   ) do
-    error = assert_raises(Runner::Error) {
+    error = assert_raises(RunnerHttpProxy::Error) {
       with_captured_stdout {
         run_cyber_dojo_sh(max_seconds:'xxx')
       }
@@ -31,7 +31,7 @@ class HttpProxyErrorTest < TestBase
   with bad argument type
   becomes LanguagesStartPoints::Error
   ) do
-    error = assert_raises(LanguagesStartPoints::Error) {
+    error = assert_raises(LanguagesStartPointsHttpProxy::Error) {
       with_captured_stdout {
         languages_start_points.manifest('xxx')
       }

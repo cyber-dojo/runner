@@ -12,7 +12,7 @@ class AliveTest < TestBase
   test 'CA2', %w(
   alive? is true, useful for k8s liveness probes
   ) do
-    assert runner.alive?.is_a?(TrueClass)
+    assert prober.alive?.is_a?(TrueClass)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -20,7 +20,7 @@ class AliveTest < TestBase
   test '15D', %w(
   ready? is true, useful for k8s readyness probes
   ) do
-    assert runner.ready?.is_a?(TrueClass)
+    assert prober.ready?.is_a?(TrueClass)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -28,7 +28,7 @@ class AliveTest < TestBase
   test '882', %w(
   sha is SHA of git commit which created docker image
   ) do
-    sha = runner.sha
+    sha = prober.sha
     assert sha.is_a?(String), :class
     assert_equal 40, sha.size, :size
     sha.each_char.all?{ |ch|
@@ -41,5 +41,5 @@ class AliveTest < TestBase
   def is_lo_hex?(ch)
     '0123456789abcdef'.include?(ch)
   end
-
+  
 end

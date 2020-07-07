@@ -12,7 +12,7 @@ class FeatureProberTest < TestBase
   test '190', %w(
   alive? is true, useful for k8s liveness probes
   ) do
-    assert prober.alive?
+    assert prober.alive?.is_a?(TrueClass)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -20,7 +20,7 @@ class FeatureProberTest < TestBase
   test '191', %w(
   ready? is true, useful for k8s readyness probes
   ) do
-    assert prober.ready?
+    assert prober.ready?.is_a?(TrueClass)
   end
 
   # - - - - - - - - - - - - - - - - -

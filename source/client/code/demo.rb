@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-require_relative 'languages_start_points'
-require_relative 'runner'
+require_relative 'externals/languages_start_points'
+require_relative 'externals/runner'
 require 'json'
 
 class Demo
@@ -103,15 +103,11 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    hostname = 'runner-server'
-    port = 4597
-    @runner ||= Runner.new(hostname, port)
+    @runner ||= Runner.new
   end
 
   def languages_start_points
-    hostname = 'languages-start-points'
-    port = 4524
-    @languages_start_points ||= LanguagesStartPoints.new(hostname, port)
+    @languages_start_points ||= LanguagesStartPoints.new
   end
 
   def timed

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require_relative '../id58_test_base'
-require_source 'languages_start_points'
-require_source 'runner'
+require_source 'context'
 require 'json'
 
 class TestBase < Id58TestBase
@@ -49,18 +48,24 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 2. the http-services and arguments
 
-  def runner
-    hostname = 'runner-server'
-    port = 4597
-    Runner.new(hostname, port)
+  def context
+    @context ||= Context.new
   end
 
   def languages_start_points
-    hostname = 'languages-start-points'
-    port = 4524
-    LanguagesStartPoints.new(hostname, port)
+    context.languages_start_points
   end
 
+  def prober
+    context.prober
+  end
+
+  def runner
+    context.runner
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
   def id
     id58[0..5]
   end
