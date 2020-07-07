@@ -99,9 +99,8 @@ class TrafficLightTest < TestBase
     traffic_light_colour
 
     assert_faulty
-    assert_call_info_logged
-    message = 'image_name must have /usr/local/bin/red_amber_green.rb file'
-    assert_missing_lambda_logged(message)
+    context = 'image_name must have /usr/local/bin/red_amber_green.rb file'
+    assert_missing_lambda_logged(context)
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -118,7 +117,6 @@ class TrafficLightTest < TestBase
     traffic_light_colour
 
     assert_faulty
-    assert_call_info_logged
     assert_bad_lambda_logged(
       "exception when eval'ing lambda source",
       lambda_source,
@@ -141,7 +139,6 @@ class TrafficLightTest < TestBase
     traffic_light_colour
 
     assert_faulty
-    assert_call_info_logged
     assert_bad_lambda_logged(
       'exception when calling lambda source',
       lambda_source,
@@ -163,7 +160,7 @@ class TrafficLightTest < TestBase
 
     traffic_light_colour
 
-    assert_call_info_logged
+    assert_faulty
     assert_bad_lambda_logged(
       'exception when calling lambda source',
       lambda_source,
@@ -185,7 +182,7 @@ class TrafficLightTest < TestBase
 
     traffic_light_colour
 
-    assert_call_info_logged
+    assert_faulty
     assert_bad_lambda_logged(
       'exception when calling lambda source',
       lambda_source,
@@ -207,7 +204,7 @@ class TrafficLightTest < TestBase
 
     traffic_light_colour
 
-    assert_call_info_logged
+    assert_faulty
     assert_illegal_colour_logged(
       "illegal colour; must be one of ['red','amber','green']",
       'orange',
@@ -218,11 +215,11 @@ class TrafficLightTest < TestBase
   private
 
   def traffic_light_colour(options = {})
-    image_name = python_pytest_image_name
+    @image_name = python_pytest_image_name
     @stdout = options.delete(:stdout) || Test::Data::PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || 0
-    @colour,@fault_info = *traffic_light.colour(image_name, @stdout, @stderr, @status)
+    @colour,@fault_info = *traffic_light.colour(@image_name, @stdout, @stderr, @status)
   end
 
   def python_pytest_image_name
@@ -294,62 +291,64 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_call_info_logged
-    assert_logged_fault_info([
-      'Faulty TrafficLight.colour(image_name,stdout,stderr,status):',
-      "image_name:#{python_pytest_image_name}:",
-      "stdout:#{@stdout}:",
-      "stderr:#{@stderr}:",
-      "status:#{@status}:"
-    ].join("\n"))
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def assert_missing_lambda_logged(context)
-    assert_logged_fault_info('exception:TrafficLight::Fault:')
-    assert_logged_fault_info(JSON.pretty_generate({
+    assert_call_info_logged(
       context:context,
       command:@command,
       stdout:@command_stdout,
       stderr:@command_stderr,
       status:@command_status
-    }))
+    )
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_bad_lambda_logged(context, lambda_source, klass, error)
-    assert_logged?('exception:TrafficLight::Fault:', :exception)
-    message = JSON.pretty_generate({
+    assert_call_info_logged(
       context:context,
       lambda_source:lambda_source,
       class:klass,
       error:error
-    })
-    assert_logged_fault_info("message:#{message}")
+    )
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_illegal_colour_logged(context, illegal_colour, lambda_source)
-    assert_logged?('exception:TrafficLight::Fault:', :exception)
-    message = JSON.pretty_generate({
+    assert_call_info_logged(
       context:context,
       illegal_colour:illegal_colour,
       lambda_source:lambda_source
-    })
-    assert_logged_fault_info("message:#{message}")
+    )
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_logged_fault_info(s)
-    assert_logged?(s, :logged)
-    assert @fault_info.include?(s), [:fault_info,@fault_info,s]
+  def assert_call_info_logged(message)
+    assert_logged_fault_info({
+      call:'TrafficLight.colour(image_name,stdout,stderr,status)',
+      args:{
+        image_name:@image_name,
+        stdout:@stdout,
+        stderr:@stderr,
+        status:@status
+      },
+      exception:TrafficLight::Fault.name,
+      message:message
+    })
   end
 
-  def assert_logged?(expected, context)
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_logged_fault_info(hash)
+    json = JSON.pretty_generate(hash)
+    assert_logged(json, :logged)
+    assert_equal json, @fault_info, :fault_info
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def assert_logged(expected, context)
     assert logged?(expected), "\nLOG:#{log}:\nCONTEXT:#{context}:\nEXPECTED:#{expected}:\n"
   end
 

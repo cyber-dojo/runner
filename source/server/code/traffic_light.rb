@@ -20,16 +20,19 @@ class TrafficLight
 
   def colour(image_name, stdout, stderr, status)
     [ self[image_name].call(stdout, stderr, status), '' ]
-  rescue Exception => error
-    fault_info = [
-      "Faulty TrafficLight.colour(image_name,stdout,stderr,status):",
-      "image_name:#{image_name}:",
-      "stdout:#{stdout}:",
-      "stderr:#{stderr}:",
-      "status:#{status}:",
-      "exception:#{error.class.name}:",
-      "message:#{error.message}:"
-    ].join("\n")
+  rescue TrafficLight::Fault => error
+    message = JSON.parse(error.message)
+    fault_info = JSON.pretty_generate({
+      call:"TrafficLight.colour(image_name,stdout,stderr,status)",
+      args:{
+        image_name:image_name,
+        stdout:stdout,
+        stderr:stderr,
+        status:status
+      },
+      exception:error.class.name,
+      message:message
+    })
     logger.log(fault_info)
     [ 'faulty', fault_info ]
   end

@@ -39,7 +39,10 @@ class Runner
     max_seconds = manifest['max_seconds']
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-    tgz_out, timed_out = *docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
+
+    result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
+    tgz_out = result[:stdout]
+    timed_out = result[:timeout]
 
     if timed_out
       log(id, image_name, 'timed_out')
@@ -92,11 +95,10 @@ class Runner
       :timeout => max_seconds,
       :kill_after => 1
     }
-    result = capture3_with_timeout(@context, command, options) do
+    capture3_with_timeout(@context, command, options) do
       # The [docker run] command timed-out.
       docker_stop_container(id, image_name, container_name)
     end
-    [ result[:stdout], result[:timeout] ]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

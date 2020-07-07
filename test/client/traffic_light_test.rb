@@ -9,7 +9,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test '3DA', 'test API red/amber/green traffic-light' do
+  c_assert_test '3DA', 'red/amber/green traffic-light' do
     red_traffic_light_test
     amber_traffic_light_test
     green_traffic_light_test
@@ -17,7 +17,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test '3DD', 'test red/amber/green in parallel threads' do
+  c_assert_test '3DD', 'red/amber/green in parallel threads' do
     rag1 = in_parallel_red_amber_green
     rag2 = in_parallel_red_amber_green
     rag3 = in_parallel_red_amber_green
@@ -26,14 +26,26 @@ class TrafficLightTest < TestBase
     rag1.each{ |t| t.join }
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test '3DE', 'when there is a fault, log contains fault_info as JSON string' do
+    run_cyber_dojo_sh(image_name:'busybox:latest')
+    assert_equal 'faulty', @result['colour']
+    fault_info = JSON.parse(@result['log'])
+    assert_equal 'TrafficLight.colour(image_name,stdout,stderr,status)', fault_info['call']
+    assert_equal 'busybox:latest', fault_info['args']['image_name']
+    assert_equal 'TrafficLight::Fault', fault_info['exception']
+    assert_equal 'image_name must have /usr/local/bin/red_amber_green.rb file', fault_info['message']['context']
+  end
+
+  private
+
   def in_parallel_red_amber_green
       red = Thread.new {   red_traffic_light_test }
     amber = Thread.new { amber_traffic_light_test }
     green = Thread.new { green_traffic_light_test }
     [red,amber,green]
   end
-
-  private
 
   def red_traffic_light_test
     run_cyber_dojo_sh

@@ -103,7 +103,7 @@ module Capture3WithTimeout
       out_r.close unless out_r.closed?
       err_r.close unless err_r.closed?
     end
-
+    
     result
   end
 
