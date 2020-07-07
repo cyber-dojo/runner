@@ -65,7 +65,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
+
   def id
     id58[0..5]
   end

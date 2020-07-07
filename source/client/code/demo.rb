@@ -1,49 +1,49 @@
 # frozen_string_literal: true
-require_relative 'externals/languages_start_points'
-require_relative 'externals/runner'
+require_relative 'context'
 require 'json'
 
 class Demo
 
-  def call(_env)
-    inner_call
-    [ 200, content_text_html, [ @html ] ]
-  rescue => error
-    [ 400, content_text_html, [ [error.message] + [error.backtrace] ] ]
+  def initialize
+    @context = Context.new
   end
 
-  def inner_call
-    @html = ''
-    @html += '<h1>GET /sha</h1>'
-    @html += pre(sha_snippet)
-    sha
+  def html
+    @html =
+      <<~HTML
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>runner demo</title>
+      </head>
+      <body style="padding:30px">
+      HTML
+
     @html += '<h1>GET /alive?</h1>'
     @html += pre(alive_snippet)
     alive?
+
     @html += '<h1>GET /ready?</h1>'
     @html += pre(ready_snippet)
     ready?
+
+    @html += '<h1>GET /sha</h1>'
+    @html += pre(sha_snippet)
+    sha
+
     @html += '<h1>GET /run_cyber_dojo_sh</h1>'
     @html += pre(run_cyber_dojo_sh_snippet)
     run_cyber_dojo_sh('cyberdojofoundation/gcc_assert')
-    run_cyber_dojo_sh('BAD/image_name')
+    #run_cyber_dojo_sh('BAD/image_name')
+    @html +=
+      <<~HTML
+      </body>
+      </html>
+      HTML
   end
 
   private
-
-  def sha
-    result,duration = timed { runner.sha }
-    @html += boxed_pre(duration, result)
-  end
-
-  def sha_snippet
-    [
-      'sha = runner.sha',
-      'html = green(JSON.pretty_unparse(sha))'
-    ].join("\n")
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
 
   def alive?
     result,duration = timed { runner.alive? }
@@ -73,13 +73,31 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  def sha
+    result,duration = timed { runner.sha }
+    @html += boxed_pre(duration, result)
+  end
+
+  def sha_snippet
+    [
+      'sha = runner.sha',
+      'html = green(JSON.pretty_unparse(sha))'
+    ].join("\n")
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   def run_cyber_dojo_sh(image_name)
-    args  = [ image_name, '729z65', gcc_assert_files, 10 ]
+    files = gcc_assert_files
+    manifest = {
+      'image_name' => image_name,
+      'max_seconds' => 10
+    }
     _,duration = timed {
       begin
-        @result = runner.run_cyber_dojo_sh(*args)
+        @result = runner.run_cyber_dojo_sh('729z65', files, manifest)
         @raised = false
-      rescue => error # ServiceError better RunnerError
+      rescue => error
         @result = JSON.parse(error.message)
         @raised = true
       end
@@ -103,11 +121,11 @@ class Demo
   # - - - - - - - - - - - - - - - - - - - - -
 
   def runner
-    @runner ||= Runner.new
+    @context.runner
   end
 
   def languages_start_points
-    @languages_start_points ||= LanguagesStartPoints.new
+    @context.languages_start_points
   end
 
   def timed
@@ -126,7 +144,7 @@ class Demo
   end
 
   def pre(fragment)
-    "<pre style='margin-left:30px'>#{fragment}</pre>"
+    "<pre style='padding-left:30px;margin-left:30px'>#{fragment}</pre>"
   end
 
   def boxed_pre(duration, result, css_colour = 'LightGreen')
@@ -142,8 +160,6 @@ class Demo
     '</pre>'
   end
 
-  def content_text_html
-    { 'Content-Type' => 'text/html' }
-  end
-
 end
+
+$stdout.puts(Demo.new.html)

@@ -12,5 +12,5 @@ class Context
   end
 
   attr_reader :prober, :languages_start_points, :runner
-  
+
 end
