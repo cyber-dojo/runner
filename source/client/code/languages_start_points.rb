@@ -13,6 +13,8 @@ class LanguagesStartPoints
 
   def initialize(hostname, port)
     adapter = HttpProxy::NetHttpAdapter.new
+    hostname = 'languages-start-points'
+    port = 4524
     requester = HttpProxy::JsonRequester.new(adapter, hostname, port)
     @http = HttpProxy::JsonResponder.new(requester, Error)
   end
