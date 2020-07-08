@@ -22,6 +22,7 @@ class Runner
     image_name = manifest['image_name']
     if puller.pull_image(id:id, image_name:image_name) != :pulled
       stdout,stderr,status, created,deleted,changed = dummy_result(141)
+      result = { timed_out:false }
       colour,log_info = 'pulling', {}
     else
       max_seconds = manifest['max_seconds']
