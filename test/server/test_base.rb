@@ -66,18 +66,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 2. custom asserts
-
-  def assert_sss(script)
-    assert_cyber_dojo_sh(script, traffic_light:TrafficLightStub::red)
-  end
-
-  def assert_cyber_dojo_sh(script, options = {})
-    options[:changed] = { 'cyber-dojo.sh' => script }
-    run_cyber_dojo_sh(options)
-    refute_timed_out
-    stdout
-  end
+  # 2. call helpers
 
   def run_cyber_dojo_sh(options = {})
     unchanged_files = starting_files
@@ -101,7 +90,7 @@ class TestBase < Id58TestBase
       'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
 
-    @result = runner.run_cyber_dojo_sh(
+    @run_result = runner.run_cyber_dojo_sh(
       id:id,
       files:files,
       manifest:manifest
@@ -113,24 +102,76 @@ class TestBase < Id58TestBase
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  attr_reader :result
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 3. call arguments
 
-  def run_result
-    @result
+  def id
+    id58[0..5]
   end
 
+  def starting_files
+    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
+      memo[filename] = file['content']
+    end
+  end
+
+  def image_name
+    manifest['image_name']
+  end
+
+  def max_seconds
+    manifest['max_seconds']
+  end
+
+  def manifest
+    @manifest ||= languages_start_points.manifest(display_name)
+  end
+
+  def languages_start_points
+    HttpProxy::LanguagesStartPoints.new
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 4. call results
+
+  def stdout; run_result[:stdout][:content]; end
+  def stderr; run_result[:stderr][:content]; end
+
+  def timed_out?; run_result[:timed_out]; end
+  def colour;     run_result[:colour]; end
+
+  def created; run_result[:created]; end
+  def deleted; run_result[:deleted]; end
+  def changed; run_result[:changed]; end
+
   def pretty_result(context)
-    [ JSON.pretty_generate(result),
+    [ JSON.pretty_generate(run_result),
       "CONTEXT:#{context}:"
     ].join("\n")
   end
 
+  attr_reader :run_result
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # 5. custom asserts
+
+  def assert_sss(script)
+    assert_cyber_dojo_sh(script, traffic_light:TrafficLightStub::red)
+  end
+
+  def assert_cyber_dojo_sh(script, options = {})
+    options[:changed] = { 'cyber-dojo.sh' => script }
+    run_cyber_dojo_sh(options)
+    refute_timed_out
+    stdout
+  end
+
   def assert_timed_out
-    assert timed_out?, result
+    assert timed_out?, run_result
   end
 
   def refute_timed_out
-    refute timed_out?, result
+    refute timed_out?, run_result
   end
 
   def assert_created(expected)
@@ -153,49 +194,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 3. arguments
-
-  def id
-    id58[0..5]
-  end
-
-  def starting_files
-    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
-      memo[filename] = file['content']
-    end
-  end
-
-  def manifest
-    @manifest ||= languages_start_points.manifest(display_name)
-  end
-
-  def image_name
-    manifest['image_name']
-  end
-
-  def max_seconds
-    manifest['max_seconds']
-  end
-
-  def languages_start_points
-    HttpProxy::LanguagesStartPoints.new
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 4. runner.run_cyber_dojo_sh() results
-
-  def stdout; run_result[:stdout][:content]; end
-  def stderr; run_result[:stderr][:content]; end
-
-  def timed_out?; run_result[:timed_out]; end
-  def colour; run_result[:colour]; end
-
-  def created; run_result[:created]; end
-  def deleted; run_result[:deleted]; end
-  def changed; run_result[:changed]; end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 5. misc helpers
+  # 6. misc helpers
 
   def logged?(message)
     log.include?(message)
