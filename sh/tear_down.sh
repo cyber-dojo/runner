@@ -1,4 +1,4 @@
-#!/bin/bash -Ee
+#!/bin/bash -Eeu
 
 # During development, when a test fails it can very occasionally leave a
 # containers around. I leave such containers un-removed since that way

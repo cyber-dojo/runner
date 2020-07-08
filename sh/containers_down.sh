@@ -5,14 +5,15 @@ readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
-  stop
+  stop \
+  --timeout 1
 
 #sleep 2
-echo
+#echo
 #docker logs test-runner-client 2>&1 | grep "Goodbye from runner client"
 #docker logs test-runner-server 2>&1 | grep "Goodbye from runner server"
-echo
 
+echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   down \
