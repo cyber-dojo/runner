@@ -82,9 +82,10 @@ run_tests()
   set -e
 
   local -r coverage_path="${reports_dir}/index.html"
-  echo "${type} test coverage at ${coverage_path}"
-  echo "${type} test status == ${status}"
+  echo "${type} coverage at ${coverage_path}"
+  echo "${type} status == ${status}"
   if [ "${status}" != '0' ]; then
+    echo "${type} log follows..."
     echo
     docker logs "${container_name}"
   fi

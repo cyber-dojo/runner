@@ -1,5 +1,11 @@
 #!/bin/bash -Ee
 
+readonly ROOT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd )"
+readonly TMP_DIR=$(mktemp -d ~/tmp.cyber-dojo.runner.-dir.XXXXXX)
+remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }
+trap remove_tmp_dir EXIT
+
+# - - - - - - - - - - - - - - - - - - - -
 ip_address()
 {
   if [ -n "${DOCKER_MACHINE_NAME}" ]; then
@@ -9,11 +15,7 @@ ip_address()
   fi
 }
 
-readonly IP_ADDRESS=$(ip_address)
-
 # - - - - - - - - - - - - - - - - - - - -
-readonly READY_FILENAME='/tmp/runner.curl-ready-output'
-
 wait_until_ready_and_clean()
 {
   local -r name="${1}"
@@ -34,8 +36,8 @@ wait_until_ready_and_clean()
   done
   printf 'FAIL\n'
   echo "${name} not ready after ${max_tries} tries"
-  if [ -f "${READY_FILENAME}" ]; then
-    cat "${READY_FILENAME}"
+  if [ -f "$(ready_filename)" ]; then
+    cat "$(ready_filename)"
   fi
   docker logs ${name}
   exit 42
@@ -46,13 +48,19 @@ ready()
 {
   local -r port="${1}"
   local -r path=ready?
-  local -r curl_cmd="curl --output ${READY_FILENAME} --silent --fail -X GET http://${IP_ADDRESS}:${port}/${path}"
-  rm -f "${READY_FILENAME}"
-  if ${curl_cmd} && [ "$(cat "${READY_FILENAME}")" = '{"ready?":true}' ]; then
+  local -r curl_cmd="curl --output $(ready_filename) --silent --fail -X GET http://$(ip_address):${port}/${path}"
+  rm -f "$(ready_filename)"
+  if ${curl_cmd} && [ "$(cat "$(ready_filename)")" = '{"ready?":true}' ]; then
     true
   else
     false
   fi
+}
+
+# - - - - - - - - - - - - - - - - - - - -
+ready_filename()
+{
+  echo "${TMP_DIR}/curl.ready.output"
 }
 
 # - - - - - - - - - - - - - - - - - - - -
@@ -110,13 +118,11 @@ stderr()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-readonly ROOT_DIR="$( cd "$(dirname "${0}")/.." && pwd )"
-
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   up \
   -d \
   --force-recreate
 
-wait_until_ready_and_clean test-runner-server ${CYBER_DOJO_RUNNER_PORT}
-wait_until_ready_and_clean test-runner-client ${CYBER_DOJO_RUNNER_CLIENT_PORT}
+wait_until_ready_and_clean test-runner-server "${CYBER_DOJO_RUNNER_PORT}"
+wait_until_ready_and_clean test-runner-client "${CYBER_DOJO_RUNNER_CLIENT_PORT}"
