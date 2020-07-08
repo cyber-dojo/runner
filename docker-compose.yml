@@ -9,7 +9,7 @@ services:
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     build:
       context: source/client
-      args: [ CYBER_DOJO_RUNNER_CLIENT_PORT ]
+      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_CLIENT_PORT ]
     container_name: test-runner-client
     environment: [ SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}" ]
