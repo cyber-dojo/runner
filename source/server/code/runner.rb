@@ -20,11 +20,11 @@ class Runner
 
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
-    if puller.pull_image(id:id, image_name:image_name) != :pulled
-      stdout,stderr,status, created,deleted,changed = dummy_result(141)
-      result = { timed_out:false }
-      colour,log_info = 'pulling', {}
-    else
+    #if puller.pull_image(id:id, image_name:image_name) != :pulled
+    #  stdout,stderr,status, created,deleted,changed = dummy_result(141)
+    #  result = { timed_out:false }
+    #  colour,log_info = 'pulling', {}
+    #else
       max_seconds = manifest['max_seconds']
       files_in = Sandbox.in(files)
       tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
@@ -45,7 +45,7 @@ class Runner
         sss = [ stdout[:content], stderr[:content], status[:content] ]
         colour,log_info = *@traffic_light.colour(image_name, *sss)
       end
-    end
+    #end
 
     {
          stdout: stdout,
