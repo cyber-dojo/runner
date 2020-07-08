@@ -29,11 +29,11 @@ class Runner
     if result[:timed_out]
       stdout,stderr,status, created,deleted,changed = dummy_result(142)
       colour,log_info = '', result
-      log(id:id, image_name:image_name, message:'timed_out', result:result)
+      log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(result))
     elsif result[:status] != 0
       stdout,stderr,status, created,deleted,changed = dummy_result(143)
       colour,log_info = 'faulty',result
-      log(id:id, image_name:image_name, message:'faulty', result:result)
+      log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(result))
     else
       tgz_out = result[:stdout]
       stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
@@ -226,6 +226,11 @@ class Runner
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
 
   # - - - - - - - - - - - - - - - - - - - - - -
+
+  def utf8_clean(result)
+    result[:stdout] = Utf8.clean(result[:stdout])
+    result[:stderr] = Utf8.clean(result[:stderr])
+  end
 
   def log(properties)
     @context.logger.log(JSON.pretty_generate(properties))

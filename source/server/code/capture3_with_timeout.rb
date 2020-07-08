@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 require 'timeout'
+require_relative 'utf8_clean'
 
 module Capture3WithTimeout
 
   def capture3_with_timeout(context, command, spawn_opts)
     # Based on https://gist.github.com/pasela/9392115
     opts = {
-      :stdin_data => spawn_opts.delete(:stdin_data) || '',
-      :binmode    => spawn_opts.delete(:binmode) || false,
-      :timeout    => spawn_opts.delete(:timeout),
-      :signal     => spawn_opts.delete(:signal) || :TERM,
-      :kill_after => spawn_opts.delete(:kill_after),
+      stdin_data: spawn_opts.delete(:stdin_data) || '',
+         binmode: spawn_opts.delete(:binmode) || false,
+         timeout: spawn_opts.delete(:timeout),
+          signal: spawn_opts.delete(:signal) || :TERM,
+      kill_after: spawn_opts.delete(:kill_after),
     }
 
     in_r,  in_w  = IO.pipe
@@ -28,13 +29,7 @@ module Capture3WithTimeout
     spawn_opts[:out] = out_w
     spawn_opts[:err] = err_w
 
-    result = {
-      :pid     => nil,
-      :status  => nil,
-      :stdout  => nil,
-      :stderr  => nil,
-      :timed_out => nil
-    }
+    result = { pid:nil, stdout:nil, stderr:nil, status:nil }
 
     out_reader = nil
     err_reader = nil
