@@ -85,6 +85,7 @@ run_tests()
   echo "${type} test coverage at ${coverage_path}"
   echo "${type} test status == ${status}"
   if [ "${status}" != '0' ]; then
+    echo
     docker logs "${container_name}"
   fi
   return ${status}

@@ -12,18 +12,20 @@ ip_address()
 readonly IP_ADDRESS=$(ip_address)
 
 # - - - - - - - - - - - - - - - - - - - -
-readonly READY_FILENAME='/tmp/curl-ready-output'
+readonly READY_FILENAME='/tmp/runner.curl-ready-output'
 
-wait_until_ready()
+wait_until_ready_and_clean()
 {
   local -r name="${1}"
   local -r port="${2}"
   local -r max_tries=20
+  echo
   printf "Waiting until ${name} is ready"
   for _ in $(seq ${max_tries})
   do
     if ready ${port} ; then
-      printf 'OK\n'
+      printf '.OK\n'
+      exit_if_unclean "${name}"
       return
     else
       printf .
@@ -54,20 +56,25 @@ ready()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-wait_till_up()
+exit_if_unclean()
 {
-  local n=10
-  while [ $(( n -= 1 )) -ge 0 ]
-  do
-    if docker ps --filter status=running --format '{{.Names}}' | grep -q ^${1}$ ; then
-      return
-    else
-      sleep 0.5
-    fi
-  done
-  echo "${1} not up after 5 seconds"
-  docker logs "${1}"
-  exit 42
+  local -r name="${1}"
+  local log=$(docker logs "${name}" 2>&1)
+
+  # Example of old known warnings
+  #local -r last_arg_warning="puma.rb:(.*): warning: (.*) the last argument was passed as a single Hash"
+  #log=$(strip_known_warning "${log}" "${last_arg_warning}")
+
+  local -r line_count=$(echo -n "${log}" | grep --count '^')
+  echo -n "Checking ${name} started cleanly."
+  # Thin=3, Unicorn=6, Puma=6
+  if [ "${line_count}" == '6' ]; then
+    echo OK
+  else
+    echo FAIL
+    echo_docker_log "${name}" "${log}"
+    exit 42
+  fi
 }
 
 # - - - - - - - - - - - - - - - - - - - -
@@ -86,40 +93,6 @@ strip_known_warning()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
-stderr()
-{
-  >&2 echo "${1}"
-}
-
-# - - - - - - - - - - - - - - - - - - - -
-exit_if_unclean()
-{
-  local -r name="${1}"
-  local log=$(docker logs "${name}" 2>&1)
-
-  # Thin warnings
-  #local -r daemon_warning="daemons-1.3.1(.*)warning\: mismatched indentations at 'rescue'"
-  #log=$(strip_known_warning "${log}" "${daemon_warning}")
-
-  # Puma warnings
-  #local -r last_arg_warning="puma.rb:(.*): warning: (.*) the last argument was passed as a single Hash"
-  #log=$(strip_known_warning "${log}" "${last_arg_warning}")
-  #local -r splat_keyword_warning="server.rb:(.*): warning: although a splat keyword arguments here"
-  #log=$(strip_known_warning "${log}" "${splat_keyword_warning}")
-
-  local -r line_count=$(echo -n "${log}" | grep --count '^')
-  echo -n "Checking ${name} started cleanly..."
-  # Thin=3, Unicorn=6, Puma=6
-  if [ "${line_count}" == '6' ]; then
-    echo OK
-  else
-    echo FAIL
-    echo_docker_log "${name}" "${log}"
-    exit 42
-  fi
-}
-
-# - - - - - - - - - - - - - - - - - - - -
 echo_docker_log()
 {
   local -r name="${1}"
@@ -131,6 +104,12 @@ echo_docker_log()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
+stderr()
+{
+  >&2 echo "${1}"
+}
+
+# - - - - - - - - - - - - - - - - - - - -
 readonly ROOT_DIR="$( cd "$(dirname "${0}")/.." && pwd )"
 
 docker-compose \
@@ -139,7 +118,5 @@ docker-compose \
   -d \
   --force-recreate
 
-wait_until_ready test-runner-server ${CYBER_DOJO_RUNNER_PORT}
-exit_if_unclean  test-runner-server
-
-wait_till_up     test-runner-client
+wait_until_ready_and_clean test-runner-server ${CYBER_DOJO_RUNNER_PORT}
+wait_until_ready_and_clean test-runner-client ${CYBER_DOJO_RUNNER_CLIENT_PORT}

@@ -40,6 +40,7 @@ assert_equal()
 {
   local -r expected="${1}"
   local -r actual="${2}"
+  echo
   echo "expected: '${expected}'"
   echo "  actual: '${actual}'"
   if [ "${expected}" != "${actual}" ]; then
