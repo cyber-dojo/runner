@@ -3,16 +3,19 @@
 readonly MY_NAME=`basename "${BASH_SOURCE[0]}"`
 
 if [ "${1:-}" == '-h' ] || [ "${1:-}" == '--help' ]; then
-  echo
-  echo "Use: ${MY_NAME} [client|server] [ID...]"
-  echo 'Options:'
-  echo '   client  - only run the tests from inside the client'
-  echo '   server  - only run the tests from inside the server'
-  echo '   ID...   - only run the tests matching these identifiers'
-  echo
-  echo 'To see the test id and filename as each test runs:'
-  echo '   SHOW_TEST_IDS=true ${MY_NAME} [client|server] [ID...]'
-  echo
+  cat <<- EOF
+
+  Use: ${MY_NAME} [client|server] [ID...]
+  
+  Options:
+     client  - only run tests from inside the client
+     server  - only run tests from inside the server
+     ID...   - only run tests matching these identifiers
+
+  To see the test ID and filename as each test runs:
+     SHOW_TEST_IDS=true ${MY_NAME} [client|server] [ID...]
+
+EOF
   exit 0
 fi
 
