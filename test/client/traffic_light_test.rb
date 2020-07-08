@@ -36,8 +36,9 @@ class TrafficLightTest < TestBase
     busybox = 'busybox:latest'
     run_cyber_dojo_sh(image_name:busybox)
     assert_equal 'faulty', @result['colour']
-    stderr = "[FATAL tini (6)] exec bash failed: No such file or directory\n"
-    assert_equal stderr, @result['log']['stderr']
+    stderr = @result['log']['stderr']
+    stderr_pattern = /\[FATAL tini \(\d+\)\] exec bash failed: No such file or directory/
+    assert stderr.match(stderr_pattern), stderr
   end
 
   private

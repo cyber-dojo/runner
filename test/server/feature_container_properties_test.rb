@@ -16,8 +16,8 @@ class FeatureContainerPropertiesTest < TestBase
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
     assert_equal 'faulty', colour, pretty_result(:colour)
-    diagnostic = '[FATAL tini (6)] exec bash failed: No such file or directory\n"'
-    assert logged?(diagnostic), pretty_result(:log)
+    pattern = /\[FATAL tini \(\d+\)\] exec bash failed: No such file or directory/
+    assert log.match(pattern), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
