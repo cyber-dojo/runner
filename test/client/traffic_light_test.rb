@@ -28,15 +28,16 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '3DE', 'when there is a fault, log contains fault_info as JSON string' do
+  test '3DE', %w(
+  given an image_name that does not have bash installed,
+  then the colour is 'faulty',
+  and log contains info as JSON object
+  ) do
     busybox = 'busybox:latest'
     run_cyber_dojo_sh(image_name:busybox)
     assert_equal 'faulty', @result['colour']
-    fault_info = JSON.parse(@result['log'])
-    assert_equal 'TrafficLight.colour(image_name,stdout,stderr,status)', fault_info['call']
-    assert_equal busybox, fault_info['args']['image_name']
-    context = 'image_name must have /usr/local/bin/red_amber_green.rb file'
-    assert_equal context, fault_info['exception']['context']
+    stderr = "[FATAL tini (6)] exec bash failed: No such file or directory\n"
+    assert_equal stderr, @result['log']['stderr']
   end
 
   private

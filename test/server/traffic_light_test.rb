@@ -51,9 +51,9 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'xJ7', %w( lambda status argument is an integer in a string ) do
-    colour,info = *traffic_light_colour(status:'0')
-    assert_equal 'red', colour, log
-    assert_equal '', info, log
+    traffic_light_colour(status:'0')
+    assert_red
+    assert_no_fault_info
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -244,7 +244,7 @@ class TrafficLightTest < TestBase
   end
 
   def assert_no_fault_info
-    assert_equal '', @fault_info, log
+    assert_equal({}, @fault_info, log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -337,7 +337,7 @@ class TrafficLightTest < TestBase
   def assert_logged_fault_info(hash)
     json = JSON.pretty_generate(hash)
     assert_logged(json, :logged)
-    assert_equal json, @fault_info, :fault_info
+    assert_equal hash, @fault_info, :fault_info
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

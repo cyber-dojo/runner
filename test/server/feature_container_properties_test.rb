@@ -16,12 +16,8 @@ class FeatureContainerPropertiesTest < TestBase
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
     assert_equal 'faulty', colour, pretty_result(:colour)
-    assert logged?('TrafficLight.colour'), pretty_result(:log)
-    # TODO: Needs work: problem is that after
-    #  result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
-    # result[:status] is not being looked at
-    # It appears this is the only test where it is not true that
-    #   result[:timeout] || result[:status] === 0
+    diagnostic = '[FATAL tini (6)] exec bash failed: No such file or directory\n"'
+    assert logged?(diagnostic), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -33,7 +33,7 @@ module Capture3WithTimeout
       :status  => nil,
       :stdout  => nil,
       :stderr  => nil,
-      :timeout => nil
+      :timed_out => nil
     }
 
     out_reader = nil
@@ -43,7 +43,7 @@ module Capture3WithTimeout
     process = context.process
     threader = context.threader
     begin
-      result[:timeout] = false
+      result[:timed_out] = false
       Timeout.timeout(opts[:timeout]) do
         result[:pid] = process.spawn(command, spawn_opts)
         wait_thr = process.detach(result[:pid])
@@ -60,7 +60,7 @@ module Capture3WithTimeout
         result[:status] = wait_thr.value
       end
     rescue Timeout::Error
-      result[:timeout] = true
+      result[:timed_out] = true
       pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
       process.kill(opts[:signal], pid)
       if opts[:kill_after]
@@ -76,6 +76,8 @@ module Capture3WithTimeout
       out_r.close unless out_r.closed?
       err_r.close unless err_r.closed?
     end
+
+    result.delete(:pid)
 
     result
   end

@@ -12,7 +12,7 @@ class FeatureTimedOutTest < TestBase
   c_assert_test 'B2A', %w(
   when cyber-dojo.sh has an infinite loop,
   it times out after max_seconds,
-  and modified files in /sandbox, are not seen,
+  and modified files in /sandbox are not seen,
   and anything written to stdout|stderr is not seen,
   and the colour is set to the empty string
   ) do
@@ -36,9 +36,6 @@ class FeatureTimedOutTest < TestBase
     assert_created({}) # {'a/b/xxx.txt' => intact('xxx')}
     assert_changed({})
     assert_equal '', colour
-
-    timed_out_message = "id=9E9B2A, image_name=#{image_name}, (timed_out)"
-    assert_logged(timed_out_message)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,16 +74,6 @@ class FeatureTimedOutTest < TestBase
     assert_created({}) # {'hello.txt' => intact("Hello\n")}
     assert_changed({})
     assert_equal '', colour
-
-    timed_out_message = "id=9E9B2C, image_name=#{image_name}, (timed_out)"
-    assert_logged(timed_out_message)
-  end
-
-  private
-
-  def assert_logged(message)
-    logged_count = log.lines.count { |line| line.include?(message) }
-    assert_equal 1, logged_count, ":#{log}:"
   end
 
 end

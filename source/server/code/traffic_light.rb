@@ -20,9 +20,9 @@ class TrafficLight
   end
 
   def colour(image_name, stdout, stderr, status)
-    [ self[image_name].call(stdout, stderr, status), '' ]
+    [ self[image_name].call(stdout, stderr, status), {} ]
   rescue Fault => error
-    fault_info = JSON.pretty_generate({
+    fault_info = {
       call:"TrafficLight.colour(image_name,stdout,stderr,status)",
       args:{
         image_name:image_name,
@@ -31,8 +31,8 @@ class TrafficLight
         status:status
       },
       exception:error.properties
-    })
-    logger.log(fault_info)
+    }
+    logger.log(JSON.pretty_generate(fault_info))
     [ 'faulty', fault_info ]
   end
 

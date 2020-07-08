@@ -8,26 +8,10 @@ require_relative 'tgz'
 require_relative 'traffic_light'
 require_relative 'utf8_clean'
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# [X] Runner's requirements on image_name.
-# o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
-# o) bash, file, grep, tar, truncate
-# These are satisfied by image_name being built with
-# https://github.com/cyber-dojo-tools/image_builder
-# https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
-#
-# Approval-style test-frameworks compare actual-text against
-# expected-text and write the actual-text to a file for human
-# inspection. runner supports this by returning all text files
-# under /sandbox after cyber-dojo.sh has run.
-#
-# Note: The browser's kata/run_tests ajax call timeout is
-# different to the Runner.run() call timing out.
-# - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 class Runner
 
   def initialize(context)
+    # Comments marked [X] are expanded at the end of this file.
     @context = context
     @traffic_light = TrafficLight.new(context)
   end
@@ -41,33 +25,44 @@ class Runner
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
     result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
-    tgz_out = result[:stdout]
-    timed_out = result[:timeout]
 
-    if timed_out
-      log(id, image_name, 'timed_out')
-      stdout = truncated('')
-      stderr = truncated('')
-      status = truncated('142')
+    if result[:timed_out]
+      stdout,stderr,status = empty_sss(142)
       created,deleted,changed = {},{},{}
-      colour,fault_info = '',''
+      colour = ''
+      log(id:id, image_name:image_name, message:'timed_out', result:result)
+      log_info = result
+    elsif result[:status] != 0
+      stdout,stderr,status = empty_sss(143)
+      created,deleted,changed = {},{},{}
+      colour = 'faulty'
+      log(id:id, image_name:image_name, message:'faulty', result:result)
+      log_info = result
     else
+      tgz_out = result[:stdout]
       stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
       sss = [ stdout[:content], stderr[:content], status[:content] ]
-      colour,fault_info = *@traffic_light.colour(image_name, *sss)
+      colour,log_info = *@traffic_light.colour(image_name, *sss)
     end
 
     {
          stdout: stdout,
          stderr: stderr,
          status: status[:content],
-      timed_out: timed_out,
+      timed_out: result[:timed_out],
          colour: colour,
         created: Sandbox.out(created),
         deleted: Sandbox.out(deleted).keys.sort,
         changed: Sandbox.out(changed),
-            log: fault_info
+            log: log_info
     }
+  end
+
+  def empty_sss(n)
+    stdout = truncated('')
+    stderr = truncated('')
+    status = truncated(n.to_s)
+    [ stdout, stderr, status ]
   end
 
   private
@@ -114,7 +109,7 @@ class Runner
     result = capture3_with_timeout(@context, command, options)
     unless result[:status] === 0
       # :nocov:
-      log(id, image_name, command)
+      log(id:id, image_name:image_name, command:command)
       # :nocov:
     end
   end
@@ -131,7 +126,7 @@ class Runner
       status = files_out.delete('status') || truncated('142')
       created,deleted,changed = files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
-      log(id, image_name, 'Zlib::GzipFile::Error')
+      log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
       stdout = truncated('')
       stderr = truncated('')
       status = truncated('142')
@@ -233,11 +228,27 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def log(id, image_name, message)
-    message = [ "id=#{id}", "image_name=#{image_name}", "(#{message})" ].join(', ')
-    @context.logger.log(message)
+  def log(properties)
+    @context.logger.log(JSON.pretty_generate(properties))
   end
 
   SPACE = ' '
 
 end
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# [X] Runner's requirements on image_name.
+# o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
+# o) bash, file, grep, tar, truncate
+# These are satisfied by image_name being built with
+# https://github.com/cyber-dojo-tools/image_builder
+# https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+#
+# Approval-style test-frameworks compare actual-text against
+# expected-text and write the actual-text to a file for human
+# inspection. runner supports this by returning all text files
+# under /sandbox after cyber-dojo.sh has run.
+#
+# Note: The browser's kata/run_tests ajax call timeout is
+# different to the Runner.run() call timing out.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
