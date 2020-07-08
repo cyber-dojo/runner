@@ -29,7 +29,7 @@ services:
       context: source/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     container_name: test-runner-server
-    environment: [ NO_PROMETHEUS, NO_PULLER_INITIALIZATION, SHOW_TEST_IDS ]
+    environment: [ USE_PROMETHEUS=no, DO_PULLER_SETUP=no, SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     restart: 'no'

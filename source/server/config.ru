@@ -6,7 +6,7 @@ use Rack::Deflater, if: ->(_, _, _, body) {
   body.any? && body[0].length > 512
 }
 
-unless ENV['NO_PROMETHEUS']
+unless ENV['USE_PROMETHEUS'] === 'no'
   require 'prometheus/middleware/collector'
   require 'prometheus/middleware/exporter'
   use Prometheus::Middleware::Collector
@@ -22,15 +22,21 @@ def require_code(name)
   require_relative "code/#{name}"
 end
 
+def node_image_names
+  ls = `docker image ls --format "{{.Repository}}:{{.Tag}}"`
+  ls.split("\n").sort.uniq - ['<none>:<none>']
+end
+
+def do_puller_setup(puller, image_names)
+  image_names.each { |image_name| puller.add(image_name) }
+  $stdout.puts("#{image_names.size} image names added to Puller")
+end
+
 require_code 'context'
 require_code 'rack_dispatcher'
 
 context = Context.new
-unless ENV['NO_PULLER_INITIALIZATION']
-  # https://docs.docker.com/engine/reference/commandline/images/#format-the-output
-  ls = `docker image ls --format "{{.Repository}}:{{.Tag}}"`
-  image_names = ls.split("\n").sort.uniq - ['<none>:<none>']
-  image_names.each { |image_name| context.puller.add(image_name) }
-  $stdout.puts("#{image_names.size} image names added to Puller")
+unless ENV['DO_PULLER_SETUP'] === 'no'
+  do_puller_setup(context.puller, node_image_names)
 end
 run RackDispatcher.new(context)
