@@ -27,17 +27,13 @@ class Runner
     result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
 
     if result[:timed_out]
-      stdout,stderr,status = empty_sss(142)
-      created,deleted,changed = {},{},{}
-      colour = ''
+      stdout,stderr,status, created,deleted,changed = dummy_result(142)
+      colour,log_info = '', result
       log(id:id, image_name:image_name, message:'timed_out', result:result)
-      log_info = result
     elsif result[:status] != 0
-      stdout,stderr,status = empty_sss(143)
-      created,deleted,changed = {},{},{}
-      colour = 'faulty'
+      stdout,stderr,status, created,deleted,changed = dummy_result(143)
+      colour,log_info = 'faulty',result
       log(id:id, image_name:image_name, message:'faulty', result:result)
-      log_info = result
     else
       tgz_out = result[:stdout]
       stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
@@ -58,13 +54,6 @@ class Runner
     }
   end
 
-  def empty_sss(n)
-    stdout = truncated('')
-    stderr = truncated('')
-    status = truncated(n.to_s)
-    [ stdout, stderr, status ]
-  end
-
   private
 
   include Capture3WithTimeout
@@ -78,6 +67,16 @@ class Runner
   UID = 41966             # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966             # [X] sandbox group - runs /sandbox/cyber-dojo.sh
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def dummy_result(n)
+    stdout = truncated('')
+    stderr = truncated('')
+    status = truncated(n.to_s)
+    created,deleted,changed = {},{},{}
+    [ stdout,stderr,status, created,deleted,changed ]
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
