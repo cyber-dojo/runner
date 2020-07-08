@@ -35,7 +35,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * **created:Hash** text-files created under `/sandbox`, each truncated to 50K
   * **deleted:Array[String]** names of text-files deleted from `/sandbox`
   * **changed:Hash** text-files changed under `/sandbox`, each truncated to 50K
-  * **log:String** diagnostic info
+  * **log:Hash** diagnostic info
   * eg
     ```json
     { "run_cyber_dojo_sh": {
@@ -58,7 +58,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
         },
         "deleted": [],
         "changed": {},
-        "log": ""
+        "log": {...}
       }
     }
     ```
@@ -70,6 +70,20 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * if calling the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
     then `"colour"` is `"faulty"`.
 - if `"colour"` is `"faulty"`, also returns information in the **log**
+
+- - - -
+## GET alive?
+Tests if the service is alive.
+Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
+- [JSON-in](#json-in) parameters
+  * none
+- returns the [JSON-out](#json-out) result, keyed on `"alive?"`
+  * **true**
+- example
+  ```bash     
+  $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/alive?
+  {"alive?":true}
+  ```
 
 - - - -
 ## GET ready?
@@ -84,20 +98,6 @@ Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
   ```bash     
   $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/ready?
   {"ready?":false}
-  ```
-
-- - - -
-## GET alive?
-Tests if the service is alive.
-Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
-- [JSON-in](#json-in) parameters
-  * none
-- returns the [JSON-out](#json-out) result, keyed on `"alive?"`
-  * **true**
-- example
-  ```bash     
-  $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/alive?
-  {"alive?":true}
   ```
 
 - - - -
@@ -122,12 +122,12 @@ The 40 character git commit sha used to create the Docker image.
 - - - -
 ## JSON out      
 - All methods return a json hash in the http response body.
-- If the method completes, a string key equals the method's name. eg
+- If the method completes, a key equals the method's name. eg
   ```bash
   $ curl --silent -X GET http://${IP_ADDRESS}:${PORT}/ready?
   { "ready?":true}
   ```
-- If the method raises an exception, a string key equals `"exception"`, with
+- If the method raises an exception, a key equals `"exception"`, with
   a json-hash as its value. eg
   ```bash
   $ curl --silent -X POST http://${IP_ADDRESS}:${PORT}/run_cyber_dojo_sh | jq      
