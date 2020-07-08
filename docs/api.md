@@ -67,7 +67,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
   * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
   * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
-  * if calling the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
+  * if the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
     then `"colour"` is `"faulty"`.
 - if `"colour"` is `"faulty"`, also returns information in the **log**
 
