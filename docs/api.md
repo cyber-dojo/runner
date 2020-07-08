@@ -1,7 +1,7 @@
 # API
 
 - - - -
-## GET run_cyber_dojo_sh(id,files,manifest)
+## POST run_cyber_dojo_sh(id,files,manifest)
 Creates a docker container from **manifest**'s **image_name**.  
 Inserts **files** into the container in its  `/sandbox` dir.  
 Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.

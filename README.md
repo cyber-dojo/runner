@@ -5,11 +5,12 @@
 - An http service (rack based) for running `cyber-dojo.sh` inside a docker container for at most `max_seconds` and returning `[stdout,stderr,status,timed_out,colour]`
 
 ***
+API
 
-* [GET run_cyber_dojo_sh(id,files,manifest)](docs/api.md#get-run_cyber_dojo_shidfilesmanifest)
-* [GET ready?](docs/api.md#get-ready)
 * [GET alive?](docs/api.md#get-alive)  
+* [GET ready?](docs/api.md#get-ready)
 * [GET sha](docs/api.md#get-sha)
+* [POST run_cyber_dojo_sh(id,files,manifest)](docs/api.md#post-run_cyber_dojo_shidfilesmanifest)
 
 ***
 
