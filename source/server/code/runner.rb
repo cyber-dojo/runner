@@ -125,11 +125,8 @@ class Runner
       status = files_out.delete('status') || truncated('142')
       created,deleted,changed = files_delta(files_in, files_out)
     rescue Zlib::GzipFile::Error
+      stdout,stderr,status, created,deleted,changed = dummy_result(144)
       log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
-      stdout = truncated('')
-      stderr = truncated('')
-      status = truncated('142')
-      created,deleted,changed = {},{},{}
     end
     [ stdout,stderr,status, created,deleted,changed ]
   end
