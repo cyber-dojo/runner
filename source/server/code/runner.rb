@@ -20,25 +20,30 @@ class Runner
 
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
-    max_seconds = manifest['max_seconds']
-    files_in = Sandbox.in(files)
-    tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-
-    result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
-
-    if result[:timed_out]
-      stdout,stderr,status, created,deleted,changed = dummy_result(142)
-      colour,log_info = '', result
-      log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(result))
-    elsif result[:status] != 0
-      stdout,stderr,status, created,deleted,changed = dummy_result(143)
-      colour,log_info = 'faulty',result
-      log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(result))
+    if puller.pull_image(id:id, image_name:image_name) != :pulled
+      stdout,stderr,status, created,deleted,changed = dummy_result(141)
+      colour,log_info = 'pulling', {}
     else
-      tgz_out = result[:stdout]
-      stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
-      sss = [ stdout[:content], stderr[:content], status[:content] ]
-      colour,log_info = *@traffic_light.colour(image_name, *sss)
+      max_seconds = manifest['max_seconds']
+      files_in = Sandbox.in(files)
+      tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
+
+      result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
+
+      if result[:timed_out]
+        stdout,stderr,status, created,deleted,changed = dummy_result(142)
+        colour,log_info = '', result
+        log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(result))
+      elsif result[:status] != 0
+        stdout,stderr,status, created,deleted,changed = dummy_result(143)
+        colour,log_info = 'faulty',result
+        log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(result))
+      else
+        tgz_out = result[:stdout]
+        stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
+        sss = [ stdout[:content], stderr[:content], status[:content] ]
+        colour,log_info = *@traffic_light.colour(image_name, *sss)
+      end
     end
 
     {
@@ -231,6 +236,10 @@ class Runner
 
   def log(properties)
     @context.logger.log(JSON.pretty_generate(properties))
+  end
+
+  def puller
+    @context.puller
   end
 
   SPACE = ' '
