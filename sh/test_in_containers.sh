@@ -20,6 +20,7 @@ main()
     run_server_tests "${@:-}"
     run_client_tests "${@:-}"
   fi
+  echo
   echo All passed
 }
 

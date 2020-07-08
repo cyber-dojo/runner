@@ -1,38 +1,10 @@
 # frozen_string_literal: true
 require 'timeout'
 
-# Based on https://gist.github.com/pasela/9392115
-#
-# Capture the standard output and the standard error of a command.
-# Almost same as Open3.capture3 method except for timeout handling and return value.
-# See Open3.capture3.
-#
-#   result = capture3_with_timeout([env,] cmd... [, opts])
-#
-# The arguments env, cmd and opts are passed to Process.spawn except
-# opts[:stdin_data], opts[:binmode], opts[:timeout], opts[:signal]
-# and opts[:kill_after].  See Process.spawn.
-#
-# If opts[:stdin_data] is specified, it is sent to the command's standard input.
-# If opts[:binmode] is true, internal pipes are set to binary mode.
-# If opts[:timeout] is specified, SIGTERM is sent to the command after specified seconds.
-# If opts[:signal] is specified, it is used instead of SIGTERM on timeout.
-# If opts[:kill_after] is specified, also send a SIGKILL after specified seconds.
-# it is only sent if the command is still running after the initial signal was sent.
-#
-# The return value is a Hash as shown below.
-#
-#   {
-#     :pid     => PID of the command,
-#     :stdout  => the standard output of the command,
-#     :stderr  => the standard error of the command,
-#     :status  => Process::Status of the command,
-#     :timeout => whether the command was timed out,
-#   }
-
 module Capture3WithTimeout
 
   def capture3_with_timeout(context, command, spawn_opts)
+    # Based on https://gist.github.com/pasela/9392115
     opts = {
       :stdin_data => spawn_opts.delete(:stdin_data) || '',
       :binmode    => spawn_opts.delete(:binmode) || false,
