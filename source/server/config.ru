@@ -13,30 +13,19 @@ unless ENV['USE_PROMETHEUS'] === 'no'
   use Prometheus::Middleware::Exporter
 end
 
+require_relative 'code/context'
+context = Context.new
+unless ENV['DO_PULLER_SETUP'] === 'no'
+  context.node.image_names.each do |image_name|
+    context.puller.add(image_name)
+  end
+  $stdout.puts("#{context.puller.image_names.size} image names added to Puller")
+end
+
 Signal.trap('TERM') {
   $stdout.puts('SIGTERM: Goodbye from runner server')
   exit(0)
 }
 
-def require_code(name)
-  require_relative "code/#{name}"
-end
-
-def node_image_names
-  ls = `docker image ls --format "{{.Repository}}:{{.Tag}}"`
-  ls.split("\n").sort.uniq - ['<none>:<none>']
-end
-
-def do_puller_setup(puller, image_names)
-  image_names.each { |image_name| puller.add(image_name) }
-  $stdout.puts("#{image_names.size} image names added to Puller")
-end
-
-require_code 'context'
-require_code 'rack_dispatcher'
-
-context = Context.new
-unless ENV['DO_PULLER_SETUP'] === 'no'
-  do_puller_setup(context.puller, node_image_names)
-end
+require_relative 'code/rack_dispatcher'
 run RackDispatcher.new(context)
