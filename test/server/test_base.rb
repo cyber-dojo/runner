@@ -144,9 +144,9 @@ class TestBase < Id58TestBase
   def deleted; run_result[:deleted]; end
   def changed; run_result[:changed]; end
 
-  def pretty_result(context)
+  def pretty_result(tag)
     [ JSON.pretty_generate(run_result),
-      "CONTEXT:#{context}:"
+      "CONTEXT:#{tag}:"
     ].join("\n")
   end
 

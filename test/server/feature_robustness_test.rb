@@ -39,13 +39,13 @@ class FeatureRobustNessTest < TestBase
       printed?('fork()') ||
         daemon_error? ||
           no_such_container_error? ||
-            gzip_exception?, result
+            gzip_exception?, pretty_result(:c_fork_bomb)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'CD6', %w(
-  bash fork-bomb does not run indefinitely
+  shell fork-bomb does not run indefinitely
   ) do
     run_cyber_dojo_sh(
       traffic_light: TrafficLightStub::amber,
@@ -68,7 +68,7 @@ class FeatureRobustNessTest < TestBase
           printed?('bomb') ||
             daemon_error? ||
               no_such_container_error? ||
-                gzip_exception?, result
+                gzip_exception?, pretty_result(:shell_fork_bomb)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -106,7 +106,7 @@ class FeatureRobustNessTest < TestBase
     assert printed?('fopen() != NULL') ||
       daemon_error? ||
         no_such_container_error? ||
-          gzip_exception?,  result
+          gzip_exception?,  pretty_result(:file_handles)
   end
 
   private
