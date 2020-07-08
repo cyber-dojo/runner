@@ -10,6 +10,9 @@ if [ "${1:-}" == '-h' ] || [ "${1:-}" == '--help' ]; then
   echo '   server  - only run the tests from inside the server'
   echo '   ID...   - only run the tests matching these identifiers'
   echo
+  echo 'To see the test id and filename as each test runs:'
+  echo '   SHOW_TEST_IDS=true ${MY_NAME} [client|server] [ID...]'
+  echo
   exit 0
 fi
 
