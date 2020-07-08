@@ -29,13 +29,14 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3DE', 'when there is a fault, log contains fault_info as JSON string' do
-    run_cyber_dojo_sh(image_name:'busybox:latest')
+    busybox = 'busybox:latest'
+    run_cyber_dojo_sh(image_name:busybox)
     assert_equal 'faulty', @result['colour']
     fault_info = JSON.parse(@result['log'])
     assert_equal 'TrafficLight.colour(image_name,stdout,stderr,status)', fault_info['call']
-    assert_equal 'busybox:latest', fault_info['args']['image_name']
-    assert_equal 'TrafficLight::Fault', fault_info['exception']
-    assert_equal 'image_name must have /usr/local/bin/red_amber_green.rb file', fault_info['message']['context']
+    assert_equal busybox, fault_info['args']['image_name']
+    context = 'image_name must have /usr/local/bin/red_amber_green.rb file'
+    assert_equal context, fault_info['exception']['context']
   end
 
   private

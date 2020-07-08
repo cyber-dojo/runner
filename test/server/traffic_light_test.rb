@@ -50,15 +50,6 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'xJ6', %w( TrafficLight::Fault holds message as JSON ) do
-    info = { abc:'sanity', def:'check' }
-    fail TrafficLight::Fault, info
-  rescue TrafficLight::Fault => error
-    assert_equal JSON.pretty_generate(info), error.message
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   test 'xJ7', %w( lambda status argument is an integer in a string ) do
     colour,info = *traffic_light_colour(status:'0')
     assert_equal 'red', colour, log
@@ -303,12 +294,12 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_bad_lambda_logged(context, lambda_source, klass, error)
+  def assert_bad_lambda_logged(context, lambda_source, klass, message)
     assert_call_info_logged(
       context:context,
       lambda_source:lambda_source,
       class:klass,
-      error:error
+      message:message
     )
   end
 
@@ -324,7 +315,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def assert_call_info_logged(message)
+  def assert_call_info_logged(properties)
     assert_logged_fault_info({
       call:'TrafficLight.colour(image_name,stdout,stderr,status)',
       args:{
@@ -333,8 +324,7 @@ class TrafficLightTest < TestBase
         stderr:@stderr,
         status:@status
       },
-      exception:TrafficLight::Fault.name,
-      message:message
+      exception:properties
     })
   end
 

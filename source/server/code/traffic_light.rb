@@ -6,9 +6,10 @@ require 'json'
 class TrafficLight
 
   class Fault < RuntimeError
-    def initialize(info)
-      super(JSON.pretty_generate(info))
+    def initialize(properties)
+      @properties = properties
     end
+    attr_reader :properties
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -20,8 +21,7 @@ class TrafficLight
 
   def colour(image_name, stdout, stderr, status)
     [ self[image_name].call(stdout, stderr, status), '' ]
-  rescue TrafficLight::Fault => error
-    message = JSON.parse(error.message)
+  rescue Fault => error
     fault_info = JSON.pretty_generate({
       call:"TrafficLight.colour(image_name,stdout,stderr,status)",
       args:{
@@ -30,8 +30,7 @@ class TrafficLight
         stderr:stderr,
         status:status
       },
-      exception:error.class.name,
-      message:message
+      exception:error.properties
     })
     logger.log(fault_info)
     [ 'faulty', fault_info ]
@@ -66,13 +65,13 @@ class TrafficLight
       logger.log(message)
       stdout
     else
-      fail TrafficLight::Fault, {
+      fail Fault.new({
         context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
         command: command,
         stdout: stdout,
         stderr: stderr,
         status: status
-      }
+      })
     end
   end
 
@@ -85,12 +84,12 @@ class TrafficLight
   def checked_eval(lambda_source)
     Empty.binding.eval(lambda_source)
   rescue Exception => error
-    fail TrafficLight::Fault, {
+    fail Fault.new({
       context: "exception when eval'ing lambda source",
       lambda_source: lambda_source,
       class: error.class.name,
-      error: error.message
-    }
+      message: error.message
+    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,12 +97,12 @@ class TrafficLight
   def checked_call(fn, lambda_source, stdout, stderr, status)
     fn.call(stdout,stderr,status.to_i).to_s
   rescue Exception => error
-    fail TrafficLight::Fault, {
+    fail Fault.new({
       context: "exception when calling lambda source",
       lambda_source: lambda_source,
       class: error.class.name,
-      error: error.message
-    }
+      message: error.message
+    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -112,11 +111,11 @@ class TrafficLight
     if LEGAL_COLOURS.include?(colour)
       colour
     else
-      fail TrafficLight::Fault, {
+      fail Fault.new({
         context: "illegal colour; must be one of ['red','amber','green']",
         illegal_colour: colour,
         lambda_source: lambda_source
-      }
+      })
     end
   end
 
