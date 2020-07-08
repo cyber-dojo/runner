@@ -14,7 +14,7 @@ class SynchronizedSetTest < TestBase
   initially empty
   ) do
     s = SynchronizedSet.new
-    assert_equal 0, s.size
+    assert_equal [], s.to_a
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -34,7 +34,8 @@ class SynchronizedSetTest < TestBase
     s = SynchronizedSet.new
     s.add(42)
     assert s.include?(42)
-    assert_equal 1, s.size
+    refute s.include?(24)
+    assert_equal [42], s.to_a
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -44,9 +45,12 @@ class SynchronizedSetTest < TestBase
   ) do
     s = SynchronizedSet.new
     s.add(42)
+    s.add(24)
+    assert_equal [24,42], s.to_a
     s.delete(42)
-    refute s.include?(42)
-    assert_equal 0, s.size
+    assert_equal [24], s.to_a
+    s.delete(24)
+    assert_equal [], s.to_a
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -57,11 +61,9 @@ class SynchronizedSetTest < TestBase
   ) do
     s = SynchronizedSet.new
     refute_nil s.add?(42)
-    assert s.include?(42)
-    assert_equal 1, s.size
+    assert_equal [42], s.to_a
     assert_nil s.add?(42)
-    assert s.include?(42)
-    assert_equal 1, s.size
+    assert_equal [42], s.to_a
   end
 
 end

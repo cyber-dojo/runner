@@ -22,8 +22,12 @@ class FeaturePullImageTest < TestBase
   when I call pull_image(id,gcc_assert),
   then a new thread is not started, no shell command is run, and the result is :pulled
   ) do
+    assert_equal [], puller.image_names
     puller.add(gcc_assert)
-    assert_equal :pulled, puller.pull_image(id:id, image_name:gcc_assert)
+    expected = :pulled
+    actual = puller.pull_image(id:id, image_name:gcc_assert)
+    assert_equal expected, actual
+    assert_equal [gcc_assert], puller.image_names
     refute @context.threader.called
   end
 
@@ -43,10 +47,12 @@ class FeaturePullImageTest < TestBase
       status = 0
       [stdout,stderr,status]
     }
+    assert_equal [], puller.image_names
     expected = :pulling
     actual = puller.pull_image(id:id, image_name:gcc_assert)
     assert_equal expected, actual
     assert @context.threader.called
+    assert_equal [gcc_assert], puller.image_names # because of SynchronousThreader
   end
 
   private

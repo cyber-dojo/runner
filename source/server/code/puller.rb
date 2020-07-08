@@ -12,6 +12,12 @@ class Puller
 
   # - - - - - - - - - - - - - - - - - - -
 
+  def image_names
+    @pulled.to_a
+  end
+
+  # - - - - - - - - - - - - - - - - - - -
+
   def add(image_name)
     @pulled.add(image_name)
   end

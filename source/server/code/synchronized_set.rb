@@ -3,13 +3,9 @@ require 'set'
 
 class SynchronizedSet
 
-  def initialize(enum = [])
-    @values = Set.new(enum)
+  def initialize
+    @values = Set.new
     @mutex = Mutex.new
-  end
-
-  def size
-    @mutex.synchronize { @values.size }
   end
 
   def include?(value)
@@ -24,6 +20,10 @@ class SynchronizedSet
 
   def add?(value)
     @mutex.synchronize { @values.add?(value) }
+  end
+
+  def to_a
+    @mutex.synchronize { @values.to_a.sort }
   end
 
   def delete(value)
