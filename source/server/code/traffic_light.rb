@@ -26,8 +26,8 @@ class TrafficLight
       call:"TrafficLight.colour(image_name,stdout,stderr,status)",
       args:{
         image_name:image_name,
-        stdout:stdout,
-        stderr:stderr,
+        stdout:stdout.lines,
+        stderr:stderr.lines,
         status:status
       },
       exception:error.properties
@@ -68,8 +68,8 @@ class TrafficLight
       fail Fault.new({
         context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
         command: command,
-        stdout: stdout,
-        stderr: stderr,
+        stdout: stdout.lines,
+        stderr: stderr.lines,
         status: status
       })
     end
@@ -86,9 +86,9 @@ class TrafficLight
   rescue Exception => error
     fail Fault.new({
       context: "exception when eval'ing lambda source",
-      lambda_source: lambda_source,
+      lambda_source: lambda_source.lines,
       class: error.class.name,
-      message: error.message
+      message: error.message.lines
     })
   end
 
@@ -99,9 +99,9 @@ class TrafficLight
   rescue Exception => error
     fail Fault.new({
       context: "exception when calling lambda source",
-      lambda_source: lambda_source,
+      lambda_source: lambda_source.lines,
       class: error.class.name,
-      message: error.message
+      message: error.message.lines
     })
   end
 
@@ -114,7 +114,7 @@ class TrafficLight
       fail Fault.new({
         context: "illegal colour; must be one of ['red','amber','green']",
         illegal_colour: colour,
-        lambda_source: lambda_source
+        lambda_source: lambda_source.lines
       })
     end
   end

@@ -190,7 +190,11 @@ class TrafficLightTest < TestBase
   adds message to log
   ) do
     stub_bash_sheller
-    lambda_source = 'lambda{|so,se,st| :orange }'
+    lambda_source = [
+      'lambda {|so,se,st|',
+      '  :orange',
+      '}'
+    ].join("\n")
     bash_stub_capture(docker_run_command) { [lambda_source, '', 0] }
 
     traffic_light_colour
@@ -286,8 +290,8 @@ class TrafficLightTest < TestBase
     assert_call_info_logged(
       context:context,
       command:@command,
-      stdout:@command_stdout,
-      stderr:@command_stderr,
+      stdout:@command_stdout.lines,
+      stderr:@command_stderr.lines,
       status:@command_status
     )
   end
@@ -297,9 +301,9 @@ class TrafficLightTest < TestBase
   def assert_bad_lambda_logged(context, lambda_source, klass, message)
     assert_call_info_logged(
       context:context,
-      lambda_source:lambda_source,
+      lambda_source:lambda_source.lines,
       class:klass,
-      message:message
+      message:message.lines
     )
   end
 
@@ -309,7 +313,7 @@ class TrafficLightTest < TestBase
     assert_call_info_logged(
       context:context,
       illegal_colour:illegal_colour,
-      lambda_source:lambda_source
+      lambda_source:lambda_source.lines
     )
   end
 
@@ -320,8 +324,8 @@ class TrafficLightTest < TestBase
       call:'TrafficLight.colour(image_name,stdout,stderr,status)',
       args:{
         image_name:@image_name,
-        stdout:@stdout,
-        stderr:@stderr,
+        stdout:@stdout.lines,
+        stderr:@stderr.lines,
         status:@status
       },
       exception:properties
