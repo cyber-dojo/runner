@@ -32,8 +32,8 @@ if [ "${1:-}" == '--build-only' ] || [ "${1:-}" == '-bo' ] ; then
   exit 0
 fi
 ${SH_DIR}/tear_down.sh
+${SH_DIR}/setup_dependent_images.sh
 ${SH_DIR}/containers_up.sh
-${SH_DIR}/pull_dependent_images.sh
 ${SH_DIR}/test_in_containers.sh "${client_user}" "${server_user}" "$@"
 ${SH_DIR}/containers_down.sh
 ${SH_DIR}/on_ci_publish_tagged_images.sh

@@ -27,7 +27,7 @@ class RoundTripTest < TestBase
       'file --mime-encoding test',
       'echo -n "xxx" > newfile.txt',
     ].join("\n"))
-    assert stdout.include?('test: binary') # file --mime-encoding
+    assert stdout.include?('test: binary'), stdout # file --mime-encoding
     assert_equal({ 'newfile.txt' => intact('xxx') }, created)
     assert_equal([], deleted)
     assert_equal({}, changed)
