@@ -1,7 +1,20 @@
 #!/bin/bash -Eeu
 
 readonly ROOT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd )"
+readonly lsp_service_name=languages-start-points
+readonly lsp_container_name=test-runner-languages-start-points
+readonly lsp_port="${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
+
 source "${ROOT_DIR}/sh/wait_until_ready_and_clean.sh"
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+json_data()
+{
+  local -r display_name="${1}"
+  cat <<- EOF
+  { "name":"${display_name}" }
+EOF
+}
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 setup_dependent_images()
@@ -9,26 +22,37 @@ setup_dependent_images()
   echo
   echo Pulling images used in server-side tests
 
-  local -r image_names=($(docker run \
-    --entrypoint='' \
-    --network runner_default \
-    --rm \
-    --volume ${ROOT_DIR}/test:/test/:ro \
-    ${CYBER_DOJO_RUNNER_IMAGE} ruby /test/dependent_image_names.rb))
+  local -r display_names="$(
+    docker run \
+      --entrypoint='' \
+      --rm \
+      --volume ${ROOT_DIR}/test:/test/:ro \
+        ${CYBER_DOJO_RUNNER_IMAGE} \
+          ruby /test/dependent_display_names.rb)"
 
-  for image_name in "${image_names[@]}"
-  do
-    echo "${image_name}"
-    docker pull "${image_name}"
-  done
+  echo "${display_names}" \
+    | while read display_name
+      do
+        local json="$(json_data "${display_name}")"
+        local manifest="$(curl \
+          --data "${json}" \
+          --silent \
+          -X GET \
+          "http://$(ip_address):${lsp_port}/manifest")"
 
+        local image_name=$(echo "${manifest}" | jq --raw-output '.manifest.image_name')
+
+        echo "${image_name}"
+        docker pull "${image_name}"
+      done
+
+  echo
   echo Removing image pulled in client-side test
+  echo busybox:glibc
   docker image rm busybox:glibc &> /dev/null || true
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-readonly lsp_container_name=test-runner-languages-start-points
-readonly lsp_port="${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
 
 echo
 docker-compose \
@@ -36,7 +60,7 @@ docker-compose \
   up \
   -d \
   --force-recreate \
-  languages-start-points
+  "${lsp_service_name}"
 
 wait_until_ready_and_clean "${lsp_container_name}" "${lsp_port}"
 setup_dependent_images
