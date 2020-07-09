@@ -8,7 +8,8 @@ class ImagePrePuller < TestBase
   end
 
   def pull_images
-    context = Context.new(sheller:BashSheller.new(self))
+    # Don't use context from TestBase as its logger is a StdoutLoggerSpy
+    context = Context.new
     display_names.each do |display_name|
       manifest = languages_start_points.manifest(display_name)
       image_name = manifest['image_name']
