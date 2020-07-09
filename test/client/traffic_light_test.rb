@@ -33,8 +33,8 @@ class TrafficLightTest < TestBase
   then the colour is 'faulty',
   and log contains info as JSON object
   ) do
-    busybox = 'alpine:latest'
-    run_cyber_dojo_sh(image_name:busybox)
+    no_bash = 'alpine:latest' # Must have been pulled onto node before runner-server started
+    run_cyber_dojo_sh(image_name:no_bash)
     assert_equal 'faulty', @result['colour']
     stderr = @result['log']['stderr']
     stderr_pattern = /\[FATAL tini \(\d+\)\] exec bash failed: No such file or directory/

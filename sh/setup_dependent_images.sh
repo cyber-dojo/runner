@@ -21,6 +21,9 @@ setup_dependent_images()
 {
   echo
   echo Pulling images used in server-side tests
+  # alpine:latest is used for tests showing bash must be in the image_name
+  echo alpine:latest
+  docker pull alpine:latest
 
   local -r display_names="$(
     docker run \

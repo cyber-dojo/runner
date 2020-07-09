@@ -11,8 +11,8 @@ class FeatureContainerPropertiesTest < TestBase
 
   test 'D91', %w(
   requires bash, won't run in sh ) do
-    any_image_without_bash = 'alpine:latest'
-    BashSheller.new(context).capture("docker pull #{any_image_without_bash}")
+    any_image_without_bash = 'alpine:latest' # must have been pulled onto node before server started
+    # context (and puller) are brand new each test...
     context.puller.add(any_image_without_bash)
     run_cyber_dojo_sh(image_name:any_image_without_bash)
     assert stdout.empty?, pretty_result(:stdout)
