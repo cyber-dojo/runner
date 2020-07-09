@@ -54,16 +54,20 @@ class TestBase < Id58TestBase
   # Language-Test-Framework specific tests
 
   def self.csharp_nunit_test(id_suffix, *lines, &block)
-    define_test(:Alpine, 'C#, NUnit', id_suffix, *lines, &block)
+    define_test(:Alpine, ALPINE_DISPLAY_NAME, id_suffix, *lines, &block)
   end
 
   def self.c_assert_test(id_suffix, *lines, &block)
-    define_test(:Debian, 'C (gcc), assert', id_suffix, *lines, &block)
+    define_test(:Debian, DEBIAN_DISPLAY_NAME, id_suffix, *lines, &block)
   end
 
   def self.clang_assert_test(id_suffix, *lines, &block)
-    define_test(:Ubuntu, 'C (clang), assert', id_suffix, *lines, &block)
+    define_test(:Ubuntu, UBUNTU_DISPLAY_NAME, id_suffix, *lines, &block)
   end
+
+  ALPINE_DISPLAY_NAME = 'C#, NUnit'
+  DEBIAN_DISPLAY_NAME = 'C (gcc), assert'
+  UBUNTU_DISPLAY_NAME = 'C (clang), assert'
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 2. call helpers
