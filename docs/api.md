@@ -139,10 +139,17 @@ The 40 character git commit sha used to create the Docker image.
       "path": "/run_cyber_dojo_sh",
       "body": "",
       "class": "Runner",
-      "message": "image_name is missing",
+      "message": "missing arguments: :id, :files, :manifest",
       "backtrace": [
-        ...
-        "/usr/bin/rackup:23:in `<main>'"
+        "/app/code/dispatcher.rb:35:in `rescue in call'",
+        "/app/code/dispatcher.rb:20:in `call'",
+        "/app/code/rack_dispatcher.rb:17:in `call'",
+        "/usr/lib/ruby/gems/2.7.0/gems/rack-2.2.3/lib/rack/deflater.rb:44:in `call'",
+        "/usr/lib/ruby/gems/2.7.0/gems/puma-4.3.5/lib/puma/configuration.rb:228:in `call'",
+        "/usr/lib/ruby/gems/2.7.0/gems/puma-4.3.5/lib/puma/server.rb:713:in `handle_request'",
+        "/usr/lib/ruby/gems/2.7.0/gems/puma-4.3.5/lib/puma/server.rb:472:in `process_client'",
+        "/usr/lib/ruby/gems/2.7.0/gems/puma-4.3.5/lib/puma/server.rb:328:in `block in run'",
+        "/usr/lib/ruby/gems/2.7.0/gems/puma-4.3.5/lib/puma/thread_pool.rb:134:in `block in spawn_thread'"
       ]
     }
   }
