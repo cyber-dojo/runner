@@ -53,7 +53,7 @@ class RackDispatcherTest < TestBase
 
   c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
     args = run_cyber_dojo_sh_args
-    rack_call(path_info:'run_cyber_dojo_sh', body:args.to_json)
+    rack_call(path_info:'run_cyber_dojo_sh', body:args.to_json, puller_add:true)
     assert_200('run_cyber_dojo_sh')
     assert_gcc_starting
     message = 'Read red-amber-green lambda for cyberdojofoundation/gcc_assert'
@@ -147,8 +147,8 @@ class RackDispatcherTest < TestBase
   test 'AB7', 'server error in RackDispatcher results in 500 status response' do
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
-    env = { path_info:path_info, body:body }
-    response = rack_call(env, nil)
+    env = { path_info:path_info, body:body, klass:{} }
+    response = rack_call(env)
     status = response[0]
     assert_equal 500, status
   end
@@ -186,9 +186,14 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def rack_call(env, klass = RackRequestStub)
+  def rack_call(env)
+    klass = env.delete(:klass) || RackRequestStub
+    puller_add = env.delete(:puller_add) || false
     @options = { logger:StdoutLoggerSpy.new }
     context = Context.new(@options)
+    if puller_add
+      context.puller.add(image_name)
+    end
     rack = RackDispatcher.new(context)
     @response = rack.call(env, klass)
     expected_type = { 'Content-Type' => 'application/json' }
@@ -260,7 +265,7 @@ class RackDispatcherTest < TestBase
 
   def assert_assertion_failed(stderr)
     r = /test: hiker.tests.c:(\d+): life_the_universe_and_everything: Assertion `answer\(\) == 42' failed./
-    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
+    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}:"
     assert r.match(stderr), diagnostic
   end
 

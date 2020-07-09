@@ -8,6 +8,10 @@ class OsTest < TestBase
     '669'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   alpine_test '8A2', %w( os<-->image correspondence ) do

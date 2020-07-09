@@ -1,4 +1,5 @@
 require_relative '../id58_test_base'
+require_relative 'data/display_names'
 require_relative 'http_proxy/languages_start_points'
 require_relative 'doubles/stdout_logger_spy'
 require_relative 'doubles/process_adapter_stub'
@@ -18,6 +19,14 @@ class TestBase < Id58TestBase
 
   def context(options = {})
     @context ||= Context.new(options)
+  end
+
+  def prober
+    context.prober
+  end
+
+  def puller
+    context.puller
   end
 
   def runner
@@ -54,20 +63,16 @@ class TestBase < Id58TestBase
   # Language-Test-Framework specific tests
 
   def self.csharp_nunit_test(id_suffix, *lines, &block)
-    define_test(:Alpine, ALPINE_DISPLAY_NAME, id_suffix, *lines, &block)
+    define_test(:Alpine, DisplayNames::ALPINE, id_suffix, *lines, &block)
   end
 
   def self.c_assert_test(id_suffix, *lines, &block)
-    define_test(:Debian, DEBIAN_DISPLAY_NAME, id_suffix, *lines, &block)
+    define_test(:Debian, DisplayNames::DEBIAN, id_suffix, *lines, &block)
   end
 
   def self.clang_assert_test(id_suffix, *lines, &block)
-    define_test(:Ubuntu, UBUNTU_DISPLAY_NAME, id_suffix, *lines, &block)
+    define_test(:Ubuntu, DisplayNames::UBUNTU, id_suffix, *lines, &block)
   end
-
-  ALPINE_DISPLAY_NAME = 'C#, NUnit'
-  DEBIAN_DISPLAY_NAME = 'C (gcc), assert'
-  UBUNTU_DISPLAY_NAME = 'C (clang), assert'
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 2. call helpers

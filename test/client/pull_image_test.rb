@@ -9,11 +9,10 @@ class PullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'g5S', %w(
-  pull_image('busybox') returns 'pulling',
-  then a short while later it returns 'pulled',
-  and pull_image('busybox:latest') also returns 'pulled'
+  pull_image('busybox:glibc') returns 'pulling',
+  then a short while later it returns 'pulled'
   ) do
-    image_name = 'busybox'
+    image_name = 'busybox:glibc'
     assert_equal 'pulling', runner.pull_image(id58, image_name)
     count = 0
     while runner.pull_image(id58, image_name) != 'pulled' && count < 50
@@ -21,7 +20,6 @@ class PullImageTest < TestBase
       sleep 0.1
     end
     assert count > 0
-    assert_equal 'pulled', runner.pull_image(id58, 'busybox:latest')
   end
 
 end

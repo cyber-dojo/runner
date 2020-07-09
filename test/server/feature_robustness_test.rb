@@ -7,6 +7,10 @@ class FeatureRobustNessTest < TestBase
     '1B5'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   c_assert_test 'CD5', %w(

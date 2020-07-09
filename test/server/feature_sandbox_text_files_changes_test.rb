@@ -7,6 +7,10 @@ class FeatureSandboxTextFilesChangesTest < TestBase
     'ECF'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   test '524', %w(

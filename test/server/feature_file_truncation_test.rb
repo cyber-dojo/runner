@@ -7,6 +7,10 @@ class FeatureFileTruncationTest < TestBase
     'E4A'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '52A',

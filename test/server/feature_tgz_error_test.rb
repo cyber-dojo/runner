@@ -18,10 +18,13 @@ class FeatureTgzErrorTest < TestBase
       threader:ThreaderStub.new,
       logger:StdoutLoggerSpy.new
     )
+    @context.puller.add(image_name)
     run_cyber_dojo_sh
     assert logged?('Zlib::GzipFile::Error'), pretty_result(:log)
     assert_equal 'amber', colour, pretty_result(:colour)
   end
+
+  private
 
   class ThreaderStub
     def thread(&_block)

@@ -7,6 +7,10 @@ class FeatureTimedOutTest < TestBase
     '9E9'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   c_assert_test 'B2A', %w(

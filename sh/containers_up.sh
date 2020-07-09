@@ -69,9 +69,11 @@ exit_if_unclean()
   local -r name="${1}"
   local log=$(docker logs "${name}" 2>&1)
 
-  # Example of old known warnings
-  #local -r last_arg_warning="puma.rb:(.*): warning: (.*) the last argument was passed as a single Hash"
-  #log=$(strip_known_warning "${log}" "${last_arg_warning}")
+  # Example of old known warnings/messages
+  if [ "${name}" == test-runner-server ]; then
+    local -r image_names_added_to_puller="(.*) image names added to Puller"
+    log=$(strip_known_warning "${log}" "${image_names_added_to_puller}")
+  fi
 
   local -r line_count=$(echo -n "${log}" | grep --count '^')
   echo -n "Checking ${name} started cleanly."
@@ -92,11 +94,11 @@ strip_known_warning()
   local -r pattern="${2}"
   local -r warning=$(printf "${log}" | grep --extended-regexp "${pattern}")
   local -r stripped=$(printf "${log}" | grep --invert-match --extended-regexp "${pattern}")
-  if [ "${log}" != "${stripped}" ]; then
-    stderr "SERVICE START-UP WARNING: ${warning}"
-  else
-    stderr "DID _NOT_ FIND WARNING!!: ${pattern}"
-  fi
+  #if [ "${log}" != "${stripped}" ]; then
+  #  stderr "SERVICE START-UP WARNING: ${warning}"
+  #else
+  #  stderr "DID _NOT_ FIND WARNING!!: ${pattern}"
+  #fi
   echo "${stripped}"
 }
 
@@ -118,10 +120,12 @@ stderr()
 }
 
 # - - - - - - - - - - - - - - - - - - - -
+echo
 docker-compose \
   --file "${ROOT_DIR}/docker-compose.yml" \
   up \
   -d \
   --force-recreate
 
+wait_until_ready_and_clean test-runner-server "${CYBER_DOJO_RUNNER_PORT}"
 wait_until_ready_and_clean test-runner-client "${CYBER_DOJO_RUNNER_CLIENT_PORT}"

@@ -61,8 +61,4 @@ class FeaturePullImageTest < TestBase
     'cyberdojofoundation/gcc_assert:93eefc6'
   end
 
-  def puller
-    context.puller
-  end
-
 end

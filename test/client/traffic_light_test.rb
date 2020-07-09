@@ -33,7 +33,7 @@ class TrafficLightTest < TestBase
   then the colour is 'faulty',
   and log contains info as JSON object
   ) do
-    busybox = 'busybox:latest'
+    busybox = 'alpine:latest'
     run_cyber_dojo_sh(image_name:busybox)
     assert_equal 'faulty', @result['colour']
     stderr = @result['log']['stderr']

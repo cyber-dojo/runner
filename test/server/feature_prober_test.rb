@@ -31,10 +31,4 @@ class FeatureProberTest < TestBase
     assert_sha(prober.sha)
   end
 
-  private
-
-  def prober
-    context.prober
-  end
-
 end

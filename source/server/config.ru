@@ -15,12 +15,10 @@ end
 
 require_relative 'code/context'
 context = Context.new
-unless ENV['DO_PULLER_SETUP'] === 'no'
-  context.node.image_names.each do |image_name|
-    context.puller.add(image_name)
-  end
-  $stdout.puts("#{context.puller.image_names.size} image names added to Puller")
+context.node.image_names.each do |image_name|
+  context.puller.add(image_name)
 end
+$stdout.puts("#{context.puller.image_names.size} image names added to Puller")
 
 Signal.trap('TERM') {
   $stdout.puts('SIGTERM: Goodbye from runner server')

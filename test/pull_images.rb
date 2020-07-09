@@ -1,14 +1,11 @@
 # frozen_string_literal: true
-require_relative 'server/test_base'
+require_relative 'server/data/display_names'
+require_relative 'server/http_proxy/languages_start_points'
+require_relative '../app/code/context'
 
-class ImagePrePuller < TestBase
-
-  def initialize(arg)
-    super(arg)
-  end
+class ImagePrePuller
 
   def pull_images
-    # Don't use context from TestBase as its logger is a StdoutLoggerSpy.
     context = Context.new
     display_names.each do |display_name|
       manifest = languages_start_points.manifest(display_name)
@@ -17,19 +14,23 @@ class ImagePrePuller < TestBase
       context.sheller.capture(command)
       puts image_name
     end
-    # Used in tests showing bash is required (busybox only has sh)
+    # Used in tests showing bash is required (alpine only has sh)
     # and need to avoid run_cyber_dojo_sh() returning 'pulling' response.
-    context.sheller.capture('docker pull busybox:latest')
+    context.sheller.capture('docker pull alpine:latest')
   end
 
   private
 
+  def languages_start_points
+    HttpProxy::LanguagesStartPoints.new
+  end
+
   def display_names
     [
       # Server-side tests
-      ALPINE_DISPLAY_NAME,
-      DEBIAN_DISPLAY_NAME,
-      UBUNTU_DISPLAY_NAME,
+      DisplayNames::ALPINE,
+      DisplayNames::DEBIAN,
+      DisplayNames::UBUNTU,
       'Python, pytest', # Used in traffic-light tests
       # Client-side tests
       'VisualBasic, NUnit',
@@ -38,4 +39,4 @@ class ImagePrePuller < TestBase
 
 end
 
-ImagePrePuller.new(nil).pull_images
+ImagePrePuller.new.pull_images

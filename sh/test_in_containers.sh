@@ -7,9 +7,7 @@ readonly server_user="${1}"; shift
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 main()
 {
-  if on_ci; then
-    docker pull cyberdojo/check-test-results:latest
-  fi
+  docker pull cyberdojo/check-test-results:latest
   if [ "${1:-}" == 'client' ]; then
     shift
     run_client_tests "${@:-}"

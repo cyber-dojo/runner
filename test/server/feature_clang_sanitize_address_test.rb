@@ -7,6 +7,10 @@ class FeatureClangSanitizeAddressTest < TestBase
     'D28'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   clang_assert_test '0BB',

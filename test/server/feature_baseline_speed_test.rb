@@ -7,6 +7,10 @@ class FeatureBaselineSpeedTest < TestBase
     '159'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A6', %w(

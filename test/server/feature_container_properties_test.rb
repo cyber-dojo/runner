@@ -12,6 +12,7 @@ class FeatureContainerPropertiesTest < TestBase
   test 'D91', %w(
   requires bash, won't run in sh ) do
     any_image_without_bash = 'alpine:latest'
+    context.puller.add(any_image_without_bash)
     run_cyber_dojo_sh(image_name:any_image_without_bash)
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
@@ -23,6 +24,7 @@ class FeatureContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test 'D98', %w( multiple container properties ) do
+    context.puller.add(image_name)
     memory_dir = '/sys/fs/cgroup/memory'
     cyber_dojo_sh = [
       "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]

@@ -4,11 +4,7 @@ Signal.trap('TERM') {
   exit(0)
 }
 
-def require_code(name)
-  require_relative "code/#{name}"
-end
-
-require_code 'context'
-require_code 'rack_dispatcher'
+require_relative 'code/context'
+require_relative 'code/rack_dispatcher'
 context = Context.new
 run RackDispatcher.new(context)

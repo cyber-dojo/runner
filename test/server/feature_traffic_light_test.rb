@@ -7,6 +7,10 @@ class FeatureTrafficLightTest < TestBase
     '7B7'
   end
 
+  def id58_setup
+    context.puller.add(image_name)
+  end
+
   # - - - - - - - - - - - - - - - - -
 
   multi_os_test '9DB', %w( red/amber/green traffic-light ) do
