@@ -2,7 +2,7 @@
 
 - The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) Docker image.
 - A docker-containerized micro-service for [https://cyber-dojo.org](https://cyber-dojo.org).
-- An http service (rack based) for running `cyber-dojo.sh` inside a docker container for at most `max_seconds` and returning `[stdout,stderr,status,timed_out,colour]`
+- An http service (rack based) for running `cyber-dojo.sh` inside a docker container for at most 20 seconds and returning `[stdout,stderr,status,timed_out,colour]`
 
 ***
 API
