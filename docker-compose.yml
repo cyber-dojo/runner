@@ -43,8 +43,7 @@ services:
   languages-start-points:
     container_name: test-runner-languages-start-points
     environment: [ NO_PROMETHEUS ]
-    image: cyberdojo/languages-start-points-all:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
-    init: true
+    image: ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
     ports: [ "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}" ]
     read_only: true
     restart: 'no'
