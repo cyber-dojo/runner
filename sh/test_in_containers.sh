@@ -3,15 +3,17 @@ readonly root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly my_name=runner
 readonly client_user="${1}"; shift
 readonly server_user="${1}"; shift
+client_status=0
+server_status=0
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 main()
 {
   docker pull cyberdojo/check-test-results:latest
-  if [ "${1:-}" == 'client' ]; then
+  if [ "${1:-}" == client ]; then
     shift
     run_client_tests "${@:-}"
-  elif [ "${1:-}" == 'server' ]; then
+  elif [ "${1:-}" == server ]; then
     shift
     run_server_tests "${@:-}"
   else
@@ -19,11 +21,12 @@ main()
     run_client_tests "${@:-}"
   fi
   echo
-  echo All passed
+  if [ "${client_status}" == 0 ] && [ "${server_status}" == 0 ]; then
+    echo All passed
+  else
+    exit 42
+  fi
 }
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-on_ci() { [ -n "${CIRCLECI:-}" ]; }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 run_client_tests() { run_tests "${client_user}" client "${@:-}"; }
@@ -40,7 +43,7 @@ run_tests()
   local -r test_dir="${root_dir}/test/${type}"
   local -r reports_dir=${test_dir}/${reports_dir_name}
   local -r test_log=test.log
-  local -r container_name="test-${my_name}-${type}" # eg test-creator-server
+  local -r container_name="test-${my_name}-${type}" # eg test-runner-server
   local -r coverage_code_tab_name=tested
   local -r coverage_test_tab_name=tester
 
@@ -88,7 +91,12 @@ run_tests()
     echo
     docker logs "${container_name}"
   fi
-  return ${status}
+  if [ "${type}" == client ]; then
+    client_status="${status}"
+  fi
+  if [ "${type}" == server ]; then
+    server_status="${status}"
+  fi
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -

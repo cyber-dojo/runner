@@ -9,7 +9,7 @@ class AliveTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CA2', %w(
+  test '190', %w(
   alive? is true, useful for k8s liveness probes
   ) do
     assert lsp.alive?.is_a?(TrueClass)
@@ -19,7 +19,7 @@ class AliveTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '15D', %w(
+  test '191', %w(
   ready? is true, useful for k8s readyness probes
   ) do
     assert lsp.ready?.is_a?(TrueClass)
@@ -29,7 +29,7 @@ class AliveTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '882', %w(
+  test '192', %w(
   sha is SHA of git commit which created docker image
   ) do
     assert_sha(lsp.sha)
