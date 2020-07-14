@@ -33,13 +33,12 @@ class FeatureTimedOutTest < TestBase
         SOURCE
       }
     )
-    assert_timed_out
+    assert timed_out?, pretty_result(:timed_out)
     assert_equal '', stdout, :stdout_empty
     assert_equal '', stderr, :stderr_empty
     assert_deleted([]) # ['hiker.c']
     assert_created({}) # {'a/b/xxx.txt' => intact('xxx')}
     assert_changed({})
-    assert_equal '', colour
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -71,13 +70,12 @@ class FeatureTimedOutTest < TestBase
       }
     )
 
-    assert_timed_out
+    assert timed_out?, pretty_result(:timed_out)
     assert_equal '', stdout, :stdout_empty
     assert_equal '', stderr, :stderr_empty
     assert_deleted([])
     assert_created({}) # {'hello.txt' => intact("Hello\n")}
     assert_changed({})
-    assert_equal '', colour
   end
 
 end

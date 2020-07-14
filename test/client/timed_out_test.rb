@@ -12,7 +12,7 @@ class TimedOutTest < TestBase
   c_assert_test 'FDD',
   '[C,assert] run which does not timeout' do
     run_cyber_dojo_sh
-    refute timed_out?, result
+    refute timed_out?, run_result
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -25,7 +25,7 @@ class TimedOutTest < TestBase
       changed_files: { 'hiker.c' => hiker_c.sub(from, to) },
         max_seconds: 3
     })
-    assert timed_out?, result
+    assert timed_out?, run_result
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -39,7 +39,7 @@ class TimedOutTest < TestBase
       changed_files: { 'Hiker.vb' => hiker_vb.sub(from, to) },
         max_seconds: 3
     })
-    assert timed_out?, result
+    assert timed_out?, run_result
   end
 
 end

@@ -17,7 +17,7 @@ class FeatureContainerPropertiesTest < TestBase
     run_cyber_dojo_sh(image_name:any_image_without_bash)
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
-    assert_equal 'faulty', colour, pretty_result(:colour)
+    assert faulty?, pretty_result(:faulty)
     pattern = /\[FATAL tini \(\d+\)\] exec bash failed: No such file or directory/
     assert log.match(pattern), pretty_result(:log)
   end

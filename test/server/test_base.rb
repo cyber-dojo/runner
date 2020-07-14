@@ -146,8 +146,14 @@ class TestBase < Id58TestBase
   def stdout; run_result[:stdout][:content]; end
   def stderr; run_result[:stderr][:content]; end
 
-  def timed_out?; run_result[:timed_out]; end
-  def colour;     run_result[:colour]; end
+  def outcome; run_result[:outcome]; end
+
+  def timed_out?; outcome === 'timed_out'; end
+  def pulling?  ; outcome === 'pulling'  ; end
+  def faulty?   ; outcome === 'faulty'   ; end
+  def red?      ; outcome === 'red'      ; end
+  def amber?    ; outcome === 'amber'    ; end
+  def green?    ; outcome === 'green'    ; end
 
   def created; run_result[:created]; end
   def deleted; run_result[:deleted]; end
@@ -171,16 +177,8 @@ class TestBase < Id58TestBase
   def assert_cyber_dojo_sh(script, options = {})
     options[:changed] = { 'cyber-dojo.sh' => script }
     run_cyber_dojo_sh(options)
-    refute_timed_out
+    refute timed_out?
     stdout
-  end
-
-  def assert_timed_out
-    assert timed_out?, run_result
-  end
-
-  def refute_timed_out
-    refute timed_out?, run_result
   end
 
   def assert_created(expected)

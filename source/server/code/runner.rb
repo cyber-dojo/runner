@@ -22,9 +22,7 @@ class Runner
     image_name = manifest['image_name']
     if puller.pull_image(id:id, image_name:image_name) != :pulled
       stdout,stderr,status, created,deleted,changed = dummy_result(141)
-      result = { timed_out:false }
-      colour,log_info = 'pulling', {}
-      outcome = 'pulling'
+      outcome,log_info = 'pulling', {}
     else
       max_seconds = manifest['max_seconds']
       files_in = Sandbox.in(files)
@@ -34,20 +32,17 @@ class Runner
 
       if result[:timed_out]
         stdout,stderr,status, created,deleted,changed = dummy_result(142)
-        colour,log_info = '', result
-        outcome = 'timed_out'
+        outcome,log_info = 'timed_out', result
         log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(result))
       elsif result[:status] != 0
         stdout,stderr,status, created,deleted,changed = dummy_result(143)
-        colour,log_info = 'faulty',result
-        outcome = 'faulty'
+        outcome,log_info = 'faulty',result
         log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(result))
       else
         tgz_out = result[:stdout]
         stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
         sss = [ stdout[:content], stderr[:content], status[:content] ]
-        colour,log_info = *@traffic_light.colour(image_name, *sss)
-        outcome = colour
+        outcome,log_info = *@traffic_light.colour(image_name, *sss)
       end
     end
 
@@ -56,8 +51,6 @@ class Runner
          stderr: stderr,
          status: status[:content],
         outcome: outcome,
-      timed_out: result[:timed_out],
-         colour: colour,
         created: Sandbox.out(created),
         deleted: Sandbox.out(deleted).keys.sort,
         changed: Sandbox.out(changed),

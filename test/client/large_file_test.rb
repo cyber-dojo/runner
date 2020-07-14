@@ -20,8 +20,8 @@ class LargeFileTest < TestBase
     run_cyber_dojo_sh({
       created_files: { 'big_file' => 'X'*1023*500 }
     })
-    refute timed_out?, result
-    assert_equal '1', status, result
+    refute timed_out?, run_result
+    assert_equal '1', status, run_result
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -38,7 +38,7 @@ class LargeFileTest < TestBase
     # if test machine is heavily loaded.
     if status === '0'
       diagnostic = [stdout,stderr,status].to_s
-      assert result['stdout']['truncated'], diagnostic
+      assert run_result['stdout']['truncated'], diagnostic
     end
   end
 

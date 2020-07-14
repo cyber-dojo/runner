@@ -33,8 +33,7 @@ class FeaturePullingTest < TestBase
     }
     assert_equal [], puller.image_names
     run_cyber_dojo_sh
-    assert_equal 'pulling', colour, :colour
-    refute timed_out?
+    assert pulling?, pretty_result(:outcome)
     assert @context.threader.called
     assert_equal [image_name], puller.image_names # because of SynchronousThreader
   end

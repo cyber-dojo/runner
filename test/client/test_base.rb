@@ -114,7 +114,7 @@ class TestBase < Id58TestBase
       'image_name' => defaulted_arg(named_args, :image_name, image_name),
       'max_seconds' => defaulted_arg(named_args, :max_seconds, 10)
     }
-    @result = runner.run_cyber_dojo_sh(id, files, manifest)
+    @run_result = runner.run_cyber_dojo_sh(id, files, manifest)
     nil
   end
 
@@ -122,7 +122,7 @@ class TestBase < Id58TestBase
     named_args.key?(arg_name) ? named_args[arg_name] : arg_default
   end
 
-  attr_reader :result
+  attr_reader :run_result
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 4. custom asserts
@@ -131,7 +131,7 @@ class TestBase < Id58TestBase
     run_cyber_dojo_sh({
       changed_files: { 'cyber-dojo.sh' => sh_script }
     })
-    refute timed_out?, result
+    refute timed_out?, run_result
     assert stderr.empty?, stderr
     stdout
   end
@@ -139,15 +139,21 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 5. results from runner.run_cyber_dojo_sh call
 
-  def stdout; @result['stdout']['content']; end
-  def stderr; @result['stderr']['content']; end
-  def status; @result['status']; end
+  def stdout; run_result['stdout']['content']; end
+  def stderr; run_result['stderr']['content']; end
+  def status; run_result['status']; end
 
-  def timed_out?; @result['timed_out']; end
-  def colour; @result['colour']; end
+  def outcome; run_result['outcome']; end
 
-  def created; @result['created']; end
-  def deleted; @result['deleted']; end
-  def changed; @result['changed']; end
+  def pulling?  ; outcome === 'pulling'  ; end
+  def timed_out?; outcome === 'timed_out'; end
+  def faulty?   ; outcome === 'faulty'   ; end
+  def red?      ; outcome === 'red'      ; end
+  def amber?    ; outcome === 'amber'    ; end
+  def green?    ; outcome === 'green'    ; end
+
+  def created; run_result['created']; end
+  def deleted; run_result['deleted']; end
+  def changed; run_result['changed']; end
 
 end

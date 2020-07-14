@@ -214,7 +214,7 @@ class TrafficLightTest < TestBase
     @stdout = options.delete(:stdout) || Test::Data::PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || 0
-    @colour,@fault_info = *traffic_light.colour(@image_name, @stdout, @stderr, @status)
+    @outcome,@fault_info = *traffic_light.colour(@image_name, @stdout, @stderr, @status)
   end
 
   def python_pytest_image_name
@@ -228,19 +228,19 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def assert_red
-    assert_equal 'red', @colour, log
+    assert_equal 'red', @outcome, log
   end
 
   def assert_amber
-    assert_equal 'amber', @colour, log
+    assert_equal 'amber', @outcome, log
   end
 
   def assert_green
-    assert_equal 'green', @colour, log
+    assert_equal 'green', @outcome, log
   end
 
   def assert_faulty
-    assert_equal 'faulty', @colour, log
+    assert_equal 'faulty', @outcome, log
   end
 
   def assert_no_fault_info

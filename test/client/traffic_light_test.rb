@@ -35,8 +35,8 @@ class TrafficLightTest < TestBase
   ) do
     no_bash = 'alpine:latest' # Must have been pulled onto node before runner-server started
     run_cyber_dojo_sh(image_name:no_bash)
-    assert_equal 'faulty', @result['colour']
-    stderr = @result['log']['stderr']
+    assert faulty?, run_result
+    stderr = run_result['log']['stderr']
     stderr_pattern = /\[FATAL tini \(\d+\)\] exec bash failed: No such file or directory/
     assert stderr.match(stderr_pattern), stderr
   end
@@ -52,7 +52,7 @@ class TrafficLightTest < TestBase
 
   def red_traffic_light_test
     run_cyber_dojo_sh
-    assert_equal 'red', colour
+    assert red?, run_result
     diagnostic = 'stdout is not empty!'
     expected_stdout = ''
     assert_equal expected_stdout, stdout, diagnostic
@@ -85,7 +85,7 @@ class TrafficLightTest < TestBase
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 9sd')
       }
     )
-    assert_equal 'amber', colour
+    assert amber?, run_result
     assert_equal expected_stdout, stdout, :stdout
     expected_stderr.each do |line|
       diagnostic = "Expected stderr to include the line #{line}\n#{stderr}"
@@ -102,7 +102,7 @@ class TrafficLightTest < TestBase
         'hiker.c' => hiker_c.sub('6 * 9', '6 * 7')
       }
     )
-    assert_equal 'green', colour, result
+    assert green?, run_result
     assert_equal '', stderr
     assert_equal '0', status
   end

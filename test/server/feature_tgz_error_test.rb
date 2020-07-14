@@ -21,7 +21,7 @@ class FeatureTgzErrorTest < TestBase
     @context.puller.add(image_name)
     run_cyber_dojo_sh
     assert logged?('Zlib::GzipFile::Error'), pretty_result(:log)
-    assert_equal 'amber', colour, pretty_result(:colour)
+    assert amber?, pretty_result(:amber)
   end
 
   private
