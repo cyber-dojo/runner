@@ -34,8 +34,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * **stdout:Hash** of running `/sandbox/cyber-dojo.sh` truncated to 50K. See example below
   * **stderr:Hash** of running `/sandbox/cyber-dojo.sh` truncated to 50K. See example below
   * **status:String** of running `/sandbox/cyber-dojo.sh` (0 to 255)
-  * **colour:String** see below
-  * **timed_out:Boolean** true if execution completed in **max_seconds**
+  * **outcome:String** see below
   * **created:Hash** text-files created under `/sandbox`, each truncated to 50K
   * **deleted:Array[String]** names of text-files deleted from `/sandbox`
   * **changed:Hash** text-files changed under `/sandbox`, each truncated to 50K
@@ -52,8 +51,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
           "truncated": false
         },
         "status": "2",
-        "timed_out": false,
-        "colour": "red",
+        "outcome": "red",
         "created": {
           "report/coverage.txt": {
             "content": "...\nhiker.py            3      0   100%\n...",
@@ -66,14 +64,16 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
       }
     }
     ```
-- `"colour"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
+- `"outcome"` equals `"pulling"` if **image_name** is not present on the node.
+- `"outcome"` equals `"timed_out"` if `cyber-dojo.sh` failed to complete in **max_seconds**.
+- `"outcome"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
     as determined by passing `stdout['content']`, `stderr['content']`, `status` to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
   * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
   * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
   * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
   * if the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
     then `"colour"` is `"faulty"`.
-- if `"colour"` is `"faulty"`, also returns information in the **log**
+  * if `"outcome"` is `"faulty"`, also returns information in the **log**
 
 - - - -
 ## GET alive?
