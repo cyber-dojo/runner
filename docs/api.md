@@ -66,14 +66,13 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
     ```
 - `"outcome"` equals `"pulling"` if **image_name** is not present on the node.
 - `"outcome"` equals `"timed_out"` if `cyber-dojo.sh` failed to complete in **max_seconds**.
-- `"outcome"` equals `"red"`, `"amber"`, `"green"`, or `"faulty"`
+- `"outcome"` equals `"red"`, `"amber"`, `"green"`,
     as determined by passing `stdout['content']`, `stderr['content']`, `status` to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
-  * if `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**, then `"colour"` is `"faulty"`.
-  * if eval'ing the lambda raises an exception, then `"colour"` is `"faulty"`.
-  * if calling the lambda raises an exception, then `"colour"` is `"faulty"`.
-  * if the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
-    then `"colour"` is `"faulty"`.
-  * if `"outcome"` is `"faulty"`, also returns information in the **log**
+- `"outcome"` equals `"faulty"` (and adds information to **log**) if
+  * `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**
+  * eval'ing the lambda raises an exception
+  * calling the lambda raises an exception
+  * the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
 
 - - - -
 ## GET alive?
