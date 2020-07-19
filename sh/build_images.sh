@@ -50,8 +50,8 @@ assert_equal()
   local -r expected="${2}"
   local -r actual="${3}"
   echo
-  echo "${name} expected: '${expected}'"
-  echo "${name}   actual: '${actual}'"
+  echo "${name} expected: ${expected}"
+  echo "${name}   actual: ${actual}"
   if [ "${expected}" != "${actual}" ]; then
     echo ERROR assert_equal failed
     exit 42
@@ -61,5 +61,5 @@ assert_equal()
 #- - - - - - - - - - - - - - - - - - - - - - - -
 remove_image
 build_images
-assert_equal "$(git_commit_sha)"          "$(image_sha)"
-assert_equal "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
+assert_equal SHA "$(git_commit_sha)"          "$(image_sha)"
+assert_equal PORT "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
