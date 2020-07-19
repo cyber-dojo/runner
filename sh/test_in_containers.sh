@@ -1,8 +1,6 @@
 #!/bin/bash -Eeu
 readonly root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly my_name=runner
-readonly client_user="${CYBER_DOJO_RUNNER_CLIENT_USER}"
-readonly server_user="${CYBER_DOJO_RUNNER_SERVER_USER}"
 client_status=0
 server_status=0
 
@@ -28,8 +26,12 @@ main()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-run_client_tests() { run_tests "${client_user}" client "${@:-}"; }
-run_server_tests() { run_tests "${server_user}" server "${@:-}"; }
+run_client_tests() { run_tests "$(client_user)" client "${@:-}"; }
+run_server_tests() { run_tests "$(server_user)" server "${@:-}"; }
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
+client_user() { echo "${CYBER_DOJO_RUNNER_CLIENT_USER}"; }
+server_user() { echo "${CYBER_DOJO_RUNNER_SERVER_USER}"; }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 run_tests()
