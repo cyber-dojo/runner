@@ -1,8 +1,8 @@
 #!/bin/bash -Eeu
 readonly root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly my_name=runner
-readonly client_user="${1}"; shift
-readonly server_user="${1}"; shift
+readonly client_user="${CYBER_DOJO_RUNNER_CLIENT_USER}"
+readonly server_user="${CYBER_DOJO_RUNNER_SERVER_USER}"
 client_status=0
 server_status=0
 

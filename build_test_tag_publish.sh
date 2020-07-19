@@ -2,8 +2,6 @@
 readonly SH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/sh" && pwd )"
 source ${SH_DIR}/versioner_env_vars.sh
 export $(versioner_env_vars)
-readonly client_user="${CYBER_DOJO_RUNNER_CLIENT_USER}"
-readonly server_user="${CYBER_DOJO_RUNNER_SERVER_USER}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit_zero_if_show_help()
@@ -37,11 +35,11 @@ exit_zero_if_build_only()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit_zero_if_show_help "$@"
-${SH_DIR}/build_and_tag_images.sh
+${SH_DIR}/build_tagged_images.sh
 exit_zero_if_build_only "$@"
 ${SH_DIR}/tear_down.sh
 ${SH_DIR}/setup_dependent_images.sh "$@"
 ${SH_DIR}/containers_up.sh "$@"
-${SH_DIR}/test_in_containers.sh "${client_user}" "${server_user}" "$@"
+${SH_DIR}/test_in_containers.sh "$@"
 ${SH_DIR}/containers_down.sh
 ${SH_DIR}/on_ci_publish_tagged_images.sh

@@ -1,5 +1,4 @@
-#!/bin/bash -Ee
-
+#!/bin/bash -Eeu
 readonly TMP_DIR=$(mktemp -d ~/tmp.cyber-dojo.runner.dir.XXXXXX)
 remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }
 trap remove_tmp_dir EXIT
