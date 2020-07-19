@@ -3,6 +3,14 @@
 readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
+remove_image()
+{
+  local -r sha="$(image_sha)"
+  local -r tag="${sha:0:7}"
+  docker image rm "$(image_name):${tag}" &> /dev/null | true
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()
 {
   docker-compose \
@@ -26,23 +34,24 @@ image_name()
 #- - - - - - - - - - - - - - - - - - - - - - - -
 image_sha()
 {
-  docker run --rm $(image_name):latest sh -c 'env | grep SHA='
+  docker run --rm $(image_name):latest sh -c 'echo ${SHA}'
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 image_port()
 {
-  docker run --rm $(image_name):latest sh -c 'env | grep PORT='
+  docker run --rm $(image_name):latest sh -c 'echo ${PORT}'
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 assert_equal()
 {
-  local -r expected="${1}"
-  local -r actual="${2}"
+  local -r name="${1}"
+  local -r expected="${2}"
+  local -r actual="${3}"
   echo
-  echo "expected: '${expected}'"
-  echo "  actual: '${actual}'"
+  echo "${name} expected: '${expected}'"
+  echo "${name}   actual: '${actual}'"
   if [ "${expected}" != "${actual}" ]; then
     echo ERROR assert_equal failed
     exit 42
@@ -50,6 +59,7 @@ assert_equal()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
+remove_image
 build_images
-assert_equal "SHA=$(git_commit_sha)"          "$(image_sha)"
-assert_equal "PORT=${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
+assert_equal "$(git_commit_sha)"          "$(image_sha)"
+assert_equal "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
