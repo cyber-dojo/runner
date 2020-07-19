@@ -1,0 +1,51 @@
+Run options: --seed 29465
+
+# Running:
+
+.............................
+
+Finished in 30.966270s, 0.9365 runs/s, 8.3639 assertions/s.
+
+29 runs, 259 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 3170 / 5729 LOC (55.33%) covered.
+
+Slowest 25 tests are...
+5.2115 - D59FDC - Debian - C (gcc), assert - run with infinite loop times out - timed_out_test.rb:20
+5.2087 - D59FDE - Ubuntu - VisualBasic, NUnit - run with infinite loop times out - timed_out_test.rb:33
+5.1817 - 4f5g5S - Alpine - C#, NUnit - pull_image('busybox:glibc') returns 'pulling', then a short while later it returns 'pulled' - pull_image_test.rb:11
+4.6639 - FAA3DD - Debian - C (gcc), assert - red/amber/green in parallel threads - traffic_light_test.rb:20
+2.6813 - 46D3DB - Alpine - C#, NUnit - run with very large file - large_file_test.rb:12
+1.8542 - 46D3DB - Ubuntu - VisualBasic, NUnit - run with very large file - large_file_test.rb:12
+1.8291 - FAA3DA - Debian - C (gcc), assert - red/amber/green traffic-light - traffic_light_test.rb:12
+0.4847 - 2D1161 - Debian - C (gcc), assert - created binary files are not returned in json payload but created text files are - round_trip_test.rb:22
+0.4715 - D59FDD - Debian - C (gcc), assert - [C,assert] run which does not timeout - timed_out_test.rb:12
+0.4545 - 2D1160 - Debian - C (gcc), assert - round-tripping: example of no file changes - round_trip_test.rb:12
+0.4073 - 2378A1 - Alpine - C#, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
+0.3974 - 46DED4 - Ubuntu - VisualBasic, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
+0.3643 - 2D1162 - Alpine - C#, NUnit - created text files in sub-dirs are returned in json payload - round_trip_test.rb:38
+0.3549 - 2D1164 - Debian - C (gcc), assert - created empty text files is returned in json payload - round_trip_test.rb:58
+0.3549 - 46DED4 - Alpine - C#, NUnit - stdout greater than 50K is truncated - large_file_test.rb:29
+0.3498 - 2D1163 - Debian - C (gcc), assert - changed text files are returned in json payload - round_trip_test.rb:48
+0.3268 - 2378A1 - Ubuntu - VisualBasic, NUnit - start-files image_name<->os correspondence - os_image_test.rb:12
+0.3253 - FAA3DE - Alpine - C#, NUnit - given an image_name that does not have bash installed, then the colour is 'faulty', and log contains info as JSON object - traffic_light_test.rb:31
+0.0085 - 14D2F5 - Alpine - C#, NUnit - call to existing runner method with bad argument type becomes Runner::Error - http_proxy_error_test.rb:12
+0.0065 - 74C191 - Alpine - C#, NUnit - ready? is true, useful for k8s readyness probes - probe_test.rb:22
+0.0038 - 74C190 - Alpine - C#, NUnit - alive? is true, useful for k8s liveness probes - probe_test.rb:12
+0.0036 - 74C192 - Alpine - C#, NUnit - sha is SHA of git commit which created docker image - probe_test.rb:32
+0.0030 - 14D2F6 - Alpine - C#, NUnit - call to existing languages_start_points method with bad argument type becomes LanguagesStartPoints::Error - http_proxy_error_test.rb:29
+0.0001 - 3752F3 - Alpine - C#, NUnit - raises when response.body has embedded exception - http_proxy_json_responder_test.rb:59
+0.0001 - 3752F2 - Alpine - C#, NUnit - raises response.body is not JSON Hash - http_proxy_json_responder_test.rb:50
+0.0001 - 3752F0 - Alpine - C#, NUnit - response.body's keyed-value is returned when it has a key matching the path and raw option is false - http_proxy_json_responder_test.rb:13
+
+
+                 failures |       0   <=     0 | [32m true [0m
+                   errors |       0   <=     0 | [32m true [0m
+                 warnings |       0   <=     0 | [32m true [0m
+                    skips |       0   <=     0 | [32m true [0m
+        duration(test)[s] |   30.97   <=   100 | [32m true [0m
+                    tests |      29   >=     1 | [32m true [0m
+      coverage(tested)[%] |   100.0   >=   100 | [32m true [0m
+      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
+     lines(tester/tested) |    1.92   >=   1.8 | [32m true [0m
+      hits(tested/tester) |    6.37   >=   5.0 | [32m true [0m
+

@@ -1,0 +1,27 @@
+Run options: --seed 25798
+
+# Running:
+
+..
+
+Finished in 0.008009s, 249.7252 runs/s, 249.7252 assertions/s.
+
+2 runs, 2 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 5515 / 13502 LOC (40.85%) covered.
+
+Slowest 2 tests are...
+0.0034 - e51H3s - Alpine - C#, NUnit - simple tgz round-trip - tgz_test.rb:13    
+0.0002 - e51H4s - Alpine - C#, NUnit - simple tgz round-trip of nothing - tgz_test.rb:23
+
+
+                 failures |       0   <=     0 | [32m true [0m
+                   errors |       0   <=     0 | [32m true [0m
+                 warnings |       0   <=     0 | [32m true [0m
+                    skips |       0   <=     0 | [32m true [0m
+        duration(test)[s] |    0.01   <=   200 | [32m true [0m
+                    tests |       2   >=     1 | [32m true [0m
+      coverage(tested)[%] |   50.95   >=   100 | [31m false [0m
+      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
+     lines(tester/tested) |    0.02   >=   1.9 | [31m false [0m
+      hits(tested/tester) |    0.37   >=   1.6 | [31m false [0m
+

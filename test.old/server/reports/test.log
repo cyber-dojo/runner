@@ -1,0 +1,29 @@
+Run options: --seed 11987
+
+# Running:
+
+....
+
+Finished in 1.624440s, 2.4624 runs/s, 4.3092 assertions/s.
+
+4 runs, 7 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 6770 / 14911 LOC (45.4%) covered.
+
+Slowest 4 tests are...
+1.6121 - D280BB - Ubuntu - C (clang), assert - clang sanitize address => no ulimit on data - feature_clang_sanitize_address_test.rb:16
+0.0007 - 80B364 - Alpine - C#, NUnit - simple tar round-trip - tarfile_test.rb:14
+0.0004 - 80B366 - Alpine - C#, NUnit - empty file round-trip - tarfile_test.rb:39
+0.0003 - 80B365 - Alpine - C#, NUnit - writing content where .size != .bytesize does not throw - tarfile_test.rb:30
+
+
+                 failures |       0   <=     0 | [32m true [0m
+                   errors |       0   <=     0 | [32m true [0m
+                 warnings |       0   <=     0 | [32m true [0m
+                    skips |       0   <=     0 | [32m true [0m
+        duration(test)[s] |    1.62   <=   200 | [32m true [0m
+                    tests |       4   >=     1 | [32m true [0m
+      coverage(tested)[%] |   74.95   >=   100 | [31m false [0m
+      coverage(tester)[%] |   35.09   >=   100 | [31m false [0m
+     lines(tester/tested) |    2.04   >=   1.9 | [32m true [0m
+      hits(tested/tester) |    2.17   >=   1.6 | [32m true [0m
+

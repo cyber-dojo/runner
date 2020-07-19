@@ -41,7 +41,7 @@ run_tests()
   local -r reports_dir_name=reports
   local -r tmp_dir=/tmp
   local -r coverage_root=/${tmp_dir}/${reports_dir_name}
-  local -r test_dir="${root_dir}/test/${type}"
+  local -r test_dir="${root_dir}/test"
   local -r reports_dir=${test_dir}/${reports_dir_name}
   local -r test_log=test.log
   local -r container_name="test-${my_name}-${type}" # eg test-runner-server

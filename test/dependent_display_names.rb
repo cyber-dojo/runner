@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_relative 'server/data/display_names'
+require_relative 'data/display_names'
 
 def run
   [
