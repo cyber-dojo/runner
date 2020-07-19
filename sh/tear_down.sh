@@ -10,6 +10,7 @@ readonly PREFIX='cyber_dojo_runner'
 readonly ZOMBIE_CONTAINERS=$(docker ps --all --filter "name=${PREFIX}" --format "{{.Names}}")
 
 if [ "${ZOMBIE_CONTAINERS}" != "" ]; then
+  echo
   echo Removing zombie containers from previous test runs...
   docker rm --force "${ZOMBIE_CONTAINERS}"
 fi

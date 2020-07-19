@@ -35,7 +35,7 @@ exit_zero_if_build_only()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit_zero_if_show_help "$@"
-${SH_DIR}/build_tagged_images.sh
+${SH_DIR}/build_tagged_images.sh "$@"
 exit_zero_if_build_only "$@"
 ${SH_DIR}/tear_down.sh
 ${SH_DIR}/setup_dependent_images.sh "$@"

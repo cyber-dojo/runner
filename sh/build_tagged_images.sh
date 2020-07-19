@@ -10,12 +10,26 @@ remove_image()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-build_images()
+build_image()
 {
+  local -r service="${1}"
+  echo
   docker-compose \
     --file "${ROOT_DIR}/docker-compose.yml" \
     build \
-    --build-arg COMMIT_SHA=$(git_commit_sha)
+    --build-arg COMMIT_SHA=$(git_commit_sha) \
+    "${service}"
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
+build_images()
+{
+  if [ "${1:-}" == server ]; then
+    build_image runner-server
+  else
+    build_image runner-server
+    build_image runner-client
+  fi
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,7 +84,7 @@ assert_equal()
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 remove_image
-build_images
+build_images "$@"
 tag_image
 assert_equal SHA  "$(git_commit_sha)"         "$(image_sha)"
 assert_equal PORT "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
