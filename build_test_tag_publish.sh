@@ -6,8 +6,8 @@ export $(versioner_env_vars)
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit_zero_if_show_help()
 {
-  local -r my_name=`basename "${BASH_SOURCE[0]}"`
-  if [ "${1:-}" == '-h' ] || [ "${1:-}" == '--help' ]; then
+  if show_help_arg "${1:-}"; then
+    local -r my_name=`basename "${BASH_SOURCE[0]}"`
     cat <<- EOF
 
     Use: ${my_name} [client|server] [ID...]
@@ -26,11 +26,23 @@ EOF
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
+show_help_arg()
+{
+  [ "${1:-}" == '--help' ] || [ "${1:-}" == '-h' ]
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit_zero_if_build_only()
 {
-  if [ "${1:-}" == '--build-only' ] || [ "${1:-}" == '-bo' ] ; then
+  if build_only_arg "${1:-}" ; then
     exit 0
   fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
+build_only_arg()
+{
+  [ "${1:-}" == '--build-only' ] || [ "${1:-}" == '-bo' ]
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
