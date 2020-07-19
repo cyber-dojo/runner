@@ -1,10 +1,8 @@
 #!/bin/bash -Eeu
-
 readonly ROOT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 readonly lsp_service_name=languages-start-points
 readonly lsp_container_name=test-runner-languages-start-points
 readonly lsp_port="${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
-
 source "${ROOT_DIR}/sh/wait_until_ready_and_clean.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -17,7 +15,7 @@ EOF
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-setup_dependent_images()
+pull_dependent_images()
 {
   echo
   echo Pulling images used in server-side tests
@@ -56,14 +54,21 @@ setup_dependent_images()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
+setup_dependent_images()
+{
+  echo
+  docker-compose \
+    --file "${ROOT_DIR}/docker-compose.yml" \
+    up \
+    -d \
+    --force-recreate \
+    "${lsp_service_name}"
 
-echo
-docker-compose \
-  --file "${ROOT_DIR}/docker-compose.yml" \
-  up \
-  -d \
-  --force-recreate \
-  "${lsp_service_name}"
+  wait_until_ready_and_clean "${lsp_container_name}" "${lsp_port}"
+  pull_dependent_images
+}
 
-wait_until_ready_and_clean "${lsp_container_name}" "${lsp_port}"
-setup_dependent_images
+# - - - - - - - - - - - - - - - - - - - - - - - -
+if [ "${1:-}" != server ]; then
+  setup_dependent_images
+fi

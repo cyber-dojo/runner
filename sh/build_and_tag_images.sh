@@ -20,6 +20,17 @@ build_images()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
+tag_image()
+{
+  local -r sha="$(image_sha)"
+  local -r tag="${sha:0:7}"
+  docker tag $(image_name):latest "$(image_name):${tag}"
+  echo
+  echo "CYBER_DOJO_RUNNER_SHA=${sha}"
+  echo "CYBER_DOJO_RUNNER_TAG=${tag}"
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
 git_commit_sha()
 {
   echo $(cd "${ROOT_DIR}" && git rev-parse HEAD)
@@ -49,10 +60,10 @@ assert_equal()
   local -r name="${1}"
   local -r expected="${2}"
   local -r actual="${3}"
-  echo
-  echo "${name} expected: ${expected}"
-  echo "${name}   actual: ${actual}"
   if [ "${expected}" != "${actual}" ]; then
+    echo
+    echo "${name} expected: ${expected}"
+    echo "${name}   actual: ${actual}"
     echo ERROR assert_equal failed
     exit 42
   fi
@@ -61,5 +72,6 @@ assert_equal()
 #- - - - - - - - - - - - - - - - - - - - - - - -
 remove_image
 build_images
-assert_equal SHA "$(git_commit_sha)"          "$(image_sha)"
+tag_image
+assert_equal SHA  "$(git_commit_sha)"         "$(image_sha)"
 assert_equal PORT "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"

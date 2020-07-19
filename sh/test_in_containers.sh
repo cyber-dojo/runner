@@ -9,7 +9,6 @@ server_status=0
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 main()
 {
-  docker pull cyberdojo/check-test-results:latest
   if [ "${1:-}" == client ]; then
     shift
     run_client_tests "${@:-}"
