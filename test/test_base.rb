@@ -6,7 +6,7 @@ require_relative 'doubles/rack_request_stub'
 require_relative 'doubles/bash_sheller_stub'
 require_relative 'doubles/traffic_light_stub'
 require_relative 'doubles/synchronous_threader'
-require_relative 'languages_start_points_http_proxy'
+require_source 'http_proxy/languages_start_points'
 require_source 'context'
 require 'json'
 
@@ -144,7 +144,7 @@ class TestBase < Id58TestBase
   end
 
   def languages_start_points
-    LanguagesStartPointsHttpProxy.new
+    ::HttpProxy::LanguagesStartPoints.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
