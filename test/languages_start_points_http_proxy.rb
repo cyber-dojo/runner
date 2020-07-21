@@ -1,7 +1,8 @@
 # frozen_string_literal: true
-require_relative 'http_proxy/json_requester'
-require_relative 'http_proxy/json_responder'
-require_relative 'http_proxy/net_http_adapter'
+require_relative 'require_source'
+require_source 'http_proxy/json_requester'
+require_source 'http_proxy/json_responder'
+require_source 'http_proxy/net_http_adapter'
 
 class LanguagesStartPointsHttpProxy
 
