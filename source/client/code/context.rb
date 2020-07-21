@@ -5,7 +5,7 @@ require_relative 'prober'
 
 class Context
 
-  def initialize
+  def initialize(_options = {})
     @prober = Prober.new(self)
     @languages_start_points = LanguagesStartPointsHttpProxy.new
     @runner = RunnerHttpProxy.new

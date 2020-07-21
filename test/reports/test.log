@@ -1,41 +1,41 @@
-Run options: --seed 34916
+Run options: --seed 1672
 
 # Running:
 
 .............................................
 
-Finished in 0.104504s, 430.6039 runs/s, 217359.3003 assertions/s.
+Finished in 0.101746s, 442.2761 runs/s, 223251.1618 assertions/s.
 
 45 runs, 22715 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 5969 / 13943 LOC (42.81%) covered.
+Coverage report generated for MiniTest to //tmp/reports. 5968 / 13942 LOC (42.81%) covered.
 
 Slowest 25 tests are...
-0.0702 - 4a7c91 - Alpine - C#, NUnit - hex_id(8) is size 8, each char is hex-digit - server_random_hex_test.rb:14
-0.0013 - e51H3s - Alpine - C#, NUnit - simple tgz round-trip - server_tgz_test.rb:13
+0.0698 - 4a7c91 - Alpine - C#, NUnit - hex_id(8) is size 8, each char is hex-digit - server_random_hex_test.rb:14
+0.0008 - e51H3s - Alpine - C#, NUnit - simple tgz round-trip - server_tgz_test.rb:13
 0.0007 - 3D97FE - Alpine - C#, NUnit - cleans invalid encodings - server_utf8_clean_test.rb:13
 0.0007 - 80B364 - Alpine - C#, NUnit - simple tar round-trip - server_tarfile_test.rb:14
+0.0006 - Cw44A2 - Alpine - C#, NUnit - simple gzip round-trip of empty string - server_gnu_zip_test.rb:23
 0.0005 - 9g8001 - Alpine - C#, NUnit - unchanged when a tag and no digest - server_tagged_image_name_test.rb:22
-0.0004 - 80B366 - Alpine - C#, NUnit - empty file round-trip - server_tarfile_test.rb:39
 0.0003 - 80B365 - Alpine - C#, NUnit - writing content where .size != .bytesize does not throw - server_tarfile_test.rb:30
-0.0002 - Cw44A1 - Alpine - C#, NUnit - simple gzip round-trip of non-empty string - server_gnu_zip_test.rb:14
-0.0002 - 9g8002 - Alpine - C#, NUnit - unchanged when a tag and a digest - server_tagged_image_name_test.rb:33
+0.0003 - 80B366 - Alpine - C#, NUnit - empty file round-trip - server_tarfile_test.rb:39
+0.0003 - 9g8000 - Alpine - C#, NUnit - malformed_image_name - server_tagged_image_name_test.rb:14
 0.0002 - 9g8003 - Alpine - C#, NUnit - tagged with :latest when no tag and no digest - server_tagged_image_name_test.rb:44
-0.0001 - e51H4s - Alpine - C#, NUnit - simple tgz round-trip of nothing - server_tgz_test.rb:23
-0.0001 - 9g8000 - Alpine - C#, NUnit - malformed_image_name - server_tagged_image_name_test.rb:14
-0.0001 - 9g8004 - Alpine - C#, NUnit - tagged with :latest when no tag and a digest - server_tagged_image_name_test.rb:55
+0.0002 - 9g8002 - Alpine - C#, NUnit - unchanged when a tag and a digest - server_tagged_image_name_test.rb:33
+0.0002 - e51H4s - Alpine - C#, NUnit - simple tgz round-trip of nothing - server_tgz_test.rb:23
+0.0002 - 9g8004 - Alpine - C#, NUnit - tagged with :latest when no tag and a digest - server_tagged_image_name_test.rb:55
+0.0001 - Cw44A1 - Alpine - C#, NUnit - simple gzip round-trip of non-empty string - server_gnu_zip_test.rb:14
 0.0001 - 3q1Ps5 - Alpine - C#, NUnit - image_names populate puller in config.ru - server_node_test.rb:31
-0.0001 - Cw44A2 - Alpine - C#, NUnit - simple gzip round-trip of empty string - server_gnu_zip_test.rb:23
-0.0001 - wK9d9k - Alpine - C#, NUnit - add? returns non-nil when value is not already included, returns nil when value is already included - server_synchronized_set_test.rb:58
-0.0001 - 3q1Ps3 - Alpine - C#, NUnit - image_names are retrieved from the node via docker image ls call - server_node_test.rb:12
+0.0001 - 4a7c92 - Alpine - C#, NUnit - size=0 doesn't work but I don't need that anyway - server_random_hex_test.rb:26
 0.0001 - 3q1Ps4 - Alpine - C#, NUnit - <none>:<none> image_names are filtered out - server_node_test.rb:21
-0.0001 - A3rKb1 - Alpine - C#, NUnit - use with a block to supply the stub, use without a block gets the stub - server_process_adapter_stub_test.rb:12
-0.0000 - 4a7c92 - Alpine - C#, NUnit - size=0 doesn't work but I don't need that anyway - server_random_hex_test.rb:26
+0.0001 - 3q1Ps3 - Alpine - C#, NUnit - image_names are retrieved from the node via docker image ls call - server_node_test.rb:12
+0.0001 - 55tdF9 - Alpine - C#, NUnit - log(s) logs s as it is when s ends in a newline - server_stdout_logger_test.rb:24
 0.0000 - 3q1Ps6 - Alpine - C#, NUnit - when docker image ls call fails exception is raised - server_node_test.rb:42
-0.0000 - 5C2E77 - Alpine - C#, NUnit - changed content - server_files_delta_test.rb:26
-0.0000 - 55tdF7 - Alpine - C#, NUnit - log(s) is a no-op when s is empty - server_stdout_logger_test.rb:12
-0.0000 - d2bd57 - Alpine - C#, NUnit - Sandbox.out reverses Sandbox.in - server_sandbox_test.rb:40
+0.0000 - wK9d9k - Alpine - C#, NUnit - add? returns non-nil when value is not already included, returns nil when value is already included - server_synchronized_set_test.rb:58
 0.0000 - wK9d9j - Alpine - C#, NUnit - deleted values are not included - server_synchronized_set_test.rb:43
 0.0000 - d2bd56 - Alpine - C#, NUnit - Sandbox.in prefixes filenames with sandbox/ note there is no leading slash because tar prefers relative paths - server_sandbox_test.rb:20
+0.0000 - wK9d9h - Alpine - C#, NUnit - added values are included - server_synchronized_set_test.rb:31
+0.0000 - d2bd57 - Alpine - C#, NUnit - Sandbox.out reverses Sandbox.in - server_sandbox_test.rb:40
+0.0000 - 5C2E80 - Alpine - C#, NUnit - new empty content - server_files_delta_test.rb:66
 
 
                  failures |       0   <=     0 | [32m true [0m

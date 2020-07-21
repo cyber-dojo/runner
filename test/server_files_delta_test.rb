@@ -42,7 +42,7 @@ class ServerFilesDeltaTest < TestBase
     created,deleted,changed = files_delta(was_files, now_files)
     expected_deleted = {
       filename => {
-        content: content
+        'content' => content
       }
     }
     assert_equal({}, created)

@@ -4,15 +4,15 @@ module FilesDelta
   # files_in (old)
   # Format == { "hiker.c" => "#include..." }
   # files_out (new)
-  # Format == { "hiker.c" => { content: "#include...", truncated: false } }
+  # Format == { "hiker.c" => { "content": "#include...", truncated: false } }
 
   def files_delta(old, new)
     changed = {}
     deleted = {}
     old.each do |filename, content|
       if !new.has_key?(filename)
-        deleted[filename] = { content: content }
-      elsif new[filename][:content] != content
+        deleted[filename] = { 'content' => content }
+      elsif new[filename]['content'] != content
         changed[filename] = new[filename]
       end
       new.delete(filename) # same (destructive)

@@ -41,20 +41,20 @@ class Runner
       else
         tgz_out = result[:stdout]
         stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
-        sss = [ stdout[:content], stderr[:content], status[:content] ]
+        sss = [ stdout['content'], stderr['content'], status['content'] ]
         outcome,log_info = *@traffic_light.colour(image_name, *sss)
       end
     end
 
     {
-         stdout: stdout,
-         stderr: stderr,
-         status: status[:content],
-        outcome: outcome,
-        created: Sandbox.out(created),
-        deleted: Sandbox.out(deleted).keys.sort,
-        changed: Sandbox.out(changed),
-            log: log_info
+         'stdout' => stdout,
+         'stderr' => stderr,
+         'status' => status['content'],
+        'outcome' => outcome,
+        'created' => Sandbox.out(created),
+        'deleted' => Sandbox.out(deleted).keys.sort,
+        'changed' => Sandbox.out(changed),
+            'log' => log_info
     }
   end
 
@@ -138,8 +138,8 @@ class Runner
   def truncated(raw_content)
     content = Utf8.clean(raw_content)
     {
-        content: content[0...MAX_FILE_SIZE],
-      truncated: content.size > MAX_FILE_SIZE
+        'content' => content[0...MAX_FILE_SIZE],
+      'truncated' => content.size > MAX_FILE_SIZE
     }
   end
 

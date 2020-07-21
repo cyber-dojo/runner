@@ -1,12 +1,12 @@
 require_relative 'id58_test_base'
 require_relative 'data/display_names'
-require_relative 'http_proxy/languages_start_points'
 require_relative 'doubles/stdout_logger_spy'
 require_relative 'doubles/process_adapter_stub'
 require_relative 'doubles/rack_request_stub'
 require_relative 'doubles/bash_sheller_stub'
 require_relative 'doubles/traffic_light_stub'
 require_relative 'doubles/synchronous_threader'
+require_relative 'languages_start_points_http_proxy'
 require_source 'context'
 require 'json'
 
@@ -99,11 +99,18 @@ class TestBase < Id58TestBase
       'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
 
+    #p "id:#{id}"
+    #p "files:#{JSON.pretty_generate(files)}:"
+    #p "manifest:#{JSON.pretty_generate(manifest)}:"
+
     @run_result = runner.run_cyber_dojo_sh(
       id:id,
       files:files,
       manifest:manifest
     )
+
+    #p "@run_result:#{JSON.pretty_generate(@run_result)}:"
+
     nil
   end
 
@@ -137,16 +144,16 @@ class TestBase < Id58TestBase
   end
 
   def languages_start_points
-    HttpProxy::LanguagesStartPoints.new
+    LanguagesStartPointsHttpProxy.new
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 4. call results
 
-  def stdout; run_result[:stdout][:content]; end
-  def stderr; run_result[:stderr][:content]; end
+  def stdout; run_result['stdout']['content']; end
+  def stderr; run_result['stderr']['content']; end
 
-  def outcome; run_result[:outcome]; end
+  def outcome; run_result['outcome']; end
 
   def timed_out?; outcome === 'timed_out'; end
   def pulling?  ; outcome === 'pulling'  ; end
@@ -155,9 +162,9 @@ class TestBase < Id58TestBase
   def amber?    ; outcome === 'amber'    ; end
   def green?    ; outcome === 'green'    ; end
 
-  def created; run_result[:created]; end
-  def deleted; run_result[:deleted]; end
-  def changed; run_result[:changed]; end
+  def created; run_result['created']; end
+  def deleted; run_result['deleted']; end
+  def changed; run_result['changed']; end
 
   def pretty_result(tag)
     [ JSON.pretty_generate(run_result),
@@ -220,7 +227,7 @@ class TestBase < Id58TestBase
   end
 
   def intact(content)
-    { content:content, truncated:false }
+    { 'content' => content, 'truncated' => false }
   end
 
   def stat_cmd
