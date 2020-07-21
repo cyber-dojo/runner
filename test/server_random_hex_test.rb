@@ -3,7 +3,7 @@ require_relative 'test_base'
 require_source 'random_hex'
 require 'benchmark'
 
-class RandomHexTest < TestBase
+class ServerRandomHexTest < TestBase
 
   def self.id58_prefix
     '4a7'

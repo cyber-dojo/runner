@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require_source 'utf8_clean'
 
-class Utf8CleanTest < TestBase
+class ServerUtf8CleanTest < TestBase
 
   def self.id58_prefix
     '3D9'

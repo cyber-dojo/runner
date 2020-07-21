@@ -11,7 +11,7 @@ services:
     depends_on: [ runner-server ]
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     container_name: test-runner-client
-    environment: [ SHOW_TEST_IDS ]
+    environment: [ CONTEXT=client, SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}" ]
     read_only: true
     restart: 'no'
@@ -29,7 +29,7 @@ services:
     depends_on: [ languages-start-points ]
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: test-runner-server
-    environment: [ USE_PROMETHEUS=no, SHOW_TEST_IDS ]
+    environment: [ CONTEXT=server, USE_PROMETHEUS=no, SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     restart: 'no'

@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require_source 'sandbox'
 
-class SandboxTest < TestBase
+class ServerSandboxTest < TestBase
 
   def self.id58_prefix
     'd2b'

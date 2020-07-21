@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class ProcessAdapterStubTest < TestBase
+class ServerProcessAdapterStubTest < TestBase
 
   def self.id58_prefix
     'A3r'

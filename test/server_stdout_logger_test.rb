@@ -1,7 +1,7 @@
 require_relative 'test_base'
 require_source 'externals/stdout_logger'
 
-class StdoutLoggerTest < TestBase
+class ServerStdoutLoggerTest < TestBase
 
   def self.id58_prefix
     '55t'

@@ -3,7 +3,7 @@ require_relative 'test_base'
 require_source 'tarfile_reader'
 require_source 'tarfile_writer'
 
-class TarFileTest < TestBase
+class ServerTarFileTest < TestBase
 
   def self.id58_prefix
     '80B'

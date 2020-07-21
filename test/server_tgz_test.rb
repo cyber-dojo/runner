@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require_source 'tgz'
 
-class TgzTest < TestBase
+class ServerTgzTest < TestBase
 
   def self.id58_prefix
     'e51'

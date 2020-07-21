@@ -3,7 +3,7 @@ require_relative 'test_base'
 require_relative 'data/image_names'
 require_source 'tagged_image_name'
 
-class TaggedImageNameTest < TestBase
+class ServerTaggedImageNameTest < TestBase
 
   def self.id58_prefix
     '9g8'

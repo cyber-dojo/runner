@@ -6,7 +6,7 @@ readonly TEST_LOG="${2}"    # test.log
 readonly TYPE="${3}"        # client|server
 shift; shift; shift
 
-readonly TEST_FILES=(${MY_DIR}/*_test.rb)
+readonly TEST_FILES=(${MY_DIR}/${CONTEXT}_*_test.rb)
 readonly TEST_ARGS=(${@})
 
 readonly SCRIPT="

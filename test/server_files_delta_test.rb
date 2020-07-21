@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require_source 'files_delta'
 
-class FilesDeltaTest < TestBase
+class ServerFilesDeltaTest < TestBase
 
   def self.id58_prefix
     '5C2'

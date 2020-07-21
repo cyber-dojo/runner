@@ -3,7 +3,7 @@ require_relative 'test_base'
 require_source 'gnu_zip'
 require_source 'gnu_unzip'
 
-class GnuZipTest < TestBase
+class ServerGnuZipTest < TestBase
 
   def self.id58_prefix
     'Cw4'

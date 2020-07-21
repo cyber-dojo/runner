@@ -1,6 +1,6 @@
 require_relative 'test_base'
 
-class StdoutLoggerSpyTest < TestBase
+class ServerStdoutLoggerSpyTest < TestBase
 
   def self.id58_prefix
     '60e'

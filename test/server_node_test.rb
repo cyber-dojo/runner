@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class NodeTest < TestBase
+class ServerNodeTest < TestBase
 
   def self.id58_prefix
     '3q1'

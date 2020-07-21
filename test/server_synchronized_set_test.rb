@@ -2,7 +2,7 @@
 require_relative 'test_base'
 require_source 'synchronized_set'
 
-class SynchronizedSetTest < TestBase
+class ServerSynchronizedSetTest < TestBase
 
   def self.id58_prefix
     'wK9'
