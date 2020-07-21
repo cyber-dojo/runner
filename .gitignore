@@ -3,3 +3,6 @@ test/server/reports/.*
 
 test/client/reports/*
 test/client/reports/.*
+
+test/reports/*
+test/reports/.*
