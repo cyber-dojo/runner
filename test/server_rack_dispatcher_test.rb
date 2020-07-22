@@ -3,7 +3,7 @@ require_relative 'test_base'
 require_source 'rack_dispatcher'
 require 'json'
 
-class RackDispatcherTest < TestBase
+class ServerRackDispatcherTest < TestBase
 
   def self.id58_prefix
     'D06'
@@ -19,15 +19,6 @@ class RackDispatcherTest < TestBase
     rack_call(body:'', path_info:'ready')
     ready = assert_200('ready?')
     assert ready.is_a?(TrueClass)
-    assert_nothing_logged
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'AB0', 'sha' do
-    rack_call({ body:{}.to_json, path_info:'sha' })
-    sha = assert_200('sha')
-    assert_sha(sha)
     assert_nothing_logged
   end
 
@@ -51,21 +42,55 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
-    args = run_cyber_dojo_sh_args
-    rack_call(path_info:'run_cyber_dojo_sh', body:args.to_json, puller_add:true)
-    assert_200('run_cyber_dojo_sh')
-    assert_gcc_starting
-    message = 'Read red-amber-green lambda for cyberdojofoundation/gcc_assert'
-    assert_logged(message)
+  test 'AB0', 'sha' do
+    rack_call({ body:{}.to_json, path_info:'sha' })
+    sha = assert_200('sha')
+    assert_sha(sha)
+    assert_nothing_logged
   end
 
   # - - - - - - - - - - - - - - - - -
 
+  class RunnerDummy
+    def initialize
+      @called = false
+    end
+    def run_cyber_dojo_sh(id:, files:, manifest:)
+      @called = true
+    end
+    def called?
+      @called
+    end
+  end
+
+  c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
+    @context = Context.new(runner:dummy=RunnerDummy.new)
+    args = run_cyber_dojo_sh_args
+    rack_call(path_info:'run_cyber_dojo_sh', body:args.to_json)
+    assert_200('run_cyber_dojo_sh')
+    assert dummy.called?
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  class PullerDummy
+    def initialize
+      @called = false
+    end
+    def pull_image(id:, image_name:)
+      @called = true
+    end
+    def called?
+      @called
+    end
+  end
+
   test 'A9F', 'pull_image' do
+    @context = Context.new(puller:dummy=PullerDummy.new)
     args = { id:id58, image_name:image_name }
     rack_call(path_info:'pull_image', body:args.to_json)
-    assert_equal 'pulling', assert_200('pull_image')
+    assert_200('pull_image')
+    assert dummy.called?
   end
 
   # = = = = = = = = = = = = = = = = =
@@ -169,6 +194,7 @@ class RackDispatcherTest < TestBase
   private
 
   def assert_rack_call_400_exception(expected, path_info, body)
+    @context = nil
     env = { path_info:path_info, body:body }
     rack_call(env)
     assert_400
@@ -188,13 +214,9 @@ class RackDispatcherTest < TestBase
 
   def rack_call(env)
     klass = env.delete(:klass) || RackRequestStub
-    puller_add = env.delete(:puller_add) || false
     @options = { logger:StdoutLoggerSpy.new }
-    context = Context.new(@options)
-    if puller_add
-      context.puller.add(image_name)
-    end
-    rack = RackDispatcher.new(context)
+    @context ||= Context.new(@options)
+    rack = RackDispatcher.new(@context)
     @response = rack.call(env, klass)
     expected_type = { 'Content-Type' => 'application/json' }
     actual_type = @response[1]
