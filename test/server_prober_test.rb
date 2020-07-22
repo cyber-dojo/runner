@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class FeatureProberTest < TestBase
+class ServerProberTest < TestBase
 
   def self.id58_prefix
     '6de'
@@ -10,7 +10,7 @@ class FeatureProberTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '190', %w(
-  alive? is true, useful for k8s liveness probes
+  alive? is true
   ) do
     assert prober.alive?.is_a?(TrueClass)
   end
@@ -18,7 +18,7 @@ class FeatureProberTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '191', %w(
-  ready? is true, useful for k8s readyness probes
+  ready? is true
   ) do
     assert prober.ready?.is_a?(TrueClass)
   end
