@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class BashShellerStubTest < TestBase
+class ServerBashShellerStubTest < TestBase
 
   def self.id58_prefix
     'F03'
