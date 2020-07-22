@@ -10,19 +10,19 @@ class DoubleLanguagesStartPointsTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - -
 
   test 'as3', %w(
-  its alive ) do
+  LSP is alive ) do
     assert languages_start_points.alive?.is_a?(TrueClass)
   end
 
   test 'as4', %w(
-  its ready ) do
+  LSP is ready ) do
     assert languages_start_points.ready?.is_a?(TrueClass)
   end
 
   test 'as5', %w(
-  sha is SHA of git commit which created docker image
+  LSP sha is SHA of git commit which created its docker image
   ) do
-    assert_sha(languages_start_points.sha)    
+    assert_sha(languages_start_points.sha)
   end
 
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class FeaturePullImageTest < TestBase
+class ServerPullImageTest < TestBase
 
   def self.id58_prefix
     '9j5'
@@ -18,7 +18,7 @@ class FeaturePullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 't9K', %w(
-  given gcc_assert has already been pulled,
+  given gcc_assert HAS already been pulled,
   when I call pull_image(id,gcc_assert),
   then a new thread is not started, no shell command is run, and the result is :pulled
   ) do
@@ -34,7 +34,7 @@ class FeaturePullImageTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 't9M', %w(
-  given gcc_assert has not already been pulled,
+  given gcc_assert has NOT already been pulled,
   when I call pull_image(id, gcc_assert),
   then the docker pull runs in a new thread and the result is :pulling
   ) do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'test_base'
 
-class FeaturePullingTest < TestBase
+class ServerPullingTest < TestBase
 
   def self.id58_prefix
     'C5a'

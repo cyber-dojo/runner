@@ -1,51 +1,28 @@
-Run options: --seed 46786
+Run options: --seed 31536
 
 # Running:
 
-............................................................
+...
 
-Finished in 0.127629s, 470.1109 runs/s, 178838.0094 assertions/s.
+Finished in 0.024006s, 124.9707 runs/s, 1832.9034 assertions/s.
 
-60 runs, 22825 assertions, 0 failures, 0 errors, 0 skips
-Coverage report generated for MiniTest to //tmp/reports. 6587 / 14034 LOC (46.94%) covered.
+3 runs, 44 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 2918 / 5625 LOC (51.88%) covered.
 
-Slowest 25 tests are...
-0.0731 - 4a7c91 - Alpine - C#, NUnit - hex_id(8) is size 8, each char is hex-digit - server_random_hex_test.rb:14
-0.0031 - C89244 - Alpine - C#, NUnit - when capture(command)'s status is zero, it logs nothing, it returns [stdout,stderr,status], - server_bash_sheller_test.rb:25
-0.0029 - DDxas3 - Alpine - C#, NUnit - its alive - double_lsp_test.rb:12         
-0.0025 - DDxas5 - Alpine - C#, NUnit - sha is SHA of git commit which created docker image - double_lsp_test.rb:22
-0.0020 - C89245 - Alpine - C#, NUnit - when capture(command)'s status is non-zero, it does not raise, it logs [command,stdout,stderr,status], it returns [stdout,stderr,status], - server_bash_sheller_test.rb:40
-0.0019 - DDxas4 - Alpine - C#, NUnit - its ready - double_lsp_test.rb:17         
-0.0019 - C89243 - Alpine - C#, NUnit - when capture(command) raises an exception, then the exception is untouched then nothing is logged - server_bash_sheller_test.rb:12
-0.0013 - e51H3s - Alpine - C#, NUnit - simple tgz round-trip - server_tgz_test.rb:13
-0.0008 - 3D97FE - Alpine - C#, NUnit - cleans invalid encodings - server_utf8_clean_test.rb:13
-0.0007 - 80B364 - Alpine - C#, NUnit - simple tar round-trip - server_tarfile_test.rb:14
-0.0006 - Cw44A1 - Alpine - C#, NUnit - simple gzip round-trip of non-empty string - server_gnu_zip_test.rb:14
-0.0004 - 9g8001 - Alpine - C#, NUnit - unchanged when a tag and no digest - server_tagged_image_name_test.rb:22
-0.0004 - 80B366 - Alpine - C#, NUnit - empty file round-trip - server_tarfile_test.rb:39
-0.0003 - 80B365 - Alpine - C#, NUnit - writing content where .size != .bytesize does not throw - server_tarfile_test.rb:30
-0.0002 - 9g8003 - Alpine - C#, NUnit - tagged with :latest when no tag and no digest - server_tagged_image_name_test.rb:44
-0.0002 - 9g8000 - Alpine - C#, NUnit - malformed_image_name - server_tagged_image_name_test.rb:14
-0.0002 - e51H4s - Alpine - C#, NUnit - simple tgz round-trip of nothing - server_tgz_test.rb:23
-0.0001 - 9g8002 - Alpine - C#, NUnit - unchanged when a tag and a digest - server_tagged_image_name_test.rb:33
-0.0001 - 9g8004 - Alpine - C#, NUnit - tagged with :latest when no tag and a digest - server_tagged_image_name_test.rb:55
-0.0001 - Cw44A2 - Alpine - C#, NUnit - simple gzip round-trip of empty string - server_gnu_zip_test.rb:23
-0.0001 - F03652 - Alpine - C#, NUnit - capture() raises when capture() is not stubbed - server_bash_sheller_stub_test.rb:29
-0.0001 - 3q1Ps3 - Alpine - C#, NUnit - image_names are retrieved from the node via docker image ls call - server_node_test.rb:12
-0.0001 - 4a7c92 - Alpine - C#, NUnit - size=0 doesn't work but I don't need that anyway - server_random_hex_test.rb:26
-0.0001 - 3q1Ps5 - Alpine - C#, NUnit - image_names populate puller in config.ru - server_node_test.rb:31
-0.0001 - F03D0C - Alpine - C#, NUnit - teardown raises when a capture() is stubbed and no capture() is made - server_bash_sheller_stub_test.rb:62
-0.0001 - 6de192 - Alpine - C#, NUnit - sha is SHA of git commit which created docker image - server_prober_test.rb:28
+Slowest 3 tests are...
+0.0199 - 6de191 - Alpine - C#, NUnit - ready? is true - double_prober_test.rb:20 
+0.0000 - 6de192 - Alpine - C#, NUnit - sha is SHA of git commit which created docker image - double_prober_test.rb:28
+0.0000 - 6de190 - Alpine - C#, NUnit - alive? is true - double_prober_test.rb:12 
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |    0.13   <=   200 | [32m true [0m
-                    tests |      60   >=     1 | [32m true [0m
-      coverage(tested)[%] |   68.69   >=   100 | [31m false [0m
-      coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    0.73   >=   1.9 | [31m false [0m
-      hits(tested/tester) |    0.07   >=   1.6 | [31m false [0m
+        duration(test)[s] |    0.02   <=   100 | [32m true [0m
+                    tests |       3   >=     1 | [32m true [0m
+      coverage(tested)[%] |   83.21   >=   100 | [31m false [0m
+      coverage(tester)[%] |   73.33   >=   100 | [31m false [0m
+     lines(tester/tested) |    0.23   >=   1.8 | [31m false [0m
+      hits(tested/tester) |    0.83   >=   5.0 | [31m false [0m
 

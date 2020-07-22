@@ -11,7 +11,7 @@ class Prober
   end
 
   def ready?
-    languages_start_points.ready? && runner.ready?
+    [languages_start_points,runner].all? { |http_service| http_service.ready? }
   end
 
   def sha
