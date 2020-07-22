@@ -77,7 +77,7 @@ run_tests()
     --rm \
     --volume ${reports_dir}/${test_log}:${tmp_dir}/${test_log}:ro \
     --volume ${reports_dir}/index.html:${tmp_dir}/index.html:ro \
-    --volume ${test_dir}/metrics.rb:/app/metrics.rb:ro \
+    --volume ${test_dir}/metrics_${type}.rb:/app/metrics.rb:ro \
     cyberdojo/check-test-results:latest \
     sh -c "ruby /app/check_test_results.rb ${tmp_dir}/${test_log} ${tmp_dir}/index.html" \
       | tee -a ${reports_dir}/${test_log}

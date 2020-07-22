@@ -1,27 +1,27 @@
-Run options: --seed 65441
+Run options: --seed 45980
 
 # Running:
 
 ..
 
-Finished in 1.300626s, 1.5377 runs/s, 4.6132 assertions/s.
+Finished in 1.304226s, 1.5335 runs/s, 4.6004 assertions/s.
 
 2 runs, 6 assertions, 0 failures, 0 errors, 0 skips
 Coverage report generated for MiniTest to //tmp/reports. 2906 / 5605 LOC (51.85%) covered.
 
 Slowest 2 tests are...
-0.6801 - 2378A1 - Ubuntu - C (clang), assert - start-files image_name<->os correspondence - client_os_image_test.rb:12
-0.6179 - 2378A1 - Alpine - C#, NUnit - start-files image_name<->os correspondence - client_os_image_test.rb:12
+0.6656 - 2378A1 - Ubuntu - C (clang), assert - start-files image_name<->os correspondence - client_os_image_test.rb:12
+0.6357 - 2378A1 - Alpine - C#, NUnit - start-files image_name<->os correspondence - client_os_image_test.rb:12
 
 
                  failures |       0   <=     0 | [32m true [0m
                    errors |       0   <=     0 | [32m true [0m
                  warnings |       0   <=     0 | [32m true [0m
                     skips |       0   <=     0 | [32m true [0m
-        duration(test)[s] |     1.3   <=   200 | [32m true [0m
+        duration(test)[s] |     1.3   <=   100 | [32m true [0m
                     tests |       2   >=     1 | [32m true [0m
       coverage(tested)[%] |   83.21   >=   100 | [31m false [0m
       coverage(tester)[%] |   100.0   >=   100 | [32m true [0m
-     lines(tester/tested) |    0.08   >=   1.9 | [31m false [0m
-      hits(tested/tester) |    0.80   >=   1.6 | [31m false [0m
+     lines(tester/tested) |    0.08   >=   1.8 | [31m false [0m
+      hits(tested/tester) |    0.80   >=   5.0 | [31m false [0m
 
