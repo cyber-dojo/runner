@@ -1,9 +1,14 @@
 require 'simplecov'
 
+def runner_nocov_token
+  [ 'nocov', ENV['CONTEXT'] ].join('_')
+end
+
 SimpleCov.start do
   #enable_coverage :branch
   filters.clear
   coverage_dir(ENV['COVERAGE_ROOT'])
+  nocov_token(runner_nocov_token)
   #add_group('debug') { |src| puts src.filename; false }
   code_tab = ENV['COVERAGE_CODE_TAB_NAME']
   test_tab = ENV['COVERAGE_TEST_TAB_NAME']

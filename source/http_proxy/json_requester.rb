@@ -18,9 +18,11 @@ module HttpProxy
     end
 
     def post(path, args)
+      # :nocov_server:
       request(path, args) do |uri|
         @http.post(uri)
       end
+      # :nocov_server:            
     end
 
     private
