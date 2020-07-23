@@ -12,10 +12,14 @@ class ServerProcessAdapterTest < TestBase
   test 'S3e', %w(
   a simple object-wrapper to allow instance-level stubbing
   ) do
+    r,w = IO.pipe
     processor = ProcessAdapter.new
-    pid = processor.spawn('sleep 10', {})
+    pid = processor.spawn('printf hello', out:w)
+    w.close
+    echoed = r.read
     processor.detach(pid)
     processor.kill(:TERM, pid)
+    assert_equal 'hello', echoed
   end
 
 end
