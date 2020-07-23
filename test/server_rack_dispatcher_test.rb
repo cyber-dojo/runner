@@ -266,45 +266,6 @@ class ServerRackDispatcherTest < TestBase
     assert_equal '', @options[:logger].logged
   end
 
-  def assert_logged(message)
-    log = @options[:logger].logged
-    logged_count = log.lines.count { |line| line.include?(message) }
-    assert_equal 1, logged_count, ":#{log}:"
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  def assert_gcc_starting
-    result = JSON.parse(response_body)['run_cyber_dojo_sh']
-    stdout = result['stdout']['content']
-    diagnostic = 'stdout is not empty!'
-    assert_equal '', stdout, diagnostic
-    stderr = result['stderr']['content']
-    assert_assertion_failed(stderr)
-    assert_makefile_aborted(stderr)
-    assert_equal '2', result['status'], :status
-  end
-
-  def assert_assertion_failed(stderr)
-    r = /test: hiker.tests.c:(\d+): life_the_universe_and_everything: Assertion `answer\(\) == 42' failed./
-    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}:"
-    assert r.match(stderr), diagnostic
-  end
-
-  def assert_makefile_aborted(stderr)
-    # This depends partly on the host-OS. For example, when
-    # the host-OS is CoreLinux (in the boot2docker VM
-    # in DockerToolbox for Mac) then the output ends
-    # ...Aborted (core dumped).
-    # But if the host-OS is Debian/Ubuntu (eg on Travis)
-    # then the output does not say "(core dumped)" at the end.
-    # Note that --ulimit core=0 is in place in the runner so
-    # no core file is -actually- dumped.
-    r = /make: \*\*\* \[makefile:(\d+): test.output\] Aborted/
-    diagnostic = "Expected stderr to match #{r.to_s}\nstderr:#{stderr}"
-    assert r.match(stderr), diagnostic
-  end
-
   # - - - - - - - - - - - - - - - - -
 
   def run_cyber_dojo_sh_args
