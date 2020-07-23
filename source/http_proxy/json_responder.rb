@@ -32,13 +32,13 @@ module HttpProxy
     def unpacked(body, path)
       json = json_parse(body)
       unless json.is_a?(Hash)
-        fail error_msg(body, 'is not JSON Hash')
+        fail error_message(body, 'is not JSON Hash')
       end
       if json.has_key?('exception')
         fail JSON.pretty_generate(json['exception'])
       end
       unless json.has_key?(path)
-        fail error_msg(body, "has no key for '#{path}'")
+        fail error_message(body, "has no key for '#{path}'")
       end
       json[path]
     end
@@ -46,18 +46,14 @@ module HttpProxy
     # - - - - - - - - - - - - - - - - - - - - -
 
     def json_parse(body)
-      if body === ''
-        {}
-      else
-        JSON.parse!(body)
-      end
+      JSON.parse!(body)
     rescue JSON::ParserError
-      fail error_msg(body, 'is not JSON')
+      fail error_message(body, 'is not JSON')
     end
 
     # - - - - - - - - - - - - - - - - - - - - -
 
-    def error_msg(body, text)
+    def error_message(body, text)
       "http response.body #{text}:#{body}"
     end
 

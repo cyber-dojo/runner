@@ -11,7 +11,7 @@ module HttpProxy
     def post(uri)
       # :nocov_server:
       Net::HTTP::Post.new(uri)
-      # :nocov_server:      
+      # :nocov_server:
     end
 
     def start(hostname, port, req)
