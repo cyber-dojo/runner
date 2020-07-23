@@ -1,6 +1,6 @@
 # frozen_string_literal: true
+require 'ostruct'
 require 'timeout'
-require_relative 'utf8_clean'
 
 module Capture3WithTimeout
 
@@ -14,44 +14,46 @@ module Capture3WithTimeout
       kill_after: spawn_opts.delete(:kill_after),
     }
 
-    in_r,  in_w  = IO.pipe
-    out_r, out_w = IO.pipe
-    err_r, err_w = IO.pipe
-    in_w.sync = true
+    stdin_pipe  = in_out_pipe
+    stdout_pipe = in_out_pipe
+    stderr_pipe = in_out_pipe
+    stdin_pipe.out.sync = true
 
     if opts[:binmode]
-      in_w.binmode
-      out_r.binmode
-      err_r.binmode
+      stdin_pipe.out.binmode
+      stdout_pipe.in.binmode
+      stderr_pipe.in.binmode
     end
 
-    spawn_opts[:in]  = in_r
-    spawn_opts[:out] = out_w
-    spawn_opts[:err] = err_w
+    spawn_opts[:in]  = stdin_pipe.in
+    spawn_opts[:out] = stdout_pipe.out
+    spawn_opts[:err] = stderr_pipe.out
 
-    result = { pid:nil, stdout:nil, stderr:nil, status:nil }
-
-    out_reader = nil
-    err_reader = nil
+    stdout_reader_thr = nil
+    stderr_reader_thr = nil
     wait_thr = nil
 
     process = context.process
     threader = context.threader
+
+    result = {
+      status:nil, # of command
+      stdout:nil, # of command (multiplexed cyber-dojo.sh's stdout/stderr/status)
+      stderr:nil  # of command
+    }
+
     begin
       result[:timed_out] = false
       Timeout.timeout(opts[:timeout]) do
         result[:pid] = process.spawn(command, spawn_opts)
         wait_thr = process.detach(result[:pid])
-        in_r.close
-        out_w.close
-        err_w.close
-
-        out_reader = threader.thread { out_r.read }
-        err_reader = threader.thread { err_r.read }
-
-        in_w.write(opts[:stdin_data])
-        in_w.close
-
+        stdin_pipe.in.close
+        stdout_pipe.out.close
+        stderr_pipe.out.close
+        stdout_reader_thr = threader.thread { stdout_pipe.in.read }
+        stderr_reader_thr = threader.thread { stderr_pipe.in.read }
+        stdin_pipe.out.write(opts[:stdin_data])
+        stdin_pipe.out.close
         result[:status] = wait_thr.value
       end
     rescue Timeout::Error
@@ -66,15 +68,23 @@ module Capture3WithTimeout
       yield if block_given?
     ensure
       result[:status] = wait_thr.value if wait_thr
-      result[:stdout] = out_reader.value if out_reader
-      result[:stderr] = err_reader.value if err_reader
-      out_r.close unless out_r.closed?
-      err_r.close unless err_r.closed?
+      result[:stdout] = stdout_reader_thr.value if stdout_reader_thr
+      result[:stderr] = stderr_reader_thr.value if stderr_reader_thr
+      stdout_pipe.out.close unless stdout_pipe.out.closed?
+      stderr_pipe.out.close unless stderr_pipe.out.closed?
     end
 
     result.delete(:pid)
 
     result
   end
+
+  # - - - - - - - - - - - - - - - - - - - -
+
+  def in_out_pipe
+    In_Out_Pipe.new(*IO.pipe)
+  end
+
+  In_Out_Pipe = Struct.new(:in, :out)
 
 end
