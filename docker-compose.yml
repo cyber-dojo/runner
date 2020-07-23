@@ -11,13 +11,13 @@ services:
     depends_on: [ runner-server ]
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     container_name: test-runner-client
-    environment: [ CONTEXT=client, SHOW_TEST_IDS ]
+    environment: [ SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}" ]
     read_only: true
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./source/http_proxy:/app/code/http_proxy:ro      
+      - ./source/http_proxy:/app/code/http_proxy:ro
       - ./test:/test/:ro
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,7 +30,7 @@ services:
     depends_on: [ languages-start-points ]
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: test-runner-server
-    environment: [ CONTEXT=server, USE_PROMETHEUS=no, SHOW_TEST_IDS ]
+    environment: [ USE_PROMETHEUS=no, SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     restart: 'no'

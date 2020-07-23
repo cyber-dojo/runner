@@ -1,8 +1,5 @@
-test/server/reports/*
-test/server/reports/.*
+test/coverage/server/*
+test/coverage/server/.*
 
-test/client/reports/*
-test/client/reports/.*
-
-test/reports/*
-test/reports/.*
+test/coverage/client/*
+test/coverage/client/.*
