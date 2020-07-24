@@ -6,11 +6,11 @@ class ProcessAdapterStub
     @stubs = {}
   end
 
-  def method_missing(name, *_args)
+  def method_missing(name, *_args, &block)
     if block_given?
-      @stubs[name] = yield
+      @stubs[name] = block
     else
-      @stubs[name]
+      @stubs[name].call
     end
   end
 

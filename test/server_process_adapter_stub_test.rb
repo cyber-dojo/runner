@@ -16,4 +16,14 @@ class ServerProcessAdapterStubTest < TestBase
     assert_equal 42, stub.spawn
   end
 
+  # - - - - - - - - - - - - - - -
+
+  test 'Kb2',
+  %w( block is called on call and not on stub ) do
+    stub = ProcessAdapterStub.new
+    stub.spawn { raise RuntimeError.new('42') }
+    error = assert_raises(RuntimeError) { stub.spawn }
+    assert_equal '42', error.message
+  end
+
 end

@@ -38,8 +38,9 @@ module Capture3WithTimeout
 
     result = {
       status:nil, # of command
-      stdout:nil, # of command (multiplexed cyber-dojo.sh's stdout/stderr/status)
-      stderr:nil  # of command
+      stdout:'',  # of command (multiplexed cyber-dojo.sh's stdout/stderr/status)
+      stderr:'',  # of command
+      pid:nil
     }
 
     begin
@@ -58,11 +59,13 @@ module Capture3WithTimeout
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
-      process.kill(opts[:signal], pid)
-      if opts[:kill_after]
-        unless wait_thr.join(opts[:kill_after])
-          process.kill(:KILL, pid)
+      unless result[:pid]
+        pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
+        process.kill(opts[:signal], pid)
+        if opts[:kill_after]
+          unless wait_thr.join(opts[:kill_after])
+            process.kill(:KILL, pid)
+          end
         end
       end
       yield if block_given?
