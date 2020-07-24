@@ -210,6 +210,10 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 6. misc helpers
 
+  def on_server?
+    ENV['CONTEXT'] === 'server'
+  end
+
   def logged?(message)
     log.include?(message)
   end

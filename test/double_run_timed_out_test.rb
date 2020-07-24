@@ -24,7 +24,7 @@ class DoubleRunTimedOutTest < TestBase
     to = "    for (;;);\n    return 6 * 7;"
     run_cyber_dojo_sh({
       changed: { 'hiker.c' => hiker_c.sub(from, to) },
-        max_seconds: 3
+      max_seconds: 3
     })
 
     assert timed_out?, run_result
