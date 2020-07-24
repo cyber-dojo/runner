@@ -59,7 +59,7 @@ module Capture3WithTimeout
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      unless result[:pid]
+      unless result[:pid].nil?
         pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
         process.kill(opts[:signal], pid)
         if opts[:kill_after]

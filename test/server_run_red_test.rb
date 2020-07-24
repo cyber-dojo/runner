@@ -9,6 +9,22 @@ class ServerRunRedTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'g55', %w( timeout ) do
+    @context = Context.new(
+      logger:StdoutLoggerSpy.new,
+      process:process=ProcessAdapterStub.new
+    )
+    puller.add(image_name)
+    process.spawn { raise Timeout::Error }
+
+    run_cyber_dojo_sh
+
+    assert timed_out?, run_result
+  end
+
+  # - - - - - - - - - - - - - - - - -
+  
+=begin
   class ThreaderStub
     def initialize(stdout='', stderr='')
       @stdout = stdout
@@ -38,25 +54,6 @@ class ServerRunRedTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'g55', %w( timeout ) do
-    @context = Context.new(
-      logger:StdoutLoggerSpy.new,
-      process:process=ProcessAdapterStub.new,
-      threader:ThreaderStub.new
-    )
-    puller.add(image_name)
-    process.spawn { 42 }
-    process.detach { raise Timeout::Error }
-    process.kill {}
-
-    run_cyber_dojo_sh
-
-    assert timed_out?, run_result
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-=begin
   test 'g56', %w( red ) do
     @context = Context.new(
       logger:StdoutLoggerSpy.new,
