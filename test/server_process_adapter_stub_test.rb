@@ -9,21 +9,17 @@ class ServerProcessAdapterStubTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
-  test 'Kb1',
-  %w( use with a block to supply the stub, use without a block gets the stub ) do
+  test 'Kb1', %w( 
+  to stub, make a call without any args and with a block taking args,
+  and a subsequent call will ignore its args, and pass the args to the block ) do
     stub = ProcessAdapterStub.new
-    stub.spawn { 42 }
-    assert_equal 42, stub.spawn
-  end
-
-  # - - - - - - - - - - - - - - -
-
-  test 'Kb2',
-  %w( block is called on call and not on stub ) do
-    stub = ProcessAdapterStub.new
-    stub.spawn { raise RuntimeError.new('42') }
-    error = assert_raises(RuntimeError) { stub.spawn }
-    assert_equal '42', error.message
+    stub.spawn { |command,*args|
+      message = JSON.pretty_generate({command:command,args:args})
+      raise RuntimeError.new(message)
+    }
+    error = assert_raises(RuntimeError) { stub.spawn('x',1,2) }
+    expected = {'command'=>'x','args'=>[1,2]}
+    assert_equal expected, JSON.parse!(error.message)
   end
 
 end
