@@ -5,7 +5,7 @@ export COVERAGE_ROOT="${1}" # /tmp/coverage
 readonly TEST_LOG="${2}"    # test.run.log
 readonly TYPE="${3}"        # client|server
 shift; shift; shift
-readonly TEST_FILES=(${MY_DIR}/${TYPE}_*_test.rb ${MY_DIR}/double_*_test.rb)
+readonly TEST_FILES=(${MY_DIR}/${TYPE}/*_test.rb ${MY_DIR}/dual/*_test.rb)
 readonly TEST_ARGS=(${@})
 
 readonly SCRIPT="
