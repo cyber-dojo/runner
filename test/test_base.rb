@@ -44,7 +44,7 @@ class TestBase < Id58TestBase
 
   def self.multi_os_test(id_suffix, *lines, &block)
     alpine_test(id_suffix, *lines, &block)
-    #debian_test(id_suffix, *lines, &block)
+    debian_test(id_suffix, *lines, &block)
     ubuntu_test(id_suffix, *lines, &block)
   end
 
