@@ -11,7 +11,7 @@ module Dual
     # - - - - - - - - - - - - - - - - - - - - -
 
     c_assert_test 'g55', %w( timeout ) do
-      if ENV['CONTEXT'] === 'server'
+      if on_server?
         @context = Context.new(
           logger:StdoutLoggerSpy.new,
           process:process=ProcessAdapterStub.new
