@@ -131,9 +131,8 @@ class Runner
   def result(stdout, stderr, status, outcome, log, created, deleted, changed)
     {
          'stdout' => stdout,   'stderr' => stderr,   'status' => status,
-        'outcome' => outcome, 'created' => created, 'deleted' => deleted,
-        'changed' => changed,
-            'log' => log
+        'created' => created, 'deleted' => deleted, 'changed' => changed,
+        'outcome' => outcome, 'log' => log
     }
   end
 
