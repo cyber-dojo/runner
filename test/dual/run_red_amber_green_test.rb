@@ -50,48 +50,17 @@ module Dual
         @context = Context.new(
           logger:StdoutLoggerSpy.new,
           process:process=ProcessAdapterStub.new,
-          threader:StdoutStderrThreaderStub.new(stdout_tgz, stderr)
+          threader:ThreaderStub.new(stdout_tgz, stderr)
         )
         puller.add(image_name)
         tp = ProcessAdapter.new
         process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
-        process.detach { |pid| tp.detach(pid); ThreadStub.new(:status,0) }
+        process.detach { |pid| tp.detach(pid); ThreadStub.new(0) }
         process.kill { |signal,pid| tp.kill(signal, pid) }
       end
     end
 
     # - - - - - - - - - - - - - - - - - - - - -
-
-    class StdoutStderrThreaderStub
-      def initialize(stdout_tgz, stderr)
-        @stdout_tgz = stdout_tgz
-        @stderr = stderr
-        @n = 0
-      end
-      def thread
-        @n += 1
-        if @n === 1
-          return ThreadStub.new(:stdout, @stdout_tgz)
-        end
-        if @n === 2
-          return ThreadStub.new(:stderr, @stderr)
-        end
-      end
-    end
-
-    # - - - - - - - - - - - - - - - - -
-
-    class ThreadStub
-      def initialize(name, value)
-        @name = name
-        @value = value
-      end
-      def value
-        @value
-      end
-    end
-
-    # - - - - - - - - - - - - - - - - -
 
     def run_cyber_dojo_sh_with_edit(filename, from, to)
       file = starting_files[filename]
