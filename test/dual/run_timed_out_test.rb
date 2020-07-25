@@ -14,7 +14,7 @@ module Dual
       if on_server?
         @context = Context.new(
           logger:StdoutLoggerSpy.new,
-          process:process=ProcessAdapterStub.new
+          process:process=ProcessSpawnerStub.new
         )
         puller.add(image_name)
         process.spawn { raise Timeout::Error }

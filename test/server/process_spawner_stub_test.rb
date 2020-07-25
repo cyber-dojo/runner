@@ -2,7 +2,7 @@
 require_relative '../test_base'
 
 module Server
-  class ProcessAdapterStubTest < TestBase
+  class ProcessSpawnerStubTest < TestBase
 
     def self.id58_prefix
       'A3r'
@@ -13,7 +13,7 @@ module Server
     test 'Kb1', %w(
     to stub, make a call without any args and with a block taking args,
     and a subsequent call will ignore its args, and pass the args to the block ) do
-      stub = ProcessAdapterStub.new
+      stub = ProcessSpawnerStub.new
       stub.spawn { |command,*args|
         message = JSON.pretty_generate({command:command,args:args})
         raise RuntimeError.new(message)

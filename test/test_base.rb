@@ -1,7 +1,7 @@
 require_relative 'id58_test_base'
 require_relative 'data/display_names'
 require_relative 'doubles/stdout_logger_spy'
-require_relative 'doubles/process_adapter_stub'
+require_relative 'doubles/process_spawner_stub'
 require_relative 'doubles/rack_request_stub'
 require_relative 'doubles/bash_sheller_stub'
 require_relative 'doubles/traffic_light_stub'

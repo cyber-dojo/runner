@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'externals/stdout_logger'
-require_relative 'externals/process_adapter'
+require_relative 'externals/process_spawner'
 require_relative 'externals/bash_sheller'
 require_relative 'externals/asynchronous_threader'
 require_relative 'node'
@@ -17,7 +17,7 @@ class Context
     @runner = options[:runner] || Runner.new(self)
 
     @logger   = options[:logger]   || StdoutLogger.new
-    @process  = options[:process]  || ProcessAdapter.new
+    @process  = options[:process]  || ProcessSpawner.new
     @sheller  = options[:sheller]  || BashSheller.new(self)
     @threader = options[:threader] || AsynchronousThreader.new
   end

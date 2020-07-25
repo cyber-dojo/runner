@@ -15,11 +15,11 @@ module Dual
       stderr = ''
       @context = Context.new(
         logger:StdoutLoggerSpy.new,
-        process:process=ProcessAdapterStub.new,
+        process:process=ProcessSpawnerStub.new,
         threader:ThreaderStub.new(stdout_tgz, stderr)
       )
       puller.add(image_name)
-      tp = ProcessAdapter.new
+      tp = ProcessSpawner.new
       command = nil
       process.spawn { |cmd,opts| command = cmd; tp.spawn('sleep 10', opts) }
       process.detach { |pid| tp.detach(pid); ThreadStub.new(0) }

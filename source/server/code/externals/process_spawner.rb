@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-class ProcessAdapter
+class ProcessSpawner
+
+  def spawn(command, options)
+    Process.spawn(command, options)
+  end
 
   def detach(pid)
     Process.detach(pid)
@@ -8,10 +12,6 @@ class ProcessAdapter
 
   def kill(signal, pid)
     Process.kill(signal, pid)
-  end
-
-  def spawn(command, options)
-    Process.spawn(command, options)
   end
 
 end
