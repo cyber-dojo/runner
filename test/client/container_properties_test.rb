@@ -14,6 +14,7 @@ module Client
     requires bash, won't run in sh ) do
       any_image_without_bash = 'alpine:latest' # must have been pulled onto node before server started
       run_cyber_dojo_sh(image_name:any_image_without_bash)
+      refute timed_out?, pretty_result(:timed_out)
       assert stdout.empty?, pretty_result(:stdout)
       assert stderr.empty?, pretty_result(:stderr)
       assert faulty?, pretty_result(:faulty)
@@ -49,8 +50,9 @@ module Client
         "cat #{memory_dir}/memory.kmem.limit_in_bytes > #{sandbox_dir}/memory.kmem.limit_in_bytes"
       ].join(' && ')
 
-      assert_sss(cyber_dojo_sh)
+      assert_cyber_dojo_sh(cyber_dojo_sh)
 
+      refute timed_out?, pretty_result(:timed_out)
       # [1] must be first so as not to see newly created files.
       # [2] On CircleCI, currently proc.1 is...  '/dev/init' + 0.chr + '--'
       # Yes, there is an embedded nul-character.

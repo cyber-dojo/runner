@@ -12,7 +12,8 @@ module Client
 
     multi_os_test '8A1',
     'start-files image_name<->os correspondence' do
-      etc_issue = assert_cyber_dojo_sh('cat /etc/issue')
+      assert_cyber_dojo_sh('cat /etc/issue')
+      etc_issue = stdout
       diagnostic = [
         "image_name=:#{image_name}:",
         "did not find #{os} in etc/issue",
