@@ -2,24 +2,24 @@
 require_relative '../test_base'
 
 module Dual
-  class RunFaultyGzipErrorTest < TestBase
+  class RunFaultyStatusNonZeroTest < TestBase
 
     def self.id58_prefix
-      'c7C'
+      'c7D'
     end
 
     # - - - - - - - - - - - - - - - - -
 
-    test 'd55', %w( outcome is faulty when status is non zero ) do
-      stub_non_zero_status
+    test 'd54', %w( outcome is faulty when gzip error ) do
+      stub_gzip_error
       run_cyber_dojo_sh
-      assert faulty?, run_result
+      assert amber?, run_result # FIX
     end
 
     private
 
-    def stub_non_zero_status
-      stdout_tgz = TGZ.of({'stderr' => 'any'})
+    def stub_gzip_error
+      stdout_tgz = 'not-a-tgz'
       stderr = ''
       @context = Context.new(
         logger:StdoutLoggerSpy.new,
@@ -29,7 +29,7 @@ module Dual
       puller.add(image_name)
       tp = ProcessAdapter.new
       process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
-      process.detach { |pid| tp.detach(pid); ThreadStub.new(status=42) }
+      process.detach { |pid| tp.detach(pid); ThreadStub.new(0) }
       process.kill { |signal,pid| tp.kill(signal, pid) }
     end
 
