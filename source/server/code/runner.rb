@@ -21,41 +21,22 @@ class Runner
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
     if puller.pull_image(id:id, image_name:image_name) != :pulled
-      stdout,stderr,status, created,deleted,changed = dummy_result(141)
-      outcome,log_info = 'pulling', {}
-    else
-      max_seconds = manifest['max_seconds']
-      files_in = Sandbox.in(files)
-      tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-
-      result = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
-
-      if result[:timed_out]
-        stdout,stderr,status, created,deleted,changed = dummy_result(142)
-        outcome,log_info = 'timed_out', result
-        log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(result))
-      elsif result[:status] != 0
-        stdout,stderr,status, created,deleted,changed = dummy_result(143)
-        outcome,log_info = 'faulty',result
-        log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(result))
-      else
-        tgz_out = result[:stdout]
-        stdout,stderr,status, created,deleted,changed = *truncated_untgz(id, image_name, files_in, tgz_out)
-        sss = [ stdout['content'], stderr['content'], status['content'] ]
-        outcome,log_info = *@traffic_light.colour(image_name, *sss)
-      end
+      return empty_result(141, 'pulling', {})
     end
 
-    {
-         'stdout' => stdout,
-         'stderr' => stderr,
-         'status' => status['content'],
-        'outcome' => outcome,
-        'created' => Sandbox.out(created),
-        'deleted' => Sandbox.out(deleted).keys.sort,
-        'changed' => Sandbox.out(changed),
-            'log' => log_info
-    }
+    max_seconds = manifest['max_seconds']
+    files_in = Sandbox.in(files)
+    tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
+    run = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
+    if run[:timed_out]
+      log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(run))
+      empty_result(142, 'timed_out', run)
+    elsif run[:status] != 0
+      log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(run))
+      empty_result(143, 'faulty', run)
+    else
+      colour_result(id, image_name, files_in, run[:stdout])
+    end
   end
 
   private
@@ -74,16 +55,6 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def dummy_result(n)
-    stdout = truncated('')
-    stderr = truncated('')
-    status = truncated(n.to_s)
-    created,deleted,changed = {},{},{}
-    [ stdout,stderr,status, created,deleted,changed ]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
@@ -95,8 +66,7 @@ class Runner
       :timeout => max_seconds
     }
     capture3_with_timeout(@context, command, spawn_opts) do
-      # The [docker run] command timed-out.
-      docker_stop_container(id, image_name, container_name)
+      docker_stop_container(id, image_name, container_name) # [docker run] timed out
     end
   end
 
@@ -119,21 +89,55 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def truncated_untgz(id, image_name, files_in, tgz_out)
-    begin
-      files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
-        memo[filename] = truncated(content)
-      end
-      stdout = files_out.delete('stdout') || truncated('')
-      stderr = files_out.delete('stderr') || truncated('')
-      status = files_out.delete('status') || truncated('142')
-      created,deleted,changed = files_delta(files_in, files_out)
-    rescue Zlib::GzipFile::Error
-      stdout,stderr,status, created,deleted,changed = dummy_result(144)
-      log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
+  def colour_result(id, image_name, files_in, tgz_out)
+    files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
+      memo[filename] = truncated(content)
     end
-    [ stdout,stderr,status, created,deleted,changed ]
+    stdout = files_out.delete('stdout') || truncated('')
+    stderr = files_out.delete('stderr') || truncated('')
+    status = files_out.delete('status') || truncated('142')
+    sss = [ stdout['content'], stderr['content'], status['content'] ]
+    outcome,log_info = *@traffic_light.colour(image_name, *sss)
+    created,deleted,changed = files_delta(files_in, files_out)
+    result(
+      stdout, stderr, status['content'],
+      outcome, log_info,
+      Sandbox.out(created),
+      Sandbox.out(deleted).keys.sort,
+      Sandbox.out(changed)
+    )
+  rescue Zlib::GzipFile::Error
+    log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
+    empty_result(144, 'faulty', {})
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def empty_result(status, outcome, log_info)
+    result(
+      truncated(''),
+      truncated(''),
+      status.to_s,
+      outcome,
+      log_info,
+      Sandbox.out({}),
+      Sandbox.out({}).keys.sort,
+      Sandbox.out({})
+    )
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def result(stdout, stderr, status, outcome, log, created, deleted, changed)
+    {
+         'stdout' => stdout,   'stderr' => stderr,   'status' => status,
+        'outcome' => outcome, 'created' => created, 'deleted' => deleted,
+        'changed' => changed,
+            'log' => log
+    }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
 
   def truncated(raw_content)
     content = Utf8.clean(raw_content)

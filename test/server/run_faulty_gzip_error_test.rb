@@ -13,7 +13,7 @@ module Dual
     test 'd54', %w( outcome is faulty when gzip error ) do
       stub_gzip_error
       run_cyber_dojo_sh
-      assert amber?, run_result # FIX
+      assert faulty?, run_result
     end
 
     private
