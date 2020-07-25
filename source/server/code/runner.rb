@@ -21,7 +21,7 @@ class Runner
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
     if puller.pull_image(id:id, image_name:image_name) != :pulled
-      return empty_result(141, 'pulling', {})
+      return empty_result(:pulling, 'pulling', {})
     end
 
     max_seconds = manifest['max_seconds']
@@ -30,10 +30,10 @@ class Runner
     run = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     if run[:timed_out]
       log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(run))
-      empty_result(142, 'timed_out', run)
+      empty_result(:timed_out, 'timed_out', run)
     elsif run[:status] != 0
       log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(run))
-      empty_result(143, 'faulty', run)
+      empty_result(:faulty_light, 'faulty', run)
     else
       colour_result(id, image_name, files_in, run[:stdout])
     end
@@ -51,7 +51,15 @@ class Runner
 
   UID = 41966             # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
   GID = 51966             # [X] sandbox group - runs /sandbox/cyber-dojo.sh
+
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
+
+  STATUS = {
+         pulling: 141,
+       timed_out: 142,
+    faulty_light: 143,
+      gzip_error: 144
+  }
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -95,7 +103,7 @@ class Runner
     end
     stdout = files_out.delete('stdout') || truncated('')
     stderr = files_out.delete('stderr') || truncated('')
-    status = files_out.delete('status') || truncated('142')
+    status = files_out.delete('status') || truncated('145')
     sss = [ stdout['content'], stderr['content'], status['content'] ]
     outcome,log_info = *@traffic_light.colour(image_name, *sss)
     created,deleted,changed = files_delta(files_in, files_out)
@@ -108,16 +116,16 @@ class Runner
     )
   rescue Zlib::GzipFile::Error
     log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
-    empty_result(144, 'faulty', {})
+    empty_result(:gzip_error, 'faulty', {})
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def empty_result(status, outcome, log_info)
+  def empty_result(code, outcome, log_info)
     result(
       truncated(''),
       truncated(''),
-      status.to_s,
+      STATUS[code].to_s,
       outcome,
       log_info,
       Sandbox.out({}),
