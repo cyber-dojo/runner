@@ -2,7 +2,7 @@
 require_relative '../test_base'
 
 module Server
-  class PullingTest < TestBase
+  class RunPullingTest < TestBase
 
     def self.id58_prefix
       'C5a'
@@ -11,7 +11,7 @@ module Server
     def id58_setup
       @context = Context.new(
         logger:StdoutLoggerSpy.new,
-        threader:SynchronousThreader.new,
+        threader:ThreaderSynchronous.new,
         sheller:BashShellerStub.new
       )
     end
@@ -36,7 +36,7 @@ module Server
       run_cyber_dojo_sh
       assert pulling?, pretty_result(:outcome)
       assert @context.threader.called
-      assert_equal [image_name], puller.image_names # because of SynchronousThreader
+      assert_equal [image_name], puller.image_names # because of ThreaderSynchronous
     end
 
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SynchronousThreader
+class ThreaderSynchronous
 
   attr_reader :called
 

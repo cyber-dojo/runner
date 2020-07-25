@@ -11,7 +11,7 @@ module Server
     def id58_setup
       @context = Context.new(
         logger:StdoutLoggerSpy.new,
-        threader:SynchronousThreader.new,
+        threader:ThreaderSynchronous.new,
         sheller:BashShellerStub.new
       )
     end
@@ -53,7 +53,7 @@ module Server
       actual = puller.pull_image(id:id, image_name:gcc_assert)
       assert_equal expected, actual
       assert @context.threader.called
-      assert_equal [gcc_assert], puller.image_names # because of SynchronousThreader
+      assert_equal [gcc_assert], puller.image_names # because of ThreaderSynchronous
     end
 
     private

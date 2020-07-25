@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AsynchronousThreader
+class ThreaderAsynchronous
 
   def thread(&block)
     Thread.new(&block)
