@@ -17,7 +17,10 @@ module Dual
           process:process=ProcessSpawnerStub.new
         )
         puller.add(image_name)
-        process.spawn { raise Timeout::Error }
+        tp = ProcessSpawner.new
+        process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
+        process.detach { |pid| tp.detach(pid); ThreadTimedOutStub.new }
+        process.kill { |signal,pid| tp.kill(signal, pid) }
       end
 
       hiker_c = starting_files['hiker.c']
@@ -29,6 +32,26 @@ module Dual
       })
 
       assert timed_out?, run_result
+    end
+
+    private
+
+    class ThreadTimedOutStub
+      def initialize
+        @n = 0
+      end
+      def value
+        @n += 1
+        if @n === 1
+          raise Timeout::Error
+        end
+        if @n === 2
+          0
+        end
+      end
+      def join(_seconds)
+        nil
+      end
     end
 
   end

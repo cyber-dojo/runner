@@ -33,7 +33,7 @@ module Capture3WithTimeout
     stderr_reader_thr = nil
     wait_thr = nil
 
-    process = context.process
+    process  = context.process
     threader = context.threader
 
     result = {

@@ -89,9 +89,9 @@ class Runner
     options = { timeout:4 }
     result = capture3_with_timeout(@context, command, options)
     unless result[:status] === 0
-      # :nocov:
+      # :nocov_server:
       log(id:id, image_name:image_name, command:command)
-      # :nocov:
+      # :nocov_server:
     end
   end
 
@@ -123,14 +123,9 @@ class Runner
 
   def empty_result(code, outcome, log_info)
     result(
-      truncated(''),
-      truncated(''),
-      STATUS[code].to_s,
-      outcome,
-      log_info,
-      Sandbox.out({}),
-      Sandbox.out({}).keys.sort,
-      Sandbox.out({})
+      truncated(''), truncated(''), STATUS[code].to_s,
+      outcome, log_info,
+      {}, [], {}
     )
   end
 
@@ -138,9 +133,9 @@ class Runner
 
   def result(stdout, stderr, status, outcome, log, created, deleted, changed)
     {
-         'stdout' => stdout,   'stderr' => stderr,   'status' => status,
+         'stdout' => stdout, 'stderr' => stderr,   'status' => status,
+        'outcome' => outcome, 'log' => log,
         'created' => created, 'deleted' => deleted, 'changed' => changed,
-        'outcome' => outcome, 'log' => log
     }
   end
 
