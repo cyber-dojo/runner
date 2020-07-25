@@ -37,7 +37,7 @@ module Dual
 
     CSHARP_NUNIT_STDERR = {
         red:'Test Count: 3, Passed: 2, Failed: 1, Warnings: 0, Inconclusive: 0, Skipped: 0',
-      amber:'sdfgsdfgsdfgsdfg',
+      amber:'Hiker.cs(5,20): error CS1525: Unexpected symbol `s',
       green:'Test Count: 3, Passed: 3, Failed: 0, Warnings: 0, Inconclusive: 0, Skipped: 0'
     }
 
