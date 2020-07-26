@@ -74,33 +74,6 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    # :nocov_client:
-    class PiperStub
-      def initialize(stdout_tgz)
-        @stdout_tgz = stdout_tgz
-      end
-      def io
-        Struct.new(:in, :out).new(
-          Class.new do
-            def initialize(stdout_tgz); @stdout_tgz = stdout_tgz; end
-            def binmode; end
-            def read; @stdout_tgz; end
-            def close; end
-          end.new(@stdout_tgz),
-          Class.new do
-            def sync=(_); end
-            def binmode; end
-            def write(_); end
-            def closed?; true; end
-            def close; end
-          end.new
-        )
-      end
-    end
-    # :nocov_client:
-
-    # - - - - - - - - - - - - - - - - - - - - -
-
     def run_cyber_dojo_sh_with_edit(filename, from, to)
       file = starting_files[filename]
       run_cyber_dojo_sh({

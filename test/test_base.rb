@@ -1,5 +1,6 @@
 require_relative 'data/display_names'
 require_relative 'doubles/bash_sheller_stub'
+require_relative 'doubles/piper_stub'
 require_relative 'doubles/process_spawner_stub'
 require_relative 'doubles/rack_request_stub'
 require_relative 'doubles/stdout_logger_spy'
