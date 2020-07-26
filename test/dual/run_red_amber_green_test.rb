@@ -54,10 +54,10 @@ module Dual
         # :nocov_client:
         stdout_tgz = TGZ.of({'stderr' => mx_stderr})
         set_context(
-          sheller:sheller=BashShellerStub.new,
           logger:StdoutLoggerSpy.new,
           piper:piper=PiperStub.new(stdout_tgz),
-          process:process=ProcessSpawnerStub.new
+          process:process=ProcessSpawnerStub.new,
+          sheller:sheller=BashShellerStub.new
         )
         puller.add(image_name)
         process.spawn {}

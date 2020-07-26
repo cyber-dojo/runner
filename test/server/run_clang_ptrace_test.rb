@@ -15,15 +15,14 @@ module Dual
       stderr = ''
       set_context(
         logger:StdoutLoggerSpy.new,
-        process:process=ProcessSpawnerStub.new,
-        threader:ThreaderStub.new(stdout_tgz, stderr)
+        piper:piper=PiperStub.new(stdout_tgz),
+        process:process=ProcessSpawnerStub.new
       )
       puller.add(image_name)
-      tp = ProcessSpawner.new
       command = nil
-      process.spawn { |cmd,opts| command = cmd; tp.spawn('sleep 10', opts) }
-      process.detach { |pid| tp.detach(pid); ThreadStub.new(0) }
-      process.kill { |signal,pid| tp.kill(signal, pid) }
+      process.spawn { |cmd| command = cmd }
+      process.detach { ThreadStub.new(42) }
+      process.kill {}
 
       run_cyber_dojo_sh
 
