@@ -1,5 +1,2 @@
-test/coverage/server/*
-test/coverage/server/.*
-
-test/coverage/client/*
-test/coverage/client/.*
+test/coverage/*
+test/coverage/.*
