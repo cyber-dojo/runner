@@ -2,10 +2,14 @@
 require_relative '../test_base'
 
 module Dual
-  class DoubleProberTest < TestBase
+  class ProberTest < TestBase
 
     def self.id58_prefix
       '6de'
+    end
+
+    def id58_setup
+      set_context
     end
 
     # - - - - - - - - - - - - - - - - -

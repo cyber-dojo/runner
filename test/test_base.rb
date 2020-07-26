@@ -16,7 +16,6 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    set_context(logger:StdoutLoggerSpy.new)
   end
 
   def set_context(options = {})
@@ -182,6 +181,10 @@ class TestBase < Id58TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 6. misc helpers
+
+  def on_client?
+    ENV['CONTEXT'] === 'client'
+  end
 
   def on_server?
     ENV['CONTEXT'] === 'server'

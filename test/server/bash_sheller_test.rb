@@ -8,6 +8,12 @@ module Server
       'C89'
     end
 
+    def id58_setup
+      set_context(
+        logger:StdoutLoggerSpy.new
+      )
+    end
+
     # - - - - - - - - - - - - - - - - -
 
     test '243',

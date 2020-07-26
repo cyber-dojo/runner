@@ -9,6 +9,10 @@ module Dual
       'c7B'
     end
 
+    def id58_setup
+      set_context
+    end
+
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd56', %w( red ) do

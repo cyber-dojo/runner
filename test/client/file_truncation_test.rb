@@ -8,6 +8,10 @@ module Client
       'E4A'
     end
 
+    def id58_setup
+      set_context
+    end
+
     # - - - - - - - - - - - - - - - - -
 
     multi_os_test '52A',

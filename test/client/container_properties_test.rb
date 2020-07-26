@@ -8,6 +8,10 @@ module Client
       '3A8'
     end
 
+    def id58_setup
+      set_context
+    end
+
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     test 'D91', %w(

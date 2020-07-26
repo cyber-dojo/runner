@@ -11,7 +11,10 @@ module Server
     end
 
     def id58_setup
-      stub_bash_sheller
+      set_context(
+        logger:StdoutLoggerSpy.new,
+        sheller:BashShellerStub.new
+      )
     end
 
     # - - - - - - - - - - - - - - - - -
@@ -286,10 +289,6 @@ module Server
     end
 
     RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
-
-    def stub_bash_sheller
-      context.instance_exec { @sheller = BashShellerStub.new }
-    end
 
     def bash_stub_capture(command, &block)
       stdout,stderr,status = *block.call

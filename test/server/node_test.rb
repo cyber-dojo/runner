@@ -8,10 +8,15 @@ module Server
       '3q1'
     end
 
+    def id58_setup
+      set_context(
+        sheller:BashShellerStub.new
+      )
+    end
+
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps3', %w( image_names are retrieved from the node via docker image ls call ) do
-      stub_sheller_capture
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"),'',0] }
       actual = node.image_names
       assert_equal expected, actual
@@ -20,7 +25,6 @@ module Server
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps4', %w( <none>:<none> image_names are filtered out ) do
-      stub_sheller_capture
       tainted = (expected + ['<none>:<none>']*3).shuffle
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [tainted.join("\n"),'',0] }
       actual = node.image_names
@@ -30,7 +34,6 @@ module Server
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps5', %w( image_names populate puller in config.ru ) do
-      stub_sheller_capture
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"),'',0] }
       node.image_names.each do |image_name|
         puller.add(image_name)
@@ -41,17 +44,12 @@ module Server
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps6', %w( when docker image ls call fails exception is raised ) do
-      stub_sheller_capture
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { ['','stderr-info',1] }
       error = assert_raises { node.image_names }
       assert_equal 'stderr-info', error.message
     end
 
     private
-
-    def stub_sheller_capture
-      context.instance_exec { @sheller = BashShellerStub.new }
-    end
 
     DOCKER_IMAGE_LS_COMMAND = "docker image ls --format '{{.Repository}}:{{.Tag}}'"
 

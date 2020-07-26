@@ -11,6 +11,9 @@ module Dual
     # - - - - - - - - - - - - - - - - - - - - -
 
     c_assert_test 'g55', %w( timeout ) do
+      if on_client?
+        set_context
+      end
       if on_server?
         set_context(
           logger:StdoutLoggerSpy.new,

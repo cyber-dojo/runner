@@ -8,6 +8,10 @@ module Client
       '159'
     end
 
+    def id58_setup
+      set_context
+    end
+
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     multi_os_test '8A6', %w(
