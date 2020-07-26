@@ -18,15 +18,16 @@ module Dual
       end
       if on_server?
         # :nocov_client:
+        stdout_tgz = TGZ.of({'stderr' => 'any'})
         set_context(
-          logger:StdoutLoggerSpy.new,
+           logger:StdoutLoggerSpy.new,
+            piper:piper=PiperStub.new(stdout_tgz),
           process:process=ProcessSpawnerStub.new
         )
         puller.add(image_name)
-        tp = ProcessSpawner.new
-        process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
-        process.detach { |pid| tp.detach(pid); ThreadTimedOutStub.new }
-        process.kill { |signal,pid| tp.kill(signal, pid) }
+        process.spawn { 42 }
+        process.detach { ThreadTimedOutStub.new }
+        process.kill {}
         # :nocov_client:
       end
 
@@ -38,7 +39,7 @@ module Dual
         max_seconds: 3
       })
 
-      assert timed_out?, run_result
+      assert timed_out?, run_result      
     end
 
     private
@@ -49,19 +50,22 @@ module Dual
         @n = 0
       end
       def value
+        # capture3_with_timeout calls thread.value (to get status) twice
         @n += 1
         if @n === 1
+          # 1st call is in last statement of Timeout block
           raise Timeout::Error
         end
         if @n === 2
-          0
+          # 2nd call is in first statement in ensure block
+          137
         end
       end
       def join(_seconds)
         nil
       end
     end
-    # :nocov_client:    
+    # :nocov_client:
 
   end
 end

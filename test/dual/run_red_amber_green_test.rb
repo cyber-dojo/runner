@@ -54,8 +54,8 @@ module Dual
         # :nocov_client:
         stdout_tgz = TGZ.of({'stderr' => mx_stderr})
         set_context(
-          logger:StdoutLoggerSpy.new,
-          piper:piper=PiperStub.new(stdout_tgz),
+           logger:StdoutLoggerSpy.new,
+            piper:piper=PiperStub.new(stdout_tgz),
           process:process=ProcessSpawnerStub.new,
           sheller:sheller=BashShellerStub.new
         )

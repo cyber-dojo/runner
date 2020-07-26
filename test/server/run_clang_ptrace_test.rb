@@ -12,7 +12,6 @@ module Dual
 
     clang_assert_test 'k8W', %w( clang image adds ptrace capability ) do
       stdout_tgz = TGZ.of({'stderr' => 'any'})
-      stderr = ''
       set_context(
         logger:StdoutLoggerSpy.new,
         piper:piper=PiperStub.new(stdout_tgz),
