@@ -17,7 +17,8 @@ module Server
     test '82d', %w(
     allow '' instead of {} to allow kubernetes
     liveness/readyness http probes ) do
-      rack_call(body:'', path_info:'ready')
+      env = { body:'', path_info:'ready' }
+      rack_call(env)
       ready = assert_200('ready?')
       assert ready.is_a?(TrueClass)
       assert_nothing_logged
@@ -26,7 +27,8 @@ module Server
     # - - - - - - - - - - - - - - - - -
 
     test '15D', 'alive' do
-      rack_call({ body:{}.to_json, path_info:'alive' })
+      env = { body:{}.to_json, path_info:'alive' }
+      rack_call(env)
       alive = assert_200('alive?')
       assert alive.is_a?(TrueClass)
       assert_nothing_logged
@@ -35,7 +37,8 @@ module Server
     # - - - - - - - - - - - - - - - - -
 
     test 'A9E', 'ready' do
-      rack_call({ body:{}.to_json, path_info:'ready' })
+      env = { body:{}.to_json, path_info:'ready' }
+      rack_call(env)
       ready = assert_200('ready?')
       assert ready.is_a?(TrueClass)
       assert_nothing_logged
@@ -44,7 +47,8 @@ module Server
     # - - - - - - - - - - - - - - - - -
 
     test 'AB0', 'sha' do
-      rack_call({ body:{}.to_json, path_info:'sha' })
+      env = { body:{}.to_json, path_info:'sha' }
+      rack_call(env)
       sha = assert_200('sha')
       assert_sha(sha)
       assert_nothing_logged
@@ -67,7 +71,8 @@ module Server
     c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
       set_context(runner:dummy=RunnerDummy.new)
       args = run_cyber_dojo_sh_args
-      rack_call(path_info:'run_cyber_dojo_sh', body:args.to_json)
+      env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
+      rack_call(env)
       assert_200('run_cyber_dojo_sh')
       assert dummy.called?
     end
@@ -89,7 +94,8 @@ module Server
     test 'A9F', 'pull_image' do
       set_context(puller:dummy=PullerDummy.new)
       args = { id:id58, image_name:image_name }
-      rack_call(path_info:'pull_image', body:args.to_json)
+      env = { path_info:'pull_image', body:args.to_json }
+      rack_call(env)
       assert_200('pull_image')
       assert dummy.called?
     end
