@@ -73,5 +73,11 @@ module Server
       assert_equal({}, changed)
     end
 
+    private
+    
+    def intact(content)
+      { 'content' => content, 'truncated' => false }
+    end
+
   end
 end

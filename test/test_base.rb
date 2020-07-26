@@ -72,7 +72,7 @@ class TestBase < Id58TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 2. call helpers
+  # 2. call helper
 
   def run_cyber_dojo_sh(options = {})
     unchanged_files = starting_files
@@ -164,13 +164,21 @@ class TestBase < Id58TestBase
   attr_reader :run_result
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 5. custom assert
+  # 5. custom asserts
 
   def assert_cyber_dojo_sh(script)
     run_cyber_dojo_sh({
       changed:{ 'cyber-dojo.sh' => script }
     })
     refute timed_out?, pretty_result(:timed_out)
+  end
+
+  def assert_sha(sha)
+    assert sha.is_a?(String), :class
+    assert_equal 40, sha.size, :size
+    sha.each_char do |ch|
+      assert is_lo_hex?(ch), ch
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -200,10 +208,6 @@ class TestBase < Id58TestBase
     'sandbox'
   end
 
-  def intact(content)
-    { 'content' => content, 'truncated' => false }
-  end
-
   def stat_cmd
     # Works on Alpine, Debain, Ubuntu
     'stat -c "%n %A %u %G %s" *'
@@ -212,14 +216,6 @@ class TestBase < Id58TestBase
     # filename permissions uid    group      size
     # 0        1           2      3          4
     # %n       %A          %u     %G         %s
-  end
-
-  def assert_sha(sha)
-    assert sha.is_a?(String), :class
-    assert_equal 40, sha.size, :size
-    sha.each_char do |ch|
-      assert is_lo_hex?(ch), ch
-    end
   end
 
   def is_lo_hex?(ch)
