@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'ostruct'
 require 'timeout'
 
 module Capture3WithTimeout
@@ -14,9 +13,10 @@ module Capture3WithTimeout
       kill_after: spawn_opts.delete(:kill_after),
     }
 
-    stdin_pipe  = in_out_pipe
-    stdout_pipe = in_out_pipe
-    stderr_pipe = in_out_pipe
+    piper = context.piper
+    stdin_pipe  = piper.io
+    stdout_pipe = piper.io
+    stderr_pipe = piper.io
     stdin_pipe.out.sync = true
 
     if opts[:binmode]
@@ -81,13 +81,5 @@ module Capture3WithTimeout
 
     result
   end
-
-  # - - - - - - - - - - - - - - - - - - - -
-
-  def in_out_pipe
-    In_Out_Pipe.new(*IO.pipe)
-  end
-
-  In_Out_Pipe = Struct.new(:in, :out)
 
 end

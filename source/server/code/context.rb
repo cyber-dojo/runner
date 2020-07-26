@@ -1,7 +1,8 @@
 # frozen_string_literal: true
-require_relative 'externals/stdout_logger'
-require_relative 'externals/process_spawner'
 require_relative 'externals/bash_sheller'
+require_relative 'externals/piper'
+require_relative 'externals/process_spawner'
+require_relative 'externals/stdout_logger'
 require_relative 'externals/threader_asynchronous'
 require_relative 'node'
 require_relative 'prober'
@@ -20,9 +21,10 @@ class Context
     @process  = options[:process]  || ProcessSpawner.new
     @sheller  = options[:sheller]  || BashSheller.new(self)
     @threader = options[:threader] || ThreaderAsynchronous.new
+    @piper    = options[:piper]     || Piper.new
   end
 
   attr_reader :node, :prober, :puller, :runner
-  attr_reader :logger, :process, :sheller, :threader
+  attr_reader :logger, :process, :sheller, :threader, :piper
 
 end
