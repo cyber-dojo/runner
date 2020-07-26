@@ -51,6 +51,8 @@ run_tests()
   echo "Running ${type} tests"
   echo '=================================='
 
+  rm -f "${coverage_dir}/${test_run_log}"
+
   set +e
   docker exec \
     --env COVERAGE_CODE_TAB_NAME=${coverage_code_tab_name} \
