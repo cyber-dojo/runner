@@ -12,7 +12,7 @@ module Dual
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd56', %w( red ) do
-      stub(CSHARP_NUNIT_STDERR[:red])
+      stub(:red)
       run_cyber_dojo_sh
       assert red?, run_result
     end
@@ -20,7 +20,7 @@ module Dual
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd57', %w( amber ) do
-      stub(CSHARP_NUNIT_STDERR[:amber])
+      stub(:amber)
       run_cyber_dojo_sh_with_edit('Hiker.cs', 'return 6 * 9', 'return 6 * 9s')
       assert amber?, run_result
     end
@@ -28,7 +28,7 @@ module Dual
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd58', %w( green ) do
-      stub(CSHARP_NUNIT_STDERR[:green])
+      stub(:green)
       run_cyber_dojo_sh_with_edit('Hiker.cs', 'return 6 * 9', 'return 6 * 7')
       assert green?, run_result
     end
@@ -43,7 +43,8 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    def stub(mx_stderr)
+    def stub(colour)
+      mx_stderr = CSHARP_NUNIT_STDERR[colour]
       if on_client?
         # :nocov_server:
         set_context
@@ -52,20 +53,51 @@ module Dual
       if on_server?
         # :nocov_client:
         stdout_tgz = TGZ.of({'stderr' => mx_stderr})
-        stderr = ''
         set_context(
+          sheller:sheller=BashShellerStub.new,
           logger:StdoutLoggerSpy.new,
-          process:process=ProcessSpawnerStub.new,
-          threader:ThreaderStub.new(stdout_tgz, stderr)
+          piper:piper=PiperStub.new(stdout_tgz),
+          process:process=ProcessSpawnerStub.new
         )
         puller.add(image_name)
-        tp = ProcessSpawner.new
-        process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
-        process.detach { |pid| tp.detach(pid); ThreadStub.new(0) }
-        process.kill { |signal,pid| tp.kill(signal, pid) }
-        # :nocov_client:        
+        process.spawn {}
+        process.detach { ThreadStub.new(0) }
+        process.kill {}
+        command = "docker run --rm --entrypoint=cat #{image_name} /usr/local/bin/red_amber_green.rb"
+        sheller.capture(command) {
+          stdout = "lambda{|stdout,stderr,status| '#{colour}' }"
+          [stdout,stderr='',status=0]
+        }
+        # :nocov_client:
       end
     end
+
+    # - - - - - - - - - - - - - - - - -
+
+    # :nocov_client:
+    class PiperStub
+      def initialize(stdout_tgz)
+        @stdout_tgz = stdout_tgz
+      end
+      def io
+        Struct.new(:in, :out).new(
+          Class.new do
+            def initialize(stdout_tgz); @stdout_tgz = stdout_tgz; end
+            def binmode; end
+            def read; @stdout_tgz; end
+            def close; end
+          end.new(@stdout_tgz),
+          Class.new do
+            def sync=(_); end
+            def binmode; end
+            def write(_); end
+            def closed?; true; end
+            def close; end
+          end.new
+        )
+      end
+    end
+    # :nocov_client:
 
     # - - - - - - - - - - - - - - - - - - - - -
 
