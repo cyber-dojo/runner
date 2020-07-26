@@ -21,7 +21,7 @@ module Dual
     def stub_non_zero_status
       stdout_tgz = TGZ.of({'stderr' => 'any'})
       stderr = ''
-      @context = Context.new(
+      set_context(
         logger:StdoutLoggerSpy.new,
         process:process=ProcessSpawnerStub.new,
         threader:ThreaderStub.new(stdout_tgz, stderr)

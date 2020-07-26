@@ -16,12 +16,14 @@ class TestBase < Id58TestBase
 
   def initialize(arg)
     super(arg)
-    context(logger:StdoutLoggerSpy.new)
+    set_context(logger:StdoutLoggerSpy.new)
   end
 
-  def context(options = {})
-    @context ||= Context.new(options)
+  def set_context(options = {})
+    @context = Context.new(options)
   end
+
+  attr_reader :context
 
   def prober
     context.prober
@@ -101,19 +103,11 @@ class TestBase < Id58TestBase
       'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
 
-    #p "id:#{id}"
-    #p "files:#{JSON.pretty_generate(files)}:"
-    #p "manifest:#{JSON.pretty_generate(manifest)}:"
-
     @run_result = runner.run_cyber_dojo_sh(
       id:id,
       files:files,
       manifest:manifest
     )
-
-    #p "@run_result:#{JSON.pretty_generate(@run_result)}:"
-
-    nil
   end
 
   def defaulted_arg(named_args, arg_name, arg_default)
@@ -157,33 +151,33 @@ class TestBase < Id58TestBase
 
   def outcome; run_result['outcome']; end
 
-  def timed_out?; outcome === 'timed_out'; end
   def pulling?  ; outcome === 'pulling'  ; end
-  def faulty?   ; outcome === 'faulty'   ; end
   def red?      ; outcome === 'red'      ; end
   def amber?    ; outcome === 'amber'    ; end
   def green?    ; outcome === 'green'    ; end
+  def timed_out?; outcome === 'timed_out'; end
+  def faulty?   ; outcome === 'faulty'   ; end
 
   def created; run_result['created']; end
   def deleted; run_result['deleted']; end
   def changed; run_result['changed']; end
 
   def pretty_result(tag)
-    [ JSON.pretty_generate(run_result),
-      "CONTEXT:#{tag}:"
+    [ "CONTEXT:#{tag}:",
+      JSON.pretty_generate(run_result)
     ].join("\n")
   end
 
   attr_reader :run_result
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # 5. custom asserts
+  # 5. custom assert
 
-  def assert_cyber_dojo_sh(script, options = {})
+  def assert_cyber_dojo_sh(script)
     run_cyber_dojo_sh({
       changed:{ 'cyber-dojo.sh' => script }
     })
-    refute timed_out?
+    refute timed_out?, pretty_result(:timed_out)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

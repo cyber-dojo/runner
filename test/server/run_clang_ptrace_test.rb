@@ -13,7 +13,7 @@ module Dual
     clang_assert_test 'k8W', %w( clang image adds ptrace capability ) do
       stdout_tgz = TGZ.of({'stderr' => 'any'})
       stderr = ''
-      @context = Context.new(
+      set_context(
         logger:StdoutLoggerSpy.new,
         process:process=ProcessSpawnerStub.new,
         threader:ThreaderStub.new(stdout_tgz, stderr)

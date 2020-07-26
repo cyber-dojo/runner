@@ -9,7 +9,7 @@ module Server
     end
 
     def id58_setup
-      @context = Context.new(
+      set_context(
         logger:StdoutLoggerSpy.new,
         threader:ThreaderSynchronous.new,
         sheller:BashShellerStub.new
@@ -29,7 +29,7 @@ module Server
       actual = puller.pull_image(id:id, image_name:gcc_assert)
       assert_equal expected, actual
       assert_equal [gcc_assert], puller.image_names
-      refute @context.threader.called
+      refute context.threader.called
     end
 
     # - - - - - - - - - - - - - - - - -
@@ -39,7 +39,7 @@ module Server
     when I call pull_image(id, gcc_assert),
     then the docker pull runs in a new thread and the result is :pulling
     ) do
-      @context.sheller.capture("docker pull #{gcc_assert}") {
+      context.sheller.capture("docker pull #{gcc_assert}") {
         stdout = [
           "Status: Downloaded newer image for #{gcc_assert}",
           "docker.io/#{gcc_assert}"
@@ -52,7 +52,7 @@ module Server
       expected = :pulling
       actual = puller.pull_image(id:id, image_name:gcc_assert)
       assert_equal expected, actual
-      assert @context.threader.called
+      assert context.threader.called
       assert_equal [gcc_assert], puller.image_names # because of ThreaderSynchronous
     end
 

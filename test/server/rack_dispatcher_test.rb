@@ -65,7 +65,7 @@ module Server
     end
 
     c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
-      @context = Context.new(runner:dummy=RunnerDummy.new)
+      set_context(runner:dummy=RunnerDummy.new)
       args = run_cyber_dojo_sh_args
       rack_call(path_info:'run_cyber_dojo_sh', body:args.to_json)
       assert_200('run_cyber_dojo_sh')
@@ -87,7 +87,7 @@ module Server
     end
 
     test 'A9F', 'pull_image' do
-      @context = Context.new(puller:dummy=PullerDummy.new)
+      set_context(puller:dummy=PullerDummy.new)
       args = { id:id58, image_name:image_name }
       rack_call(path_info:'pull_image', body:args.to_json)
       assert_200('pull_image')
@@ -199,7 +199,6 @@ module Server
       env = { path_info:path_info, body:body }
       rack_call(env)
       assert_400
-      log = @options[:logger].logged
       [response_body,log].each do |s|
         refute_nil s
         json = JSON.parse(s)
@@ -264,7 +263,7 @@ module Server
     # - - - - - - - - - - - - - - - - -
 
     def assert_nothing_logged
-      assert_equal '', @options[:logger].logged
+      assert_equal '', context.logger.logged
     end
 
     # - - - - - - - - - - - - - - - - -

@@ -47,7 +47,7 @@ module Dual
       if on_server?
         stdout_tgz = TGZ.of({'stderr' => mx_stderr})
         stderr = ''
-        @context = Context.new(
+        set_context(
           logger:StdoutLoggerSpy.new,
           process:process=ProcessSpawnerStub.new,
           threader:ThreaderStub.new(stdout_tgz, stderr)

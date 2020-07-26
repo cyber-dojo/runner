@@ -21,7 +21,7 @@ module Dual
     def stub_gzip_error
       stdout_tgz = 'not-a-tgz'
       stderr = ''
-      @context = Context.new(
+      set_context(
         logger:StdoutLoggerSpy.new,
         process:process=ProcessSpawnerStub.new,
         threader:ThreaderStub.new(stdout_tgz, stderr)

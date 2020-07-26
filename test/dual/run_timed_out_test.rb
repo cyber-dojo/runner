@@ -12,7 +12,7 @@ module Dual
 
     c_assert_test 'g55', %w( timeout ) do
       if on_server?
-        @context = Context.new(
+        set_context(
           logger:StdoutLoggerSpy.new,
           process:process=ProcessSpawnerStub.new
         )
