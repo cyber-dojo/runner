@@ -8,14 +8,11 @@ module Client
       '3A8'
     end
 
-    def id58_setup
-      set_context
-    end
-
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     test 'D91', %w(
     requires bash, won't run in sh ) do
+      set_context
       any_image_without_bash = 'alpine:latest' # must have been pulled onto node before server started
       run_cyber_dojo_sh(image_name:any_image_without_bash)
       refute timed_out?, pretty_result(:timed_out)
@@ -30,6 +27,7 @@ module Client
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     multi_os_test 'D98', %w( multiple container properties ) do
+      set_context
       memory_dir = '/sys/fs/cgroup/memory'
       cyber_dojo_sh = [
         "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]

@@ -12,9 +12,12 @@ module Dual
 
     c_assert_test 'g55', %w( timeout ) do
       if on_client?
+        # :nocov_server:
         set_context
+        # :nocov_server:
       end
       if on_server?
+        # :nocov_client:
         set_context(
           logger:StdoutLoggerSpy.new,
           process:process=ProcessSpawnerStub.new
@@ -24,6 +27,7 @@ module Dual
         process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
         process.detach { |pid| tp.detach(pid); ThreadTimedOutStub.new }
         process.kill { |signal,pid| tp.kill(signal, pid) }
+        # :nocov_client:
       end
 
       hiker_c = starting_files['hiker.c']
@@ -39,6 +43,7 @@ module Dual
 
     private
 
+    # :nocov_client:
     class ThreadTimedOutStub
       def initialize
         @n = 0
@@ -56,6 +61,7 @@ module Dual
         nil
       end
     end
+    # :nocov_client:    
 
   end
 end

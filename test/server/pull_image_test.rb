@@ -8,14 +8,6 @@ module Server
       '9j5'
     end
 
-    def id58_setup
-      set_context(
-        logger:StdoutLoggerSpy.new,
-        threader:ThreaderSynchronous.new,
-        sheller:BashShellerStub.new
-      )
-    end
-
     # - - - - - - - - - - - - - - - - -
 
     test 't9K', %w(
@@ -23,6 +15,9 @@ module Server
     when I call pull_image(id,gcc_assert),
     then a new thread is not started, no shell command is run, and the result is :pulled
     ) do
+      set_context(
+        threader:ThreaderSynchronous.new,
+      )
       assert_equal [], puller.image_names
       puller.add(gcc_assert)
       expected = :pulled
@@ -39,6 +34,11 @@ module Server
     when I call pull_image(id, gcc_assert),
     then the docker pull runs in a new thread and the result is :pulling
     ) do
+      set_context(
+        logger:StdoutLoggerSpy.new,
+        threader:ThreaderSynchronous.new,
+        sheller:BashShellerStub.new
+      )
       context.sheller.capture("docker pull #{gcc_assert}") {
         stdout = [
           "Status: Downloaded newer image for #{gcc_assert}",

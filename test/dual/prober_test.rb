@@ -8,15 +8,12 @@ module Dual
       '6de'
     end
 
-    def id58_setup
-      set_context
-    end
-
     # - - - - - - - - - - - - - - - - -
 
     test '190', %w(
     alive? is true
     ) do
+      set_context
       assert prober.alive?.is_a?(TrueClass)
     end
 
@@ -25,6 +22,7 @@ module Dual
     test '191', %w(
     ready? is true
     ) do
+      set_context
       assert prober.ready?.is_a?(TrueClass)
     end
 
@@ -33,6 +31,7 @@ module Dual
     test '192', %w(
     sha is SHA of git commit which created docker image
     ) do
+      set_context
       assert_sha(prober.sha)
     end
 

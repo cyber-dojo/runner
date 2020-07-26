@@ -8,14 +8,11 @@ module Client
       '237'
     end
 
-    def id58_setup
-      set_context
-    end
-
     # - - - - - - - - - - - - - - - - - - - - - -
 
     multi_os_test '8A1',
     'start-files image_name<->os correspondence' do
+      set_context
       assert_cyber_dojo_sh('cat /etc/issue')
       etc_issue = stdout
       diagnostic = [

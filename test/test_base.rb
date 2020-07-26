@@ -24,17 +24,11 @@ class TestBase < Id58TestBase
 
   attr_reader :context
 
-  def prober
-    context.prober
-  end
-
-  def puller
-    context.puller
-  end
-
-  def runner
-    context.runner
-  end
+  def node   ; context.node   ; end
+  def prober ; context.prober ; end
+  def puller ; context.puller ; end
+  def runner ; context.runner ; end
+  def sheller; context.sheller; end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 1. test on one OS or many

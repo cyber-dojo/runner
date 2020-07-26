@@ -8,10 +8,6 @@ module Client
       '159'
     end
 
-    def id58_setup
-      set_context
-    end
-
     # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     multi_os_test '8A6', %w(
@@ -19,6 +15,7 @@ module Client
     locally much faster than that,
     but for CI 2 is about right
     ) do
+      set_context
       timings = []
       (1..5).each do
         started_at = Time.now

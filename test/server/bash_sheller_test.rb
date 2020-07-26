@@ -8,12 +8,6 @@ module Server
       'C89'
     end
 
-    def id58_setup
-      set_context(
-        logger:StdoutLoggerSpy.new
-      )
-    end
-
     # - - - - - - - - - - - - - - - - -
 
     test '243',
@@ -21,6 +15,7 @@ module Server
         then the exception is untouched
         then nothing is logged
     ) do
+      set_context(logger:StdoutLoggerSpy.new)
       error = assert_raises(Errno::ENOENT) { sheller.capture('xxx Hello') }
       expected = 'No such file or directory - xxx'
       assert_equal expected, error.message, :error_message
@@ -35,6 +30,7 @@ module Server
     it logs nothing,
     it returns [stdout,stderr,status],
     ) do
+      set_context(logger:StdoutLoggerSpy.new)
       stdout,stderr,status = sheller.capture('printf Specs')
       assert_equal 'Specs', stdout, :stdout
       assert_equal '', stderr, :stderr
@@ -51,6 +47,7 @@ module Server
     it logs [command,stdout,stderr,status],
     it returns [stdout,stderr,status],
     ) do
+      set_context(logger:StdoutLoggerSpy.new)
       command = 'printf Croc && >&2 printf Fish && false'
       stdout,stderr,status = sheller.capture(command)
       assert_equal 'Croc', stdout, :stdout
@@ -60,12 +57,6 @@ module Server
       assert logged?('stdout:Croc:'), log
       assert logged?('stderr:Fish:'), log
       assert logged?('status:1:'), log
-    end
-
-    private
-
-    def sheller
-      context.sheller
     end
 
   end

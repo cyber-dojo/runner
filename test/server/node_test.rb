@@ -8,15 +8,10 @@ module Server
       '3q1'
     end
 
-    def id58_setup
-      set_context(
-        sheller:BashShellerStub.new
-      )
-    end
-
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps3', %w( image_names are retrieved from the node via docker image ls call ) do
+      set_context(sheller:BashShellerStub.new)
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"),'',0] }
       actual = node.image_names
       assert_equal expected, actual
@@ -25,6 +20,7 @@ module Server
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps4', %w( <none>:<none> image_names are filtered out ) do
+      set_context(sheller:BashShellerStub.new)
       tainted = (expected + ['<none>:<none>']*3).shuffle
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [tainted.join("\n"),'',0] }
       actual = node.image_names
@@ -34,6 +30,7 @@ module Server
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps5', %w( image_names populate puller in config.ru ) do
+      set_context(sheller:BashShellerStub.new)
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"),'',0] }
       node.image_names.each do |image_name|
         puller.add(image_name)
@@ -44,6 +41,7 @@ module Server
     # - - - - - - - - - - - - - - - - - - - - -
 
     test 'Ps6', %w( when docker image ls call fails exception is raised ) do
+      set_context(sheller:BashShellerStub.new)
       sheller.capture(DOCKER_IMAGE_LS_COMMAND) { ['','stderr-info',1] }
       error = assert_raises { node.image_names }
       assert_equal 'stderr-info', error.message
@@ -62,14 +60,6 @@ module Server
         cyberdojo/commander:b291513
         cyberdojo/web-base:63adedc
       ).sort
-    end
-
-    def node
-      context.node
-    end
-
-    def sheller
-      context.sheller
     end
 
   end

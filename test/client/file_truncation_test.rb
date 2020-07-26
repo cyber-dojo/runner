@@ -8,14 +8,11 @@ module Client
       'E4A'
     end
 
-    def id58_setup
-      set_context
-    end
-
     # - - - - - - - - - - - - - - - - -
 
     multi_os_test '52A',
     %w( generated text files bigger than 50K are truncated ) do
+      set_context
       filename = 'large_file.txt'
       script = "od -An -x /dev/urandom | head -c#{51*1024} > #{filename}"
       script += ';'
@@ -35,6 +32,7 @@ module Client
 
     test '52B',
     %w( stdout and stderr are truncated to 50K ) do
+      set_context
       script = [
         "od -An -x /dev/urandom | head -c#{51*1024} > /tmp/stdout",
         "od -An -x /dev/urandom | head -c#{51*1024} > /tmp/stderr",

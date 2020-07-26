@@ -29,6 +29,8 @@ module Server
       assert_no_fault_info
     end
 
+    # - - - - - - - - - - - - - - - - -
+
     test 'CB1', %w( amber traffic-light ) do
       rag = "lambda{|so,se,st| :amber }"
       bash_stub_capture(docker_run_command) { [rag, '', 0] }
@@ -37,6 +39,8 @@ module Server
       assert_amber
       assert_no_fault_info
     end
+
+    # - - - - - - - - - - - - - - - - -
 
     test 'CB2', %w( green traffic-light ) do
       rag = "lambda{|so,se,st| :green }"

@@ -9,14 +9,10 @@ module Dual
       'c7B'
     end
 
-    def id58_setup
-      set_context
-    end
-
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd56', %w( red ) do
-      on_server_stub(CSHARP_NUNIT_STDERR[:red])
+      stub(CSHARP_NUNIT_STDERR[:red])
       run_cyber_dojo_sh
       assert red?, run_result
     end
@@ -24,7 +20,7 @@ module Dual
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd57', %w( amber ) do
-      on_server_stub(CSHARP_NUNIT_STDERR[:amber])
+      stub(CSHARP_NUNIT_STDERR[:amber])
       run_cyber_dojo_sh_with_edit('Hiker.cs', 'return 6 * 9', 'return 6 * 9s')
       assert amber?, run_result
     end
@@ -32,7 +28,7 @@ module Dual
     # - - - - - - - - - - - - - - - - -
 
     csharp_nunit_test 'd58', %w( green ) do
-      on_server_stub(CSHARP_NUNIT_STDERR[:green])
+      stub(CSHARP_NUNIT_STDERR[:green])
       run_cyber_dojo_sh_with_edit('Hiker.cs', 'return 6 * 9', 'return 6 * 7')
       assert green?, run_result
     end
@@ -47,8 +43,14 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    def on_server_stub(mx_stderr)
+    def stub(mx_stderr)
+      if on_client?
+        # :nocov_server:
+        set_context
+        # :nocov_server:
+      end
       if on_server?
+        # :nocov_client:
         stdout_tgz = TGZ.of({'stderr' => mx_stderr})
         stderr = ''
         set_context(
@@ -61,6 +63,7 @@ module Dual
         process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
         process.detach { |pid| tp.detach(pid); ThreadStub.new(0) }
         process.kill { |signal,pid| tp.kill(signal, pid) }
+        # :nocov_client:        
       end
     end
 
