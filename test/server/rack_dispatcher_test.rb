@@ -56,6 +56,14 @@ module Server
 
     # - - - - - - - - - - - - - - - - -
 
+    c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
+      args = run_cyber_dojo_sh_args
+      env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
+      rack_call(env, runner:dummy=RunnerDummy.new)
+      assert_200('run_cyber_dojo_sh')
+      assert dummy.called?
+    end
+
     class RunnerDummy
       def initialize
         @called = false
@@ -68,16 +76,15 @@ module Server
       end
     end
 
-    c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
-      set_context(runner:dummy=RunnerDummy.new)
-      args = run_cyber_dojo_sh_args
-      env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
-      rack_call(env)
-      assert_200('run_cyber_dojo_sh')
+    # - - - - - - - - - - - - - - - - -
+
+    test 'A9F', 'pull_image' do
+      args = { id:id58, image_name:image_name }
+      env = { path_info:'pull_image', body:args.to_json }
+      rack_call(env, puller:dummy=PullerDummy.new)
+      assert_200('pull_image')
       assert dummy.called?
     end
-
-    # - - - - - - - - - - - - - - - - -
 
     class PullerDummy
       def initialize
@@ -89,15 +96,6 @@ module Server
       def called?
         @called
       end
-    end
-
-    test 'A9F', 'pull_image' do
-      set_context(puller:dummy=PullerDummy.new)
-      args = { id:id58, image_name:image_name }
-      env = { path_info:'pull_image', body:args.to_json }
-      rack_call(env)
-      assert_200('pull_image')
-      assert dummy.called?
     end
 
     # = = = = = = = = = = = = = = = = =
@@ -201,7 +199,6 @@ module Server
     private
 
     def assert_rack_call_400_exception(expected, path_info, body)
-      @context = nil
       env = { path_info:path_info, body:body }
       rack_call(env)
       assert_400
@@ -218,11 +215,10 @@ module Server
 
     # - - - - - - - - - - - - - - - - -
 
-    def rack_call(env)
+    def rack_call(env, options = { logger:StdoutLoggerSpy.new })
       klass = env.delete(:klass) || RackRequestStub
-      @options = { logger:StdoutLoggerSpy.new }
-      @context ||= Context.new(@options)
-      rack = RackDispatcher.new(@context)
+      set_context(options)
+      rack = RackDispatcher.new(context)
       @response = rack.call(env, klass)
       expected_type = { 'Content-Type' => 'application/json' }
       actual_type = @response[1]
