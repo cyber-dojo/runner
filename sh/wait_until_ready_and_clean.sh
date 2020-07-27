@@ -18,6 +18,15 @@ wait_until_ready_and_clean()
 {
   local -r name="${1}"
   local -r port="${2}"
+  wait_until_ready "${name}" "${port}"
+  exit_if_unclean "${name}"
+}
+
+# - - - - - - - - - - - - - - - - - - - -
+wait_until_ready()
+{
+  local -r name="${1}"
+  local -r port="${2}"
   local -r max_tries=20
   echo
   printf "Waiting until ${name} is ready"
@@ -25,7 +34,6 @@ wait_until_ready_and_clean()
   do
     if ready ${port} ; then
       printf '.OK\n'
-      exit_if_unclean "${name}"
       return
     else
       printf .

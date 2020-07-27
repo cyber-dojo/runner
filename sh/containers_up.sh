@@ -22,8 +22,7 @@ containers_up()
   wait_until_ready_and_clean test-runner-server "${CYBER_DOJO_RUNNER_PORT}"
   if [ "${1-}" != server ]; then
     service_up runner-client
-    sleep 1
-    #wait_until_ready_and_clean test-runner-client "${CYBER_DOJO_RUNNER_CLIENT_PORT}"
+    wait_until_ready test-runner-client "${CYBER_DOJO_RUNNER_CLIENT_PORT}"
   fi
 }
 
