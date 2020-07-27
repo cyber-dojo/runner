@@ -6,12 +6,18 @@ require_relative 'net_http_adapter'
 module HttpProxy
   class LanguagesStartPoints
 
+    class Error < RuntimeError
+      def initialize(message)
+        super
+      end
+    end
+
     def initialize
       adapter = ::HttpProxy::NetHttpAdapter.new
       hostname = 'languages-start-points'
       port = 4524
       requester = ::HttpProxy::JsonRequester.new(adapter, hostname, port)
-      @http = ::HttpProxy::JsonResponder.new(requester, RuntimeError)
+      @http = ::HttpProxy::JsonResponder.new(requester, Error)
     end
 
     # - - - - - - - - - - - - - - - - - - -

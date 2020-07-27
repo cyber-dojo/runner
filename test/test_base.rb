@@ -143,7 +143,7 @@ class TestBase < Id58TestBase
   def stdout; run_result['stdout']['content']; end
   def stderr; run_result['stderr']['content']; end
   def status; run_result['status']; end
-  
+
   def outcome; run_result['outcome']; end
 
   def pulling?  ; outcome === 'pulling'  ; end

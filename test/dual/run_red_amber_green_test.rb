@@ -16,7 +16,7 @@ module Dual
       run_cyber_dojo_sh
       assert red?, run_result
       on_client {
-
+        # :nocov_server:
         expected_stdout = ''
         expected_stderr = [
           "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.",
@@ -30,6 +30,7 @@ module Dual
           assert stderr.include?(line), diagnostic
         end
         assert_equal expected_status, status, :status
+        # :nocov_server:        
       }
     end
 
@@ -40,6 +41,7 @@ module Dual
       run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 9s')
       assert amber?, run_result
       on_client {
+        # :nocov_server:
         expected_stdout = ''
         expected_stderr = [
           'hiker.c:5:16: error: invalid suffix "s" on integer constant',
@@ -54,7 +56,7 @@ module Dual
           assert stderr.include?(line), diagnostic
         end
         assert_equal expected_status, status, :status
-
+        # :nocov_server:
       }
     end
 
@@ -65,9 +67,11 @@ module Dual
       run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 7')
       assert green?, run_result
       on_client {
+        # :nocov_server:
         assert_equal "All tests passed\n", stdout
         assert_equal '', stderr
         assert_equal '0', status
+        # :nocov_server:
       }
     end
 
