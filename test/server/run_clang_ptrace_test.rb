@@ -10,7 +10,9 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    clang_assert_test 'k8W', %w( clang image adds ptrace capability ) do
+    clang_assert_test 'k8W', %w(
+    clang image requires docker run command with ptrace capability
+    ) do
       stdout_tgz = TGZ.of({'stderr' => 'any'})
       set_context(
         logger:StdoutLoggerSpy.new,
