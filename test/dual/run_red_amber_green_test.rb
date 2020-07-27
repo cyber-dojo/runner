@@ -11,48 +11,77 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    csharp_nunit_test 'd56', %w( red ) do
+    c_assert_test 'd56', %w( red ) do
       stub(:red)
       run_cyber_dojo_sh
       assert red?, run_result
+      on_client {
+
+        expected_stdout = ''
+        expected_stderr = [
+          "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.",
+          'make: *** [makefile:19: test.output] Aborted'
+        ]
+        expected_status = '2'
+
+        assert_equal expected_stdout, stdout, :stdout
+        expected_stderr.each do |line|
+          diagnostic = "Expected stderr to include the line #{line}\n#{stderr}"
+          assert stderr.include?(line), diagnostic
+        end
+        assert_equal expected_status, status, :status
+      }
     end
 
     # - - - - - - - - - - - - - - - - -
 
-    csharp_nunit_test 'd57', %w( amber ) do
+    c_assert_test 'd57', %w( amber ) do
       stub(:amber)
-      run_cyber_dojo_sh_with_edit('Hiker.cs', 'return 6 * 9', 'return 6 * 9s')
+      run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 9s')
       assert amber?, run_result
+      on_client {
+        expected_stdout = ''
+        expected_stderr = [
+          'hiker.c:5:16: error: invalid suffix "s" on integer constant',
+          'hiker.c:6:1: warning: control reaches end of non-void function [-Wreturn-type]',
+          "make: *** [makefile:22: test] Error 1"
+        ]
+        expected_status = '2'
+
+        assert_equal expected_stdout, stdout, :stdout
+        expected_stderr.each do |line|
+          diagnostic = "Expected stderr to include the line #{line}\n#{stderr}"
+          assert stderr.include?(line), diagnostic
+        end
+        assert_equal expected_status, status, :status
+
+      }
     end
 
     # - - - - - - - - - - - - - - - - -
 
-    csharp_nunit_test 'd58', %w( green ) do
+    c_assert_test 'd58', %w( green ) do
       stub(:green)
-      run_cyber_dojo_sh_with_edit('Hiker.cs', 'return 6 * 9', 'return 6 * 7')
+      run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 7')
       assert green?, run_result
+      on_client {
+        assert_equal "All tests passed\n", stdout
+        assert_equal '', stderr
+        assert_equal '0', status
+      }
     end
 
     private
 
-    CSHARP_NUNIT_STDERR = {
-        red:'Test Count: 3, Passed: 2, Failed: 1, Warnings: 0, Inconclusive: 0, Skipped: 0',
-      amber:'Hiker.cs(5,20): error CS1525: Unexpected symbol `s',
-      green:'Test Count: 3, Passed: 3, Failed: 0, Warnings: 0, Inconclusive: 0, Skipped: 0'
-    }
-
-    # - - - - - - - - - - - - - - - - -
-
     def stub(colour)
-      mx_stderr = CSHARP_NUNIT_STDERR[colour]
-      if on_client?
+      on_client {
         # :nocov_server:
         set_context
         # :nocov_server:
-      end
-      if on_server?
+      }
+      on_server {
         # :nocov_client:
-        stdout_tgz = TGZ.of({'stderr' => mx_stderr})
+        stdout_tgz = TGZ.of({'stderr' => 'any'})
         set_context(
            logger:StdoutLoggerSpy.new,
             piper:piper=PiperStub.new(stdout_tgz),
@@ -69,7 +98,7 @@ module Dual
           [stdout,stderr='',status=0]
         }
         # :nocov_client:
-      end
+      }
     end
 
     # - - - - - - - - - - - - - - - - -

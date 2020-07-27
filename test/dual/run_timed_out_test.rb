@@ -11,12 +11,12 @@ module Dual
     # - - - - - - - - - - - - - - - - - - - - -
 
     c_assert_test 'g55', %w( timeout ) do
-      if on_client?
+      on_client {
         # :nocov_server:
         set_context
         # :nocov_server:
-      end
-      if on_server?
+      }
+      on_server {
         # :nocov_client:
         stdout_tgz = TGZ.of({'stderr' => 'any'})
         set_context(
@@ -29,7 +29,7 @@ module Dual
         process.detach { ThreadTimedOutStub.new }
         process.kill {}
         # :nocov_client:
-      end
+      }
 
       hiker_c = starting_files['hiker.c']
       from = 'return 6 * 9'
@@ -39,7 +39,7 @@ module Dual
         max_seconds: 3
       })
 
-      assert timed_out?, run_result      
+      assert timed_out?, run_result
     end
 
     private

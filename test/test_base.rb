@@ -142,7 +142,8 @@ class TestBase < Id58TestBase
 
   def stdout; run_result['stdout']['content']; end
   def stderr; run_result['stderr']['content']; end
-
+  def status; run_result['status']; end
+  
   def outcome; run_result['outcome']; end
 
   def pulling?  ; outcome === 'pulling'  ; end
@@ -185,12 +186,16 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 6. misc helpers
 
-  def on_client?
-    ENV['CONTEXT'] === 'client'
+  def on_client(&block)
+    if ENV['CONTEXT'] === 'client'
+      block.call
+    end
   end
 
-  def on_server?
-    ENV['CONTEXT'] === 'server'
+  def on_server(&block)
+    if ENV['CONTEXT'] === 'server'
+      block.call
+    end
   end
 
   def logged?(message)
