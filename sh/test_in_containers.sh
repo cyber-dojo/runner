@@ -52,6 +52,7 @@ run_tests()
   echo '=================================='
 
   rm -f "${coverage_dir}/${test_run_log}"
+  mkdir -p "${test_dir}/coverage"
 
   set +e
   docker exec \
