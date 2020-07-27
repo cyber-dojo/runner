@@ -8,7 +8,9 @@ module HttpProxy
 
     class Error < RuntimeError
       def initialize(message)
+        # :nocov_server:
         super
+        # :nocov_server:        
       end
     end
 

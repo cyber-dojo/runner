@@ -30,7 +30,7 @@ module Dual
           assert stderr.include?(line), diagnostic
         end
         assert_equal expected_status, status, :status
-        # :nocov_server:        
+        # :nocov_server:
       }
     end
 
