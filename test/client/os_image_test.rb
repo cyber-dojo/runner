@@ -23,6 +23,8 @@ module Client
       case os
       when :Alpine
         assert etc_issue.include?('Alpine'), diagnostic
+      when :Debian
+        assert etc_issue.include?('Debian'), diagnostic
       when :Ubuntu
         assert etc_issue.include?('Ubuntu'), diagnostic
       end
