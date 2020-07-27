@@ -223,4 +223,8 @@ class TestBase < Id58TestBase
     '0123456789abcdef'.include?(ch)
   end
 
+  def intact(content)
+    { 'content' => content, 'truncated' => false }
+  end
+
 end
