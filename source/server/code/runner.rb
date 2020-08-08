@@ -181,7 +181,7 @@ class Runner
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
       ulimit('core'  ,   0   ),           # no core file
-      ulimit('fsize' ,  64*MB),           # file size
+      ulimit('fsize' , 128*MB),           # file size
       ulimit('locks' , 1024  ),           # number of file locks
       ulimit('nofile', 1024  ),           # number of files
       ulimit('nproc' , 1024  ),           # number of processes [1]
