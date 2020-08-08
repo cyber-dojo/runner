@@ -88,7 +88,7 @@ module Client
       assert_equal 'drwxrwxrwt', created_file('dir.stat.A'), :permission
 
       expected_max_data_size  =  clang? ? 0 : 4*GB / BLOCK_SIZE
-      expected_max_file_size  = 16*MB / BLOCK_SIZE
+      expected_max_file_size  = 64*MB / BLOCK_SIZE
       expected_max_stack_size = 16*MB / BLOCK_SIZE
 
       assert_ulimit 0,                       :core_size
