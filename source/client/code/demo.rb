@@ -32,7 +32,7 @@ class Demo
     @html += pre(sha_snippet)
     sha
 
-    @html += '<h1>GET /run_cyber_dojo_sh</h1>'
+    @html += '<h1>POST /run_cyber_dojo_sh</h1>'
     @html += pre(run_cyber_dojo_sh_snippet)
     run_cyber_dojo_sh('cyberdojofoundation/gcc_assert')
     #run_cyber_dojo_sh('BAD/image_name')
@@ -95,7 +95,7 @@ class Demo
     }
     _,duration = timed {
       begin
-        @result = runner.run_cyber_dojo_sh('729z65', files, manifest)
+        @result = runner.run_cyber_dojo_sh(id:'729z65', files:files, manifest:manifest)
         @raised = false
       rescue => error
         @result = JSON.parse(error.message)

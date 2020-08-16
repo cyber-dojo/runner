@@ -8,7 +8,7 @@ trap remove_tmp_dir EXIT
 source ${SH_DIR}/versioner_env_vars.sh
 export $(versioner_env_vars)
 
-"${SH_DIR}/build_images.sh"
+"${SH_DIR}/build_tagged_images.sh"
 "${SH_DIR}/containers_up.sh"
 
 docker exec -it test-runner-client ruby /app/code/demo.rb > "${TMP_DIR}/runner_demo.html"
