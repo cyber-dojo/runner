@@ -76,28 +76,6 @@ module Server
       end
     end
 
-    # - - - - - - - - - - - - - - - - -
-
-    test 'A9F', 'pull_image' do
-      args = { id:id58, image_name:image_name }
-      env = { path_info:'pull_image', body:args.to_json }
-      rack_call(env, puller:dummy=PullerDummy.new)
-      assert_200('pull_image')
-      assert dummy.called?
-    end
-
-    class PullerDummy
-      def initialize
-        @called = false
-      end
-      def pull_image(id:, image_name:)
-        @called = true
-      end
-      def called?
-        @called
-      end
-    end
-
     # = = = = = = = = = = = = = = = = =
     # 400
     # = = = = = = = = = = = = = = = = =

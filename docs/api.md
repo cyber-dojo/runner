@@ -71,22 +71,6 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
 
 - - - -
-## POST pull_image(id,image_name)
-Pulls **image_name** onto the node if not already present.
-- [JSON-in](#json-in) parameters
-  * **id:String** for tracing
-  * **image_name:String**
-- returns the [JSON-out](#json-out) result, keyed on `"pull_image"`
-  * `"pulled"` if **image_name** is already present on the node.
-  * `"pulling"` if **image_name** is not already present on the node, and pulls the image asynchronously.
-- example
-  ```bash
-  JSON='{"id":"34de2W","image_name":"cyberdojofoundation/python_pytest:56fa098"}'
-  $ curl --data "${JSON}" --silent -X POST http://${IP_ADDRESS}:${PORT}/pull_image  
-  {"pull_image":"pulled"}
-  ```
-
-- - - -
 ## GET alive?
 Tests if the service is alive.
 Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  

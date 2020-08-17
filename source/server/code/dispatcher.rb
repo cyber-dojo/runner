@@ -20,10 +20,9 @@ class Dispatcher
   def call(path, body)
     args = parse_json_args(body)
     case path
-    when '/sha'                then ['sha',    prober.sha(**args)]
-    when '/alive'              then ['alive?', prober.alive?(**args)]
-    when '/ready'              then ['ready?', prober.ready?(**args)]
-    when '/pull_image'         then ['pull_image', puller.pull_image(**args)]
+    when '/sha'                then ['sha',               prober.sha(**args)]
+    when '/alive'              then ['alive?',            prober.alive?(**args)]
+    when '/ready'              then ['ready?',            prober.ready?(**args)]
     when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', runner.run_cyber_dojo_sh(**args)]
     else
       raise request_error('unknown path')
@@ -62,10 +61,6 @@ class Dispatcher
 
   def prober
     @context.prober
-  end
-
-  def puller
-    @context.puller
   end
 
   def runner
