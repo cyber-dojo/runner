@@ -4,6 +4,7 @@
 on_ci_publish_tagged_images()
 {
   if ! on_ci; then
+    echo
     echo 'not on CI so not publishing tagged images'
     return
   fi
@@ -11,6 +12,7 @@ on_ci_publish_tagged_images()
   #  echo 'commit message contains [test-only] so stopping here'
   #  return
   #fi
+  echo
   echo 'on CI so publishing tagged images'
   local -r image="$(image_name)"
   local -r sha="$(image_sha)"
@@ -39,6 +41,3 @@ image_sha()
 {
   docker run --rm "$(image_name):latest" sh -c 'echo ${SHA}'
 }
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-on_ci_publish_tagged_images

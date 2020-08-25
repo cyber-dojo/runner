@@ -1,11 +1,10 @@
 #!/bin/bash -Eeu
-readonly root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly my_name=runner
+
 client_status=0
 server_status=0
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-main()
+test_in_containers()
 {
   if [ "${1:-}" == client ]; then
     shift
@@ -36,11 +35,12 @@ server_user() { echo "${CYBER_DOJO_RUNNER_SERVER_USER}"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 run_tests()
 {
+  local -r my_name=runner
   local -r user="${1}" # eg nobody
   local -r type="${2}" # eg client|server
   local -r container_name="test-${my_name}-${type}" # eg test-runner-server
   local -r coverage_root=/tmp/coverage/${type}      # only /tmp in container is writable
-  local -r test_dir="${root_dir}/test"
+  local -r test_dir="${ROOT_DIR}/test"
   local -r coverage_dir=${test_dir}/coverage/${type}
   local -r test_run_log=test.run.log
   local -r coverage_code_tab_name=code
@@ -99,6 +99,3 @@ run_tests()
     server_status="${status}"
   fi
 }
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-main "$@"

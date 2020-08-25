@@ -1,5 +1,4 @@
 #!/bin/bash -Eeu
-readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 remove_image()
@@ -83,8 +82,11 @@ assert_equal()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-remove_image
-build_images "$@"
-tag_image
-assert_equal SHA  "$(git_commit_sha)"         "$(image_sha)"
-assert_equal PORT "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
+build_tagged_images()
+{
+  remove_image
+  build_images "$@"
+  tag_image
+  assert_equal SHA  "$(git_commit_sha)"         "$(image_sha)"
+  assert_equal PORT "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
+}

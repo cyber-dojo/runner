@@ -1,9 +1,9 @@
 #!/bin/bash -Eeu
-readonly ROOT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd )"
+
 readonly lsp_service_name=languages-start-points
 readonly lsp_container_name=test-runner-languages-start-points
 readonly lsp_port="${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
-source "${ROOT_DIR}/sh/wait_until_ready_and_clean.sh"
+source "${SH_DIR}/wait_until_ready_and_clean.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 json_data()
@@ -56,6 +56,9 @@ pull_dependent_images()
 # - - - - - - - - - - - - - - - - - - - - - - - -
 setup_dependent_images()
 {
+  if [ "${1:-}" == server ]; then
+    return
+  fi
   echo
   docker-compose \
     --file "${ROOT_DIR}/docker-compose.yml" \
@@ -67,8 +70,3 @@ setup_dependent_images()
   wait_until_ready_and_clean "${lsp_container_name}" "${lsp_port}"
   pull_dependent_images
 }
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-if [ "${1:-}" != server ]; then
-  setup_dependent_images
-fi

@@ -1,6 +1,6 @@
 #!/bin/bash -Eeu
-readonly ROOT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd )"
-source "${ROOT_DIR}/sh/wait_until_ready_and_clean.sh"
+
+source "${SH_DIR}/wait_until_ready_and_clean.sh"
 
 # - - - - - - - - - - - - - - - - - - - -
 service_up()
@@ -25,6 +25,3 @@ containers_up()
     wait_until_ready test-runner-client "${CYBER_DOJO_RUNNER_CLIENT_PORT}"
   fi
 }
-
-# - - - - - - - - - - - - - - - - - - - -
-containers_up "$@"
