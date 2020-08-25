@@ -25,12 +25,14 @@ test_in_containers()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
-run_client_tests() { run_tests "$(client_user)" client "${@:-}"; }
-run_server_tests() { run_tests "$(server_user)" server "${@:-}"; }
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-client_user() { echo "${CYBER_DOJO_RUNNER_CLIENT_USER}"; }
-server_user() { echo "${CYBER_DOJO_RUNNER_SERVER_USER}"; }
+run_client_tests()
+{
+  run_tests "${CYBER_DOJO_RUNNER_CLIENT_USER}" client "${@:-}"
+}
+run_server_tests()
+{
+  run_tests "${CYBER_DOJO_RUNNER_SERVER_USER}" server "${@:-}"
+}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 run_tests()

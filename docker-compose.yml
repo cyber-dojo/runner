@@ -4,7 +4,7 @@ version: '3.7'
 services:
 
   runner-client:
-    image: cyberdojo/runner-client
+    image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     build:
       context: source/client
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_CLIENT_PORT ]
@@ -23,7 +23,7 @@ services:
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   runner-server:
-    image: ${CYBER_DOJO_RUNNER_IMAGE}
+    image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     build:
       context: source/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]

@@ -1,5 +1,5 @@
 #!/bin/bash -Eeu
-export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )"
+export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export SH_DIR="${ROOT_DIR}/sh"
 export TMP_DIR=$(mktemp -d ~/tmp.cyber-dojo.runner.dir.XXXXXX)
 remove_tmp_dir() { rm -rf "${TMP_DIR}" > /dev/null; }

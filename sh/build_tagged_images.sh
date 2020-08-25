@@ -1,45 +1,67 @@
 #!/bin/bash -Eeu
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-remove_image()
+build_tagged_images()
 {
-  local -r sha="$(image_sha)"
-  local -r tag="${sha:0:7}"
-  docker image rm "$(image_name):${tag}" &> /dev/null | true
+  remove_current_docker_image "${CYBER_DOJO_RUNNER_IMAGE}"
+  remove_current_docker_image "${CYBER_DOJO_RUNNER_CLIENT_IMAGE}"
+  build_images
+  tag_images
+  check_embedded_env_var
+  echo
+  echo "CYBER_DOJO_RUNNER_TAG=$(image_tag)"
+  echo "CYBER_DOJO_RUNNER_SHA=$(image_sha)"
 }
 
-#- - - - - - - - - - - - - - - - - - - - - - - -
-build_image()
+# - - - - - - - - - - - - - - - - - - - - - -
+remove_current_docker_image()
 {
-  local -r service="${1}"
-  echo
-  docker-compose \
-    --file "${ROOT_DIR}/docker-compose.yml" \
-    build \
-    --build-arg COMMIT_SHA=$(git_commit_sha) \
-    "${service}"
+  local -r name="${1}"
+  if image_exists "${name}" 'latest' ; then
+    local -r sha="$(docker run --rm -it ${name}:latest sh -c 'echo -n ${SHA}')"
+    local -r tag="${sha:0:7}"
+    if image_exists "${name}" "${tag}" ; then
+      echo "Deleting current image ${name}:${tag}"
+      docker image rm "${name}:${tag}"
+    fi
+  fi
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()
 {
-  if [ "${1:-}" == server ]; then
-    build_image runner-server
-  else
-    build_image runner-server
-    build_image runner-client
-  fi
+  docker-compose \
+    --file "${ROOT_DIR}/docker-compose.yml" \
+    build \
+    --build-arg COMMIT_SHA=$(git_commit_sha)
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-tag_image()
+tag_images()
 {
-  local -r sha="$(image_sha)"
-  local -r tag="${sha:0:7}"
-  docker tag $(image_name):latest "$(image_name):${tag}"
-  echo
-  echo "CYBER_DOJO_RUNNER_SHA=${sha}"
-  echo "CYBER_DOJO_RUNNER_TAG=${tag}"
+  docker tag ${CYBER_DOJO_RUNNER_IMAGE}:$(image_tag)        ${CYBER_DOJO_RUNNER_IMAGE}:latest
+  docker tag ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:$(image_tag) ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:latest
+}
+
+# - - - - - - - - - - - - - - - - - - - - - -
+check_embedded_env_var()
+{
+  if [ "$(git_commit_sha)" != "$(sha_in_image)" ]; then
+    echo "ERROR: unexpected env-var inside image $(image_name):$(image_tag)"
+    echo "expected: 'SHA=$(git_commit_sha)'"
+    echo "  actual: 'SHA=$(sha_in_image)'"
+    exit 42
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - -
+image_exists()
+{
+  local -r name="${1}"
+  local -r tag="${2}"
+  local -r latest=$(docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "${name}:${tag}")
+  [ "${latest}" != '' ]
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
@@ -54,39 +76,20 @@ image_name()
   echo "${CYBER_DOJO_RUNNER_IMAGE}"
 }
 
-#- - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - -
 image_sha()
 {
-  docker run --rm $(image_name):latest sh -c 'echo ${SHA}'
+  echo "${CYBER_DOJO_RUNNER_SHA}"
+}
+
+# - - - - - - - - - - - - - - - - - - - - - -
+image_tag()
+{
+  echo "${CYBER_DOJO_RUNNER_TAG}"
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-image_port()
+sha_in_image()
 {
-  docker run --rm $(image_name):latest sh -c 'echo ${PORT}'
-}
-
-#- - - - - - - - - - - - - - - - - - - - - - - -
-assert_equal()
-{
-  local -r name="${1}"
-  local -r expected="${2}"
-  local -r actual="${3}"
-  if [ "${expected}" != "${actual}" ]; then
-    echo
-    echo "${name} expected: ${expected}"
-    echo "${name}   actual: ${actual}"
-    echo ERROR assert_equal failed
-    exit 42
-  fi
-}
-
-#- - - - - - - - - - - - - - - - - - - - - - - -
-build_tagged_images()
-{
-  remove_image
-  build_images "$@"
-  tag_image
-  assert_equal SHA  "$(git_commit_sha)"         "$(image_sha)"
-  assert_equal PORT "${CYBER_DOJO_RUNNER_PORT}" "$(image_port)"
+  docker run --rm $(image_name):$(image_tag) sh -c 'echo -n ${SHA}'
 }
