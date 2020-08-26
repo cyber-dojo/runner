@@ -79,13 +79,14 @@ image_name()
 # - - - - - - - - - - - - - - - - - - - - - -
 image_sha()
 {
-  echo "${CYBER_DOJO_RUNNER_SHA}"
+  echo "$(git_commit_sha)"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - -
 image_tag()
 {
-  echo "${CYBER_DOJO_RUNNER_TAG}"
+  local -r sha="${image_sha}"
+  echo "${sha:0:7}"
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,8 +1,5 @@
 #!/bin/bash -Eeu
 
-readonly lsp_service_name=languages-start-points
-readonly lsp_container_name=test-runner-languages-start-points
-readonly lsp_port="${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
 source "${SH_DIR}/wait_until_ready_and_clean.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,7 +36,7 @@ pull_dependent_images()
           --data "${json}" \
           --silent \
           -X GET \
-          "http://$(ip_address):${lsp_port}/manifest")"
+          "http://$(ip_address):$(lsp_port)/manifest")"
 
         local image_name=$(echo "${manifest}" | jq --raw-output '.manifest.image_name')
 
@@ -65,8 +62,26 @@ setup_dependent_images()
     up \
     -d \
     --force-recreate \
-    "${lsp_service_name}"
+    "$(lsp_service_name)"
 
-  wait_until_ready_and_clean "${lsp_container_name}" "${lsp_port}"
+  wait_until_ready_and_clean "$(lsp_container_name)" "$(lsp_port)"
   pull_dependent_images
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+lsp_service_name()
+{
+  echo languages-start-points
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+lsp_container_name()
+{
+  echo test-runner-languages-start-points
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+lsp_port()
+{
+  echo "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
 }
