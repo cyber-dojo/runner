@@ -45,8 +45,8 @@ class Puller
     command = "docker pull #{image_name}"
     _,_,status = sheller.capture(command)
     if status === 0
-      add(image_name)
       t1 = Time.now
+      add(image_name)
       took = (t1 - t0).round(1)
       logger.log("Pulled docker image #{image_name} (#{took} secs)")
     end

@@ -10,6 +10,7 @@ API
 * [GET alive?](docs/api.md#get-alive)  
 * [GET ready?](docs/api.md#get-ready)
 * [GET sha](docs/api.md#get-sha)
+* [POST pull_image(id,image_name)](docs/api.md#post-pull_imageidimage_name)
 * [POST run_cyber_dojo_sh(id,files,manifest)](docs/api.md#post-run_cyber_dojo_shidfilesmanifest)
 
 ***

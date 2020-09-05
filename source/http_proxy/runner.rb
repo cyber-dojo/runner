@@ -36,6 +36,13 @@ module HttpProxy
 
     # - - - - - - - - - - - - - - - - - - - - - - -
 
+    def pull_image(id:, image_name:)
+      @http.post(__method__, {
+        id:id,
+        image_name:image_name
+      })
+    end
+
     def run_cyber_dojo_sh(id:, files:, manifest:)
       @http.post(__method__, {
         id:id,
