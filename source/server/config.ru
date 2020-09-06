@@ -6,7 +6,7 @@ use Rack::Deflater, if: ->(_, _, _, body) {
   body.any? && body[0].length > 512
 }
 
-unless ENV['USE_PROMETHEUS'] === 'no'
+if ENV['CYBER_DOJO_PROMETHEUS'] === 'true'
   require 'prometheus/middleware/collector'
   require 'prometheus/middleware/exporter'
   use Prometheus::Middleware::Collector

@@ -17,13 +17,12 @@ volumes:
       path: /var/run/docker.sock
       type: File
 
-env:
-  PULL_LANGUAGE_DOCKER_IMAGES_AT: SERVER_DEPLOYMENT
-
 containers:
   - name: runner
     securityContext:
       readOnlyRootFilesystem: true
+    env:
+      CYBER_DOJO_PROMETHEUS: "true"      
     volumeMounts:
       - name: runner-tmp-dir
         mountPath: /tmp
