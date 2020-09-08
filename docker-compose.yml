@@ -9,6 +9,8 @@ services:
       context: source/client
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_CLIENT_PORT ]
     depends_on: [ runner-server ]
+    env_file:
+      - .env
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     container_name: test-runner-client
     environment: [ CONTEXT=client, SHOW_TEST_IDS ]
@@ -28,6 +30,8 @@ services:
       context: source/server
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     depends_on: [ languages-start-points ]
+    env_file:
+      - .env
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: test-runner-server
     environment: [ CONTEXT=server, SHOW_TEST_IDS ]
@@ -46,6 +50,8 @@ services:
     container_name: test-runner-languages-start-points
     image: ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
     ports: [ "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}" ]
+    env_file:
+      - .env
     read_only: true
     restart: 'no'
     tmpfs: /tmp

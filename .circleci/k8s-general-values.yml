@@ -3,6 +3,12 @@ fullnameOverride: "runner"
 
 daemonSet: true
 
+initContainers: {}
+envFromSecret: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
 service:
   annotations:
     prometheus.io/scrape: "true"
@@ -21,8 +27,6 @@ containers:
   - name: runner
     securityContext:
       readOnlyRootFilesystem: true
-    env:
-      CYBER_DOJO_PROMETHEUS: "true"      
     volumeMounts:
       - name: runner-tmp-dir
         mountPath: /tmp
@@ -39,13 +43,3 @@ containers:
       path: /alive?
     readinessProbe:
       path: /ready?
-
-initContainers: {}
-
-envFromSecret: {}
-
-nodeSelector: {}
-
-affinity: {}
-
-tolerations: []

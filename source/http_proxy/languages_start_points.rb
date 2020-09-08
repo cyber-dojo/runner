@@ -10,14 +10,14 @@ module HttpProxy
       def initialize(message)
         # :nocov_server:
         super
-        # :nocov_server:        
+        # :nocov_server:
       end
     end
 
     def initialize
       adapter = ::HttpProxy::NetHttpAdapter.new
       hostname = 'languages-start-points'
-      port = 4524
+      port = ENV['CYBER_DOJO_LANGUAGES_START_POINTS_PORT'].to_i
       requester = ::HttpProxy::JsonRequester.new(adapter, hostname, port)
       @http = ::HttpProxy::JsonResponder.new(requester, Error)
     end
