@@ -30,7 +30,7 @@ services:
     depends_on: [ languages-start-points ]
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: test-runner-server
-    environment: [ CONTEXT=server, USE_PROMETHEUS=no, SHOW_TEST_IDS ]
+    environment: [ CONTEXT=server, SHOW_TEST_IDS ]
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     read_only: true
     restart: 'no'
