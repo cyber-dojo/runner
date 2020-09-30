@@ -3,28 +3,33 @@
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_tagged_images()
 {
-  remove_current_docker_image "${CYBER_DOJO_RUNNER_IMAGE}"
-  remove_current_docker_image "${CYBER_DOJO_RUNNER_CLIENT_IMAGE}"
+  local -r dil=$(docker image ls --format "{{.Repository}}:{{.Tag}}")
+  remove_all_but_latest "${dil}" "${CYBER_DOJO_RUNNER_IMAGE}"
+  remove_all_but_latest "${dil}" "${CYBER_DOJO_RUNNER_CLIENT_IMAGE}"
+
   build_images
   tag_images
   check_embedded_env_var
+
   echo
   echo "CYBER_DOJO_RUNNER_TAG=$(image_tag)"
   echo "CYBER_DOJO_RUNNER_SHA=$(image_sha)"
+  echo
 }
 
 # - - - - - - - - - - - - - - - - - - - - - -
-remove_current_docker_image()
+remove_all_but_latest()
 {
-  local -r name="${1}"
-  if image_exists "${name}" 'latest' ; then
-    local -r sha="$(docker run --rm -it ${name}:latest sh -c 'echo -n ${SHA}')"
-    local -r tag="${sha:0:7}"
-    if image_exists "${name}" "${tag}" ; then
-      echo "Deleting current image ${name}:${tag}"
-      docker image rm "${name}:${tag}"
+  local -r docker_image_ls="${1}"
+  local -r name="${2}"
+  for image_name in `echo "${docker_image_ls}" | grep "${name}:"`
+  do
+    if [ "${image_name}" != "${name}:latest" ]; then
+      if [ "${image_name}" != "${name}:<none>" ]; then
+        docker image rm "${image_name}"
+      fi
     fi
-  fi
+  done
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
