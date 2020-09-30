@@ -6,8 +6,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build tested tagged docker image
-          command: ./build_test_tag_publish.sh
+          name: Build tested docker image and publish on Dockerhub
+          command: ./build_test_publish.sh
   deploy-to-beta:
     docker:
       - image: cyberdojo/gcloud-kubectl-helm
