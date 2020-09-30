@@ -7,6 +7,7 @@ trap remove_tmp_dir EXIT
 
 source ${SH_DIR}/exit_zero_if_show_help.sh
 source ${SH_DIR}/build_tagged_images.sh
+source ${SH_DIR}/exit_zero_if_build_only.sh
 source ${SH_DIR}/tear_down.sh
 source ${SH_DIR}/setup_dependent_images.sh
 source ${SH_DIR}/containers_up.sh
