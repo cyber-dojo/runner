@@ -47,11 +47,11 @@ class TestBase < Id58TestBase
   # OS specific tests
 
   def self.alpine_test(id_suffix, *lines, &block)
-    self.csharp_nunit_test(id_suffix, *lines, &block)
+    self.c_assert_test(id_suffix, *lines, &block)
   end
 
   def self.debian_test(id_suffix, *lines, &block)
-    self.c_assert_test(id_suffix, *lines, &block)
+    self.perl_testsimple_test(id_suffix, *lines, &block)
   end
 
   def self.ubuntu_test(id_suffix, *lines, &block)
@@ -60,11 +60,11 @@ class TestBase < Id58TestBase
 
   # Language-Test-Framework specific tests
 
-  def self.csharp_nunit_test(id_suffix, *lines, &block)
+  def self.c_assert_test(id_suffix, *lines, &block)
     define_test(:Alpine, DisplayNames::ALPINE, id_suffix, *lines, &block)
   end
 
-  def self.c_assert_test(id_suffix, *lines, &block)
+  def self.perl_testsimple_test(id_suffix, *lines, &block)
     define_test(:Debian, DisplayNames::DEBIAN, id_suffix, *lines, &block)
   end
 

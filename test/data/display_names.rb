@@ -2,8 +2,8 @@
 
 module DisplayNames
 
-  ALPINE = 'C#, NUnit'
-  DEBIAN = 'C (gcc), assert'
+  ALPINE = 'C (gcc), assert'
+  DEBIAN = 'Perl, Test::Simple'
   UBUNTU = 'C (clang), assert'
 
 end
