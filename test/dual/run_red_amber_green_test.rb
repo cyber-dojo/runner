@@ -19,7 +19,7 @@ module Dual
         # :nocov_server:
         expected_stdout = ''
         expected_stderr = [
-          "test: hiker.tests.c:7: life_the_universe_and_everything: Assertion `answer() == 42' failed.",
+          'Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)',
           'make: *** [makefile:19: test.output] Aborted'
         ]
         expected_status = '2'
