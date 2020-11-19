@@ -6,8 +6,10 @@ Suppose a container was created with an entrypoint whose script
 1) waited for a signal
 2) untarred tgz on stdin
 3) ran /tmp/main.sh
-Now cache could create such container.
-And request could get container from cache and docker-exec it
+Now cache could create such container and keep them as long lived containers.
+And request could get container from cache and docker-exec it.
+Is docker-exec really much faster than docker-run?
+
 Good step would be to re-split the docker-run into a docker-run and
 a docker-exec again. Look at older commit
    1. create_container(id, image_name)

@@ -1,0 +1,23 @@
+
+If the docker-run used --read-only it would mean
+all LTFs were using /tmp and /sandbox only.
+That might make it possible to _recycle_ containers (per image).
+Viz keep N containers alive in a cache and use docker-exec
+instead of docker-run (is that really faster? if so how much? is it worth it?)
+
+You'd need to clear out /tmp and /sandbox from a used container
+before returning it to the cache.
+
+They should be readonly for better security anyway...
+
+What happens to tests with --read-only added...
+Only 2 failures
+TrafficLightTest
+9DB Ubuntu L23
+9DD Ubuntu L41
+Access to the path /home/sandbox/.mono is denied.
+--read-only And all tests pass :-)
+Need to try on all LTFs...
+
+Strongly suspect many Javascript node-based images will
+require write access to their /etc/ install dir.

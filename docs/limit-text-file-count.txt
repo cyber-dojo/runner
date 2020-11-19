@@ -1,0 +1,3 @@
+
+Limit number of created text files returned to caller.
+At present there is no limit.

@@ -1,0 +1,37 @@
+
+Purging old images from runner...
+
+At startup harvest the image creation time....
+
+docker image ls --format '{{.Repository}}:{{.Tag}} {{.CreatedAt}}'
+
+Eg
+cyberdojofoundation/python_unittestb8333d3 2020-06-09 01:47:18 +0100 BST
+cyberdojofoundation/java_junita4a7561 2020-06-09 01:19:50 +0100 BST
+cyberdojofoundation/csharp_nunit3a84849 2020-06-09 01:07:21 +0100 BST
+cyberdojofoundation/gpp_assert832566f 2020-06-09 01:05:32 +0100 BST
+cyberdojofoundation/gcc_assert0e5e4d5 2020-06-04 01:29:53 +0100 BST
+
+Add a most-recent-use field to each image-name stored
+in puller's @pulled SynchronizedSet (which may therefore have to
+become a SynchronizedHash) and initialize it with 1st Jan 1970
+
+On every run_cyber_dojo_sh call, update the most-recent-use
+timestamp for that image.
+
+?Think about how to handle images that need to be pulled?
+
+On every 1000th run_cyber_dojo_sh() call, check all image-names:
+Each has two pieces of info...
+  1) the date the image was created
+  2) the date the image was last-used
+...
+
+Rule 1: if last-use was less than 1 month ago, don't delete
+Rule 2: if creation-date is less than 2 months ago, don't delete
+Rule 3: otherwise delete the image
+
+Rule 1 tries to keep alive used images, even if creation date is old.
+       Needed for custom-start-points
+Rule 2 tries to keep alive recently created images.
+       Idea here is to keep a current image for each language-start-point

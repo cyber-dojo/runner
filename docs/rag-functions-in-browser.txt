@@ -1,0 +1,27 @@
+
+Step 0
+Think about steps below in light of old-images (eg rarely used
+custom-start-points). Should they fall back to using the
+Ruby rag-lambdas?
+
+Step 1
+Migrate Ruby rag lambdas to Javascript.
+Continue to make rag colour call inside the runner.
+Just delegate to a node-based Javascript run_cyber_dojo_sh() call.
+
+Step 2
+Move Javascript lambdas from being stored in the manifest directly,
+to being in a file named in the manifest.
+
+Step 3
+Make the Ruby rag lambda calls _and_ the Javascript browser calls
+and verify they agree.
+
+Step 4
+Browser makes the call to model.ran_tests(....) rather than web controller.
+
+Step 5
+Stop making the Ruby rag lambda calls in runner.
+
+Step 6
+Delete rag lambdas from all language-start-point images.
