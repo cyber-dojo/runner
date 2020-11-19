@@ -1,13 +1,16 @@
 
 Step 0
 Think about steps below in light of old-images (eg rarely used
-custom-start-points). Should they fall back to using the
-Ruby rag-lambdas?
+custom-start-points). They would need a fall-back... Perhaps
+runner could be told whether to try and do rag call itself?
+Could it determine that for itself? I think it could now that
+runner_cyber_dojo_sh() accepts the manifest parameter.
 
 Step 1
 Migrate Ruby rag lambdas to Javascript.
 Continue to make rag colour call inside the runner.
 Just delegate to a node-based Javascript run_cyber_dojo_sh() call.
+Don't like this because it makes each run_cyber_dojo_sh() call slower.
 
 Step 2
 Move Javascript lambdas from being stored in the manifest directly,

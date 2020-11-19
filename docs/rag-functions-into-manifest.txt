@@ -1,0 +1,36 @@
+
+Browser will need to make model.ran_tests() call instead of web-server.
+Do that first?
+
+The manifest could have a new field "traffic_light" which holds a tuple
+[ language, function ]
+eg
+[ "Ruby", "...the ruby lambda code here... ]
+
+Browser then holds this Ruby code and passes it to runner.
+
+Every N calls, invoke this rag-lambda inside a new Ruby container
+and compare with outcome from running directly (from rag-lambda
+extracted from image).
+
+Then start moving Ruby rag-lambdas to Javascript. Manifest has...
+[ "Javascript", "...the js function here..." ]
+
+Again, every Nth call run this inside a node-based JS container,
+and compare with outcome from running Ruby rag-lambda extracted from
+image.
+
+Now start running JS rag-function in browser too.
+Again check outcome is same as that returned by runner.
+
+Now don't run rag-function in runner if manifest arg
+has [ "Javascript", "...rag-function..." ] entry.
+
+The fallback case...
+If you are using a fork from an old kata (say) or have
+created your own images (which I cannot upgrade)
+then the manifest will simply not have an entry for the rag-lambda.
+In this case, simply delegate to a ragger service
+which does what the runner currently does.
+
+Now you can move the "legacy" rag-code out of runner into this ragger service.
