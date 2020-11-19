@@ -21,7 +21,8 @@ Make the Ruby rag lambda calls _and_ the Javascript browser calls
 and verify they agree.
 
 Step 4
-Browser makes the call to model.ran_tests(....) rather than web controller.
+Browser makes the call to kata/ran_tests()
+which reaches web which in turn calls model.ran_tests(....)
 
 Step 5
 Stop making the Ruby rag lambda calls in runner.
