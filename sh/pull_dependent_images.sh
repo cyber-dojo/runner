@@ -17,18 +17,14 @@ pull_dependent_images()
         ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG} \
           ruby /test/dependent_display_names.rb)"
 
+  local -r json_data=$(docker run --rm \
+    ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG} \
+    bash -c 'ruby /app/repos/inspect.rb')
+
   echo "${display_names}" \
     | while read display_name
       do
-        local json="$(json_data "${display_name}")"
-        local manifest="$(curl \
-          --data "${json}" \
-          --silent \
-          -X GET \
-          "http://$(ip_address):$(lsp_port)/manifest")"
-
-        local image_name=$(echo "${manifest}" | jq --raw-output '.manifest.image_name')
-
+        local image_name=$(echo "${json_data}" | jq --raw-output ".[\"${display_name}\"].image_name")
         echo "${image_name}"
         docker pull "${image_name}"
       done
@@ -37,29 +33,4 @@ pull_dependent_images()
   echo Removing image pulled in client-side test
   echo busybox:glibc
   docker image rm busybox:glibc &> /dev/null || true
-}
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-ip_address()
-{
-  if [ -n "${DOCKER_MACHINE_NAME:-}" ]; then
-    docker-machine ip ${DOCKER_MACHINE_NAME}
-  else
-    echo localhost
-  fi
-}
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-json_data()
-{
-  local -r display_name="${1}"
-  cat <<- EOF
-  { "name":"${display_name}" }
-EOF
-}
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-lsp_port()
-{
-  echo "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}"
 }
