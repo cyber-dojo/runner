@@ -1,0 +1,51 @@
+Run options: --seed 53296
+
+# Running:
+
+............................................................................................................
+
+Finished in 0.241045s, 448.0483 runs/s, 97184.9975 assertions/s.
+
+108 runs, 23426 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for MiniTest to //tmp/reports. 7770 / 15176 LOC (51.2%) covered.
+
+Slowest 25 tests are...
+0.0674 - 4a7c91 - Alpine - C (gcc), assert - hex_id(8) is size 8, each char is hex-digit - random_hex_test.rb:15
+0.0082 - c7Bd56 - Alpine - C (gcc), assert - red - run_red_amber_green_test.rb:14
+0.0079 - c7Ag55 - Alpine - C (gcc), assert - timeout - run_timed_out_test.rb:13  
+0.0075 - c7Dd54 - Alpine - C (gcc), assert - outcome is faulty when gzip error - run_faulty_gzip_error_test.rb:13
+0.0071 - c7Cd55 - Alpine - C (gcc), assert - outcome is faulty when status is non zero - run_faulty_status_non_zero_test.rb:13
+0.0071 - s8Ek8W - Ubuntu - C (clang), assert - clang image requires docker run command with ptrace capability - run_clang_ptrace_test.rb:13
+0.0064 - D06AB8 - Alpine - C (gcc), assert - server error in Dispatcher results in 500 status response - rack_dispatcher_test.rb:188
+0.0061 - D06AB7 - Alpine - C (gcc), assert - server error in RackDispatcher results in 500 status response - rack_dispatcher_test.rb:177
+0.0058 - c7Bd57 - Alpine - C (gcc), assert - amber - run_red_amber_green_test.rb:39
+0.0057 - c7Bd58 - Alpine - C (gcc), assert - green - run_red_amber_green_test.rb:65
+0.0046 - D06BB1 - Alpine - C (gcc), assert - json not Hash in http payload becomes 400 exception - rack_dispatcher_test.rb:116
+0.0029 - C89244 - Alpine - C (gcc), assert - when capture(command)'s status is zero, it logs nothing, it returns [stdout,stderr,status], - bash_sheller_test.rb:27
+0.0029 - C89243 - Alpine - C (gcc), assert - when capture(command) raises an exception, then the exception is untouched then nothing is logged - bash_sheller_test.rb:13
+0.0027 - C5a25e - Alpine - C (gcc), assert - when I call run_cyber_dojo_sh(), with an image_name that has not yet been pulled onto the node, then the docker pull runs in a new thread and the result is :pulling - run_pulling_test.rb:13
+0.0027 - DDxas4 - Alpine - C (gcc), assert - LSP is ready - languages_start_points_test.rb:18
+0.0027 - C89245 - Alpine - C (gcc), assert - when capture(command)'s status is non-zero, it does not raise, it logs [command,stdout,stderr,status], it returns [stdout,stderr,status], - bash_sheller_test.rb:43
+0.0027 - D06AB5 - Alpine - C (gcc), assert - run_cyber_dojo_sh 200 - rack_dispatcher_test.rb:59
+0.0025 - D06A9F - Alpine - C (gcc), assert - pull_image - rack_dispatcher_test.rb:81
+0.0022 - h9US3e - Alpine - C (gcc), assert - a simple object-wrapper to allow instance-level stubbing - process_spawner_test.rb:13
+0.0022 - DDxas3 - Alpine - C (gcc), assert - LSP is alive - languages_start_points_test.rb:13
+0.0021 - DDxas5 - Alpine - C (gcc), assert - LSP sha is SHA of git commit which created its docker image - languages_start_points_test.rb:23
+0.0016 - D06BB2 - Alpine - C (gcc), assert - unknown path becomes 400 exception - rack_dispatcher_test.rb:129
+0.0013 - D06BB0 - Alpine - C (gcc), assert - malformed json in http payload becomes 400 exception - rack_dispatcher_test.rb:105
+0.0013 - D06AA8 - Alpine - C (gcc), assert - unknown argument becomes 400 exception - rack_dispatcher_test.rb:160
+0.0011 - D06AA6 - Alpine - C (gcc), assert - missing argument becomes 400 exception - rack_dispatcher_test.rb:142
+0.0011 - D06AA7 - Alpine - C (gcc), assert - missing arguments becomes 400 exception - rack_dispatcher_test.rb:150
+
+
+            test:failures |       0   <=     0 | [32m true [0m
+              test:errors |       0   <=     0 | [32m true [0m
+            test:warnings |       0   <=     0 | [32m true [0m
+               test:skips |       0   <=     0 | [32m true [0m
+         test:duration(s) |    0.24   <=     2 | [32m true [0m
+               test:count |     108   >=     1 | [32m true [0m
+          lines(test/app) |    1.64   >=   1.6 | [32m true [0m
+           hits(app/test) |    0.33   >=   0.3 | [32m true [0m
+          app:coverage[%] |   100.0   >=   100 | [32m true [0m
+         test:coverage[%] |   100.0   >=   100 | [32m true [0m
+

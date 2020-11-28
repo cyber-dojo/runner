@@ -1,5 +1,3 @@
 *
 !code/
-!config.ru
-!puma.rb
-!up.sh
+!config/

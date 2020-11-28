@@ -1,0 +1,19 @@
+/usr/local/bundle/gems/simplecov-0.19.0/lib/simplecov/configuration.rb:203: warning: instance variable @enable_for_subprocesses not initialized
+Run options: --seed 37903
+
+# Running:
+
+.....
+
+Finished in 18.807271s, 0.2659 runs/s, 0.2659 assertions/s.
+
+5 runs, 5 assertions, 0 failures, 0 errors, 0 skips
+Coverage report generated for Minitest to //tmp/reports. 108 / 129 LOC (83.72%) covered.
+
+Slowest 5 tests are...
+5.5048 - 1B5DB3 - Alpine - C (gcc), assert - file-handles quickly become exhausted - robustness_test.rb:66
+5.1334 - 1B5CD6 - Debian - Perl, Test::Simple - shell fork-bomb does not run indefinitely - robustness_test.rb:44
+5.1307 - 1B5CD6 - Ubuntu - C (clang), assert - shell fork-bomb does not run indefinitely - robustness_test.rb:44
+2.4947 - 1B5CD5 - Alpine - C (gcc), assert - fork-bomb does not run indefinitely - robustness_test.rb:13
+0.5393 - 1B5CD6 - Alpine - C (gcc), assert - shell fork-bomb does not run indefinitely - robustness_test.rb:44
+

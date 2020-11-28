@@ -14,7 +14,7 @@ module HttpProxy
 
     def initialize
       adapter = ::HttpProxy::NetHttpAdapter.new
-      hostname = 'runner-server'
+      hostname = 'runner'
       port = 4597
       requester = ::HttpProxy::JsonRequester.new(adapter, hostname, port)
       @http = ::HttpProxy::JsonResponder.new(requester, Error)
