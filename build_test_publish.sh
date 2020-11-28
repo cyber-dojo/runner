@@ -31,7 +31,7 @@ remove_old_images
 build_tagged_images "$@"
 exit_zero_if_build_only "$@"
 #tear_down
-pull_dependent_images "$@"
+#pull_dependent_images "$@"
 server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
 test_in_containers "$@"

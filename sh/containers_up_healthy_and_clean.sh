@@ -78,33 +78,10 @@ exit_non_zero_unless_started_cleanly()
 # - - - - - - - - - - - - - - - - - - -
 clean_top_4()
 {
-  if [ "${SERVICE_NAME}" == client ]; then
-    client_clean_top_4
-  else
-    server_clean_top_4
-  fi
-}
-
-# - - - - - - - - - - - - - - - - - - -
-server_clean_top_4()
-{
   # 1st 6 lines on Puma
   local -r L1="Puma starting in single mode..."
   local -r L2="* Version 4.3.5 (ruby 2.7.1-p83), codename: Mysterious Traveller"
   local -r L3="* Min threads: 0, max threads: 16"
-  local -r L4="* Environment: production"
-  #
-  local -r top4="$(printf "%s\n%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}")"
-  echo "${top4}"
-}
-
-# - - - - - - - - - - - - - - - - - - -
-client_clean_top_4()
-{
-  # 1st 6 lines on Puma
-  local -r L1="Puma starting in single mode..."
-  local -r L2="* Version 5.0.2 (ruby 2.7.2-p137), codename: Spoony Bard"
-  local -r L3="* Min threads: 0, max threads: 5"
   local -r L4="* Environment: production"
   #
   local -r top4="$(printf "%s\n%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}")"
