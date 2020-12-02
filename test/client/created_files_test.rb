@@ -38,6 +38,24 @@ module Client
 
     # - - - - - - - - - - - - - - - - -
 
+    test '523',
+    %w(
+    created text file called stdout
+    is kept separate to actual stdout ) do
+      set_context
+      assert_cyber_dojo_sh([
+        'make',
+        'file --mime-encoding test',
+        'echo -n "Hello" > stdout',
+      ].join("\n"))
+      assert stdout.include?('test: binary'), stdout # file --mime-encoding
+      assert_equal({ 'stdout' => intact('Hello') }, created, :created)
+      assert_equal([], deleted, :deleted)
+      assert_equal({}, changed, :changed)
+    end
+
+    # - - - - - - - - - - - - - - - - -
+
     test '524', %w(
     created text files are returned when
     their names have leading hyphens which must not

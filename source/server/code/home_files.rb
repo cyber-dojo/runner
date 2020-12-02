@@ -45,8 +45,10 @@ module HomeFiles
     function send_tgz()
     {
       local -r signal="${1}"
-      # >&2 echo "signal:${signal}:"
-      tar -rf "${TAR_FILE}" -C ${TMP_DIR} stdout stderr status
+      touch ${TMP_DIR}/stdout && mv ${TMP_DIR}/stdout /tmp
+      touch ${TMP_DIR}/stderr && mv ${TMP_DIR}/stderr /tmp
+      touch ${TMP_DIR}/status && mv ${TMP_DIR}/status /tmp
+      tar -rf "${TAR_FILE}" /tmp/stdout /tmp/stderr /tmp/status
       truncated_text_filenames | \
         tar -rf ${TAR_FILE} \
         -C / \
@@ -119,7 +121,7 @@ module HomeFiles
   #      cyber_dojo_delete_files ...
   # For example, see
   # https://github.com/cyber-dojo-start-points/python-pytest/blob/master/start_point/cyber-dojo.sh
-  
+
   FS_CLEANERS =
     <<~SHELL.strip
     function cyber_dojo_delete_dirs()
