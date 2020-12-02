@@ -27,13 +27,13 @@ module HomeFiles
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # [0] Ensure filenames are not read as tar command options.
-  #     Eg -J... is a tar compression option. Not on Ubuntu 16.04
+  # [0] --verbatim-files-from ensure filenames are not read as
+  #     tar command options.
+  #     Eg -J... is a tar compression option (but not on Ubuntu 16.04)
   # [1] Must be //; dont add space between // and ;
-  # [2] grep -q is --quiet, we are generating filenames
-  #     grep -v is --invert-match
-  # [3] /usr/bin/file reports small text files as binary.
+  # [2] /usr/bin/file reports small text files as binary.
   #     If size==0,1 assume a text file.
+  # [3] grep -q is --quiet, we are generating filenames.
   # [4] truncates text files to MAX_FILE_SIZE+1 so
   #     runner.rb's truncated?() can detect the truncation.
   # [5] tar prefers relative paths
@@ -44,62 +44,54 @@ module HomeFiles
     TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
     function send_tgz()
     {
-      local -r signal="${1}"
+      #local -r signal="${1}"
       touch ${TMP_DIR}/stdout && mv ${TMP_DIR}/stdout /tmp
       touch ${TMP_DIR}/stderr && mv ${TMP_DIR}/stderr /tmp
       touch ${TMP_DIR}/status && mv ${TMP_DIR}/status /tmp
+      remove_binary_files
+      truncate_large_files
       tar -rf "${TAR_FILE}" /tmp/stdout /tmp/stderr /tmp/status
-      truncated_text_filenames | \
-        tar -rf ${TAR_FILE} \
-        -C / \
-        --verbatim-files-from -T - # [0]
-      gzip < "${TAR_FILE}"
+      tar -rf "${TAR_FILE}" --verbatim-files-from --null -T <(print0_filenames) # [0]
+      gzip  < "${TAR_FILE}"
     }
-    function truncated_text_filenames()
+    function remove_binary_files()
     {
-      find #{sandbox_dir} -type f -exec \\
-        bash -c "is_truncated_text_file {} && unrooted {}" \\; # [1]
+      print0_binary_filenames | xargs -0 rm
     }
-    function is_truncated_text_file()
+    function print0_binary_filenames()
+    {
+      find #{sandbox_dir} -type f -exec bash -c "is_binary_file \\"{}\\"" \\; -print0 # [1]
+    }
+    function print0_filenames()
+    {
+      find #{sandbox_dir} -type f -print0
+    }
+    function is_binary_file()
     {
       local -r filename="${1}"
       local -r size=$(stat -c%s "${filename}")
-      if is_text_file "${filename}" "${size}" ; then
-        truncate_dont_extend "${filename}" "${size}"
-        true
+      if [ "${size}" -lt 2 ]; then
+        false # [2]
+      elif file --mime-encoding "${filename}" | grep -q "${filename}:\\sbinary" ; then
+        true # [3]
       else
         false
       fi
     }
-    function is_text_file()
+    function truncate_large_files()
     {
-      local -r filename="${1}"
-      local -r size="${2}"
-      if file --mime-encoding ${filename} | grep -qv "${filename}:\\sbinary" ; then # [2]
-        true
-      elif [ "${size}" -lt 2 ]; then # [3]
-        true
-      else
-        false
-      fi
+      find #{sandbox_dir} -type f -exec bash -c "truncate_dont_extend \\"{}\\"" \\;
     }
     function truncate_dont_extend()
     {
       local -r filename="${1}"
-      local -r size="${2}"
+      local -r size=$(stat -c%s "${filename}")
       if [ "${size}" -gt #{max_file_size} ] ; then
         truncate --size #{max_file_size+1} "${filename}" # [4]
       fi
     }
-    function unrooted()
-    {
-      local -r filename="${1}"
-      echo "${filename:1}" # [5]
-    }
-    export -f is_truncated_text_file
-    export -f is_text_file
+    export -f is_binary_file
     export -f truncate_dont_extend
-    export -f unrooted
     # - - - - - - - - - - - - - - - - - - -
     trap "send_tgz EXIT" EXIT
     trap "send_tgz TERM" SIGTERM

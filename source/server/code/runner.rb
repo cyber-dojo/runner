@@ -101,12 +101,14 @@ class Runner
     files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
       memo[filename] = truncated(content)
     end
+
     stdout = files_out.delete('tmp/stdout') || truncated('')
     stderr = files_out.delete('tmp/stderr') || truncated('')
     status = files_out.delete('tmp/status') || truncated('145')
     sss = [ stdout['content'], stderr['content'], status['content'] ]
     outcome,log_info = *@traffic_light.colour(image_name, *sss)
     created,deleted,changed = files_delta(files_in, files_out)
+
     result(
       stdout, stderr, status['content'],
       outcome, log_info,

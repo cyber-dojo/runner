@@ -38,6 +38,25 @@ module Client
 
     # - - - - - - - - - - - - - - - - -
 
+    test '522',
+    %w(
+    created text file with embedded special characters
+    such as ampersand
+    are handled without problems ) do
+      set_context
+      assert_cyber_dojo_sh([
+        'make',
+        'file --mime-encoding test',
+        'echo -n Bonjour > "ampers&and.txt"',
+      ].join("\n"))
+      assert stdout.include?('test: binary'), stdout # file --mime-encoding
+      assert_equal({ 'ampers&and.txt' => intact('Bonjour') }, created, :created)
+      assert_equal([], deleted, :deleted)
+      assert_equal({}, changed, :changed)
+    end
+
+    # - - - - - - - - - - - - - - - - -
+
     test '523',
     %w(
     created text file called stdout
