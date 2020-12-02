@@ -9,6 +9,7 @@ build_tagged_images()
   echo
   echo "echo CYBER_DOJO_RUNNER_TAG=$(image_tag)"
   echo "echo CYBER_DOJO_RUNNER_SHA=$(image_sha)"
+  echo
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
