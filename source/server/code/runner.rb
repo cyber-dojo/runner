@@ -20,7 +20,7 @@ class Runner
 
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
-    if puller.pull_image(id:id, image_name:image_name) != :pulled
+    unless puller.pull_image(id:id, image_name:image_name) === :pulled
       return empty_result(:pulling, 'pulling', {})
     end
 
@@ -101,7 +101,6 @@ class Runner
     files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
       memo[filename] = truncated(content)
     end
-
     stdout = files_out.delete('tmp/stdout') || truncated('')
     stderr = files_out.delete('tmp/stderr') || truncated('')
     status = files_out.delete('tmp/status') || truncated('145')
@@ -256,8 +255,8 @@ class Runner
     result[:stderr] = Utf8.clean(result[:stderr])
   end
 
-  def log(properties)
-    @context.logger.log(JSON.pretty_generate(properties))
+  def log(info)
+    @context.logger.log(JSON.pretty_generate(info))
   end
 
   def puller
@@ -278,7 +277,7 @@ end
 #
 # Approval-style test-frameworks compare actual-text against
 # expected-text and write the actual-text to a file for human
-# inspection. runner supports this by returning all text files
+# inspection. runner supports this by returning text files
 # under /sandbox after cyber-dojo.sh has run.
 #
 # Note: The browser's kata/run_tests ajax call timeout is
