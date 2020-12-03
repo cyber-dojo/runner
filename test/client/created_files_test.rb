@@ -11,7 +11,7 @@ module Client
     # - - - - - - - - - - - - - - - - -
 
     test '160',
-    %w( round-tripping: example of no file changes ) do
+    %w( no file changes ) do
       set_context
       run_cyber_dojo_sh
       assert_equal({}, created, :created)
@@ -38,28 +38,16 @@ module Client
 
     # - - - - - - - - - - - - - - - - -
 
-=begin
-    # I wrongly thought this would make 521 green...(in home_files.rb)
-    #  function print0_filenames()
-    #  {
-    #    find #{sandbox_dir} -type f -print0 | head -z -n 32
-    #  }
-    # The limit means some text files are excluded.
-    # And these can include cyber-dojo.sh, makefile, hiker.h, hiker.c etc.
-    # Which then become deleted files!
-    # So this is trickier than I first though...
-
     test '521',
-    %w( return at most 32 created text files ) do
+    %w( return at most 16 created text files ) do
       set_context
       assert_cyber_dojo_sh([
-        'for n in {1..64}; do echo -n Ciao > "file.${n}"; done',
+        'for n in {1..32}; do echo -n Ciao > "file.${n}"; done',
       ].join("\n"))
-      assert_equal 32, created.keys.size, :created
-      assert_equal([], deleted, :deleted) # <<<<<<<
+      assert_equal 16, created.keys.size, :created
+      assert_equal([], deleted, :deleted)
       assert_equal({}, changed, :changed)
     end
-=end
 
     # - - - - - - - - - - - - - - - - -
 
@@ -70,11 +58,8 @@ module Client
     are handled without problems ) do
       set_context
       assert_cyber_dojo_sh([
-        'make',
-        'file --mime-encoding test',
         'echo -n Bonjour > "ampers&and.txt"',
       ].join("\n"))
-      assert stdout.include?('test: binary'), stdout # file --mime-encoding
       assert_equal({ 'ampers&and.txt' => intact('Bonjour') }, created, :created)
       assert_equal([], deleted, :deleted)
       assert_equal({}, changed, :changed)
@@ -88,11 +73,8 @@ module Client
     is kept separate to actual stdout ) do
       set_context
       assert_cyber_dojo_sh([
-        'make',
-        'file --mime-encoding test',
         'echo -n "Hello" > stdout',
       ].join("\n"))
-      assert stdout.include?('test: binary'), stdout # file --mime-encoding
       assert_equal({ 'stdout' => intact('Hello') }, created, :created)
       assert_equal([], deleted, :deleted)
       assert_equal({}, changed, :changed)

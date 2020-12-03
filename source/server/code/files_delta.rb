@@ -17,10 +17,9 @@ module FilesDelta
       end
       new.delete(filename) # same (destructive)
     end
-    [ created=new, deleted, changed ]
+    [ new, deleted, changed ]
   end
 
-  # The old files are assumed to NOT be truncated.
   # To check for a changed file we only have to check the
   # new files' content. If the new file has been truncated
   # then the content must have changed since the old files

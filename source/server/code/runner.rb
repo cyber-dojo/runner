@@ -108,17 +108,32 @@ class Runner
     sss = [ stdout['content'], stderr['content'], status['content'] ]
     outcome,log_info = *@traffic_light.colour(image_name, *sss)
     created,deleted,changed = files_delta(files_in, files_out)
-
     result(
       stdout, stderr, status['content'],
       outcome, log_info,
-      Sandbox.out(created),
+      Sandbox.out(at_most(16,created)),
       Sandbox.out(deleted).keys.sort,
       Sandbox.out(changed)
     )
   rescue Zlib::GzipFile::Error
     log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
     empty_result(:gzip_error, 'faulty', {})
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - -
+
+  def at_most(size, new_files)
+    # Limit number of created text files returned to browser.
+    # It would be better to do this inside the run container,
+    # using home_files.rb like this...
+    #   function print0_filenames()
+    #   {
+    #     find #{sandbox_dir} -type f -print0 | head -z -n LIMIT
+    #   }
+    # ...but this this can exclude files such as
+    # cyber-dojo.sh, makefile, hiker.h, hiker.c etc
+    # which then become deleted files!
+    Hash[new_files.keys.sort[0...size].map{|filename| [filename,new_files[filename]]}]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
