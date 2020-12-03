@@ -28,7 +28,6 @@ module Client
 
     multi_os_test 'D98', %w( multiple container properties ) do
       set_context
-      memory_dir = '/sys/fs/cgroup/memory'
       cyber_dojo_sh = [
         "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]
         "cat /proc/1/cmdline | cut -c1-9   > #{sandbox_dir}/proc.1", # [2]
@@ -40,16 +39,7 @@ module Client
         "env | grep CYBER_DOJO_SANDBOX     > #{sandbox_dir}/env.var.sandbox",
         "stat --printf='%u' #{sandbox_dir} > #{sandbox_dir}/dir.stat.u",
         "stat --printf='%g' #{sandbox_dir} > #{sandbox_dir}/dir.stat.g",
-        "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/dir.stat.A",
-        "ulimit -c                         > #{sandbox_dir}/ulimit.core_size",
-        "ulimit -d                         > #{sandbox_dir}/ulimit.data_size",
-        "ulimit -f                         > #{sandbox_dir}/ulimit.file_size",
-        "ulimit -n                         > #{sandbox_dir}/ulimit.file_count",
-        "ulimit -x                         > #{sandbox_dir}/ulimit.file_locks",
-        "ulimit -u                         > #{sandbox_dir}/ulimit.process_count",
-        "ulimit -s                         > #{sandbox_dir}/ulimit.stack_size",
-        "cat #{memory_dir}/memory.limit_in_bytes      > #{sandbox_dir}/memory.limit_in_bytes",
-        "cat #{memory_dir}/memory.kmem.limit_in_bytes > #{sandbox_dir}/memory.kmem.limit_in_bytes"
+        "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/dir.stat.A"
       ].join(' && ')
 
       assert_cyber_dojo_sh(cyber_dojo_sh)
@@ -87,21 +77,6 @@ module Client
       assert_equal gid.to_s,     created_file('dir.stat.g'), :gid
       assert_equal 'drwxrwxrwt', created_file('dir.stat.A'), :permission
 
-      expected_max_data_size  =  clang? ? 0 : 4*GB / BLOCK_SIZE
-      expected_max_file_size  = 128*MB / BLOCK_SIZE
-      expected_max_stack_size =  16*MB / BLOCK_SIZE
-
-      assert_ulimit 0,                       :core_size
-      assert_ulimit expected_max_data_size,  :data_size
-      assert_ulimit expected_max_file_size,  :file_size
-      assert_ulimit 1024,                    :file_locks
-      assert_ulimit 1024,                    :file_count
-      assert_ulimit expected_max_stack_size, :stack_size
-      assert_ulimit 1024,                    :process_count
-
-      assert_equal 768*MB, created_file('memory.limit_in_bytes').to_i, :memory_limit
-      assert_equal 768*MB, created_file('memory.kmem.limit_in_bytes').to_i, :kmem_memory_limit
-
       stats = files_stat
       assert_equal starting_files.keys.sort, stats.keys.sort
       starting_files.each do |filename, content|
@@ -116,6 +91,43 @@ module Client
         assert_equal        group, stat[:group      ], diagnostic
         assert_equal content.size, stat[:size       ], diagnostic
       end
+    end
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    multi_os_test 'D99', %w( ulimit container properties ) do
+      set_context
+      memory_dir = '/sys/fs/cgroup/memory'
+      cyber_dojo_sh = [
+        "ulimit -c > #{sandbox_dir}/ulimit.core_size",
+        "ulimit -d > #{sandbox_dir}/ulimit.data_size",
+        "ulimit -f > #{sandbox_dir}/ulimit.file_size",
+        "ulimit -n > #{sandbox_dir}/ulimit.file_count",
+        "ulimit -x > #{sandbox_dir}/ulimit.file_locks",
+        "ulimit -u > #{sandbox_dir}/ulimit.process_count",
+        "ulimit -s > #{sandbox_dir}/ulimit.stack_size",
+        "cat #{memory_dir}/memory.limit_in_bytes      > #{sandbox_dir}/memory.limit_in_bytes",
+        "cat #{memory_dir}/memory.kmem.limit_in_bytes > #{sandbox_dir}/memory.kmem.limit_in_bytes"
+      ].join(' && ')
+
+      assert_cyber_dojo_sh(cyber_dojo_sh)
+
+      refute timed_out?, pretty_result(:timed_out)
+
+      expected_max_data_size  =  clang? ? 0 : 4*GB / BLOCK_SIZE
+      expected_max_file_size  = 128*MB / BLOCK_SIZE
+      expected_max_stack_size =  16*MB / BLOCK_SIZE
+
+      assert_ulimit 0,                       :core_size
+      assert_ulimit expected_max_data_size,  :data_size
+      assert_ulimit expected_max_file_size,  :file_size
+      assert_ulimit 1024,                    :file_locks
+      assert_ulimit 1024,                    :file_count
+      assert_ulimit expected_max_stack_size, :stack_size
+      assert_ulimit 1024,                    :process_count
+
+      assert_equal 768*MB, created_file('memory.limit_in_bytes').to_i, :memory_limit
+      assert_equal 768*MB, created_file('memory.kmem.limit_in_bytes').to_i, :kmem_memory_limit
     end
 
     private
