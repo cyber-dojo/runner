@@ -38,6 +38,31 @@ module Client
 
     # - - - - - - - - - - - - - - - - -
 
+=begin
+    # I wrongly thought this would make 521 green...(in home_files.rb)
+    #  function print0_filenames()
+    #  {
+    #    find #{sandbox_dir} -type f -print0 | head -z -n 32
+    #  }
+    # The limit means some text files are excluded.
+    # And these can include cyber-dojo.sh, makefile, hiker.h, hiker.c etc.
+    # Which then become deleted files!
+    # So this is trickier than I first though...
+
+    test '521',
+    %w( return at most 32 created text files ) do
+      set_context
+      assert_cyber_dojo_sh([
+        'for n in {1..64}; do echo -n Ciao > "file.${n}"; done',
+      ].join("\n"))
+      assert_equal 32, created.keys.size, :created
+      assert_equal([], deleted, :deleted) # <<<<<<<
+      assert_equal({}, changed, :changed)
+    end
+=end
+
+    # - - - - - - - - - - - - - - - - -
+
     test '522',
     %w(
     created text file with embedded special characters
