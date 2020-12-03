@@ -36,7 +36,6 @@ module HomeFiles
   # [3] grep -q is --quiet, we are generating filenames.
   # [4] truncates text files to MAX_FILE_SIZE+1 so
   #     runner.rb's truncated?() can detect the truncation.
-  # [5] tar prefers relative paths
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
