@@ -275,11 +275,6 @@ end
 # https://github.com/cyber-dojo-tools/image_builder
 # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 #
-# Approval-style test-frameworks compare actual-text against
-# expected-text and write the actual-text to a file for human
-# inspection. runner supports this by returning text files
-# under /sandbox after cyber-dojo.sh has run.
-#
 # Note: The browser's kata/run_tests ajax call timeout is
 # different to the Runner.run() call timing out.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -

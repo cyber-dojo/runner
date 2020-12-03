@@ -6,9 +6,16 @@ module HomeFiles
   # main.sh
   # o) runs /sandbox/cyber-dojo.sh
   # o) captures its stdout/stderr/status
-  # o) writes them to tgz file on stdout
-  # o) reads all text files under /sandbox
-  # o) writes them to tgz file in stdout
+  #    - write them to tgz file on stdout
+  #    These are needed to determine the traffic-light colour.
+  # o) truncates all text files under /sandbox
+  #    - write them to tgz file on stdout
+  #
+  # Capturing text files is done for two main reasons:
+  # 1. To allow approval style test frameworks which compare
+  #    actual-text against expected-text.
+  # 2. To allow cyber-dojo.sh files to generate extra reports
+  #    eg coverage and/or lint-style
 
   def home_files(sandbox_dir, max_file_size)
     {
