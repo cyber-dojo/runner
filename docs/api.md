@@ -88,7 +88,7 @@ Pulls **image_name** onto the node if not already present.
 
 
 - - - -
-## GET alive?
+## GET alive
 Tests if the service is alive.
 Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
 - [JSON-in](#json-in) parameters
@@ -97,12 +97,12 @@ Used as a [Kubernetes](https://kubernetes.io/) liveness probe.
   * **true**
 - example
   ```bash     
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/alive?
+  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/alive
   {"alive?":true}
   ```
 
 - - - -
-## GET ready?
+## GET ready
 Tests if the service is ready to handle requests.
 Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
 - [JSON-in](#json-in) parameters
@@ -112,7 +112,7 @@ Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
   * **false** if the service is not ready
 - example
   ```bash     
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/ready?
+  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/ready
   {"ready?":false}
   ```
 
@@ -140,7 +140,7 @@ The 40 character git commit sha used to create the Docker image.
 - All methods return a json hash in the http response body.
 - If the method completes, a key equals the method's name. eg
   ```bash
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/ready?
+  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/ready
   { "ready?":true}
   ```
 - If the method raises an exception, a key equals `"exception"`, with

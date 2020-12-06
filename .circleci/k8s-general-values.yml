@@ -40,6 +40,6 @@ containers:
       limits:
         memory: 768Mi
     livenessProbe:
-      path: /alive?
+      path: /alive
     readinessProbe:
-      path: /ready?
+      path: /ready
