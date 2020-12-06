@@ -47,58 +47,83 @@ run_tests()
   echo "Running ${TYPE} tests"
   echo '=================================='
 
-  local -r TMP_DIR=/tmp # fs is read-only with tmpfs at /tmp
-  local -r TEST_LOG=test.log
-  # Remove old copies of files we are about to create
-  rm ${TMP_DIR}/${TEST_LOG} 2> /dev/null || true
-  rm ${TMP_DIR}/index.html  2> /dev/null || true
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Run tests (with coverage) inside the container.
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local -r COVERAGE_CODE_TAB_NAME=tested
   local -r COVERAGE_TEST_TAB_NAME=tester
-  local -r REPORTS_DIR_NAME=reports
-  local -r COVERAGE_ROOT=/${TMP_DIR}/${REPORTS_DIR_NAME}
+  local -r CONTAINER_TMP_DIR=/tmp # fs is read-only with tmpfs at /tmp
+  local -r CONTAINER_COVERAGE_DIR="/${CONTAINER_TMP_DIR}/reports"
+  local -r TEST_LOG=test.log
+
+  # Remove old copies of files we are about to create
+  rm "${CONTAINER_TMP_DIR}/${TEST_LOG}" 2> /dev/null || true
+  rm "${CONTAINER_TMP_DIR}/index.html"  2> /dev/null || true
+
   set +e
   docker exec \
-    --env COVERAGE_CODE_TAB_NAME=${COVERAGE_CODE_TAB_NAME} \
-    --env COVERAGE_TEST_TAB_NAME=${COVERAGE_TEST_TAB_NAME} \
+    --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
+    --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
-      sh -c "/test/run.sh ${COVERAGE_ROOT} ${TEST_LOG} ${TYPE} ${*:4}"
+      sh -c "/test/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
   set -e
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # You can't [docker cp] from a tmpfs, so tar-piping coverage out
-  local -r TEST_DIR="${ROOT_DIR}/test/${TYPE}"
+  # Extract test-run results and coverage data from the container.
+  # You can't [docker cp] from a tmpfs, so tar-piping coverage out.
+
+  if [ "${TYPE}" == server ]; then
+    local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
+  else
+    local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
+  fi
+
   docker exec \
     "${CONTAINER_NAME}" \
     tar Ccf \
-      "$(dirname "${COVERAGE_ROOT}")" \
-      - "$(basename "${COVERAGE_ROOT}")" \
-        | tar Cxf "${TEST_DIR}/" -
+      "$(dirname "${CONTAINER_COVERAGE_DIR}")" \
+      - "$(basename "${CONTAINER_COVERAGE_DIR}")" \
+        | tar Cxf "${HOST_TEST_DIR}/" -
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local -r REPORTS_DIR=${TEST_DIR}/${REPORTS_DIR_NAME}
+  # Process test-run results and coverage data.
+
+  local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports"
+  mkdir -p "${HOST_REPORTS_DIR}"
   set +e
   docker run \
-    --env COVERAGE_CODE_TAB_NAME=${COVERAGE_CODE_TAB_NAME} \
-    --env COVERAGE_TEST_TAB_NAME=${COVERAGE_TEST_TAB_NAME} \
+    --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
+    --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
     --rm \
-    --volume ${REPORTS_DIR}/${TEST_LOG}:${TMP_DIR}/${TEST_LOG}:ro \
-    --volume ${REPORTS_DIR}/index.html:${TMP_DIR}/index.html:ro \
-    --volume ${TEST_DIR}/metrics.rb:/app/metrics.rb:ro \
+    --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
+    --volume ${HOST_REPORTS_DIR}/index.html:${CONTAINER_TMP_DIR}/index.html:ro \
+    --volume ${HOST_TEST_DIR}/metrics.rb:/app/metrics.rb:ro \
     cyberdojo/check-test-results:latest \
-      sh -c "ruby /app/check_test_results.rb ${TMP_DIR}/${TEST_LOG} ${TMP_DIR}/index.html" \
-    | tee -a ${REPORTS_DIR}/${TEST_LOG}
+      sh -c \
+        "ruby /app/check_test_results.rb \
+          ${CONTAINER_TMP_DIR}/${TEST_LOG} \
+          ${CONTAINER_TMP_DIR}/index.html" \
+    | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
+
   local -r STATUS=${PIPESTATUS[0]}
   set -e
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local -r COVERAGE_PATH="${REPORTS_DIR}/index.html"
-  echo "${TYPE} test coverage at ${COVERAGE_PATH}"
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Tell caller where the coverage files are...
+
+  echo "${TYPE} test coverage at $(abs_filename "${HOST_REPORTS_DIR}/index.html")"
   echo "${TYPE} test status == ${STATUS}"
   if [ "${STATUS}" != 0 ]; then
-    docker logs "${CONTAINER_NAME}"
+    echo Docker logs "${CONTAINER_NAME}"
+    echo
+    docker logs "${CONTAINER_NAME}" 2>&1
   fi
   return ${STATUS}
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
+abs_filename()
+{
+  echo "$(cd "$(dirname "${1}")" && pwd)/$(basename "${1}")"
 }
