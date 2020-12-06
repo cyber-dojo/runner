@@ -12,6 +12,6 @@ ENV PORT=${CYBER_DOJO_RUNNER_CLIENT_PORT}
 
 EXPOSE ${PORT}
 USER nobody
-HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/config/healthcheck.sh
+HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/source/config/healthcheck.sh
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
-CMD [ "/runner/config/up.sh" ]
+CMD [ "/runner/source/config/up.sh" ]
