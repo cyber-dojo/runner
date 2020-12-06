@@ -18,7 +18,7 @@ services:
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./source/http_proxy:/app/code/http_proxy:ro
+      - ./http_proxy:/app/code/http_proxy:ro
       - ./test:/test/:ro
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -38,6 +38,6 @@ services:
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./source/http_proxy:/app/code/http_proxy:ro
+      - ./http_proxy:/app/code/http_proxy:ro
       - ./test:/test/:ro
       - /var/run/docker.sock:/var/run/docker.sock
