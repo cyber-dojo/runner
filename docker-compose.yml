@@ -4,16 +4,15 @@ version: '3.7'
 services:
 
   client:
+    build:
+      context: source/client
+      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_CLIENT_PORT ]
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     container_name: ${CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME}
     ports: [ "${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}" ]
-    build:
-      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_CLIENT_PORT ]
-      context: source/client
     depends_on: [ runner ]
-    env_file:
-      - .env
+    env_file: [ .env ]
     environment: [ CONTEXT=client, SHOW_TEST_IDS ]
     read_only: true
     restart: 'no'
@@ -25,16 +24,15 @@ services:
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   runner:
+    build:
+      context: source/server
+      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: ${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}
     ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
-    build:
-      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
-      context: source/server
     depends_on: [ languages-start-points ]
-    env_file:
-      - .env
+    env_file: [ .env ]
     environment: [ CONTEXT=server, SHOW_TEST_IDS ]
     read_only: true
     restart: 'no'
