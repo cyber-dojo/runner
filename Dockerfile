@@ -3,7 +3,7 @@ LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
 
-WORKDIR /app
+WORKDIR /runner
 COPY . .
 
 ARG COMMIT_SHA
@@ -14,6 +14,6 @@ ENV PORT=${CYBER_DOJO_RUNNER_PORT}
 
 EXPOSE ${PORT}
 USER root
-HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD ./config/healthcheck.sh
+HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/config/healthcheck.sh
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
-CMD [ "/app/config/up.sh" ]
+CMD [ "/runner/config/up.sh" ]

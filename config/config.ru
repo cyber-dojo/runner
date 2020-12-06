@@ -13,7 +13,7 @@ if ENV['CYBER_DOJO_PROMETHEUS'] === 'true'
   use Prometheus::Middleware::Exporter
 end
 
-require_relative '../code/context'
+require_relative '../app/context'
 context = Context.new
 context.node.image_names.each do |image_name|
   context.puller.add(image_name)
@@ -25,5 +25,5 @@ Signal.trap('TERM') {
   exit(0)
 }
 
-require_relative '../code/rack_dispatcher'
+require_relative '../app/rack_dispatcher'
 run RackDispatcher.new(context)

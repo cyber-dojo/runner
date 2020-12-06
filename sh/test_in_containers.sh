@@ -59,7 +59,6 @@ run_tests()
   # Remove old copies of files we are about to create
   rm "${CONTAINER_TMP_DIR}/${TEST_LOG}" 2> /dev/null || true
   rm "${CONTAINER_TMP_DIR}/index.html"  2> /dev/null || true
-
   set +e
   docker exec \
     --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
@@ -73,12 +72,7 @@ run_tests()
   # Extract test-run results and coverage data from the container.
   # You can't [docker cp] from a tmpfs, so tar-piping coverage out.
 
-  if [ "${TYPE}" == server ]; then
-    local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
-  else
-    local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
-  fi
-
+  local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
   docker exec \
     "${CONTAINER_NAME}" \
     tar Ccf \

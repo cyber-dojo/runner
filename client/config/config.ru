@@ -4,7 +4,7 @@ Signal.trap('TERM') {
   exit(0)
 }
 
-require_relative '../code/context'
-require_relative '../code/rack_dispatcher'
+require_relative '../app/context'
+require_relative '../app/rack_dispatcher'
 context = Context.new
 run RackDispatcher.new(context)

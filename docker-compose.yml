@@ -18,14 +18,14 @@ services:
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./http_proxy:/app/code/http_proxy:ro
+      - ./http_proxy:/runner/app/http_proxy:ro
       - ./test:/test/:ro
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   runner:
     build:
-      context: source/server
+      context: .
       args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
     image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
@@ -38,6 +38,6 @@ services:
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./http_proxy:/app/code/http_proxy:ro
+      - ./http_proxy:/runner/app/http_proxy:ro
       - ./test:/test/:ro
       - /var/run/docker.sock:/var/run/docker.sock
