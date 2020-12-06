@@ -139,7 +139,7 @@ module Server
         "exception when eval'ing lambda source",
         lambda_source,
         'SyntaxError',
-        "/runner/app/empty_binding.rb:6: syntax error, unexpected '-'\nnot-a-lambda\n   ^\n"
+        "/runner/source/empty_binding.rb:6: syntax error, unexpected '-'\nnot-a-lambda\n   ^\n"
       )
     end
 

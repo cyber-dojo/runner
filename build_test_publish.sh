@@ -28,7 +28,7 @@ build_tagged_images "$@"
 exit_zero_if_build_only "$@"
 remove_zombie_containers
 containers_down
-pull_dependent_images "$@"
+#pull_dependent_images "$@"
 server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
 test_in_containers "$@"
