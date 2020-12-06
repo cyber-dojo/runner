@@ -42,60 +42,63 @@ run_tests()
   local -r CONTAINER_NAME="${2}" # eg test_runner_server
   local -r TYPE="${3}"           # eg server
 
-  local -r reports_dir_name=reports
-  local -r tmp_dir=/tmp # fs is read-only with tmpfs at /tmp
-  local -r coverage_root=/${tmp_dir}/${reports_dir_name}
-  local -r test_dir="${ROOT_DIR}/test/${TYPE}"
-  local -r reports_dir=${test_dir}/${reports_dir_name}
-  local -r test_log=test.log
-  local -r coverage_code_tab_name=tested
-  local -r coverage_test_tab_name=tester
-
   echo
   echo '=================================='
   echo "Running ${TYPE} tests"
   echo '=================================='
 
+  local -r TMP_DIR=/tmp # fs is read-only with tmpfs at /tmp
+  local -r TEST_LOG=test.log
   # Remove old copies of files we are about to create
-  rm ${tmp_dir}/${test_log} 2> /dev/null || true
-  rm ${tmp_dir}/index.html  2> /dev/null || true
+  rm ${TMP_DIR}/${TEST_LOG} 2> /dev/null || true
+  rm ${TMP_DIR}/index.html  2> /dev/null || true
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local -r COVERAGE_CODE_TAB_NAME=tested
+  local -r COVERAGE_TEST_TAB_NAME=tester
+  local -r REPORTS_DIR_NAME=reports
+  local -r COVERAGE_ROOT=/${TMP_DIR}/${REPORTS_DIR_NAME}
   set +e
   docker exec \
-    --env COVERAGE_CODE_TAB_NAME=${coverage_code_tab_name} \
-    --env COVERAGE_TEST_TAB_NAME=${coverage_test_tab_name} \
+    --env COVERAGE_CODE_TAB_NAME=${COVERAGE_CODE_TAB_NAME} \
+    --env COVERAGE_TEST_TAB_NAME=${COVERAGE_TEST_TAB_NAME} \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
-      sh -c "/test/run.sh ${coverage_root} ${test_log} ${TYPE} ${*:4}"
+      sh -c "/test/run.sh ${COVERAGE_ROOT} ${TEST_LOG} ${TYPE} ${*:4}"
   set -e
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # You can't [docker cp] from a tmpfs, so tar-piping coverage out
+  local -r TEST_DIR="${ROOT_DIR}/test/${TYPE}"
   docker exec \
     "${CONTAINER_NAME}" \
     tar Ccf \
-      "$(dirname "${coverage_root}")" \
-      - "$(basename "${coverage_root}")" \
-        | tar Cxf "${test_dir}/" -
+      "$(dirname "${COVERAGE_ROOT}")" \
+      - "$(basename "${COVERAGE_ROOT}")" \
+        | tar Cxf "${TEST_DIR}/" -
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local -r REPORTS_DIR=${TEST_DIR}/${REPORTS_DIR_NAME}
   set +e
   docker run \
-    --env COVERAGE_CODE_TAB_NAME=${coverage_code_tab_name} \
-    --env COVERAGE_TEST_TAB_NAME=${coverage_test_tab_name} \
+    --env COVERAGE_CODE_TAB_NAME=${COVERAGE_CODE_TAB_NAME} \
+    --env COVERAGE_TEST_TAB_NAME=${COVERAGE_TEST_TAB_NAME} \
     --rm \
-    --volume ${reports_dir}/${test_log}:${tmp_dir}/${test_log}:ro \
-    --volume ${reports_dir}/index.html:${tmp_dir}/index.html:ro \
-    --volume ${test_dir}/metrics.rb:/app/metrics.rb:ro \
+    --volume ${REPORTS_DIR}/${TEST_LOG}:${TMP_DIR}/${TEST_LOG}:ro \
+    --volume ${REPORTS_DIR}/index.html:${TMP_DIR}/index.html:ro \
+    --volume ${TEST_DIR}/metrics.rb:/app/metrics.rb:ro \
     cyberdojo/check-test-results:latest \
-    sh -c "ruby /app/check_test_results.rb ${tmp_dir}/${test_log} ${tmp_dir}/index.html" \
-      | tee -a ${reports_dir}/${test_log}
-  local -r status=${PIPESTATUS[0]}
+      sh -c "ruby /app/check_test_results.rb ${TMP_DIR}/${TEST_LOG} ${TMP_DIR}/index.html" \
+    | tee -a ${REPORTS_DIR}/${TEST_LOG}
+  local -r STATUS=${PIPESTATUS[0]}
   set -e
 
-  local -r coverage_path="${reports_dir}/index.html"
-  echo "${TYPE} test coverage at ${coverage_path}"
-  echo "${TYPE} test status == ${status}"
-  if [ "${status}" != '0' ]; then
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local -r COVERAGE_PATH="${REPORTS_DIR}/index.html"
+  echo "${TYPE} test coverage at ${COVERAGE_PATH}"
+  echo "${TYPE} test status == ${STATUS}"
+  if [ "${STATUS}" != 0 ]; then
     docker logs "${CONTAINER_NAME}"
   fi
-  return ${status}
+  return ${STATUS}
 }
