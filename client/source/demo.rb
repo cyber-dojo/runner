@@ -20,11 +20,11 @@ class Demo
       <body style="padding:30px">
       HTML
 
-    @html += '<h1>GET /alive?</h1>'
+    @html += '<h1>GET /alive</h1>'
     @html += pre(alive_snippet)
     alive?
 
-    @html += '<h1>GET /ready?</h1>'
+    @html += '<h1>GET /ready</h1>'
     @html += pre(ready_snippet)
     ready?
 

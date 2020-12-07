@@ -7,12 +7,14 @@ source "${SH_DIR}/augmented_docker_compose.sh"
 source "${SH_DIR}/build_tagged_images.sh"
 source "${SH_DIR}/containers_down.sh"
 source "${SH_DIR}/containers_up_healthy_and_clean.sh"
+source "${SH_DIR}/create_test_data_manifest_files.sh"
 source "${SH_DIR}/exit_zero_if_build_only.sh"
 source "${SH_DIR}/exit_zero_if_show_help.sh"
 source "${SH_DIR}/exit_non_zero_unless_installed.sh"
 source "${SH_DIR}/on_ci_publish_tagged_images.sh"
 source "${SH_DIR}/pull_dependent_images.sh"
 source "${SH_DIR}/remove_old_images.sh"
+source "${SH_DIR}/remove_pulled_image.sh"
 source "${SH_DIR}/remove_zombie_containers.sh"
 source "${SH_DIR}/test_in_containers.sh"
 
@@ -28,7 +30,9 @@ build_tagged_images "$@"
 exit_zero_if_build_only "$@"
 remove_zombie_containers
 containers_down
-pull_dependent_images "$@"
+pull_dependent_images
+remove_pulled_image
+create_test_data_manifest_files
 server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
 test_in_containers "$@"

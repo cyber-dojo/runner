@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
+require_source 'http_proxy/languages_start_points'
 
 module Dual
   class LanguagesStartPointsTest < TestBase
@@ -25,6 +26,12 @@ module Dual
     ) do
       assert_sha(languages_start_points.sha)
     end
+
+    private
+
+      def languages_start_points
+        ::HttpProxy::LanguagesStartPoints.new
+      end
 
   end
 end

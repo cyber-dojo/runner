@@ -1,4 +1,6 @@
 require_relative '../test_base'
+require_source 'http_proxy/languages_start_points'
+require_source 'http_proxy/runner'
 require 'stringio'
 
 module Client
@@ -32,8 +34,9 @@ module Client
     becomes LanguagesStartPoints::Error
     ) do
       set_context
+      lsp = ::HttpProxy::LanguagesStartPoints.new
       error = assert_raises(::HttpProxy::LanguagesStartPoints::Error) {
-        languages_start_points.manifest('xxx')
+        lsp.manifest('xxx')
       }
       json = JSON.parse(error.message)
       assert_equal 'manifest', json['path']

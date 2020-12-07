@@ -28,9 +28,4 @@ pull_dependent_images()
         echo "${image_name}"
         docker pull "${image_name}"
       done
-
-  echo
-  echo Removing image pulled in client-side test
-  echo busybox:glibc
-  docker image rm busybox:glibc &> /dev/null || true
 }
