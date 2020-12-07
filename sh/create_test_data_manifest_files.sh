@@ -22,7 +22,7 @@ create_test_data_manifest_files()
 
   exit_non_zero_unless_healthy
 
-  curl --silent --request GET http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests | jq \
+  curl --silent --request GET http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests | jq '.' \
     > "${ROOT_DIR}/test/data/languages_start_points.manifests.json"
 
   docker rm --force "${CONTAINER_NAME}" > /dev/null
