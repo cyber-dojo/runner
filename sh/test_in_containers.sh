@@ -54,18 +54,19 @@ run_tests()
   local -r COVERAGE_TEST_TAB_NAME=tester
   local -r CONTAINER_TMP_DIR=/tmp # fs is read-only with tmpfs at /tmp
   local -r CONTAINER_COVERAGE_DIR="/${CONTAINER_TMP_DIR}/reports"
-  local -r TEST_LOG=test.log
+  local -r TEST_LOG=test.run.log
 
   # Remove old copies of files we are about to create
   rm "${CONTAINER_TMP_DIR}/${TEST_LOG}" 2> /dev/null || true
   rm "${CONTAINER_TMP_DIR}/index.html"  2> /dev/null || true
+
   set +e
   docker exec \
     --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
     --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
-      sh -c "/test/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
+      sh -c "/test/lib/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
   set -e
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,6 +74,7 @@ run_tests()
   # You can't [docker cp] from a tmpfs, so tar-piping coverage out.
 
   local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
+
   docker exec \
     "${CONTAINER_NAME}" \
     tar Ccf \
@@ -85,6 +87,7 @@ run_tests()
 
   local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports"
   mkdir -p "${HOST_REPORTS_DIR}"
+
   set +e
   docker run \
     --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
@@ -92,12 +95,14 @@ run_tests()
     --rm \
     --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
     --volume ${HOST_REPORTS_DIR}/index.html:${CONTAINER_TMP_DIR}/index.html:ro \
-    --volume ${HOST_TEST_DIR}/metrics.rb:/app/metrics.rb:ro \
+    --volume ${HOST_REPORTS_DIR}/coverage.json:${CONTAINER_TMP_DIR}/coverage.json:ro \
+    --volume ${HOST_TEST_DIR}/lib/metrics.rb:/app/metrics.rb:ro \
     cyberdojo/check-test-results:latest \
       sh -c \
         "ruby /app/check_test_results.rb \
           ${CONTAINER_TMP_DIR}/${TEST_LOG} \
-          ${CONTAINER_TMP_DIR}/index.html" \
+          ${CONTAINER_TMP_DIR}/index.html \
+          ${CONTAINER_TMP_DIR}/coverage.json" \
     | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
 
   local -r STATUS=${PIPESTATUS[0]}

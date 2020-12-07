@@ -62,8 +62,8 @@ exit_non_zero_unless_started_cleanly()
   #DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
 
   echo "Checking if ${SERVICE_NAME} started cleanly."
-  local -r top4=$(echo "${DOCKER_LOG}" | head -4)
-  if [ "${top4}" == "$(clean_top_4)" ]; then
+  local -r top5=$(echo "${DOCKER_LOG}" | head -5)
+  if [ "${top5}" == "$(clean_top_5)" ]; then
     echo "${SERVICE_NAME} started cleanly."
   else
     echo "${SERVICE_NAME} did not start cleanly."
@@ -76,7 +76,20 @@ exit_non_zero_unless_started_cleanly()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-clean_top_4()
+clean_top_5()
+{
+  # top lines on Puma
+  local -r L1="Puma starting in single mode..."
+  local -r L2='* Puma version: 5.1.0 (ruby 2.7.1-p83) ("At Your Service")'
+  local -r L3="*  Min threads: 0"
+  local -r L4="*  Max threads: 5"
+  local -r L5="*  Environment: production"
+  #
+  local -r top5="$(printf "%s\n%s\n%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}" "${L5}")"
+  echo "${top5}"
+}
+
+OLD_clean_top_4()
 {
   # 1st 6 lines on Puma
   local -r L1="Puma starting in single mode..."
