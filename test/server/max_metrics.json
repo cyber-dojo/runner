@@ -7,7 +7,7 @@
 
   "duration":10,
 
-  "app": {
+  "code": {
     "lines": {
        "total":600,
       "missed":0
