@@ -18,7 +18,8 @@ create_test_data_manifests_file()
     --name "${CONTAINER_NAME}" \
     --detach \
     --publish "${CONTAINER_PORT}:${CONTAINER_PORT}" \
-    "${REPO}:${TAG}"
+    "${REPO}:${TAG}" \
+    > /dev/null
 
   exit_non_zero_unless_healthy
 
