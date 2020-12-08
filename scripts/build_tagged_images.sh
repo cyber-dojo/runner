@@ -1,5 +1,7 @@
 #!/bin/bash -Eeu
 
+source "${SH_DIR}/augmented_docker_compose.sh"
+
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_tagged_images()
 {

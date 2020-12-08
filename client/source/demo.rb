@@ -35,7 +35,7 @@ class Demo
     @html += '<h1>POST /run_cyber_dojo_sh</h1>'
     @html += pre(run_cyber_dojo_sh_snippet)
     @html += run_cyber_dojo_sh(gcc_assert_image_name)
-    #@html += run_cyber_dojo_sh('BAD/image_name')
+    @html += run_cyber_dojo_sh('BAD/image_name')
     @html +=
       <<~HTML
       </body>
