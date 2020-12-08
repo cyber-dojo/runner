@@ -6,10 +6,10 @@ SimpleCov.start do
   filters.clear
   coverage_dir(ENV['COVERAGE_ROOT'])
   #add_group('debug') { |src| puts src.filename; false }
-  code_tab = ENV['COVERAGE_CODE_TAB_NAME']
-  test_tab = ENV['COVERAGE_TEST_TAB_NAME']
-  add_group(code_tab) { |src| src.filename =~ %r"^/runner/code/" }
-  add_group(test_tab) { |src| src.filename =~ %r"^/runner/test/.*_test\.rb$" }
+  code_dir = ENV['CODE_DIR']
+  test_dir = ENV['TEST_DIR']
+  add_group(code_dir) { |src| src.filename =~ %r"^/runner/#{code_dir}/" }
+  add_group(test_dir) { |src| src.filename =~ %r"^/runner/#{test_dir}/.*_test\.rb$" }
 end
 
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
