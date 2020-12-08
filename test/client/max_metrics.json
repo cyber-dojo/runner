@@ -21,11 +21,11 @@
   "test": {
     "lines": {
        "total":700,
-      "missed":22
+      "missed":0
     },
     "branches": {
-       "total":13,
-      "missed":5
+       "total":9,
+      "missed":1
     }
   }
 }

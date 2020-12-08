@@ -1,10 +1,15 @@
 require 'simplecov'
 require_relative 'simplecov-json'
 
+def runner_nocov_token
+  [ 'nocov', ENV['CONTEXT'] ].join('_')
+end
+
 SimpleCov.start do
   enable_coverage :branch
   filters.clear
   coverage_dir(ENV['COVERAGE_ROOT'])
+  nocov_token(runner_nocov_token)
   #add_group('debug') { |src| puts src.filename; false }
   code_dir = ENV['CODE_DIR']
   test_dir = ENV['TEST_DIR']
