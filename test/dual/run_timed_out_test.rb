@@ -26,14 +26,11 @@ module Dual
         )
         puller.add(image_name)
         process.spawn { 42 }
-        stub = nil
+        detach_stubs = [ nil, ThreadTimedOutStub.new, ThreadDockerStopStub.new ]
+        n = 0
         process.detach {
-          if stub.nil?
-            stub = ThreadTimedOutStub.new
-          else
-            stub = ThreadDockerStopStub.new
-          end
-          stub
+          n += 1
+          detach_stubs[n]
         }
         process.kill { nil }
         # :nocov_client:
