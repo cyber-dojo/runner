@@ -22,8 +22,14 @@ create_test_data_manifest_files()
 
   exit_non_zero_unless_healthy
 
-  curl --silent --request GET http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests | jq '.' \
-    > "${ROOT_DIR}/test/data/languages_start_points.manifests.json"
+  local -r URL="http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests"
+  local -r FILENAME="${ROOT_DIR}/test/data/languages_start_points.manifests.json"
+
+  if installed jq ; then
+    curl --silent --request GET "${URL}" | jq '.' > "${FILENAME}"
+  else
+    curl --silent --request GET "${URL}" > "${FILENAME}"
+  fi
 
   docker rm --force "${CONTAINER_NAME}" > /dev/null
 }
