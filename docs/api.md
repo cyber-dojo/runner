@@ -9,7 +9,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * **id:String** for tracing
   * **files:Hash{filename:String => content:String}** assumed to contain a file called `cyber-dojo.sh`
   * **manifest:Hash** containing
-    * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-languages/image_builder)
+    * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-tools/image_builder)
     * **max_seconds:Integer** between `1` and `20`
   * eg
     ```json
