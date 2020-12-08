@@ -154,9 +154,9 @@ class Demo
     whitespace = "white-space: pre-wrap;"
     font = 'font-size:8pt;'
     "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>" +
-      "#{duration}s\n" +
       "#{JSON.pretty_unparse(result)}" +
-    '</pre>'
+    '</pre>' +
+    "#{duration}s\n"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
