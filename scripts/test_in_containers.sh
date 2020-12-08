@@ -52,57 +52,68 @@ run_tests()
 
   local -r COVERAGE_CODE_TAB_NAME=tested
   local -r COVERAGE_TEST_TAB_NAME=tester
-  local -r CONTAINER_TMP_DIR=/tmp # fs is read-only with tmpfs at /tmp
-  local -r CONTAINER_COVERAGE_DIR="/${CONTAINER_TMP_DIR}/reports"
   local -r TEST_LOG=test.run.log
-
-  # Remove old copies of files we are about to create
-  rm "${CONTAINER_TMP_DIR}/${TEST_LOG}" 2> /dev/null || true
-  rm "${CONTAINER_TMP_DIR}/index.html"  2> /dev/null || true
-
+  local -r CONTAINER_REPORTS_DIR="/tmp/reports" # where tests write to.
+                                                # NB fs is read-only, tmpfs at /tmp
+                                                # NB run.sh ensures this dir exists
   set +e
   docker exec \
     --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
     --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
-      sh -c "/test/lib/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
+      sh -c "/test/lib/run.sh ${CONTAINER_REPORTS_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
   set -e
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Extract test-run results and coverage data from the container.
-  # You can't [docker cp] from a tmpfs, so tar-piping coverage out.
+  # You can't [docker cp] from a tmpfs
+  #   https://docs.docker.com/engine/reference/commandline/cp/#extended-description
+  # So tar-piping out.
 
-  local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
+  local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"    # where to extract to. untar will create reports/ dir
+  local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports" # where files will be
+
+  rm "${HOST_REPORTS_DIR}/${TEST_LOG}"   > /dev/null || true
+  rm "${HOST_REPORTS_DIR}/index.html"    > /dev/null || true
+  rm "${HOST_REPORTS_DIR}/coverage.json" > /dev/null || true
 
   docker exec \
     "${CONTAINER_NAME}" \
     tar Ccf \
-      "$(dirname "${CONTAINER_COVERAGE_DIR}")" \
-      - "$(basename "${CONTAINER_COVERAGE_DIR}")" \
+      "$(dirname "${CONTAINER_REPORTS_DIR}")" \
+      - "$(basename "${CONTAINER_REPORTS_DIR}")" \
         | tar Cxf "${HOST_TEST_DIR}/" -
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Process test-run results and coverage data.
+  # Check we generated expected files.
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage.json"
 
-  local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports"
-  mkdir -p "${HOST_REPORTS_DIR}"
+  # Check metrics limits file exists
+  exit_non_zero_unless_file_exists "${HOST_TEST_DIR}/max_metrics.json"
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Run metrics check against test-run results and coverage data.
+
+  local -r CONTAINER_TMP_DIR=/tmp # where to mount to in container
 
   set +e
   docker run \
+    --rm \
     --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
     --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
-    --rm \
     --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
     --volume ${HOST_REPORTS_DIR}/index.html:${CONTAINER_TMP_DIR}/index.html:ro \
     --volume ${HOST_REPORTS_DIR}/coverage.json:${CONTAINER_TMP_DIR}/coverage.json:ro \
-    --volume ${HOST_TEST_DIR}/lib/metrics.rb:/app/metrics.rb:ro \
-    cyberdojo/check-test-results:latest \
+    --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
+    cyberdojo/check-test-metrics:latest \
       sh -c \
-        "ruby /app/check_test_results.rb \
+        "ruby /app/check_test_metrics.rb \
           ${CONTAINER_TMP_DIR}/${TEST_LOG} \
           ${CONTAINER_TMP_DIR}/index.html \
-          ${CONTAINER_TMP_DIR}/coverage.json" \
+          ${CONTAINER_TMP_DIR}/coverage.json \
+          ${CONTAINER_TMP_DIR}/max_metrics.json" \
     | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
 
   local -r STATUS=${PIPESTATUS[0]}
@@ -119,6 +130,16 @@ run_tests()
     docker logs "${CONTAINER_NAME}" 2>&1
   fi
   return ${STATUS}
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit_non_zero_unless_file_exists()
+{
+  local -r filename="${1}"
+  if [ ! -f "${filename}" ]; then
+    echo "ERROR: ${filename} does not exist"
+    exit 42
+  fi
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
