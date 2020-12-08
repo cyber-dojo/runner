@@ -5,22 +5,22 @@
   "warnings":0,
   "skips":0,
 
-  "duration":10,
+  "duration":120,
 
   "code": {
     "lines": {
-       "total":600,
+       "total":200,
       "missed":0
     },
     "branches": {
-       "total":100,
+       "total":10,
       "missed":0
     }
   },
 
   "test": {
     "lines": {
-       "total":600,
+       "total":100,
       "missed":0
     },
     "branches": {
