@@ -1,6 +1,6 @@
 require_relative '../test_base'
-require_source 'http_proxy/languages_start_points'
-require_source 'http_proxy/runner'
+require_code 'http_proxy/languages_start_points'
+require_code 'http_proxy/runner'
 require 'stringio'
 
 module Client

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_source 'files_delta'
+require_code 'files_delta'
 
 module Server
   class FilesDeltaTest < TestBase

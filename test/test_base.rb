@@ -9,7 +9,7 @@ require_relative 'doubles/threader_stub'
 require_relative 'doubles/threader_synchronous'
 require_relative 'doubles/traffic_light_stub'
 require_relative 'id58_test_base'
-require_source 'context'
+require_code 'context'
 require 'json'
 
 class TestBase < Id58TestBase

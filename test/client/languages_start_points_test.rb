@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_source 'http_proxy/languages_start_points'
+require_code 'http_proxy/languages_start_points'
 
 module Dual
   class LanguagesStartPointsTest < TestBase

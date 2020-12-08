@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_source 'rack_dispatcher'
+require_code 'rack_dispatcher'
 require 'json'
 
 module Server

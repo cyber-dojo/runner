@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_source 'http_proxy/json_requester'
+require_code 'http_proxy/json_requester'
 require 'json'
 require 'net/http'
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_source 'utf8_clean'
+require_code 'utf8_clean'
 
 module Server
   class Utf8CleanTest < TestBase

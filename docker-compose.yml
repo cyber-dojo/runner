@@ -18,7 +18,7 @@ services:
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./test:/test/:ro
+      - ./test:/runner/test/:ro
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -37,5 +37,5 @@ services:
     restart: 'no'
     tmpfs: /tmp
     volumes:
-      - ./test:/test/:ro
+      - ./test:/runner/test/:ro
       - /var/run/docker.sock:/var/run/docker.sock

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_source 'sandbox'
+require_code 'sandbox'
 
 module Server
   class SandboxTest < TestBase

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require_server_source 'tgz'
+require_server_code 'tgz'
 
 module Dual
   class RunRedAmberGreenTest < TestBase

@@ -1,5 +1,5 @@
 require_relative '../test_base'
-require_source 'externals/stdout_logger'
+require_code 'externals/stdout_logger'
 
 module Server
   class StdoutLoggerTest < TestBase

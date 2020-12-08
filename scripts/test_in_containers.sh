@@ -50,8 +50,8 @@ run_tests()
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Run tests (with coverage) inside the container.
 
-  local -r COVERAGE_CODE_TAB_NAME=tested
-  local -r COVERAGE_TEST_TAB_NAME=tester
+  local -r COVERAGE_CODE_TAB_NAME=code
+  local -r COVERAGE_TEST_TAB_NAME=test
   local -r TEST_LOG=test.run.log
   local -r CONTAINER_REPORTS_DIR="/tmp/reports" # where tests write to.
                                                 # NB fs is read-only, tmpfs at /tmp
@@ -62,7 +62,7 @@ run_tests()
     --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
-      sh -c "/test/lib/run.sh ${CONTAINER_REPORTS_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
+      sh -c "/runner/test/lib/run.sh ${CONTAINER_REPORTS_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
   set -e
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

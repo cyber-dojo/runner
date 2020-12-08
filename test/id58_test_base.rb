@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require_relative 'require_source'
+require_relative 'require_code'
 
 class Id58TestBase < MiniTest::Test
 
