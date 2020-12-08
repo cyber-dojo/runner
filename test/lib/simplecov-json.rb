@@ -29,6 +29,7 @@ class SimpleCov::Formatter::JSONFormatter
       file.print(JSON.pretty_generate(data))
     end
     puts output_message(result)
+    puts "SimpleCov version #{version}"
     data.to_json
   end
 
@@ -48,6 +49,10 @@ private
 
   def output_path
     SimpleCov.coverage_path
+  end
+
+  def version
+    SimpleCov::VERSION
   end
 
 end
