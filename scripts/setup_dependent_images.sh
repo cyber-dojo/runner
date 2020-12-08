@@ -1,6 +1,13 @@
 #!/bin/bash -Eeu
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
+setup_dependent_images()
+{
+  pull_dependent_images
+  remove_pulled_image
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
 pull_dependent_images()
 {
   echo
@@ -33,4 +40,13 @@ pull_dependent_images()
           docker pull "${image_name}"
         fi
       done
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+remove_pulled_image()
+{
+  echo
+  echo Removing image pulled in client-side test
+  echo busybox:glibc
+  docker image rm busybox:glibc &> /dev/null || true
 }

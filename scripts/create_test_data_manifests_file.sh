@@ -4,7 +4,7 @@ source "${SH_DIR}/ip_address.sh"
 readonly IP_ADDRESS=$(ip_address)
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-create_test_data_manifest_files()
+create_test_data_manifests_file()
 {
   # run an LSP container
   local -r REPO="${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}"
