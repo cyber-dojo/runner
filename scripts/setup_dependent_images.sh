@@ -3,7 +3,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - -
 setup_dependent_images()
 {
-  if [ "${1}" != server ]; then
+  if [ "${1:-}" != server ]; then
     pull_dependent_images
   fi
   remove_pulled_image
