@@ -104,14 +104,12 @@ run_tests()
     --env COVERAGE_CODE_TAB_NAME="${COVERAGE_CODE_TAB_NAME}" \
     --env COVERAGE_TEST_TAB_NAME="${COVERAGE_TEST_TAB_NAME}" \
     --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
-    --volume ${HOST_REPORTS_DIR}/index.html:${CONTAINER_TMP_DIR}/index.html:ro \
     --volume ${HOST_REPORTS_DIR}/coverage.json:${CONTAINER_TMP_DIR}/coverage.json:ro \
     --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
     cyberdojo/check-test-metrics:latest \
       sh -c \
         "ruby /app/check_test_metrics.rb \
           ${CONTAINER_TMP_DIR}/${TEST_LOG} \
-          ${CONTAINER_TMP_DIR}/index.html \
           ${CONTAINER_TMP_DIR}/coverage.json \
           ${CONTAINER_TMP_DIR}/max_metrics.json" \
     | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
