@@ -25,11 +25,7 @@ create_test_data_manifest_files()
   local -r URL="http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests"
   local -r FILENAME="${ROOT_DIR}/test/data/languages_start_points.manifests.json"
 
-  if installed jq ; then
-    curl --silent --request GET "${URL}" | jq '.' > "${FILENAME}"
-  else
-    curl --silent --request GET "${URL}" > "${FILENAME}"
-  fi
+  curl --silent --request GET "${URL}" | jq '.' > "${FILENAME}"
 
   docker rm --force "${CONTAINER_NAME}" > /dev/null
 }

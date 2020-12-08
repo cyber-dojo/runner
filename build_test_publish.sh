@@ -24,6 +24,7 @@ export $(echo_versioner_env_vars)
 exit_zero_if_show_help "$@"
 exit_non_zero_unless_installed docker
 exit_non_zero_unless_installed docker-compose
+exit_non_zero_unless_installed jq
 remove_old_images
 build_tagged_images "$@"
 exit_zero_if_build_only "$@"
