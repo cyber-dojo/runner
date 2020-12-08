@@ -20,22 +20,22 @@ class Demo
       <body style="padding:30px">
       HTML
 
-    @html += '<h1>GET /alive?</h1>'
+    @html += '<h1>GET /alive</h1>'
     @html += pre(alive_snippet)
-    alive?
+    @html += alive
 
-    @html += '<h1>GET /ready?</h1>'
+    @html += '<h1>GET /ready</h1>'
     @html += pre(ready_snippet)
-    ready?
+    @html += ready
 
     @html += '<h1>GET /sha</h1>'
     @html += pre(sha_snippet)
-    sha
+    @html += sha
 
     @html += '<h1>POST /run_cyber_dojo_sh</h1>'
     @html += pre(run_cyber_dojo_sh_snippet)
-    run_cyber_dojo_sh('cyberdojofoundation/gcc_assert')
-    #run_cyber_dojo_sh('BAD/image_name')
+    @html += run_cyber_dojo_sh(gcc_assert_image_name)
+    @html += run_cyber_dojo_sh('BAD/image_name')
     @html +=
       <<~HTML
       </body>
@@ -45,9 +45,9 @@ class Demo
 
   private
 
-  def alive?
+  def alive
     result,duration = timed { runner.alive? }
-    @html += boxed_pre(duration, result)
+    boxed_pre(duration, result)
   end
 
   def alive_snippet
@@ -59,9 +59,9 @@ class Demo
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  def ready?
+  def ready
     result,duration = timed { runner.ready? }
-    @html += boxed_pre(duration, result)
+    boxed_pre(duration, result)
   end
 
   def ready_snippet
@@ -75,7 +75,7 @@ class Demo
 
   def sha
     result,duration = timed { runner.sha }
-    @html += boxed_pre(duration, result)
+    boxed_pre(duration, result)
   end
 
   def sha_snippet
@@ -103,7 +103,7 @@ class Demo
       end
     }
     css_colour = @raised ? 'LightGray' : 'LightGreen'
-    @html += boxed_pre(duration, @result, css_colour)
+    boxed_pre(duration, @result, css_colour)
   end
 
   def run_cyber_dojo_sh_snippet
@@ -118,29 +118,28 @@ class Demo
     ].join("\n")
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  def runner
-    @context.runner
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def gcc_assert_image_name
+    gcc_assert_manifest['image_name']
   end
 
-  def languages_start_points
-    @context.languages_start_points
+  def gcc_assert_files
+    gcc_assert_manifest['visible_files'].map do |filename,file|
+      [ filename, file['content'] ]
+    end.to_h
   end
 
+  def gcc_assert_manifest
+    languages_start_points.manifest('C (gcc), assert')
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
   def timed
     started = Time.now
     result = yield
     finished = Time.now
     duration = '%.2f' % (finished - started)
     [result, duration]
-  end
-
-  def gcc_assert_files
-    manifest = languages_start_points.manifest('C (gcc), assert')
-    manifest['visible_files'].map do |filename,file|
-      [ filename, file['content'] ]
-    end.to_h
   end
 
   def pre(fragment)
@@ -155,9 +154,18 @@ class Demo
     whitespace = "white-space: pre-wrap;"
     font = 'font-size:8pt;'
     "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>" +
-      "#{duration}s\n" +
       "#{JSON.pretty_unparse(result)}" +
-    '</pre>'
+    '</pre>' +
+    "#{duration}s\n"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - -
+  def languages_start_points
+    @context.languages_start_points
+  end
+
+  def runner
+    @context.runner
   end
 
 end

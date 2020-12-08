@@ -10,7 +10,6 @@ require_relative 'doubles/threader_synchronous'
 require_relative 'doubles/traffic_light_stub'
 require_relative 'id58_test_base'
 require_source 'context'
-require_source 'http_proxy/languages_start_points'
 require 'json'
 
 class TestBase < Id58TestBase
@@ -130,11 +129,15 @@ class TestBase < Id58TestBase
   end
 
   def manifest
-    @manifest ||= languages_start_points.manifest(display_name)
+    manifests[display_name]
   end
 
-  def languages_start_points
-    ::HttpProxy::LanguagesStartPoints.new
+  def manifests
+    @@manifests ||= begin
+      manifests_filename = "#{__dir__}/data/languages_start_points.manifests.json"
+      manifests = IO.read(manifests_filename)
+      JSON.parse(manifests)['manifests']
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
