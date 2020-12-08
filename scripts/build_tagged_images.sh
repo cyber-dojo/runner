@@ -5,8 +5,8 @@ source "${SH_DIR}/augmented_docker_compose.sh"
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_tagged_images()
 {
-  build_images
-  tag_images
+  build_images "${@:-}"
+  tag_images "${@:-}"
   check_embedded_env_var
   echo
   echo "echo CYBER_DOJO_RUNNER_TAG=$(image_tag)"
@@ -17,16 +17,24 @@ build_tagged_images()
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()
 {
+  if [ "${1}" == server ]; then
+    local -r SERVICE=runner
+  else
+    local -r SERVICE=
+  fi
   augmented_docker_compose \
     build \
-    --build-arg COMMIT_SHA=$(git_commit_sha)
+    --build-arg COMMIT_SHA=$(git_commit_sha) \
+    ${SERVICE}
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 tag_images()
 {
   docker tag ${CYBER_DOJO_RUNNER_IMAGE}:$(image_tag)        ${CYBER_DOJO_RUNNER_IMAGE}:latest
-  docker tag ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:$(image_tag) ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:latest
+  if [ "${1}" != server ]; then
+    docker tag ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:$(image_tag) ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:latest
+  fi
 }
 
 # - - - - - - - - - - - - - - - - - - - - - -
