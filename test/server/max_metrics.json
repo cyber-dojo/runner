@@ -14,7 +14,7 @@
     },
     "branches": {
        "total":100,
-      "missed":19
+      "missed":22
     }
   },
 
@@ -24,8 +24,8 @@
       "missed":0
     },
     "branches": {
-       "total":4,
-      "missed":1
+       "total":2,
+      "missed":0
     }
   }
 }

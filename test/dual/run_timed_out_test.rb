@@ -21,13 +21,21 @@ module Dual
         stdout_tgz = TGZ.of({'stderr' => 'any'})
         set_context(
            logger:StdoutLoggerSpy.new,
-            piper:piper=PiperStub.new(stdout_tgz),
+            piper:PiperStub.new(stdout_tgz),
           process:process=ProcessSpawnerStub.new
         )
         puller.add(image_name)
         process.spawn { 42 }
-        process.detach { ThreadTimedOutStub.new }
-        process.kill {}
+        stub = nil
+        process.detach {
+          if stub.nil?
+            stub = ThreadTimedOutStub.new
+          else
+            stub = ThreadDockerStopStub.new
+          end
+          stub
+        }
+        process.kill { nil }
         # :nocov_client:
       }
 
@@ -48,21 +56,32 @@ module Dual
     class ThreadTimedOutStub
       def initialize
         @n = 0
+        @stubs = {
+          1 => lambda { raise Timeout::Error },
+          # now from inside Timeout::Error rescue block, yields to ThreadDockerStopStub,
+          2 => lambda { 137 }
+        }
       end
       def value
-        # capture3_with_timeout calls thread.value (to get status) twice
         @n += 1
-        if @n === 1
-          # 1st call is in last statement of Timeout block
-          raise Timeout::Error
-        end
-        if @n === 2
-          # 2nd call is in first statement in ensure block
-          137
-        end
+        @stubs[@n].call
       end
       def join(_seconds)
         nil
+      end
+    end
+
+    class ThreadDockerStopStub
+      def initialize
+        @n = 0
+        @stubs = {
+          1 => lambda { true },
+          2 => lambda { 0 }
+        }
+      end
+      def value
+        @n += 1
+        @stubs[@n].call
       end
     end
     # :nocov_client:
