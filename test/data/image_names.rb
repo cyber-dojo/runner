@@ -78,6 +78,7 @@ module Test
     MALFORMED =
       [
         nil,
+        [],
         '<none>',                 # [docker images] gives this
         '',                       # nothing!
         '_',                      # host-name cannot start with separator
