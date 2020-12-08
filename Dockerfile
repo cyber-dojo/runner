@@ -1,4 +1,4 @@
-FROM cyberdojo/docker-base:d0da6ee
+FROM cyberdojo/docker-base:65ce57e
 LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
