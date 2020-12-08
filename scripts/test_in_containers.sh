@@ -74,9 +74,9 @@ run_tests()
   local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"    # where to extract to. untar will create reports/ dir
   local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports" # where files will be
 
-  rm "${HOST_REPORTS_DIR}/${TEST_LOG}"   > /dev/null || true
-  rm "${HOST_REPORTS_DIR}/index.html"    > /dev/null || true
-  rm "${HOST_REPORTS_DIR}/coverage.json" > /dev/null || true
+  rm "${HOST_REPORTS_DIR}/${TEST_LOG}"   2> /dev/null || true
+  rm "${HOST_REPORTS_DIR}/index.html"    2> /dev/null || true
+  rm "${HOST_REPORTS_DIR}/coverage.json" 2> /dev/null || true
 
   docker exec \
     "${CONTAINER_NAME}" \
@@ -107,11 +107,9 @@ run_tests()
     --volume ${HOST_REPORTS_DIR}/coverage.json:${CONTAINER_TMP_DIR}/coverage.json:ro \
     --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
     cyberdojo/check-test-metrics:latest \
-      sh -c \
-        "ruby /app/check_test_metrics.rb \
-          ${CONTAINER_TMP_DIR}/${TEST_LOG} \
-          ${CONTAINER_TMP_DIR}/coverage.json \
-          ${CONTAINER_TMP_DIR}/max_metrics.json" \
+      "${CONTAINER_TMP_DIR}/${TEST_LOG}" \
+      "${CONTAINER_TMP_DIR}/coverage.json" \
+      "${CONTAINER_TMP_DIR}/max_metrics.json" \
     | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
 
   local -r STATUS=${PIPESTATUS[0]}
