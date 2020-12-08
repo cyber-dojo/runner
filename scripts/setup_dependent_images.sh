@@ -13,7 +13,7 @@ pull_dependent_images()
   echo
   echo Pulling images used in server-side tests
 
-  local -r IMAGE_NAMES=$(docker image ls --format '{{.Repository}}:{{.Tag}}')
+  local -r IMAGE_NAMES=$(docker image ls --format '{{.Repository}}:{{.Tag}}' | sort | uniq)
 
   if ! echo "${IMAGE_NAMES}" | grep alpine:latest ; then
     # alpine:latest is used for tests showing bash must be in the image_name
