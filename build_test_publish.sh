@@ -29,7 +29,7 @@ build_tagged_images "$@"
 exit_zero_if_build_only "$@"
 remove_zombie_containers
 containers_down
-setup_dependent_images
+setup_dependent_images "$@"
 create_test_data_manifests_file
 server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
