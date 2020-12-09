@@ -74,7 +74,10 @@ class Runner
       :timeout => max_seconds
     }
     capture3_with_timeout(@context, command, spawn_opts) do
-      docker_stop_container(id, image_name, container_name) # [docker run] timed out
+      # [docker run] timed out
+      @context.threader.thread do
+        docker_stop_container(id, image_name, container_name)
+      end
     end
   end
 
@@ -86,9 +89,8 @@ class Runner
     # instead of using capture3_with_timeout().
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
-    options = { timeout:4 }
-    result = capture3_with_timeout(@context, command, options)
-    unless result[:status] === 0
+    _stdout,_stderr,status = @context.sheller.capture(command)
+    unless status === 0
       # :nocov_server:
       log(id:id, image_name:image_name, command:command)
       # :nocov_server:

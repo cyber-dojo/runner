@@ -68,7 +68,7 @@ module Capture3WithTimeout
           end
         end
       end
-      yield if block_given?
+      yield
     ensure
       result[:status] = wait_thr.value if wait_thr
       result[:stdout] = stdout_reader_thr.value if stdout_reader_thr

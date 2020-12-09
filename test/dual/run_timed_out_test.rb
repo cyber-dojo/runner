@@ -26,12 +26,7 @@ module Dual
         )
         puller.add(image_name)
         process.spawn { 42 }
-        detach_stubs = [ nil, ThreadTimedOutStub.new, ThreadDockerStopStub.new ]
-        n = 0
-        process.detach {
-          n += 1
-          detach_stubs[n]
-        }
+        process.detach { ThreadTimedOutStub.new }
         process.kill { nil }
         # :nocov_client:
       }
@@ -55,7 +50,6 @@ module Dual
         @n = 0
         @stubs = {
           1 => lambda { raise Timeout::Error },
-          # now from inside Timeout::Error rescue block, yields to ThreadDockerStopStub,
           2 => lambda { 137 }
         }
       end
@@ -65,20 +59,6 @@ module Dual
       end
       def join(_seconds)
         nil
-      end
-    end
-
-    class ThreadDockerStopStub
-      def initialize
-        @n = 0
-        @stubs = {
-          1 => lambda { true },
-          2 => lambda { 0 }
-        }
-      end
-      def value
-        @n += 1
-        @stubs[@n].call
       end
     end
     # :nocov_client:
