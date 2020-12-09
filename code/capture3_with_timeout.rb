@@ -58,11 +58,15 @@ module Capture3WithTimeout
       result[:status] = wait_thread.value
       result[:stdout] = stdout_reader_thread.value
       result[:stderr] = stderr_reader_thread.value
-      stdout_pipe.out.close unless stdout_pipe.out.closed?
-      stderr_pipe.out.close unless stderr_pipe.out.closed?
+      safe_close(stdout_pipe.out)
+      safe_close(stderr_pipe.out)
     end
 
     result
+  end
+
+  def safe_close(out)
+    out.close unless out.closed?
   end
 
   class ThreadNullValue
