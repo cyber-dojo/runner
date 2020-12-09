@@ -3,13 +3,10 @@ require 'timeout'
 
 module Capture3WithTimeout
 
-  def capture3_with_timeout(context, command, spawn_opts)
+  def capture3_with_timeout(context, command, max_seconds, tgz_in)
     # Based on https://gist.github.com/pasela/9392115
-    opts = {
-      stdin_data: spawn_opts.delete(:stdin_data) || '',
-         timeout: spawn_opts.delete(:timeout),
-          signal: spawn_opts.delete(:signal) || :TERM,
-      kill_after: spawn_opts.delete(:kill_after),
+    spawn_opts = {
+      pgroup:true # make a new process group
     }
 
     piper = context.piper
@@ -43,7 +40,7 @@ module Capture3WithTimeout
     pid = nil
 
     begin
-      Timeout.timeout(opts[:timeout]) do
+      Timeout.timeout(max_seconds) do
         pid = process.spawn(command, spawn_opts)
         wait_thr = process.detach(pid)
         stdin_pipe.in.close
@@ -51,18 +48,16 @@ module Capture3WithTimeout
         stderr_pipe.out.close
         stdout_reader_thr = threader.thread { stdout_pipe.in.read }
         stderr_reader_thr = threader.thread { stderr_pipe.in.read }
-        stdin_pipe.out.write(opts[:stdin_data])
+        stdin_pipe.out.write(tgz_in)
         stdin_pipe.out.close
         result[:status] = wait_thr.value
       end
     rescue Timeout::Error
       result[:timed_out] = true
       unless pid.nil?
-        process.kill(opts[:signal], -pid)
-        if opts[:kill_after]
-          unless wait_thr.join(opts[:kill_after])
-            process.kill(:KILL, -pid)
-          end
+        process.kill(:TERM, -pid)
+        unless wait_thr.join(1)
+          process.kill(:KILL, -pid)
         end
       end
       yield

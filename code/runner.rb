@@ -66,13 +66,7 @@ class Runner
   def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
-    spawn_opts = {
-      :kill_after => 1,
-      :pgroup => true,
-      :stdin_data => tgz_in,
-      :timeout => max_seconds
-    }
-    capture3_with_timeout(@context, command, spawn_opts) do
+    capture3_with_timeout(@context, command, max_seconds, tgz_in) do
       # [docker run] timed out
       @context.threader.thread do
         docker_stop_container(id, image_name, container_name)
@@ -89,11 +83,11 @@ class Runner
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
     _stdout,_stderr,status = @context.sheller.capture(command)
+    # :nocov_server:
     unless status === 0
-      # :nocov_server:
       log(id:id, image_name:image_name, command:command)
-      # :nocov_server:
     end
+    # :nocov_server:
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
