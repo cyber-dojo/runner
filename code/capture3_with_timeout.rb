@@ -5,6 +5,8 @@ module Capture3WithTimeout
 
   def capture3_with_timeout(context, command, max_seconds, tgz_in)
     # Based on https://gist.github.com/pasela/9392115
+    result = { timed_out:false }
+
     piper    = context.piper
     process  = context.process
     threader = context.threader
@@ -19,16 +21,9 @@ module Capture3WithTimeout
     stderr_pipe = piper.io
     stderr_pipe.in.binmode
 
-    stdout_reader_thread = nil
-    stderr_reader_thread = nil
-    wait_thread = nil
-
-    result = {
-      timed_out:false,
-      status:nil, # of command
-      stdout:'',  # of command (multiplexed cyber-dojo.sh's stdout/stderr/status)
-      stderr:'',  # of command
-    }
+    stdout_reader_thread = ThreadNullValue.new('')
+    stderr_reader_thread = ThreadNullValue.new('')
+    wait_thread = ThreadNullValue.new(nil)
 
     pid = nil
 
@@ -60,14 +55,21 @@ module Capture3WithTimeout
       end
       yield
     ensure
-      result[:status] = wait_thread.value if wait_thread
-      result[:stdout] = stdout_reader_thread.value if stdout_reader_thread
-      result[:stderr] = stderr_reader_thread.value if stderr_reader_thread
+      result[:status] = wait_thread.value
+      result[:stdout] = stdout_reader_thread.value
+      result[:stderr] = stderr_reader_thread.value
       stdout_pipe.out.close unless stdout_pipe.out.closed?
       stderr_pipe.out.close unless stderr_pipe.out.closed?
     end
 
     result
+  end
+
+  class ThreadNullValue
+    def initialize(value)
+      @value = value
+    end
+    attr_reader :value
   end
 
 end
