@@ -81,12 +81,12 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_stop_container(id, image_name, container_name)
-    # If the container is running, stop it.
+    # send the stop signal, wait 1 second, send the kill signal.
     # Note: I have tried using the [docker run] --stop-timeout option
     # instead of using capture3_with_timeout().
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
-    options = { timeout:4, kill_after:1 }
+    options = { timeout:4 }
     result = capture3_with_timeout(@context, command, options)
     unless result[:status] === 0
       # :nocov_server:
