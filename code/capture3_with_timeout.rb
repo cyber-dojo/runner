@@ -7,7 +7,6 @@ module Capture3WithTimeout
     # Based on https://gist.github.com/pasela/9392115
     opts = {
       stdin_data: spawn_opts.delete(:stdin_data) || '',
-         binmode: spawn_opts.delete(:binmode) || false,
          timeout: spawn_opts.delete(:timeout),
           signal: spawn_opts.delete(:signal) || :TERM,
       kill_after: spawn_opts.delete(:kill_after),
@@ -19,11 +18,9 @@ module Capture3WithTimeout
     stderr_pipe = piper.io
     stdin_pipe.out.sync = true
 
-    if opts[:binmode]
-      stdin_pipe.out.binmode
-      stdout_pipe.in.binmode
-      stderr_pipe.in.binmode
-    end
+    stdin_pipe.out.binmode
+    stdout_pipe.in.binmode
+    stderr_pipe.in.binmode
 
     spawn_opts[:in]  = stdin_pipe.in
     spawn_opts[:out] = stdout_pipe.out
@@ -37,6 +34,7 @@ module Capture3WithTimeout
     threader = context.threader
 
     result = {
+      timed_out:false,
       status:nil, # of command
       stdout:'',  # of command (multiplexed cyber-dojo.sh's stdout/stderr/status)
       stderr:'',  # of command
@@ -45,7 +43,6 @@ module Capture3WithTimeout
     pid = nil
 
     begin
-      result[:timed_out] = false
       Timeout.timeout(opts[:timeout]) do
         pid = process.spawn(command, spawn_opts)
         wait_thr = process.detach(pid)

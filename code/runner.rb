@@ -67,7 +67,6 @@ class Runner
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     spawn_opts = {
-      :binmode => true,
       :kill_after => 1,
       :pgroup => true,
       :stdin_data => tgz_in,
