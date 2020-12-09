@@ -20,14 +20,7 @@ module Client
         "did not find #{os} in etc/issue",
         etc_issue
       ].join("\n")
-      case os
-      when :Alpine
-        assert etc_issue.include?('Alpine'), diagnostic
-      when :Debian
-        assert etc_issue.include?('Debian'), diagnostic
-      when :Ubuntu
-        assert etc_issue.include?('Ubuntu'), diagnostic
-      end
+      assert etc_issue.include?(os.to_s), diagnostic
     end
 
   end
