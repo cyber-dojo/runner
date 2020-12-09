@@ -40,14 +40,15 @@ module Capture3WithTimeout
       status:nil, # of command
       stdout:'',  # of command (multiplexed cyber-dojo.sh's stdout/stderr/status)
       stderr:'',  # of command
-      pid:nil
     }
+
+    pid = nil
 
     begin
       result[:timed_out] = false
       Timeout.timeout(opts[:timeout]) do
-        result[:pid] = process.spawn(command, spawn_opts)
-        wait_thr = process.detach(result[:pid])
+        pid = process.spawn(command, spawn_opts)
+        wait_thr = process.detach(pid)
         stdin_pipe.in.close
         stdout_pipe.out.close
         stderr_pipe.out.close
@@ -59,12 +60,11 @@ module Capture3WithTimeout
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      unless result[:pid].nil?
-        pid = spawn_opts[:pgroup] ? -result[:pid] : result[:pid]
-        process.kill(opts[:signal], pid)
+      unless pid.nil?
+        process.kill(opts[:signal], -pid)
         if opts[:kill_after]
           unless wait_thr.join(opts[:kill_after])
-            process.kill(:KILL, pid)
+            process.kill(:KILL, -pid)
           end
         end
       end
@@ -76,8 +76,6 @@ module Capture3WithTimeout
       stdout_pipe.out.close unless stdout_pipe.out.closed?
       stderr_pipe.out.close unless stderr_pipe.out.closed?
     end
-
-    result.delete(:pid)
 
     result
   end
