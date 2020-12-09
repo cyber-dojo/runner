@@ -1,0 +1,17 @@
+
+At the moment there is this
+
+command = "docker stop --time 1 #{container_name}"
+options = { timeout:4 }
+result = capture3_with_timeout(@context, command, options)
+
+It would be better as...
+
+threader.thread do
+  command = "docker stop --time 0 #{container_name}"
+  stdout,stderr,status = @context.sheller.capture(command)
+  ...
+end
+
+and then I can simplify capture3_with_timeout as it will
+only need to support the main cyber_dojo_sh() call.

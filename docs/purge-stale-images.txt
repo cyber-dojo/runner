@@ -35,3 +35,6 @@ Rule 1 tries to keep alive used images, even if creation date is old.
        Needed for custom-start-points
 Rule 2 tries to keep alive recently created images.
        Idea here is to keep a current image for each language-start-point
+
+Kubernetes has image garbage collection
+https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/

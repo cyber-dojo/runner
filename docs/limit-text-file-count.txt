@@ -1,3 +1,5 @@
 
 Limit number of created text files returned to caller.
 At present there is no limit.
+Done for created files.
+Should it also be done for changed files?
