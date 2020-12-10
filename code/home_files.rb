@@ -34,6 +34,9 @@ module HomeFiles
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # There are important comments on the exit-status of
+  # cyber_dojo_main.sh at the end of capture3_with_timeout.rb
+  #
   # [0] --verbatim-files-from ensure filenames are not read as
   #     tar command options.
   #     Eg -J... is a tar compression option (but not on Ubuntu 16.04)

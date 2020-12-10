@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 require 'timeout'
 
+# Comments marked [X] are expanded at the end of this file.
+
 class Capture3WithTimeout
-  # Based on https://gist.github.com/pasela/9392115
 
   def initialize(context)
     @process  = context.process
@@ -20,7 +21,7 @@ class Capture3WithTimeout
     result = { timed_out:false }
     begin
       Timeout.timeout(max_seconds) do
-        result[:status] = inner_run(command, tgz_in)
+        result[:status] = detached_process_spawn(command, tgz_in)
       end
     rescue Timeout::Error
       result[:timed_out] = true
@@ -44,7 +45,7 @@ class Capture3WithTimeout
   def make_pipes(piper)
     pipes = {
        stdin:piper.io,
-      stdout:piper.io, # multiplexed cyber-dojo.sh's stdout/stderr/status
+      stdout:piper.io, # [X] multiplexed cyber-dojo.sh's stdout/stderr/status
       stderr:piper.io
     }
     pipes[:stdout].in.binmode
@@ -56,14 +57,14 @@ class Capture3WithTimeout
 
   # - - - - - - - - - - - - - - - - - -
 
-  def inner_run(command, tgz_in)
+  def detached_process_spawn(command, tgz_in)
     @pid = process.spawn(command, {
-      pgroup:true, # make a new process group
+      pgroup:true, # [X] make a new process group
           in: pipes[:stdin].in,
          out: pipes[:stdout].out,
          err: pipes[:stderr].out
     })
-    @waiter = process.detach(pid) # prevent zombie child processes
+    @waiter = process.detach(pid) # [X] prevent zombie child processes
     pipes[:stdin].in.close
     pipes[:stdout].out.close
     pipes[:stderr].out.close
@@ -120,3 +121,68 @@ class Capture3WithTimeout
   end
 
 end
+
+=begin
+
+The documentation for Ruby's Process.detach()
+https://apidock.com/ruby/Process/detach/class
+reads...
+
+  Some operating systems retain the status of terminated child
+  processes until the parent collects that status (normally using
+  some variant of wait()). If the parent never collects this status,
+  the child stays around as a zombie process. Process::detach prevents
+  this by setting up a separate Ruby thread whose sole job is to reap
+  the status of the process pid when it terminates. Use detach only
+  when you do not intend to explicitly wait for the child to terminate.
+
+We are not calling wait(), we are using Timeout.timeout() instead.
+So we need to call Process.detach(). The documentation for
+Process.detach() continues...
+
+  The waiting thread returns the exit status of the detached process
+  when it terminates, so you can use Thread#join to know the result.
+
+The documentation for Ruby's Thread.value
+https://ruby-doc.org/core-2.5.0/Thread.html#method-i-value
+reads...
+
+  Waits for thr to complete, using join, and returns its value ...
+
+So, the line
+
+  result[:status] = waiter.value
+
+sets the exit status of the detached "docker run ..." command.
+What is the exit-status of a docker-run command?
+See https://docs.docker.com/engine/reference/run/#exit-status
+
+  When docker run exits with a non-zero code, the exit codes follow the
+  chroot standard, see below:
+    125 if the error is with Docker daemon itself
+    126 if the contained command cannot be invoked
+    127 if the contained command cannot be found
+    Exit code of contained command otherwise
+
+So, the docker run command is...
+
+  bash -c 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'
+
+The first part untars the tgz stream of files from the browser
+(as well as ~/cyber_dojo_main.sh and some other helper scripts)
+into the home dir of the sandbox user.
+The second part runs cyber_dojo_main.sh (see home_files.rb)
+So the exit status will be the exit status of the last command
+of cyber_dojo_main.sh which is the last command of the trap handler,
+which is the last command of the send_tgz() function, which is...
+
+  gzip  < "${TAR_FILE}"
+
+The important point is this: the exit status is *not* the
+exit status of cyber-dojo.sh, it is the exit status of
+the machinery in cyber_dojo_main.sh, which multiplexes
+cyber-dojo.sh's stdout/stderr/status on stdout of the container.
+
+https://gist.github.com/pasela/9392115 was useful
+
+=end

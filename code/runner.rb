@@ -8,10 +8,11 @@ require_relative 'tgz'
 require_relative 'traffic_light'
 require_relative 'utf8_clean'
 
+# Comments marked [X] are expanded at the end of this file.
+
 class Runner
 
   def initialize(context)
-    # Comments marked [X] are expanded at the end of this file.
     @context = context
     @traffic_light = TrafficLight.new(context)
   end
@@ -31,7 +32,7 @@ class Runner
     if run[:timed_out]
       log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(run))
       empty_result(:timed_out, 'timed_out', run)
-    elsif run[:status] != 0
+    elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
       log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(run))
       empty_result(:faulty_light, 'faulty', run)
     else
