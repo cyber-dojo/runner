@@ -79,8 +79,9 @@ class Capture3WithTimeout
   def kill_process_group
     unless pid.nil?
       process.kill(:TERM, -pid)
-      if waiter.join(1).nil?
-        # process.kill(:TERM,-pid) did not return after 1 second
+      unless waiter.join(1)
+        # join returned nil indicating the
+        # process.kill(:TERM,-pid) was insufficient
         process.kill(:KILL, -pid)
       end
     end
