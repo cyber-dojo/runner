@@ -8,8 +8,6 @@ require_relative 'tgz'
 require_relative 'traffic_light'
 require_relative 'utf8_clean'
 
-# Comments marked [X] are expanded at the end of this file.
-
 class Runner
 
   def initialize(context)
@@ -40,8 +38,15 @@ class Runner
     end
   end
 
-  UID = 41966 # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966 # [X] sandbox group - runs /sandbox/cyber-dojo.sh
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Runner's requirements on image_name.
+  #   o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
+  #   o) commands: bash, file, grep, tar, truncate
+  # These are satisfied by image_name being built with
+  # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+
+  UID = 41966 # sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966 # sandbox group - runs /sandbox/cyber-dojo.sh
 
   KB = 1024
   MB = 1024 * KB
@@ -67,10 +72,10 @@ class Runner
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     Capture3WithTimeout.new(@context).run(max_seconds, command, tgz_in) do
-      # If the docker run call times out then Capture3WithTimeout
+      # If [docker run] times-out then Capture3WithTimeout
       # makes process.kill() calls to kill the [docker rm] process.
-      # However, this does *not* kill the *container* that the
-      # [docker run] initiated. Hence the need for [docker stop]
+      # However, this does *not* kill the *container* the
+      # [docker run] initiated. Hence the [docker stop]
       @context.threader.thread do
         docker_stop_container(id, image_name, container_name)
       end
@@ -116,8 +121,8 @@ class Runner
 
   def at_most(size, new_files)
     # Limit number of created text files returned to browser.
-    # It would be better to do this inside the run container,
-    # using home_files.rb like this...
+    # NB: I tried to do this inside the run container, using
+    # home_files.rb like this...
     #   function print0_filenames()
     #   {
     #     find #{sandbox_dir} -type f -print0 | head -z -n LIMIT
@@ -259,15 +264,3 @@ class Runner
   SPACE = ' '
 
 end
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Runner's requirements on image_name.
-# o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
-# o) bash, file, grep, tar, truncate
-# These are satisfied by image_name being built with
-# https://github.com/cyber-dojo-tools/image_builder
-# https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
-#
-# Note: The browser's kata/run_tests ajax call timeout is
-# different to the Runner.run() call timing out.
-# - - - - - - - - - - - - - - - - - - - - - - - - - - -
