@@ -28,11 +28,11 @@ class RunTimedOutTest < TestBase
     process.spawn { |_cmd,_opts| pid }
 
     detach_args = []
-    status = 57
-    join_result = nil # thread.join(seconds)==nil means process.kill(:TERM, -pid) failed
+    command_status = 57
+    join_result = nil # wait_thread.join(seconds)==nil means process.kill(:TERM, -pid) failed
     process.detach { |pid|
       detach_args << pid
-      ThreadTimedOutStub.new(status,join_result)
+      WaitThreadTimedOutStub.new(command_status,join_result)
     }
 
     kill_args = []
@@ -43,6 +43,7 @@ class RunTimedOutTest < TestBase
 
     yielded_to_block = false
 
+    # inner timed-out
     result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
       yielded_to_block = true
     }
@@ -55,10 +56,11 @@ class RunTimedOutTest < TestBase
       timed_out:true,
       stdout:stdout_tgz,
       stderr:'',
-      status:status
+      status:command_status
     }
     assert_equal expected, result
 
+    # outer result of run_cyber_dojo_sh
     expected = {
       'outcome' => 'timed_out',
       'stdout' => {'content'=>'', 'truncated'=>false},
@@ -66,7 +68,7 @@ class RunTimedOutTest < TestBase
       'status' => Runner::STATUS[:timed_out].to_s,
       "log" => {
         :timed_out => true,
-        :status => status,
+        :status => command_status,
         :stdout => '',
         :stderr => ''
       },
@@ -75,12 +77,12 @@ class RunTimedOutTest < TestBase
     puller.add(image_name)
     run = run_cyber_dojo_sh(max_seconds:3)
     assert_equal expected, run
-
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'g56', %(
+  in capture3_with_timeout()
   when process.spawn() fails to respond within the timeout period
   thats also a timeout
   and nothing is captured from the io pipes
@@ -113,6 +115,7 @@ class RunTimedOutTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'g57', %w(
+  in capture3_with_timeout()
   when process.kill(:TERM,-pid) completes
   then wait_thread.join() returns non nil
   and the process.kill(:KILL, -pid) call is not made
@@ -127,11 +130,11 @@ class RunTimedOutTest < TestBase
     process.spawn { |_cmd,_opts| pid }
 
     detach_args = []
-    status = 59
-    join_result = Object.new
+    command_status = 59
+    join_result = Object.new # wait_thread.join(seconds)!=nil means process.kill(:TERM, -pid) succeeded
     process.detach { |pid|
       detach_args << pid
-      ThreadTimedOutStub.new(status,join_result)
+      WaitThreadTimedOutStub.new(command_status,join_result)
     }
 
     kill_args = []
@@ -151,9 +154,44 @@ class RunTimedOutTest < TestBase
     assert_equal [[:TERM,-pid]], kill_args
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'g58', %w(
+  in capture3_with_timeout()
+  when there is no timeout
+  ) do
+    set_context(
+       logger:StdoutLoggerSpy.new,
+        piper:PiperStub.new('mad-hatter', false),
+      process:process=ProcessSpawnerStub.new
+    )
+
+    pid = 44
+    process.spawn { |_cmd,_opts| pid }
+
+    detach_args = []
+    command_status = 59
+    process.detach { |pid|
+      detach_args << pid
+      WaitThreadCompletedStub.new(command_status)
+    }
+
+    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil)
+
+    assert_equal [pid], detach_args
+
+    expected = {
+      timed_out:false,
+      stdout:'mad-hatter',
+      stderr:'',
+      status:command_status
+    }
+    assert_equal expected, result
+  end
+
   private
 
-  class ThreadTimedOutStub
+  class WaitThreadTimedOutStub
     # as returned from process.detach() call
     def initialize(command_result,join_result)
       @n = 0
@@ -169,6 +207,17 @@ class RunTimedOutTest < TestBase
     end
     def join(_seconds)
       @join_result
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - - - - -
+
+  class WaitThreadCompletedStub
+    def initialize(command_result)
+      @command_result = command_result
+    end
+    def value
+      @command_result
     end
   end
 

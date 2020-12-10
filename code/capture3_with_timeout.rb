@@ -67,7 +67,9 @@ module Capture3WithTimeout
   end
 
   def safe_close(out)
-    out.close unless out.closed?
+    unless out.closed?
+      out.close
+    end
   end
 
   class ThreadNilValue

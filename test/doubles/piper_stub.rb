@@ -2,8 +2,9 @@
 
 class PiperStub
 
-  def initialize(stdout_tgz)
+  def initialize(stdout_tgz, closed=true)
     @stdout_tgz = stdout_tgz
+    @closed = closed
     @n = 0
   end
 
@@ -16,12 +17,13 @@ class PiperStub
         def close; end
       end.new(stdout_tgz),
       Class.new do
+        def initialize(closed); @closed = closed; end
         def sync=(_bool); end
         def binmode; end
         def write(_tgz_in); end
-        def closed?; true; end
+        def closed?; @closed; end
         def close; end
-      end.new
+      end.new(@closed)
     )
   end
 
