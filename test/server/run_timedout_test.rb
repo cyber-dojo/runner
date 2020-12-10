@@ -26,11 +26,11 @@ class RunTimedOutTest < TestBase
     process.spawn { |_cmd,_opts| pid }
 
     detach_args = []
-    command_status = 57
+    status = 57
     join_result = nil # wait_thread.join(seconds)==nil means process.kill(:TERM, -pid) failed
     process.detach { |pid|
       detach_args << pid
-      WaitThreadTimedOutStub.new(command_status,join_result)
+      WaitThreadTimedOutStub.new(status, join_result)
     }
 
     kill_args = []
@@ -54,7 +54,7 @@ class RunTimedOutTest < TestBase
       timed_out:true,
       stdout:stdout_tgz,
       stderr:'',
-      status:command_status
+      status:status
     }
     assert_equal expected, result
 
@@ -66,7 +66,7 @@ class RunTimedOutTest < TestBase
       'status' => Runner::STATUS[:timed_out].to_s,
       "log" => {
         :timed_out => true,
-        :status => command_status,
+        :status => status,
         :stdout => '',
         :stderr => ''
       },
@@ -128,11 +128,11 @@ class RunTimedOutTest < TestBase
     process.spawn { |_cmd,_opts| pid }
 
     detach_args = []
-    command_status = 59
+    status = 59
     join_result = Object.new # wait_thread.join(seconds)!=nil means process.kill(:TERM, -pid) succeeded
     process.detach { |pid|
       detach_args << pid
-      WaitThreadTimedOutStub.new(command_status,join_result)
+      WaitThreadTimedOutStub.new(status, join_result)
     }
 
     kill_args = []
@@ -168,10 +168,10 @@ class RunTimedOutTest < TestBase
     process.spawn { |_cmd,_opts| pid }
 
     detach_args = []
-    command_status = 59
+    status = 59
     process.detach { |pid|
       detach_args << pid
-      WaitThreadCompletedStub.new(command_status)
+      WaitThreadCompletedStub.new(status)
     }
 
     result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {}
@@ -182,7 +182,7 @@ class RunTimedOutTest < TestBase
       timed_out:false,
       stdout:'mad-hatter',
       stderr:'',
-      status:command_status
+      status:status
     }
     assert_equal expected, result
   end
@@ -196,11 +196,11 @@ class RunTimedOutTest < TestBase
 
   class WaitThreadTimedOutStub
     # as returned from process.detach() call
-    def initialize(command_result,join_result)
+    def initialize(status,join_result)
       @n = 0
       @value_stubs = {
         1 => lambda { raise Timeout::Error }, # .value in main-block
-        2 => lambda { command_result }        # .value in ensure block
+        2 => lambda { status }                # .value in ensure block
       }
       @join_result = join_result
     end
@@ -216,11 +216,11 @@ class RunTimedOutTest < TestBase
   # - - - - - - - - - - - - - - - - - - - -
 
   class WaitThreadCompletedStub
-    def initialize(command_result)
-      @command_result = command_result
+    def initialize(status)
+      @status = status
     end
     def value
-      @command_result
+      @status
     end
   end
 
