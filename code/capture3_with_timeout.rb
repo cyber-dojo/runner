@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'timeout'
 
-# [X] See comments at the end of file. 
+# [X] See comments at the end of file.
 
 class Capture3WithTimeout
 

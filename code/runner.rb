@@ -133,6 +133,22 @@ class Runner
     )
   end
 
+  def result(stdout, stderr, status, outcome, log, created, deleted, changed)
+    {
+         'stdout' => stdout, 'stderr' => stderr,   'status' => status,
+        'outcome' => outcome, 'log' => log,
+        'created' => created, 'deleted' => deleted, 'changed' => changed,
+    }
+  end
+
+  def truncated(raw_content)
+    content = Utf8.clean(raw_content)
+    {
+        'content' => content[0...MAX_FILE_SIZE],
+      'truncated' => content.size > MAX_FILE_SIZE
+    }
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def at_most(size, new_files)
@@ -147,26 +163,6 @@ class Runner
     # cyber-dojo.sh, makefile, hiker.h, hiker.c etc
     # which then become deleted files!
     Hash[new_files.keys.sort[0...size].map{|filename| [filename,new_files[filename]]}]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def result(stdout, stderr, status, outcome, log, created, deleted, changed)
-    {
-         'stdout' => stdout, 'stderr' => stderr,   'status' => status,
-        'outcome' => outcome, 'log' => log,
-        'created' => created, 'deleted' => deleted, 'changed' => changed,
-    }
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def truncated(raw_content)
-    content = Utf8.clean(raw_content)
-    {
-        'content' => content[0...MAX_FILE_SIZE],
-      'truncated' => content.size > MAX_FILE_SIZE
-    }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
