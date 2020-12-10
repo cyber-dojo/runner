@@ -21,9 +21,9 @@ module Capture3WithTimeout
     stderr_pipe = piper.io
     stderr_pipe.in.binmode
 
-    stdout_reader_thread = ThreadNullValue.new('')
-    stderr_reader_thread = ThreadNullValue.new('')
-    wait_thread = ThreadNullValue.new(nil)
+    stdout_reader_thread = ThreadNilValue.new
+    stderr_reader_thread = ThreadNilValue.new
+    wait_thread = ThreadNilValue.new
 
     pid = nil
 
@@ -49,7 +49,7 @@ module Capture3WithTimeout
       result[:timed_out] = true
       unless pid.nil?
         process.kill(:TERM, -pid)
-        unless wait_thread.join(1)
+        if wait_thread.join(1).nil?
           process.kill(:KILL, -pid)
         end
       end
@@ -69,11 +69,10 @@ module Capture3WithTimeout
     out.close unless out.closed?
   end
 
-  class ThreadNullValue
-    def initialize(value)
-      @value = value
+  class ThreadNilValue
+    def value
+      nil
     end
-    attr_reader :value
   end
 
 end

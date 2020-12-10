@@ -15,6 +15,7 @@ class RunTimedOutTest < TestBase
   test 'g55', %w(
   timeout in wait_thread.value
   results in timed_out status
+  and any captured stdout/stderr are not part of run_cyber_dojo_sh result
   ) do
     stdout_tgz = 'would-be-proper-tgz-data'
     set_context(
@@ -22,16 +23,33 @@ class RunTimedOutTest < TestBase
         piper:PiperStub.new(stdout_tgz),
       process:process=ProcessSpawnerStub.new
     )
-    status = 57
+
     puller.add(image_name)
-    process.spawn { 42 } # pid
-    process.detach { ThreadTimedOutStub.new(status) }
-    process.kill { nil }
+
+    pid = 42
+    process.spawn { |_cmd,_opts| pid }
+
+    detach_args = []
+    status = 57
+    process.detach { |pid|
+      detach_args << pid
+      ThreadTimedOutStub.new(status)
+    }
+
+    kill_args = []
+    process.kill { |signal,pid|
+      kill_args << [signal,pid]
+      nil
+    }
 
     yielded_to_block = false
-    result = capture3_with_timeout(@context, command=nil, max_seconds=3, tgz_in=nil) {
+
+    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
       yielded_to_block = true
     }
+
+    assert_equal [pid], detach_args
+    assert_equal [[:TERM,-pid],[:KILL,-pid]], kill_args
 
     assert yielded_to_block
     expected = {
@@ -62,6 +80,36 @@ class RunTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'g56', %(
+  when process.spawn() fails to respond within the timeout period
+  thats also a timeout
+  and nothing is captured from the io pipes
+  and no process.detch() or process.kill() calls are made
+  ) do
+    stdout_tgz = 'tweedle-dee'
+    set_context(
+       logger:StdoutLoggerSpy.new,
+        piper:PiperStub.new(stdout_tgz),
+      process:process=ProcessSpawnerStub.new
+    )
+    puller.add(image_name)
+    process.spawn { sleep 10; }
+
+    yielded_to_block = false
+    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
+      yielded_to_block = true
+    }
+
+    assert yielded_to_block
+    expected = {
+      timed_out:true,
+      stdout:nil,
+      stderr:nil,
+      status:nil
+    }
+    assert_equal expected, result
+  end
+
   private
 
   class ThreadTimedOutStub
@@ -77,7 +125,9 @@ class RunTimedOutTest < TestBase
       @stubs[@n].call
     end
     def join(_seconds)
-      self
+      # wait_thread.kill(:TERM, -pid) was issued
+      # but the thread did not exit after _seconds passed.
+      nil
     end
   end
 

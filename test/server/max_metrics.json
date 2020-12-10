@@ -10,11 +10,11 @@
   "code": {
     "lines": {
        "total":600,
-      "missed":1
+      "missed":0
     },
     "branches": {
        "total":100,
-      "missed":5
+      "missed":4
     }
   },
 
