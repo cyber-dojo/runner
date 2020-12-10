@@ -191,7 +191,7 @@ class RunTimedOutTest < TestBase
 
   def capture3_with_timeout(context, command, max_seconds, tgz_in, &block)
     runner = Capture3WithTimeout.new(context)
-    runner.run(command, max_seconds, tgz_in, &block)
+    runner.run(max_seconds, command, tgz_in, &block)
   end
 
   class WaitThreadTimedOutStub

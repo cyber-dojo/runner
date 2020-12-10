@@ -66,7 +66,7 @@ class Runner
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     runner = Capture3WithTimeout.new(@context)
-    runner.run(command, max_seconds, tgz_in) do
+    runner.run(max_seconds, command, tgz_in) do
       # [docker run] timed out
       @context.threader.thread do
         docker_stop_container(id, image_name, container_name)
