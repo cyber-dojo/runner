@@ -8,9 +8,9 @@ class Capture3WithTimeout
     @process  = context.process
     @threader = context.threader
     @pipes = make_pipes(context.piper)
-    @stdout_reader_thread = ThreadNilValue.new
-    @stderr_reader_thread = ThreadNilValue.new
-    @wait_thread = ThreadNilValue.new
+    @stdout_reader = ThreadNilValue.new
+    @stderr_reader = ThreadNilValue.new
+    @waiter = ThreadNilValue.new
     @pid = nil
   end
 
@@ -24,7 +24,7 @@ class Capture3WithTimeout
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      kill_process
+      kill_process_group
       yield
     ensure
       gather_stdout_stderr_status(result)
@@ -36,9 +36,7 @@ class Capture3WithTimeout
   private
 
   attr_reader :process, :threader, :pipes
-  attr_reader :stdout_reader_thread
-  attr_reader :stderr_reader_thread
-  attr_reader :wait_thread
+  attr_reader :stdout_reader, :stderr_reader, :waiter
   attr_reader :pid
 
   # - - - - - - - - - - - - - - - - - -
@@ -65,23 +63,23 @@ class Capture3WithTimeout
          out: pipes[:stdout].out,
          err: pipes[:stderr].out
     })
-    @wait_thread = process.detach(pid) # prevent zombie child processes
+    @waiter = process.detach(pid) # prevent zombie child processes
     pipes[:stdin].in.close
     pipes[:stdout].out.close
     pipes[:stderr].out.close
-    @stdout_reader_thread = threader.thread { pipes[:stdout].in.read }
-    @stderr_reader_thread = threader.thread { pipes[:stderr].in.read }
+    @stdout_reader = threader.thread { pipes[:stdout].in.read }
+    @stderr_reader = threader.thread { pipes[:stderr].in.read }
     pipes[:stdin].out.write(tgz_in)
     pipes[:stdin].out.close
-    @wait_thread.value
+    @waiter.value
   end
 
   # - - - - - - - - - - - - - - - - - -
 
-  def kill_process
+  def kill_process_group
     unless pid.nil?
       process.kill(:TERM, -pid)
-      if wait_thread.join(1).nil?
+      if waiter.join(1).nil?
         # process.kill(:TERM,-pid) did not return after 1 second
         process.kill(:KILL, -pid)
       end
@@ -91,9 +89,9 @@ class Capture3WithTimeout
   # - - - - - - - - - - - - - - - - - -
 
   def gather_stdout_stderr_status(result)
-    result[:status] = wait_thread.value
-    result[:stdout] = stdout_reader_thread.value
-    result[:stderr] = stderr_reader_thread.value
+    result[:status] = waiter.value
+    result[:stdout] = stdout_reader.value
+    result[:stderr] = stderr_reader.value
   end
 
   # - - - - - - - - - - - - - - - - - -
