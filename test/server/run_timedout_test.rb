@@ -27,10 +27,10 @@ class RunTimedOutTest < TestBase
 
     detach_args = []
     status = 57
-    join_result = nil # wait_thread.join(seconds)==nil means process.kill(:TERM, -pid) failed
+    joined = false
     process.detach { |pid|
       detach_args << pid
-      WaitThreadTimedOutStub.new(status, join_result)
+      WaitThreadTimedOutStub.new(status, joined)
     }
 
     kill_args = []
@@ -42,9 +42,7 @@ class RunTimedOutTest < TestBase
     yielded_to_block = false
 
     # inner timed-out
-    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
-      yielded_to_block = true
-    }
+    result = capture3_with_timeout { yielded_to_block = true }
 
     assert_equal [pid], detach_args
     assert_equal [[:TERM,-pid],[:KILL,-pid]], kill_args
@@ -96,9 +94,7 @@ class RunTimedOutTest < TestBase
     process.spawn { sleep 10; }
     yielded_to_block = false
 
-    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
-      yielded_to_block = true
-    }
+    result = capture3_with_timeout { yielded_to_block = true }
 
     assert yielded_to_block
     expected = {
@@ -129,10 +125,10 @@ class RunTimedOutTest < TestBase
 
     detach_args = []
     status = 59
-    join_result = Object.new # wait_thread.join(seconds)!=nil means process.kill(:TERM, -pid) succeeded
+    joined = true
     process.detach { |pid|
       detach_args << pid
-      WaitThreadTimedOutStub.new(status, join_result)
+      WaitThreadTimedOutStub.new(status, joined)
     }
 
     kill_args = []
@@ -143,9 +139,7 @@ class RunTimedOutTest < TestBase
 
     yielded_to_block = false
 
-    capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
-      yielded_to_block = true
-    }
+    capture3_with_timeout { yielded_to_block = true }
 
     assert yielded_to_block
     assert_equal [pid], detach_args
@@ -174,7 +168,7 @@ class RunTimedOutTest < TestBase
       WaitThreadCompletedStub.new(status)
     }
 
-    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {}
+    result = capture3_with_timeout {}
 
     assert_equal [pid], detach_args
 
@@ -189,27 +183,32 @@ class RunTimedOutTest < TestBase
 
   private
 
-  def capture3_with_timeout(context, command, max_seconds, tgz_in, &block)
-    runner = Capture3WithTimeout.new(context)
-    runner.run(max_seconds, command, tgz_in, &block)
+  def capture3_with_timeout(&block)
+    runner = Capture3WithTimeout.new(@context)
+    runner.run(max_seconds=1, command=nil, tgz_in=nil, &block)
   end
+
+  # - - - - - - - - - - - - - - - - - -
 
   class WaitThreadTimedOutStub
     # as returned from process.detach() call
-    def initialize(status,join_result)
+    def initialize(status, joined)
       @n = 0
       @value_stubs = {
         1 => lambda { raise Timeout::Error }, # .value in main-block
         2 => lambda { status }                # .value in ensure block
       }
-      @join_result = join_result
+      # @joined controls the (async) result of the process.kill(:TERM, -pid) call
+      # Thread.join(n) returns
+      #  nil     when the join fails (after n seconds), the kill failed.
+      #  thread  when the join succeeds,                the kill succeeded.
+      @joined = { true => self, false => nil }[joined]
     end
     def value
-      @n += 1
-      @value_stubs[@n].call
+      @value_stubs[@n += 1].call
     end
     def join(_seconds)
-      @join_result
+      @joined
     end
   end
 
