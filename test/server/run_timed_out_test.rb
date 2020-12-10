@@ -21,17 +21,7 @@ class RunTimedOutTest < TestBase
     process.detach { ThreadTimedOutStub.new }
     process.kill { nil }
 
-    hiker_c = starting_files['hiker.c']
-    from = 'return 6 * 9'
-    to = [
-      '    for (;;);',
-      '    return 6 * 7;'
-    ].join("\n")
-
-    run_cyber_dojo_sh({
-      changed: { 'hiker.c' => hiker_c.sub(from, to) },
-      max_seconds: 3
-    })
+    run_cyber_dojo_sh(max_seconds:3)
 
     assert timed_out?, run_result
     assert_equal Runner::STATUS[:timed_out], status.to_i
