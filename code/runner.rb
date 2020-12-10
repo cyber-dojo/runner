@@ -29,10 +29,10 @@ class Runner
     run = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     if run[:timed_out]
       log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(run))
-      empty_result(:timed_out, 'timed_out', run)
+      timed_out_result(run)
     elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
       log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(run))
-      empty_result(:faulty_light, 'faulty', run)
+      faulty_result(run)
     else
       colour_result(id, image_name, files_in, run[:stdout])
     end
@@ -55,10 +55,10 @@ class Runner
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
   STATUS = {
-         pulling: 141,
-       timed_out: 142,
-    faulty_light: 143,
-      gzip_error: 144
+       pulling: 141,
+     timed_out: 142,
+        faulty: 143,
+    gzip_error: 144
   }
 
   private
@@ -95,6 +95,14 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
+  def timed_out_result(run)
+    empty_result(:timed_out, 'timed_out', run)
+  end
+
+  def faulty_result(run)
+    empty_result(:faulty, 'faulty', run)
+  end
+
   def colour_result(id, image_name, files_in, tgz_out)
     files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
       memo[filename] = truncated(content)
@@ -117,6 +125,14 @@ class Runner
     empty_result(:gzip_error, 'faulty', {})
   end
 
+  def empty_result(code, outcome, log_info)
+    result(
+      truncated(''), truncated(''), STATUS[code].to_s,
+      outcome, log_info,
+      {}, [], {}
+    )
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def at_most(size, new_files)
@@ -131,16 +147,6 @@ class Runner
     # cyber-dojo.sh, makefile, hiker.h, hiker.c etc
     # which then become deleted files!
     Hash[new_files.keys.sort[0...size].map{|filename| [filename,new_files[filename]]}]
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  def empty_result(code, outcome, log_info)
-    result(
-      truncated(''), truncated(''), STATUS[code].to_s,
-      outcome, log_info,
-      {}, [], {}
-    )
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
