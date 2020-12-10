@@ -11,7 +11,7 @@ module Capture3WithTimeout
     process  = context.process
     threader = context.threader
 
-    stdin_pipe  = piper.io
+    stdin_pipe = piper.io
     stdin_pipe.out.binmode
     stdin_pipe.out.sync = true
 
