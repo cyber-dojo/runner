@@ -82,7 +82,7 @@ class Capture3WithTimeout
       process.kill(:TERM, -pid)
       unless waiter.join(1)
         # join returned nil indicating the
-        # process.kill(:TERM,-pid) was insufficient
+        # process.kill(:TERM,-pid) was ignored, so...
         process.kill(:KILL, -pid)
       end
     end

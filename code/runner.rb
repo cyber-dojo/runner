@@ -67,7 +67,10 @@ class Runner
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     Capture3WithTimeout.new(@context).run(max_seconds, command, tgz_in) do
-      # The [docker run] timed out
+      # If the docker run call times out then Capture3WithTimeout
+      # makes process.kill() calls to kill the [docker rm] process.
+      # However, this does *not* kill the *container* that the
+      # [docker run] initiated. Hence the need for [docker stop]
       @context.threader.thread do
         docker_stop_container(id, image_name, container_name)
       end
@@ -77,10 +80,7 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_stop_container(id, image_name, container_name)
-    # send the stop signal, wait 1 second, send the kill signal.
-    # Note: I have tried using the [docker run] --stop-timeout
-    # option instead of sheller.capture(); in tests, it failed
-    # to stop a container running an infinite loop.
+    # Send the stop signal, wait 1 second, send the kill signal.
     command = "docker stop --time 1 #{container_name}"
     _stdout,_stderr,status = @context.sheller.capture(command)
     unless status === 0
@@ -261,7 +261,7 @@ class Runner
 end
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# [X] Runner's requirements on image_name.
+# Runner's requirements on image_name.
 # o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
 # o) bash, file, grep, tar, truncate
 # These are satisfied by image_name being built with
