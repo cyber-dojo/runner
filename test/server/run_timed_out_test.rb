@@ -44,7 +44,7 @@ class RunTimedOutTest < TestBase
       @stubs[@n].call
     end
     def join(_seconds)
-      nil
+      self
     end
   end
 
