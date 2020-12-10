@@ -39,18 +39,12 @@ class Runner
     end
   end
 
-  private
-
-  include Capture3WithTimeout
-  include FilesDelta
-  include HomeFiles
+  UID = 41966             # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966             # [X] sandbox group - runs /sandbox/cyber-dojo.sh
 
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
-
-  UID = 41966             # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966             # [X] sandbox group - runs /sandbox/cyber-dojo.sh
 
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
@@ -60,6 +54,12 @@ class Runner
     faulty_light: 143,
       gzip_error: 144
   }
+
+  private
+
+  include Capture3WithTimeout
+  include FilesDelta
+  include HomeFiles
 
   # - - - - - - - - - - - - - - - - - - - - - -
 

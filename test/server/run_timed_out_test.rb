@@ -34,6 +34,9 @@ class RunTimedOutTest < TestBase
     })
 
     assert timed_out?, run_result
+    assert_equal Runner::STATUS[:timed_out], status.to_i
+    assert_equal '', stdout
+    assert_equal '', stderr
   end
 
   private
