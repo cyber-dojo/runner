@@ -16,17 +16,16 @@ class Capture3WithTimeout
     @pipes[:stderr].in.binmode
     @pipes[:stdin].out.binmode
     @pipes[:stdin].out.sync = true
+
+    @stdout_reader_thread = ThreadNilValue.new
+    @stderr_reader_thread = ThreadNilValue.new
+    @wait_thread = ThreadNilValue.new
   end
 
   def run(command, max_seconds, tgz_in)
     result = { timed_out:false }
 
-    stdout_reader_thread = ThreadNilValue.new
-    stderr_reader_thread = ThreadNilValue.new
-    wait_thread = ThreadNilValue.new
-
     pid = nil
-
     begin
       Timeout.timeout(max_seconds) do
         pid = @process.spawn(command, {
@@ -35,30 +34,31 @@ class Capture3WithTimeout
              out: @pipes[:stdout].out,
              err: @pipes[:stderr].out
         })
-        wait_thread = @process.detach(pid) # prevent zombie child processes
+        @wait_thread = @process.detach(pid) # prevent zombie child processes
         @pipes[:stdin].in.close
         @pipes[:stdout].out.close
         @pipes[:stderr].out.close
-        stdout_reader_thread = @threader.thread { @pipes[:stdout].in.read }
-        stderr_reader_thread = @threader.thread { @pipes[:stderr].in.read }
+        @stdout_reader_thread = @threader.thread { @pipes[:stdout].in.read }
+        @stderr_reader_thread = @threader.thread { @pipes[:stderr].in.read }
         @pipes[:stdin].out.write(tgz_in)
         @pipes[:stdin].out.close
-        result[:status] = wait_thread.value
+        result[:status] = @wait_thread.value
       end
     rescue Timeout::Error
       result[:timed_out] = true
       unless pid.nil?
         @process.kill(:TERM, -pid)
-        if wait_thread.join(1).nil?
+        if @wait_thread.join(1).nil?
           # process.kill(:TERM,-pid) did not return after 1 second
           @process.kill(:KILL, -pid)
         end
       end
       yield
     ensure
-      result[:status] = wait_thread.value
-      result[:stdout] = stdout_reader_thread.value
-      result[:stderr] = stderr_reader_thread.value
+      result[:status] = @wait_thread.value
+      result[:stdout] = @stdout_reader_thread.value
+      result[:stderr] = @stderr_reader_thread.value
+      safe_close(@pipes[:stdin].in)
       safe_close(@pipes[:stdout].out)
       safe_close(@pipes[:stderr].out)
     end

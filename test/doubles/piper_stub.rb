@@ -14,6 +14,7 @@ class PiperStub
         def initialize(read); @read = read; end
         def binmode; end
         def read; @read; end
+        def closed?; false; end
         def close; end
       end.new(stdout_tgz),
       Class.new do
