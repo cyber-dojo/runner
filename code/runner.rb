@@ -83,11 +83,9 @@ class Runner
     # In tests, it fails to stop a container in an infinite loop.
     command = "docker stop --time 1 #{container_name}"
     _stdout,_stderr,status = @context.sheller.capture(command)
-    # :nocov_server:
     unless status === 0
       log(id:id, image_name:image_name, command:command)
     end
-    # :nocov_server:
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
