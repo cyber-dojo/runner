@@ -8,8 +8,6 @@ class RunTimedOutTest < TestBase
     'c7A'
   end
 
-  include Capture3WithTimeout
-
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'g55', %w(
@@ -176,7 +174,7 @@ class RunTimedOutTest < TestBase
       WaitThreadCompletedStub.new(command_status)
     }
 
-    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil)
+    result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {}
 
     assert_equal [pid], detach_args
 
@@ -190,6 +188,11 @@ class RunTimedOutTest < TestBase
   end
 
   private
+
+  def capture3_with_timeout(context, command, max_seconds, tgz_in, &block)
+    runner = Capture3WithTimeout.new(context)
+    runner.run(command, max_seconds, tgz_in, &block)
+  end
 
   class WaitThreadTimedOutStub
     # as returned from process.detach() call

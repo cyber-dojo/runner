@@ -57,7 +57,6 @@ class Runner
 
   private
 
-  include Capture3WithTimeout
   include FilesDelta
   include HomeFiles
 
@@ -66,7 +65,8 @@ class Runner
   def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
     container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
-    capture3_with_timeout(@context, command, max_seconds, tgz_in) do
+    runner = Capture3WithTimeout.new(@context)
+    runner.run(command, max_seconds, tgz_in) do
       # [docker run] timed out
       @context.threader.thread do
         docker_stop_container(id, image_name, container_name)
