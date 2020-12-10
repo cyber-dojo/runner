@@ -9,7 +9,7 @@ class RunTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'g55', %w( timeout ) do
+  test 'g55', %w( timeout ) do
     stdout_tgz = TGZ.of({'stderr' => 'any'})
     set_context(
        logger:StdoutLoggerSpy.new,
