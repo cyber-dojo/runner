@@ -15,7 +15,7 @@ module Capture3WithTimeout
     stdin_pipe.out.binmode
     stdin_pipe.out.sync = true
 
-    stdout_pipe = piper.io # multiplexed cyber-dojo.sh's stdout/stderr/status)
+    stdout_pipe = piper.io # multiplexed cyber-dojo.sh's stdout/stderr/status
     stdout_pipe.in.binmode
 
     stderr_pipe = piper.io
