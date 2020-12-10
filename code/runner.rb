@@ -39,8 +39,8 @@ class Runner
     end
   end
 
-  UID = 41966             # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966             # [X] sandbox group - runs /sandbox/cyber-dojo.sh
+  UID = 41966 # [X] sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51966 # [X] sandbox group - runs /sandbox/cyber-dojo.sh
 
   KB = 1024
   MB = 1024 * KB
