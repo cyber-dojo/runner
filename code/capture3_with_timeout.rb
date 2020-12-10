@@ -35,7 +35,7 @@ module Capture3WithTimeout
              out: stdout_pipe.out,
              err: stderr_pipe.out
         })
-        wait_thread = process.detach(pid)
+        wait_thread = process.detach(pid) # prevent zombie child processes
         stdin_pipe.in.close
         stdout_pipe.out.close
         stderr_pipe.out.close
@@ -50,6 +50,7 @@ module Capture3WithTimeout
       unless pid.nil?
         process.kill(:TERM, -pid)
         if wait_thread.join(1).nil?
+          # process.kill(:TERM,-pid) did not return after 1 second
           process.kill(:KILL, -pid)
         end
       end

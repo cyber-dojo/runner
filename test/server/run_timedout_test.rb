@@ -24,16 +24,15 @@ class RunTimedOutTest < TestBase
       process:process=ProcessSpawnerStub.new
     )
 
-    puller.add(image_name)
-
     pid = 42
     process.spawn { |_cmd,_opts| pid }
 
     detach_args = []
     status = 57
+    join_result = nil # thread.join(seconds)==nil means process.kill(:TERM, -pid) failed
     process.detach { |pid|
       detach_args << pid
-      ThreadTimedOutStub.new(status)
+      ThreadTimedOutStub.new(status,join_result)
     }
 
     kill_args = []
@@ -60,7 +59,6 @@ class RunTimedOutTest < TestBase
     }
     assert_equal expected, result
 
-    run = run_cyber_dojo_sh(max_seconds:3)
     expected = {
       'outcome' => 'timed_out',
       'stdout' => {'content'=>'', 'truncated'=>false},
@@ -74,6 +72,8 @@ class RunTimedOutTest < TestBase
       },
       "created"=>{}, "deleted"=>[], "changed"=>{}
     }
+    puller.add(image_name)
+    run = run_cyber_dojo_sh(max_seconds:3)
     assert_equal expected, run
 
   end
@@ -92,10 +92,10 @@ class RunTimedOutTest < TestBase
         piper:PiperStub.new(stdout_tgz),
       process:process=ProcessSpawnerStub.new
     )
-    puller.add(image_name)
-    process.spawn { sleep 10; }
 
+    process.spawn { sleep 10; }
     yielded_to_block = false
+
     result = capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
       yielded_to_block = true
     }
@@ -110,24 +110,65 @@ class RunTimedOutTest < TestBase
     assert_equal expected, result
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'g57', %w(
+  when process.kill(:TERM,-pid) completes
+  then wait_thread.join() returns non nil
+  and the process.kill(:KILL, -pid) call is not made
+  ) do
+    set_context(
+       logger:StdoutLoggerSpy.new,
+        piper:PiperStub.new('alice'),
+      process:process=ProcessSpawnerStub.new
+    )
+
+    pid = 43
+    process.spawn { |_cmd,_opts| pid }
+
+    detach_args = []
+    status = 59
+    join_result = Object.new
+    process.detach { |pid|
+      detach_args << pid
+      ThreadTimedOutStub.new(status,join_result)
+    }
+
+    kill_args = []
+    process.kill { |signal,pid|
+      kill_args << [signal,pid]
+      nil
+    }
+
+    yielded_to_block = false
+
+    capture3_with_timeout(@context, command=nil, max_seconds=1, tgz_in=nil) {
+      yielded_to_block = true
+    }
+
+    assert yielded_to_block
+    assert_equal [pid], detach_args
+    assert_equal [[:TERM,-pid]], kill_args
+  end
+
   private
 
   class ThreadTimedOutStub
-    def initialize(status)
+    # as returned from process.detach() call
+    def initialize(command_result,join_result)
       @n = 0
-      @stubs = {
-        1 => lambda { raise Timeout::Error },
-        2 => lambda { status }
+      @value_stubs = {
+        1 => lambda { raise Timeout::Error }, # .value in main-block
+        2 => lambda { command_result }        # .value in ensure block
       }
+      @join_result = join_result
     end
     def value
       @n += 1
-      @stubs[@n].call
+      @value_stubs[@n].call
     end
     def join(_seconds)
-      # wait_thread.kill(:TERM, -pid) was issued
-      # but the thread did not exit after _seconds passed.
-      nil
+      @join_result
     end
   end
 
