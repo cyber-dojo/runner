@@ -7,16 +7,15 @@ class Capture3WithTimeout
   def initialize(context)
     @process  = context.process
     @threader = context.threader
-
-    @stdin_pipe = context.piper.io
-    @stdin_pipe.out.binmode
-    @stdin_pipe.out.sync = true
-
-    @stdout_pipe = context.piper.io # multiplexed cyber-dojo.sh's stdout/stderr/status
-    @stdout_pipe.in.binmode
-
-    @stderr_pipe = context.piper.io
-    @stderr_pipe.in.binmode
+    @pipes = {
+      stdin:context.piper.io,
+      stdout:context.piper.io, # multiplexed cyber-dojo.sh's stdout/stderr/status
+      stderr:context.piper.io
+    }
+    @pipes[:stdout].in.binmode
+    @pipes[:stderr].in.binmode
+    @pipes[:stdin].out.binmode
+    @pipes[:stdin].out.sync = true
   end
 
   def run(command, max_seconds, tgz_in)
@@ -32,18 +31,18 @@ class Capture3WithTimeout
       Timeout.timeout(max_seconds) do
         pid = @process.spawn(command, {
           pgroup:true, # make a new process group
-              in: @stdin_pipe.in,
-             out: @stdout_pipe.out,
-             err: @stderr_pipe.out
+              in: @pipes[:stdin].in,
+             out: @pipes[:stdout].out,
+             err: @pipes[:stderr].out
         })
         wait_thread = @process.detach(pid) # prevent zombie child processes
-        @stdin_pipe.in.close
-        @stdout_pipe.out.close
-        @stderr_pipe.out.close
-        stdout_reader_thread = @threader.thread { @stdout_pipe.in.read }
-        stderr_reader_thread = @threader.thread { @stderr_pipe.in.read }
-        @stdin_pipe.out.write(tgz_in)
-        @stdin_pipe.out.close
+        @pipes[:stdin].in.close
+        @pipes[:stdout].out.close
+        @pipes[:stderr].out.close
+        stdout_reader_thread = @threader.thread { @pipes[:stdout].in.read }
+        stderr_reader_thread = @threader.thread { @pipes[:stderr].in.read }
+        @pipes[:stdin].out.write(tgz_in)
+        @pipes[:stdin].out.close
         result[:status] = wait_thread.value
       end
     rescue Timeout::Error
@@ -60,8 +59,8 @@ class Capture3WithTimeout
       result[:status] = wait_thread.value
       result[:stdout] = stdout_reader_thread.value
       result[:stderr] = stderr_reader_thread.value
-      safe_close(@stdout_pipe.out)
-      safe_close(@stderr_pipe.out)
+      safe_close(@pipes[:stdout].out)
+      safe_close(@pipes[:stderr].out)
     end
 
     result
