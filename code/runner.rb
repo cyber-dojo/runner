@@ -77,9 +77,9 @@ class Runner
 
   def docker_stop_container(id, image_name, container_name)
     # send the stop signal, wait 1 second, send the kill signal.
-    # Note: I have tried using the [docker run] --stop-timeout option
-    # instead of using capture3_with_timeout().
-    # In tests, it fails to stop a container in an infinite loop.
+    # Note: I have tried using the [docker run] --stop-timeout
+    # option instead of sheller.capture(); in tests, it failed
+    # to stop a container running an infinite loop.
     command = "docker stop --time 1 #{container_name}"
     _stdout,_stderr,status = @context.sheller.capture(command)
     unless status === 0
