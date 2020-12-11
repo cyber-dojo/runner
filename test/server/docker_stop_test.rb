@@ -102,12 +102,6 @@ class DockerStopTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def assert_json_line(line, expected)
-    assert_equal(expected, JSON.parse(line,symbolize_names:true))
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   class ThreaderStub
     def thread(name)
       stubs = {

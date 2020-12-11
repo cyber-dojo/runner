@@ -81,8 +81,9 @@ class RunTimedOutTest < TestBase
   in capture3_with_timeout()
   when process.spawn() fails to respond within the timeout period
   thats also a timeout
-  and nothing is captured from the io pipes
-  and no process.detch() or process.kill() calls are made
+  and anything captured from the io pipes is ignored
+  and no process.detch() call is made
+  and no process.kill() call is made
   ) do
     stdout_tgz = 'tweedle-dee'
     set_context(

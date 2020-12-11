@@ -11,8 +11,17 @@ class RunFaultyStatusNonZeroTest < TestBase
 
   test 'd54', %w( outcome is faulty when gzip error ) do
     stub_gzip_error
+
     run_cyber_dojo_sh
+
     assert faulty?, run_result
+    lines = @logger.logged.lines
+    assert_equal 1, lines.size
+    assert_json_line(lines[0], {
+      id:id58,
+      image_name:image_name,
+      error:'Zlib::GzipFile::Error'
+    })
   end
 
   private
@@ -21,7 +30,7 @@ class RunFaultyStatusNonZeroTest < TestBase
     stdout_tgz = 'not-a-tgz'
     stderr = ''
     set_context(
-        logger:StdoutLoggerSpy.new,
+        logger:@logger=StdoutLoggerSpy.new,
        process:process=ProcessSpawnerStub.new,
       threader:StdoutStderrReaderThreaderStub.new(stdout_tgz, stderr)
     )

@@ -201,6 +201,10 @@ class TestBase < Id58TestBase
     context.logger.logged
   end
 
+  def assert_json_line(line, expected)
+    assert_equal(expected, JSON.parse(line, symbolize_names:true))
+  end
+
   def uid
     41966
   end
