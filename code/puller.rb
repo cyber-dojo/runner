@@ -43,12 +43,14 @@ class Puller
   def threaded_pull_image(id, image_name)
     t0 = Time.now
     command = "docker pull #{image_name}"
-    _,_,status = sheller.capture(command)
+    stdout,stderr,status = sheller.capture(command)
     if status === 0
       t1 = Time.now
       add(image_name)
       took = (t1 - t0).round(1)
       logger.log("Pulled docker image #{image_name} (#{took} secs)")
+    else
+      logger.log("Failed to pull docker image #{image_name}, stdout=#{stdout}, stderr=#{stderr}")
     end
   ensure
     @pulling.delete(image_name)
