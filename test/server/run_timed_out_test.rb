@@ -39,15 +39,12 @@ class RunTimedOutTest < TestBase
       nil
     }
 
-    yielded_to_block = false
-
     # inner timed-out
-    result = capture3_with_timeout { yielded_to_block = true }
+    result = capture3_with_timeout
 
     assert_equal [pid], detach_args
     assert_equal [[:TERM,-pid],[:KILL,-pid]], kill_args
 
-    assert yielded_to_block
     expected = {
       timed_out:true,
       stdout:stdout_tgz,
@@ -81,7 +78,6 @@ class RunTimedOutTest < TestBase
   in capture3_with_timeout()
   when process.spawn() fails to respond within the timeout period
   thats also a timeout
-  and anything captured from the io pipes is ignored
   and no process.detch() call is made
   and no process.kill() call is made
   ) do
@@ -93,11 +89,9 @@ class RunTimedOutTest < TestBase
     )
 
     process.spawn { sleep 10; }
-    yielded_to_block = false
 
-    result = capture3_with_timeout { yielded_to_block = true }
+    result = capture3_with_timeout
 
-    assert yielded_to_block
     expected = {
       timed_out:true,
       stdout:stdout_tgz,
@@ -138,11 +132,8 @@ class RunTimedOutTest < TestBase
       nil
     }
 
-    yielded_to_block = false
+    capture3_with_timeout
 
-    capture3_with_timeout { yielded_to_block = true }
-
-    assert yielded_to_block
     assert_equal [pid], detach_args
     assert_equal [[:TERM,-pid]], kill_args
   end
@@ -169,7 +160,7 @@ class RunTimedOutTest < TestBase
       WaitThreadCompletedStub.new(status)
     }
 
-    result = capture3_with_timeout {}
+    result = capture3_with_timeout
 
     assert_equal [pid], detach_args
 
@@ -186,7 +177,7 @@ class RunTimedOutTest < TestBase
 
   def capture3_with_timeout(&block)
     runner = Capture3WithTimeout.new(@context)
-    runner.run(max_seconds=1, command=nil, tgz_in=nil, &block)
+    runner.run(command=nil, max_seconds=1, tgz_in=nil)
   end
 
 end

@@ -22,11 +22,17 @@ class Runner
       return empty_result(:pulling, 'pulling', {})
     end
 
-    max_seconds = [20, Integer(manifest['max_seconds'])].min
+    random_id = @context.random.hex8
+    container_name = [ 'cyber_dojo_runner', id, random_id ].join('_')
+    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
+    max_seconds = [15, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-    run = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
+
+    run = Capture3WithTimeout.new(@context).run(command, max_seconds, tgz_in)
+
     if run[:timed_out]
+      threaded_docker_stop_container(id, image_name, container_name)
       log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(run))
       timed_out_result(run)
     elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
@@ -67,29 +73,18 @@ class Runner
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
-    random_id = @context.random.hex8
-    container_name = [ 'cyber_dojo_runner', id, random_id ].join('_')
-    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
-    Capture3WithTimeout.new(@context).run(max_seconds, command, tgz_in) do
-      # If [docker run] times-out then Capture3WithTimeout
-      # makes process.kill() calls to kill the [docker rm] process.
-      # However, this does *not* kill the *container* the
-      # [docker run] initiated. Hence the [docker stop]
-      @context.threader.thread('runs-docker-stop') do
-        threaded_docker_stop_container(id, image_name, container_name)
-      end
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def threaded_docker_stop_container(id, image_name, container_name)
     # Send the stop signal, wait 1 second, send the kill signal.
     command = "docker stop --time 1 #{container_name}"
-    stdout,stderr,status = @context.sheller.capture(command)
-    unless status === 0
-      log(id:id, image_name:image_name, command:command, stdout:stdout, stderr:stderr, status:status)
+    # If [docker run] times-out then Capture3WithTimeout
+    # makes process.kill() calls to kill the [docker rm] process.
+    # However, this does *not* kill the *container* the
+    # [docker run] initiated. Hence the [docker stop]
+    @context.threader.thread('docker-stopper') do
+      stdout,stderr,status = @context.sheller.capture(command)
+      unless status === 0
+        log(id:id, image_name:image_name, command:command, stdout:stdout, stderr:stderr, status:status)
+      end
     end
   end
 

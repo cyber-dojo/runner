@@ -1,19 +1,18 @@
 # frozen_string_literal: true
 require 'timeout'
+require 'ostruct'
 
-# [X] See comments at the end of file.
-
-class Capture3WithTimeout
+class Capture3WithTimeout # [X] See comments at the end of file.
 
   def initialize(context)
+    @piper = context.piper
     @process  = context.process
     @threader = context.threader
-    @piper = context.piper
   end
 
   # - - - - - - - - - - - - - - - - - -
 
-  def run(max_seconds, command, tgz_in)
+  def run(command, max_seconds, tgz_in)
     result = { timed_out:false }
     pid,waiter = nil,OpenStruct.new(value:nil)
     pipes = make_binary_pipes
@@ -27,7 +26,6 @@ class Capture3WithTimeout
     rescue Timeout::Error
       result[:timed_out] = true
       kill_process_group(pid,waiter)
-      yield
     ensure
       result[:status] = waiter.value
       result[:stdout] = stdout_reader.value
@@ -41,25 +39,21 @@ class Capture3WithTimeout
 
   private
 
-  attr_reader :process, :threader, :piper
-
-  def threaded(name)
-    threader.thread(name) { yield }
-  end
-
-  # - - - - - - - - - - - - - - - - - -
+  attr_reader :piper, :process, :threader
 
   def make_binary_pipes
-    pipes = {
-      stdin:piper.make,
-      stdout:piper.make, # [X]
-      stderr:piper.make
-    }
+    pipes = { stdin:piper.make, stdout:piper.make, stderr:piper.make }
     pipes[:stdout].in.binmode
     pipes[:stderr].in.binmode
     pipes[:stdin].out.binmode
     pipes[:stdin].out.sync = true
     pipes
+  end
+
+  # - - - - - - - - - - - - - - - - - -
+
+  def threaded(name)
+    threader.thread(name) { yield }
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -137,7 +131,7 @@ reads...
   using join,
   and returns its value ...
 
-So, the line
+So, the lines
 
   result[:status] = waiter.value
 
@@ -162,17 +156,15 @@ browser (as well as ~/cyber_dojo_main.sh and some other
 helper scripts) into the home dir of the sandbox user.
 The second part runs cyber_dojo_main.sh (see home_files.rb)
 So the exit status will be the exit status of the last
-command of cyber_dojo_main.sh which is the last command of
-the trap handler, which is the last command of the
-send_tgz() function, which is...
+command of cyber_dojo_main.sh which is
 
-  gzip  < "${TAR_FILE}"
+  printf $? > "${TMP_DIR}/status"
 
-The important point is this: the exit status is *not* the
-exit status of cyber-dojo.sh, it is the exit status of
-the machinery in cyber_dojo_main.sh, which multiplexes
-cyber-dojo.sh's stdout/stderr/status on stdout of the
-container.
+The important point is this: the exit status of
+waiter.value is *not* the exit status of cyber-dojo.sh,
+it is the exit status of the machinery in cyber_dojo_main.sh,
+which multiplexes cyber-dojo.sh's stdout/stderr/status
+and text files, on stdout of the container.
 
 Useful:
 https://gist.github.com/pasela/9392115

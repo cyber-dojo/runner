@@ -6,10 +6,9 @@ module HomeFiles
   # /home/sandbox/cyber_dojo_main.sh
   # o) runs /sandbox/cyber-dojo.sh
   # o) captures its stdout/stderr/status
-  #    - write them to tgz file on stdout
-  #    These are needed to determine the traffic-light colour.
+  #    - multiplexes them to a tgz file on stdout
   # o) truncates all text files under /sandbox
-  #    - write them to tgz file on stdout
+  #    - multiplexes them to the tgz file on stdout
   #
   # Capturing text files is done for two main reasons:
   # 1. To allow approval style test frameworks which compare
@@ -45,7 +44,7 @@ module HomeFiles
   #     If size==0,1 assume a text file.
   # [3] grep -q is --quiet, we are generating filenames.
   # [4] truncates text files to MAX_FILE_SIZE+1 so
-  #     runner.rb's truncated?() can detect the truncation.
+  #     runner.rb can detect the truncation.
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
