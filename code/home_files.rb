@@ -3,7 +3,7 @@
 module HomeFiles
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # main.sh
+  # /home/sandbox/cyber_dojo_main.sh
   # o) runs /sandbox/cyber-dojo.sh
   # o) captures its stdout/stderr/status
   #    - write them to tgz file on stdout
@@ -15,7 +15,7 @@ module HomeFiles
   # 1. To allow approval style test frameworks which compare
   #    actual-text against expected-text.
   # 2. To allow cyber-dojo.sh files to generate extra reports
-  #    eg coverage and/or lint-style
+  #    eg from coverage and linters
 
   def home_files(sandbox_dir, max_file_size)
     {
