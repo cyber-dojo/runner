@@ -9,8 +9,6 @@ class Capture3WithTimeout
     @process  = context.process
     @threader = context.threader
     @piper = context.piper
-    @stdout_reader = ThreadNilValue.new
-    @stderr_reader = ThreadNilValue.new
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -18,7 +16,9 @@ class Capture3WithTimeout
   def run(max_seconds, command, tgz_in)
     result = { timed_out:false }
     pid,waiter = nil,OpenStruct.new(value:nil)
-    pipes = make_binary_pipes(piper)
+    pipes = make_binary_pipes
+    stdout_reader = threaded('stdout-reader') { pipes[:stdout].in.read }
+    stderr_reader = threaded('stderr-reader') { pipes[:stderr].in.read }
     begin
       Timeout.timeout(max_seconds) do
         pid,waiter = spawn_detached_process(command, pipes, tgz_in)
@@ -42,11 +42,14 @@ class Capture3WithTimeout
   private
 
   attr_reader :process, :threader, :piper
-  attr_reader :stdout_reader, :stderr_reader
+
+  def threaded(name)
+    threader.thread(name) { yield }
+  end
 
   # - - - - - - - - - - - - - - - - - -
 
-  def make_binary_pipes(piper)
+  def make_binary_pipes
     pipes = {
       stdin:piper.make,
       stdout:piper.make, # [X]
@@ -72,12 +75,6 @@ class Capture3WithTimeout
     pipes[:stdin].in.close
     pipes[:stdout].out.close
     pipes[:stderr].out.close
-    @stdout_reader = threader.thread('reads-stdout') {
-      pipes[:stdout].in.read
-    }
-    @stderr_reader = threader.thread('reads-stderr') {
-      pipes[:stderr].in.read
-    }
     pipes[:stdin].out.write(tgz_in)
     pipes[:stdin].out.close
     [ pid, waiter ]
@@ -101,14 +98,6 @@ class Capture3WithTimeout
   def close_pipe(pipe_end)
     unless pipe_end.closed?
       pipe_end.close
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  class ThreadNilValue # Null-Object pattern
-    def value
-      nil
     end
   end
 

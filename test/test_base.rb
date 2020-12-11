@@ -117,7 +117,7 @@ class TestBase < Id58TestBase
   end
 
   def max_seconds
-    manifest['max_seconds']
+    manifest['max_seconds'] || 5
   end
 
   def manifest

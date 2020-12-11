@@ -5,8 +5,8 @@ class StdoutStderrReaderThreaderStub
 
   def initialize(stdout_tgz, stderr)
     @stubs = {
-      'reads-stdout' => ThreadValueStub.new(stdout_tgz),
-      'reads-stderr' => ThreadValueStub.new(stderr)
+      'stdout-reader' => ThreadValueStub.new(stdout_tgz),
+      'stderr-reader' => ThreadValueStub.new(stderr)
     }
   end
 

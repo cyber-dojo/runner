@@ -22,7 +22,7 @@ class Runner
       return empty_result(:pulling, 'pulling', {})
     end
 
-    max_seconds = manifest['max_seconds']
+    max_seconds = [20, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
     run = docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)

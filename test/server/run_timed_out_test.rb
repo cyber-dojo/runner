@@ -100,8 +100,8 @@ class RunTimedOutTest < TestBase
     assert yielded_to_block
     expected = {
       timed_out:true,
-      stdout:nil,
-      stderr:nil,
+      stdout:stdout_tgz,
+      stderr:'',
       status:nil
     }
     assert_equal expected, result

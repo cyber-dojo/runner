@@ -105,9 +105,9 @@ class DockerStopTest < TestBase
   class ThreaderStub
     def thread(name)
       stubs = {
-        'reads-stdout' => ThreadValueStub.new(''),
-        'reads-stderr' => ThreadValueStub.new(''),
-        'run-docker-stop' => yield
+        'stdout-reader' => ThreadValueStub.new(''),
+        'stderr-reader' => ThreadValueStub.new(''),
+        'docker-stopper' => yield
       }
       stubs[name]
     end
