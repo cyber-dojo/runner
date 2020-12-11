@@ -8,7 +8,7 @@ class ThreaderSynchronous
     @called = false
   end
 
-  def thread(&block)
+  def thread(_name, &block)
     @called = true
     block.call
   end

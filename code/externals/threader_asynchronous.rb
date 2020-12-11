@@ -2,7 +2,7 @@
 
 class ThreaderAsynchronous
 
-  def thread(&block)
+  def thread(_name, &block)
     Thread.new(&block)
   end
 

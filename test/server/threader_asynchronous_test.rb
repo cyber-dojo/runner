@@ -13,7 +13,7 @@ class ThreaderAsynchronousTest < TestBase
   a simple object-wrapper to allow instance-level stubbing
   ) do
     threader = ThreaderAsynchronous.new
-    threaded = threader.thread { 42 }
+    threaded = threader.thread('name') { 42 }
     joined = threaded.join
     assert_equal 42, joined.value
   end

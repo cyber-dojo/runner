@@ -2,7 +2,6 @@
 require_relative 'capture3_with_timeout'
 require_relative 'files_delta'
 require_relative 'home_files'
-require_relative 'random_hex'
 require_relative 'sandbox'
 require_relative 'tgz'
 require_relative 'traffic_light'
@@ -69,27 +68,28 @@ class Runner
   # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_cyber_dojo_sh(id, image_name, max_seconds, tgz_in)
-    container_name = [ 'cyber_dojo_runner', id, RandomHex.id(8) ].join('_')
+    random_id = @context.random.hex8
+    container_name = [ 'cyber_dojo_runner', id, random_id ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     Capture3WithTimeout.new(@context).run(max_seconds, command, tgz_in) do
       # If [docker run] times-out then Capture3WithTimeout
       # makes process.kill() calls to kill the [docker rm] process.
       # However, this does *not* kill the *container* the
       # [docker run] initiated. Hence the [docker stop]
-      @context.threader.thread do
-        docker_stop_container(id, image_name, container_name)
+      @context.threader.thread('runs-docker-stop') do
+        threaded_docker_stop_container(id, image_name, container_name)
       end
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  def docker_stop_container(id, image_name, container_name)
+  def threaded_docker_stop_container(id, image_name, container_name)
     # Send the stop signal, wait 1 second, send the kill signal.
     command = "docker stop --time 1 #{container_name}"
-    _stdout,_stderr,status = @context.sheller.capture(command)
+    stdout,stderr,status = @context.sheller.capture(command)
     unless status === 0
-      log(id:id, image_name:image_name, command:command)
+      log(id:id, image_name:image_name, command:command, stdout:stdout, stderr:stderr, status:status)
     end
   end
 
@@ -256,7 +256,7 @@ class Runner
   end
 
   def log(info)
-    @context.logger.log(JSON.pretty_generate(info))
+    @context.logger.log(JSON.generate(info))
   end
 
   def puller

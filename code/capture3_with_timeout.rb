@@ -68,8 +68,8 @@ class Capture3WithTimeout
     pipes[:stdin].in.close
     pipes[:stdout].out.close
     pipes[:stderr].out.close
-    @stdout_reader = threader.thread { pipes[:stdout].in.read }
-    @stderr_reader = threader.thread { pipes[:stderr].in.read }
+    @stdout_reader = threader.thread('reads-stdout') { pipes[:stdout].in.read }
+    @stderr_reader = threader.thread('reads-stderr') { pipes[:stderr].in.read }
     pipes[:stdin].out.write(tgz_in)
     pipes[:stdin].out.close
     @waiter.value

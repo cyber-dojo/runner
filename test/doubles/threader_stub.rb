@@ -7,7 +7,7 @@ class ThreaderStub
     @stderr = stderr
     @n = 0
   end
-  def thread
+  def thread(_name)
     @n += 1
     if @n === 1
       return ThreadStub.new(@stdout_tgz)

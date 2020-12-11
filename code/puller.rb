@@ -28,7 +28,7 @@ class Puller
     image_name = ::Docker::tagged_image_name(image_name)
     if !@pulled.include?(image_name)
       if @pulling.add?(image_name)
-        threader.thread do
+        threader.thread('pulls-image') do
           threaded_pull_image(id, image_name)
         end
       end
