@@ -88,13 +88,13 @@ module Dual
         stdout_tgz = TGZ.of({'stderr' => 'any'})
         set_context(
            logger:StdoutLoggerSpy.new,
-            piper:piper=PiperStub.new(stdout_tgz),
+            piper:piper=PipeMakerStub.new(stdout_tgz),
           process:process=ProcessSpawnerStub.new,
           sheller:sheller=BashShellerStub.new
         )
         puller.add(image_name)
         process.spawn {}
-        process.detach { ThreadStub.new(0) }
+        process.detach { ThreadValueStub.new(0) }
         process.kill {}
         command = "docker run --rm --entrypoint=cat #{image_name} /usr/local/bin/red_amber_green.rb"
         sheller.capture(command) {

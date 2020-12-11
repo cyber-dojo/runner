@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require_relative '../test_base'
-require 'ostruct'
 
 class DockerStopTest < TestBase
 
@@ -82,7 +81,7 @@ class DockerStopTest < TestBase
   def setup_stubs
     set_context(
         logger:@logger=StdoutLoggerSpy.new,
-         piper:PiperStub.new(''),
+         piper:PipeMakerStub.new(''),
        process:process=ProcessSpawnerStub.new,
        sheller:@sheller=BashShellerStub.new,
       threader:ThreaderStub.new,
@@ -112,8 +111,8 @@ class DockerStopTest < TestBase
   class ThreaderStub
     def thread(name)
       stubs = {
-        'reads-stdout' => OpenStruct.new(value:''),
-        'reads-stderr' => OpenStruct.new(value:''),
+        'reads-stdout' => ThreadValueStub.new(''),
+        'reads-stderr' => ThreadValueStub.new(''),
         'run-docker-stop' => yield
       }
       stubs[name]

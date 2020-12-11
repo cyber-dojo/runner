@@ -8,7 +8,7 @@ class Capture3WithTimeout
   def initialize(context)
     @process  = context.process
     @threader = context.threader
-    @pipes = make_pipes(context.piper)
+    @pipes = make_binary_pipes(context.piper)
     @stdout_reader = ThreadNilValue.new
     @stderr_reader = ThreadNilValue.new
     @command_waiter = ThreadNilValue.new
@@ -42,9 +42,9 @@ class Capture3WithTimeout
 
   # - - - - - - - - - - - - - - - - - -
 
-  def make_pipes(piper)
+  def make_binary_pipes(piper)
     # [X] stdout multiplexes cyber-dojo.sh's stdout/stderr/status
-    pipes = { stdin:piper.io, stdout:piper.io, stderr:piper.io }
+    pipes = { stdin:piper.make, stdout:piper.make, stderr:piper.make }
     pipes[:stdout].in.binmode
     pipes[:stderr].in.binmode
     pipes[:stdin].out.binmode

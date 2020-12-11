@@ -18,7 +18,7 @@ class RunTimedOutTest < TestBase
     stdout_tgz = 'would-be-proper-tgz-data'
     set_context(
        logger:StdoutLoggerSpy.new,
-        piper:PiperStub.new(stdout_tgz),
+        piper:PipeMakerStub.new(stdout_tgz),
       process:process=ProcessSpawnerStub.new
     )
 
@@ -87,7 +87,7 @@ class RunTimedOutTest < TestBase
     stdout_tgz = 'tweedle-dee'
     set_context(
        logger:StdoutLoggerSpy.new,
-        piper:PiperStub.new(stdout_tgz),
+        piper:PipeMakerStub.new(stdout_tgz),
       process:process=ProcessSpawnerStub.new
     )
 
@@ -116,7 +116,7 @@ class RunTimedOutTest < TestBase
   ) do
     set_context(
        logger:StdoutLoggerSpy.new,
-        piper:PiperStub.new('alice'),
+        piper:PipeMakerStub.new('alice'),
       process:process=ProcessSpawnerStub.new
     )
 
@@ -154,7 +154,7 @@ class RunTimedOutTest < TestBase
   ) do
     set_context(
        logger:StdoutLoggerSpy.new,
-        piper:PiperStub.new('mad-hatter', false),
+        piper:PipeMakerStub.new('mad-hatter', false),
       process:process=ProcessSpawnerStub.new
     )
 

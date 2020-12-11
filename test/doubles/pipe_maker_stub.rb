@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PiperStub
+class PipeMakerStub
 
   def initialize(stdout_tgz, closed=true)
     @stdout_tgz = stdout_tgz
@@ -8,7 +8,7 @@ class PiperStub
     @n = 0
   end
 
-  def io
+  def make
     Struct.new(:in, :out).new(
       Class.new do
         def initialize(read); @read = read; end

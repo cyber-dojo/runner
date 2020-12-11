@@ -21,14 +21,14 @@ class RunFaultyGzipErrorTest < TestBase
     stdout_tgz = TGZ.of({'stderr' => 'any'})
     stderr = ''
     set_context(
-      logger:StdoutLoggerSpy.new,
-      process:process=ProcessSpawnerStub.new,
-      threader:ThreaderStub.new(stdout_tgz, stderr)
+        logger:StdoutLoggerSpy.new,
+       process:process=ProcessSpawnerStub.new,
+      threader:StdoutStderrReaderThreaderStub.new(stdout_tgz, stderr)
     )
     puller.add(image_name)
     tp = ProcessSpawner.new
     process.spawn { |_cmd,opts| tp.spawn('sleep 10', opts) }
-    process.detach { |pid| tp.detach(pid); ThreadStub.new(status=42) }
+    process.detach { |pid| tp.detach(pid); ThreadValueStub.new(status=42) }
     process.kill { |signal,pid| tp.kill(signal, pid) }
   end
 

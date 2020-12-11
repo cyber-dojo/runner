@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'externals/bash_sheller'
-require_relative 'externals/piper'
+require_relative 'externals/pipe_maker'
 require_relative 'externals/process_spawner'
 require_relative 'externals/random'
 require_relative 'externals/stdout_logger'
@@ -21,7 +21,7 @@ class Context
     @process  = options[:process ] || ProcessSpawner.new
     @sheller  = options[:sheller ] || BashSheller.new(self)
     @threader = options[:threader] || AsynchronousThreader.new
-    @piper    = options[:piper   ] || Piper.new
+    @piper    = options[:piper   ] || PipeMaker.new
 
     @logger = options[:logger] || StdoutLogger.new
     @random = options[:random] || Random.new

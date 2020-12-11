@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require 'ostruct'
 
-class Piper
+class PipeMaker
 
   def initialize
   end
 
-  def io
+  def make
     Pipe.new(*IO.pipe)
   end
 
