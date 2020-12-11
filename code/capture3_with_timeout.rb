@@ -8,37 +8,41 @@ class Capture3WithTimeout
   def initialize(context)
     @process  = context.process
     @threader = context.threader
-    @pipes = make_binary_pipes(context.piper)
+    @piper = context.piper
     @stdout_reader = ThreadNilValue.new
     @stderr_reader = ThreadNilValue.new
-    @command_waiter = ThreadNilValue.new
-    @pid = nil
   end
 
   # - - - - - - - - - - - - - - - - - -
 
   def run(max_seconds, command, tgz_in)
     result = { timed_out:false }
+    pid,waiter = nil,OpenStruct.new(value:nil)
+    pipes = make_binary_pipes(piper)
     begin
       Timeout.timeout(max_seconds) do
-        result[:status] = spawn_detached_process(command, tgz_in)
+        pid,waiter = spawn_detached_process(command, pipes, tgz_in)
+        result[:status] = waiter.value
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      kill_process_group
+      kill_process_group(pid,waiter)
       yield
     ensure
-      gather_stdout_stderr_status(result)
-      close_pipes
+      result[:status] = waiter.value
+      result[:stdout] = stdout_reader.value
+      result[:stderr] = stderr_reader.value
+      close_pipe(pipes[:stdin].in)
+      close_pipe(pipes[:stdout].out)
+      close_pipe(pipes[:stderr].out)
     end
     result
   end
 
   private
 
-  attr_reader :process, :threader, :pipes
-  attr_reader :stdout_reader, :stderr_reader, :command_waiter
-  attr_reader :pid
+  attr_reader :process, :threader, :piper
+  attr_reader :stdout_reader, :stderr_reader
 
   # - - - - - - - - - - - - - - - - - -
 
@@ -57,14 +61,14 @@ class Capture3WithTimeout
 
   # - - - - - - - - - - - - - - - - - -
 
-  def spawn_detached_process(command, tgz_in)
-    @pid = process.spawn(command, {
+  def spawn_detached_process(command, pipes, tgz_in)
+    pid = process.spawn(command, {
       pgroup:true, # [X] process group
           in: pipes[:stdin].in,
          out: pipes[:stdout].out,
          err: pipes[:stderr].out
     })
-    @command_waiter = process.detach(pid) # [X]
+    waiter = process.detach(pid) # [X]
     pipes[:stdin].in.close
     pipes[:stdout].out.close
     pipes[:stderr].out.close
@@ -76,36 +80,20 @@ class Capture3WithTimeout
     }
     pipes[:stdin].out.write(tgz_in)
     pipes[:stdin].out.close
-    command_waiter.value
+    [ pid, waiter ]
   end
 
   # - - - - - - - - - - - - - - - - - -
 
-  def kill_process_group
+  def kill_process_group(pid, waiter)
     unless pid.nil?
       process.kill(:TERM, -pid)
-      unless command_waiter.join(1)
+      unless waiter.join(1)
         # join failed (returned nil) indicating the
         # process.kill(:TERM,-pid) was ignored, so...
         process.kill(:KILL, -pid)
       end
     end
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  def gather_stdout_stderr_status(result)
-    result[:status] = command_waiter.value
-    result[:stdout] = stdout_reader.value
-    result[:stderr] = stderr_reader.value
-  end
-
-  # - - - - - - - - - - - - - - - - - -
-
-  def close_pipes
-    close_pipe(pipes[:stdin].in)
-    close_pipe(pipes[:stdout].out)
-    close_pipe(pipes[:stderr].out)
   end
 
   # - - - - - - - - - - - - - - - - - -
