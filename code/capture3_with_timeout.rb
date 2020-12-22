@@ -14,7 +14,7 @@ class Capture3WithTimeout # [X] See comments at the end of file.
 
   def run(command, max_seconds, tgz_in)
     result = { timed_out:false }
-    pid,waiter = nil,OpenStruct.new(value:nil)
+    pid, waiter = nil, OpenStruct.new(value:nil)
     pipes = make_binary_pipes
     stdout_reader = threaded('stdout-reader') { pipes[:stdout].in.read }
     stderr_reader = threaded('stderr-reader') { pipes[:stderr].in.read }
@@ -25,7 +25,7 @@ class Capture3WithTimeout # [X] See comments at the end of file.
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      kill_process_group(pid,waiter)
+      kill_process_group(pid, waiter)
     ensure
       result[:status] = waiter.value
       result[:stdout] = stdout_reader.value
