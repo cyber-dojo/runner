@@ -12,11 +12,6 @@ readonly YAML_VALUES_FILE="${MY_DIR}/k8s-general-values.yml"
 gcloud_init
 helm_init
 
-cat "${MY_DIR}/env-var-values.yml" >> "${YAML_VALUES_FILE}"
-echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-cat "${YAML_VALUES_FILE}"
-echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-
 helm_upgrade_probe_yes_prometheus_yes \
    "${NAMESPACE}" \
    "runner" \
