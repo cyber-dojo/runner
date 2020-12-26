@@ -6,7 +6,7 @@ services:
   client:
     build:
       context: client
-      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_CLIENT_PORT ]
+      args: [ COMMIT_SHA ]
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     container_name: ${CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME}
@@ -25,7 +25,7 @@ services:
   runner:
     build:
       context: .
-      args: [ COMMIT_SHA, CYBER_DOJO_RUNNER_PORT ]
+      args: [ COMMIT_SHA ]
     image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: ${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}
