@@ -1,0 +1,43 @@
+http://crunchtools.com/getting-ninja-runc/
+
+In 1st terminal...
+docker-machine ssh default
+sudo su root
+cd /var/run/docker/containerd/daemon/io.containerd.runtime.v1.linux/moby
+
+In 2nd terminal...
+docker run --rm -it -d alpine sh
+35096f5589f68bd6a6af6f89d9b3fcd3eb7fa2eef296da23278ba3c255575ab3
+
+In 1st terminal...
+ls
+646374056d2b423ccd521ff4587b27126bf3343e451bbd9e391bffdaaeb0544e
+cd 646374056d2b423ccd521ff4587b27126bf3343e451bbd9e391bffdaaeb0544e
+ls
+config.json
+
+---------------------------------
+
+https://medium.com/better-programming/securely-building-container-images-on-kubernetes-cef0c4c3cc24
+
+https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/
+
+https://medium.com/better-programming/securely-building-container-images-on-kubernetes-cef0c4c3cc24
+
+
+
+https://mkdev.me/en/posts/the-tool-that-really-runs-your-containers-deep-dive-into-runc-and-oci-specifications
+
+kubectl get pods -n beta
+....runner-vzgj3
+kubectl exec -it -n beta runner-vzgj3 bash
+cd /tmp
+runc spec
+ls -al
+config.json
+
+
+
+https://github.com/opencontainers/runtime-spec/blob/master/config.md
+
+https://github.com/opencontainers/runc

@@ -1,0 +1,3 @@
+
+runner as docker-group user
+https://estl.tech/accessing-docker-from-a-kubernetes-pod-68996709c04b
