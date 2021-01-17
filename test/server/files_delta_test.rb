@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require_relative '../test_base'
 require_code 'files_delta'
+require_code 'utf8_clean'
 
 class FilesDeltaTest < TestBase
 
@@ -30,6 +31,19 @@ class FilesDeltaTest < TestBase
     assert_equal({}, created)
     assert_equal({}, deleted)
     assert_equal({'wibble.txt' => intact('hello, world')}, changed)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'q77', %w( changed content caused by string cleaning ) do
+    dirty = (100..1000).to_a.pack('c*').force_encoding('utf-8')
+    clean = Utf8.clean(dirty)
+    was_files = { 'wibble.txt' => dirty }
+    now_files = { 'wibble.txt' => clean }
+    created,deleted,changed = files_delta(was_files, now_files)
+    assert_equal({}, created)
+    assert_equal({}, deleted)
+    assert_equal({'wibble.txt' => clean}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
