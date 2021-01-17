@@ -1,37 +1,43 @@
 # frozen_string_literal: true
+require_relative 'utf8_clean'
 
 module Sandbox
 
   DIR = '/sandbox' # where files are saved to in the container
 
   def self.in(arg)
-    #     arg {         'hiker.cs' => content }
+    # eg  arg {         'hiker.cs' => content }
     # returns { 'sandbox/hiker.cs' => content }
     if arg.is_a?(Hash)
-      # files
-      arg.each.with_object({}) do |(filename,content),memo|
-        memo[Sandbox.in(filename)] = content
+      files = arg
+      files.each.with_object({}) do |(filename,content),memo|
+        clean = Utf8.clean(content)
+        p "Sandbox.in(#{filename}) clean? #{clean.valid_encoding?}"
+        memo[Sandbox.in(filename)] = clean
       end
     else
-      # filename: Tar likes relative paths
+      filename = arg
+      # Tar likes relative paths so strip leading /
       unrooted = Sandbox::DIR[1..-1]
-      [ unrooted, arg ].join('/')
+      [ unrooted, filename ].join('/')
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def self.out(arg)
-    #     arg { 'sandbox/hiker.cs' => content }
+    # eg  arg { 'sandbox/hiker.cs' => content }
     # returns {         'hiker.cs' => content }
     if arg.is_a?(Hash)
-      # files
-      arg.each.with_object({}) do |(filename,content),memo|
+      files = arg
+      files.each.with_object({}) do |(filename,content),memo|
         memo[Sandbox.out(filename)] = content
       end
     else
-      # filename
-      arg[Sandbox::DIR.size..-1] # same size with / at front or back
+      filename = arg
+      # Sandbox::DIR had a leading / but we only need its size
+      # and the size is the same with a / at the front or the back
+      filename[Sandbox::DIR.size..-1]
     end
   end
 
