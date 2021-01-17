@@ -28,7 +28,8 @@ module FilesDelta
   able to delete a file is directly from the browser by clicking
   the [-] button.
 
-  Deleted files used to be detected in files_delta() but it caused problems:
+  Deleted files used to be detected in files_delta() and
+  returned to the browser, but it caused problems:
 
   1) It caused unwanted diffs between test runs.
 
@@ -36,7 +37,7 @@ module FilesDelta
      then a green test, followed by a red test results in all the coverage files
      unhelpfully appearing as deleted files in the diff view.
 
-  2) It resulted in files being deleted for no apparant reason!
+  2) It could result in files being deleted for no apparant reason!
 
      Suppose, in the browser, you accidentally type a rogue character into a file.
      - The file is saved into the container.

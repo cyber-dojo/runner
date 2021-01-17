@@ -2,24 +2,10 @@
 
 module HomeFiles
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # /home/sandbox/cyber_dojo_main.sh
-  # o) runs /sandbox/cyber-dojo.sh
-  # o) captures its stdout/stderr/status
-  #    - multiplexes them to a tgz file on stdout
-  # o) truncates all text files under /sandbox
-  #    - multiplexes them to the tgz file on stdout
-  #
-  # Capturing text files is done for two main reasons:
-  # 1. To allow approval style test frameworks which compare
-  #    actual-text against expected-text.
-  # 2. To allow cyber-dojo.sh files to generate extra reports
-  #    eg from coverage and linters
-
   def home_files(sandbox_dir, max_file_size)
     {
       unrooted(MAIN_SH_PATH) => main_sh(sandbox_dir, max_file_size),
-      unrooted(FS_CLEANERS_PATH) => FS_CLEANERS
+      unrooted(FS_CLEANERS_PATH) => file_system_cleaners()
     }
   end
 
@@ -33,6 +19,12 @@ module HomeFiles
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
+  # The Docker container calls cyber_dojo_main.sh which
+  # installs the send_tgz() in an EXIT trap handler.
+  # send_tgz() multiplexes cyber-dojo.sh's stdout/stderr/status
+  # into a tgz file which becomes the container's stdout
+  # which is read in capture3_with_timeout.rb
+  #
   # There are important comments on the exit-status of
   # cyber_dojo_main.sh at the end of capture3_with_timeout.rb
   #
@@ -52,7 +44,6 @@ module HomeFiles
     TAR_FILE="${TMP_DIR}/cyber-dojo.tar"
     function send_tgz()
     {
-      #local -r signal="${1}"
       touch ${TMP_DIR}/stdout && mv ${TMP_DIR}/stdout /tmp
       touch ${TMP_DIR}/stderr && mv ${TMP_DIR}/stderr /tmp
       touch ${TMP_DIR}/status && mv ${TMP_DIR}/status /tmp
@@ -101,8 +92,7 @@ module HomeFiles
     export -f is_binary_file
     export -f truncate_dont_extend
     # - - - - - - - - - - - - - - - - - - -
-    trap "send_tgz EXIT" EXIT
-    trap "send_tgz TERM" SIGTERM
+    trap send_tgz EXIT
     cd #{sandbox_dir}
     bash ./cyber-dojo.sh         \
              1> "${TMP_DIR}/stdout" \
@@ -112,17 +102,30 @@ module HomeFiles
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
-  # Text files under /sandbox are automatically returned.
-  # cyber-dojo.sh should:
-  # 1) Only return newly generated reports.
-  #      cyber_dojo_reset_dirs ${REPORT_DIR}
-  # 2) remove files we don't want returned.
-  #      cyber_dojo_delete_dirs ...
-  #      cyber_dojo_delete_files ...
-  # For example, see
+  # cyber-dojo.sh should remove text files it doesn't want
+  # returned; it can use these bash functions:
+  #
+  #    cyber_dojo_delete_dirs
+  #    cyber_dojo_delete_files
+  #
+  # For example, see:
   # https://github.com/cyber-dojo-start-points/python-pytest/blob/master/start_point/cyber-dojo.sh
+  # which contains this to remove the .pytest_cache dir.
+  #
+  #    function cyber_dojo_exit()
+  #    {
+  #        cyber_dojo_delete_dirs .pytest_cache
+  #    }
+  #    trap cyber_dojo_exit EXIT SIGTERM
+  #
+  # The bash function:
+  #
+  #      cyber_dojo_reset_dirs ...
+  #
+  # exists for historical reasons. It is retained only for backward
+  # compatibility with old katas.
 
-  FS_CLEANERS =
+  def file_system_cleaners
     <<~SHELL.strip
     function cyber_dojo_delete_dirs()
     {
@@ -147,5 +150,6 @@ module HomeFiles
       done
     }
     SHELL
+  end
 
 end
