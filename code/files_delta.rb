@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 module FilesDelta
 
-  # files_in (old)
-  # Format == { "hiker.c" => "#include..." }
-  # files_out (new)
-  # Format == { "hiker.c" => { "content": "#include...", truncated: false } }
-
+  # Incoming files are in this format:
+  #    { "hiker.c" => "#include..." }
+  # Outgoing files are in this format:
+  #    { "hiker.c" => { "content": "#include...", truncated: false } }
+  
   def files_delta(old, new)
     changed = {}
     deleted = {}
@@ -19,10 +19,5 @@ module FilesDelta
     end
     [ new, deleted, changed ]
   end
-
-  # To check for a changed file we only have to check the
-  # new files' content. If the new file has been truncated
-  # then the content must have changed since the old files
-  # are not truncated.
 
 end
