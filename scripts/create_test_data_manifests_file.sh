@@ -26,7 +26,7 @@ create_test_data_manifests_file()
   local -r URL="http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests"
   local -r FILENAME="${ROOT_DIR}/test/data/languages_start_points.manifests.json"
 
-  curl --silent --request GET "${URL}" | jq '.' > "${FILENAME}"
+  curl --silent --request GET "${URL}" | jq --sort-keys '.' > "${FILENAME}"
 
   docker rm --force "${CONTAINER_NAME}" > /dev/null
 }
