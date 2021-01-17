@@ -2,9 +2,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit_non_zero_unless_installed()
 {
-  printf "Checking ${1} is installed..."
-  if ! installed "${1}" ; then
-    stderr 'ERROR: ${1} is not installed!'
+  local -r command="${1}"
+  echo "Checking ${command} is installed..."
+  if ! installed "${command}" ; then
+    stderr "${command} is not installed!"
     exit 42
   else
     echo It is
@@ -20,3 +21,11 @@ installed()
     false
   fi
 }
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+stderr()
+{
+  local -r message="${1}"
+  >&2 echo "ERROR: ${message}"
+}
+
