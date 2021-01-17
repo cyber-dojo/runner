@@ -48,19 +48,12 @@ class FilesDeltaTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'E78', %w( deleted content ) do
-    filename = 'wibble.txt'
-    content = 'hello'
-    was_files = { filename => content }
+  test 'E78', %w( deleted file is NOT harvested ) do
+    was_files = { 'wibble.txt' => 'hello' }
     now_files = {}
     created,deleted,changed = files_delta(was_files, now_files)
-    expected_deleted = {
-      filename => {
-        'content' => content
-      }
-    }
     assert_equal({}, created)
-    assert_equal(expected_deleted, deleted)
+    assert_equal({}, deleted)
     assert_equal({}, changed)
   end
 
