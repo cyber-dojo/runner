@@ -1,0 +1,18 @@
+Truncation
+
+There are two different design decisions here:
+
+ 1) Network based truncation.
+
+    It is the callers job to truncate incoming packets (for a
+    run_cyber_dojo_sh call) if they wish to minimize network bandwidth.
+    Ideally the caller should tell the runner this limit (eg in the manifest)
+    so the runner can use the same limit on packets it is returning.
+    Currently this is not implemented.
+
+ 2) File based truncation.
+
+    The runner may choose to truncate incoming files before tar-piping
+    them into the container.
+    More importantly, any files created inside the container are harvested
+    and the runner is responsible for truncating these.
