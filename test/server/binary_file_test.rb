@@ -11,9 +11,8 @@ class BinaryFileTest < TestBase
 
   test '52A', %w(
   when an incoming file has rogue characters
-  and is seen as a binary file
-  it is not harvested from the container
-  but deleted files are no longer being returned to the browser
+  it is seen as a binary file
+  and is not harvested from the container
   ) do
     set_context
     filename = 'target.not.txt'
@@ -33,7 +32,6 @@ class BinaryFileTest < TestBase
     )
 
     assert_equal "#{filename}: binary\n", run_result['stdout']['content']
-    assert_equal([], run_result['deleted'], :deleted)
   end
 
 end

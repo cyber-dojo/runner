@@ -149,7 +149,6 @@ class TestBase < Id58TestBase
   def faulty?   ; outcome === 'faulty'   ; end
 
   def created; run_result['created']; end
-  def deleted; run_result['deleted']; end
   def changed; run_result['changed']; end
 
   def pretty_result(tag)

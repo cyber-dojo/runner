@@ -106,12 +106,11 @@ class Runner
     status = files_out.delete('tmp/status') || truncated('145')
     sss = [ stdout['content'], stderr['content'], status['content'] ]
     outcome,log_info = *@traffic_light.colour(image_name, *sss)
-    created,deleted,changed = files_delta(files_in, files_out)
+    created,changed = files_delta(files_in, files_out)
     result(
       stdout, stderr, status['content'],
       outcome, log_info,
       Sandbox.out(at_most(16,created)),
-      Sandbox.out(deleted).keys.sort,
       Sandbox.out(changed)
     )
   rescue Zlib::GzipFile::Error
@@ -123,15 +122,15 @@ class Runner
     result(
       truncated(''), truncated(''), STATUS[code].to_s,
       outcome, log_info,
-      {}, [], {}
+      {}, {}
     )
   end
 
-  def result(stdout, stderr, status, outcome, log, created, deleted, changed)
+  def result(stdout, stderr, status, outcome, log, created, changed)
     {
          'stdout' => stdout, 'stderr' => stderr,   'status' => status,
         'outcome' => outcome, 'log' => log,
-        'created' => created, 'deleted' => deleted, 'changed' => changed,
+        'created' => created, 'changed' => changed,
     }
   end
 

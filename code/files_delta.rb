@@ -16,8 +16,7 @@ module FilesDelta
         changed[filename] = after_files[filename]
       end
     end
-    deleted = {} # deprecated
-    [ new, deleted, changed ]
+    [ new, changed ]
   end
 
 =begin
