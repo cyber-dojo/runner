@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require_relative 'utf8_clean'
 
 module Sandbox
 
@@ -11,9 +10,7 @@ module Sandbox
     if arg.is_a?(Hash)
       files = arg
       files.each.with_object({}) do |(filename,content),memo|
-        clean = Utf8.clean(content)
-        p "Sandbox.in(#{filename}) clean? #{clean.valid_encoding?}"
-        memo[Sandbox.in(filename)] = clean
+        memo[Sandbox.in(filename)] = content
       end
     else
       filename = arg

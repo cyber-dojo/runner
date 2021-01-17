@@ -21,7 +21,6 @@ class Runner
     unless puller.pull_image(id:id, image_name:image_name) === :pulled
       return empty_result(:pulling, 'pulling', {})
     end
-
     random_id = @context.random.hex8
     container_name = [ 'cyber_dojo_runner', id, random_id ].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
