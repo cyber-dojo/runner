@@ -15,6 +15,7 @@ class Utf8CleanTest < TestBase
     refute bad_str.valid_encoding?
     good_str = Utf8.clean(bad_str)
     assert good_str.valid_encoding?
+    assert good_str.size != bad_str.size
   end
 
 end
