@@ -65,7 +65,8 @@ class RunTimedOutTest < TestBase
         :stdout => '',
         :stderr => ''
       },
-      "created"=>{}, "deleted"=>[], "changed"=>{}
+      "created"=>{},
+      "changed"=>{}
     }
     puller.add(image_name)
     run = run_cyber_dojo_sh(max_seconds:3)

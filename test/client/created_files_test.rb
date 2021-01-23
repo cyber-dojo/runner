@@ -14,7 +14,6 @@ class CreatedFilesTest < TestBase
     set_context
     run_cyber_dojo_sh
     assert_equal({}, created, :created)
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -31,7 +30,6 @@ class CreatedFilesTest < TestBase
     ].join("\n"))
     assert stdout.include?('test: binary'), stdout # file --mime-encoding
     assert_equal({ 'newfile.txt' => intact('xxx') }, created, :created)
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -44,7 +42,6 @@ class CreatedFilesTest < TestBase
       'for n in {1..32}; do echo -n Ciao > "file.${n}"; done',
     ].join("\n"))
     assert_equal 16, created.keys.size, :created
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -60,7 +57,6 @@ class CreatedFilesTest < TestBase
       'echo -n Bonjour > "ampers&and.txt"',
     ].join("\n"))
     assert_equal({ 'ampers&and.txt' => intact('Bonjour') }, created, :created)
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -75,7 +71,6 @@ class CreatedFilesTest < TestBase
       'echo -n "Hello" > stdout',
     ].join("\n"))
     assert_equal({ 'stdout' => intact('Hello') }, created, :created)
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -91,7 +86,6 @@ class CreatedFilesTest < TestBase
     script = "printf 'xxx' > '#{leading_hyphen}';"
     assert_cyber_dojo_sh(script)
     assert_equal({ leading_hyphen => intact('xxx') }, created, :created)
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -109,21 +103,6 @@ class CreatedFilesTest < TestBase
       'newfile.txt' => intact('xxx'),
       '.dotfile' => intact('yyy')
     }, created, :created)
-    assert_equal([], deleted, :deleted)
-    assert_equal({}, changed, :changed)
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  c_assert_test '530', %w(
-  deleted text filenames are returned
-  ) do
-    set_context
-    filename = 'hiker.c'
-    script = "rm #{filename}"
-    assert_cyber_dojo_sh(script)
-    assert_equal({}, created, :created)
-    assert_equal([filename], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -139,19 +118,17 @@ class CreatedFilesTest < TestBase
     script = "printf '#{ch}' > #{filename}"
     assert_cyber_dojo_sh(script)
     assert_equal({filename => intact(ch)}, created, :created)
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '62C', %w(
-  no text files under /sandbox at all, returns everything deleted
+  no text files under /sandbox at all, returns everything empty
   ) do
     set_context
     assert_cyber_dojo_sh('rm -rf /sandbox/* /sandbox/.*')
     assert_equal({}, created, :created)
-    assert_equal(manifest['visible_files'].keys.sort, deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
@@ -174,15 +151,6 @@ class CreatedFilesTest < TestBase
     assert_cyber_dojo_sh_can_create_files_in_sandbox_sub_dir('d1/d2/d3')
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '12C',
-  %w( deleted text filenames from /sandbox sub-dir are returned ) do
-    set_context
-    assert_cyber_dojo_sh_can_delete_files_from_sandbox_sub_dir('c1')
-    assert_cyber_dojo_sh_can_delete_files_from_sandbox_sub_dir('c1/c2/c3')
-  end
-
   private
 
   def assert_browser_can_create_files_in_sandbox_sub_dir(sub_dir)
@@ -198,7 +166,6 @@ class CreatedFilesTest < TestBase
     # *before* cyber-dojo.sh runs and so are not changes.
     assert_equal({}, created, :created)
     assert_equal({}, changed, :changed)
-    assert_equal([], deleted, :deleted)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -221,27 +188,6 @@ class CreatedFilesTest < TestBase
     }
     assert_equal(expected, created, :created)
     assert_equal({}, changed, :changed)
-    assert_equal([], deleted, :deleted)
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  def assert_cyber_dojo_sh_can_delete_files_from_sandbox_sub_dir(sub_dir)
-    filename = "#{sub_dir}/goodbye.txt"
-    content = 'goodbye, world'
-    cmd = [
-      "rm #{filename}",
-      "cd #{sub_dir}",
-      stat_cmd
-    ].join(' && ')
-    run_cyber_dojo_sh(
-      created: { filename => content },
-      changed: { 'cyber-dojo.sh' => cmd }
-    )
-    assert_equal([], stdout_stats.keys, :keys)
-    assert_equal({}, created, :created)
-    assert_equal({}, changed, :changed)
-    assert_equal([filename], deleted, :deleted)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

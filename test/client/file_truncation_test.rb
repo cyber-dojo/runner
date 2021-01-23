@@ -23,7 +23,6 @@ class FileTruncationTest < TestBase
     assert_equal [filename], created.keys
     assert created[filename]['truncated'].is_a?(TrueClass), :truncated
     assert_equal 50*1024, created[filename]['content'].size, :size
-    assert_equal([], deleted, :deleted)
     assert_equal({}, changed, :changed)
   end
 
