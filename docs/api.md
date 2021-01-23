@@ -32,7 +32,6 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * **status:String** of running `/sandbox/cyber-dojo.sh` (0 to 255)
   * **outcome:String** see below
   * **created:Hash** text-files created under `/sandbox`, each truncated to 50K
-  * **deleted:Array[String]** names of text-files deleted from `/sandbox`
   * **changed:Hash** text-files changed under `/sandbox`, each truncated to 50K
   * **log:Hash** diagnostic info
   * eg
@@ -54,7 +53,6 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
             "truncated": false
           }
         },
-        "deleted": [],
         "changed": {},
         "log": {...}
       }
