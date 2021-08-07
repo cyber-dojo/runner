@@ -21,7 +21,9 @@ source "${SH_DIR}/echo_versioner_env_vars.sh"
 export $(echo_versioner_env_vars)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
+echo GOT TO 1
 exit_zero_if_show_help "$@"
+echo GOT TO 2
 exit_non_zero_unless_installed docker
 exit_non_zero_unless_installed docker-compose
 exit_non_zero_unless_installed jq

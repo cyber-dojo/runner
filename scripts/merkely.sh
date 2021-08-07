@@ -18,16 +18,17 @@ on_ci_merkely_declare_pipeline()
   if ! on_ci ; then
     return
   fi
-	docker run \
+  
+  docker run \
 	--env MERKELY_COMMAND=declare_pipeline \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
 	--env MERKELY_API_TOKEN=${MERKELY_API_TOKEN} \
 	--rm \
 	--volume ${ROOT_DIR}/Merkelypipe.json:/data/Merkelypipe.json \
-	${MERKELY_CHANGE}
+		${MERKELY_CHANGE}
 
-	docker run \
+  docker run \
 	--env MERKELY_COMMAND=declare_pipeline \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
@@ -35,7 +36,7 @@ on_ci_merkely_declare_pipeline()
     --env MERKELY_HOST=https://staging.app.merkely.com \
 	--rm \
 	--volume ${ROOT_DIR}/Merkelypipe.json:/data/Merkelypipe.json \
-	${MERKELY_CHANGE}
+		${MERKELY_CHANGE}
 }
 
 # - - - - - - - - - - - - - - - - - - -
@@ -44,7 +45,8 @@ on_ci_merkely_log_artifact()
   if ! on_ci ; then
     return
   fi
-	docker run \
+ 
+  docker run \
     --env MERKELY_COMMAND=log_artifact \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
@@ -59,7 +61,7 @@ on_ci_merkely_log_artifact()
     --volume /var/run/docker.sock:/var/run/docker.sock \
     ${MERKELY_CHANGE}
 
-	docker run \
+  docker run \
     --env MERKELY_COMMAND=log_artifact \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
@@ -82,8 +84,10 @@ on_ci_merkely_log_evidence()
   if ! on_ci ; then
     return
   fi
+
   write_evidence_json
-	docker run \
+  
+  docker run \
     --env MERKELY_COMMAND=log_evidence \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
@@ -99,7 +103,7 @@ on_ci_merkely_log_evidence()
     --volume /var/run/docker.sock:/var/run/docker.sock \
     ${MERKELY_CHANGE}
 
-	docker run \
+  docker run \
     --env MERKELY_COMMAND=log_evidence \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
