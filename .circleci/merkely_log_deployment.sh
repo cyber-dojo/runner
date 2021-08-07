@@ -1,13 +1,10 @@
 #!/bin/bash -Eeu
 
-MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-MERKELY_CHANGE=merkely/change:latest
-MERKELY_OWNER=cyber-dojo
-MERKELY_PIPELINE=runner
-
-readonly ENVIRONMENT="${1}"
-readonly HOSTNAME="${2}"
+readonly MERKELY_CHANGE=merkely/change:latest
+readonly MERKELY_OWNER=cyber-dojo
+readonly MERKELY_PIPELINE=runner
 
 # - - - - - - - - - - - - - - - - - - -
 merkely_fingerprint()
@@ -18,6 +15,9 @@ merkely_fingerprint()
 # - - - - - - - - - - - - - - - - - - -
 merkely_log_deployment()
 {
+  local -r ENVIRONMENT="${1}"
+  local -r HOSTNAME="${2}"
+
   VERSIONER_URL=https://raw.githubusercontent.com/cyber-dojo/versioner/master
   export $(curl "${VERSIONER_URL}/app/.env")
   export CYBER_DOJO_RUNNER_TAG="${CIRCLE_SHA1:0:7}"
@@ -37,5 +37,3 @@ merkely_log_deployment()
       --volume /var/run/docker.sock:/var/run/docker.sock \
     	    ${MERKELY_CHANGE}
 }
-
-merkely_log_deployment
