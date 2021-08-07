@@ -11,6 +11,7 @@ source "${SH_DIR}/exit_zero_if_build_only.sh"
 source "${SH_DIR}/exit_zero_if_show_help.sh"
 source "${SH_DIR}/exit_non_zero_unless_installed.sh"
 source "${SH_DIR}/on_ci_publish_tagged_images.sh"
+source "${SH_DIR}/merkely.sh"
 source "${SH_DIR}/remove_old_images.sh"
 source "${SH_DIR}/remove_zombie_containers.sh"
 source "${SH_DIR}/setup_dependent_images.sh"
@@ -33,6 +34,8 @@ setup_dependent_images "$@"
 create_test_data_manifests_file
 server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
+on_ci_merkely_log_artifact
 test_in_containers "$@"
+on_ci_merkely_log_evidence
 containers_down
 on_ci_publish_tagged_images
