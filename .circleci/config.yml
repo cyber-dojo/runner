@@ -31,8 +31,8 @@ jobs:
           name: Log deployment to beta in Merkely
           command: |
             source ./.circleci/merkely_log_deployment.sh
-            merkely_log_deployment.sh beta https://staging.app.merkely.com
-            merkely_log_deployment.sh beta https://app.merkely.com
+            merkely_log_deployment beta https://staging.app.merkely.com
+            merkely_log_deployment beta https://app.merkely.com
 
   merkely-report-beta-env:
     docker:
@@ -66,8 +66,8 @@ jobs:
           name: Log deployment to prod in Merkely
           command: |
             source ./.circleci/merkely_log_deployment.sh
-            merkely_log_deployment.sh prod https://staging.app.merkely.com
-            merkely_log_deployment.sh prod https://app.merkely.com
+            merkely_log_deployment prod https://staging.app.merkely.com
+            merkely_log_deployment prod https://app.merkely.com
 
   merkely-report-prod-env:
     docker:
