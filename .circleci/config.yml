@@ -12,7 +12,7 @@ jobs:
             echo "${DOCKER_PASS}" | docker login --username "${DOCKER_USER}" --password-stdin
             ./build_test_publish.sh
             docker logout
-          
+
   deploy-to-beta-env:
     docker:
       - image: cyberdojo/gcloud-kubectl-helm
@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Authenticate with gcloud, deploy to beta with helm
           command: ./.circleci/deploy_to_namespace.sh beta
-		  
+
   merkely-log-deployment-to-beta-env:
     machine:
       image: ubuntu-2004:202008-01
@@ -30,7 +30,7 @@ jobs:
       - run:
           name: Log deployment to beta in Merkely
           command: ./.circleci/merkely_log_deployment.sh beta
-		  
+
   merkely-report-beta-env:
     docker:
       - image: ghcr.io/merkely-development/reporter:latest
@@ -44,7 +44,7 @@ jobs:
           command: |
             reporter report env k8s beta -H https://staging.app.merkely.com --owner cyber-dojo --namespace beta
             reporter report env k8s beta --owner cyber-dojo --namespace beta
-		  
+
   deploy-to-prod-env:
     docker:
       - image: cyberdojo/gcloud-kubectl-helm
@@ -86,11 +86,11 @@ workflows:
           filters:
             branches:
               only: [ master ]
-			  
+
       - deploy-to-beta-env:
           context: cyberdojo-context
           requires: [ build-tag-publish ]
-		  
+
       - merkely-log-deployment-to-beta-env:
           context: cyberdojo-context
           requires: [ deploy-to-beta-env ]
@@ -98,15 +98,15 @@ workflows:
       - merkely-report-beta-env:
           context: cyberdojo-context
           requires: [ merkely-log-deployment-to-beta-env ]
-		  
+
       - approve-to-prod-env:
           type: approval
           requires: [ deploy-to-beta-env ]
-		  
+
       - deploy-to-prod-env:
           context: cyberdojo-context
           requires: [ approve-to-prod-env ]
-		  
+
       - merkely-log-deployment-to-prod-env:
           context: cyberdojo-context
           requires: [ deploy-to-prod-env ]
@@ -114,4 +114,4 @@ workflows:
       - merkely-report-prod-env:
           context: cyberdojo-context
           requires: [ merkely-log-deployment-to-prod-env ]
-		  
+
