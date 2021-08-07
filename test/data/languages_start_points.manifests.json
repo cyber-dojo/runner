@@ -53,7 +53,7 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_unit:3edc421",
+      "image_name": "cyberdojofoundation/bash_unit:5ae2af3",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -76,7 +76,7 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_bats:53d0c9c",
+      "image_name": "cyberdojofoundation/bash_bats:3f078d9",
       "tab_size": 4,
       "visible_files": {
         "bats_help.txt": {
@@ -98,7 +98,7 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_shunit2:1322461",
+      "image_name": "cyberdojofoundation/bash_shunit2:590dce5",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -431,7 +431,7 @@
         ".h"
       ],
       "image_name": "cyberdojofoundation/clangpp_googlemock:ba099d5",
-      "max_seconds": 10,
+      "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1053,7 +1053,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_convey:75842e2",
+      "image_name": "cyberdojofoundation/go_convey:1267a91",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1073,7 +1073,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testify:88b3938",
+      "image_name": "cyberdojofoundation/go_testify:d5b224c",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1093,18 +1093,18 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testing:25c2283",
+      "image_name": "cyberdojofoundation/go_testing:1ac28cb",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "go test\n"
+          "content": "go env -w GO111MODULE=auto\ngo test\n"
         },
         "hiker.go": {
           "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
         },
         "hiker_test.go": {
-          "content": "package hiker\n\nimport (\"testing\")\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    if (answer() != 42) {\n        t.Error(\"answer() != 42 as expected.\")\n    }\n}\n"
+          "content": "package hiker\n\nimport (\"testing\")\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    if answer() != 42 {\n        t.Error(\"answer() != 42 as expected.\")\n    }\n}\n"
         }
       }
     },
@@ -1371,8 +1371,8 @@
         }
       }
     },
-    "Javascript, Cucumber": {
-      "display_name": "Javascript, Cucumber",
+    "JavaScript, Cucumber": {
+      "display_name": "JavaScript, Cucumber",
       "filename_extension": [
         ".js",
         ".feature"
@@ -1398,8 +1398,8 @@
         }
       }
     },
-    "Javascript, Mocha+chai+sinon": {
-      "display_name": "Javascript, Mocha+chai+sinon",
+    "JavaScript, Mocha+chai+sinon": {
+      "display_name": "JavaScript, Mocha+chai+sinon",
       "filename_extension": [
         ".js"
       ],
@@ -1433,8 +1433,8 @@
         }
       }
     },
-    "Javascript, assert": {
-      "display_name": "Javascript, assert",
+    "JavaScript, assert": {
+      "display_name": "JavaScript, assert",
       "filename_extension": [
         ".js"
       ],
@@ -1456,8 +1456,8 @@
         }
       }
     },
-    "Javascript, assert+jQuery": {
-      "display_name": "Javascript, assert+jQuery",
+    "JavaScript, assert+jQuery": {
+      "display_name": "JavaScript, assert+jQuery",
       "filename_extension": [
         ".js",
         ".html"
@@ -1486,8 +1486,8 @@
         }
       }
     },
-    "Javascript, jasmine": {
-      "display_name": "Javascript, jasmine",
+    "JavaScript, jasmine": {
+      "display_name": "JavaScript, jasmine",
       "filename_extension": [
         ".js"
       ],
@@ -1519,8 +1519,8 @@
         }
       }
     },
-    "Javascript, jest": {
-      "display_name": "Javascript, jest",
+    "JavaScript, jest": {
+      "display_name": "JavaScript, jest",
       "filename_extension": [
         ".js"
       ],
@@ -1545,8 +1545,8 @@
         }
       }
     },
-    "Javascript, qunit+sinon": {
-      "display_name": "Javascript, qunit+sinon",
+    "JavaScript, qunit+sinon": {
+      "display_name": "JavaScript, qunit+sinon",
       "filename_extension": [
         ".js"
       ],
@@ -1664,7 +1664,7 @@
         ".pl",
         ".t"
       ],
-      "image_name": "cyberdojofoundation/perl_test_simple:e13c906",
+      "image_name": "cyberdojofoundation/perl_test_simple:4b13559",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1685,7 +1685,7 @@
         ".pl",
         ".plt"
       ],
-      "image_name": "cyberdojofoundation/prolog_plunit:5a47752",
+      "image_name": "cyberdojofoundation/prolog_plunit:93663a5",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1707,12 +1707,12 @@
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_pytest:8825fe3",
+      "image_name": "cyberdojofoundation/python_approval_pytest:77166fd",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
         },
         "hiker.py": {
           "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
@@ -1805,12 +1805,12 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "cyberdojofoundation/python_pytest:f0b4595",
+      "image_name": "cyberdojofoundation/python_pytest:8965a76",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\n# Print a short summary of each test to stdout.\n# Can produde a lot of output on parameterized tests.\nexport PYTEST_ADDOPTS=\"-v\"\n\n# --------------------------------------------------------------\n# By default pytest captures stdout/stderr.\n# The --capture=tee-sys option ensures sys.stdout and\n# sys.stderr are actually written to.\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --capture=tee-sys \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\n# Print a short summary of each test to stdout.\n# Can produde a lot of output on parameterized tests.\nexport PYTEST_ADDOPTS=\"-v\"\n\n# --------------------------------------------------------------\n# By default pytest captures stdout/stderr.\n# The --capture=tee-sys option ensures sys.stdout and\n# sys.stderr are actually written to.\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --capture=tee-sys \\\n  --random-order-bucket=global \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
         },
         "hiker.py": {
           "content": "'''The starting files are unrelated to the exercise.\n\nThey show examples of writing and testing\n  o) a global function\n  o) an instance method\nPick the style most suitable to your exercise.\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
@@ -2020,7 +2020,7 @@
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "cyberdojofoundation/rust_test:f68c330",
+      "image_name": "cyberdojofoundation/rust_test:ded71ab",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -2124,7 +2124,7 @@
       "filename_extension": [
         ".vhdl"
       ],
-      "image_name": "cyberdojofoundation/vhdl_assert:3be7d58",
+      "image_name": "cyberdojofoundation/vhdl_assert:6c2cfb5",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
