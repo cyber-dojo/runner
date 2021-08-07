@@ -26,6 +26,7 @@ exit_non_zero_unless_installed docker
 exit_non_zero_unless_installed docker-compose
 exit_non_zero_unless_installed jq
 remove_old_images
+on_ci_merkely_declare_pipeline
 build_tagged_images "$@"
 exit_zero_if_build_only "$@"
 remove_zombie_containers
