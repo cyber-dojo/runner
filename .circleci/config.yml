@@ -29,7 +29,9 @@ jobs:
       - checkout
       - run:
           name: Log deployment to beta in Merkely
-          command: ./.circleci/merkely_log_deployment.sh beta
+          command: |
+            ./.circleci/merkely_log_deployment.sh beta https://staging.app.merkely.com
+            ./.circleci/merkely_log_deployment.sh beta https://app.merkely.com
 
   merkely-report-beta-env:
     docker:
@@ -43,7 +45,7 @@ jobs:
           name: Report k8s cluster namespace beta and send to staging.app.merkely.com and app.merkely.com
           command: |
             reporter report env k8s beta -H https://staging.app.merkely.com --owner cyber-dojo --namespace beta
-            reporter report env k8s beta --owner cyber-dojo --namespace beta
+            reporter report env k8s beta -H https://app.merkely.com         --owner cyber-dojo --namespace beta
 
   deploy-to-prod-env:
     docker:
@@ -61,7 +63,9 @@ jobs:
       - checkout
       - run:
           name: Log deployment to prod in Merkely
-          command: ./.circleci/merkely_log_deployment.sh prod
+          command: |
+            ./.circleci/merkely_log_deployment.sh prod https://staging.app.merkely.com
+            ./.circleci/merkely_log_deployment.sh prod https://app.merkely.com
 
   merkely-report-prod-env:
     docker:
@@ -75,7 +79,7 @@ jobs:
           name: Report k8s cluster namespace prod and send to staging.app.merkely.com and app.merkely.com
           command: |
             reporter report env k8s prod -H https://staging.app.merkely.com --owner cyber-dojo --namespace prod
-            reporter report env k8s prod --owner cyber-dojo --namespace prod
+            reporter report env k8s prod -H https://app.merkely.com         --owner cyber-dojo --namespace prod
 
 workflows:
   version: 2
