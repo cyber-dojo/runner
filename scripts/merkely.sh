@@ -2,9 +2,9 @@
 
 # ROOT_DIR must be set
 
-MERKELY_CHANGE=merkely/change:latest
-MERKELY_OWNER=cyber-dojo
-MERKELY_PIPELINE=runner
+readonly MERKELY_CHANGE=merkely/change:latest
+readonly MERKELY_OWNER=cyber-dojo
+readonly MERKELY_PIPELINE=runner
 
 # - - - - - - - - - - - - - - - - - - -
 merkely_fingerprint()
@@ -101,7 +101,6 @@ on_ci_merkely_declare_pipeline()
   if ! on_ci ; then
     return
   fi
-
   merkely_declare_pipeline https://staging.app.merkely.com
   merkely_declare_pipeline https://app.merkely.com
 }
@@ -112,7 +111,6 @@ on_ci_merkely_log_artifact()
   if ! on_ci ; then
     return
   fi
-
   merkely_log_artifact https://staging.app.merkely.com
   merkely_log_artifact https://app.merkely.com
 }
@@ -123,9 +121,7 @@ on_ci_merkely_log_evidence()
   if ! on_ci ; then
     return
   fi
-
   write_evidence_json
-
   merkely_log_evidence https://staging.app.merkely.com
   merkely_log_evidence https://app.merkely.com
 }
