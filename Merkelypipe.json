@@ -1,7 +1,7 @@
 {
     "owner": "cyber-dojo",
     "name": "runner",
-    "description": "Pipeline Controls for Merkely",
+    "description": "Microservice for test runner",
     "visibility": "public",
     "template": [
         "artifact",
