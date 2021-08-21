@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative 'gnu_unzip'
 require_relative 'gnu_zip'
 require_relative 'tarfile_reader'

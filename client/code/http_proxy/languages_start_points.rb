@@ -1,9 +1,9 @@
-# frozen_string_literal: true
 require_relative 'json_requester'
 require_relative 'json_responder'
 require_relative 'net_http_adapter'
 
 module HttpProxy
+
   class LanguagesStartPoints
 
     class Error < RuntimeError
@@ -45,4 +45,5 @@ module HttpProxy
     end
 
   end
+  
 end

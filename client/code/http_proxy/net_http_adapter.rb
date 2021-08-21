@@ -1,7 +1,7 @@
-# frozen_string_literal: true
 require 'net/http'
 
 module HttpProxy
+
   class NetHttpAdapter
 
     def get(uri)
@@ -21,4 +21,5 @@ module HttpProxy
     end
 
   end
+  
 end

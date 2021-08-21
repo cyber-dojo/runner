@@ -28,22 +28,11 @@ class StdoutLoggerTest < TestBase
   private
 
   def log(message)
-    captured_stdout do
+    stdout,_stderr = captured_stdout_stderr do
       logger = StdoutLogger.new
       logger.log(message)
     end
-  end
-
-  def captured_stdout
-    begin
-      old_stdout = $stdout
-      $stdout = StringIO.new('', 'w')
-      yield
-      captured = $stdout.string
-    ensure
-      $stdout = old_stdout
-    end
-    captured
+    stdout
   end
 
 end

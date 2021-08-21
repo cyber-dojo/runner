@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class ProcessSpawner
 
   def spawn(command, options)

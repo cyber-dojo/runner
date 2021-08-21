@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class PipeMakerStub
 
   def initialize(stdout_tgz, closed=true)

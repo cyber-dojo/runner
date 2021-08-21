@@ -9,18 +9,18 @@
 
   "code": {
     "lines": {
-       "total":600,
+       "total":559,
       "missed":1
     },
     "branches": {
-       "total":100,
+       "total":66,
       "missed":2
     }
   },
 
   "test": {
     "lines": {
-       "total":1000,
+       "total":979,
       "missed":0
     },
     "branches": {

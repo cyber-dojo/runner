@@ -118,7 +118,8 @@ run_tests()
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Tell caller where the coverage files are...
 
-  echo "${TYPE} test coverage at $(abs_filename "${HOST_REPORTS_DIR}/index.html")"
+  echo "${TYPE} test coverage at "
+  echo "$(abs_filename "${HOST_REPORTS_DIR}/index.html")"
   echo "${TYPE} test status == ${STATUS}"
   if [ "${STATUS}" != 0 ]; then
     echo Docker logs "${CONTAINER_NAME}"

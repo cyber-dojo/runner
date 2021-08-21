@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 
 def require_code(required)
   require_relative "../code/#{required}"

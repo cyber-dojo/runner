@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative '../test_base'
 require_relative '../data/python_pytest'
 require_code 'traffic_light'
@@ -138,7 +137,7 @@ class TrafficLightTest < TestBase
       "exception when eval'ing lambda source",
       lambda_source,
       'SyntaxError',
-      "/runner/code/empty_binding.rb:6: syntax error, unexpected '-'\nnot-a-lambda\n   ^\n"
+      "/runner/code/empty_binding.rb:4: syntax error, unexpected '-'\nnot-a-lambda\n   ^\n"
     )
   end
 

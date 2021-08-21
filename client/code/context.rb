@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative 'http_proxy/languages_start_points'
 require_relative 'http_proxy/runner'
 require_relative 'prober'

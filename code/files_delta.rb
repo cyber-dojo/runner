@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 module FilesDelta
 
   # before_files are in this format:

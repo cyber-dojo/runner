@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative 'externals/bash_sheller'
 require_relative 'externals/pipe_maker'
 require_relative 'externals/process_spawner'
