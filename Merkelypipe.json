@@ -1,7 +1,7 @@
 {
     "owner": "cyber-dojo",
     "name": "runner",
-    "description": "Microservice for test runner",
+    "description": "Test runner",
     "visibility": "public",
     "template": [
         "artifact",
