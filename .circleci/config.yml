@@ -57,6 +57,7 @@ jobs:
             merkely_log_deployment prod https://staging.app.merkely.com
             merkely_log_deployment prod https://app.merkely.com
 
+
 workflows:
 
   version: 2
