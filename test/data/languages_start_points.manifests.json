@@ -1053,7 +1053,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_convey:1267a91",
+      "image_name": "cyberdojofoundation/go_convey:82c12f6",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1073,7 +1073,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testify:d5b224c",
+      "image_name": "cyberdojofoundation/go_testify:68a4824",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1093,7 +1093,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testing:1ac28cb",
+      "image_name": "cyberdojofoundation/go_testing:29b0752",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1167,27 +1167,51 @@
         }
       }
     },
-    "Java, Approval": {
-      "display_name": "Java, Approval",
+    "Java 18, Approval": {
+      "display_name": "Java 18, Approval",
       "filename_extension": [
         ".java",
         ".txt"
       ],
-      "image_name": "cyberdojofoundation/java_approval:9b6f72e",
+      "image_name": "cyberdojofoundation/java_approval:101ad11",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
         "Hiker.java": {
           "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}"
         },
-        "HikerTest.hhgttg.approved.txt": {
-          "content": "42"
-        },
         "HikerTest.java": {
-          "content": "import org.junit.jupiter.api.*;\n\nimport org.approvaltests.Approvals;\nimport org.approvaltests.reporters.UseReporter;\nimport org.approvaltests.reporters.JunitReporter;\n\n@UseReporter(JunitReporter.class)\nclass HikerTest {\n\n    @Test\n    void hhgttg() throws Exception {\n        int actual = Hiker.answer();\n        Approvals.verify(\"\" + actual);\n    }\n}\n"
+          "content": "import org.junit.jupiter.api.*;\n\nimport org.approvaltests.Approvals;\nimport org.approvaltests.reporters.UseReporter;\nimport org.approvaltests.reporters.AutoApproveReporter;\nimport org.approvaltests.reporters.linux.ReportOnCyberDojo;\n\n// Use one of the following two lines!\n// @UseReporter(AutoApproveReporter.class) // this will automatically approve all results\n@UseReporter(ReportOnCyberDojo.class) // to get the diff in the console and a diff file\nclass HikerTest {\n\n    // if you want to change the expected result, \n    // move HikerTest.testAnswer.received.txt\n    // to   HikerTest.testAnswer.approved.txt\n    // to view the differences, \n    // open HikerTest.testAnswer.diff\n    @Test\n    void testAnswer() throws Exception {\n        int actual = Hiker.answer();\n        Approvals.verify(\"the answer is: \" + actual);\n    }\n}\n"
+        },
+        "HikerTest.testAnswer.approved.txt": {
+          "content": "the answer is: 42"
         },
         "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\n# Currently, using /approval in the classpath causes fatal errors such as\n# java.nio.file.AccessDeniedException: /approval/zipfstmp5701121991682355433.tmp\n# This is because /approval is read-only.\n# Working around this for now...\ncp -r /approval /tmp\nCLASSES=.:`ls /tmp/approval/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview \\\n  --release 14 \\\n  -Xlint:preview \\\n  -Xlint:unchecked \\\n  -Xlint:deprecation \\\n  -cp $CLASSES \\\n  *.java;\nthen\n  java --enable-preview -jar /approval/junit-platform-console-standalone-1.6.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\n# Currently, using /approval in the classpath causes fatal errors such as\n# java.nio.file.AccessDeniedException: /approval/zipfstmp5701121991682355433.tmp\n# This is because /approval is read-only.\n# Working around this for now...\ncp -r /approval /tmp\nCLASSES=.:`ls /tmp/approval/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview \\\n  --release 18 \\\n  -Xlint:preview \\\n  -Xlint:unchecked \\\n  -Xlint:deprecation \\\n  -cp $CLASSES \\\n  *.java;\nthen\n  java --enable-preview -jar /approval/junit-platform-console-standalone-1.8.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
+        }
+      }
+    },
+    "Java 18, JUnit": {
+      "display_name": "Java 18, JUnit",
+      "filename_extension": [
+        ".java"
+      ],
+      "image_name": "cyberdojofoundation/java_junit:c23ed9e",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "Failures (\\d)\\:",
+        "^\\[\\s+(\\d+) tests successful\\s+\\]"
+      ],
+      "tab_size": 4,
+      "visible_files": {
+        "Hiker.java": {
+          "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}\n"
+        },
+        "HikerTest.java": {
+          "content": "// A simple example to get you started\n// JUnit assertion - the default Java assertion library\n// https://junit.org/junit5/\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)\npublic class HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        int expected = 42;\n        int actual = Hiker.answer();\n        assertEquals(expected, actual);\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /junit/*.jar | tr '\\n' ':'`\n\nif javac -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java -jar /junit/junit-platform-console-standalone-1.8.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path . \\\n      --scan-class-path\nfi\n"
         }
       }
     },
@@ -1274,30 +1298,6 @@
         },
         "cyber-dojo.sh": {
           "content": "\nCLASSES=.:`ls /jmock/*.jar | tr '\\n' ':'`\njavac -Xlint:unchecked -cp $CLASSES  *.java\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java -cp $CLASSES org.junit.runner.JUnitCore \\\n    `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
-        }
-      }
-    },
-    "Java, JUnit": {
-      "display_name": "Java, JUnit",
-      "filename_extension": [
-        ".java"
-      ],
-      "image_name": "cyberdojofoundation/java_junit:97411ac",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "Failures (\\d)\\:",
-        "^\\[\\s+(\\d+) tests successful\\s+\\]"
-      ],
-      "tab_size": 4,
-      "visible_files": {
-        "Hiker.java": {
-          "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}\n"
-        },
-        "HikerTest.java": {
-          "content": "// A simple example to get you started\n// JUnit assertion - the default Java assertion library\n// https://junit.org/junit5/\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)\npublic class HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        int expected = 42;\n        int actual = Hiker.answer();\n        assertEquals(expected, actual);\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /junit/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview --release 14 -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java --enable-preview -jar /junit/junit-platform-console-standalone-1.6.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path . \\\n      --scan-class-path\nfi\n"
         }
       }
     },
@@ -1600,7 +1600,7 @@
       "filename_extension": [
         ".kt"
       ],
-      "image_name": "cyberdojofoundation/kotlin_test:580dc73",
+      "image_name": "cyberdojofoundation/kotlin_test:857e4fa",
       "max_seconds": 20,
       "tab_size": 4,
       "visible_files": {
@@ -1608,13 +1608,13 @@
           "content": "package hiker\n\nfun answer():Int {\n    return 6 * 9\n}\n"
         },
         "HikerTest.kt": {
-          "content": "// [X] See hard-wired.txt \n\npackage hiker /*[X]*/\n\nimport io.kotlintest.specs.StringSpec\nimport io.kotlintest.shouldBe\nimport io.kotlintest.shouldNotBe\n\nclass HikerTest /*[X]*/ : StringSpec() {\n\n    init {\n        \"Example Test\" {\n            hiker.answer() shouldBe 42\n        }\n\n        \"Other example test\" {\n            \"a\" shouldNotBe \"b\"\n        }\n    }\n}\n"
+          "content": "// [X] See please-help.txt \n\npackage hiker /*[X]*/\n\nimport io.kotlintest.specs.StringSpec\nimport io.kotlintest.shouldBe\nimport io.kotlintest.shouldNotBe\n\nclass HikerTest /*[X]*/ : StringSpec() {\n\n    init {\n        \"Example Test\" {\n            hiker.answer() shouldBe 42\n        }\n\n        \"Other example test\" {\n            \"a\" shouldNotBe \"b\"\n        }\n    }\n}\n"
         },
         "cyber-dojo.sh": {
           "content": "# [X] See hard-wired-test-name.txt\n\nCLASSES=.:`ls /usr/share/kotlin/kotlinc/lib/*.jar | tr '\\n' ':'`\nCLASSES=`ls /kotlin/*.jar | tr '\\n' ':'`${CLASSES}\nkotlinc *.kt -include-runtime -cp $CLASSES\nif [ $? -eq 0 ]; then\n  java -cp $CLASSES \\\n    io.kotlintest.runner.console.LauncherKt \\\n    --writer basic \\\n    --spec hiker.HikerTest  # [X]\nfi\n"
         },
-        "hard-wired.txt": {
-          "content": "\nA KotlinTest project usually executes with Gradle or Maven,\nand these tools know how to find all the test classes and\nexecute them one by one.\n\ncyber-dojo uses the command-line only, so we don't have that\nkind of intelligence out-of-the-box. Maybe you can help?\n\nTo get something working the test package and test class name\nis hard-wired in the cyber-dojo.sh file. If you change the\ntest package name and/or the test class name you must update\ncyber-dojo.sh appropriately.\n\nNote that cyber-dojo.sh uses the option [--writer basic]\nwhich writes red/green terminal colour codes to the output.\nThese don't render properly in a plain textarea and there appears\nto be no way to turn it off. Maybe you can help?\n"
+        "please-help.txt": {
+          "content": "\nA KotlinTest project usually executes with Gradle or Maven,\nand these tools know how to find all the test classes and\nexecute them one by one.\n\ncyber-dojo uses the command-line only, so we don't have that\nkind of intelligence out-of-the-box. Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n\nTo get something working the test package and test class name\nis hard-wired in the cyber-dojo.sh file. If you change the\ntest package name and/or the test class name you must update\ncyber-dojo.sh appropriately.\n\nNote that cyber-dojo.sh uses the option [--writer basic]\nwhich writes red/green terminal colour codes to the output.\nThese don't render properly in a plain textarea and there appears\nto be no way to turn it off. Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n\nIf you write more than one test with the same name kotlin-test\nappears to run no tests at all! Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n"
         }
       }
     },
@@ -1707,7 +1707,7 @@
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_pytest:77166fd",
+      "image_name": "cyberdojofoundation/python_approval_pytest:305d2bb",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1718,13 +1718,13 @@
           "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
         },
         "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\nfrom approvaltests.approvals import verify\n\n\ndef test_global():\n    result = str(global_answer())\n    verify(result)\n\ndef test_instance():\n    result = str(Hiker().instance_answer())\n    verify(result)\n"
+          "content": "from hiker import global_answer, Hiker\nfrom approvaltests.approvals import verify\nfrom approvaltests.reporters.report_on_cyber_dojo import ReportOnCyberDojo\nfrom approvaltests import set_default_reporter\nimport pytest\n\n@pytest.fixture(autouse=True, scope='session')\ndef setup():\n    set_default_reporter(ReportOnCyberDojo())\n\n# if you want to change the expected result, \n# move test_hiker.test_global.recieved.txt\n# to   test_hiker.test_global.approved.txt\n# to view the differences, \n# open test_hiker.test_global.diff\n\ndef test_global():\n    result = str(global_answer())\n    verify(result)\n\ndef test_instance():\n    result = str(Hiker().instance_answer())\n    verify(result)\n"
         },
         "test_hiker.test_global.approved.txt": {
-          "content": "42"
+          "content": "42\n"
         },
         "test_hiker.test_instance.approved.txt": {
-          "content": "42"
+          "content": "42\n"
         }
       }
     },
@@ -1735,15 +1735,15 @@
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_unittest:fbd9d5f",
+      "image_name": "cyberdojofoundation/python_approval_unittest:e288699",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
         "HikerTest.test_global.approved.txt": {
-          "content": "42"
+          "content": "42\n"
         },
         "HikerTest.test_instance.approved.txt": {
-          "content": "42"
+          "content": "42\n"
         },
         "cyber-dojo.sh": {
           "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module unittest \\\n  *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
@@ -1752,7 +1752,7 @@
           "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
         },
         "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\nimport unittest\n\nfrom approvaltests.approvals import verify\nfrom approvaltests.reporters.generic_diff_reporter_factory \\\n    import GenericDiffReporterFactory\n\n\nclass HikerTest(unittest.TestCase):\n    def setUp(self):\n        self.reporter = GenericDiffReporterFactory().get_first_working()\n\n    def test_global(self):\n        result = str(global_answer())\n        verify(result, self.reporter)\n\n    def test_instance(self):\n        result = str(Hiker().instance_answer())\n        verify(result, self.reporter)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+          "content": "from hiker import global_answer, Hiker\nimport unittest\nfrom approvaltests.approvals import verify\nfrom approvaltests.reporters.report_on_cyber_dojo import ReportOnCyberDojo\nfrom approvaltests import set_default_reporter\n\n\nclass HikerTest(unittest.TestCase):\n    def setUp(self):\n        set_default_reporter(ReportOnCyberDojo())\n\n    # if you want to change the expected result, \n    # move HikerTest.test_global.recieved.txt\n    # to   HikerTest.test_global.approved.txt\n    # to view the differences, \n    # open HikerTest.test_global.diff\n\n    def test_global(self):\n        result = str(global_answer())\n        verify(result)\n\n    def test_instance(self):\n        result = str(Hiker().instance_answer())\n        verify(result)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
         }
       }
     },
