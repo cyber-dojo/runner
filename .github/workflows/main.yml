@@ -31,14 +31,14 @@ jobs:
     with:
       CIRCLE_BUILD_NUM: ${{github.run_number}}
       CIRCLE_BUILD_URL: ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}
-      BUILD_COMMAND: "build_test_publish.sh server"
+      BUILD_COMMAND: "build_test_publish.sh"
       tag: ${{ needs.pre-build.outputs.tag }}
       AWS_ACCOUNT_ID: 244531986313
       AWS_REGION: eu-central-1
       ecr_registry: 244531986313.dkr.ecr.eu-central-1.amazonaws.com
       service_name: runner
       gh_actions_iam_role_name: gh_actions_services
-  
+
   deploy-staging:
     needs: [pre-build, build-test-push]
     uses: cyber-dojo/reusable-actions-workflows/.github/workflows/deploy.yml@master
