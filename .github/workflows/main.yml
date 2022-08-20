@@ -69,7 +69,7 @@ jobs:
       gh_actions_iam_role_name: gh_actions_services
       environment_url: https://prod.cyber-dojo.org
       environment_name: production
-      cyber_dojo_env_name_aws: aws-beta
+      cyber_dojo_env_name_aws: aws-prod
       kosli_staging_host: https://staging.app.kosli.com
       kosli_production_host: https://app.kosli.com
       circle_sha1: ${{ github.sha }}
