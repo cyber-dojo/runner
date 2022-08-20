@@ -7,13 +7,13 @@ readonly MERKELY_OWNER=cyber-dojo
 readonly MERKELY_PIPELINE=runner
 
 # - - - - - - - - - - - - - - - - - - -
-merkely_fingerprint()
+kosli_fingerprint()
 {
   echo "docker://${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
 }
 
 # - - - - - - - - - - - - - - - - - - -
-merkely_declare_pipeline()
+kosli_declare_pipeline()
 {
   local -r hostname="${1}"
 
@@ -29,7 +29,7 @@ merkely_declare_pipeline()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-merkely_log_artifact()
+kosli_log_artifact()
 {
   local -r hostname="${1}"
 
@@ -37,7 +37,7 @@ merkely_log_artifact()
     --env MERKELY_COMMAND=log_artifact \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
-    --env MERKELY_FINGERPRINT=$(merkely_fingerprint) \
+    --env MERKELY_FINGERPRINT=$(kosli_fingerprint) \
     --env MERKELY_IS_COMPLIANT=TRUE \
     --env MERKELY_ARTIFACT_GIT_COMMIT=${CYBER_DOJO_RUNNER_SHA} \
     --env MERKELY_ARTIFACT_GIT_URL=https://github.com/${MERKELY_OWNER}/${MERKELY_PIPELINE}/commit/${CYBER_DOJO_RUNNER_SHA} \
@@ -51,7 +51,7 @@ merkely_log_artifact()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-merkely_log_evidence()
+kosli_log_evidence()
 {
   local -r hostname="${1}"
 
@@ -59,7 +59,7 @@ merkely_log_evidence()
     --env MERKELY_COMMAND=log_evidence \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
-    --env MERKELY_FINGERPRINT=$(merkely_fingerprint) \
+    --env MERKELY_FINGERPRINT=$(kosli_fingerprint) \
     --env MERKELY_EVIDENCE_TYPE=branch-coverage \
     --env MERKELY_IS_COMPLIANT=TRUE \
     --env MERKELY_DESCRIPTION="server & client branch-coverage reports" \
@@ -92,37 +92,37 @@ evidence_json_path()
 # - - - - - - - - - - - - - - - - - - - - - - - -
 on_ci()
 {
-  [ -n "${CIRCLECI:-}" ]
+  [ -n "${CI:-}" ]
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_merkely_declare_pipeline()
+on_ci_kosli_declare_pipeline()
 {
   if ! on_ci ; then
     return
   fi
-  merkely_declare_pipeline https://staging.app.merkely.com
-  merkely_declare_pipeline https://app.merkely.com
+  kosli_declare_pipeline https://staging.app.kosli.com
+  kosli_declare_pipeline https://app.kosli.com
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_merkely_log_artifact()
+on_ci_kosli_log_artifact()
 {
   if ! on_ci ; then
     return
   fi
-  merkely_log_artifact https://staging.app.merkely.com
-  merkely_log_artifact https://app.merkely.com
+  kosli_log_artifact https://staging.app.kosli.com
+  kosli_log_artifact https://app.kosli.com
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_merkely_log_evidence()
+on_ci_kosli_log_evidence()
 {
   if ! on_ci ; then
     return
   fi
   write_evidence_json
-  merkely_log_evidence https://staging.app.merkely.com
-  merkely_log_evidence https://app.merkely.com
+  kosli_log_evidence https://staging.app.kosli.com
+  kosli_log_evidence https://app.kosli.com
 }
 
