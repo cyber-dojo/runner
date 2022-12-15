@@ -1,7 +1,7 @@
 #!/bin/bash -Eeu
 
 export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export SH_DIR="${ROOT_DIR}/scripts"
+export SH_DIR="${ROOT_DIR}/sh"
 
 source "${SH_DIR}/build_tagged_images.sh"
 source "${SH_DIR}/containers_down.sh"

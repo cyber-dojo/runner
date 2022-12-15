@@ -1,7 +1,7 @@
 #!/bin/bash -Ee
 
 readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SH_DIR="${ROOT_DIR}/scripts"
+readonly SH_DIR="${ROOT_DIR}/sh"
 readonly TMP_DIR=/tmp
 readonly DEMO_FILENAME="${TMP_DIR}/runner_demo.html"
 readonly DEMO_URL="file://${DEMO_FILENAME}"
