@@ -59,7 +59,7 @@ write_evidence_json()
 # - - - - - - - - - - - - - - - - - - -
 evidence_json_path()
 {
-  echo "$$(root_dir)/test/evidence.json"
+  echo "$(root_dir)/test/evidence.json"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
