@@ -40,3 +40,6 @@ on_ci_kosli_log_artifact
 test_in_containers "$@"
 on_ci_kosli_log_evidence
 containers_down
+
+# Return non-zero for non-compliant artifact
+on_ci_kosli_assert_artifact

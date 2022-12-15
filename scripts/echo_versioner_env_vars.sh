@@ -21,7 +21,7 @@ echo_versioner_env_vars()
 # - - - - - - - - - - - - - - - - - - - - - - - -
 image_sha()
 {
-  echo "$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
+  echo "$(cd "$(root_dir)" && git rev-parse HEAD)"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,4 +29,12 @@ image_tag()
 {
   local -r sha="$(image_sha)"
   echo "${sha:0:7}"
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+root_dir()
+{
+  # Functions in this file are called after sourcing (not including)
+  # this file so root_dir() cannot use the path of this script.
+  git rev-parse --show-toplevel
 }
