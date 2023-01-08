@@ -80,25 +80,13 @@ clean_top_5()
 {
   # top lines on Puma
   local -r L1="Puma starting in single mode..."
-  local -r L2='* Puma version: 5.1.0 (ruby 2.7.1-p83) ("At Your Service")'
+  local -r L2='* Puma version: 6.0.2 (ruby 3.1.3-p185) ("Sunflower")'
   local -r L3="*  Min threads: 0"
   local -r L4="*  Max threads: 5"
   local -r L5="*  Environment: production"
   #
   local -r top5="$(printf "%s\n%s\n%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}" "${L5}")"
   echo "${top5}"
-}
-
-OLD_clean_top_4()
-{
-  # 1st 6 lines on Puma
-  local -r L1="Puma starting in single mode..."
-  local -r L2="* Version 4.3.5 (ruby 2.7.1-p83), codename: Mysterious Traveller"
-  local -r L3="* Min threads: 0, max threads: 16"
-  local -r L4="* Environment: production"
-  #
-  local -r top4="$(printf "%s\n%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}")"
-  echo "${top4}"
 }
 
 # - - - - - - - - - - - - - - - - - - -

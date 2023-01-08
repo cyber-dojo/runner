@@ -1,5 +1,8 @@
 require 'minitest/autorun'
+require 'minitest/ci'
 require_relative 'require_code'
+
+Minitest::Ci.report_dir = "#{ENV['COVERAGE_ROOT']}/junit"
 
 class Id58TestBase < MiniTest::Test
 
