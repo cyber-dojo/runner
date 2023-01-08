@@ -53,7 +53,7 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_unit:5ae2af3",
+      "image_name": "cyberdojofoundation/bash_unit:c4906b6",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -76,7 +76,7 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_bats:3f078d9",
+      "image_name": "cyberdojofoundation/bash_bats:d566884",
       "tab_size": 4,
       "visible_files": {
         "bats_help.txt": {
@@ -98,7 +98,7 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_shunit2:590dce5",
+      "image_name": "cyberdojofoundation/bash_shunit2:31d4d63",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -180,7 +180,7 @@
         ".c",
         ".h"
       ],
-      "image_name": "cyberdojofoundation/gcc_cgreen:cb5e189",
+      "image_name": "cyberdojofoundation/gcc_cgreen:f1b0ca1",
       "max_seconds": 10,
       "progress_regexs": [
         "((\\d)+ tests)",
@@ -217,7 +217,7 @@
         "untitled.h",
         "untitledTest.cpp"
       ],
-      "image_name": "cyberdojofoundation/gcc_cpputest:af5eff6",
+      "image_name": "cyberdojofoundation/gcc_cpputest:95cf2bd",
       "max_seconds": 10,
       "progress_regexs": [
         "Errors (.* ms)",
@@ -253,7 +253,7 @@
         ".cpp",
         ".hpp"
       ],
-      "image_name": "cyberdojofoundation/gcc_googletest:4749b24",
+      "image_name": "cyberdojofoundation/gcc_googletest:4ef2b73",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -280,7 +280,7 @@
         ".c",
         ".h"
       ],
-      "image_name": "cyberdojofoundation/gcc_assert:027990d",
+      "image_name": "cyberdojofoundation/gcc_assert:ed4d5d5",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -920,7 +920,7 @@
       "filename_extension": [
         ".coffee"
       ],
-      "image_name": "cyberdojofoundation/coffeescript_jasmine:80b8083",
+      "image_name": "cyberdojofoundation/coffeescript_jasmine:61aae85",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -989,7 +989,7 @@
       "filename_extension": [
         ".erl"
       ],
-      "image_name": "cyberdojofoundation/erlang_eunit:b6ba3e3",
+      "image_name": "cyberdojofoundation/erlang_eunit:d3860fc",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1053,7 +1053,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_convey:82c12f6",
+      "image_name": "cyberdojofoundation/go_convey:f7e690a",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1073,7 +1073,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testify:68a4824",
+      "image_name": "cyberdojofoundation/go_testify:3f62bba",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1093,7 +1093,7 @@
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testing:29b0752",
+      "image_name": "cyberdojofoundation/go_testing:a2dbf73",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1580,7 +1580,7 @@
       "filename_extension": [
         ".jl"
       ],
-      "image_name": "cyberdojofoundation/julia_test:a159b25",
+      "image_name": "cyberdojofoundation/julia_test:81ccc5d",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1623,7 +1623,7 @@
       "filename_extension": [
         ".php"
       ],
-      "image_name": "cyberdojofoundation/php_unit:53f770d",
+      "image_name": "cyberdojofoundation/php_unit:3ad3259",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1664,7 +1664,7 @@
         ".pl",
         ".t"
       ],
-      "image_name": "cyberdojofoundation/perl_test_simple:4b13559",
+      "image_name": "cyberdojofoundation/perl_test_simple:6dd47c6",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1685,7 +1685,7 @@
         ".pl",
         ".plt"
       ],
-      "image_name": "cyberdojofoundation/prolog_plunit:93663a5",
+      "image_name": "cyberdojofoundation/prolog_plunit:b4a8498",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1896,7 +1896,7 @@
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/ruby_approval:7ea38ab",
+      "image_name": "cyberdojofoundation/ruby_approval:e979c02",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1926,7 +1926,7 @@
         ".rb",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/ruby_cucumber:a9aafa6",
+      "image_name": "cyberdojofoundation/ruby_cucumber:d09da14",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1952,7 +1952,7 @@
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "cyberdojofoundation/ruby_mini_test:48cf949",
+      "image_name": "cyberdojofoundation/ruby_mini_test:a074c0a",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1974,7 +1974,7 @@
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "cyberdojofoundation/ruby_rspec:7e88c65",
+      "image_name": "cyberdojofoundation/ruby_rspec:a09cb45",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1997,7 +1997,7 @@
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "cyberdojofoundation/ruby_test_unit:3d9def9",
+      "image_name": "cyberdojofoundation/ruby_test_unit:1384d90",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -2020,7 +2020,7 @@
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "cyberdojofoundation/rust_test:ded71ab",
+      "image_name": "cyberdojofoundation/rust_test:1e0565d",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -2124,7 +2124,7 @@
       "filename_extension": [
         ".vhdl"
       ],
-      "image_name": "cyberdojofoundation/vhdl_assert:6c2cfb5",
+      "image_name": "cyberdojofoundation/vhdl_assert:6629459",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
