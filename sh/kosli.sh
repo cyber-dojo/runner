@@ -3,42 +3,43 @@
 # ROOT_DIR must be set
 
 export KOSLI_OWNER=cyber-dojo
-export KOSLI_PIPELINE=runner
+export KOSLI_FLOW=runner
 
 readonly KOSLI_HOST_STAGING=https://staging.app.kosli.com
 readonly KOSLI_HOST_PRODUCTION=https://app.kosli.com
 
 # - - - - - - - - - - - - - - - - - - -
-kosli_declare_pipeline()
+kosli_create_flow()
 {
   local -r hostname="${1}"
 
-    kosli pipeline declare \
+    kosli create flow "${KOSLI_FLOW}" \
     --description "Test runner" \
-    --visibility public \
+    --host "${hostname}" \
     --template artifact,branch-coverage \
-    --host "${hostname}"
+    --visibility public
 }
 
 # - - - - - - - - - - - - - - - - - - -
-kosli_log_artifact()
+kosli_report_artifact()
 {
   local -r hostname="${1}"
 
-  cd "$(root_dir)"
+  pushd "$(root_dir)"
 
-  kosli pipeline artifact report creation \
-    "$(artifact_name)" \
+  kosli report artifact "$(artifact_name)" \
       --artifact-type docker \
       --host "${hostname}"
+
+  popd
 }
 
 # - - - - - - - - - - - - - - - - - - -
-kosli_log_evidence()
+kosli_report_evidence()
 {
   local -r hostname="${1}"
 
-  kosli pipeline artifact report evidence generic $(artifact_name) \
+  kosli report evidence artifact generic $(artifact_name) \
     --artifact-type docker \
     --description "server & client branch-coverage reports" \
     --evidence-type branch-coverage \
@@ -69,43 +70,11 @@ on_ci()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_declare_pipeline()
-{
-  if ! on_ci ; then
-    return
-  fi
-  kosli_declare_pipeline "${KOSLI_HOST_STAGING}"
-  kosli_declare_pipeline "${KOSLI_HOST_PRODUCTION}"
-}
-
-# - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_log_artifact()
-{
-  if ! on_ci ; then
-    return
-  fi
-  kosli_log_artifact "${KOSLI_HOST_STAGING}"
-  kosli_log_artifact "${KOSLI_HOST_PRODUCTION}"
-}
-
-# - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_log_evidence()
-{
-  if ! on_ci ; then
-    return
-  fi
-  write_evidence_json
-  kosli_log_evidence "${KOSLI_HOST_STAGING}"
-  kosli_log_evidence "${KOSLI_HOST_PRODUCTION}"
-}
-
-# - - - - - - - - - - - - - - - - - - -
 kosli_assert_artifact()
 {
   local -r hostname="${1}"
 
-  kosli assert artifact \
-    "$(artifact_name)" \
+  kosli assert artifact "$(artifact_name)" \
       --artifact-type docker \
       --host "${hostname}"
 }
@@ -120,8 +89,7 @@ kosli_expect_deployment()
   # and the image must be present to get its sha256 fingerprint.
   docker pull "$(artifact_name)"
 
-  kosli expect deployment \
-    "$(artifact_name)" \
+  kosli expect deployment "$(artifact_name)" \
     --artifact-type docker \
     --description "Deployed to ${environment} in Github Actions pipeline" \
     --environment "${environment}" \
@@ -129,7 +97,8 @@ kosli_expect_deployment()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-artifact_name() {
+artifact_name()
+{
   source "$(root_dir)/sh/echo_versioner_env_vars.sh"
   export $(echo_versioner_env_vars)
   echo "${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
@@ -144,11 +113,39 @@ root_dir()
 }
 
 # - - - - - - - - - - - - - - - - - - -
+on_ci_kosli_create_flow()
+{
+  if on_ci; then
+    kosli_create_flow "${KOSLI_HOST_STAGING}"
+    kosli_create_flow "${KOSLI_HOST_PRODUCTION}"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - -
+on_ci_kosli_report_artifact()
+{
+  if on_ci; then
+    kosli_report_artifact "${KOSLI_HOST_STAGING}"
+    kosli_report_artifact "${KOSLI_HOST_PRODUCTION}"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - -
+on_ci_kosli_report_evidence()
+{
+  if on_ci; then
+    write_evidence_json
+    kosli_report_evidence "${KOSLI_HOST_STAGING}"
+    kosli_report_evidence "${KOSLI_HOST_PRODUCTION}"
+  fi
+}
+
+
+# - - - - - - - - - - - - - - - - - - -
 on_ci_kosli_assert_artifact()
 {
-  if ! on_ci ; then
-    return
+  if on_ci; then
+    kosli_assert_artifact "${KOSLI_HOST_STAGING}"
+    kosli_assert_artifact "${KOSLI_HOST_PRODUCTION}"
   fi
-  kosli_assert_artifact "${KOSLI_HOST_STAGING}"
-  kosli_assert_artifact "${KOSLI_HOST_PRODUCTION}"
 }
