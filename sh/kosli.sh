@@ -2,7 +2,7 @@
 
 # ROOT_DIR must be set
 
-export KOSLI_OWNER=cyber-dojo
+export KOSLI_ORG=cyber-dojo
 export KOSLI_FLOW=runner
 
 readonly KOSLI_HOST_STAGING=https://staging.app.kosli.com
@@ -25,13 +25,13 @@ kosli_report_artifact()
 {
   local -r hostname="${1}"
 
-  pushd "$(root_dir)"
+  pushd "$(root_dir)" > /dev/null
 
   kosli report artifact "$(artifact_name)" \
       --artifact-type docker \
       --host "${hostname}"
 
-  popd
+  popd > /dev/null
 }
 
 # - - - - - - - - - - - - - - - - - - -
@@ -42,7 +42,7 @@ kosli_report_evidence()
   kosli report evidence artifact generic $(artifact_name) \
     --artifact-type docker \
     --description "server & client branch-coverage reports" \
-    --evidence-type branch-coverage \
+    --name branch-coverage \
     --host "${1}" \
     --user-data "$(evidence_json_path)"
 }

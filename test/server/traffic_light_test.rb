@@ -137,7 +137,7 @@ class TrafficLightTest < TestBase
       "exception when eval'ing lambda source",
       lambda_source,
       'SyntaxError',
-      "/runner/code/empty_binding.rb:4: syntax error, unexpected '-'\nnot-a-lambda\n   ^\n"
+      "(eval):1: syntax error, unexpected '-'\nnot-a-lambda\n   ^\n"
     )
   end
 

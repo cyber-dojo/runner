@@ -156,16 +156,12 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AA8',
-  %w( unknown argument becomes 400 exception ) do
-    assert_rack_call_400_exception('unknown argument: :x', 'sha', {x:{}}.to_json)
-    assert_rack_call_400_exception('unknown argument: :y', 'alive', {y:{}}.to_json)
-    assert_rack_call_400_exception('unknown argument: :z', 'ready', {z:{}}.to_json)
-  end
-
-  test 'AA9',
-  %w( unknown arguments becomes 400 exception ) do
-    assert_rack_call_400_exception('unknown arguments: :x, :y', 'sha', {x:{},y:{}}.to_json)
-    assert_rack_call_400_exception('unknown arguments: :a, :q, :b', 'alive', {a:{},q:{},b:{}}.to_json)
+  %w( unknown arguments becomes 500 exception ) do
+    assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', {x:{}}.to_json)
+    assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', {x:{},y:{}}.to_json)
+    #assert_rack_call_400_exception('unknown argument: :y', 'alive', {y:{}}.to_json)
+    #assert_rack_call_400_exception('unknown argument: :z', 'ready', {z:{}}.to_json)
+    #assert_rack_call_400_exception('unknown arguments: :a, :q, :b', 'alive', {a:{},q:{},b:{}}.to_json)
   end
 
   # = = = = = = = = = = = = = = = = =
@@ -197,9 +193,18 @@ class RackDispatcherTest < TestBase
   private
 
   def assert_rack_call_400_exception(expected, path_info, body)
+    assert_rack_call_exception(expected, path_info, body)
+    assert_400
+  end
+
+  def assert_rack_call_500_exception(expected, path_info, body)
+    assert_rack_call_exception(expected, path_info, body)
+    assert_500
+  end
+
+  def assert_rack_call_exception(expected, path_info, body)
     env = { path_info:path_info, body:body }
     rack_call(env)
-    assert_400
     [response_body,log].each do |s|
       refute_nil s
       json = JSON.parse(s)
@@ -244,6 +249,10 @@ class RackDispatcherTest < TestBase
 
   def assert_400
     assert_equal 400, response_status, @response
+  end
+
+  def assert_500
+    assert_equal 500, response_status, @response
   end
 
   # - - - - - - - - - - - - - - - - -

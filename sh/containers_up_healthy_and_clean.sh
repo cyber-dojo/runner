@@ -54,39 +54,47 @@ healthy()
 # - - - - - - - - - - - - - - - - - - -
 exit_non_zero_unless_started_cleanly()
 {
-  echo
-  local DOCKER_LOG=$(docker logs "${CONTAINER_NAME}" 2>&1)
-
   # Handle known warnings (eg waiting on Gem upgrade)
   #local -r SHADOW_WARNING="server.rb:(.*): warning: shadowing outer local variable - filename"
   #DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
 
+  echo
   echo "Checking if ${SERVICE_NAME} started cleanly."
-  local -r top5=$(echo "${DOCKER_LOG}" | head -5)
-  if [ "${top5}" == "$(clean_top_5)" ]; then
+  if [ "$(top_5)" == "$(clean_top_5)" ]; then
     echo "${SERVICE_NAME} started cleanly."
   else
-    echo "${SERVICE_NAME} did not start cleanly."
-    echo "First 10 lines of: docker logs ${CONTAINER_NAME}"
+    echo "${SERVICE_NAME} did not start cleanly: docker log..."
+    echo 'expected------------------'
+    echo "$(clean_top_5)"
     echo
-    echo "${DOCKER_LOG}" | head -10
+    echo 'actual--------------------'
+    echo "$(top_5)"
+    echo
+    echo 'diff--------------------'
+    grep -Fxvf <(clean_top_5) <(top_5)
     echo
     exit 42
   fi
 }
 
 # - - - - - - - - - - - - - - - - - - -
+top_5()
+{
+  echo_docker_log | head -5
+}
+
+# - - - - - - - - - - - - - - - - - - -
 clean_top_5()
 {
-  # top lines on Puma
+  # 1st 5 lines on Puma
   local -r L1="Puma starting in single mode..."
-  local -r L2='* Puma version: 6.0.2 (ruby 3.1.3-p185) ("Sunflower")'
+  local -r L2='* Puma version: 6.1.1 (ruby 3.1.3-p185) ("The Way Up")'
   local -r L3="*  Min threads: 0"
   local -r L4="*  Max threads: 5"
   local -r L5="*  Environment: production"
   #
-  local -r top5="$(printf "%s\n%s\n%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}" "${L5}")"
-  echo "${top5}"
+  local -r all5="$(printf "%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}" "${L5}")"
+  echo "${all5}"
 }
 
 # - - - - - - - - - - - - - - - - - - -
