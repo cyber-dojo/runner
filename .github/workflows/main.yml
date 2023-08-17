@@ -36,7 +36,7 @@ jobs:
 
   deploy-staging:
     needs: [pre-build, build-test-push]
-    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/kosli_deploy.yml@v0.0.1
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/kosli_deploy.yml@v0.0.2
     permissions:
       id-token: write
       contents: write
@@ -55,7 +55,7 @@ jobs:
 
   deploy-prod:
     needs: [pre-build, build-test-push]
-    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/kosli_deploy.yml@v0.0.1
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/kosli_deploy.yml@v0.0.2
     permissions:
       id-token: write
       contents: write
