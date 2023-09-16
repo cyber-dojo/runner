@@ -57,7 +57,7 @@ kosli_report_snyk_evidence()
       --artifact-type=docker \
       --host="${hostname}" \
       --name=snyk-scan \
-      --scan-results="$(repo_root)/snyk.json"
+      --scan-results="$(root_dir)/snyk.json"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
