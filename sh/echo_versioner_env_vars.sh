@@ -30,11 +30,3 @@ image_tag()
   local -r sha="$(image_sha)"
   echo "${sha:0:7}"
 }
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-root_dir()
-{
-  git rev-parse --show-toplevel
-}
-
-export -f root_dir

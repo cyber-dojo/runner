@@ -60,12 +60,6 @@ kosli_report_snyk_evidence()
       --scan-results="$(root_dir)/snyk.json"
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
-on_ci()
-{
-  [ -n "${CI:-}" ]
-}
-
 # - - - - - - - - - - - - - - - - - - -
 kosli_assert_artifact()
 {
@@ -170,3 +164,17 @@ evidence_json_path()
 {
   echo "$(root_dir)/test/evidence.json"
 }
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+on_ci()
+{
+  [ -n "${CI:-}" ]
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - -
+root_dir()
+{
+  git rev-parse --show-toplevel
+}
+
+export -f root_dir
