@@ -2,7 +2,7 @@
 {
   "failures":0,
   "errors":0,
-  "warnings":1,
+  "warnings":0,
   "skips":0,
 
   "duration":10,
@@ -20,7 +20,7 @@
 
   "test": {
     "lines": {
-       "total":979,
+       "total":963,
       "missed":0
     },
     "branches": {

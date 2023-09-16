@@ -88,7 +88,7 @@ clean_top_5()
 {
   # 1st 5 lines on Puma
   local -r L1="Puma starting in single mode..."
-  local -r L2='* Puma version: 6.3.0 (ruby 3.2.2-p53) ("Mugi No Toki Itaru")'
+  local -r L2='* Puma version: 6.3.1 (ruby 3.2.2-p53) ("Mugi No Toki Itaru")'
   local -r L3="*  Min threads: 0"
   local -r L4="*  Max threads: 5"
   local -r L5="*  Environment: production"

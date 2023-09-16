@@ -27,7 +27,7 @@ class ContainerPropertiesTest < TestBase
   multi_os_test 'D97', %w( multiple container properties ) do
     set_context
     cyber_dojo_sh = [
-      "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]
+      "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]
       "cat /proc/1/cmdline | cut -c1-9   > #{sandbox_dir}/proc.1", # [2]
       "cat /etc/passwd                   > #{sandbox_dir}/passwd",
       "getent group #{group}             > #{sandbox_dir}/group",
@@ -135,9 +135,9 @@ class ContainerPropertiesTest < TestBase
     assert_ulimit expected_max_stack_size, :stack_size
     assert_ulimit 1024,                    :process_count
 
-    assert_equal 768*MB, created_file('memory.limit_in_bytes').to_i, :memory_limit
-    #assert_equal 768*MB, created_file('memory.kmem.limit_in_bytes').to_i, :kmem_memory_limit
-    #On CI the actual value is 9223372036854771712
+    # assert_equal 768*MB, created_file('memory.limit_in_bytes').to_i, :memory_limit
+    # assert_equal 768*MB, created_file('memory.kmem.limit_in_bytes').to_i, :kmem_memory_limit
+    # On CI the actual value is 9223372036854771712
   end
 
   private

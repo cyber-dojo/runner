@@ -38,7 +38,8 @@ client_up_healthy_and_clean "$@"
 on_ci_publish_tagged_images
 on_ci_kosli_report_artifact
 test_in_containers "$@"
-on_ci_kosli_report_evidence
+on_ci_kosli_report_coverage_evidence
+on_ci_kosli_report_snyk_scan_evidence
 containers_down
 
 # Return non-zero for non-compliant artifact

@@ -4,7 +4,7 @@ require_relative 'require_code'
 
 Minitest::Ci.report_dir = "#{ENV['COVERAGE_ROOT']}/junit"
 
-class Id58TestBase < MiniTest::Test
+class Id58TestBase < Minitest::Test
 
   def initialize(arg)
     @_id58 = nil
@@ -53,7 +53,7 @@ class Id58TestBase < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  ObjectSpace.define_finalizer(self, proc {
+  Minitest.after_run do
     slow = @@timings.select{ |_name,secs| secs > 0.000 }
     sorted = slow.sort_by{ |name,secs| -secs }.to_h
     size = sorted.size < 25 ? sorted.size : 25
@@ -64,7 +64,7 @@ class Id58TestBase < MiniTest::Test
       break if index === size
     }
     puts
-  })
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - -
 

@@ -1,4 +1,4 @@
-FROM cyberdojo/docker-base:693f5b3
+FROM cyberdojo/docker-base:0b9a792
 LABEL maintainer=jon@jaggersoft.com
 
 WORKDIR /runner

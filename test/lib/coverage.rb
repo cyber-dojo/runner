@@ -10,7 +10,7 @@ SimpleCov.start do
   filters.clear
   coverage_dir(ENV['COVERAGE_ROOT'])
   nocov_token(runner_nocov_token)
-  #add_group('debug') { |src| puts src.filename; false }
+  # add_group('debug') { |src| puts src.filename; false }
   code_dir = ENV['CODE_DIR']
   test_dir = ENV['TEST_DIR']
   add_group(code_dir) { |src| src.filename =~ %r"^/runner/#{code_dir}/" }

@@ -1,12 +1,13 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
-# ROOT_DIR must be set
-
-export KOSLI_ORG=cyber-dojo
 export KOSLI_FLOW=runner
 
-readonly KOSLI_HOST_STAGING=https://staging.app.kosli.com
-readonly KOSLI_HOST_PRODUCTION=https://app.kosli.com
+# KOSLI_ORG is set in CI
+# KOSLI_API_TOKEN is set in CI
+# KOSLI_HOST_STAGING is set in CI
+# KOSLI_HOST_PRODUCTION is set in CI
+# SNYK_TOKEN is set in CI
 
 # - - - - - - - - - - - - - - - - - - -
 kosli_create_flow()
@@ -14,10 +15,10 @@ kosli_create_flow()
   local -r hostname="${1}"
 
     kosli create flow "${KOSLI_FLOW}" \
-    --description "Test runner" \
-    --host "${hostname}" \
-    --template artifact,branch-coverage \
-    --visibility public
+    --description="Test runner" \
+    --host="${hostname}" \
+    --template artifact,branch-coverage,snyk-scan \
+    --visibility=public
 }
 
 # - - - - - - - - - - - - - - - - - - -
@@ -28,39 +29,35 @@ kosli_report_artifact()
   pushd "$(root_dir)" > /dev/null
 
   kosli report artifact "$(artifact_name)" \
-      --artifact-type docker \
-      --host "${hostname}"
+      --artifact-type=docker \
+      --host="${hostname}"
 
   popd > /dev/null
 }
 
 # - - - - - - - - - - - - - - - - - - -
-kosli_report_evidence()
+kosli_report_coverage_evidence()
 {
   local -r hostname="${1}"
 
   kosli report evidence artifact generic $(artifact_name) \
-    --artifact-type docker \
-    --description "server & client branch-coverage reports" \
-    --name branch-coverage \
-    --host "${1}" \
-    --user-data "$(evidence_json_path)"
+    --artifact-type=docker \
+    --description="server & client branch-coverage reports" \
+    --name=branch-coverage \
+    --host="${hostname}" \
+    --user-data="$(evidence_json_path)"
 }
 
 # - - - - - - - - - - - - - - - - - - -
-write_evidence_json()
+kosli_report_snyk_evidence()
 {
-  echo '{ "server": ' > "$(evidence_json_path)"
-  cat "$(root_dir)/test/server/reports/coverage.json" >> "$(evidence_json_path)"
-  echo ', "client": ' >> "$(evidence_json_path)"
-  cat "$(root_dir)/test/client/reports/coverage.json" >> "$(evidence_json_path)"
-  echo '}' >> "$(evidence_json_path)"
-}
+  local -r hostname="${1}"
 
-# - - - - - - - - - - - - - - - - - - -
-evidence_json_path()
-{
-  echo "$(root_dir)/test/evidence.json"
+  kosli report evidence artifact snyk "$(artifact_name)" \
+      --artifact-type=docker \
+      --host="${hostname}" \
+      --name=snyk-scan \
+      --scan-results="$(repo_root)/snyk.json"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,8 +72,8 @@ kosli_assert_artifact()
   local -r hostname="${1}"
 
   kosli assert artifact "$(artifact_name)" \
-      --artifact-type docker \
-      --host "${hostname}"
+      --artifact-type=docker \
+      --host="${hostname}"
 }
 
 # - - - - - - - - - - - - - - - - - - -
@@ -90,26 +87,10 @@ kosli_expect_deployment()
   docker pull "$(artifact_name)"
 
   kosli expect deployment "$(artifact_name)" \
-    --artifact-type docker \
-    --description "Deployed to ${environment} in Github Actions pipeline" \
-    --environment "${environment}" \
-    --host "${hostname}"
-}
-
-# - - - - - - - - - - - - - - - - - - -
-artifact_name()
-{
-  source "$(root_dir)/sh/echo_versioner_env_vars.sh"
-  export $(echo_versioner_env_vars)
-  echo "${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
-}
-
-# - - - - - - - - - - - - - - - - - - -
-root_dir()
-{
-  # Functions in this file are called after sourcing (not including)
-  # this file so root_dir() cannot use the path of this script.
-  git rev-parse --show-toplevel
+    --artifact-type=docker \
+    --description="Deployed to ${environment} in Github Actions pipeline" \
+    --environment="${environment}" \
+    --host="${hostname}"
 }
 
 # - - - - - - - - - - - - - - - - - - -
@@ -131,15 +112,29 @@ on_ci_kosli_report_artifact()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_report_evidence()
+on_ci_kosli_report_coverage_evidence()
 {
   if on_ci; then
     write_evidence_json
-    kosli_report_evidence "${KOSLI_HOST_STAGING}"
-    kosli_report_evidence "${KOSLI_HOST_PRODUCTION}"
+    kosli_report_coverage_evidence "${KOSLI_HOST_STAGING}"
+    kosli_report_coverage_evidence "${KOSLI_HOST_PRODUCTION}"
   fi
 }
 
+# - - - - - - - - - - - - - - - - - - -
+on_ci_kosli_report_snyk_scan_evidence()
+{
+  if on_ci; then
+    set +e
+    snyk container test "$(artifact_name)" \
+      --json-file-output="$(root_dir)/snyk.json" \
+      --policy-path="$(root_dir)/.snyk"
+    set -e
+
+    kosli_report_snyk_evidence "${KOSLI_HOST_STAGING}"
+    kosli_report_snyk_evidence "${KOSLI_HOST_PRODUCTION}"
+  fi
+}
 
 # - - - - - - - - - - - - - - - - - - -
 on_ci_kosli_assert_artifact()
@@ -148,4 +143,30 @@ on_ci_kosli_assert_artifact()
     kosli_assert_artifact "${KOSLI_HOST_STAGING}"
     kosli_assert_artifact "${KOSLI_HOST_PRODUCTION}"
   fi
+}
+
+# - - - - - - - - - - - - - - - - - - -
+artifact_name()
+{
+  source "$(root_dir)/sh/echo_versioner_env_vars.sh"
+  export $(echo_versioner_env_vars)
+  echo "${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
+}
+
+# - - - - - - - - - - - - - - - - - - -
+write_evidence_json()
+{
+  {
+    echo '{ "server": '
+    cat "$(root_dir)/test/server/reports/coverage.json"
+    echo ', "client": '
+    cat "$(root_dir)/test/client/reports/coverage.json"
+    echo '}'
+  } > "$(evidence_json_path)"
+}
+
+# - - - - - - - - - - - - - - - - - - -
+evidence_json_path()
+{
+  echo "$(root_dir)/test/evidence.json"
 }
