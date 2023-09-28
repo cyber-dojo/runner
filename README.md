@@ -1,8 +1,9 @@
 [![Github Action (main)](https://github.com/cyber-dojo/runner/actions/workflows/main.yml/badge.svg)](https://github.com/cyber-dojo/runner/actions)
 
-- The source for the [cyberdojo/runner](https://hub.docker.com/r/cyberdojo/runner/tags) Docker image.
-- A docker-containerized micro-service for [https://cyber-dojo.org](https://cyber-dojo.org).
+- A [docker-containerized](https://registry.hub.docker.com/r/cyberdojo/runner) micro-service for [https://cyber-dojo.org](http://cyber-dojo.org).
 - An http service (rack based) for running `cyber-dojo.sh` inside a docker container for at most 20 seconds and returning `[stdout,stderr,status,timed_out,colour]`
+- A [Kosli](https://www.kosli.com/) showcase for a [CI flow](https://app.kosli.com/cyber-dojo/flows/exercises-start-points/artifacts/) and an [aws production environment](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/)
+
 
 ***
 API
