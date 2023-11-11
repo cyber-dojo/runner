@@ -1,0 +1,8 @@
+
+To run snyk test
+
+$ snyk container test cyberdojo/runner:$(git rev-parse HEAD | cut -c1-7) --policy-path=.snyk
+
+To create an ignore entry in .snyk file
+
+$ snyk ignore --id=SNYK-XXXXXXXXXXXX
