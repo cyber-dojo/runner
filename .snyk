@@ -20,11 +20,16 @@ ignore:
   SNYK-GOLANG-GOOPENTELEMETRYIOCONTRIBINSTRUMENTATIONNETHTTPOTELHTTP-5971109:
     - '*':
         reason: No fix yet available in docker-in-docker base image
-        expires: 2023-11-17T11:29:48.309Z
+        expires: 2023-12-10T21:18:37.719Z
         created: 2023-10-18T11:29:48.324Z
   SNYK-GOLANG-GOOPENTELEMETRYIOCONTRIBINSTRUMENTATIONNETHTTPHTTPTRACEOTELHTTPTRACE-5971114:
     - '*':
         reason: No fix yet available in docker-in-docker base image
-        expires: 2023-11-17T11:30:11.187Z
+        expires: 2023-12-10T21:18:37.719Z
         created: 2023-10-18T11:30:11.205Z
-patch: {}
+  SNYK-ALPINE318-OPENSSL-6032386:
+    - '*':
+        reason: No fix yet available in docker-in-docker base image
+        expires: 2023-12-10T21:18:37.719Z
+        created: 2023-11-02T09:24:25.189Z
+  patch: {}
