@@ -2,6 +2,11 @@
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
+  SNYK-ALPINE318-OPENSSH-6139287:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-01-24T12:46:34.671Z
+        created: 2023-12-28T12:46:34.673Z
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-6130669:
     - '*':
         reason: Waiting for base image upgrade
