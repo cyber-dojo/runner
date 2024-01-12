@@ -1167,13 +1167,13 @@
         }
       }
     },
-    "Java 18, Approval": {
-      "display_name": "Java 18, Approval",
+    "Java 21, Approval 22 with JUnit 5": {
+      "display_name": "Java 21, Approval 22 with JUnit 5",
       "filename_extension": [
         ".java",
         ".txt"
       ],
-      "image_name": "cyberdojofoundation/java_approval:101ad11",
+      "image_name": "cyberdojofoundation/java_approval:412455a",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1187,41 +1187,17 @@
           "content": "the answer is: 42"
         },
         "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\n# Currently, using /approval in the classpath causes fatal errors such as\n# java.nio.file.AccessDeniedException: /approval/zipfstmp5701121991682355433.tmp\n# This is because /approval is read-only.\n# Working around this for now...\ncp -r /approval /tmp\nCLASSES=.:`ls /tmp/approval/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview \\\n  --release 18 \\\n  -Xlint:preview \\\n  -Xlint:unchecked \\\n  -Xlint:deprecation \\\n  -cp $CLASSES \\\n  *.java;\nthen\n  java --enable-preview -jar /approval/junit-platform-console-standalone-1.8.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\n# Currently, using /approval in the classpath causes fatal errors such as\n# java.nio.file.AccessDeniedException: /approval/zipfstmp5701121991682355433.tmp\n# This is because /approval is read-only.\n# Working around this for now...\ncp -r /approval /tmp\nCLASSES=.:`ls /tmp/approval/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview \\\n  --release 21 \\\n  -Xlint:preview \\\n  -Xlint:unchecked \\\n  -Xlint:deprecation \\\n  -cp $CLASSES \\\n  *.java;\nthen\n  java --enable-preview -jar /approval/junit-platform-console-standalone-1.10.1.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
         }
       }
     },
-    "Java 18, JUnit": {
-      "display_name": "Java 18, JUnit",
-      "filename_extension": [
-        ".java"
-      ],
-      "image_name": "cyberdojofoundation/java_junit:c23ed9e",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "Failures (\\d)\\:",
-        "^\\[\\s+(\\d+) tests successful\\s+\\]"
-      ],
-      "tab_size": 4,
-      "visible_files": {
-        "Hiker.java": {
-          "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}\n"
-        },
-        "HikerTest.java": {
-          "content": "// A simple example to get you started\n// JUnit assertion - the default Java assertion library\n// https://junit.org/junit5/\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)\npublic class HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        int expected = 42;\n        int actual = Hiker.answer();\n        assertEquals(expected, actual);\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /junit/*.jar | tr '\\n' ':'`\n\nif javac -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java -jar /junit/junit-platform-console-standalone-1.8.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path . \\\n      --scan-class-path\nfi\n"
-        }
-      }
-    },
-    "Java, Cucumber": {
-      "display_name": "Java, Cucumber",
+    "Java 21, Cucumber 7 with JUnit 4": {
+      "display_name": "Java 21, Cucumber 7 with JUnit 4",
       "filename_extension": [
         ".java",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/java_cucumber_pico:b62386b",
+      "image_name": "cyberdojofoundation/java_cucumber_pico:8008251",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1238,20 +1214,20 @@
           "content": "This Cucumber environment is bundled with:\n- PicoContainer DI framework\n- JMock2\n- Mockito\n"
         },
         "RunCukesTest.java": {
-          "content": "import io.cucumber.junit.CucumberOptions;\nimport io.cucumber.junit.Cucumber;\nimport org.junit.runner.RunWith;\n\n@RunWith(Cucumber.class)\n@CucumberOptions(\n    monochrome = true,\n    plugin = { \"pretty\" },\n    strict = true\n)\npublic class RunCukesTest {\n    // this is the adapter/bridge code\n    // between cucumber jvm and junit\n    // you do not need to edit this\n}\n"
+          "content": "import io.cucumber.junit.CucumberOptions;\nimport io.cucumber.junit.Cucumber;\nimport org.junit.runner.RunWith;\n\n@RunWith(Cucumber.class)\n@CucumberOptions(\n    monochrome = true,\n    plugin = { \"pretty\" }\n)\npublic class RunCukesTest {\n    // this is the adapter/bridge code\n    // between cucumber jvm and junit\n    // you do not need to edit this\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "CLASSES=.:`ls /cucumber/*.jar | tr '\\n' ':'`\n\njavac \\\n  --class-path $CLASSES  \\\n  --enable-preview \\\n  --release 14 \\\n  -Xlint:unchecked \\\n    *.java\n\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java \\\n    --class-path $CLASSES \\\n    --enable-preview \\\n    org.junit.runner.JUnitCore \\\n    `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
+          "content": "CLASSES=.:`ls /cucumber/*.jar | tr '\\n' ':'`\n\njavac \\\n  --class-path $CLASSES  \\\n  --enable-preview \\\n  --release 21 \\\n  -Xlint:unchecked \\\n    *.java\n\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java \\\n    --class-path $CLASSES \\\n    --enable-preview \\\n    org.junit.runner.JUnitCore \\\n    `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
         }
       }
     },
-    "Java, Cucumber-Spring": {
-      "display_name": "Java, Cucumber-Spring",
+    "Java 21, Cucumber-Spring 7": {
+      "display_name": "Java 21, Cucumber-Spring 7",
       "filename_extension": [
         ".java",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/java_cucumber_spring:adf3d2f",
+      "image_name": "cyberdojofoundation/java_cucumber_spring:78094da",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1271,19 +1247,19 @@
           "content": "This Cucumber environment is bundled with:\n- Enough Spring to support DI in cucumber.xml\n  - you must explicitly declare beans in XML\n  - Do not use @Component, @Service or @Scope annotations\n- JMock2\n- Mockito\n"
         },
         "RunCukesTest.java": {
-          "content": "import io.cucumber.junit.CucumberOptions;\nimport io.cucumber.junit.Cucumber;\nimport org.junit.runner.RunWith;\n\n@RunWith(Cucumber.class)\n@CucumberOptions(\n    monochrome = true,\n    plugin = { \"pretty\" },\n    strict = true\n)\npublic class RunCukesTest {\n    // this is the adapter/bridge code\n    // between cucumber jvm and junit\n    // you do not need to edit this\n}\n"
+          "content": "import io.cucumber.junit.CucumberOptions;\nimport io.cucumber.junit.Cucumber;\nimport org.junit.runner.RunWith;\n\n@RunWith(Cucumber.class)\n@CucumberOptions(\n    monochrome = true,\n    plugin = { \"pretty\" }\n)\npublic class RunCukesTest {\n    // this is the adapter/bridge code\n    // between cucumber jvm and junit\n    // you do not need to edit this\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "CLASSES=.:`ls /cucumber/*.jar | tr '\\n' ':'`\n\njavac \\\n  --class-path $CLASSES  \\\n  --enable-preview \\\n  --release 14 \\\n  -Xlint:unchecked \\\n    *.java\n\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java \\\n    --class-path $CLASSES \\\n    --enable-preview \\\n    org.junit.runner.JUnitCore \\\n    `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
+          "content": "CLASSES=.:`ls /cucumber/*.jar | tr '\\n' ':'`\n\njavac \\\n  --class-path $CLASSES  \\\n  --enable-preview \\\n  --release 21 \\\n  -Xlint:unchecked \\\n    *.java\n\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java \\\n    --class-path $CLASSES \\\n    --enable-preview \\\n    org.junit.runner.JUnitCore \\\n    `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
         }
       }
     },
-    "Java, JMock": {
-      "display_name": "Java, JMock",
+    "Java 21, JMock 2.12 with JUnit 4": {
+      "display_name": "Java 21, JMock 2.12 with JUnit 4",
       "filename_extension": [
         ".java"
       ],
-      "image_name": "cyberdojofoundation/java_jmock:f136e00",
+      "image_name": "cyberdojofoundation/java_jmock:d965ca3",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1301,12 +1277,12 @@
         }
       }
     },
-    "Java, JUnit-Sqlite": {
-      "display_name": "Java, JUnit-Sqlite",
+    "Java 21, JUnit 4 - SQLite 3.44": {
+      "display_name": "Java 21, JUnit 4 - SQLite 3.44",
       "filename_extension": [
         ".java"
       ],
-      "image_name": "cyberdojofoundation/java_junit_sqlite:ae2ece3",
+      "image_name": "cyberdojofoundation/java_junit_sqlite:dd3e6e7",
       "max_seconds": 10,
       "progress_regexs": [
         "Tests run\\: (\\d)+,(\\s)+Failures\\: (\\d)+",
@@ -1325,12 +1301,36 @@
         }
       }
     },
-    "Java, Mockito": {
-      "display_name": "Java, Mockito",
+    "Java 21, JUnit 5": {
+      "display_name": "Java 21, JUnit 5",
       "filename_extension": [
         ".java"
       ],
-      "image_name": "cyberdojofoundation/java_mockito:4170a59",
+      "image_name": "cyberdojofoundation/java_junit:edf2565",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "Failures (\\d)\\:",
+        "^\\[\\s+(\\d+) tests successful\\s+\\]"
+      ],
+      "tab_size": 4,
+      "visible_files": {
+        "Hiker.java": {
+          "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}\n"
+        },
+        "HikerTest.java": {
+          "content": "// A simple example to get you started\n// JUnit assertion - the default Java assertion library\n// https://junit.org/junit5/\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)\npublic class HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        int expected = 42;\n        int actual = Hiker.answer();\n        assertEquals(expected, actual);\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /junit/*.jar | tr '\\n' ':'`\n\nif javac -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java -jar /junit/junit-platform-console-standalone-1.10.1.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path . \\\n      --scan-class-path\nfi\n"
+        }
+      }
+    },
+    "Java 21, Mockito 5.8": {
+      "display_name": "Java 21, Mockito 5.8",
+      "filename_extension": [
+        ".java"
+      ],
+      "image_name": "cyberdojofoundation/java_mockito:a6a82c7",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1341,16 +1341,16 @@
           "content": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n\nclass HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        Hiker.Listener listener = mock(Hiker.Listener.class);\n        Hiker douglas = new Hiker(listener);\n        douglas.answer();\n        verify(listener).onAnswer(42);\n        verifyNoMoreInteractions(listener);\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /mockito/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview --release 14 -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java --enable-preview -jar /mockito/junit-platform-console-standalone-1.6.2.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /mockito/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview --release 21 -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java --enable-preview -jar /mockito/junit-platform-console-standalone-1.10.1.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
         }
       }
     },
-    "Java, PowerMockito": {
-      "display_name": "Java, PowerMockito",
+    "Java 21, PowerMockito 1.7": {
+      "display_name": "Java 21, PowerMockito 1.7",
       "filename_extension": [
         ".java"
       ],
-      "image_name": "cyberdojofoundation/java_powermockito:651f394",
+      "image_name": "cyberdojofoundation/java_powermockito:cf552eb",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1364,20 +1364,20 @@
           "content": "\npublic class Hiker {\n\n    public int answer() {\n        DiskLogger.getInstance().log(\"The answer is 6 * 7\");\n        return 6 * 9;\n    }\n\n}\n"
         },
         "HikerTest.java": {
-          "content": "import org.junit.*;\nimport static org.junit.Assert.*;\nimport org.junit.runner.RunWith;\n\nimport org.powermock.modules.junit4.PowerMockRunner;\nimport org.powermock.core.classloader.annotations.PrepareForTest;\nimport static org.powermock.api.mockito.PowerMockito.*;\nimport org.mockito.stubbing.Answer;\nimport org.mockito.invocation.InvocationOnMock;\nimport static org.mockito.Matchers.anyString;\n\n@RunWith(PowerMockRunner.class)\n@PrepareForTest(DiskLogger.class)\npublic class HikerTest {\n\n    @Test\n    public void life_the_universe_and_everything() {\n        FakeLogger fakeLog = new FakeLogger();\n        use(fakeLog);\n\n        int expected = 42;\n        int actual = new Hiker().answer();\n        assertEquals(expected, actual);\n\n        assertTrue(fakeLog.endsWith(\"The answer is 6 * 7\"));\n    }\n\n    private void use(FakeLogger fake) {\n        mockStatic(DiskLogger.class);\n        DiskLogger mocked = mock(DiskLogger.class);\n        when(DiskLogger.getInstance()).thenReturn(mocked);\n\n        doAnswer(new Answer<Void>() {\n            public Void answer(InvocationOnMock invocation) {\n              String line = (String)invocation.getArguments()[0];\n              fake.log(line); // <====\n              return null;\n            }\n        }).when(mocked).log(anyString());  // <====\n    }\n}\n"
+          "content": "import org.junit.*;\nimport static org.junit.Assert.*;\nimport org.junit.runner.RunWith;\n\nimport org.powermock.modules.junit4.PowerMockRunner;\nimport org.powermock.core.classloader.annotations.PrepareForTest;\nimport org.powermock.core.classloader.annotations.PowerMockIgnore;\nimport static org.powermock.api.mockito.PowerMockito.*;\nimport org.mockito.stubbing.Answer;\nimport org.mockito.invocation.InvocationOnMock;\nimport static org.mockito.Matchers.anyString;\n\n@RunWith(PowerMockRunner.class)\n@PowerMockIgnore(\"jdk.internal.reflect.*\")\n@PrepareForTest(DiskLogger.class)\npublic class HikerTest {\n\n    @Test\n    public void life_the_universe_and_everything() {\n        FakeLogger fakeLog = new FakeLogger();\n        use(fakeLog);\n\n        int expected = 42;\n        int actual = new Hiker().answer();\n        assertEquals(expected, actual);\n\n        assertTrue(fakeLog.endsWith(\"The answer is 6 * 7\"));\n    }\n\n    private void use(FakeLogger fake) {\n        mockStatic(DiskLogger.class);\n        DiskLogger mocked = mock(DiskLogger.class);\n        when(DiskLogger.getInstance()).thenReturn(mocked);\n\n        doAnswer(new Answer<Void>() {\n            public Void answer(InvocationOnMock invocation) {\n              String line = (String)invocation.getArguments()[0];\n              fake.log(line); // <====\n              return null;\n            }\n        }).when(mocked).log(anyString());  // <====\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "\nCLASSES=.:`ls /powermockito/*.jar | tr '\\n' ':'`\njavac -Xlint:unchecked -cp $CLASSES  *.java\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java -cp $CLASSES org.junit.runner.JUnitCore \\\n    `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
+          "content": "\nCLASSES=.:`ls /powermockito/*.jar | tr '\\n' ':'`\njavac -Xlint:unchecked -cp $CLASSES  *.java \n\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java --add-opens java.base/java.lang=ALL-UNNAMED \\\n      --add-opens java.base/jdk.internal.loader=ALL-UNNAMED \\\n      --add-opens java.base/java.security=ALL-UNNAMED \\\n      -cp $CLASSES org.junit.runner.JUnitCore \\\n      `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
         }
       }
     },
-    "JavaScript, Cucumber": {
-      "display_name": "JavaScript, Cucumber",
+    "JavaScript 21.5, Cucumber 10.1": {
+      "display_name": "JavaScript 21.5, Cucumber 10.1",
       "filename_extension": [
         ".js",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/javascript_node_cucumber:9c303d1",
+      "image_name": "cyberdojofoundation/javascript_node_cucumber:b836868",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1395,6 +1395,55 @@
         },
         "hiker_steps.js": {
           "content": "'use strict';\n\nconst {Given,When,Then} = require('cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
+        }
+      }
+    },
+    "JavaScript 21.5, Jest 29.7": {
+      "display_name": "JavaScript 21.5, Jest 29.7",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "cyberdojofoundation/javascript_node_jest:76a7268",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        ".eslintrc.json": {
+          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nmodule.exports = answer;\n"
+        },
+        "hiker.test.js": {
+          "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
+        }
+      }
+    },
+    "JavaScript 21.5, assert": {
+      "display_name": "JavaScript 21.5, assert",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "cyberdojofoundation/javascript_node_assert:d52d110",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        ".jshintrc": {
+          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "hikerTest.js": {
+          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\nconst assert = require('assert');\n\nassert.equal(hiker.answer(), 42 );\n\n// - - - - - - - - - - - - - - - - - - - - - -\n\nconst greenTrafficLightPattern = function() {\n  return 'All tests passed';\n};\nconsole.log(greenTrafficLightPattern());\n"
         }
       }
     },
@@ -1430,29 +1479,6 @@
         },
         "package.json": {
           "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc mocha --require config.js --no-colors *Test.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
-        }
-      }
-    },
-    "JavaScript, assert": {
-      "display_name": "JavaScript, assert",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "cyberdojofoundation/javascript_node_assert:e8470c6",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".jshintrc": {
-          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "hikerTest.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\nconst assert = require('assert');\n\nassert.equal(hiker.answer(), 42 );\n\n// - - - - - - - - - - - - - - - - - - - - - -\n\nconst greenTrafficLightPattern = function() {\n  return 'All tests passed';\n};\nconsole.log(greenTrafficLightPattern());\n"
         }
       }
     },
@@ -1516,32 +1542,6 @@
         },
         "package.json": {
           "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
-        }
-      }
-    },
-    "JavaScript, jest": {
-      "display_name": "JavaScript, jest",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "cyberdojofoundation/javascript_node_jest:98eb16d",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nmodule.exports = answer;\n"
-        },
-        "hiker.test.js": {
-          "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
         }
       }
     },
@@ -1700,14 +1700,34 @@
         }
       }
     },
-    "Python, approval-pytest": {
-      "display_name": "Python, approval-pytest",
+    "Python 3.12, Pytest 7.4": {
+      "display_name": "Python 3.12, Pytest 7.4",
+      "filename_extension": [
+        ".py"
+      ],
+      "image_name": "cyberdojofoundation/python_pytest:2b04bec",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\n# Print a short summary of each test to stdout.\n# Can produde a lot of output on parameterized tests.\nexport PYTEST_ADDOPTS=\"-v\"\n\n# --------------------------------------------------------------\n# By default pytest captures stdout/stderr.\n# The --capture=tee-sys option ensures sys.stdout and\n# sys.stderr are actually written to.\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --capture=tee-sys \\\n  --random-order-bucket=global \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.py": {
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey show examples of writing and testing\n  o) a global function\n  o) an instance method\nPick the style most suitable to your exercise.\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
+        },
+        "test_hiker.py": {
+          "content": "from hiker import global_answer, Hiker\n\ndef test_global_function():\n    assert global_answer() == 42\n\ndef test_instance_method():\n    assert Hiker().instance_answer() == 42\n"
+        }
+      }
+    },
+    "Python 3.12, approval-pytest 0.2.4": {
+      "display_name": "Python 3.12, approval-pytest 0.2.4",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_pytest:305d2bb",
+      "image_name": "cyberdojofoundation/python_approval_pytest:b2ce469",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1728,14 +1748,14 @@
         }
       }
     },
-    "Python, approval-unittest": {
-      "display_name": "Python, approval-unittest",
+    "Python 3.12, approval-unittest 10.2": {
+      "display_name": "Python 3.12, approval-unittest 10.2",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_unittest:e288699",
+      "image_name": "cyberdojofoundation/python_approval_unittest:3adcead",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1756,12 +1776,12 @@
         }
       }
     },
-    "Python, assert": {
-      "display_name": "Python, assert",
+    "Python 3.12, assert": {
+      "display_name": "Python 3.12, assert",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "cyberdojofoundation/python_assert:cc90932",
+      "image_name": "cyberdojofoundation/python_assert:ed44c2d",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1776,13 +1796,13 @@
         }
       }
     },
-    "Python, behave": {
-      "display_name": "Python, behave",
+    "Python 3.12, behave 1.2.6": {
+      "display_name": "Python 3.12, behave 1.2.6",
       "filename_extension": [
         ".py",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/python_behave:a1ce705",
+      "image_name": "cyberdojofoundation/python_behave:aec3ec7",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1800,32 +1820,12 @@
         }
       }
     },
-    "Python, pytest": {
-      "display_name": "Python, pytest",
+    "Python 3.12, unittest": {
+      "display_name": "Python 3.12, unittest",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "cyberdojofoundation/python_pytest:8965a76",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\n# Print a short summary of each test to stdout.\n# Can produde a lot of output on parameterized tests.\nexport PYTEST_ADDOPTS=\"-v\"\n\n# --------------------------------------------------------------\n# By default pytest captures stdout/stderr.\n# The --capture=tee-sys option ensures sys.stdout and\n# sys.stderr are actually written to.\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --capture=tee-sys \\\n  --random-order-bucket=global \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey show examples of writing and testing\n  o) a global function\n  o) an instance method\nPick the style most suitable to your exercise.\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
-        },
-        "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\n\ndef test_global_function():\n    assert global_answer() == 42\n\ndef test_instance_method():\n    assert Hiker().instance_answer() == 42\n"
-        }
-      }
-    },
-    "Python, unittest": {
-      "display_name": "Python, unittest",
-      "filename_extension": [
-        ".py"
-      ],
-      "image_name": "cyberdojofoundation/python_unittest:51c7d93",
+      "image_name": "cyberdojofoundation/python_unittest:0deeb77",
       "progress_regexs": [
         "FAILED \\(failures=\\d+\\)",
         "OK"
