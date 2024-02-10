@@ -52,6 +52,11 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2024-03-01T12:49:02.243Z
         created: 2023-11-11T12:49:02.255Z
+  SNYK-ALPINE319-OPENSSL-6191693:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T12:49:02.243Z
+        created: 2024-02-10T12:49:02.255Z
   SNYK-GOLANG-GOLANGORGXNETHTTP2-5958903:
     - '*':
         reason: Waiting for base image upgrade
@@ -62,4 +67,84 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2024-03-01T12:49:02.243Z
         created: 2024-01-12T12:49:02.255Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITUTILTRACINGTRANSFORM-6230692:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITEXPORTERCONTAINERIMAGE-6226340:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITEXECUTOR-6209341:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITCONTROL-6226339:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSRUNCLIBCONTAINERCGROUPS-6209335:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITWORKER-6209365:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITUTILENTITLEMENTS-6209364:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOLVERLLBSOLVER-6209363:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSNAPSHOT-6209339:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSNAPSHOT-6209362:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITFRONTENDGATEWAYFORWARDER-6209361:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITFRONTENDGATEWAY-6209359:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITEXECUTOROCI-6209338:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITEXECUTOR-6209357:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITCLIENT-6209355:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERD-6219724:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-03-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
 patch: {}
