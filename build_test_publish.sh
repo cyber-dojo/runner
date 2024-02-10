@@ -26,7 +26,7 @@ exit_non_zero_unless_installed docker
 exit_non_zero_unless_installed docker-compose
 exit_non_zero_unless_installed jq
 remove_old_images
-on_ci_kosli_create_flow
+on_ci_kosli_begin_trail
 build_tagged_images "$@"
 exit_zero_if_build_only "$@"
 remove_zombie_containers
@@ -36,10 +36,10 @@ create_test_data_manifests_file
 server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
 on_ci_publish_tagged_images
-on_ci_kosli_report_artifact
+on_ci_kosli_attest_artifact
 test_in_containers "$@"
-on_ci_kosli_report_coverage_evidence
-on_ci_kosli_report_snyk_scan_evidence
+on_ci_kosli_attest_coverage_evidence
+on_ci_kosli_attest_snyk_scan_evidence
 containers_down
 
 # Return non-zero for non-compliant artifact

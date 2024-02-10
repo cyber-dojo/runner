@@ -1,0 +1,10 @@
+version: 1
+
+trail:
+  artifacts:
+    - name: runner
+      attestations:
+        - name: branch-coverage
+          type: generic
+        - name: snyk-scan
+          type: snyk
