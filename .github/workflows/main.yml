@@ -57,7 +57,7 @@ jobs:
       kosli_host_production: https://app.kosli.com
 
   deploy-prod:
-    needs: [pre-build, build-test-push]
+    needs: [pre-build, build-test-push, deploy-staging]
     uses: cyber-dojo/reusable-actions-workflows/.github/workflows/kosli_deploy.yml@v0.0.11
     permissions:
       id-token: write
