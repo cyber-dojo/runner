@@ -20,8 +20,6 @@ services:
     volumes:
       - ./test:/runner/test/:ro
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   runner:
     build:
       context: .
@@ -39,3 +37,11 @@ services:
     volumes:
       - ./test:/runner/test/:ro
       - /var/run/docker.sock:/var/run/docker.sock
+
+  languages-start-points:
+    image: ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
+    user: nobody
+    env_file: [ .env ]
+    read_only: true
+    restart: "no"
+    tmpfs: /tmp

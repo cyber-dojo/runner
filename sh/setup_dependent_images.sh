@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeu
 
+repo_root() { git rev-parse --show-toplevel; }
+
 # - - - - - - - - - - - - - - - - - - - - - - - -
 setup_dependent_images()
 {
@@ -27,7 +29,7 @@ pull_dependent_images()
     docker run \
       --entrypoint='' \
       --rm \
-      --volume ${ROOT_DIR}/test:/test/:ro \
+      --volume $(repo_root)/test:/test/:ro \
         ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG} \
           ruby /test/dependent_display_names.rb)"
 

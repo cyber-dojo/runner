@@ -5,7 +5,7 @@ set -Eeu
 exit_zero_if_build_only()
 {
   if build_only_arg "${1:-}" ; then
-    exit 0
+    exit 42
   fi
 }
 

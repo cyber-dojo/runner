@@ -1,0 +1,85 @@
+{ "server": 
+{
+  "timestamp": 1709396983,
+  "command_name": "Minitest",
+  "groups": {
+    "code": {
+      "lines": {
+        "total": 559,
+        "covered": 558,
+        "missed": 1
+      },
+      "branches": {
+        "total": 66,
+        "covered": 64,
+        "missed": 2
+      }
+    },
+    "test": {
+      "lines": {
+        "total": 963,
+        "covered": 963,
+        "missed": 0
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "missed": 0
+      }
+    },
+    "Ungrouped": {
+      "lines": {
+        "total": 358,
+        "covered": 333,
+        "missed": 25
+      },
+      "branches": {
+        "total": 52,
+        "covered": 33,
+        "missed": 19
+      }
+    }
+  }
+}, "client": 
+{
+  "timestamp": 1709397055,
+  "command_name": "Minitest",
+  "groups": {
+    "code": {
+      "lines": {
+        "total": 129,
+        "covered": 129,
+        "missed": 0
+      },
+      "branches": {
+        "total": 6,
+        "covered": 6,
+        "missed": 0
+      }
+    },
+    "test": {
+      "lines": {
+        "total": 529,
+        "covered": 529,
+        "missed": 0
+      },
+      "branches": {
+        "total": 5,
+        "covered": 5,
+        "missed": 0
+      }
+    },
+    "Ungrouped": {
+      "lines": {
+        "total": 342,
+        "covered": 257,
+        "missed": 85
+      },
+      "branches": {
+        "total": 52,
+        "covered": 15,
+        "missed": 37
+      }
+    }
+  }
+}}

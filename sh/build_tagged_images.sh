@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeu
 
-source "${SH_DIR}/augmented_docker_compose.sh"
-
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_tagged_images()
 {
@@ -23,7 +21,7 @@ build_images()
   else
     local -r SERVICE=
   fi
-  augmented_docker_compose \
+  docker compose \
     build \
     --build-arg COMMIT_SHA=$(git_commit_sha) \
     ${SERVICE}
@@ -62,7 +60,7 @@ image_exists()
 #- - - - - - - - - - - - - - - - - - - - - - - -
 git_commit_sha()
 {
-  echo $(cd "${ROOT_DIR}" && git rev-parse HEAD)
+  git rev-parse HEAD
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
@@ -74,7 +72,7 @@ image_name()
 # - - - - - - - - - - - - - - - - - - - - - -
 image_sha()
 {
-  echo "$(git_commit_sha)"
+  git_commit_sha
 }
 
 # - - - - - - - - - - - - - - - - - - - - - -

@@ -5,10 +5,12 @@ set -Eeu
 exit_zero_if_show_help()
 {
   if show_help_arg "${1:-}"; then
-    local -r my_name=`basename "${BASH_SOURCE[0]}"`
+    local -r my_name=build_test.sh
     cat <<- EOF
 
-    Use: ${my_name} [client|server] [ID...]
+    Use: ${my_name} [-h | --help]
+    Use: ${my_name} [-bo | --build-only]
+    Use: ${my_name} [client | server] [ID...]
 
     Options:
        client  - only run tests from inside the client
@@ -19,7 +21,7 @@ exit_zero_if_show_help()
        SHOW_TEST_IDS=true ${my_name} [client|server] [ID...]
 
 EOF
-    exit 0
+    exit 42
   fi
 }
 

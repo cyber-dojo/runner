@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeu
 
+repo_root() { git rev-parse --show-toplevel; }
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 test_in_containers()
 {
@@ -72,7 +74,7 @@ run_tests()
   #   https://docs.docker.com/engine/reference/commandline/cp/#extended-description
   # So tar-piping out.
 
-  local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"    # where to extract to. untar will create reports/ dir
+  local -r HOST_TEST_DIR="$(repo_root)/test/${TYPE}"    # where to extract to. untar will create reports/ dir
   local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports" # where files will be
 
   rm "${HOST_REPORTS_DIR}/${TEST_LOG}"   2> /dev/null || true

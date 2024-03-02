@@ -56,8 +56,6 @@ class Demo
     ].join("\n")
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
   def ready
     result,duration = timed { runner.ready? }
     boxed_pre(duration, result)
@@ -69,8 +67,6 @@ class Demo
       'html = green(JSON.pretty_unparse(ready))'
     ].join("\n")
   end
-
-  # - - - - - - - - - - - - - - - - - - - - -
 
   def sha
     result,duration = timed { runner.sha }
@@ -84,7 +80,17 @@ class Demo
     ].join("\n")
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
+  def run_cyber_dojo_sh_snippet
+    [
+      'begin',
+      '  result = runner.run_cyber_dojo_sh(...)',
+      '  html = green(JSON.pretty_unparse(result))',
+      'rescue => error',
+      '  json = JSON.parse(error.message)',
+      '  html = gray(JSON.pretty_unparse(json))',
+      'end'
+    ].join("\n")
+  end
 
   def run_cyber_dojo_sh(image_name)
     files = gcc_assert_files
@@ -105,19 +111,8 @@ class Demo
     boxed_pre(duration, @result, css_colour)
   end
 
-  def run_cyber_dojo_sh_snippet
-    [
-      'begin',
-      '  result = runner.run_cyber_dojo_sh(...)',
-      '  html = green(JSON.pretty_unparse(result))',
-      'rescue => error',
-      '  json = JSON.parse(error.message)',
-      '  html = gray(JSON.pretty_unparse(json))',
-      'end'
-    ].join("\n")
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def gcc_assert_image_name
     gcc_assert_manifest['image_name']
   end
@@ -132,7 +127,6 @@ class Demo
     languages_start_points.manifest('C (gcc), assert')
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
   def timed
     started = Time.now
     result = yield
@@ -158,7 +152,6 @@ class Demo
     "#{duration}s\n"
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
   def languages_start_points
     @context.languages_start_points
   end

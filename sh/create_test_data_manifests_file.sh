@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -Eeu
 
-source "${SH_DIR}/ip_address.sh"
-readonly IP_ADDRESS=$(ip_address)
+repo_root() { git rev-parse --show-toplevel; }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 create_test_data_manifests_file()
@@ -24,8 +23,8 @@ create_test_data_manifests_file()
 
   exit_non_zero_unless_healthy
 
-  local -r URL="http://${IP_ADDRESS}:${CONTAINER_PORT}/manifests"
-  local -r FILENAME="${ROOT_DIR}/test/data/languages_start_points.manifests.json"
+  local -r URL="http://localhost:${CONTAINER_PORT}/manifests"
+  local -r FILENAME="$(repo_root)/test/data/languages_start_points.manifests.json"
 
   curl --silent --request GET "${URL}" | jq --sort-keys '.' > "${FILENAME}"
 
