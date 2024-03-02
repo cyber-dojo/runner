@@ -135,7 +135,7 @@ jobs:
           echo "kosli_fingerprint=${FINGERPRINT}" >> ${GITHUB_OUTPUT}
 
 
-  unit-tests:
+  tests:
     needs: [wait-for-image, kosli-trail]
     runs-on: ubuntu-latest
     env:
@@ -152,16 +152,24 @@ jobs:
       - name: Run tests with branch-coverage
         run: |
           make test
+          
+          kosli attest junit "${IMAGE_NAME}" \
+              --name=runner.unit-test \
+              --results-dir=./test/server/reports/junit
+
+          kosli attest generic "${IMAGE_NAME}" \
+              --attachments=./test/server/reports \
+              --name=runner.unit-test-branch-coverage \
+              --user-data=./test/server/reports/coverage.json
+          
+          kosli attest junit "${IMAGE_NAME}" \
+              --name=runner.integration-test \
+              --results-dir=./test/client/reports/junit
+
           kosli attest generic "${IMAGE_NAME}" \
               --attachments=./test/client/reports \
-              --attachments=./test/server/reports \
-              --description="server & client branch-coverage" \
-              --name=runner.branch-coverage \
-              --user-data=./test/evidence.json
-
-#          kosli attest junit "${IMAGE_NAME}"
-#              --name=runner.unit-test
-#              --results-dir=test/reports/junit
+              --name=runner.integration-test-branch-coverage \
+              --user-data=./test/client/reports/coverage.json
 
 
   snyk-container-scan:
@@ -241,7 +249,7 @@ jobs:
 
 
   sdlc-control-gate:
-    needs: [unit-tests, snyk-container-scan, snyk-code-scan, kosli-trail, wait-for-image]
+    needs: [tests, snyk-container-scan, snyk-code-scan, kosli-trail, wait-for-image]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Kosli CLI

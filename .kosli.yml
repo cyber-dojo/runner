@@ -4,7 +4,13 @@ trail:
   artifacts:
     - name: runner
       attestations:
-        - name: branch-coverage
+        - name: unit-test
+          type: junit
+        - name: unit-test-branch-coverage
+          type: generic
+        - name: integration-test
+          type: junit
+        - name: integration-test-branch-coverage
           type: generic
         - name: snyk-container-scan
           type: snyk

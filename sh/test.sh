@@ -10,7 +10,6 @@ source "${SH_DIR}/create_test_data_manifests_file.sh"
 source "${SH_DIR}/remove_zombie_containers.sh"
 source "${SH_DIR}/setup_dependent_images.sh"
 source "${SH_DIR}/test_in_containers.sh"
-source "${SH_DIR}/write_evidence_json.sh"
 
 source "${SH_DIR}/echo_versioner_env_vars.sh"
 export $(echo_versioner_env_vars)
@@ -23,4 +22,3 @@ server_up_healthy_and_clean
 client_up_healthy_and_clean "$@"
 test_in_containers "$@"
 containers_down
-write_evidence_json "$@"

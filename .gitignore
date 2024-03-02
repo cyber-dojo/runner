@@ -4,5 +4,3 @@ test/client/reports/.*
 
 test/server/reports/*
 test/server/reports/.*
-
-test/evidence.json
