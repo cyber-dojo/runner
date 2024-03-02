@@ -3,4 +3,11 @@ current test junit-output and coverage-output goes to test/server/reports/
 Split it into
 - test/server/report_junit
 - test/server/report_coverage
-So that we dont upload junit files in coverage kosli --attachment
+So that we don't upload junit files in coverage kosli --attachment
+
+
+Limit number of created text files returned to caller.
+At present there is no limit.
+Done for created files.
+Should it also be done for changed files?
+
