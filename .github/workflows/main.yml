@@ -147,7 +147,7 @@ jobs:
           echo "kosli_fingerprint=${FINGERPRINT}" >> ${GITHUB_OUTPUT}
 
 
-  unit-tests:
+  tests:
     needs: [build-image, kosli-trail]
     runs-on: ubuntu-latest
     env:
@@ -261,7 +261,7 @@ jobs:
 
 
   sdlc-control-gate:
-    needs: [unit-tests, snyk-container-scan, snyk-code-scan, kosli-trail, build-image]
+    needs: [tests, snyk-container-scan, snyk-code-scan, kosli-trail, build-image]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Kosli CLI
