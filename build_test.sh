@@ -14,5 +14,4 @@ exit_non_zero_unless_installed jq
 
 "${SH_DIR}/build_tag.sh" "$@"
 exit_zero_if_build_only "$@"
-# TODO: handle $@ options for [server|client] [ID...]
 "${SH_DIR}/test.sh" "$@"
