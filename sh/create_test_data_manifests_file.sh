@@ -1,4 +1,5 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
 source "${SH_DIR}/ip_address.sh"
 readonly IP_ADDRESS=$(ip_address)

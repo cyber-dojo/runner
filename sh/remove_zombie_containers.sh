@@ -1,4 +1,5 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
 # During development, when a test fails it can leave a container.
 # I leave such containers un-removed since so I can shell into it

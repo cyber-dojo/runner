@@ -1,4 +1,5 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
 # cyberdojo/service-yaml image lives at
 # https://github.com/cyber-dojo-tools/service-yaml

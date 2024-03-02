@@ -1,4 +1,5 @@
-#!/bin/bash -Ee
+#!/usr/bin/env bash
+set -Ee
 
 readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SH_DIR="${ROOT_DIR}/sh"

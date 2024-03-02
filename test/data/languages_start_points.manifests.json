@@ -1108,12 +1108,13 @@
         }
       }
     },
-    "Groovy, JUnit": {
-      "display_name": "Groovy, JUnit",
+    "Groovy 4.0.9, JUnit 4": {
+      "display_name": "Groovy 4.0.9, JUnit 4",
       "filename_extension": [
         ".groovy"
       ],
-      "image_name": "cyberdojofoundation/groovy_junit:6140ec1",
+      "image_name": "cyberdojofoundation/groovy_junit:7224257",
+      "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
         "Hiker.groovy": {
@@ -1127,12 +1128,12 @@
         }
       }
     },
-    "Groovy, Spock": {
-      "display_name": "Groovy, Spock",
+    "Groovy 4.0.9, Spock 2.4": {
+      "display_name": "Groovy 4.0.9, Spock 2.4",
       "filename_extension": [
         ".groovy"
       ],
-      "image_name": "cyberdojofoundation/groovy_spock:4310491",
+      "image_name": "cyberdojofoundation/groovy_spock:3f31945",
       "max_seconds": 20,
       "tab_size": 4,
       "visible_files": {
@@ -1143,7 +1144,7 @@
           "content": "import spock.lang.*\n\nclass HikerSpec extends Specification {\n\n    def \"life the universe and everything\" () {\n        def douglas = new Hiker()\n        expect:\n            douglas.answer() == 42\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "\n# There appears to be no way to pass all the Spec class names\n# to groovy in one go. So I'm calling groovy once for each one.\n# Groovy is so interminably ...sssssslllllllooooooowwwwwww....\n# that you're likely to timeout if you use more than 2 Spec classes!\n# Can you help?\n\nSPECS=($(ls *Spec.groovy | cut -d '.' -f 1))\nfor SPEC in \"${SPECS[@]}\"\ndo\n  groovy -cp /groovy/spock-core-2.0-M2-groovy-3.0.jar ${SPEC}\ndone\n"
+          "content": "\n# There appears to be no way to pass all the Spec class names\n# to groovy in one go. So I'm calling groovy once for each one.\n# Groovy is so interminably ...sssssslllllllooooooowwwwwww....\n# that you're likely to timeout if you use more than 2 Spec classes!\n# Can you help?\n\nSPECS=($(ls *Spec.groovy | cut -d '.' -f 1))\nfor SPEC in \"${SPECS[@]}\"\ndo\n  groovy -cp /groovy/spock-core-2.4-M1-groovy-4.0.jar ${SPEC}\ndone\n"
         }
       }
     },
@@ -1398,6 +1399,39 @@
         }
       }
     },
+    "JavaScript 21.5, Jasmine 5.1": {
+      "display_name": "JavaScript 21.5, Jasmine 5.1",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "cyberdojofoundation/javascript_node_jasmine:97dd21b",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "/(d+) specs?, ([1-9]d*) failures?/",
+        "/(d+) specs?, (0) failures?/"
+      ],
+      "tab_size": 2,
+      "visible_files": {
+        ".eslintrc.json": {
+          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "hiker-spec.js": {
+          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "jasmine.json": {
+          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
+        }
+      }
+    },
     "JavaScript 21.5, Jest 29.7": {
       "display_name": "JavaScript 21.5, Jest 29.7",
       "filename_extension": [
@@ -1488,7 +1522,7 @@
         ".js",
         ".html"
       ],
-      "image_name": "cyberdojofoundation/javascript_node_assert_jquery:0aef08e",
+      "image_name": "cyberdojofoundation/javascript_node_assert_jquery:da3d6b1",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1509,39 +1543,6 @@
         },
         "jQueryAdapter.js": {
           "content": "'use strict';\n\nmodule.exports = {\n  dom,\n  file\n};\n\nconst fs = require('fs');\nconst jquery = require('jquery');\nconst { JSDOM } = require('jsdom');\n\nfunction dom(html) {\n  const dom = new JSDOM(html);\n  return jquery(dom.window);\n}\n\nfunction file(filename) {\n  const markUp = fs.readFileSync(filename);\n  return dom(markUp.toString());\n}\n"
-        }
-      }
-    },
-    "JavaScript, jasmine": {
-      "display_name": "JavaScript, jasmine",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "cyberdojofoundation/javascript_node_jasmine:5c2ab7f",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "/(d+) specs?, ([1-9]d*) failures?/",
-        "/(d+) specs?, (0) failures?/"
-      ],
-      "tab_size": 2,
-      "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "hiker-spec.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "jasmine.json": {
-          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
         }
       }
     },
@@ -1727,7 +1728,7 @@
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_pytest:b2ce469",
+      "image_name": "cyberdojofoundation/python_approval_pytest:bcd7dd8",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1748,14 +1749,14 @@
         }
       }
     },
-    "Python 3.12, approval-unittest 10.2": {
-      "display_name": "Python 3.12, approval-unittest 10.2",
+    "Python 3.12, approval-unittest 10.3": {
+      "display_name": "Python 3.12, approval-unittest 10.3",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_unittest:3adcead",
+      "image_name": "cyberdojofoundation/python_approval_unittest:080dff5",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
