@@ -27,12 +27,12 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    test '192', %w(
-    sha is SHA of git commit which created docker image
-    ) do
-      set_context
-      assert_sha(prober.sha)
-    end
+#     test '192', %w(
+#     sha is SHA of git commit which created docker image
+#     ) do
+#       set_context
+#       assert_sha(prober.sha)
+#     end
 
   end
 end

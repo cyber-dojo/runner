@@ -26,11 +26,11 @@ class ProberTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-#   test '192', %w(
-#   sha is SHA of git commit which created docker image
-#   ) do
-#     set_context
-#     assert_sha(runner.sha)
-#   end
+  test '192', %w(
+  sha is SHA of git commit which created docker image
+  ) do
+    set_context
+    assert_sha(runner.sha)
+  end
 
 end
