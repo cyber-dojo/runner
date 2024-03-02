@@ -153,10 +153,11 @@ jobs:
         run: |
           make test
           kosli attest generic "${IMAGE_NAME}" \
-              --attachments=./tmp/coverage \
+              --attachments=./test/client/reports \
+              --attachments=./test/server/reports \
               --description="server & client branch-coverage" \
               --name=runner.branch-coverage \
-              --user-data=./tmp/evidence.json
+              --user-data=./test/evidence.json
 
 #          kosli attest junit "${IMAGE_NAME}"
 #              --name=runner.unit-test
