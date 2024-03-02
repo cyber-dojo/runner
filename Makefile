@@ -2,10 +2,13 @@
 SHORT_SHA := $(shell git rev-parse HEAD | head -c7)
 IMAGE_NAME := cyberdojo/runner:${SHORT_SHA}
 
-.PHONY: image test demo snyk-container snyk-code
+.PHONY: image lint test demo snyk-container snyk-code
 
 image:
 	${PWD}/sh/build_tag.sh
+
+lint:
+	docker run --rm --volume "${PWD}:/app" cyberdojo/rubocop --raise-cop-error
 
 test:
 	${PWD}/sh/test.sh

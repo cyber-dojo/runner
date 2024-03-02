@@ -1,0 +1,6 @@
+
+current test junit-output and coverage-output goes to test/server/reports/
+Split it into
+- test/server/report_junit
+- test/server/report_coverage
+So that we dont upload junit files in coverage kosli --attachment
