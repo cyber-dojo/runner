@@ -146,7 +146,7 @@ class RunTimedOutTest < TestBase
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
-      piper: PipeMakerStub.new('mad-hatter', false),
+      piper: PipeMakerStub.new('mad-hatter', closed: false),
       process: process = ProcessSpawnerStub.new
     )
 

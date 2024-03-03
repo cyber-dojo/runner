@@ -98,5 +98,5 @@ Metrics/CyclomaticComplexity:
     - code/context.rb
     - code/dispatcher.rb
     - test/id58_test_base.rb
-    
+
 

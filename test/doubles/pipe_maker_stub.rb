@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class PipeMakerStub
-  def initialize(stdout_tgz, closed = true)
+  def initialize(stdout_tgz, closed: true)
     @stdout_tgz = stdout_tgz
     @closed = closed
     @n = 0
