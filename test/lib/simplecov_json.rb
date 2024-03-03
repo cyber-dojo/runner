@@ -5,7 +5,7 @@ require 'json'
 module SimpleCov
   module Formatter
     class JSONFormatter
-    # based on https://github.com/vicentllongo/simplecov-json
+      # based on https://github.com/vicentllongo/simplecov-json
 
       def format(result)
         groups = {}
