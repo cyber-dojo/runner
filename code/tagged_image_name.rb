@@ -12,15 +12,13 @@ module Docker
     if index.nil? || remote_name?(str[0...index])
       match = str.match(REMOTE_NAME)
       name = match[1]
-      tag = match[8]
-      digest = match[9]
     else
       host_name, remote_name = cut(str, index)
       match = remote_name.match(REMOTE_NAME)
       name = "#{host_name}/#{match[1]}"
-      tag = match[8]
-      digest = match[9]
     end
+    tag = match[8]
+    digest = match[9]
     tag = 'latest' if tag.nil?
     "#{name}:#{tag}#{digest}"
   end
