@@ -14,7 +14,7 @@ class Capture3WithTimeout # [X] See comments at the end of file.
   def run(command, max_seconds, tgz_in)
     result = { timed_out: false }
     pid = nil
-    waiter = OpenStruct.new(value: nil)
+    waiter = Struct.new(:value).new(nil)
     pipes = make_binary_pipes
     stdout_reader = threaded('stdout-reader') { pipes[:stdout].in.read }
     stderr_reader = threaded('stderr-reader') { pipes[:stderr].in.read }

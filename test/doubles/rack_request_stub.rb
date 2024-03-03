@@ -7,7 +7,7 @@ class RackRequestStub
   end
 
   def body
-    OpenStruct.new(read: @env[:body])
+    Struct.new(:read).new(@env[:body])
   end
 
   def path_info

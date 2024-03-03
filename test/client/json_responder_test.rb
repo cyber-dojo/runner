@@ -92,11 +92,11 @@ class JsonResponderTest < TestBase
     end
 
     def get(_path, _args)
-      OpenStruct.new(body: @body)
+      Struct.new(:body).new(@body)
     end
 
     def post(_path, _args)
-      OpenStruct.new(body: @body)
+      Struct.new(:body).new(@body)
     end
   end
 
