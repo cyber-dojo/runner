@@ -58,5 +58,8 @@ Lint/UselessMethodDefinition:
   Exclude:
     - code/empty_binding.rb
 
+Style/RedundantInitialize:
+  Exclude:
+    - code/prober.rb
 
 
