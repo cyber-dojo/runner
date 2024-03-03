@@ -46,4 +46,12 @@ Lint/EmptyBlock:
     - test/dual/run_red_amber_green_test.rb
     - test/server/run_clang_ptrace_test.rb
 
+Lint/RescueException:
+  Exclude:
+    - client/code/dispatcher.rb
+    - client/code/rack_dispatcher.rb
+    - code/dispatcher.rb
+    - code/rack_dispatcher.rb
+    - code/traffic_light.rb
+    -
 
