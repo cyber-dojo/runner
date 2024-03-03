@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../test_base'
 require_code 'tarfile_reader'
 require_code 'tarfile_writer'

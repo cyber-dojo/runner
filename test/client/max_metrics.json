@@ -20,7 +20,7 @@
 
   "test": {
     "lines": {
-       "total":524,
+       "total":520,
       "missed":0
     },
     "branches": {

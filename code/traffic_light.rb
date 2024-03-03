@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative 'empty_binding'
 require_relative 'rag_lambdas'
 require 'json'

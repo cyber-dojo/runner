@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module HomeFiles
   def home_files(sandbox_dir, max_file_size)
     {

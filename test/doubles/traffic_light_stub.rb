@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class TrafficLightStub
   def initialize(colour = 'red')
     @stubbed = colour

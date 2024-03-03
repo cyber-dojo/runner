@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../test_base'
 require_relative '../data/python_pytest'
 require_code 'traffic_light'

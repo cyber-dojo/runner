@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 Signal.trap('TERM') do
   $stdout.puts('SIGTERM: Goodbye from runner client')
   exit(0)

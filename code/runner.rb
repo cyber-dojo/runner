@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative 'capture3_with_timeout'
 require_relative 'files_delta'
 require_relative 'home_files'

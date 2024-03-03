@@ -1,2 +1,9 @@
 AllCops:
     NewCops: enable
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - code/gnu_zip.rb
+    - code/tarfile_writer.rb
+    - test/test_base.rb
+

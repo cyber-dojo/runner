@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class WaitThreadCompletedStub
   def initialize(status)
     @status = status

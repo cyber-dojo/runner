@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../test_base'
 require_relative '../data/image_names'
 require_code 'tagged_image_name'

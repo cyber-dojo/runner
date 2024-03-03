@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Random
   def hex8
     base = 16

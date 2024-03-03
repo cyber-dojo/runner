@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Docker # mix-in
   module_function
 

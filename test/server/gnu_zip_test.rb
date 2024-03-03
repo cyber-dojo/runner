@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../test_base'
 require_code 'gnu_zip'
 require_code 'gnu_unzip'

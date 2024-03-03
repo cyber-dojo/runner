@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Node
   def initialize(context)
     @context = context

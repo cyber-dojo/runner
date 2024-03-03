@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rubygems/package' # Gem::Package::TarReader
 require 'stringio'
 

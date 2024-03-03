@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative 'synchronized_set'
 require_relative 'tagged_image_name'
 

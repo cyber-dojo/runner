@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Sandbox
   DIR = '/sandbox' # where files are saved to in the container
 
