@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'simplecov'
-require_relative 'simplecov-json'
+require_relative 'simplecov_json'
 
 def runner_nocov_token
   ['nocov', ENV.fetch('CONTEXT', nil)].join('_')
