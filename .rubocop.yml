@@ -24,3 +24,7 @@ Lint/UselessAssignment:
 Naming/VariableNumber:
   Exclude:
     - test/**/*
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - test/server/run_timed_out_test.rb
