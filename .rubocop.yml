@@ -37,3 +37,6 @@ Style/Documentation:
     - client/code/**/*
     - test/**/*
 
+Metrics/ParameterLists:
+  Exclude:
+    - code/runner.rb
