@@ -62,4 +62,18 @@ Style/RedundantInitialize:
   Exclude:
     - code/prober.rb
 
+Metrics/MethodLength:
+  Exclude:
+    - test/**/*
+    - code/traffic_light.rb
+    - code/tagged_image_name.rb
+    - code/runner.rb
+    - code/puller.rb
+    - code/files_delta.rb
+    - code/externals/bash_sheller.rb
+    - code/dispatcher.rb
+    - code/capture3_with_timeout.rb
+    - client/code/dispatcher.rb
+    - client/code/demo.rb
+    - code/home_files.rb
 
