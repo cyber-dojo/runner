@@ -2,7 +2,9 @@
 require 'simplecov'
 require 'json'
 
-class SimpleCov::Formatter::JSONFormatter
+module SimpleCov
+  module Formatter
+  class JSONFormatter
   # based on https://github.com/vicentllongo/simplecov-json
 
   def format(result)
@@ -54,5 +56,7 @@ class SimpleCov::Formatter::JSONFormatter
 
   def version
     SimpleCov::VERSION
+  end
+  end
   end
 end
