@@ -99,4 +99,10 @@ Metrics/CyclomaticComplexity:
     - code/dispatcher.rb
     - test/id58_test_base.rb
 
+Style/ClassVars:
+  Exclude:
+    - test/test_base.rb
+    - test/id58_test_base.rb
+    - test/doubles/traffic_light_stub.rb
+    
 
