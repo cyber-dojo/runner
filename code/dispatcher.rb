@@ -40,7 +40,7 @@ class Dispatcher
       raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
 
       # double-splats in call() requires top-level symbol keys
-      json.transform_keys { |key| key.to_sym }
+      json.transform_keys(&:to_sym)
     end
   end
 
