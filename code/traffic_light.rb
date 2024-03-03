@@ -6,6 +6,7 @@ require 'json'
 class TrafficLight
   class Fault < RuntimeError
     def initialize(properties)
+      super
       @properties = properties
     end
     attr_reader :properties
