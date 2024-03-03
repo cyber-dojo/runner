@@ -83,13 +83,13 @@ class TestBase < Id58TestBase
     unchanged_files = starting_files
 
     created_files = defaulted_arg(options, :created, {})
-    created_files.keys.each do |filename|
+    created_files.each_key do |filename|
       info = "#{filename} is not a created_file (it already exists)"
       refute unchanged_files.keys.include?(filename), info
     end
 
     changed_files = defaulted_arg(options, :changed, {})
-    changed_files.keys.each do |filename|
+    changed_files.each_key do |filename|
       info = "#{filename} is not a changed_file (it does not already exist)"
       assert unchanged_files.keys.include?(filename), info
       unchanged_files.delete(filename)

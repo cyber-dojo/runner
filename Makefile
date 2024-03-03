@@ -8,7 +8,7 @@ image:
 	${PWD}/sh/build_tag.sh
 
 lint:
-	docker run --rm --volume "${PWD}:/app" cyberdojo/rubocop --raise-cop-error
+	${PWD}/sh/lint.sh
 
 unit_test:
 	${PWD}/sh/test.sh server
