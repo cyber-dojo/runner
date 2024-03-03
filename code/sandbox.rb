@@ -13,7 +13,7 @@ module Sandbox
     else
       filename = arg
       # Tar likes relative paths so strip leading /
-      unrooted = Sandbox::DIR[1..-1]
+      unrooted = Sandbox::DIR[1..]
       [unrooted, filename].join('/')
     end
   end
@@ -32,7 +32,7 @@ module Sandbox
       filename = arg
       # Sandbox::DIR had a leading / but we only need its size
       # and the size is the same with a / at the front or the back
-      filename[Sandbox::DIR.size..-1]
+      filename[Sandbox::DIR.size..]
     end
   end
 end

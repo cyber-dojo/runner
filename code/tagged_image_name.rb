@@ -46,7 +46,7 @@ module Docker # mix-in
     # i = s.index('/') # 19
     # s[0..18]  == 'cyberdojofoundation'
     # s[20..-1] == 'gcc_assert'
-    [s[0..i - 1], s[i + 1..-1]]
+    [s[0..i - 1], s[i + 1..]]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -96,7 +96,7 @@ class Id58TestBase < Minitest::Test
     raise "#{pointer}empty#{pointee}" if id58_suffix == ''
     raise "#{pointer}not id58#{pointee}" unless id58?(id58_suffix)
     raise "#{pointer}duplicate#{pointee}" if seen?(id58, os)
-    raise "#{pointer}overlap#{pointee}" if id58_prefix[-2..-1] == id58_suffix[0..1]
+    raise "#{pointer}overlap#{pointee}" if id58_prefix[-2..] == id58_suffix[0..1]
 
     seen(id58, os)
     id58

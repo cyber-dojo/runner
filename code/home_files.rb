@@ -13,7 +13,7 @@ module HomeFiles
   FS_CLEANERS_PATH  = "#{HOME_DIR}/cyber_dojo_fs_cleaners.sh"
 
   def unrooted(filename)
-    filename[1..-1] # tar prefers relative paths
+    filename[1..] # tar prefers relative paths
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -

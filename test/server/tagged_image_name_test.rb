@@ -56,7 +56,7 @@ class TaggedImageNameTest < TestBase
       assert Docker.image_name?(image_name), image_name
       at = image_name.index('@')
       lhs = image_name[0..at - 1]
-      rhs = image_name[at..-1]
+      rhs = image_name[at..]
       expected = "#{lhs}:latest#{rhs}"
       actual = Docker.tagged_image_name(image_name)
       assert_equal expected, actual
