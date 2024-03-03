@@ -38,7 +38,7 @@ class Dispatcher
       json = JSON.parse!(body)
       raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
       # double-splats in call() requires top-level symbol keys
-      json.map { |key, value| [key.to_sym, value] }.to_h
+      json.transform_keys { |key| key.to_sym }
     end
   end
 
