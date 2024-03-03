@@ -116,9 +116,9 @@ class Demo
   end
 
   def gcc_assert_files
-    gcc_assert_manifest['visible_files'].map do |filename, file|
-      [filename, file['content']]
-    end.to_h
+    gcc_assert_manifest['visible_files'].transform_values do |file|
+      file['content']
+    end
   end
 
   def gcc_assert_manifest
