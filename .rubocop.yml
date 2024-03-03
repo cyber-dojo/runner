@@ -1,15 +1,10 @@
 AllCops:
     NewCops: enable
 
-Style/FrozenStringLiteralComment:
+Lint/EmptyBlock:
   Exclude:
-    - code/gnu_zip.rb
-    - code/tarfile_writer.rb
-    - test/test_base.rb
-
-Lint/PercentStringArray:
-  Exclude:
-    - test/**/*
+    - test/dual/run_red_amber_green_test.rb
+    - test/server/run_clang_ptrace_test.rb
 
 Layout/EmptyLineAfterMagicComment:
   Exclude:
@@ -17,34 +12,14 @@ Layout/EmptyLineAfterMagicComment:
     - client/code/**/*
     - test/**/*
 
-# I often give an inline expression a name for readability
-Lint/UselessAssignment:
+Layout/LineLength:
   Exclude:
-    - code/**/*
+    - client/code/demo.rb
+    - test/lib/simplecov_json.rb
+
+Lint/PercentStringArray:
+  Exclude:
     - test/**/*
-
-Naming/VariableNumber:
-  Exclude:
-    - test/**/*
-
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - test/server/run_timed_out_test.rb
-
-Style/Documentation:
-  Exclude:
-    - code/**/*
-    - client/code/**/*
-    - test/**/*
-
-Metrics/ParameterLists:
-  Exclude:
-    - code/runner.rb
-
-Lint/EmptyBlock:
-  Exclude:
-    - test/dual/run_red_amber_green_test.rb
-    - test/server/run_clang_ptrace_test.rb
 
 Lint/RescueException:
   Exclude:
@@ -54,13 +29,46 @@ Lint/RescueException:
     - code/rack_dispatcher.rb
     - code/traffic_light.rb
 
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - test/server/run_timed_out_test.rb
+
+# I often give an inline expression a name for readability
+Lint/UselessAssignment:
+  Exclude:
+    - code/**/*
+    - test/**/*
+
 Lint/UselessMethodDefinition:
   Exclude:
     - code/empty_binding.rb
 
-Style/RedundantInitialize:
+Metrics/AbcSize:
   Exclude:
-    - code/prober.rb
+    - test/**/*
+    - code/runner.rb
+    - code/dispatcher.rb
+    - code/context.rb
+    - code/capture3_with_timeout.rb
+    - client/code/dispatcher.rb
+    - client/code/demo.rb
+
+Metrics/BlockLength:
+  Exclude:
+    - test/**/*
+
+Metrics/ClassLength:
+  Exclude:
+    - test/**/*
+    - code/runner.rb
+    - client/code/demo.rb
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - client/code/dispatcher.rb
+    - code/context.rb
+    - code/dispatcher.rb
+    - test/id58_test_base.rb
 
 Metrics/MethodLength:
   Exclude:
@@ -77,27 +85,17 @@ Metrics/MethodLength:
     - client/code/demo.rb
     - code/home_files.rb
 
-Metrics/BlockLength:
+Metrics/ParameterLists:
   Exclude:
-    - test/**/*
-
-
-Metrics/ClassLength:
-  Exclude:
-    - test/**/*
     - code/runner.rb
-    - client/code/demo.rb
 
 Metrics/PerceivedComplexity:
   Exclude:
     - code/context.rb
 
-Metrics/CyclomaticComplexity:
+Naming/VariableNumber:
   Exclude:
-    - client/code/dispatcher.rb
-    - code/context.rb
-    - code/dispatcher.rb
-    - test/id58_test_base.rb
+    - test/**/*
 
 Style/ClassVars:
   Exclude:
@@ -105,31 +103,32 @@ Style/ClassVars:
     - test/id58_test_base.rb
     - test/doubles/traffic_light_stub.rb
 
-Metrics/AbcSize:
+Style/Documentation:
   Exclude:
+    - code/**/*
+    - client/code/**/*
     - test/**/*
-    - code/runner.rb
-    - code/dispatcher.rb
-    - code/context.rb
-    - code/capture3_with_timeout.rb
-    - client/code/dispatcher.rb
-    - client/code/demo.rb
 
 Style/FormatStringToken:
   Exclude:
     - test/id58_test_base.rb
 
-Layout/LineLength:
+Style/FrozenStringLiteralComment:
   Exclude:
-    - client/code/demo.rb
-    - test/lib/simplecov_json.rb
+    - code/gnu_zip.rb
+    - code/tarfile_writer.rb
+    - test/test_base.rb
+
+Style/MissingRespondToMissing:
+  Exclude:
+    - test/doubles/process_spawner_stub.rb
+
+Style/RedundantInitialize:
+  Exclude:
+    - code/prober.rb
 
 Style/StringConcatenation:
   Exclude:
     - test/doubles/bash_sheller_stub.rb
 
-Style/MissingRespondToMissing:
-  Exclude:
-    - test/doubles/process_spawner_stub.rb
-  
 
