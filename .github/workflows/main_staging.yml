@@ -68,39 +68,37 @@ jobs:
 #            --name=runner.pull-request
 
 
-#  lint:
-#    needs: [kosli-trail]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - uses: ruby/setup-ruby@v1
-#        with:
-#          ruby-version: 3.2.0
-#          bundler-cache: true
-#
-#      - name: Setup Kosli CLI
-#        uses: kosli-dev/setup-cli-action@v2
-#        with:
-#          version: ${{ vars.KOSLI_CLI_VERSION }}
-#
-#      - name: Run Rubocop linter on source, attest results to Kosli Trail
-#        env:
-#          KOSLI_ATTACHMENTS: /tmp/kosli_attachments
-#        run: |
-#          mkdir -p "${KOSLI_ATTACHMENTS}"
-#          set +e
-#          make lint | tee "${KOSLI_ATTACHMENTS}"/rubocop.log
-#          STATUS=${PIPESTATUS[0]}
-#          set -e
-#
-#          KOSLI_COMPLIANT=$([ ${STATUS} = 0 ] && echo true || echo false)
-#          cp .rubocop.yml "${KOSLI_ATTACHMENTS}"
-#          kosli attest generic \
-#            --attachments="${KOSLI_ATTACHMENTS}" \
-#            --compliant="${KOSLI_COMPLIANT}" \
-#            --name=runner.lint
-#          exit ${STATUS}
+  lint:
+    needs: [kosli-trail]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Kosli CLI
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Run Rubocop lint on source, attest results to Kosli Trail
+        env:
+          KOSLI_ATTACHMENTS: /tmp/kosli_attachments
+        run: |
+          mkdir -p "${KOSLI_ATTACHMENTS}"
+          
+          set +e
+          make lint | tee "${KOSLI_ATTACHMENTS}"/rubocop.log
+          STATUS=${PIPESTATUS[0]}
+          set -e
+
+          KOSLI_COMPLIANT=$([ ${STATUS} = 0 ] && echo true || echo false)
+          cp .rubocop.yml "${KOSLI_ATTACHMENTS}"
+          
+          kosli attest generic \
+            --attachments="${KOSLI_ATTACHMENTS}" \
+            --compliant="${KOSLI_COMPLIANT}" \
+            --name=runner.lint
+          
+          exit ${STATUS}
 
 
   wait-for-image:
@@ -276,7 +274,7 @@ jobs:
 
 
   sdlc-control-gate:
-    needs: [unit-tests, integration-tests, snyk-container-scan, snyk-code-scan, kosli-trail, wait-for-image]
+    needs: [lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan, kosli-trail, wait-for-image]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Kosli CLI

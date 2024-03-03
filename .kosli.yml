@@ -4,6 +4,8 @@ trail:
   artifacts:
     - name: runner
       attestations:
+        - name: lint
+          type: generic
         - name: unit-test
           type: junit
         - name: unit-test-branch-coverage
