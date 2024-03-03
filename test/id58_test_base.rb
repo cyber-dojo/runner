@@ -68,9 +68,9 @@ class Id58TestBase < Minitest::Test
     a b c d e f g h j k l m n p q r s t u v w x y z
   ].join.freeze
 
-  def self.id58?(s)
-    s.is_a?(String) &&
-      s.chars.all? { |ch| ID58_ALPHABET.include?(ch) }
+  def self.id58?(str)
+    str.is_a?(String) &&
+      str.chars.all? { |char| ID58_ALPHABET.include?(char) }
   end
 
   def self.checked_id58(os, id58_suffix, lines)

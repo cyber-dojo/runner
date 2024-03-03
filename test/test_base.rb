@@ -260,8 +260,8 @@ class TestBase < Id58TestBase
     # %n       %A          %u     %G         %s
   end
 
-  def lo_hex?(ch)
-    '0123456789abcdef'.include?(ch)
+  def lo_hex?(char)
+    '0123456789abcdef'.include?(char)
   end
 
   def intact(content)

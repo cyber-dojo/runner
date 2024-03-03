@@ -3,8 +3,8 @@ require 'stringio'
 require 'zlib'
 
 module Gnu
-  def self.unzip(s)
-    reader = Zlib::GzipReader.new(StringIO.new(s))
+  def self.unzip(str)
+    reader = Zlib::GzipReader.new(StringIO.new(str))
     unzipped = reader.read
     reader.close
     unzipped

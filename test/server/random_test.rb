@@ -15,11 +15,11 @@ class RandomTest < TestBase
 
   private
 
-  def hex8?(s)
-    assert s.is_a?(String), 'not a String'
-    assert_equal 8, s.size, 'wrong size'
-    s.each_char do |ch|
-      assert HEX_DIGITS.include?(ch), "not a hex-digit #{ch}"
+  def hex8?(str)
+    assert str.is_a?(String), 'not a String'
+    assert_equal 8, str.size, 'wrong size'
+    str.each_char do |char|
+      assert HEX_DIGITS.include?(char), "not a hex-digit #{char}"
     end
   end
 

@@ -3,19 +3,19 @@
 module Docker
   module_function
 
-  def tagged_image_name(s)
+  def tagged_image_name(str)
     # The image_names harvested from the nodes have an
     # explicit :latest tag. The image_name in pull_image()
     # and run_cyber_dojo_sh()'s manifest must match.
     # eg 'cdf/gcc_assert' ==> 'cdf/gcc_assert:latest'
-    i = s.index('/')
-    if i.nil? || remote_name?(s[0...i])
-      match = s.match(REMOTE_NAME)
+    index = str.index('/')
+    if index.nil? || remote_name?(str[0...index])
+      match = str.match(REMOTE_NAME)
       name = match[1]
       tag = match[8]
       digest = match[9]
     else
-      host_name, remote_name = cut(s, i)
+      host_name, remote_name = cut(str, index)
       match = remote_name.match(REMOTE_NAME)
       name = "#{host_name}/#{match[1]}"
       tag = match[8]
@@ -27,37 +27,37 @@ module Docker
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_name?(s)
-    return false if s.nil?
-    return false unless s.is_a?(String)
+  def image_name?(str)
+    return false if str.nil?
+    return false unless str.is_a?(String)
 
-    i = s.index('/')
-    if i.nil? || remote_name?(s[0...i])
-      s =~ REMOTE_NAME
+    index = str.index('/')
+    if index.nil? || remote_name?(str[0...index])
+      str =~ REMOTE_NAME
     else
-      host_name, remote_name = cut(s, i)
+      host_name, remote_name = cut(str, index)
       host_name =~ HOST_NAME && remote_name =~ REMOTE_NAME
     end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def cut(s, i)
-    # s = 'cyberdojofoundation/gcc_assert'
-    # i = s.index('/') # 19
-    # s[0..18]  == 'cyberdojofoundation'
-    # s[20..-1] == 'gcc_assert'
-    [s[0..i - 1], s[i + 1..]]
+  def cut(str, index)
+    # str = 'cyberdojofoundation/gcc_assert'
+    # index = str.index('/') # 19
+    # str[0..18]  == 'cyberdojofoundation'
+    # str[20..] == 'gcc_assert'
+    [str[0..index - 1], str[index + 1..]]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def remote_name?(s)
+  def remote_name?(str)
     dns_separator = '.'
     port_separator = ':'
-    !s.include?(dns_separator) &&
-      !s.include?(port_separator) &&
-      s != 'localhost'
+    !str.include?(dns_separator) &&
+      !str.include?(port_separator) &&
+      str != 'localhost'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -

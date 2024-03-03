@@ -94,8 +94,8 @@ class TrafficLight
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def checked_call(fn, lambda_source, stdout, stderr, status)
-    fn.call(stdout, stderr, status.to_i).to_s
+  def checked_call(func, lambda_source, stdout, stderr, status)
+    func.call(stdout, stderr, status.to_i).to_s
   rescue Exception => e
     raise Fault.new({
                       context: 'exception when calling lambda source',
