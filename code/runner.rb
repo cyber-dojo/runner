@@ -79,7 +79,7 @@ class Runner
     # [docker run] initiated. Hence the [docker stop]
     @context.threader.thread('docker-stopper') do
       stdout, stderr, status = @context.sheller.capture(command)
-      unless status == 0
+      unless status.zero?
         log(id: id, image_name: image_name, command: command, stdout: stdout, stderr: stderr, status: status)
       end
     end

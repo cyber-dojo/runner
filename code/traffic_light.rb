@@ -60,7 +60,7 @@ class TrafficLight
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
     stdout, stderr, status = sheller.capture(command)
-    if status == 0
+    if status.zero?
       message = "Read red-amber-green lambda for #{image_name}"
       logger.log(message)
       stdout

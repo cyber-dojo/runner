@@ -19,7 +19,7 @@ class PullImageTest < TestBase
       count += 1
       sleep 0.1
     end
-    assert count > 0
+    assert count.positive?
   end
 
   private
