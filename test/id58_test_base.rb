@@ -23,12 +23,12 @@ class Id58TestBase < Minitest::Test
     src_file = File.basename(src[0])
     src_line = src[1].to_s
     id58 = checked_id58(os, id58_suffix, lines)
-    return unless @@args === [] || @@args.any? { |arg| id58.include?(arg) }
+    return unless @@args == [] || @@args.any? { |arg| id58.include?(arg) }
 
     name58 = lines.join(space = ' ')
     execute_around = lambda {
       ENV['ID58'] = id58
-      p [id58, src_file].join(':') if ENV['SHOW_TEST_IDS'] === 'true'
+      p [id58, src_file].join(':') if ENV['SHOW_TEST_IDS'] == 'true'
       @_os = os
       @_display_name = display_name
       @_id58 = id58
@@ -60,7 +60,7 @@ class Id58TestBase < Minitest::Test
     puts "Slowest #{size} tests are..." if size != 0
     sorted.each_with_index do |(name, secs), index|
       puts format('%3.4f - %-72s', secs, name)
-      break if index === size
+      break if index == size
     end
     puts
   end
@@ -84,7 +84,7 @@ class Id58TestBase < Minitest::Test
     pointee = ['', pointer, method, '', ''].join("\n")
     pointer.prepend("\n\n")
     raise "#{pointer}missing#{pointee}" unless respond_to?(:id58_prefix)
-    raise "#{pointer}empty#{pointee}" if id58_prefix === ''
+    raise "#{pointer}empty#{pointee}" if id58_prefix == ''
     raise "#{pointer}not id58#{pointee}" unless id58?(id58_prefix)
 
     method = "test '#{id58_suffix}',"
@@ -93,10 +93,10 @@ class Id58TestBase < Minitest::Test
     pointee = ['', pointer, method, "'#{proposition}'", '', ''].join("\n")
     id58 = id58_prefix + id58_suffix
     pointer.prepend("\n\n")
-    raise "#{pointer}empty#{pointee}" if id58_suffix === ''
+    raise "#{pointer}empty#{pointee}" if id58_suffix == ''
     raise "#{pointer}not id58#{pointee}" unless id58?(id58_suffix)
     raise "#{pointer}duplicate#{pointee}" if seen?(id58, os)
-    raise "#{pointer}overlap#{pointee}" if id58_prefix[-2..-1] === id58_suffix[0..1]
+    raise "#{pointer}overlap#{pointee}" if id58_prefix[-2..-1] == id58_suffix[0..1]
 
     seen(id58, os)
     id58

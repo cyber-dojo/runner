@@ -4,7 +4,7 @@ def require_code(required)
 end
 
 def require_server_code(required)
-  return unless ENV['CONTEXT'] === 'server'
+  return unless ENV['CONTEXT'] == 'server'
 
   require_code(required)
 end

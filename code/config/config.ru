@@ -7,14 +7,14 @@ Signal.trap('TERM') do
   exit(0)
 end
 
-if ENV['CYBER_DOJO_PROMETHEUS'] === 'true'
+if ENV['CYBER_DOJO_PROMETHEUS'] == 'true'
   require 'prometheus/middleware/collector'
   require 'prometheus/middleware/exporter'
   use Prometheus::Middleware::Collector
   use Prometheus::Middleware::Exporter
 end
 
-use_containerd = ENV['CYBER_DOJO_USE_CONTAINERD'] === 'true'
+use_containerd = ENV['CYBER_DOJO_USE_CONTAINERD'] == 'true'
 $stdout.puts("CYBER_DOJO_USE_CONTAINERD:#{use_containerd}")
 
 require 'rack'

@@ -10,7 +10,7 @@ class BashShellerStub
 
   def teardown
     return if uncaught_exception?
-    return if @stubs === []
+    return if @stubs == []
 
     pretty = JSON.pretty_generate(@stubs)
     raise "#{ENV.fetch('ID58', nil)}: uncalled stubs(#{pretty})"
@@ -43,7 +43,7 @@ class BashShellerStub
         "actual-command: #{command}"
       ].join("\n") + "\n"
     end
-    unless command === stub[:command]
+    unless command == stub[:command]
       raise [
         self.class.name,
         'capture(command) - does not match stub',

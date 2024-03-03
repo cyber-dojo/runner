@@ -43,7 +43,7 @@ class Puller
     t0 = Time.now
     command = "docker pull #{image_name}"
     stdout, stderr, status = sheller.capture(command)
-    if status === 0
+    if status == 0
       t1 = Time.now
       add(image_name)
       took = (t1 - t0).round(1)

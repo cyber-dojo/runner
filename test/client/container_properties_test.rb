@@ -69,7 +69,7 @@ class ContainerPropertiesTest < TestBase
     stats = files_stat
     assert_equal starting_files.keys.sort, stats.keys.sort
     starting_files.each do |filename, content|
-      content = cyber_dojo_sh if filename === 'cyber-dojo.sh'
+      content = cyber_dojo_sh if filename == 'cyber-dojo.sh'
       stat = stats[filename]
       refute_nil stat, filename
       diagnostic = { filename => stat }

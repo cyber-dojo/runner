@@ -165,27 +165,27 @@ class TestBase < Id58TestBase
   end
 
   def pulling?
-    outcome === 'pulling'
+    outcome == 'pulling'
   end
 
   def red?
-    outcome === 'red'
+    outcome == 'red'
   end
 
   def amber?
-    outcome === 'amber'
+    outcome == 'amber'
   end
 
   def green?
-    outcome === 'green'
+    outcome == 'green'
   end
 
   def timed_out?
-    outcome === 'timed_out'
+    outcome == 'timed_out'
   end
 
   def faulty?
-    outcome === 'faulty'
+    outcome == 'faulty'
   end
 
   def created
@@ -223,13 +223,13 @@ class TestBase < Id58TestBase
   # 6. misc helpers
 
   def on_client(&block)
-    return unless ENV['CONTEXT'] === 'client'
+    return unless ENV['CONTEXT'] == 'client'
 
     block.call
   end
 
   def on_server(&block)
-    return unless ENV['CONTEXT'] === 'server'
+    return unless ENV['CONTEXT'] == 'server'
 
     block.call
   end

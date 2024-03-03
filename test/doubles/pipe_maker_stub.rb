@@ -45,7 +45,7 @@ class PipeMakerStub
 
   def stdout_tgz
     @n += 1
-    if @n === 2
+    if @n == 2
       @stdout_tgz # 2nd io is for stdout
     else
       '' # 1st is for stdin, 3rd is for stderr

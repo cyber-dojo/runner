@@ -17,7 +17,7 @@ class Runner
 
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
-    return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) === :pulled
+    return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
 
     random_id = @context.random.hex8
     container_name = ['cyber_dojo_runner', id, random_id].join('_')
@@ -79,7 +79,7 @@ class Runner
     # [docker run] initiated. Hence the [docker stop]
     @context.threader.thread('docker-stopper') do
       stdout, stderr, status = @context.sheller.capture(command)
-      unless status === 0
+      unless status == 0
         log(id: id, image_name: image_name, command: command, stdout: stdout, stderr: stderr, status: status)
       end
     end

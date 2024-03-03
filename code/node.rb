@@ -7,7 +7,7 @@ class Node
   def image_names
     command = "docker image ls --format '{{.Repository}}:{{.Tag}}'"
     ls, stderr, status = sheller.capture(command)
-    raise stderr.to_s unless status === 0
+    raise stderr.to_s unless status == 0
 
     ls.split("\n").sort.uniq - ['<none>:<none>']
   end

@@ -41,7 +41,7 @@ class Dispatcher
 
   def parse_json_args(body)
     args = {}
-    unless body === ''
+    unless body == ''
       json = JSON.parse!(body)
       raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
 

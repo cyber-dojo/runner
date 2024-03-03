@@ -9,7 +9,7 @@ class BashSheller
   def capture(command)
     stdout, stderr, r = Open3.capture3(command)
     status = r.exitstatus
-    unless status === 0
+    unless status == 0
       message = [
         "command:#{command}:",
         "stdout:#{stdout}:",
