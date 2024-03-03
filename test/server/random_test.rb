@@ -9,13 +9,13 @@ class RandomTest < TestBase
 
   test 'c91', %w[random.hex8 is size 8, each char is hex-digit] do
     512.times do
-      assert is_hex8?(Random.new.hex8)
+      assert hex8?(Random.new.hex8)
     end
   end
 
   private
 
-  def is_hex8?(s)
+  def hex8?(s)
     assert s.is_a?(String), 'not a String'
     assert_equal 8, s.size, 'wrong size'
     s.each_char do |ch|

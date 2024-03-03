@@ -215,7 +215,7 @@ class TestBase < Id58TestBase
     assert sha.is_a?(String), :class
     assert_equal 40, sha.size, :size
     sha.each_char do |ch|
-      assert is_lo_hex?(ch), ch
+      assert lo_hex?(ch), ch
     end
   end
 
@@ -264,7 +264,7 @@ class TestBase < Id58TestBase
     # %n       %A          %u     %G         %s
   end
 
-  def is_lo_hex?(ch)
+  def lo_hex?(ch)
     '0123456789abcdef'.include?(ch)
   end
 
