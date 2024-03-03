@@ -3,7 +3,6 @@ require_code 'tarfile_reader'
 require_code 'tarfile_writer'
 
 class TarFileTest < TestBase
-
   def self.id58_prefix
     '80B'
   end
@@ -30,7 +29,7 @@ class TarFileTest < TestBase
     utf8 = [226].pack('U*')
     refute_equal utf8.size, utf8.bytesize
     TarFile::Writer.new.write('hello.txt', utf8)
-    assert does_not_throw=true
+    assert does_not_throw = true
   end
 
   # - - - - - - - - - - - - - - - - - -
@@ -42,5 +41,4 @@ class TarFileTest < TestBase
     read = TarFile::Reader.new(writer.tar_file).files[filename]
     assert_equal '', read
   end
-
 end

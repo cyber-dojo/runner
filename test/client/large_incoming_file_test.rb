@@ -1,7 +1,6 @@
 require_relative '../test_base'
 
 class LargeIncomingFileTest < TestBase
-
   def self.id58_prefix
     '46D'
   end
@@ -9,7 +8,7 @@ class LargeIncomingFileTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   test '3DB',
-  'large incoming file' do
+       'large incoming file' do
     # Notes
     # 1. docker-compose.yml need a tmpfs for this to pass
     #      tmpfs: /tmp
@@ -19,9 +18,8 @@ class LargeIncomingFileTest < TestBase
     set_context
     filename = 'big_file'
     run_cyber_dojo_sh({
-      created_files: { filename => 'X'*1023*500 }
-    })
+                        created_files: { filename => 'X' * 1023 * 500 }
+                      })
     refute timed_out?, run_result
   end
-
 end

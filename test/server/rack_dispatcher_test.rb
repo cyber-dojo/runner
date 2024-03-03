@@ -3,7 +3,6 @@ require_code 'rack_dispatcher'
 require 'json'
 
 class RackDispatcherTest < TestBase
-
   def self.id58_prefix
     'D06'
   end
@@ -12,10 +11,11 @@ class RackDispatcherTest < TestBase
   # 200
   # = = = = = = = = = = = = = = = = =
 
-  test '82d', %w(
-  allow '' instead of {} to allow kubernetes
-  liveness/readyness http probes ) do
-    env = { body:'', path_info:'ready' }
+  test '82d', %w[
+    allow '' instead of {} to allow kubernetes
+    liveness/readyness http probes
+  ] do
+    env = { body: '', path_info: 'ready' }
     rack_call(env)
     ready = assert_200('ready?')
     assert ready.is_a?(TrueClass)
@@ -25,7 +25,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '15D', 'alive' do
-    env = { body:{}.to_json, path_info:'alive' }
+    env = { body: {}.to_json, path_info: 'alive' }
     rack_call(env)
     alive = assert_200('alive?')
     assert alive.is_a?(TrueClass)
@@ -35,7 +35,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'A9E', 'ready' do
-    env = { body:{}.to_json, path_info:'ready' }
+    env = { body: {}.to_json, path_info: 'ready' }
     rack_call(env)
     ready = assert_200('ready?')
     assert ready.is_a?(TrueClass)
@@ -45,7 +45,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB0', 'sha' do
-    env = { body:{}.to_json, path_info:'sha' }
+    env = { body: {}.to_json, path_info: 'sha' }
     rack_call(env)
     sha = assert_200('sha')
     assert_sha(sha)
@@ -56,8 +56,8 @@ class RackDispatcherTest < TestBase
 
   c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
     args = run_cyber_dojo_sh_args
-    env = { path_info:'run_cyber_dojo_sh', body:args.to_json }
-    rack_call(env, runner:dummy=RunnerDummy.new)
+    env = { path_info: 'run_cyber_dojo_sh', body: args.to_json }
+    rack_call(env, runner: dummy = RunnerDummy.new)
     assert_200('run_cyber_dojo_sh')
     assert dummy.called?
   end
@@ -66,9 +66,11 @@ class RackDispatcherTest < TestBase
     def initialize
       @called = false
     end
+
     def run_cyber_dojo_sh(id:, files:, manifest:)
       @called = true
     end
+
     def called?
       @called
     end
@@ -77,9 +79,9 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'A9F', 'pull_image' do
-    args = { id:id58, image_name:image_name }
-    env = { path_info:'pull_image', body:args.to_json }
-    rack_call(env, puller:dummy=PullerDummy.new)
+    args = { id: id58, image_name: image_name }
+    env = { path_info: 'pull_image', body: args.to_json }
+    rack_call(env, puller: dummy = PullerDummy.new)
     assert_200('pull_image')
     assert dummy.called?
   end
@@ -88,9 +90,11 @@ class RackDispatcherTest < TestBase
     def initialize
       @called = false
     end
+
     def pull_image(id:, image_name:)
       @called = true
     end
+
     def called?
       @called
     end
@@ -101,7 +105,7 @@ class RackDispatcherTest < TestBase
   # = = = = = = = = = = = = = = = = =
 
   test 'BB0',
-  %w( malformed json in http payload becomes 400 exception ) do
+       %w[malformed json in http payload becomes 400 exception] do
     expected = 'body is not JSON'
     METHOD_NAMES.each do |method_name|
       assert_rack_call_400_exception(expected, method_name, 'sdfsdf')
@@ -112,7 +116,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB1',
-  %w( json not Hash in http payload becomes 400 exception ) do
+       %w[json not Hash in http payload becomes 400 exception] do
     expected = 'body is not JSON Hash'
     METHOD_NAMES.each do |method_name|
       assert_rack_call_400_exception(expected, method_name, 'null')
@@ -125,7 +129,7 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'BB2',
-  %w( unknown path becomes 400 exception ) do
+       %w[unknown path becomes 400 exception] do
     expected = 'unknown path'
     assert_rack_call_400_exception(expected, nil,       '{}')
     assert_rack_call_400_exception(expected, [],        '{}')
@@ -138,30 +142,30 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AA6',
-  %w( missing argument becomes 400 exception ) do
+       %w[missing argument becomes 400 exception] do
     f = 'run_cyber_dojo_sh'
-    assert_rack_call_400_exception('missing argument: :id', f, {files:{},manifest:{}}.to_json)
-    assert_rack_call_400_exception('missing argument: :files', f, {id:{},manifest:{}}.to_json)
-    assert_rack_call_400_exception('missing argument: :manifest', f, {id:{},files:{}}.to_json)
+    assert_rack_call_400_exception('missing argument: :id', f, { files: {}, manifest: {} }.to_json)
+    assert_rack_call_400_exception('missing argument: :files', f, { id: {}, manifest: {} }.to_json)
+    assert_rack_call_400_exception('missing argument: :manifest', f, { id: {}, files: {} }.to_json)
   end
 
   test 'AA7',
-  %w( missing arguments becomes 400 exception ) do
+       %w[missing arguments becomes 400 exception] do
     f = 'run_cyber_dojo_sh'
-    assert_rack_call_400_exception('missing arguments: :id, :files', f, {manifest:{}}.to_json)
-    assert_rack_call_400_exception('missing arguments: :id, :manifest', f, {files:{}}.to_json)
-    assert_rack_call_400_exception('missing arguments: :files, :manifest', f, {id:{}}.to_json)
+    assert_rack_call_400_exception('missing arguments: :id, :files', f, { manifest: {} }.to_json)
+    assert_rack_call_400_exception('missing arguments: :id, :manifest', f, { files: {} }.to_json)
+    assert_rack_call_400_exception('missing arguments: :files, :manifest', f, { id: {} }.to_json)
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test 'AA8',
-  %w( unknown arguments becomes 500 exception ) do
-    assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', {x:{}}.to_json)
-    assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', {x:{},y:{}}.to_json)
-    #assert_rack_call_400_exception('unknown argument: :y', 'alive', {y:{}}.to_json)
-    #assert_rack_call_400_exception('unknown argument: :z', 'ready', {z:{}}.to_json)
-    #assert_rack_call_400_exception('unknown arguments: :a, :q, :b', 'alive', {a:{},q:{},b:{}}.to_json)
+       %w[unknown arguments becomes 500 exception] do
+    assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', { x: {} }.to_json)
+    assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', { x: {}, y: {} }.to_json)
+    # assert_rack_call_400_exception('unknown argument: :y', 'alive', {y:{}}.to_json)
+    # assert_rack_call_400_exception('unknown argument: :z', 'ready', {z:{}}.to_json)
+    # assert_rack_call_400_exception('unknown arguments: :a, :q, :b', 'alive', {a:{},q:{},b:{}}.to_json)
   end
 
   # = = = = = = = = = = = = = = = = =
@@ -171,7 +175,7 @@ class RackDispatcherTest < TestBase
   test 'AB7', 'server error in RackDispatcher results in 500 status response' do
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
-    env = { path_info:path_info, body:body, klass:{} }
+    env = { path_info: path_info, body: body, klass: {} }
     response = rack_call(env)
     status = response[0]
     assert_equal 500, status
@@ -180,11 +184,11 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test 'AB8', 'server error in Dispatcher results in 500 status response' do
-    context = Context.new(process:{}, logger:StdoutLoggerSpy.new)
+    context = Context.new(process: {}, logger: StdoutLoggerSpy.new)
     rack = RackDispatcher.new(context)
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
-    env = { path_info:path_info, body:body }
+    env = { path_info: path_info, body: body }
     response = rack.call(env)
     status = response[0]
     assert_equal 500, status
@@ -203,9 +207,9 @@ class RackDispatcherTest < TestBase
   end
 
   def assert_rack_call_exception(expected, path_info, body)
-    env = { path_info:path_info, body:body }
+    env = { path_info: path_info, body: body }
     rack_call(env)
-    [response_body,log].each do |s|
+    [response_body, log].each do |s|
       refute_nil s
       json = JSON.parse(s)
       ex = json['exception']
@@ -218,7 +222,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  def rack_call(env, options = { logger:StdoutLoggerSpy.new })
+  def rack_call(env, options = { logger: StdoutLoggerSpy.new })
     klass = env.delete(:klass) || RackRequestStub
     set_context(options)
     rack = RackDispatcher.new(context)
@@ -291,10 +295,9 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  METHOD_NAMES = %w(
+  METHOD_NAMES = %w[
     sha
     ready
     run_cyber_dojo_sh
-  )
-
+  ]
 end

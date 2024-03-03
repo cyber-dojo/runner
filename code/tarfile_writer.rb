@@ -1,10 +1,8 @@
-require 'rubygems/package'  # Gem::Package::TarWriter
+require 'rubygems/package' # Gem::Package::TarWriter
 require 'stringio'
 
 module TarFile
-
   class Writer
-
     def initialize
       @tar_file = StringIO.new('')
       @writer = Gem::Package::TarWriter.new(@tar_file)
@@ -20,7 +18,5 @@ module TarFile
     def tar_file
       @tar_file.string
     end
-
   end
-
 end

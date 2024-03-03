@@ -7,7 +7,6 @@ require_relative 'traffic_light'
 require_relative 'utf8_clean'
 
 class Runner
-
   def initialize(context)
     @context = context
     @traffic_light = TrafficLight.new(context)
@@ -17,11 +16,10 @@ class Runner
 
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
-    unless puller.pull_image(id:id, image_name:image_name) === :pulled
-      return empty_result(:pulling, 'pulling', {})
-    end
+    return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) === :pulled
+
     random_id = @context.random.hex8
-    container_name = [ 'cyber_dojo_runner', id, random_id ].join('_')
+    container_name = ['cyber_dojo_runner', id, random_id].join('_')
     command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     max_seconds = [15, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
@@ -31,10 +29,10 @@ class Runner
 
     if run[:timed_out]
       threaded_docker_stop_container(id, image_name, container_name)
-      log(id:id, image_name:image_name, message:'timed_out', result:utf8_clean(run))
+      log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
       timed_out_result(run)
     elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
-      log(id:id, image_name:image_name, message:'faulty', result:utf8_clean(run))
+      log(id: id, image_name: image_name, message: 'faulty', result: utf8_clean(run))
       faulty_result(run)
     else
       colour_result(id, image_name, files_in, run[:stdout])
@@ -48,8 +46,8 @@ class Runner
   # These are satisfied by image_name being built with
   # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 
-  UID = 41966 # sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51966 # sandbox group - runs /sandbox/cyber-dojo.sh
+  UID = 41_966 # sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51_966 # sandbox group - runs /sandbox/cyber-dojo.sh
 
   KB = 1024
   MB = 1024 * KB
@@ -58,9 +56,9 @@ class Runner
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
   STATUS = {
-       pulling: 141,
-     timed_out: 142,
-        faulty: 143,
+    pulling: 141,
+    timed_out: 142,
+    faulty: 143,
     gzip_error: 144
   }
 
@@ -79,9 +77,9 @@ class Runner
     # However, this does *not* kill the *container* the
     # [docker run] initiated. Hence the [docker stop]
     @context.threader.thread('docker-stopper') do
-      stdout,stderr,status = @context.sheller.capture(command)
+      stdout, stderr, status = @context.sheller.capture(command)
       unless status === 0
-        log(id:id, image_name:image_name, command:command, stdout:stdout, stderr:stderr, status:status)
+        log(id: id, image_name: image_name, command: command, stdout: stdout, stderr: stderr, status: status)
       end
     end
   end
@@ -97,23 +95,23 @@ class Runner
   end
 
   def colour_result(id, image_name, files_in, tgz_out)
-    files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename,content),memo|
+    files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename, content), memo|
       memo[filename] = truncated(content)
     end
     stdout = files_out.delete('tmp/stdout') || truncated('')
     stderr = files_out.delete('tmp/stderr') || truncated('')
     status = files_out.delete('tmp/status') || truncated('145')
-    sss = [ stdout['content'], stderr['content'], status['content'] ]
-    outcome,log_info = *@traffic_light.colour(image_name, *sss)
-    created,changed = files_delta(files_in, files_out)
+    sss = [stdout['content'], stderr['content'], status['content']]
+    outcome, log_info = *@traffic_light.colour(image_name, *sss)
+    created, changed = files_delta(files_in, files_out)
     result(
       stdout, stderr, status['content'],
       outcome, log_info,
-      Sandbox.out(at_most(16,created)),
+      Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
   rescue Zlib::GzipFile::Error
-    log(id:id, image_name:image_name, error:'Zlib::GzipFile::Error')
+    log(id: id, image_name: image_name, error: 'Zlib::GzipFile::Error')
     empty_result(:gzip_error, 'faulty', {})
   end
 
@@ -127,16 +125,16 @@ class Runner
 
   def result(stdout, stderr, status, outcome, log, created, changed)
     {
-         'stdout' => stdout, 'stderr' => stderr,   'status' => status,
-        'outcome' => outcome, 'log' => log,
-        'created' => created, 'changed' => changed,
+      'stdout' => stdout, 'stderr' => stderr, 'status' => status,
+      'outcome' => outcome, 'log' => log,
+      'created' => created, 'changed' => changed
     }
   end
 
   def truncated(raw_content)
     content = Utf8.clean(raw_content)
     {
-        'content' => content[0...MAX_FILE_SIZE],
+      'content' => content[0...MAX_FILE_SIZE],
       'truncated' => content.size > MAX_FILE_SIZE
     }
   end
@@ -154,7 +152,7 @@ class Runner
     # ...but this this can exclude files such as
     # cyber-dojo.sh, makefile, hiker.h, hiker.c etc
     # which then become deleted files!
-    Hash[new_files.keys.sort[0...size].map{|filename| [filename,new_files[filename]]}]
+    Hash[new_files.keys.sort[0...size].map { |filename| [filename, new_files[filename]] }]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -188,24 +186,24 @@ class Runner
     # There is no cpu-ulimit. See
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
-      ulimit('core'  ,   0   ),           # no core file
-      ulimit('fsize' , 128*MB),           # file size
-      ulimit('locks' , 1024  ),           # number of file locks
-      ulimit('nofile', 1024  ),           # number of files
-      ulimit('nproc' , 1024  ),           # number of processes [1]
-      ulimit('stack' ,  16*MB),           # stack size
+      ulimit('core', 0), # no core file
+      ulimit('fsize', 128 * MB), # file size
+      ulimit('locks', 1024), # number of file locks
+      ulimit('nofile', 1024), # number of files
+      ulimit('nproc', 1024), # number of processes [1]
+      ulimit('stack', 16 * MB),           # stack size
       '--kernel-memory=768m',             # limited
       '--memory=768m',                    # max 768MB ram (same swap)
       '--net=none',                       # no network
       '--pids-limit=128',                 # no fork bombs
-      '--security-opt=no-new-privileges', # no escalation
+      '--security-opt=no-new-privileges' # no escalation
     ]
     # Special handling of clang/clang++'s -fsanitize=address
-    if clang?(image_name)
-      options << '--cap-add=SYS_PTRACE'
-    else
-      options << ulimit('data', 4*GB)     # data segment size
-    end
+    options << if clang?(image_name)
+                 '--cap-add=SYS_PTRACE'
+               else
+                 ulimit('data', 4 * GB) # data segment size
+               end
     options.join(SPACE)
   end
 
@@ -256,5 +254,4 @@ class Runner
   end
 
   SPACE = ' '
-
 end

@@ -1,6 +1,5 @@
 class PipeMakerStub
-
-  def initialize(stdout_tgz, closed=true)
+  def initialize(stdout_tgz, closed = true)
     @stdout_tgz = stdout_tgz
     @closed = closed
     @n = 0
@@ -9,18 +8,33 @@ class PipeMakerStub
   def make
     Struct.new(:in, :out).new(
       Class.new do
-        def initialize(read); @read = read; end
+        def initialize(read)
+          @read = read
+        end
+
         def binmode; end
-        def read; @read; end
-        def closed?; false; end
+
+        attr_reader :read
+
+        def closed?
+          false
+        end
+
         def close; end
       end.new(stdout_tgz),
       Class.new do
-        def initialize(closed); @closed = closed; end
+        def initialize(closed)
+          @closed = closed
+        end
+
         def sync=(_bool); end
         def binmode; end
         def write(_tgz_in); end
-        def closed?; @closed; end
+
+        def closed?
+          @closed
+        end
+
         def close; end
       end.new(@closed)
     )
@@ -36,5 +50,4 @@ class PipeMakerStub
       '' # 1st is for stdin, 3rd is for stderr
     end
   end
-
 end

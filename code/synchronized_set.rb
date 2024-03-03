@@ -1,7 +1,6 @@
 require 'set'
 
 class SynchronizedSet
-
   def initialize
     @values = Set.new
     @mutex = Mutex.new
@@ -28,5 +27,4 @@ class SynchronizedSet
   def delete(value)
     @mutex.synchronize { @values.delete(value) }
   end
-
 end

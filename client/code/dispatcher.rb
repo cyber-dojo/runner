@@ -1,7 +1,6 @@
 require 'json'
 
 class Dispatcher
-
   class RequestError < RuntimeError
     def initialize(message)
       super
@@ -29,10 +28,11 @@ class Dispatcher
     end
   rescue JSON::JSONError
     raise request_error('body is not JSON')
-  rescue Exception => caught
-    if r = caught.message.match('(missing|unknown) keyword(s?): (.*)')
+  rescue Exception => e
+    if r = e.message.match('(missing|unknown) keyword(s?): (.*)')
       raise request_error("#{r[1]} argument#{r[2]}: #{r[3]}")
     end
+
     raise
   end
 
@@ -42,11 +42,10 @@ class Dispatcher
     args = {}
     unless body === ''
       json = JSON.parse!(body)
-      unless json.is_a?(Hash)
-        raise request_error('body is not JSON Hash')
-      end
+      raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
+
       # double-splat requires top-level symbol keys
-      json.each { |key,value| args[key.to_sym] = value }
+      json.each { |key, value| args[key.to_sym] = value }
     end
     args
   end
@@ -66,5 +65,4 @@ class Dispatcher
   def runner
     @context.runner
   end
-
 end

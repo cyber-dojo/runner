@@ -1,7 +1,5 @@
 class Prober
-
-  def initialize(_context)
-  end
+  def initialize(_context); end
 
   def alive?
     true
@@ -12,7 +10,6 @@ class Prober
   end
 
   def sha
-    ENV['SHA']
+    ENV.fetch('SHA', nil)
   end
-
 end

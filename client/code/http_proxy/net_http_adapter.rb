@@ -1,9 +1,7 @@
 require 'net/http'
 
 module HttpProxy
-
   class NetHttpAdapter
-
     def get(uri)
       Net::HTTP::Get.new(uri)
     end
@@ -19,7 +17,5 @@ module HttpProxy
         http.request(req)
       end
     end
-
   end
-  
 end

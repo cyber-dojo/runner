@@ -1,5 +1,4 @@
 class ProcessSpawnerStub
-
   def initialize
     @stubs = {}
   end
@@ -11,5 +10,4 @@ class ProcessSpawnerStub
       @stubs[name].call(*args)
     end
   end
-
 end

@@ -10,24 +10,20 @@ require_relative 'puller'
 require_relative 'runner'
 
 class Context
-
   def initialize(options = {})
-    @node   = options[:node  ] || Node.new(self)
+    @node   = options[:node] || Node.new(self)
     @prober = options[:prober] || Prober.new(self)
     @puller = options[:puller] || Puller.new(self)
     @runner = options[:runner] || Runner.new(self)
 
-    @process  = options[:process ] || ProcessSpawner.new
-    @sheller  = options[:sheller ] || BashSheller.new(self)
+    @process  = options[:process] || ProcessSpawner.new
+    @sheller  = options[:sheller] || BashSheller.new(self)
     @threader = options[:threader] || AsynchronousThreader.new
-    @piper    = options[:piper   ] || PipeMaker.new
+    @piper    = options[:piper] || PipeMaker.new
 
     @logger = options[:logger] || StdoutLogger.new
     @random = options[:random] || Random.new
   end
 
-  attr_reader :node, :prober, :puller, :runner
-  attr_reader :process, :sheller, :threader, :piper
-  attr_reader :logger, :random
-
+  attr_reader :node, :prober, :puller, :runner, :process, :sheller, :threader, :piper, :logger, :random
 end

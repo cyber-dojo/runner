@@ -1,5 +1,4 @@
 class ThreaderSynchronous
-
   attr_reader :called
 
   def initialize
@@ -10,5 +9,4 @@ class ThreaderSynchronous
     @called = true
     block.call
   end
-
 end

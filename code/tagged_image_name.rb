@@ -1,5 +1,4 @@
 module Docker # mix-in
-
   module_function
 
   def tagged_image_name(s)
@@ -14,15 +13,13 @@ module Docker # mix-in
       tag = match[8]
       digest = match[9]
     else
-      host_name,remote_name = cut(s, i)
+      host_name, remote_name = cut(s, i)
       match = remote_name.match(REMOTE_NAME)
       name = "#{host_name}/#{match[1]}"
       tag = match[8]
       digest = match[9]
     end
-    if tag.nil?
-      tag = 'latest'
-    end
+    tag = 'latest' if tag.nil?
     "#{name}:#{tag}#{digest}"
   end
 
@@ -31,11 +28,12 @@ module Docker # mix-in
   def image_name?(s)
     return false if s.nil?
     return false unless s.is_a?(String)
+
     i = s.index('/')
     if i.nil? || remote_name?(s[0...i])
       s =~ REMOTE_NAME
     else
-      host_name,remote_name = cut(s, i)
+      host_name, remote_name = cut(s, i)
       host_name =~ HOST_NAME && remote_name =~ REMOTE_NAME
     end
   end
@@ -47,7 +45,7 @@ module Docker # mix-in
     # i = s.index('/') # 19
     # s[0..18]  == 'cyberdojofoundation'
     # s[20..-1] == 'gcc_assert'
-    [s[0..i-1], s[i+1..-1]]
+    [s[0..i - 1], s[i + 1..-1]]
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,7 +55,7 @@ module Docker # mix-in
     port_separator = ':'
     !s.include?(dns_separator) &&
       !s.include?(port_separator) &&
-        s != 'localhost'
+      s != 'localhost'
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,10 +76,9 @@ module Docker # mix-in
   DIGEST_COMPONENT = '[A-Za-z][A-Za-z0-9]*'
   DIGEST_SEPARATOR = '[-_+.]'
   DIGEST_ALGORITHM = "#{DIGEST_COMPONENT}(#{DIGEST_SEPARATOR}#{DIGEST_COMPONENT})*"
-  DIGEST_HEX = "[0-9a-fA-F]{32,}"
+  DIGEST_HEX = '[0-9a-fA-F]{32,}'
   DIGEST = "#{DIGEST_ALGORITHM}[:]#{DIGEST_HEX}"
   REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/
-
 end
 
 Docker.freeze

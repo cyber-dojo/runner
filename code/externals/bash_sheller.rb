@@ -1,13 +1,12 @@
 require 'open3'
 
 class BashSheller
-
   def initialize(context)
     @context = context
   end
 
   def capture(command)
-    stdout,stderr,r = Open3.capture3(command)
+    stdout, stderr, r = Open3.capture3(command)
     status = r.exitstatus
     unless status === 0
       message = [
@@ -18,7 +17,7 @@ class BashSheller
       ].join("\n")
       logger.log(message)
     end
-    [ stdout, stderr, status ]
+    [stdout, stderr, status]
   end
 
   private
@@ -26,5 +25,4 @@ class BashSheller
   def logger
     @context.logger
   end
-
 end

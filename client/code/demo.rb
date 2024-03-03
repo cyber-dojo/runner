@@ -2,7 +2,6 @@ require_relative 'context'
 require 'json'
 
 class Demo
-
   def initialize
     @context = Context.new
   end
@@ -10,13 +9,13 @@ class Demo
   def html
     @html =
       <<~HTML
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <title>runner demo</title>
-      </head>
-      <body style="padding:30px">
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <title>runner demo</title>
+        </head>
+        <body style="padding:30px">
       HTML
 
     @html += '<h1>GET /alive</h1>'
@@ -37,15 +36,15 @@ class Demo
     @html += run_cyber_dojo_sh('BAD/image_name')
     @html +=
       <<~HTML
-      </body>
-      </html>
+        </body>
+        </html>
       HTML
   end
 
   private
 
   def alive
-    result,duration = timed { runner.alive? }
+    result, duration = timed { runner.alive? }
     boxed_pre(duration, result)
   end
 
@@ -57,7 +56,7 @@ class Demo
   end
 
   def ready
-    result,duration = timed { runner.ready? }
+    result, duration = timed { runner.ready? }
     boxed_pre(duration, result)
   end
 
@@ -69,7 +68,7 @@ class Demo
   end
 
   def sha
-    result,duration = timed { runner.sha }
+    result, duration = timed { runner.sha }
     boxed_pre(duration, result)
   end
 
@@ -98,15 +97,13 @@ class Demo
       'image_name' => image_name,
       'max_seconds' => 10
     }
-    _,duration = timed {
-      begin
-        @result = runner.run_cyber_dojo_sh(id:'729z65', files:files, manifest:manifest)
-        @raised = false
-      rescue => error
-        @result = JSON.parse(error.message)
-        @raised = true
-      end
-    }
+    _, duration = timed do
+      @result = runner.run_cyber_dojo_sh(id: '729z65', files: files, manifest: manifest)
+      @raised = false
+    rescue StandardError => e
+      @result = JSON.parse(e.message)
+      @raised = true
+    end
     css_colour = @raised ? 'LightGray' : 'LightGreen'
     boxed_pre(duration, @result, css_colour)
   end
@@ -118,8 +115,8 @@ class Demo
   end
 
   def gcc_assert_files
-    gcc_assert_manifest['visible_files'].map do |filename,file|
-      [ filename, file['content'] ]
+    gcc_assert_manifest['visible_files'].map do |filename, file|
+      [filename, file['content']]
     end.to_h
   end
 
@@ -131,7 +128,7 @@ class Demo
     started = Time.now
     result = yield
     finished = Time.now
-    duration = '%.2f' % (finished - started)
+    duration = format('%.2f', (finished - started))
     [result, duration]
   end
 
@@ -144,12 +141,12 @@ class Demo
     padding = 'padding: 5px;'
     margin = 'margin-left: 30px; margin-right: 30px;'
     background = "background: #{css_colour};"
-    whitespace = "white-space: pre-wrap;"
+    whitespace = 'white-space: pre-wrap;'
     font = 'font-size:8pt;'
     "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>" +
       "#{JSON.pretty_unparse(result)}" +
-    '</pre>' +
-    "#{duration}s\n"
+      '</pre>' +
+      "#{duration}s\n"
   end
 
   def languages_start_points
@@ -159,7 +156,6 @@ class Demo
   def runner
     @context.runner
   end
-
 end
 
 $stdout.puts(Demo.new.html)

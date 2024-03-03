@@ -1,94 +1,93 @@
 require_relative '../test_base'
 
 class DockerStopTest < TestBase
-
   def self.id58_prefix
     'c63'
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'da5', %w(
-  when cyber-dojo.sh times-out
-  then docker stop is called
-  and a docker-stop call failure is logged
-  ) do
+  test 'da5', %w[
+    when cyber-dojo.sh times-out
+    then docker stop is called
+    and a docker-stop call failure is logged
+  ] do
     setup_stubs
 
     docker_stop_called = false
-    @sheller.capture(expected_docker_stop_command) { |_command|
+    @sheller.capture(expected_docker_stop_command) do |_command|
       docker_stop_called = true
-      ['stdout-stub','Docker-daemon-error',125]
-    }
+      ['stdout-stub', 'Docker-daemon-error', 125]
+    end
 
     puller.add(image_name)
-    run_cyber_dojo_sh(max_seconds:3)
+    run_cyber_dojo_sh(max_seconds: 3)
     assert docker_stop_called
 
     lines = @logger.logged.lines
     assert_equal 2, lines.size
 
     assert_json_line(lines[0], {
-      id:id58,
-      image_name:image_name,
-      command:expected_docker_stop_command,
-      stdout:'stdout-stub',
-      stderr:'Docker-daemon-error',
-      status:125
-    })
+                       id: id58,
+                       image_name: image_name,
+                       command: expected_docker_stop_command,
+                       stdout: 'stdout-stub',
+                       stderr: 'Docker-daemon-error',
+                       status: 125
+                     })
 
     assert_json_line(lines[1], {
-      id:id58,
-      image_name:image_name,
-      message:'timed_out',
-      result:''
-    })
+                       id: id58,
+                       image_name: image_name,
+                       message: 'timed_out',
+                       result: ''
+                     })
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'da6', %w(
-  when cyber-dojo.sh times-out
-  then docker stop is called
-  and a docker-stop call success leaves the log empty
-  ) do
+  test 'da6', %w[
+    when cyber-dojo.sh times-out
+    then docker stop is called
+    and a docker-stop call success leaves the log empty
+  ] do
     setup_stubs
 
     docker_stop_called = false
-    @sheller.capture(expected_docker_stop_command) { |_command|
+    @sheller.capture(expected_docker_stop_command) do |_command|
       docker_stop_called = true
-      ['s1','s2',0]
-    }
+      ['s1', 's2', 0]
+    end
 
     puller.add(image_name)
-    run_cyber_dojo_sh(max_seconds:3)
+    run_cyber_dojo_sh(max_seconds: 3)
     assert docker_stop_called
 
     lines = @logger.logged.lines
     assert_equal 1, lines.size
 
     assert_json_line(lines[0], {
-      id:id58,
-      image_name:image_name,
-      message:'timed_out',
-      result:''
-    })
+                       id: id58,
+                       image_name: image_name,
+                       message: 'timed_out',
+                       result: ''
+                     })
   end
 
   private
 
   def setup_stubs
     set_context(
-        logger:@logger=StdoutLoggerSpy.new,
-         piper:PipeMakerStub.new(''),
-       process:process=ProcessSpawnerStub.new,
-       sheller:@sheller=BashShellerStub.new,
-      threader:ThreaderStub.new,
-        random:RandomHex8Stub.new(hex8_stub)
+      logger: @logger = StdoutLoggerSpy.new,
+      piper: PipeMakerStub.new(''),
+      process: process = ProcessSpawnerStub.new,
+      sheller: @sheller = BashShellerStub.new,
+      threader: ThreaderStub.new,
+      random: RandomHex8Stub.new(hex8_stub)
     )
-    process.spawn { |_cmd,_opts| 42 } # pid
+    process.spawn { |_cmd, _opts| 42 } # pid
     process.detach { |_pid| WaitThreadTimedOutStub.new(57, false) } # status,joined
-    process.kill { |_signal,_pid| nil }
+    process.kill { |_signal, _pid| nil }
   end
 
   def expected_docker_stop_command
@@ -118,9 +117,9 @@ class DockerStopTest < TestBase
     def initialize(stub)
       @stub = stub
     end
+
     def hex8
       @stub
     end
   end
-
 end

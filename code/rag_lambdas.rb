@@ -1,7 +1,6 @@
 require 'concurrent'
 
 class RagLambdas
-
   def initialize
     @map = Concurrent::Map.new
   end
@@ -13,5 +12,4 @@ class RagLambdas
   def compute(image_name, &block)
     @map.compute(image_name, &block)
   end
-
 end

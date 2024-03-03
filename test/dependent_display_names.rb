@@ -8,7 +8,7 @@ def run
     DisplayNames::UBUNTU,
     'Python 3.12, Pytest 7.4', # Used in traffic-light tests
     # Client-side tests
-    'VisualBasic, NUnit',
+    'VisualBasic, NUnit'
   ].each do |display_name|
     puts display_name
   end

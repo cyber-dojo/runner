@@ -1,7 +1,6 @@
 require_relative '../test_base'
 
 class OsImageTest < TestBase
-
   def self.id58_prefix
     '237'
   end
@@ -9,7 +8,7 @@ class OsImageTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - -
 
   multi_os_test '8A1',
-  'start-files image_name<->os correspondence' do
+                'start-files image_name<->os correspondence' do
     set_context
     assert_cyber_dojo_sh('cat /etc/issue')
     etc_issue = stdout
@@ -20,5 +19,4 @@ class OsImageTest < TestBase
     ].join("\n")
     assert etc_issue.include?(os.to_s), diagnostic
   end
-
 end

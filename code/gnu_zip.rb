@@ -2,7 +2,6 @@ require 'stringio'
 require 'zlib'
 
 module Gnu
-
   def self.zip(s)
     zipped = StringIO.new('')
     writer = Zlib::GzipWriter.new(zipped)
@@ -10,5 +9,4 @@ module Gnu
     writer.close
     zipped.string
   end
-
 end

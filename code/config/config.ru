@@ -1,10 +1,10 @@
 $stdout.sync = true
 $stderr.sync = true
 
-Signal.trap('TERM') {
+Signal.trap('TERM') do
   $stdout.puts('SIGTERM: Goodbye from runner server')
   exit(0)
-}
+end
 
 if ENV['CYBER_DOJO_PROMETHEUS'] === 'true'
   require 'prometheus/middleware/collector'
@@ -17,7 +17,7 @@ use_containerd = ENV['CYBER_DOJO_USE_CONTAINERD'] === 'true'
 $stdout.puts("CYBER_DOJO_USE_CONTAINERD:#{use_containerd}")
 
 require 'rack'
-use Rack::Deflater, if: ->(_, _, _, body) {
+use Rack::Deflater, if: lambda { |_, _, _, body|
   body.any? && body[0].length > 512
 }
 

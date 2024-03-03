@@ -1,5 +1,4 @@
 class WaitThreadCompletedStub
-
   def initialize(status)
     @status = status
   end
@@ -7,5 +6,4 @@ class WaitThreadCompletedStub
   def value
     @status
   end
-
 end

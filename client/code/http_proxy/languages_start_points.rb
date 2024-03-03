@@ -3,9 +3,7 @@ require_relative 'json_responder'
 require_relative 'net_http_adapter'
 
 module HttpProxy
-
   class LanguagesStartPoints
-
     class Error < RuntimeError
       def initialize(message)
         # :nocov_server:
@@ -40,10 +38,8 @@ module HttpProxy
 
     def manifest(name)
       @http.get(__method__, {
-        name:name
-      })
+                  name: name
+                })
     end
-
   end
-  
 end

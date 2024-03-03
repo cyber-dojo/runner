@@ -3,7 +3,6 @@ require 'uri'
 
 module HttpProxy
   class JsonRequester
-
     def initialize(http, hostname, port)
       @http = http
       @hostname = hostname
@@ -31,6 +30,5 @@ module HttpProxy
       req.body = JSON.fast_generate(args)
       @http.start(@hostname, @port, req)
     end
-
   end
 end

@@ -3,7 +3,6 @@ require_relative 'rag_lambdas'
 require 'json'
 
 class TrafficLight
-
   class Fault < RuntimeError
     def initialize(properties)
       @properties = properties
@@ -19,20 +18,20 @@ class TrafficLight
   end
 
   def colour(image_name, stdout, stderr, status)
-    [ self[image_name].call(stdout, stderr, status), {} ]
-  rescue Fault => error
+    [self[image_name].call(stdout, stderr, status), {}]
+  rescue Fault => e
     fault_info = {
-      call:"TrafficLight.colour(image_name,stdout,stderr,status)",
-      args:{
-        image_name:image_name,
-        stdout:stdout.lines,
-        stderr:stderr.lines,
-        status:status
+      call: 'TrafficLight.colour(image_name,stdout,stderr,status)',
+      args: {
+        image_name: image_name,
+        stdout: stdout.lines,
+        stderr: stderr.lines,
+        status: status
       },
-      exception:error.properties
+      exception: e.properties
     }
     logger.log(JSON.pretty_generate(fault_info))
-    [ 'faulty', fault_info ]
+    ['faulty', fault_info]
   end
 
   private
@@ -40,14 +39,15 @@ class TrafficLight
   def [](image_name)
     light = @rag_lambdas[image_name]
     return light unless light.nil?
+
     lambda_source = checked_read_lambda_source(image_name)
     fn = checked_eval(lambda_source)
-    @rag_lambdas.compute(image_name) {
-      lambda { |stdout,stderr,status|
+    @rag_lambdas.compute(image_name) do
+      lambda { |stdout, stderr, status|
         colour = checked_call(fn, lambda_source, stdout, stderr, status)
         checked_colour(colour, lambda_source)
       }
-    }
+    end
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,19 +58,19 @@ class TrafficLight
       image_name,
       RAG_LAMBDA_FILENAME
     ].join(SPACE)
-    stdout,stderr,status = sheller.capture(command)
+    stdout, stderr, status = sheller.capture(command)
     if status === 0
       message = "Read red-amber-green lambda for #{image_name}"
       logger.log(message)
       stdout
     else
-      fail Fault.new({
-        context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
-        command: command,
-        stdout: stdout.lines,
-        stderr: stderr.lines,
-        status: status
-      })
+      raise Fault.new({
+                        context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
+                        command: command,
+                        stdout: stdout.lines,
+                        stderr: stderr.lines,
+                        status: status
+                      })
     end
   end
 
@@ -82,26 +82,26 @@ class TrafficLight
 
   def checked_eval(lambda_source)
     Empty.binding.eval(lambda_source)
-  rescue Exception => error
-    fail Fault.new({
-      context: "exception when eval'ing lambda source",
-      lambda_source: lambda_source.lines,
-      class: error.class.name,
-      message: error.message.lines
-    })
+  rescue Exception => e
+    raise Fault.new({
+                      context: "exception when eval'ing lambda source",
+                      lambda_source: lambda_source.lines,
+                      class: e.class.name,
+                      message: e.message.lines
+                    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def checked_call(fn, lambda_source, stdout, stderr, status)
-    fn.call(stdout,stderr,status.to_i).to_s
-  rescue Exception => error
-    fail Fault.new({
-      context: "exception when calling lambda source",
-      lambda_source: lambda_source.lines,
-      class: error.class.name,
-      message: error.message.lines
-    })
+    fn.call(stdout, stderr, status.to_i).to_s
+  rescue Exception => e
+    raise Fault.new({
+                      context: 'exception when calling lambda source',
+                      lambda_source: lambda_source.lines,
+                      class: e.class.name,
+                      message: e.message.lines
+                    })
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -110,15 +110,15 @@ class TrafficLight
     if LEGAL_COLOURS.include?(colour)
       colour
     else
-      fail Fault.new({
-        context: "illegal colour; must be one of ['red','amber','green']",
-        illegal_colour: colour,
-        lambda_source: lambda_source.lines
-      })
+      raise Fault.new({
+                        context: "illegal colour; must be one of ['red','amber','green']",
+                        illegal_colour: colour,
+                        lambda_source: lambda_source.lines
+                      })
     end
   end
 
-  LEGAL_COLOURS = [ 'red', 'amber', 'green' ]
+  LEGAL_COLOURS = %w[red amber green]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -129,5 +129,4 @@ class TrafficLight
   def sheller
     @context.sheller
   end
-
 end

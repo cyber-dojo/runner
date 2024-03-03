@@ -1,5 +1,4 @@
 class Prober
-
   def initialize(context)
     @context = context
   end
@@ -9,11 +8,11 @@ class Prober
   end
 
   def ready?
-    [languages_start_points,runner].all? { |http_service| http_service.ready? }
+    [languages_start_points, runner].all? { |http_service| http_service.ready? }
   end
 
   def sha
-    ENV['SHA']
+    ENV.fetch('SHA', nil)
   end
 
   private
@@ -25,5 +24,4 @@ class Prober
   def runner
     @context.runner
   end
-
 end

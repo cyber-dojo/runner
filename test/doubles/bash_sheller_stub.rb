@@ -1,7 +1,6 @@
 require 'json'
 
 class BashShellerStub
-
   def initialize
     @stubs = []
   end
@@ -9,12 +8,11 @@ class BashShellerStub
   # - - - - - - - - - - - - - - - - - - - - - - -
 
   def teardown
-    unless uncaught_exception?
-      unless @stubs === []
-        pretty = JSON.pretty_generate(@stubs)
-        raise "#{ENV['ID58']}: uncalled stubs(#{pretty})"
-      end
-    end
+    return if uncaught_exception?
+    return if @stubs === []
+
+    pretty = JSON.pretty_generate(@stubs)
+    raise "#{ENV.fetch('ID58', nil)}: uncalled stubs(#{pretty})"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
@@ -23,10 +21,10 @@ class BashShellerStub
     if block_given?
       stub = yield
       @stubs << {
-        command:command,
-         stdout:stub[0],
-         stderr:stub[1],
-         status:stub[2]
+        command: command,
+        stdout: stub[0],
+        stderr: stub[1],
+        status: stub[2]
       }
     else
       matching_stub(command)
@@ -40,14 +38,14 @@ class BashShellerStub
     if stub.nil?
       raise [
         self.class.name,
-        "capture(command) - no stub",
-        "actual-command: #{command}",
+        'capture(command) - no stub',
+        "actual-command: #{command}"
       ].join("\n") + "\n"
     end
     unless command === stub[:command]
       raise [
         self.class.name,
-        "capture(command) - does not match stub",
+        'capture(command) - does not match stub',
         " actual-command:#{command}:",
         "stubbed-command:#{stub[:command]}:"
       ].join("\n") + "\n"
@@ -58,5 +56,4 @@ class BashShellerStub
   def uncaught_exception?
     $!
   end
-
 end

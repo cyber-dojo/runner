@@ -6,8 +6,8 @@ class WaitThreadTimedOutStub
   def initialize(status, joined)
     @n = 0
     @value_stubs = {
-      1 => lambda { raise Timeout::Error }, # .value in main-block
-      2 => lambda { status }                # .value in ensure block
+      1 => -> { raise Timeout::Error }, # .value in main-block
+      2 => -> { status }                # .value in ensure block
     }
     # @joined controls the (async) result of the process.kill(:TERM, -pid) call
     # Thread.join(n) returns
@@ -23,5 +23,4 @@ class WaitThreadTimedOutStub
   def join(_seconds)
     @joined
   end
-
 end

@@ -3,9 +3,7 @@ require_relative 'json_responder'
 require_relative 'net_http_adapter'
 
 module HttpProxy
-
   class Runner
-
     class Error < RuntimeError
       def initialize(message)
         super
@@ -38,19 +36,17 @@ module HttpProxy
 
     def pull_image(id:, image_name:)
       @http.post(__method__, {
-        id:id,
-        image_name:image_name
-      })
+                   id: id,
+                   image_name: image_name
+                 })
     end
 
     def run_cyber_dojo_sh(id:, files:, manifest:)
       @http.post(__method__, {
-        id:id,
-        files:files,
-        manifest:manifest
-      })
+                   id: id,
+                   files: files,
+                   manifest: manifest
+                 })
     end
-
   end
-  
 end

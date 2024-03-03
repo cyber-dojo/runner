@@ -5,7 +5,6 @@ require_code 'context'
 require 'json'
 
 class TestBase < Id58TestBase
-
   def initialize(arg)
     super(arg)
   end
@@ -14,13 +13,27 @@ class TestBase < Id58TestBase
     @context = Context.new(options)
   end
 
-  attr_reader :context
+  attr_reader :context, :run_result
 
-  def node   ; context.node   ; end
-  def prober ; context.prober ; end
-  def puller ; context.puller ; end
-  def runner ; context.runner ; end
-  def sheller; context.sheller; end
+  def node
+    context.node
+  end
+
+  def prober
+    context.prober
+  end
+
+  def puller
+    context.puller
+  end
+
+  def runner
+    context.runner
+  end
+
+  def sheller
+    context.sheller
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 1. test on one OS or many
@@ -38,15 +51,15 @@ class TestBase < Id58TestBase
   # OS specific tests
 
   def self.alpine_test(id_suffix, *lines, &block)
-    self.c_assert_test(id_suffix, *lines, &block)
+    c_assert_test(id_suffix, *lines, &block)
   end
 
   def self.debian_test(id_suffix, *lines, &block)
-    self.perl_testsimple_test(id_suffix, *lines, &block)
+    perl_testsimple_test(id_suffix, *lines, &block)
   end
 
   def self.ubuntu_test(id_suffix, *lines, &block)
-    self.clang_assert_test(id_suffix, *lines, &block)
+    clang_assert_test(id_suffix, *lines, &block)
   end
 
   # Language-Test-Framework specific tests
@@ -82,16 +95,16 @@ class TestBase < Id58TestBase
       unchanged_files.delete(filename)
     end
 
-    files = [ *unchanged_files, *changed_files, *created_files ].to_h
+    files = [*unchanged_files, *changed_files, *created_files].to_h
     manifest = {
       'image_name' => defaulted_arg(options, :image_name, image_name),
       'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
 
     @run_result = runner.run_cyber_dojo_sh(
-      id:id,
-      files:files,
-      manifest:manifest
+      id: id,
+      files: files,
+      manifest: manifest
     )
   end
 
@@ -107,7 +120,7 @@ class TestBase < Id58TestBase
   end
 
   def starting_files
-    manifest['visible_files'].each.with_object({}) do |(filename,file),memo|
+    manifest['visible_files'].each.with_object({}) do |(filename, file), memo|
       memo[filename] = file['content']
     end
   end
@@ -135,37 +148,66 @@ class TestBase < Id58TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 4. call results
 
-  def stdout; run_result['stdout']['content']; end
-  def stderr; run_result['stderr']['content']; end
-  def status; run_result['status']; end
-
-  def outcome; run_result['outcome']; end
-
-  def pulling?  ; outcome === 'pulling'  ; end
-  def red?      ; outcome === 'red'      ; end
-  def amber?    ; outcome === 'amber'    ; end
-  def green?    ; outcome === 'green'    ; end
-  def timed_out?; outcome === 'timed_out'; end
-  def faulty?   ; outcome === 'faulty'   ; end
-
-  def created; run_result['created']; end
-  def changed; run_result['changed']; end
-
-  def pretty_result(tag)
-    [ "CONTEXT:#{tag}:",
-      JSON.pretty_generate(run_result)
-    ].join("\n")
+  def stdout
+    run_result['stdout']['content']
   end
 
-  attr_reader :run_result
+  def stderr
+    run_result['stderr']['content']
+  end
+
+  def status
+    run_result['status']
+  end
+
+  def outcome
+    run_result['outcome']
+  end
+
+  def pulling?
+    outcome === 'pulling'
+  end
+
+  def red?
+    outcome === 'red'
+  end
+
+  def amber?
+    outcome === 'amber'
+  end
+
+  def green?
+    outcome === 'green'
+  end
+
+  def timed_out?
+    outcome === 'timed_out'
+  end
+
+  def faulty?
+    outcome === 'faulty'
+  end
+
+  def created
+    run_result['created']
+  end
+
+  def changed
+    run_result['changed']
+  end
+
+  def pretty_result(tag)
+    ["CONTEXT:#{tag}:",
+     JSON.pretty_generate(run_result)].join("\n")
+  end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 5. custom asserts
 
   def assert_cyber_dojo_sh(script)
     run_cyber_dojo_sh({
-      changed:{ 'cyber-dojo.sh' => script }
-    })
+                        changed: { 'cyber-dojo.sh' => script }
+                      })
     refute timed_out?, pretty_result(:timed_out)
   end
 
@@ -181,15 +223,15 @@ class TestBase < Id58TestBase
   # 6. misc helpers
 
   def on_client(&block)
-    if ENV['CONTEXT'] === 'client'
-      block.call
-    end
+    return unless ENV['CONTEXT'] === 'client'
+
+    block.call
   end
 
   def on_server(&block)
-    if ENV['CONTEXT'] === 'server'
-      block.call
-    end
+    return unless ENV['CONTEXT'] === 'server'
+
+    block.call
   end
 
   def logged?(message)
@@ -201,11 +243,11 @@ class TestBase < Id58TestBase
   end
 
   def assert_json_line(line, expected)
-    assert_equal(expected, JSON.parse(line, symbolize_names:true))
+    assert_equal(expected, JSON.parse(line, symbolize_names: true))
   end
 
   def uid
-    41966
+    41_966
   end
 
   def group
@@ -245,5 +287,4 @@ class TestBase < Id58TestBase
     end
     [stdout, stderr]
   end
-
 end

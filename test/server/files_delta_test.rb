@@ -3,7 +3,6 @@ require_code 'files_delta'
 require_code 'utf8_clean'
 
 class FilesDeltaTest < TestBase
-
   def self.id58_prefix
     '5C2'
   end
@@ -12,54 +11,53 @@ class FilesDeltaTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'E76', %w( unchanged content ) do
+  test 'E76', %w[unchanged content] do
     was_files = { 'wibble.txt' => 'hello' }
     now_files = { 'wibble.txt' => intact('hello') }
-    created,changed = files_delta(was_files, now_files)
+    created, changed = files_delta(was_files, now_files)
     assert_equal({}, created)
     assert_equal({}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'E77', %w( changed content ) do
+  test 'E77', %w[changed content] do
     was_files = { 'wibble.txt' => 'hello' }
     now_files = { 'wibble.txt' => intact('hello, world') }
-    created,changed = files_delta(was_files, now_files)
+    created, changed = files_delta(was_files, now_files)
     assert_equal({}, created)
-    assert_equal({'wibble.txt' => intact('hello, world')}, changed)
+    assert_equal({ 'wibble.txt' => intact('hello, world') }, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'q77', %w( changed content caused by string cleaning ) do
+  test 'q77', %w[changed content caused by string cleaning] do
     dirty = (100..1000).to_a.pack('c*').force_encoding('utf-8')
     clean = Utf8.clean(dirty)
     was_files = { 'wibble.txt' => dirty }
     now_files = { 'wibble.txt' => clean }
-    created,changed = files_delta(was_files, now_files)
+    created, changed = files_delta(was_files, now_files)
     assert_equal({}, created)
-    assert_equal({'wibble.txt' => clean}, changed)
+    assert_equal({ 'wibble.txt' => clean }, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'E79', %w( new content ) do
+  test 'E79', %w[new content] do
     was_files = {}
     now_files = { 'wibble.txt' => intact('hello') }
-    created,changed = files_delta(was_files, now_files)
-    assert_equal({'wibble.txt' => intact('hello')}, created)
+    created, changed = files_delta(was_files, now_files)
+    assert_equal({ 'wibble.txt' => intact('hello') }, created)
     assert_equal({}, changed)
   end
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'E80', %w( new empty content ) do
+  test 'E80', %w[new empty content] do
     was_files = {}
     now_files = { 'empty.file' => intact('') }
-    created,changed = files_delta(was_files, now_files)
-    assert_equal({'empty.file' => intact('')}, created)
+    created, changed = files_delta(was_files, now_files)
+    assert_equal({ 'empty.file' => intact('') }, created)
     assert_equal({}, changed)
   end
-
 end

@@ -2,7 +2,6 @@ require_relative 'synchronized_set'
 require_relative 'tagged_image_name'
 
 class Puller
-
   def initialize(context)
     @context = context
     @pulled  = SynchronizedSet.new
@@ -24,25 +23,25 @@ class Puller
   # - - - - - - - - - - - - - - - - - - -
 
   def pull_image(id:, image_name:)
-    image_name = ::Docker::tagged_image_name(image_name)
-    if !@pulled.include?(image_name)
+    image_name = ::Docker.tagged_image_name(image_name)
+    if @pulled.include?(image_name)
+      :pulled
+    else
       if @pulling.add?(image_name)
         threader.thread('pulls-image') do
           threaded_pull_image(id, image_name)
         end
       end
       :pulling
-    else
-      :pulled
     end
   end
 
   private
 
-  def threaded_pull_image(id, image_name)
+  def threaded_pull_image(_id, image_name)
     t0 = Time.now
     command = "docker pull #{image_name}"
-    stdout,stderr,status = sheller.capture(command)
+    stdout, stderr, status = sheller.capture(command)
     if status === 0
       t1 = Time.now
       add(image_name)
@@ -68,5 +67,4 @@ class Puller
   def threader
     @context.threader
   end
-
 end
