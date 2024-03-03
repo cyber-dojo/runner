@@ -140,7 +140,7 @@ class TestBase < Id58TestBase
   def manifests
     @@manifests ||= begin
       manifests_filename = "#{__dir__}/data/languages_start_points.manifests.json"
-      manifests = IO.read(manifests_filename)
+      manifests = File.read(manifests_filename)
       JSON.parse(manifests)['manifests']
     end
   end
