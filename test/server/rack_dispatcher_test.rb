@@ -300,5 +300,5 @@ class RackDispatcherTest < TestBase
     sha
     ready
     run_cyber_dojo_sh
-  ]
+  ].freeze
 end

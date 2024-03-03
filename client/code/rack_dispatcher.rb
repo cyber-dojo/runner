@@ -51,5 +51,5 @@ class RackDispatcher
 
   # - - - - - - - - - - - - - - - -
 
-  CONTENT_TYPE_JSON = { 'Content-Type' => 'application/json' }
+  CONTENT_TYPE_JSON = { 'Content-Type' => 'application/json' }.freeze
 end

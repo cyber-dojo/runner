@@ -23,5 +23,5 @@ class RandomTest < TestBase
     end
   end
 
-  HEX_DIGITS = [*('a'..'z'), *('A'..'Z'), *('0'..'9')]
+  HEX_DIGITS = [*('a'..'z'), *('A'..'Z'), *('0'..'9')].freeze
 end

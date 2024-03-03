@@ -14,7 +14,7 @@ module Test
           localhost:23/cdf/gcc_assert
           quay.io/cdf/gcc_assert
           quay.io:80/cdf/gcc_assert
-        ]
+        ].freeze
 
       TAG_YES_DIGEST_NO =
         ["gcc_assert:#{'x' * 127}"] +
@@ -57,7 +57,7 @@ module Test
           quay.io:80/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
           quay.io:80/cdf/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
           q.uay.io:80/cdf/gcc_assert:latest@sha2-s1+s2.s3_s5:123456789012345678901234567890123456789
-        ]
+        ].freeze
 
       TAG_NO_DIGEST_YES =
         %w[
@@ -67,7 +67,7 @@ module Test
           localhost:80/gcc_assert@sha2-s1+s2.s3_s5:12345678901234567890123456789012
           quay.io/gcc_assert@sha2-s1+s2.s3_s5:12345678901234567890123456789012
           quay.io:80/gcc_assert@sha2-s1+s2.s3_s5:12345678901234567890123456789012
-        ]
+        ].freeze
 
       # - - - - - - - - - - - - - - - - - - - - - -
 
@@ -99,7 +99,7 @@ module Test
           "gcc@256:#{HEX * 32}",      # digest-component must start with letter
           "gcc@sha256-2:#{HEX * 32}", # digest-component must start with letter
           "gcc@sha256#{HEX * 32}" # hex-digits must start with :
-        ]
+        ].freeze
     end
   end
 end

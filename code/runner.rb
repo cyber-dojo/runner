@@ -61,7 +61,7 @@ class Runner
     timed_out: 142,
     faulty: 143,
     gzip_error: 144
-  }
+  }.freeze
 
   private
 

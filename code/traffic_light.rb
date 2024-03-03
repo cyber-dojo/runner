@@ -119,7 +119,7 @@ class TrafficLight
     end
   end
 
-  LEGAL_COLOURS = %w[red amber green]
+  LEGAL_COLOURS = %w[red amber green].freeze
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 

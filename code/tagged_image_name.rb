@@ -65,7 +65,7 @@ module Docker # mix-in
   CH = 'a-zA-Z0-9'
   COMPONENT = "([#{CH}]|[#{CH}][#{CH}-]*[#{CH}])"
   PORT = '[\d]+'
-  HOST_NAME = /^(#{COMPONENT}(\.#{COMPONENT})*)(:(#{PORT}))?$/
+  HOST_NAME = /^(#{COMPONENT}(\.#{COMPONENT})*)(:(#{PORT}))?$/.freeze
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -79,7 +79,7 @@ module Docker # mix-in
   DIGEST_ALGORITHM = "#{DIGEST_COMPONENT}(#{DIGEST_SEPARATOR}#{DIGEST_COMPONENT})*"
   DIGEST_HEX = '[0-9a-fA-F]{32,}'
   DIGEST = "#{DIGEST_ALGORITHM}[:]#{DIGEST_HEX}"
-  REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/
+  REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/.freeze
 end
 
 Docker.freeze
