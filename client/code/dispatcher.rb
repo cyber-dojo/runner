@@ -26,6 +26,7 @@ class Dispatcher
     if r = e.message.match('(missing|unknown) keyword(s?): (.*)')
       raise request_error("#{r[1]} argument#{r[2]}: #{r[3]}")
     end
+
     raise
   end
 
@@ -37,6 +38,7 @@ class Dispatcher
     else
       json = JSON.parse!(body)
       raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
+
       # double-splats in call() requires top-level symbol keys
       json.transform_keys { |key| key.to_sym }
     end
