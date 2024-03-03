@@ -33,7 +33,7 @@ class Dispatcher
 
   def parse_json_args(body)
     if body == ''
-        {}
+      {}
     else
       json = JSON.parse!(body)
       raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
