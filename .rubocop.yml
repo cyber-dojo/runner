@@ -40,3 +40,10 @@ Style/Documentation:
 Metrics/ParameterLists:
   Exclude:
     - code/runner.rb
+
+Lint/EmptyBlock:
+  Exclude:
+    - test/dual/run_red_amber_green_test.rb
+    - test/server/run_clang_ptrace_test.rb
+
+
