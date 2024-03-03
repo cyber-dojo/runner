@@ -104,5 +104,15 @@ Style/ClassVars:
     - test/test_base.rb
     - test/id58_test_base.rb
     - test/doubles/traffic_light_stub.rb
+
+Metrics/AbcSize:
+  Exclude:
+    - test/**/*
+    - code/runner.rb
+    - code/dispatcher.rb
+    - code/context.rb
+    - code/capture3_with_timeout.rb
+    - client/code/dispatcher.rb
+    - client/code/demo.rb
     
 
