@@ -92,5 +92,11 @@ Metrics/PerceivedComplexity:
   Exclude:
     - code/context.rb
 
-
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - client/code/dispatcher.rb
+    - code/context.rb
+    - code/dispatcher.rb
+    - test/id58_test_base.rb
+    
 
