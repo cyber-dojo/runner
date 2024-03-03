@@ -111,11 +111,9 @@ class Id58TestBase < Minitest::Test
     @@seen_ids[id58] << os
   end
 
-  def id58_setup
-  end
+  def id58_setup; end
 
-  def id58_teardown
-  end
+  def id58_teardown; end
 
   def os
     @_os
