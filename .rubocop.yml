@@ -14,3 +14,13 @@ Lint/PercentStringArray:
 Layout/EmptyLineAfterMagicComment:
   Exclude:
     - test/**/*
+
+# I often give an inline expression a name for readability
+Lint/UselessAssignment:
+  Exclude:
+    - code/**/*
+    - test/**/*
+
+Naming/VariableNumber:
+  Exclude:
+    - test/**/*
