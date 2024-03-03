@@ -10,3 +10,7 @@ Style/FrozenStringLiteralComment:
 Lint/PercentStringArray:
   Exclude:
     - test/**/*
+
+Layout/EmptyLineAfterMagicComment:
+  Exclude:
+    - test/**/*
