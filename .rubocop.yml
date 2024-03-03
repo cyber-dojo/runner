@@ -87,5 +87,10 @@ Metrics/ClassLength:
     - test/**/*
     - code/runner.rb
     - client/code/demo.rb
-  
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - code/context.rb
+
+
 
