@@ -153,7 +153,7 @@ class Runner
     # ...but this this can exclude files such as
     # cyber-dojo.sh, makefile, hiker.h, hiker.c etc
     # which then become deleted files!
-    new_files.keys.sort[0...size].map { |filename| [filename, new_files[filename]] }.to_h
+    new_files.keys.sort[0...size].to_h { |filename| [filename, new_files[filename]] }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
