@@ -13,6 +13,8 @@ Lint/PercentStringArray:
 
 Layout/EmptyLineAfterMagicComment:
   Exclude:
+    - code/**/*
+    - client/code/**/*
     - test/**/*
 
 # I often give an inline expression a name for readability
@@ -34,3 +36,4 @@ Style/Documentation:
     - code/**/*
     - client/code/**/*
     - test/**/*
+
