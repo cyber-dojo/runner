@@ -5,10 +5,6 @@ require_code 'context'
 require 'json'
 
 class TestBase < Id58TestBase
-  def initialize(arg)
-    super(arg)
-  end
-
   def set_context(options = {})
     @context = Context.new(options)
   end
