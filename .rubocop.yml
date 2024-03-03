@@ -53,5 +53,10 @@ Lint/RescueException:
     - code/dispatcher.rb
     - code/rack_dispatcher.rb
     - code/traffic_light.rb
-    -
+
+Lint/UselessMethodDefinition:
+  Exclude:
+    - code/empty_binding.rb
+
+
 

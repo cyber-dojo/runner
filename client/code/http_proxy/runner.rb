@@ -6,9 +6,6 @@ require_relative 'net_http_adapter'
 module HttpProxy
   class Runner
     class Error < RuntimeError
-      def initialize(message)
-        super
-      end
     end
 
     def initialize

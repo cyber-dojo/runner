@@ -6,11 +6,6 @@ require_relative 'net_http_adapter'
 module HttpProxy
   class LanguagesStartPoints
     class Error < RuntimeError
-      def initialize(message)
-        # :nocov_server:
-        super
-        # :nocov_server:
-      end
     end
 
     def initialize
