@@ -4,6 +4,8 @@ trail:
   artifacts:
     - name: runner
       attestations:
+        - name: pull-request
+          type: pull_request
         - name: lint
           type: generic
         - name: unit-test

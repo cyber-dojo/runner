@@ -47,26 +47,26 @@ jobs:
           echo "image_name=cyberdojo/runner:${IMAGE_TAG}" >> ${GITHUB_OUTPUT}          
 
 
-#  pull-request:
-#    needs: [kosli-trail]
-#    runs-on: ubuntu-latest
-#    permissions:
-#      id-token: write
-#      contents: write
-#      pull-requests: read
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Setup Kosli CLI
-#        uses: kosli-dev/setup-cli-action@v2
-#        with:
-#          version: ${{ vars.KOSLI_CLI_VERSION }}
-#
-#      - name: Attest pull-request evidence to Kosli Trail
-#        run:
-#          kosli attest pullrequest github
-#            --github-token=${{ secrets.GITHUB_TOKEN }}
-#            --name=runner.pull-request
+  pull-request:
+    needs: [kosli-trail]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Kosli CLI
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Attest pull-request evidence to Kosli Trail
+        run:
+          kosli attest pullrequest github
+            --github-token=${{ secrets.GITHUB_TOKEN }}
+            --name=runner.pull-request
 
 
   lint:
@@ -286,7 +286,7 @@ jobs:
 
 
   sdlc-control-gate:
-    needs: [lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan, kosli-trail, build-image]
+    needs: [pull-request, lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan, kosli-trail, build-image]
     runs-on: ubuntu-latest
     steps:
       - name: Setup Kosli CLI
