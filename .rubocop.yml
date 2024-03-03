@@ -127,4 +127,9 @@ Layout/LineLength:
 Style/StringConcatenation:
   Exclude:
     - test/doubles/bash_sheller_stub.rb
+
+Style/MissingRespondToMissing:
+  Exclude:
+    - test/doubles/process_spawner_stub.rb
   
+
