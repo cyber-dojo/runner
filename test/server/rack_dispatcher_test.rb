@@ -265,13 +265,13 @@ class RackDispatcherTest < TestBase
   def assert_body_contains(key)
     refute_nil response_body, 'response body is nil'
     json = JSON.parse(response_body)
-    assert json.has_key?(key), "assert json.has_key?(#{key}) keys are #{json.keys}"
+    assert json.key?(key), "assert json.has_key?(#{key}) keys are #{json.keys}"
   end
 
   def refute_body_contains(key)
     refute_nil response_body, 'respose body is nil'
     json = JSON.parse(response_body)
-    refute json.has_key?(key), "refute json.has_key?(#{key}) keys are #{json.keys}"
+    refute json.key?(key), "refute json.has_key?(#{key}) keys are #{json.keys}"
   end
 
   # - - - - - - - - - - - - - - - - -

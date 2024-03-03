@@ -31,8 +31,8 @@ module HttpProxy
     def unpacked(body, path)
       json = json_parse(body)
       raise error_message(body, 'is not JSON Hash') unless json.is_a?(Hash)
-      raise JSON.pretty_generate(json['exception']) if json.has_key?('exception')
-      raise error_message(body, "has no key for '#{path}'") unless json.has_key?(path)
+      raise JSON.pretty_generate(json['exception']) if json.key?('exception')
+      raise error_message(body, "has no key for '#{path}'") unless json.key?(path)
 
       json[path]
     end
