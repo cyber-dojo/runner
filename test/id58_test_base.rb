@@ -52,7 +52,7 @@ class Id58TestBase < Minitest::Test
   Minitest.after_run do
     slow = @@timings.select { |_name, secs| secs > 0.000 }
     sorted = slow.sort_by { |_name, secs| -secs }.to_h
-    size = sorted.size < 25 ? sorted.size : 25
+    size = [sorted.size, 25].min
     puts
     puts "Slowest #{size} tests are..." if size != 0
     sorted.each_with_index do |(name, secs), index|
