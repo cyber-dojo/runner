@@ -48,7 +48,7 @@ module SimpleCov
         "Coverage report generated for #{result.command_name} to #{output_filepath}. #{result.covered_lines} / #{result.total_lines} LOC (#{result.covered_percent.round(2)}%) covered."
       end
 
-    private
+      private
 
       def output_path
         SimpleCov.coverage_path
