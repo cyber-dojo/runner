@@ -124,4 +124,7 @@ Layout/LineLength:
     - client/code/demo.rb
     - test/lib/simplecov_json.rb
 
-
+Style/StringConcatenation:
+  Exclude:
+    - test/doubles/bash_sheller_stub.rb
+  
