@@ -8,13 +8,9 @@ class Dispatcher
     end
   end
 
-  # - - - - - - - - - - - - - - - -
-
   def initialize(context)
     @context = context
   end
-
-  # - - - - - - - - - - - - - - - -
 
   def call(path, body)
     args = parse_json_args(body)
@@ -33,22 +29,20 @@ class Dispatcher
     if r = e.message.match('(missing|unknown) keyword(s?): (.*)')
       raise request_error("#{r[1]} argument#{r[2]}: #{r[3]}")
     end
-
     raise
   end
 
   private
 
   def parse_json_args(body)
-    args = {}
-    unless body == ''
+    if body == ''
+        {}
+    else
       json = JSON.parse!(body)
       raise request_error('body is not JSON Hash') unless json.is_a?(Hash)
-
-      # double-splat requires top-level symbol keys
-      json.each { |key, value| args[key.to_sym] = value }
+      # double-splats in call() requires top-level symbol keys
+      json.map { |key, value| [key.to_sym, value] }.to_h
     end
-    args
   end
 
   def request_error(text)
@@ -56,8 +50,6 @@ class Dispatcher
     # to match RackDispatcher's exception keys.
     Dispatcher::RequestError.new(text)
   end
-
-  # - - - - - - - - - - - - - - - -
 
   def prober
     @context.prober
