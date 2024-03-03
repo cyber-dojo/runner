@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'English'
 require 'json'
 
 class BashShellerStub
@@ -55,6 +56,6 @@ class BashShellerStub
   end
 
   def uncaught_exception?
-    $!
+    $ERROR_INFO
   end
 end

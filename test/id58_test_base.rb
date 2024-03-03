@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'English'
 require 'minitest/autorun'
 require 'minitest/ci'
 require_relative 'require_code'
@@ -41,7 +42,7 @@ class Id58TestBase < Minitest::Test
         info = [id58, os.to_s, display_name, name58, "#{src_file}:#{src_line}"].join(' - ')
         @@timings[info] = (t2 - t1)
       ensure
-        puts $!.message unless $!.nil?
+        puts $ERROR_INFO.message unless $ERROR_INFO.nil?
         id58_teardown
       end
     }
