@@ -77,3 +77,15 @@ Metrics/MethodLength:
     - client/code/demo.rb
     - code/home_files.rb
 
+Metrics/BlockLength:
+  Exclude:
+    - test/**/*
+
+
+Metrics/ClassLength:
+  Exclude:
+    - test/**/*
+    - code/runner.rb
+    - client/code/demo.rb
+  
+
