@@ -119,4 +119,9 @@ Style/FormatStringToken:
   Exclude:
     - test/id58_test_base.rb
 
+Layout/LineLength:
+  Exclude:
+    - client/code/demo.rb
+    - test/lib/simplecov_json.rb
+
 
