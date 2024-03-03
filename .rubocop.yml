@@ -114,5 +114,9 @@ Metrics/AbcSize:
     - code/capture3_with_timeout.rb
     - client/code/dispatcher.rb
     - client/code/demo.rb
-    
+
+Style/FormatStringToken:
+  Exclude:
+    - test/id58_test_base.rb
+
 
