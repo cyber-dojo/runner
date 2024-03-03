@@ -68,7 +68,7 @@ class RackDispatcherTest < TestBase
       @called = false
     end
 
-    def run_cyber_dojo_sh(id:, files:, manifest:)
+    def run_cyber_dojo_sh(*)
       @called = true
     end
 
@@ -92,7 +92,7 @@ class RackDispatcherTest < TestBase
       @called = false
     end
 
-    def pull_image(id:, image_name:)
+    def pull_image(*)
       @called = true
     end
 
