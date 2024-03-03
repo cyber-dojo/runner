@@ -28,3 +28,9 @@ Naming/VariableNumber:
 Lint/ShadowingOuterLocalVariable:
   Exclude:
     - test/server/run_timed_out_test.rb
+
+Style/Documentation:
+  Exclude:
+    - code/**/*
+    - client/code/**/*
+    - test/**/*
