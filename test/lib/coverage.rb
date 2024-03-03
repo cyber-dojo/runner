@@ -8,7 +8,7 @@ end
 SimpleCov.start do
   enable_coverage :branch
   filters.clear
-  coverage_dir(ENV['COVERAGE_ROOT'])
+  coverage_dir(ENV['REPORTS_ROOT'] + '/coverage')
   nocov_token(runner_nocov_token)
   # add_group('debug') { |src| puts src.filename; false }
   code_dir = ENV['CODE_DIR']

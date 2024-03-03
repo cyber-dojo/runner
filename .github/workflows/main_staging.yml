@@ -158,18 +158,18 @@ jobs:
               --results-dir=./test/server/reports/junit
 
           kosli attest generic "${IMAGE_NAME}" \
-              --attachments=./test/server/reports \
+              --attachments=./test/server/reports/coverage \
               --name=runner.unit-test-branch-coverage \
-              --user-data=./test/server/reports/coverage.json
+              --user-data=./test/server/reports/coverage/summary.json
           
           kosli attest junit "${IMAGE_NAME}" \
               --name=runner.integration-test \
               --results-dir=./test/client/reports/junit
 
           kosli attest generic "${IMAGE_NAME}" \
-              --attachments=./test/client/reports \
+              --attachments=./test/client/reports/coverage \
               --name=runner.integration-test-branch-coverage \
-              --user-data=./test/client/reports/coverage.json
+              --user-data=./test/client/reports/coverage/summary.json
 
 
   snyk-container-scan:

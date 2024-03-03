@@ -38,7 +38,7 @@ class SimpleCov::Formatter::JSONFormatter
   end
 
   def output_filename
-    'coverage.json'
+    'summary.json'
   end
 
   def output_message(result)

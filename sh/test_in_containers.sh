@@ -75,11 +75,11 @@ run_tests()
   # So tar-piping out.
 
   local -r HOST_TEST_DIR="$(repo_root)/test/${TYPE}"    # where to extract to. untar will create reports/ dir
-  local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports" # where files will be
+  local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports"  # where files will be
 
-  rm "${HOST_REPORTS_DIR}/${TEST_LOG}"   2> /dev/null || true
-  rm "${HOST_REPORTS_DIR}/index.html"    2> /dev/null || true
-  rm "${HOST_REPORTS_DIR}/coverage.json" 2> /dev/null || true
+  rm "${HOST_REPORTS_DIR}/${TEST_LOG}"           2> /dev/null || true
+  rm "${HOST_REPORTS_DIR}/coverage/index.html"   2> /dev/null || true
+  rm "${HOST_REPORTS_DIR}/coverage/summary.json" 2> /dev/null || true
 
   docker exec \
     "${CONTAINER_NAME}" \
@@ -90,8 +90,8 @@ run_tests()
 
   # Check we generated expected files.
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage.json"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/index.html"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/summary.json"
 
   # Check metrics limits file exists
   exit_non_zero_unless_file_exists "${HOST_TEST_DIR}/max_metrics.json"
@@ -107,11 +107,11 @@ run_tests()
     --env CODE_DIR="${CODE_DIR}" \
     --env TEST_DIR="${TEST_DIR}" \
     --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
-    --volume ${HOST_REPORTS_DIR}/coverage.json:${CONTAINER_TMP_DIR}/coverage.json:ro \
+    --volume ${HOST_REPORTS_DIR}/coverage/summary.json:${CONTAINER_TMP_DIR}/summary.json:ro \
     --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
     cyberdojo/check-test-metrics:latest \
       "${CONTAINER_TMP_DIR}/${TEST_LOG}" \
-      "${CONTAINER_TMP_DIR}/coverage.json" \
+      "${CONTAINER_TMP_DIR}/summary.json" \
       "${CONTAINER_TMP_DIR}/max_metrics.json" \
     | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
 
@@ -122,7 +122,7 @@ run_tests()
   # Tell caller where the coverage files are...
 
   echo "${TYPE} test coverage at "
-  echo "$(abs_filename "${HOST_REPORTS_DIR}/index.html")"
+  echo "$(abs_filename "${HOST_REPORTS_DIR}/coverage/index.html")"
   echo "${TYPE} test status == ${STATUS}"
   if [ "${STATUS}" != 0 ]; then
     echo Docker logs "${CONTAINER_NAME}"
