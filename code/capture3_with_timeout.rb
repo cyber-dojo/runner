@@ -2,7 +2,8 @@
 require 'timeout'
 require 'ostruct'
 
-class Capture3WithTimeout # [X] See comments at the end of file.
+# [X] See comments at the end of file.
+class Capture3WithTimeout
   def initialize(context)
     @piper = context.piper
     @process  = context.process

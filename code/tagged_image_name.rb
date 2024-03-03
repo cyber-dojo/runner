@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-module Docker # mix-in
+# mix-in
+module Docker
   module_function
 
   def tagged_image_name(s)
