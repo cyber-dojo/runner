@@ -144,10 +144,7 @@ class Demo
     background = "background: #{css_colour};"
     whitespace = 'white-space: pre-wrap;'
     font = 'font-size:8pt;'
-    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>" +
-      JSON.pretty_unparse(result).to_s +
-      '</pre>' +
-      "#{duration}s\n"
+    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>#{JSON.pretty_unparse(result).to_s}</pre>#{duration}s\n"
   end
 
   def languages_start_points

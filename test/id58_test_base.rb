@@ -4,7 +4,7 @@ require 'minitest/autorun'
 require 'minitest/ci'
 require_relative 'require_code'
 
-Minitest::Ci.report_dir = ENV.fetch('REPORTS_ROOT', nil) + '/junit'
+Minitest::Ci.report_dir = "#{ENV.fetch('REPORTS_ROOT', nil)}/junit"
 
 class Id58TestBase < Minitest::Test
   def initialize(arg)
@@ -16,8 +16,6 @@ class Id58TestBase < Minitest::Test
   @@args = (ARGV.sort.uniq - ['--']) # eg 2m4
   @@seen_ids = {}
   @@timings = {}
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def self.define_test(os, display_name, id58_suffix, *lines, &test_block)
     src = test_block.source_location
@@ -51,8 +49,6 @@ class Id58TestBase < Minitest::Test
 #{name}", &execute_around)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   Minitest.after_run do
     slow = @@timings.select { |_name, secs| secs > 0.000 }
     sorted = slow.sort_by { |_name, secs| -secs }.to_h
@@ -65,8 +61,6 @@ class Id58TestBase < Minitest::Test
     end
     puts
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   ID58_ALPHABET = %w[
     0 1 2 3 4 5 6 7 8 9
@@ -81,7 +75,7 @@ class Id58TestBase < Minitest::Test
 
   def self.checked_id58(os, id58_suffix, lines)
     method = 'def self.id58_prefix'
-    pointer = (' ' * method.index('.')) + '!'
+    pointer = pling(' ' * method.index('.'))
     pointee = ['', pointer, method, '', ''].join("\n")
     pointer.prepend("\n\n")
     raise "#{pointer}missing#{pointee}" unless respond_to?(:id58_prefix)
@@ -89,7 +83,7 @@ class Id58TestBase < Minitest::Test
     raise "#{pointer}not id58#{pointee}" unless id58?(id58_prefix)
 
     method = "test '#{id58_suffix}',"
-    pointer = (' ' * method.index("'")) + '!'
+    pointer = pling(' ' * method.index("'"))
     proposition = lines.join(space = ' ')
     pointee = ['', pointer, method, "'#{proposition}'", '', ''].join("\n")
     id58 = id58_prefix + id58_suffix
@@ -103,6 +97,10 @@ class Id58TestBase < Minitest::Test
     id58
   end
 
+  def self.pling(str)
+    "#{str}!"
+  end
+
   def self.seen?(id58, os)
     seen = @@seen_ids[id58] || []
     seen.include?(os)
@@ -113,13 +111,11 @@ class Id58TestBase < Minitest::Test
     @@seen_ids[id58] << os
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
+  def id58_setup
+  end
 
-  def id58_setup; end
-
-  def id58_teardown; end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
+  def id58_teardown
+  end
 
   def os
     @_os

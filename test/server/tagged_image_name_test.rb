@@ -43,7 +43,7 @@ class TaggedImageNameTest < TestBase
   test '003', %w[tagged with :latest when no tag and no digest] do
     Test::Data::ImageNames::TAG_NO_DIGEST_NO.each do |image_name|
       assert Docker.image_name?(image_name), image_name
-      expected = image_name + ':latest'
+      expected = "#{image_name}:latest"
       actual = Docker.tagged_image_name(image_name)
       assert_equal expected, actual
     end

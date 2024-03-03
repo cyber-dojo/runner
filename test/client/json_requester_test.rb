@@ -39,7 +39,7 @@ class JsonRequesterTest < TestBase
 
     assert_equal 'differ', spy.hostname
     assert_equal 1234, spy.port
-    assert_equal '/' + path, spy.request.path
+    assert_equal "/#{path}", spy.request.path
     assert_equal 'application/json', spy.request.content_type
     assert_equal args, JSON.parse!(spy.request.body)
   end
@@ -55,7 +55,7 @@ class JsonRequesterTest < TestBase
 
     assert_equal 'saver', spy.hostname
     assert_equal 4321, spy.port
-    assert_equal '/' + path, spy.request.path
+    assert_equal "/#{path}", spy.request.path
     assert_equal 'application/json', spy.request.content_type
     assert_equal args, JSON.parse!(spy.request.body)
   end
