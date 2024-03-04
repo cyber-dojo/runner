@@ -10,9 +10,10 @@ env:
   KOSLI_HOST: ${{ vars.KOSLI_HOST }}                 # https://app.kosli.com
   KOSLI_HOST_STAGING: ${{ vars.KOSLI_HOST_STAGING }} # https://staging.app.kosli.com
   KOSLI_ORG: ${{ vars.KOSLI_ORG }}                   # cyber-dojo
-  KOSLI_FLOW: runner-ci
+  KOSLI_FLOW: ${{ vars.KOSLI_FLOW  }}                # runner-ci
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
   KOSLI_TRAIL: ${{ github.sha }}
+  SERVICE_NAME: ${{ github.event.repository.name }}  # runner
 
 jobs:
 
@@ -44,7 +45,7 @@ jobs:
         run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}
           echo "image_tag=${IMAGE_TAG}" >> ${GITHUB_OUTPUT}       
-          echo "image_name=cyberdojo/runner:${IMAGE_TAG}" >> ${GITHUB_OUTPUT}          
+          echo "image_name=cyberdojo/${{ env.SERVICE_NAME }}:${IMAGE_TAG}" >> ${GITHUB_OUTPUT}          
 
 
   pull-request:
@@ -307,7 +308,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: ${{ vars.KOSLI_HOST_STAGING }}
+      url: https://beta.cyber-dojo.org
     env:
       IMAGE_NAME:        ${{ needs.kosli-trail.outputs.image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
@@ -343,7 +344,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: ${{ vars.KOSLI_HOST }}
+      url: https://beta.cyber-dojo.org
     env:
       IMAGE_NAME:        ${{ needs.kosli-trail.outputs.image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
