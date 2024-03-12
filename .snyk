@@ -147,4 +147,14 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2024-04-01T15:48:22.212Z
         created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GOOGLEGOLANGORGPROTOBUFENCODINGPROTOJSON-6393703:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-04-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GOOGLEGOLANGORGPROTOBUFINTERNALENCODINGJSON-6393704:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-04-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
 patch: {}
