@@ -35,6 +35,9 @@ jobs:
             --description="Test runner"          
             --template-file=.kosli.yml
 
+          kosli tag flow "${{ env.KOSLI_FLOW }}"
+            --set repo_url=https://github.com/cyber-dojo/runner
+        
       - name: Begin Kosli Trail
         run:
           kosli begin trail "${{ env.KOSLI_TRAIL }}"
