@@ -157,4 +157,9 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2024-05-01T15:48:22.212Z
         created: 2024-02-10T15:48:22.228Z
+  SNYK-GOLANG-GOLANGORGXNETHTTP2-6531285:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-05-01T15:48:22.212Z
+        created: 2024-02-10T15:48:22.228Z
 patch: {}
