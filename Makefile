@@ -10,10 +10,10 @@ image:
 lint:
 	${PWD}/sh/lint.sh
 
-unit_test:
+unit_test: image
 	${PWD}/sh/test.sh server
 
-integration_test:
+integration_test: image
 	${PWD}/sh/test.sh client
 
 test: unit_test integration_test

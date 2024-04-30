@@ -16,7 +16,9 @@
 readonly PORT="${CYBER_DOJO_RUNNER_PORT}"
 readonly READY_LOG_FILENAME=/tmp/ready.log
 
-wget localhost:${PORT}/ready -q -O - > "${READY_LOG_FILENAME}" 2>&1
+#echo "CYBER_DOJO_RUNNER_PORT=:${CYBER_DOJO_RUNNER_PORT:-}:" >> "${READY_LOG_FILENAME}"
+#echo "PORT=:${PORT:-}:" >> "${READY_LOG_FILENAME}"
+wget http://0.0.0.0:${PORT}/ready -q -O - >> "${READY_LOG_FILENAME}" 2>&1
 
 # keep only most recent 500 lines
 sed -i '501,$ d' "${READY_LOG_FILENAME}"

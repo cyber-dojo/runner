@@ -6,6 +6,8 @@ echo_versioner_env_vars()
 {
   docker run --rm cyberdojo/versioner:latest
   #
+  echo CYBER_DOJO_RUNNER_IMAGE=244531986313.dkr.ecr.eu-central-1.amazonaws.com/runner
+
   echo CYBER_DOJO_RUNNER_SHA="$(image_sha)"
   echo CYBER_DOJO_RUNNER_TAG="$(image_tag)"
   #
