@@ -140,7 +140,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ needs.variables.outputs.aws_region }}
-          role-duration-seconds: 600
+          role-duration-seconds: 900
           role-session-name: ${{ github.event.repository.name }}
           role-to-assume: arn:aws:iam::${{ needs.variables.outputs.aws_account_id }}:role/${{ needs.variables.outputs.gh_actions_iam_role_name }}
           mask-aws-account-id: 'no'
@@ -425,7 +425,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ needs.variables.outputs.aws_region }}
-          role-duration-seconds: 300
+          role-duration-seconds: 900
           role-session-name: ${{ github.event.repository.name }}
           role-to-assume: arn:aws:iam::${{ needs.variables.outputs.aws_account_id }}:role/${{ needs.variables.outputs.gh_actions_iam_role_name }}
           mask-aws-account-id: 'no'
