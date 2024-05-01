@@ -1,0 +1,10 @@
+
+On branch: switch-to-using-private-ecr
+
+$ make unit_test
+
+Seems to be trashing this file:
+  test/data/languages_start_points.manifests.json
+
+Does languages-start-points service in docker-compose.yml
+also need to be switched to run in a private ecr?
