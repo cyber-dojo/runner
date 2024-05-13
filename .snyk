@@ -162,4 +162,25 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2024-06-01T15:48:22.212Z
         created: 2024-02-10T15:48:22.228Z
+  SNYK-ALPINE319-OPENSSL-6593965:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-06-01T15:48:22.212Z
+        created: 2024-05-13T15:48:22.228Z
+  SNYK-ALPINE319-RUBY-6673715:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-06-01T15:48:22.212Z
+        created: 2024-05-13T15:48:22.228Z
+  SNYK-ALPINE319-RUBY-6673719:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-06-01T15:48:22.212Z
+        created: 2024-05-13T15:48:22.228Z
+  SNYK-ALPINE319-RUBY-6673720:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-06-01T15:48:22.212Z
+        created: 2024-05-13T15:48:22.228Z
+
 patch: {}
