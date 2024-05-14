@@ -26,10 +26,6 @@ client_up_healthy_and_clean()
 # - - - - - - - - - - - - - - - - - - -
 exit_non_zero_unless_healthy()
 {
-  if [ "${SERVICE_NAME}" = languages_start_points ] ; then
-    return
-  fi
-
   echo
   local -r MAX_TRIES=50
   printf "Waiting until ${SERVICE_NAME} is healthy"
