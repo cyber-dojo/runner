@@ -1,0 +1,23 @@
+
+On branch: switch-to-using-private-ecr
+
+$ make unit_test
+
+Seems to be trashing this file:
+  test/data/languages_start_points.manifests.json
+
+Does languages-start-points service in docker-compose.yml
+also need to be switched to run in a private ecr?
+I don't think so.
+
+Failing tests are all failing with common backtrace:
+
+JSON::ParserError: unexpected token at ''
+    /usr/lib/ruby/gems/3.2.0/gems/json-2.7.1/lib/json/common.rb:219:in `parse'
+    /usr/lib/ruby/gems/3.2.0/gems/json-2.7.1/lib/json/common.rb:219:in `parse'
+    test/test_base.rb:140:in `manifests'
+    test/test_base.rb:133:in `manifest'
+    test/test_base.rb:125:in `image_name'
+    test/server/run_clang_ptrace_test.rb:20:in `block in <class:RunClangPtraceTest>'
+    test/id58_test_base.rb:38:in `instance_eval'
+    test/id58_test_base.rb:38:in `block in define_test'

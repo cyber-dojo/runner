@@ -17,6 +17,10 @@ echo_versioner_env_vars()
   #
   echo CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME=test_runner_client
   echo CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME=test_runner_server
+  #
+  local -r AWS_ACCOUNT_ID=244531986313
+  local -r AWS_REGION=eu-central-1
+  echo CYBER_DOJO_RUNNER_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/runner"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
