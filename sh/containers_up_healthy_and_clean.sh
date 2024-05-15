@@ -59,6 +59,7 @@ exit_non_zero_unless_started_cleanly()
   #DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
 
   echo
+  echo CONTAINER_NAME=":${CONTAINER_NAME}:"
   echo "Checking if ${SERVICE_NAME} started cleanly."
   if [ "$(top_5)" == "$(clean_top_5)" ]; then
     echo "${SERVICE_NAME} started cleanly."

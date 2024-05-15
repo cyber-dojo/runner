@@ -1458,35 +1458,12 @@
         }
       }
     },
-    "JavaScript 21.5, assert": {
-      "display_name": "JavaScript 21.5, assert",
+    "JavaScript 21.5, Mocha 10.3/chai 5.1/sinon 17.0": {
+      "display_name": "JavaScript 21.5, Mocha 10.3/chai 5.1/sinon 17.0",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "cyberdojofoundation/javascript_node_assert:d52d110",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".jshintrc": {
-          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "hikerTest.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\nconst assert = require('assert');\n\nassert.equal(hiker.answer(), 42 );\n\n// - - - - - - - - - - - - - - - - - - - - - -\n\nconst greenTrafficLightPattern = function() {\n  return 'All tests passed';\n};\nconsole.log(greenTrafficLightPattern());\n"
-        }
-      }
-    },
-    "JavaScript, Mocha+chai+sinon": {
-      "display_name": "JavaScript, Mocha+chai+sinon",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "cyberdojofoundation/javascript_node_mocha_chai_sinon:ed92356",
+      "image_name": "cyberdojofoundation/javascript_node_mocha_chai_sinon:d998e6d",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1516,8 +1493,31 @@
         }
       }
     },
-    "JavaScript, assert+jQuery": {
-      "display_name": "JavaScript, assert+jQuery",
+    "JavaScript 21.5, assert": {
+      "display_name": "JavaScript 21.5, assert",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "cyberdojofoundation/javascript_node_assert:d52d110",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        ".jshintrc": {
+          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "hikerTest.js": {
+          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\nconst assert = require('assert');\n\nassert.equal(hiker.answer(), 42 );\n\n// - - - - - - - - - - - - - - - - - - - - - -\n\nconst greenTrafficLightPattern = function() {\n  return 'All tests passed';\n};\nconsole.log(greenTrafficLightPattern());\n"
+        }
+      }
+    },
+    "JavaScript 21.5, assert+jQuery 3.7.1": {
+      "display_name": "JavaScript 21.5, assert+jQuery 3.7.1",
       "filename_extension": [
         ".js",
         ".html"
@@ -1546,12 +1546,12 @@
         }
       }
     },
-    "JavaScript, qunit+sinon": {
-      "display_name": "JavaScript, qunit+sinon",
+    "JavaScript 21.6, qunit 2.20/sinon 17.0": {
+      "display_name": "JavaScript 21.6, qunit 2.20/sinon 17.0",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "cyberdojofoundation/javascript_node_qunit_sinon:c4a793f",
+      "image_name": "cyberdojofoundation/javascript_node_qunit_sinon:197b4d6",
       "max_seconds": 10,
       "progress_regexs": [
         "/W*d+W+d+W+d+W+([1-9]d*)W+(d+)W+d+W+/",
@@ -2177,6 +2177,29 @@
         },
         "test-hiker.zig": {
           "content": "const std = @import(\"std\");\nconst assert = std.debug.assert;\n\nconst answer = @import(\"hiker.zig\").answer;\n\ntest \"the answer to life the universe and everything\" {\n    assert(answer() == 42);\n}\n"
+        }
+      }
+    },
+    "jq 1.7.1, approvals": {
+      "display_name": "jq 1.7.1, approvals",
+      "filename_extension": [
+        ".jq"
+      ],
+      "image_name": "cyberdojofoundation/jq_approvals:9b3e5bd",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n# 1. Only return _newly_ generated reports.\ncyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n# 2. Remove text files we don't want returned.\ncyber_dojo_delete_dirs .pytest_cache # ...\n#cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# Verify the JQ inputs for validity/correctness\nsource /jq/verify-jq.sh\nmain\n"
+        },
+        "hiker.jq": {
+          "content": "def answer:\n    6 * 9;\n"
+        },
+        "test_hiker.jq": {
+          "content": "include \"hiker\";\n\ndef test_life_the_universe_and_everything:\n    answer;\n"
+        },
+        "test_hiker.test_life_the_universe_and_everything.approved": {
+          "content": "42\n"
         }
       }
     }
