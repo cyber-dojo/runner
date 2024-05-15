@@ -195,8 +195,8 @@ jobs:
         run: |
           DIGEST=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')
           
-          kosli attest artifact "${{ env.IMAGE_NAME }}"
-            --fingerprint="${DIGEST}"
+          kosli attest artifact "${{ env.IMAGE_NAME }}" \
+            --fingerprint="${DIGEST}" \
             --name=runner
           
           echo "artifact_digest=${DIGEST}" >> ${GITHUB_OUTPUT}
