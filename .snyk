@@ -182,5 +182,10 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2024-06-01T15:48:22.212Z
         created: 2024-05-13T15:48:22.228Z
+  SNYK-ALPINE319-BUSYBOX-6913413:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2024-06-01T15:48:22.212Z
+        created: 2024-05-13T15:48:22.228Z
 
 patch: {}
