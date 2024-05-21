@@ -1,8 +1,5 @@
-ARG BASE_IMAGE=cyberdojo/docker-base:402fdd6
+ARG BASE_IMAGE=cyberdojo/docker-base:368083c
 FROM ${BASE_IMAGE}
-# Updating the base image, eg to reduce the entries in .snyk succeeds but then
-# fails the snyk container scan (in .github/workflows/main.yml) with the error
-# Invalid OCI archive
 LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'

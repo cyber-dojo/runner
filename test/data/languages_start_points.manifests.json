@@ -1721,34 +1721,6 @@
         }
       }
     },
-    "Python 3.12, approval-pytest 0.2.4": {
-      "display_name": "Python 3.12, approval-pytest 0.2.4",
-      "filename_extension": [
-        ".py",
-        ".approved.txt",
-        ".received.txt"
-      ],
-      "image_name": "cyberdojofoundation/python_approval_pytest:bcd7dd8",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
-        },
-        "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\nfrom approvaltests.approvals import verify\nfrom approvaltests.reporters.report_on_cyber_dojo import ReportOnCyberDojo\nfrom approvaltests import set_default_reporter\nimport pytest\n\n@pytest.fixture(autouse=True, scope='session')\ndef setup():\n    set_default_reporter(ReportOnCyberDojo())\n\n# if you want to change the expected result, \n# move test_hiker.test_global.recieved.txt\n# to   test_hiker.test_global.approved.txt\n# to view the differences, \n# open test_hiker.test_global.diff\n\ndef test_global():\n    result = str(global_answer())\n    verify(result)\n\ndef test_instance():\n    result = str(Hiker().instance_answer())\n    verify(result)\n"
-        },
-        "test_hiker.test_global.approved.txt": {
-          "content": "42\n"
-        },
-        "test_hiker.test_instance.approved.txt": {
-          "content": "42\n"
-        }
-      }
-    },
     "Python 3.12, approval-unittest 10.3": {
       "display_name": "Python 3.12, approval-unittest 10.3",
       "filename_extension": [
@@ -1774,6 +1746,28 @@
         },
         "test_hiker.py": {
           "content": "from hiker import global_answer, Hiker\nimport unittest\nfrom approvaltests.approvals import verify\nfrom approvaltests.reporters.report_on_cyber_dojo import ReportOnCyberDojo\nfrom approvaltests import set_default_reporter\n\n\nclass HikerTest(unittest.TestCase):\n    def setUp(self):\n        set_default_reporter(ReportOnCyberDojo())\n\n    # if you want to change the expected result, \n    # move HikerTest.test_global.recieved.txt\n    # to   HikerTest.test_global.approved.txt\n    # to view the differences, \n    # open HikerTest.test_global.diff\n\n    def test_global(self):\n        result = str(global_answer())\n        verify(result)\n\n    def test_instance(self):\n        result = str(Hiker().instance_answer())\n        verify(result)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+        }
+      }
+    },
+    "Python 3.12, approvaltests-12.0.0": {
+      "display_name": "Python 3.12, approvaltests-12.0.0",
+      "filename_extension": [
+        ".py",
+        ".approved.txt",
+        ".received.txt"
+      ],
+      "image_name": "cyberdojofoundation/python_approval_pytest:0db3eb4",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.py": {
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
+        },
+        "test_hiker.py": {
+          "content": "from hiker import global_answer, Hiker\n\nfrom approvaltests import verify, Options\nfrom approvaltests.inline.inline_options import InlineOptions\n\noptions = Options().inline(InlineOptions.semi_automatic())\n\n\ndef test_global():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(global_answer())\n    verify(result, options=options)\n\n\ndef test_instance():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(Hiker().instance_answer())\n    verify(result, options=options)\n"
         }
       }
     },
