@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=cyberdojo/docker-base:402fdd6
+ARG BASE_IMAGE=cyberdojo/docker-base:4e163c1
 FROM ${BASE_IMAGE}
 # Updating the base image, eg to reduce the entries in .snyk succeeds but then
 # fails the snyk container scan (in .github/workflows/main.yml) with the error
