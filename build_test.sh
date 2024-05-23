@@ -8,9 +8,7 @@ source "${SH_DIR}/exit_zero_if_build_only.sh"
 source "${SH_DIR}/exit_zero_if_show_help.sh"
 
 exit_zero_if_show_help "$@"
-exit_non_zero_unless_installed docker
-exit_non_zero_unless_installed docker-compose
-exit_non_zero_unless_installed jq
+exit_non_zero_unless_installed docker jq
 
 "${SH_DIR}/build_tag.sh" "$@"
 exit_zero_if_build_only "$@"
