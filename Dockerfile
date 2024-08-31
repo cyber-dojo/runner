@@ -4,7 +4,7 @@ LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
 
-RUN apk add curl=8.9.1-r0      # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-7838598
+RUN apk add curl # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-7838598
 
 WORKDIR /runner
 COPY . .
