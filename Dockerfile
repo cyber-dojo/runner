@@ -6,6 +6,8 @@ RUN gem install --no-document 'concurrent-ruby'
 
 RUN apk add curl # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-7838598
 
+RUN apk add libexpat=2.6.3-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-7908399
+
 WORKDIR /runner
 COPY . .
 
