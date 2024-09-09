@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
         with:
-          fetch-depth: 10
+          fetch-depth: 1
 
       - name: Prepare outputs for workflow jobs
         id: vars
@@ -66,6 +66,8 @@ jobs:
       pull-requests: read
     steps:
       - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 1
 
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -127,7 +129,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
