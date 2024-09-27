@@ -207,11 +207,13 @@ jobs:
           make unit_test
 
       - name: Setup Kosli CLI
+        if: success() || failure()
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest results to Kosli
+        if: success() || failure()
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run: |          
@@ -250,11 +252,13 @@ jobs:
           make integration_test
 
       - name: Setup Kosli CLI
+        if: success() || failure()
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest results to Kosli
+        if: success() || failure()
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run: |          
@@ -290,11 +294,6 @@ jobs:
         run:
           docker image load --input ${{ env.IMAGE_TAR_FILENAME }}
 
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
       - name: Setup Snyk
         uses: snyk/actions/setup@master
 
@@ -309,7 +308,13 @@ jobs:
             --sarif
             --sarif-file-output="${SARIF_FILENAME}"
 
-      - name: Report Snyk container scan results to Kosli Trail
+      - name: Setup Kosli CLI
+        if: ${{ success() || failure() }}
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Attest Snyk container scan results to Kosli Trail
         if: ${{ success() || failure() }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
@@ -332,11 +337,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
       - name: Setup Snyk
         uses: snyk/actions/setup@master
 
@@ -350,7 +350,13 @@ jobs:
             --policy-path=.snyk
             .
 
-      - name: Report Snyk code scan results to Kosli Trail
+      - name: Setup Kosli CLI
+        if: ${{ success() || failure() }}
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Attest Snyk code scan results to Kosli Trail
         if: ${{ success() || failure() }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
