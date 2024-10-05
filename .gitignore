@@ -1,3 +1,4 @@
+snyk.container.scan.json
 
 test/client/reports/*
 test/client/reports/.*
