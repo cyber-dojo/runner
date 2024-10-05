@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=cyberdojo/docker-base:c852959
+ARG BASE_IMAGE=cyberdojo/docker-base:43587ec
 FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 

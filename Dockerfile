@@ -1,13 +1,8 @@
-ARG BASE_IMAGE=cyberdojo/docker-base:c852959
+ARG BASE_IMAGE=cyberdojo/docker-base:43587ec
 FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
-
-RUN apk add curl # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-7838598
-
-RUN apk add libexpat=2.6.3-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-7908399
-RUN apk add libcurl=8.10.1-r0  # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-7931858
 
 WORKDIR /runner
 COPY . .

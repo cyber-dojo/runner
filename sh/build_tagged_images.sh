@@ -30,7 +30,8 @@ build_images()
 #- - - - - - - - - - - - - - - - - - - - - - - -
 tag_images()
 {
-  docker tag ${CYBER_DOJO_RUNNER_IMAGE}:$(image_tag)        ${CYBER_DOJO_RUNNER_IMAGE}:latest
+  docker tag ${CYBER_DOJO_RUNNER_IMAGE}:$(image_tag) ${CYBER_DOJO_RUNNER_IMAGE}:latest
+  docker tag ${CYBER_DOJO_RUNNER_IMAGE}:$(image_tag) cyberdojo/runner:$(image_tag)
   if [ "${1}" != server ]; then
     docker tag ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:$(image_tag) ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:latest
   fi
