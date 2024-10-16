@@ -70,8 +70,6 @@ jobs:
 
   pull-request:
     needs: [setup]
-    env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -88,6 +86,8 @@ jobs:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest pull-request evidence to Kosli Trail
+        env:
+          KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
         run:
           kosli attest pullrequest github
             --github-token=${{ secrets.GITHUB_TOKEN }}
@@ -96,39 +96,31 @@ jobs:
 
   lint:
     needs: [setup]
-    env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
+      - name: Run Rubocop lint on source
+        id: lint
+        run:
+          make lint
+
       - name: Setup Kosli CLI
+        if: success() || failure()
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Run Rubocop lint on source, attest evidence to Kosli Trail
+      - name: Attest evidence to Kosli Trail
+        if: success() || failure()
         env:
-          KOSLI_ATTACHMENTS: /tmp/kosli_attachments
+          KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
         run: |
-          mkdir -p "${KOSLI_ATTACHMENTS}"
-          
-          set +e
-          make lint | tee "${KOSLI_ATTACHMENTS}"/rubocop.log
-          STATUS=${PIPESTATUS[0]}
-          set -e
-
-          KOSLI_COMPLIANT=$([ ${STATUS} = 0 ] && echo true || echo false)
-          cp .rubocop.yml "${KOSLI_ATTACHMENTS}"
-          
+          KOSLI_COMPLIANT=$([ "${{ steps.lint.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-            --attachments="${KOSLI_ATTACHMENTS}" \
-            --compliant="${KOSLI_COMPLIANT}" \
             --name=runner.lint
-          
-          exit ${STATUS}
 
 
   build-image:
@@ -136,7 +128,6 @@ jobs:
     needs: [setup]
     env:
       IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     permissions:
       id-token: write
       contents: write
@@ -184,29 +175,28 @@ jobs:
           key: ${{ env.IMAGE_NAME }}
 
       - name: Setup Kosli CLI
-        if: success() || failure()
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest image evidence to Kosli Trail and make Digest available to following steps and jobs
-        if: success() || failure()
+      - name: Attest image evidence to Kosli Trail
+        env:
+          KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
+        run:
+          kosli attest artifact "${{ env.IMAGE_NAME }}"
+            --artifact-type=docker          
+            --name=runner
+
+      - name: Make Artifact fingerprint available to following jobs
         id: variables
         run: |
-          DIGEST=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')
-          
-          kosli attest artifact "${{ env.IMAGE_NAME }}" \
-            --fingerprint="${DIGEST}" \
-            --name=runner
-          
-          echo "artifact_digest=${DIGEST}" >> ${GITHUB_OUTPUT}
+          FINGERPRINT=$(kosli fingerprint "${{ env.IMAGE_NAME }}" --artifact-type=docker)          
+          echo "artifact_digest=${FINGERPRINT}" >> ${GITHUB_OUTPUT}
 
 
   unit-tests:
     runs-on: ubuntu-latest
     needs: [setup, build-image]
-    env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -235,6 +225,7 @@ jobs:
       - name: Attest results to Kosli
         if: success() || failure()
         env:
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli attest junit
@@ -244,6 +235,7 @@ jobs:
       - name: Attest coverage to Kosli
         if: success() || failure()
         env:
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
           REPORTS_DIR: "./test/server/reports"
         run:
@@ -256,8 +248,6 @@ jobs:
   integration-tests:
     runs-on: ubuntu-latest
     needs: [setup, build-image]
-    env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -286,6 +276,7 @@ jobs:
       - name: Attest results to Kosli
         if: success() || failure()
         env:
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli attest junit
@@ -295,8 +286,9 @@ jobs:
       - name: Attest coverage to Kosli
         if: success() || failure()
         env:
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
-          REPORTS_DIR: ./test/client/reports
+          REPORTS_DIR:       ./test/client/reports
         run:
           kosli attest generic
               --attachments="${REPORTS_DIR}/coverage"
@@ -308,7 +300,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, build-image]
     env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
       SARIF_FILENAME: snyk.container.scan.json
     steps:
       - uses: actions/checkout@v4
@@ -340,19 +331,19 @@ jobs:
             --sarif-file-output="${SARIF_FILENAME}"
 
       - name: Setup Kosli CLI
-        if: ${{ success() || failure() }}
+        if: success() || failure()
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest Snyk container scan results to Kosli Trail
-        if: ${{ success() || failure() }}
+        if: success() || failure()
         env:
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
-          KOSLI_ATTACHMENTS: .snyk
         run:
-          kosli attest snyk
-            --name=runner.snyk-container-scan
+          kosli attest snyk 
+            --name=runner.snyk-container-scan 
             --scan-results="${SARIF_FILENAME}"
 
 
@@ -360,7 +351,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, build-image]
     env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
       SARIF_FILENAME: snyk.code.scan.json
     steps:
       - uses: actions/checkout@v4
@@ -381,27 +371,25 @@ jobs:
             .
 
       - name: Setup Kosli CLI
-        if: ${{ success() || failure() }}
+        if: success() || failure()
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest Snyk code scan results to Kosli Trail
-        if: ${{ success() || failure() }}
+        if: success() || failure()
         env:
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
-          KOSLI_ATTACHMENTS: .snyk
         run:
-          kosli attest snyk "${IMAGE_NAME}"
-            --name=runner.snyk-code-scan
+          kosli attest snyk
+            --name=runner.snyk-code-scan 
             --scan-results="${SARIF_FILENAME}"
 
 
   sdlc-control-gate:
     runs-on: ubuntu-latest
     needs: [setup, build-image, pull-request, lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
-    env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -410,7 +398,8 @@ jobs:
 
       - name: Kosli SDLC gate to short-circuit the Trail
         env:
-          IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
+          IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli assert artifact ${IMAGE_NAME}
@@ -419,8 +408,6 @@ jobs:
   approve-deployment-to-beta:
     runs-on: ubuntu-latest
     needs: [setup, build-image, sdlc-control-gate]
-    env:
-      KOSLI_DRY_RUN: ${{ needs.setup.outputs.kosli_dry_run }}
     environment:
       name: staging
       url: https://beta.cyber-dojo.org
@@ -437,6 +424,7 @@ jobs:
       - name: Attest approval of deployment to Kosli
         env:
           IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
           KOSLI_ENVIRONMENT: aws-beta
         run:
@@ -472,6 +460,7 @@ jobs:
       - name: Attest approval of deployment to Kosli
         env:
           IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+          KOSLI_DRY_RUN:     ${{ needs.setup.outputs.kosli_dry_run }}
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
           KOSLI_ENVIRONMENT: aws-prod
         run:
