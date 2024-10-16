@@ -1,4 +1,4 @@
-name: Main - reports Trails to https://app.kosli.com
+name: Main - Attests to https://app.kosli.com
 
 on:
   push:
@@ -75,7 +75,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest pull-request evidence to Kosli Trail
+      - name: Attest pull-request evidence to Kosli
         if: ${{ github.ref }} == 'refs/heads/main'
         run:
           kosli attest pullrequest github
@@ -102,7 +102,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest evidence to Kosli Trail
+      - name: Attest evidence to Kosli
         if: ${{ github.ref }} == 'refs/heads/main' && (success() || failure())
         run: |
           KOSLI_COMPLIANT=$([ "${{ steps.lint.outcome }}" == 'success' ] && echo true || echo false)
@@ -162,13 +162,13 @@ jobs:
           key: ${{ env.IMAGE_NAME }}
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref }} == 'refs/heads/main' && (success() || failure())
+        if: ${{ github.ref }} == 'refs/heads/main'
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest image evidence to Kosli Trail
-        if: ${{ github.ref }} == 'refs/heads/main' && (success() || failure())
+      - name: Attest image evidence to Kosli
+        if: ${{ github.ref }} == 'refs/heads/main'
         run:
           kosli attest artifact "${{ env.IMAGE_NAME }}"
             --artifact-type=docker          
@@ -319,7 +319,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest Snyk container scan results to Kosli Trail
+      - name: Attest Snyk container scan results to Kosli
         if: ${{ github.ref }} == 'refs/heads/main' && (success() || failure())
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
@@ -358,7 +358,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest Snyk code scan results to Kosli Trail
+      - name: Attest Snyk code scan results to Kosli
         if: ${{ github.ref }} == 'refs/heads/main' && (success() || failure())
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
@@ -378,7 +378,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Kosli SDLC gate to short-circuit the Trail
+      - name: Kosli SDLC gate to short-circuit the workflow
         if: ${{ github.ref }} == 'refs/heads/main'
         env:
           IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
