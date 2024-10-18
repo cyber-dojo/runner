@@ -107,6 +107,43 @@ jobs:
             --name=runner.lint
 
 
+  snyk-code-scan:
+    runs-on: ubuntu-latest
+    needs: []
+    env:
+      SARIF_FILENAME: snyk.code.scan.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk code scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run:
+          snyk code test
+            --sarif
+            --sarif-file-output="${SARIF_FILENAME}"
+            --policy-path=.snyk
+            .
+
+      - name: Setup Kosli CLI
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Attest evidence to Kosli
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        run:
+          kosli attest snyk
+            --name=runner.snyk-code-scan 
+            --scan-results="${SARIF_FILENAME}"
+
+
   build-image:
     runs-on: ubuntu-latest
     needs: [setup]
@@ -323,45 +360,6 @@ jobs:
         run:
           kosli attest snyk 
             --name=runner.snyk-container-scan 
-            --scan-results="${SARIF_FILENAME}"
-
-
-  snyk-code-scan:
-    runs-on: ubuntu-latest
-    needs: [setup, build-image]
-    env:
-      SARIF_FILENAME: snyk.code.scan.json
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
-
-      - name: Run Snyk code scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run:
-          snyk code test
-            --sarif
-            --sarif-file-output="${SARIF_FILENAME}"
-            --policy-path=.snyk
-            .
-
-      - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        env:
-          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
-        run:
-          kosli attest snyk
-            --name=runner.snyk-code-scan 
             --scan-results="${SARIF_FILENAME}"
 
 
