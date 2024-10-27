@@ -3,7 +3,6 @@ set -Eeu
 
 repo_root() { git rev-parse --show-toplevel; }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 setup_dependent_images()
 {
   if [ "${1:-}" != server ]; then
@@ -12,7 +11,6 @@ setup_dependent_images()
   remove_pulled_image
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 pull_dependent_images()
 {
   echo
@@ -63,7 +61,6 @@ pull_dependent_images()
       done
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 remove_pulled_image()
 {
   echo
