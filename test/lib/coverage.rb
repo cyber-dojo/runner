@@ -14,11 +14,12 @@ SimpleCov.start do
   # add_group('debug') { |src| puts src.filename; false }
   code_dir = ENV.fetch('CODE_DIR', nil)
   test_dir = ENV.fetch('TEST_DIR', nil)
-  add_group(code_dir) { |src| src.filename =~ %r{^/runner/#{code_dir}/} }
   add_group(test_dir) { |src| src.filename =~ %r{^/runner/#{test_dir}/.*_test\.rb$} }
+  add_group(code_dir) { |src| src.filename !~ %r{^/runner/#{test_dir}}}
 end
 
-SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
-                                                                  SimpleCov::Formatter::HTMLFormatter,
-                                                                  SimpleCov::Formatter::JSONFormatter
-                                                                ])
+formatters = [
+  SimpleCov::Formatter::HTMLFormatter,
+  SimpleCov::Formatter::JSONFormatter
+]
+SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(formatters)

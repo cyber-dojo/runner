@@ -1,9 +1,4 @@
-ARG BASE_IMAGE=cyberdojo/docker-base:43587ec
-FROM ${BASE_IMAGE}
-# ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
-ARG BASE_IMAGE
-ENV BASE_IMAGE=${BASE_IMAGE}
-
+FROM cyberdojo/docker-base:43587ec
 LABEL maintainer=jon@jaggersoft.com
 
 WORKDIR /runner
