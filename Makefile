@@ -7,9 +7,6 @@ IMAGE_NAME := cyberdojo/runner:${SHORT_SHA}
 image:
 	${PWD}/sh/build_tag.sh
 
-lint:
-	${PWD}/sh/lint.sh
-
 unit_test: image
 	${PWD}/sh/test.sh server
 
@@ -17,6 +14,9 @@ integration_test: image
 	${PWD}/sh/test.sh client
 
 test: unit_test integration_test
+
+rubocop_lint:
+	docker run --rm --volume "${PWD}:/app" cyberdojo/rubocop --raise-cop-error
 
 demo:
 	${PWD}/sh/demo.sh

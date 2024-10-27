@@ -8,13 +8,13 @@ Lint/EmptyBlock:
 
 Layout/EmptyLineAfterMagicComment:
   Exclude:
-    - code/**/*
-    - client/code/**/*
+    - source/server/**/*
+    - source/client/**/*
     - test/**/*
 
 Layout/LineLength:
   Exclude:
-    - client/code/demo.rb
+    - source/client/demo.rb
     - test/lib/simplecov_json.rb
 
 Lint/PercentStringArray:
@@ -23,11 +23,9 @@ Lint/PercentStringArray:
 
 Lint/RescueException:
   Exclude:
-    - client/code/dispatcher.rb
-    - client/code/rack_dispatcher.rb
-    - code/dispatcher.rb
-    - code/rack_dispatcher.rb
-    - code/traffic_light.rb
+    - source/*/dispatcher.rb
+    - source/*/rack_dispatcher.rb
+    - source/server/traffic_light.rb
 
 Lint/ShadowingOuterLocalVariable:
   Exclude:
@@ -36,22 +34,21 @@ Lint/ShadowingOuterLocalVariable:
 # I often give an inline expression a name for readability
 Lint/UselessAssignment:
   Exclude:
-    - code/**/*
+    - source/**/*
     - test/**/*
 
 Lint/UselessMethodDefinition:
   Exclude:
-    - code/empty_binding.rb
+    - source/server/empty_binding.rb
 
 Metrics/AbcSize:
   Exclude:
     - test/**/*
-    - code/runner.rb
-    - code/dispatcher.rb
-    - code/context.rb
-    - code/capture3_with_timeout.rb
-    - client/code/dispatcher.rb
-    - client/code/demo.rb
+    - source/server/runner.rb
+    - source/*/dispatcher.rb
+    - source/server/context.rb
+    - source/server/capture3_with_timeout.rb
+    - source/client/demo.rb
 
 Metrics/BlockLength:
   Exclude:
@@ -60,38 +57,36 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - test/**/*
-    - code/runner.rb
-    - client/code/demo.rb
+    - source/server/runner.rb
+    - source/client/demo.rb
 
 Metrics/CyclomaticComplexity:
   Exclude:
-    - client/code/dispatcher.rb
-    - code/context.rb
-    - code/dispatcher.rb
+    - source/*/dispatcher.rb
+    - source/server/context.rb
     - test/id58_test_base.rb
 
 Metrics/MethodLength:
   Exclude:
     - test/**/*
-    - code/traffic_light.rb
-    - code/tagged_image_name.rb
-    - code/runner.rb
-    - code/puller.rb
-    - code/files_delta.rb
-    - code/externals/bash_sheller.rb
-    - code/dispatcher.rb
-    - code/capture3_with_timeout.rb
-    - client/code/dispatcher.rb
-    - client/code/demo.rb
-    - code/home_files.rb
+    - source/server/traffic_light.rb
+    - source/server/tagged_image_name.rb
+    - source/server/runner.rb
+    - source/server/puller.rb
+    - source/server/files_delta.rb
+    - source/server/externals/bash_sheller.rb
+    - source/*/dispatcher.rb
+    - source/server/capture3_with_timeout.rb
+    - source/client/demo.rb
+    - source/server/home_files.rb
 
 Metrics/ParameterLists:
   Exclude:
-    - code/runner.rb
+    - source/server/runner.rb
 
 Metrics/PerceivedComplexity:
   Exclude:
-    - code/context.rb
+    - source/server/context.rb
 
 Naming/VariableNumber:
   Exclude:
@@ -105,8 +100,7 @@ Style/ClassVars:
 
 Style/Documentation:
   Exclude:
-    - code/**/*
-    - client/code/**/*
+    - source/*/**/*
     - test/**/*
 
 Style/FormatStringToken:
@@ -115,8 +109,8 @@ Style/FormatStringToken:
 
 Style/FrozenStringLiteralComment:
   Exclude:
-    - code/gnu_zip.rb
-    - code/tarfile_writer.rb
+    - source/server/gnu_zip.rb
+    - source/server/tarfile_writer.rb
     - test/test_base.rb
 
 Style/MissingRespondToMissing:
@@ -125,7 +119,7 @@ Style/MissingRespondToMissing:
 
 Style/RedundantInitialize:
   Exclude:
-    - code/prober.rb
+    - source/server/prober.rb
 
 Style/StringConcatenation:
   Exclude:

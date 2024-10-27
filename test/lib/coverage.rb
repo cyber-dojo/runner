@@ -15,7 +15,7 @@ SimpleCov.start do
   code_dir = ENV.fetch('CODE_DIR', nil)
   test_dir = ENV.fetch('TEST_DIR', nil)
   add_group(test_dir) { |src| src.filename =~ %r{^/runner/#{test_dir}/.*_test\.rb$} }
-  add_group(code_dir) { |src| src.filename !~ %r{^/runner/#{test_dir}}}
+  add_group(code_dir) { |src| src.filename !~ %r{^/runner/#{test_dir}} }
 end
 
 formatters = [

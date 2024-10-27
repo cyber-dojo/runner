@@ -91,7 +91,7 @@ jobs:
       - name: Run Rubocop lint on source
         id: lint
         run:
-          make lint
+          make rubocop_lint
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
