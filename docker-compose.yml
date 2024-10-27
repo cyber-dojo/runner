@@ -3,7 +3,7 @@ services:
 
   client:
     build:
-      context: client
+      context: source/client
       args: [ COMMIT_SHA ]
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}

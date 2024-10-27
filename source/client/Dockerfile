@@ -8,6 +8,6 @@ ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
 
 USER nobody
-HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/code/config/healthcheck.sh
+HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/config/healthcheck.sh
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
-CMD [ "/runner/code/config/up.sh" ]
+CMD [ "/runner/config/up.sh" ]
