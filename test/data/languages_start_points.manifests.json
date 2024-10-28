@@ -1596,12 +1596,12 @@
         }
       }
     },
-    "Kotlin, Kotlintest": {
-      "display_name": "Kotlin, Kotlintest",
+    "Kotlin 2.0.21, Kotlintest 5.9.1": {
+      "display_name": "Kotlin 2.0.21, Kotlintest 5.9.1",
       "filename_extension": [
         ".kt"
       ],
-      "image_name": "cyberdojofoundation/kotlin_test:857e4fa",
+      "image_name": "ghcr.io/cyber-dojo-languages/kotlin_kotest:53adb24",
       "max_seconds": 20,
       "tab_size": 4,
       "visible_files": {
@@ -1609,10 +1609,10 @@
           "content": "package hiker\n\nfun answer():Int {\n    return 6 * 9\n}\n"
         },
         "HikerTest.kt": {
-          "content": "// [X] See please-help.txt \n\npackage hiker /*[X]*/\n\nimport io.kotlintest.specs.StringSpec\nimport io.kotlintest.shouldBe\nimport io.kotlintest.shouldNotBe\n\nclass HikerTest /*[X]*/ : StringSpec() {\n\n    init {\n        \"Example Test\" {\n            hiker.answer() shouldBe 42\n        }\n\n        \"Other example test\" {\n            \"a\" shouldNotBe \"b\"\n        }\n    }\n}\n"
+          "content": "// [X] See please-help.txt \n\npackage hiker /*[X]*/\n\nimport io.kotest.core.spec.style.StringSpec\nimport io.kotest.matchers.shouldBe\nimport io.kotest.matchers.shouldNotBe\n\n\nclass HikerTest : StringSpec() { /*[X]*/\n\n    init {\n        \"Example Test\" {\n            hiker.answer() shouldBe 42\n        }\n\n        \"Other example test\" {\n            \"a\" shouldNotBe \"b\"\n        }\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "# [X] See hard-wired-test-name.txt\n\nCLASSES=.:`ls /usr/share/kotlin/kotlinc/lib/*.jar | tr '\\n' ':'`\nCLASSES=`ls /kotlin/*.jar | tr '\\n' ':'`${CLASSES}\nkotlinc *.kt -include-runtime -cp $CLASSES\nif [ $? -eq 0 ]; then\n  java -cp $CLASSES \\\n    io.kotlintest.runner.console.LauncherKt \\\n    --writer basic \\\n    --spec hiker.HikerTest  # [X]\nfi\n"
+          "content": "# [X] See hard-wired-test-name.txt\n\nCLASSES=.:`ls /usr/share/kotlin/kotlinc/lib/*.jar | tr '\\n' ':'`\nCLASSES=`ls /kotlin/*.jar | tr '\\n' ':'`${CLASSES}\nkotlinc *.kt -include-runtime -cp $CLASSES\nif [ $? -eq 0 ]; then\n  java -cp $CLASSES \\\n    io.kotest.engine.launcher.MainKt \\\n    --spec hiker.HikerTest \\\n    --termcolor true\n    # [X]\nfi\n"
         },
         "please-help.txt": {
           "content": "\nA KotlinTest project usually executes with Gradle or Maven,\nand these tools know how to find all the test classes and\nexecute them one by one.\n\ncyber-dojo uses the command-line only, so we don't have that\nkind of intelligence out-of-the-box. Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n\nTo get something working the test package and test class name\nis hard-wired in the cyber-dojo.sh file. If you change the\ntest package name and/or the test class name you must update\ncyber-dojo.sh appropriately.\n\nNote that cyber-dojo.sh uses the option [--writer basic]\nwhich writes red/green terminal colour codes to the output.\nThese don't render properly in a plain textarea and there appears\nto be no way to turn it off. Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n\nIf you write more than one test with the same name kotlin-test\nappears to run no tests at all! Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n"
@@ -1701,12 +1701,12 @@
         }
       }
     },
-    "Python 3.12, Pytest 7.4": {
-      "display_name": "Python 3.12, Pytest 7.4",
+    "Python 3.13, Pytest 8.33": {
+      "display_name": "Python 3.13, Pytest 8.33",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "cyberdojofoundation/python_pytest:2b04bec",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:3b1d90e",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1721,14 +1721,14 @@
         }
       }
     },
-    "Python 3.12, approval-unittest 10.3": {
-      "display_name": "Python 3.12, approval-unittest 10.3",
+    "Python 3.13, approval-unittest 14.0": {
+      "display_name": "Python 3.13, approval-unittest 14.0",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/python_approval_unittest:080dff5",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:173d501",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1749,34 +1749,12 @@
         }
       }
     },
-    "Python 3.12, approvaltests-12.0.0": {
-      "display_name": "Python 3.12, approvaltests-12.0.0",
-      "filename_extension": [
-        ".py",
-        ".approved.txt",
-        ".received.txt"
-      ],
-      "image_name": "cyberdojofoundation/python_approval_pytest:0db3eb4",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
-        },
-        "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\n\nfrom approvaltests import verify, Options\nfrom approvaltests.inline.inline_options import InlineOptions\n\noptions = Options().inline(InlineOptions.semi_automatic())\n\n\ndef test_global():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(global_answer())\n    verify(result, options=options)\n\n\ndef test_instance():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(Hiker().instance_answer())\n    verify(result, options=options)\n"
-        }
-      }
-    },
-    "Python 3.12, assert": {
-      "display_name": "Python 3.12, assert",
+    "Python 3.13, assert": {
+      "display_name": "Python 3.13, assert",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "cyberdojofoundation/python_assert:ed44c2d",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:5cccb06",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1791,13 +1769,13 @@
         }
       }
     },
-    "Python 3.12, behave 1.2.6": {
-      "display_name": "Python 3.12, behave 1.2.6",
+    "Python 3.13, behave 1.2.6": {
+      "display_name": "Python 3.13, behave 1.2.6",
       "filename_extension": [
         ".py",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/python_behave:aec3ec7",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:c771064",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1815,12 +1793,34 @@
         }
       }
     },
-    "Python 3.12, unittest": {
-      "display_name": "Python 3.12, unittest",
+    "Python 3.13, pytest-approvaltests 0.2.4-14.0": {
+      "display_name": "Python 3.13, pytest-approvaltests 0.2.4-14.0",
+      "filename_extension": [
+        ".py",
+        ".approved.txt",
+        ".received.txt"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:2411e61",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.py": {
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
+        },
+        "test_hiker.py": {
+          "content": "from hiker import global_answer, Hiker\n\nfrom approvaltests import verify, Options\nfrom approvaltests.inline.inline_options import InlineOptions\n\noptions = Options().inline(InlineOptions.semi_automatic())\n\n\ndef test_global():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(global_answer())\n    verify(result, options=options)\n\n\ndef test_instance():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(Hiker().instance_answer())\n    verify(result, options=options)\n"
+        }
+      }
+    },
+    "Python 3.13, unittest": {
+      "display_name": "Python 3.13, unittest",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "cyberdojofoundation/python_unittest:0deeb77",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:044077e",
       "progress_regexs": [
         "FAILED \\(failures=\\d+\\)",
         "OK"
@@ -1954,7 +1954,7 @@
           "content": "require 'simplecov'\nrequire 'simplecov-console'\nrequire 'stringio'\n\n$exception_raised = false\n\nmodule SimpleCov\n  module Formatter\n    class FileWriter\n      def format(result)\n        unless amber_traffic_light?\n          stdout = capture_stdout {\n            SimpleCov::Formatter::Console.new.format(result)\n          }\n          `mkdir #{report_dir} 2> /dev/null`\n          IO.write(\"#{report_dir}/coverage.txt\", stdout)\n        end\n      end\n      def amber_traffic_light?\n        $exception_raised\n      end\n      def report_dir\n        \"#{ENV['CYBER_DOJO_SANDBOX']}/report\"\n      end\n      def capture_stdout\n        begin\n          uncaptured_stdout = $stdout\n          captured_stdout = StringIO.new('', 'w')\n          $stdout = captured_stdout\n          yield\n          $stdout.string\n        ensure\n          $stdout = uncaptured_stdout\n        end\n      end\n    end\n  end\nend\n\nSimpleCov.command_name(\"MiniTest\")\nSimpleCov.formatter = SimpleCov::Formatter::FileWriter\nSimpleCov.start\n\nat_exit do\n  # Can't use SimpleCov.at_exit; when the call reaches\n  # FileWriter.format() there is no longer an exception\n  # I'd like to only write the coverage report if the\n  # traffic-light is green but it seems there is no way.\n  $exception_raised = true\nend\n"
         },
         "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs coverage # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# turn off colour for new coverage report\nexport NO_COLOR=1\n\nfor test_file in *test*.rb\ndo\n  ruby $test_file\ndone\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs coverage # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# turn off colour for new coverage report\nexport NO_COLOR=1\n\nfor test_file in *test*.rb\ndo\n  ruby $test_file || true\ndone\n"
         },
         "hiker.rb": {
           "content": "# The starting files are unrelated to the exercise.\n#\n# They simply show syntax for writing and testing\n#  o) a global function\n#  o) an instance method\n# Pick the style that best fits the exercise.\n# Then delete the other one, along with this comment!\n\ndef global_answer\n  6 * 9\nend\n\nclass Hiker\n\n  def instance_answer\n    global_answer\n  end\n\nend\n"
@@ -2000,7 +2000,7 @@
           "content": "require 'simplecov'\nrequire 'simplecov-console'\nrequire 'stringio'\n\nmodule SimpleCov\n  module Formatter\n    class FileWriter\n      def format(result)\n        stdout = capture_stdout {\n          SimpleCov::Formatter::Console.new.format(result)\n        }\n        `mkdir #{report_dir} 2> /dev/null`\n        IO.write(\"#{report_dir}/coverage.txt\", stdout)\n      end\n      def report_dir\n        \"#{ENV['CYBER_DOJO_SANDBOX']}/report\"\n      end\n      def capture_stdout\n        begin\n          uncaptured_stdout = $stdout\n          captured_stdout = StringIO.new('', 'w')\n          $stdout = captured_stdout\n          yield\n          $stdout.string\n        ensure\n          $stdout = uncaptured_stdout\n        end\n      end\n    end\n  end\nend\n\nSimpleCov.command_name \"Test::Unit\"\nSimpleCov.at_exit do\n  # I'd like to only write the coverage report if the\n  # traffic-light is green but it seems there is no way.\n  if $!.is_a?(SystemExit) # !amber-traffic-light\n    SimpleCov::Formatter::FileWriter.new.format(SimpleCov.result)\n  end\nend\nSimpleCov.start\n"
         },
         "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs coverage # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# turn off colour for new coverage report\nexport NO_COLOR=1\n\nfor test_file in *test*.rb\ndo\n  ruby $test_file\ndone\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs coverage # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# turn off colour for new coverage report\nexport NO_COLOR=1\n\nfor test_file in *test*.rb\ndo\n  ruby $test_file || true\ndone\n"
         },
         "hiker.rb": {
           "content": "# The starting files are unrelated to the exercise.\n#\n# They simply show syntax for writing and testing\n#  o) a global function\n#  o) an instance method\n# Pick the style that best fits the exercise.\n# Then delete the other one, along with this comment!\n\ndef global_answer\n  6 * 9\nend\n\nclass Hiker\n\n  def instance_answer\n    global_answer\n  end\n\nend\n"
@@ -2010,12 +2010,12 @@
         }
       }
     },
-    "Rust, test": {
-      "display_name": "Rust, test",
+    "Rust 1.81, test": {
+      "display_name": "Rust 1.81, test",
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "cyberdojofoundation/rust_test:1e0565d",
+      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:67ed02f",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {

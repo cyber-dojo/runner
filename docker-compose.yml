@@ -3,7 +3,7 @@ services:
 
   client:
     build:
-      context: client
+      context: source/client
       args: [ COMMIT_SHA ]
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
@@ -13,7 +13,7 @@ services:
     env_file: [ .env ]
     environment: [ CONTEXT=client, SHOW_TEST_IDS ]
     read_only: true
-    restart: 'no'
+    restart: no
     tmpfs: /tmp
     volumes:
       - ./test:/runner/test/:ro
@@ -30,7 +30,7 @@ services:
     env_file: [ .env ]
     environment: [ CONTEXT=server, SHOW_TEST_IDS ]
     read_only: true
-    restart: 'no'
+    restart: no
     tmpfs: /tmp
     volumes:
       - ./test:/runner/test/:ro
@@ -41,5 +41,5 @@ services:
     user: nobody
     env_file: [ .env ]
     read_only: true
-    restart: "no"
+    restart: no
     tmpfs: /tmp

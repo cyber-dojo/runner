@@ -3,7 +3,6 @@ set -Eeu
 
 repo_root() { git rev-parse --show-toplevel; }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 setup_dependent_images()
 {
   if [ "${1:-}" != server ]; then
@@ -12,7 +11,6 @@ setup_dependent_images()
   remove_pulled_image
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 pull_dependent_images()
 {
   echo
@@ -41,13 +39,27 @@ pull_dependent_images()
     | while read display_name
       do
         local image_name=$(echo "${JSON_DATA}" | jq --raw-output ".[\"${display_name}\"].image_name")
+        if [ "${image_name}" == "null" ]; then
+          echo "ERROR: ${display_name}"
+          echo "Has no entry in test/dependent_display_names.rb"
+          echo "This is probably because of a language and/or unit-test framework upgrade."
+          echo "Possible updated display_names are:"
+          local -r lang=$(echo "${display_name}" | awk '{print $1;}')
+          local -r all_names=$(echo "${JSON_DATA}" | jq 'keys')
+          echo "${all_names}" | while read name
+          do
+            if [[ "${name:1}" =~ ^${lang} ]]; then
+              echo "${name}"
+            fi
+          done
+          exit 42
+        fi
         if ! echo "${IMAGE_NAMES}" | grep "${image_name}" ; then
           docker pull "${image_name}"
         fi
       done
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 remove_pulled_image()
 {
   echo
