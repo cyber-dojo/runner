@@ -4,7 +4,7 @@ require 'minitest/autorun'
 require 'minitest/ci'
 require_relative 'require_code'
 
-Minitest::Ci.report_dir = "#{ENV.fetch('REPORTS_ROOT', nil)}/junit"
+Minitest::Ci.report_dir = "#{ENV.fetch('COVERAGE_ROOT', nil)}/junit"
 
 class Id58TestBase < Minitest::Test
   def initialize(arg)

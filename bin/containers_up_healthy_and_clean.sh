@@ -2,7 +2,7 @@
 # - - - - - - - - - - - - - - - - - - -
 server_up_healthy_and_clean()
 {
-  export SERVICE_NAME=runner
+  export SERVICE_NAME=server
   export CONTAINER_NAME="${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}"
   export CONTAINER_PORT="${CYBER_DOJO_RUNNER_PORT}"
   docker compose up --detach "${SERVICE_NAME}"
@@ -59,7 +59,6 @@ exit_non_zero_unless_started_cleanly()
   #DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
 
   echo
-  echo CONTAINER_NAME=":${CONTAINER_NAME}:"
   echo "Checking if ${SERVICE_NAME} started cleanly."
   if [ "$(top_5)" == "$(clean_top_5)" ]; then
     echo "${SERVICE_NAME} started cleanly."
