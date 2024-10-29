@@ -10,18 +10,20 @@ module SimpleCov
       def format(result)
         groups = {}
         result.groups.each do |name, file_list|
-          groups[name] = {
-            lines: {
-              total: file_list.lines_of_code,
-              covered: file_list.covered_lines,
-              missed: file_list.missed_lines
-            },
-            branches: {
-              total: file_list.total_branches,
-              covered: file_list.covered_branches,
-              missed: file_list.missed_branches
+          if name != "Ungrouped"
+            groups[name] = {
+              lines: {
+                total: file_list.lines_of_code,
+                covered: file_list.covered_lines,
+                missed: file_list.missed_lines
+              },
+              branches: {
+                total: file_list.total_branches,
+                covered: file_list.covered_branches,
+                missed: file_list.missed_branches
+              }
             }
-          }
+          end
         end
         data = {
           timestamp: result.created_at.to_i,
