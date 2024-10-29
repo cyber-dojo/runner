@@ -262,9 +262,9 @@ jobs:
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run: |
-          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)          
+          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-              --description="unit-test branch-coverage and metrics" \          
+              --description="unit-test branch-coverage and metrics" \
               --name=runner.unit-test-branch-coverage \
               --user-data="./reports/server/summary.json"
 
@@ -316,7 +316,7 @@ jobs:
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run: |
-          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)          
+          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
               --description="integration-test branch-coverage and metrics" \
               --name=runner.integration-test-branch-coverage \
