@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.013071' skipped='0' failures='0' errors='0' name="BashShellerTest" assertions='14' tests='3' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.002253' file="test/id58_test_base.rb" name="test_\nid=&#39;C89243&#39;\nos=Alpine\n&#39;when capture(command) raises an exception, then the exception is untouched then nothing is logged&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.004421' file="test/id58_test_base.rb" name="test_\nid=&#39;C89244&#39;\nos=Alpine\n&#39;when capture(command)&#39;s status is zero, it logs nothing, it returns [stdout,stderr,status],&#39;" assertions='4'>
+  </testcase>
+  <testcase time='0.006397' file="test/id58_test_base.rb" name="test_\nid=&#39;C89245&#39;\nos=Alpine\n&#39;when capture(command)&#39;s status is non-zero, it does not raise, it logs [command,stdout,stderr,status], it returns [stdout,stderr,status],&#39;" assertions='7'>
+  </testcase>
+</testsuite>

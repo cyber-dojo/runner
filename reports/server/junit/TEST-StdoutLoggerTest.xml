@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.000345' skipped='0' failures='0' errors='0' name="StdoutLoggerTest" assertions='3' tests='3' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.000113' file="test/id58_test_base.rb" name="test_\nid=&#39;55tdF7&#39;\nos=Alpine\n&#39;log(s) is a no-op when s is empty&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000216' file="test/id58_test_base.rb" name="test_\nid=&#39;55tdF8&#39;\nos=Alpine\n&#39;log(s) logs s and a trailing newline when s does not end in a newline&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000016' file="test/id58_test_base.rb" name="test_\nid=&#39;55tdF9&#39;\nos=Alpine\n&#39;log(s) logs s as it is when s ends in a newline&#39;" assertions='1'>
+  </testcase>
+</testsuite>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.002635' skipped='0' failures='0' errors='0' name="RunClangPtraceTest" assertions='1' tests='1' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.002635' file="test/id58_test_base.rb" name="test_\nid=&#39;s8Ek8W&#39;\nos=Ubuntu\n&#39;clang image requires docker run command with ptrace capability&#39;" assertions='1'>
+  </testcase>
+</testsuite>

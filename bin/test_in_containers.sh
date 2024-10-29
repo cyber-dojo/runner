@@ -50,13 +50,11 @@ run_tests()
   echo "Running ${TYPE} tests"
   echo '=================================='
 
-  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Run tests (with coverage) inside the container.
-
   local -r CODE_DIR=code
   local -r TEST_DIR=test
   local -r TEST_LOG=test.run.log
-  local -r CONTAINER_REPORTS_DIR="/tmp/reports" # where tests write to.
+
+  local -r CONTAINER_COVERAGE_DIR="/tmp/reports" # where tests write to.
                                                 # NB fs is read-only, tmpfs at /tmp
                                                 # NB run.sh ensures this dir exists
   set +e
@@ -65,70 +63,37 @@ run_tests()
     --env TEST_DIR="${TEST_DIR}" \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
-      sh -c "/runner/test/lib/run.sh ${CONTAINER_REPORTS_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
+      sh -c "/runner/test/lib/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:4}"
+  local -r STATUS=$?
   set -e
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Extract test-run results and coverage data from the container.
-  # You can't [docker cp] from a tmpfs
-  #   https://docs.docker.com/engine/reference/commandline/cp/#extended-description
-  # So tar-piping out.
+  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where to tar-pipe files to
 
-  local -r HOST_TEST_DIR="$(repo_root)/test/${TYPE}"    # where to extract to. untar will create reports/ dir
-  local -r HOST_REPORTS_DIR="${HOST_TEST_DIR}/reports"  # where files will be
-
-  rm "${HOST_REPORTS_DIR}/${TEST_LOG}"           2> /dev/null || true
-  rm "${HOST_REPORTS_DIR}/coverage/index.html"   2> /dev/null || true
-  rm "${HOST_REPORTS_DIR}/coverage/summary.json" 2> /dev/null || true
+  rm -rf "${HOST_REPORTS_DIR}" &> /dev/null || true
+  mkdir -p "${HOST_REPORTS_DIR}" &> /dev/null || true
 
   docker exec \
     "${CONTAINER_NAME}" \
-    tar Ccf \
-      "$(dirname "${CONTAINER_REPORTS_DIR}")" \
-      - "$(basename "${CONTAINER_REPORTS_DIR}")" \
-        | tar Cxf "${HOST_TEST_DIR}/" -
+    tar Ccf "${CONTAINER_COVERAGE_DIR}" - . \
+        | tar Cxf "${HOST_REPORTS_DIR}/" -
 
   # Check we generated expected files.
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/index.html"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/summary.json"
+  #exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
+  #exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/index.html"
+  #exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/summary.json"
 
-  # Check metrics limits file exists
-  exit_non_zero_unless_file_exists "${HOST_TEST_DIR}/max_metrics.json"
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Run metrics check against test-run results and coverage data.
-
-  local -r CONTAINER_TMP_DIR=/tmp # where to mount to in container
-
-  set +e
-  docker run \
-    --rm \
-    --env CODE_DIR="${CODE_DIR}" \
-    --env TEST_DIR="${TEST_DIR}" \
-    --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
-    --volume ${HOST_REPORTS_DIR}/coverage/summary.json:${CONTAINER_TMP_DIR}/summary.json:ro \
-    --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
-    cyberdojo/check-test-metrics:latest \
-      "${CONTAINER_TMP_DIR}/${TEST_LOG}" \
-      "${CONTAINER_TMP_DIR}/summary.json" \
-      "${CONTAINER_TMP_DIR}/max_metrics.json" \
-    | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
-
-  local -r STATUS=${PIPESTATUS[0]}
-  set -e
-
-  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Tell caller where the coverage files are...
-
-  echo "${TYPE} test coverage at "
-  echo "$(abs_filename "${HOST_REPORTS_DIR}/coverage/index.html")"
+  echo "${TYPE} test branch-coverage report is at:"
+  echo "${HOST_REPORTS_DIR}/coverage/index.html"
+  echo
   echo "${TYPE} test status == ${STATUS}"
+  echo
+
   if [ "${STATUS}" != 0 ]; then
     echo Docker logs "${CONTAINER_NAME}"
     echo
     docker logs "${CONTAINER_NAME}" 2>&1
   fi
+
   return ${STATUS}
 }
 

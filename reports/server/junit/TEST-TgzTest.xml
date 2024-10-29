@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.007093' skipped='0' failures='0' errors='0' name="TgzTest" assertions='2' tests='2' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.006747' file="test/id58_test_base.rb" name="test_\nid=&#39;e51H3s&#39;\nos=Alpine\n&#39;simple tgz round-trip&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000346' file="test/id58_test_base.rb" name="test_\nid=&#39;e51H4s&#39;\nos=Alpine\n&#39;simple tgz round-trip of nothing&#39;" assertions='1'>
+  </testcase>
+</testsuite>

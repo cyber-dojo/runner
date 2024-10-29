@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.000118' skipped='0' failures='0' errors='0' name="Dual::Id58TestTest" assertions='7' tests='6' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.000038' file="test/id58_test_base.rb" name="test_\nid=&#39;89c18F&#39;\nos=Alpine\n&#39;test-name is available via a method&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000021' file="test/id58_test_base.rb" name="test_\nid=&#39;89cC80&#39;\nos=Alpine\n&#39;test-id is available via environment variable&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000019' file="test/id58_test_base.rb" name="test_\nid=&#39;89ce3a&#39;\nos=Alpine\n&#39;digits can be UPPERCASE or lowercase&#39;" assertions='2'>
+  </testcase>
+  <testcase time='0.000018' file="test/id58_test_base.rb" name="test_\nid=&#39;89cD30&#39;\nos=Alpine\n&#39;test-name can be long and split over many comma separated lines and will automatically be joined with spaces&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000011' file="test/id58_test_base.rb" name="test_\nid=&#39;89cD31&#39;\nos=Alpine\n&#39;test-name can be long and split over many lines with %w syntax and will automatically be joined with spaces&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000011' file="test/id58_test_base.rb" name="test_\nid=&#39;89c57B&#39;\nos=Alpine\n&#39;test-id is also available via a method and is the id58_prefix concatenated with the test-id&#39;" assertions='1'>
+  </testcase>
+</testsuite>

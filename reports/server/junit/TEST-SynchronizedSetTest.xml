@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.000315' skipped='0' failures='0' errors='0' name="SynchronizedSetTest" assertions='12' tests='5' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.000064' file="test/id58_test_base.rb" name="test_\nid=&#39;wK9d9h&#39;\nos=Alpine\n&#39;added values are included&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000175' file="test/id58_test_base.rb" name="test_\nid=&#39;wK9d9j&#39;\nos=Alpine\n&#39;deleted values are not included&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000021' file="test/id58_test_base.rb" name="test_\nid=&#39;wK9d9f&#39;\nos=Alpine\n&#39;initially empty&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000034' file="test/id58_test_base.rb" name="test_\nid=&#39;wK9d9k&#39;\nos=Alpine\n&#39;add? returns non-nil when value is not already included, returns nil when value is already included&#39;" assertions='4'>
+  </testcase>
+  <testcase time='0.000021' file="test/id58_test_base.rb" name="test_\nid=&#39;wK9d9g&#39;\nos=Alpine\n&#39;values not added are not included&#39;" assertions='1'>
+  </testcase>
+</testsuite>

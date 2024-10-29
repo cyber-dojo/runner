@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.000159' skipped='0' failures='0' errors='0' name="RunPullingTest" assertions='4' tests='1' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.000159' file="test/id58_test_base.rb" name="test_\nid=&#39;C5a25e&#39;\nos=Alpine\n&#39;when I call run_cyber_dojo_sh(), with an image_name that has not yet been pulled onto the node, then the docker pull runs in a new thread and the result is :pulling&#39;" assertions='4'>
+  </testcase>
+</testsuite>

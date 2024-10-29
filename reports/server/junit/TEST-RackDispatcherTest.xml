@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.013981' skipped='0' failures='0' errors='0' name="RackDispatcherTest" assertions='486' tests='14' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.006219' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AB8&#39;\nos=Alpine\n&#39;server error in Dispatcher results in 500 status response&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000645' file="test/id58_test_base.rb" name="test_\nid=&#39;D06A9F&#39;\nos=Alpine\n&#39;pull_image&#39;" assertions='9'>
+  </testcase>
+  <testcase time='0.002330' file="test/id58_test_base.rb" name="test_\nid=&#39;D06BB1&#39;\nos=Alpine\n&#39;json not Hash in http payload becomes 400 exception&#39;" assertions='144'>
+  </testcase>
+  <testcase time='0.000247' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AB7&#39;\nos=Alpine\n&#39;server error in RackDispatcher results in 500 status response&#39;" assertions='2'>
+  </testcase>
+  <testcase time='0.000129' file="test/id58_test_base.rb" name="test_\nid=&#39;D0615D&#39;\nos=Alpine\n&#39;alive&#39;" assertions='10'>
+  </testcase>
+  <testcase time='0.000164' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AB5&#39;\nos=Alpine\n&#39;run_cyber_dojo_sh 200&#39;" assertions='9'>
+  </testcase>
+  <testcase time='0.001040' file="test/id58_test_base.rb" name="test_\nid=&#39;D06BB0&#39;\nos=Alpine\n&#39;malformed json in http payload becomes 400 exception&#39;" assertions='72'>
+  </testcase>
+  <testcase time='0.000914' file="test/id58_test_base.rb" name="test_\nid=&#39;D06BB2&#39;\nos=Alpine\n&#39;unknown path becomes 400 exception&#39;" assertions='72'>
+  </testcase>
+  <testcase time='0.000109' file="test/id58_test_base.rb" name="test_\nid=&#39;D06A9E&#39;\nos=Alpine\n&#39;ready&#39;" assertions='10'>
+  </testcase>
+  <testcase time='0.000713' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AA6&#39;\nos=Alpine\n&#39;missing argument becomes 400 exception&#39;" assertions='36'>
+  </testcase>
+  <testcase time='0.000580' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AA7&#39;\nos=Alpine\n&#39;missing arguments becomes 400 exception&#39;" assertions='36'>
+  </testcase>
+  <testcase time='0.000139' file="test/id58_test_base.rb" name="test_\nid=&#39;D0682d&#39;\nos=Alpine\n&#39;allow &#39;&#39; instead of {} to allow kubernetes liveness/readyness http probes&#39;" assertions='10'>
+  </testcase>
+  <testcase time='0.000546' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AA8&#39;\nos=Alpine\n&#39;unknown arguments becomes 500 exception&#39;" assertions='24'>
+  </testcase>
+  <testcase time='0.000206' file="test/id58_test_base.rb" name="test_\nid=&#39;D06AB0&#39;\nos=Alpine\n&#39;sha&#39;" assertions='51'>
+  </testcase>
+</testsuite>

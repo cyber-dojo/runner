@@ -5,8 +5,13 @@ IMAGE_NAME := cyberdojo/runner:${SHORT_SHA}
 image:
 	${PWD}/bin/build_tag.sh
 
-unit_test: image
-	${PWD}/bin/test.sh server
+test_server:
+	${PWD}/bin/run_tests.sh server
+
+coverage_server:
+	${PWD}/bin/check_coverage.sh server
+
+
 
 integration_test: image
 	${PWD}/bin/test.sh client

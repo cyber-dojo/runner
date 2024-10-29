@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.001552' skipped='0' failures='0' errors='0' name="DockerStopTest" assertions='7' tests='2' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.000849' file="test/id58_test_base.rb" name="test_\nid=&#39;c63da5&#39;\nos=Alpine\n&#39;when cyber-dojo.sh times-out then docker stop is called and a docker-stop call failure is logged&#39;" assertions='4'>
+  </testcase>
+  <testcase time='0.000703' file="test/id58_test_base.rb" name="test_\nid=&#39;c63da6&#39;\nos=Alpine\n&#39;when cyber-dojo.sh times-out then docker stop is called and a docker-stop call success leaves the log empty&#39;" assertions='3'>
+  </testcase>
+</testsuite>

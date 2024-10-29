@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite time='0.002843' skipped='0' failures='0' errors='0' name="TrafficLightTest" assertions='34' tests='13' timestamp="2024-10-29T09:02:01+00:00">
+  <testcase time='0.000474' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB8&#39;\nos=Alpine\n&#39;rag-lambda with too many parameters, gives colour==faulty, adds message to log&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000118' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB0&#39;\nos=Alpine\n&#39;red traffic-light&#39;" assertions='2'>
+  </testcase>
+  <testcase time='0.000107' file="test/id58_test_base.rb" name="test_\nid=&#39;22ExJ5&#39;\nos=Alpine\n&#39;lambdas are cached&#39;" assertions='1'>
+  </testcase>
+  <testcase time='0.000072' file="test/id58_test_base.rb" name="test_\nid=&#39;22ExJ7&#39;\nos=Alpine\n&#39;lambda status argument is an integer in a string&#39;" assertions='2'>
+  </testcase>
+  <testcase time='0.000069' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB2&#39;\nos=Alpine\n&#39;green traffic-light&#39;" assertions='2'>
+  </testcase>
+  <testcase time='0.000077' file="test/id58_test_base.rb" name="test_\nid=&#39;22ExJ8&#39;\nos=Alpine\n&#39;rag-lambda can return a string or a symbol (Postel&#39;s Law)&#39;" assertions='4'>
+  </testcase>
+  <testcase time='0.000151' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB9&#39;\nos=Alpine\n&#39;rag-lambda which returns non red/amber/green, gives colour==faulty, adds message to log&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000180' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB3&#39;\nos=Alpine\n&#39;read rag-lambda message is logged once&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000333' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB4&#39;\nos=Alpine\n&#39;image_name with missing rag-lambda file, always gives colour==faulty, adds info to log&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000851' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB5&#39;\nos=Alpine\n&#39;rag-lambda which raises when eval&#39;d, gives colour==faulty, adds message to log&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000088' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB1&#39;\nos=Alpine\n&#39;amber traffic-light&#39;" assertions='2'>
+  </testcase>
+  <testcase time='0.000165' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB6&#39;\nos=Alpine\n&#39;rag-lambda which raises when called, gives colour==faulty, adds message to log&#39;" assertions='3'>
+  </testcase>
+  <testcase time='0.000157' file="test/id58_test_base.rb" name="test_\nid=&#39;22ECB7&#39;\nos=Alpine\n&#39;rag-lambda with too few parameters, gives colour==faulty, adds message to log&#39;" assertions='3'>
+  </testcase>
+</testsuite>
