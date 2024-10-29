@@ -2,8 +2,8 @@
 SHORT_SHA := $(shell git rev-parse HEAD | head -c7)
 IMAGE_NAME := cyberdojo/runner:${SHORT_SHA}
 
-image:
-	${PWD}/bin/build_tag.sh
+image_server:
+	${PWD}/bin/build_image.sh server
 
 test_server:
 	${PWD}/bin/run_tests.sh server
@@ -16,7 +16,6 @@ coverage_server:
 integration_test: image
 	${PWD}/bin/test.sh client
 
-test: unit_test integration_test
 
 rubocop_lint:
 	docker run --rm --volume "${PWD}:/app" cyberdojo/rubocop --raise-cop-error

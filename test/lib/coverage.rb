@@ -17,7 +17,7 @@ SimpleCov.start do
   code_tab = ENV.fetch('COVERAGE_CODE_TAB_NAME', nil)
   test_tab = ENV.fetch('COVERAGE_TEST_TAB_NAME', nil)
 
-  add_group('debug') { |src| puts src.filename; false }
+  #add_group('debug') { |src| puts src.filename; false }
 
   add_group(test_tab) { |src|
     src.filename.start_with?("/runner/test/#{CONTEXT}/") ||

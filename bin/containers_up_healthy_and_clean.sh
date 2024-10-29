@@ -2,7 +2,7 @@
 # - - - - - - - - - - - - - - - - - - -
 server_up_healthy_and_clean()
 {
-  export SERVICE_NAME=runner
+  export SERVICE_NAME=server
   export CONTAINER_NAME="${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}"
   export CONTAINER_PORT="${CYBER_DOJO_RUNNER_PORT}"
   docker compose up --detach "${SERVICE_NAME}"
