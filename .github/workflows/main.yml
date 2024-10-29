@@ -233,9 +233,14 @@ jobs:
         run:
           docker image load --input ${{ env.IMAGE_TAR_FILENAME }}
 
-      - name: Run unit tests with coverage
+      - name: Run unit tests
         run:
-          make unit_test
+          make test_server
+
+      - name: Get unit test coverage
+        id: coverage
+        run:
+            make coverage_server
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -243,25 +248,25 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest results to Kosli
+      - name: Attest junit test evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli attest junit
               --name=runner.unit-test
-              --results-dir=./test/server/reports/junit
+              --results-dir=./reports/server/junit
 
-      - name: Attest coverage to Kosli
+      - name: Attest coverage evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
-          REPORTS_DIR: "./test/server/reports"
-        run:
+        run: |
+          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)          
           kosli attest generic
-              --attachments="${REPORTS_DIR}/coverage"
+              --description="unit-test branch-coverage and metrics" \          
               --name=runner.unit-test-branch-coverage
-              --user-data="${REPORTS_DIR}/coverage/summary.json"
+              --user-data="./reports/server/summary.json"
 
 
   integration-tests:
@@ -282,9 +287,14 @@ jobs:
         run:
           docker image load --input ${{ env.IMAGE_TAR_FILENAME }}
 
-      - name: Run integration tests with coverage
+      - name: Run integration tests
         run:
-          make integration_test
+          make test_client
+
+      - name: Get integration test coverage
+        id: coverage
+        run:
+          make coverage_client
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -292,25 +302,25 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest results to Kosli
+      - name: Attest junit test evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli attest junit
               --name=runner.integration-test
-              --results-dir=./test/client/reports/junit
+              --results-dir=./reports/client/junit
 
-      - name: Attest coverage to Kosli
+      - name: Attest coverage evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
-          REPORTS_DIR:       ./test/client/reports
-        run:
+        run: |
+          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)          
           kosli attest generic
-              --attachments="${REPORTS_DIR}/coverage"
+              --description="integration-test branch-coverage and metrics" \
               --name=runner.integration-test-branch-coverage
-              --user-data="${REPORTS_DIR}/coverage/summary.json"
+              --user-data="./reports/client/summary.json"
 
 
   snyk-container-scan:
