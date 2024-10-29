@@ -21,4 +21,7 @@ mkdir -p ${REPORTS_ROOT}/junit
 
 set +e
 ruby -e "${SCRIPT}" -- ${TEST_ARGS[@]} 2>&1 | tee ${REPORTS_ROOT}/${TEST_LOG}
+STATUS=${PIPESTATUS[0]}
 set -e
+
+exit "${STATUS}"
