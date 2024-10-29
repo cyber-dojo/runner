@@ -1,10 +1,11 @@
 
-SHORT_SHA := $(shell git rev-parse HEAD | head -c7)
-IMAGE_NAME := cyberdojo/runner:${SHORT_SHA}
+all_server: image_server test_server coverage_server
 
 image_server:
 	${PWD}/bin/build_image.sh server
 
+# test_server does NOT depend on build_server, because in the CI workflow, the image is built with a GitHub Action
+# If you want to run only some tests, locally, use run_tests.sh directly
 test_server:
 	${PWD}/bin/run_tests.sh server
 
@@ -12,9 +13,16 @@ coverage_server:
 	${PWD}/bin/check_coverage.sh server
 
 
+all_client: test_client coverage_client
 
-integration_test: image
-	${PWD}/bin/test.sh client
+image_client:
+	${PWD}/bin/build_image.sh client
+
+test_client:
+	${PWD}/bin/run_tests.sh client
+
+coverage_client:
+	${PWD}/bin/check_coverage.sh client
 
 
 rubocop_lint:
