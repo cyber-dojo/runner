@@ -10,6 +10,8 @@ module SimpleCov
       def format(result)
         groups = {}
         result.groups.each do |name, file_list|
+          next if name == 'Ungrouped'
+
           groups[name] = {
             lines: {
               total: file_list.lines_of_code,

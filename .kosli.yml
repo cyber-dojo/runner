@@ -7,7 +7,7 @@ trail:
   artifacts:
     - name: runner
       attestations:
-        - name: lint
+        - name: rubocop-lint
           type: generic
         - name: unit-test
           type: junit

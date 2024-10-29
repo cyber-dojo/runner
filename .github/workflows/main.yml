@@ -80,7 +80,7 @@ jobs:
             --name=pull-request
 
 
-  lint:
+  rubocop-lint:
     needs: []
     runs-on: ubuntu-latest
     steps:
@@ -104,7 +104,7 @@ jobs:
         run: |
           KOSLI_COMPLIANT=$([ "${{ steps.lint.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-            --name=runner.lint
+            --name=runner.rubocop-lint
 
 
   snyk-code-scan:
@@ -376,7 +376,7 @@ jobs:
   sdlc-control-gate:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    needs: [setup, build-image, pull-request, lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
+    needs: [setup, build-image, pull-request, rubocop-lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
