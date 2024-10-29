@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite time='0.000567' skipped='0' failures='0' errors='0' name="PullImageTest" assertions='8' tests='2' timestamp="2024-10-29T09:02:01+00:00">
-  <testcase time='0.000091' file="test/id58_test_base.rb" name="test_\nid=&#39;9j5t9K&#39;\nos=Alpine\n&#39;given gcc_assert HAS already been pulled, when I call pull_image(id,gcc_assert), then a new thread is not started, no shell command is run, and the result is :pulled&#39;" assertions='4'>
-  </testcase>
-  <testcase time='0.000476' file="test/id58_test_base.rb" name="test_\nid=&#39;9j5t9M&#39;\nos=Alpine\n&#39;given gcc_assert has NOT already been pulled, when I call pull_image(id, gcc_assert), then the docker pull runs in a new thread and the result is :pulling&#39;" assertions='4'>
-  </testcase>
-</testsuite>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite time='0.017552' skipped='0' failures='0' errors='0' name="Dual::RunRedAmberGreenTest" assertions='5' tests='3' timestamp="2024-10-29T09:02:01+00:00">
-  <testcase time='0.005887' file="test/id58_test_base.rb" name="test_\nid=&#39;c7Bd56&#39;\nos=Alpine\n&#39;red&#39;" assertions='1'>
-  </testcase>
-  <testcase time='0.004491' file="test/id58_test_base.rb" name="test_\nid=&#39;c7Bd57&#39;\nos=Alpine\n&#39;amber&#39;" assertions='2'>
-  </testcase>
-  <testcase time='0.007175' file="test/id58_test_base.rb" name="test_\nid=&#39;c7Bd58&#39;\nos=Alpine\n&#39;green&#39;" assertions='2'>
-  </testcase>
-</testsuite>

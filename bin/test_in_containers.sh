@@ -78,12 +78,12 @@ run_tests()
         | tar Cxf "${HOST_REPORTS_DIR}/" -
 
   # Check we generated expected files.
-  #exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
-  #exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/index.html"
-  #exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage/summary.json"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/summary.json"
 
   echo "${TYPE} test branch-coverage report is at:"
-  echo "${HOST_REPORTS_DIR}/coverage/index.html"
+  echo "${HOST_REPORTS_DIR}/index.html"
   echo
   echo "${TYPE} test status == ${STATUS}"
   echo

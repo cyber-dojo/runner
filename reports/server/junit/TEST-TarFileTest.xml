@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite time='0.003720' skipped='0' failures='0' errors='0' name="TarFileTest" assertions='4' tests='3' timestamp="2024-10-29T09:02:01+00:00">
-  <testcase time='0.003374' file="test/id58_test_base.rb" name="test_\nid=&#39;80B364&#39;\nos=Alpine\n&#39;simple tar round-trip&#39;" assertions='1'>
-  </testcase>
-  <testcase time='0.000218' file="test/id58_test_base.rb" name="test_\nid=&#39;80B365&#39;\nos=Alpine\n&#39;writing content where .size != .bytesize does not throw&#39;" assertions='2'>
-  </testcase>
-  <testcase time='0.000129' file="test/id58_test_base.rb" name="test_\nid=&#39;80B366&#39;\nos=Alpine\n&#39;empty file round-trip&#39;" assertions='1'>
-  </testcase>
-</testsuite>

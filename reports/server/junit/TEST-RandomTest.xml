@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite time='0.017041' skipped='0' failures='0' errors='0' name="RandomTest" assertions='5632' tests='1' timestamp="2024-10-29T09:02:01+00:00">
-  <testcase time='0.017041' file="test/id58_test_base.rb" name="test_\nid=&#39;4a7c91&#39;\nos=Alpine\n&#39;random.hex8 is size 8, each char is hex-digit&#39;" assertions='5632'>
-  </testcase>
-</testsuite>
