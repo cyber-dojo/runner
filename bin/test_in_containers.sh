@@ -50,17 +50,15 @@ run_tests()
   echo "Running ${TYPE} tests"
   echo '=================================='
 
-  local -r CODE_DIR=code
-  local -r TEST_DIR=test
   local -r TEST_LOG=test.run.log
 
   local -r CONTAINER_COVERAGE_DIR="/tmp/reports" # where tests write to.
-                                                # NB fs is read-only, tmpfs at /tmp
-                                                # NB run.sh ensures this dir exists
+                                                 # NB fs is read-only, tmpfs at /tmp
+                                                 # NB run.sh ensures this dir exists
   set +e
   docker exec \
-    --env CODE_DIR="${CODE_DIR}" \
-    --env TEST_DIR="${TEST_DIR}" \
+    --env COVERAGE_CODE_TAB_NAME=app \
+    --env COVERAGE_TEST_TAB_NAME=test \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
       sh -c "/runner/test/lib/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:4}"

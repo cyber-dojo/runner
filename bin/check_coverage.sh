@@ -38,7 +38,6 @@ check_args()
   esac
 }
 
-
 check_coverage()
 {
   check_args "$@"
@@ -47,9 +46,8 @@ check_coverage()
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Run tests (with coverage) inside the container.
 
-  local -r CODE_DIR=code
-  local -r TEST_DIR=test
   local -r TEST_LOG=test.run.log
+
   local -r CONTAINER_REPORTS_DIR="/tmp/reports" # where tests write to.
                                                 # NB fs is read-only, tmpfs at /tmp
                                                 # NB run.sh ensures this dir exists
@@ -60,8 +58,8 @@ check_coverage()
   #   https://docs.docker.com/engine/reference/commandline/cp/#extended-description
   # So tar-piping out.
 
-  local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"        # where to extract to. untar will create reports/ dir
-  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where files will be
+  local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
+  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where report files have been written be
 
   # Check we generated expected files.
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
@@ -79,8 +77,8 @@ check_coverage()
   set +e
   docker run \
     --rm \
-    --env CODE_DIR="${CODE_DIR}" \
-    --env TEST_DIR="${TEST_DIR}" \
+    --env CODE_DIR=app \
+    --env TEST_DIR=test \
     --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
     --volume ${HOST_REPORTS_DIR}/summary.json:${CONTAINER_TMP_DIR}/summary.json:ro \
     --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
@@ -98,3 +96,4 @@ check_coverage()
   return "${STATUS}"
 }
 
+check_coverage "$@"
