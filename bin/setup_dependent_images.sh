@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeu
 
-repo_root() { git rev-parse --show-toplevel; }
-
 setup_dependent_images()
 {
   if [ "${1:-}" != server ]; then
@@ -27,7 +25,7 @@ pull_dependent_images()
     docker run \
       --entrypoint='' \
       --rm \
-      --volume $(repo_root)/test:/test/:ro \
+      --volume ${ROOT_DIR}/test:/test/:ro \
         ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG} \
           ruby /test/dependent_display_names.rb)"
 
