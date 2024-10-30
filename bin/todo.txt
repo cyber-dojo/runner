@@ -1,2 +1,2 @@
 
-delete dead code in the bin/ dir
+investigate demo output showing "undefined method `[]' for nil"

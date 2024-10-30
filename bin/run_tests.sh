@@ -4,7 +4,6 @@ set -Eeu
 export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 source "${ROOT_DIR}/bin/lib.sh"
-source "${ROOT_DIR}/bin/containers_up_healthy_and_clean.sh"
 source "${ROOT_DIR}/bin/create_test_data_manifests_file.sh"
 source "${ROOT_DIR}/bin/setup_dependent_images.sh"
 
@@ -57,7 +56,7 @@ check_args()
 
 run_tests_in_container()
 {
-  local -r TYPE="${1}"           # {server|client}
+  local -r TYPE="${1}" # {server|client}
 
   echo
   echo '=================================='
@@ -77,7 +76,7 @@ run_tests_in_container()
   local -r STATUS=$?
   set -e
 
-  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where to tar-pipe files to
+  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}" # where to tar-pipe files to
 
   rm -rf "${HOST_REPORTS_DIR}" &> /dev/null || true
   mkdir -p "${HOST_REPORTS_DIR}" &> /dev/null || true
@@ -87,7 +86,7 @@ run_tests_in_container()
     tar Ccf "${CONTAINER_COVERAGE_DIR}" - . \
         | tar Cxf "${HOST_REPORTS_DIR}/" -
 
-  # Check we generated expected files.
+  # Check we generated the expected files.
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/summary.json"
@@ -113,8 +112,8 @@ run_tests()
   containers_down
   setup_dependent_images "$@"
   create_test_data_manifests_file
-  server_up_healthy_and_clean
-  client_up_healthy_and_clean "$@"
+  docker compose --progress=plain up --no-build --wait --wait-timeout=10 "${1}"
+  exit_non_zero_unless_started_cleanly "${1}"
   run_tests_in_container "$@"
 }
 
