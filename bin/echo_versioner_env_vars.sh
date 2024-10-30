@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -Eeu
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 echo_versioner_env_vars()
 {
   docker run --rm cyberdojo/versioner:latest
@@ -23,13 +22,11 @@ echo_versioner_env_vars()
   echo CYBER_DOJO_RUNNER_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/runner"
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 image_sha()
 {
-  echo "$(cd "$(repo_root)" && git rev-parse HEAD)"
+  cd "${ROOT_DIR}" && git rev-parse HEAD
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
 image_tag()
 {
   local -r sha="$(image_sha)"

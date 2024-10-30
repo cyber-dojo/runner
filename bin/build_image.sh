@@ -69,9 +69,11 @@ build_image()
     exit 42
   fi
 
-  # Tag image-name for local development where differs name comes from echo-versioner-env-vars
   if [ "${type}" == 'server' ]; then
-    docker tag "${image_name}" "cyberdojo/runner:${CYBER_DOJO_RUNNER_TAG}"
+    # Create latest tag for image build cache
+    docker tag "${image_name}" "${CYBER_DOJO_RUNNER_IMAGE}:latest"
+    # Tag image-name for local development where differs name comes from echo-versioner-env-vars
+    docker tag "${image_name}" "cyberdojo/runner:latest"
     echo "CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
     echo "CYBER_DOJO_RUNNER_TAG=${CYBER_DOJO_RUNNER_TAG}"
   fi

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeu
 
-repo_root() { git rev-parse --show-toplevel; }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - -
 test_in_containers()
 {
@@ -95,18 +93,3 @@ run_tests()
   return ${STATUS}
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit_non_zero_unless_file_exists()
-{
-  local -r filename="${1}"
-  if [ ! -f "${filename}" ]; then
-    echo "ERROR: ${filename} does not exist"
-    exit 42
-  fi
-}
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - -
-abs_filename()
-{
-  echo "$(cd "$(dirname "${1}")" && pwd)/$(basename "${1}")"
-}
