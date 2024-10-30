@@ -31,7 +31,7 @@ exit_non_zero_unless_file_exists()
 {
   local -r filename="${1}"
   if [ ! -f "${filename}" ]; then
-    echo "ERROR: ${filename} does not exist"
+    stderr "${filename} does not exist"
     exit 42
   fi
 }
@@ -81,7 +81,6 @@ remove_old_images()
 
 remove_all_but_latest()
 {
-  # Keep latest in the cache
   local -r docker_image_ls="${1}"
   local -r name="${2}"
   for image_name in $(echo "${docker_image_ls}" | grep "${name}:")
@@ -93,12 +92,11 @@ remove_all_but_latest()
   docker system prune --force
 }
 
-
 exit_non_zero_unless_started_cleanly()
 {
   # Handle known warnings (eg waiting on Gem upgrade)
-  #local -r SHADOW_WARNING="server.rb:(.*): warning: shadowing outer local variable - filename"
-  #DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
+  # local -r SHADOW_WARNING="server.rb:(.*): warning: shadowing outer local variable - filename"
+  # DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
   local -r SERVICE_NAME="${1}"
   echo
   echo "Checking if ${SERVICE_NAME} started cleanly."
@@ -121,7 +119,7 @@ exit_non_zero_unless_started_cleanly()
 
 top_5()
 {
-  echo_docker_log | head -5
+  docker logs "${CONTAINER_NAME}" 2>&1 | head -5
 }
 
 clean_top_5()
@@ -137,16 +135,11 @@ clean_top_5()
   echo "${all5}"
 }
 
-echo_docker_log()
-{
-  docker logs "${CONTAINER_NAME}" 2>&1
-}
-
 strip_known_warning()
 {
   local -r DOCKER_LOG="${1}"
   local -r KNOWN_WARNING="${2}"
-  local STRIPPED=$(echo -n "${DOCKER_LOG}" | grep --invert-match -E "${KNOWN_WARNING}")
+  local -r STRIPPED=$(echo -n "${DOCKER_LOG}" | grep --invert-match -E "${KNOWN_WARNING}")
   if [ "${DOCKER_LOG}" != "${STRIPPED}" ]; then
     echo "Known service start-up warning found: ${KNOWN_WARNING}"
   else

@@ -109,8 +109,6 @@ class Demo
     boxed_pre(duration, @result, css_colour)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   def gcc_assert_image_name
     gcc_assert_manifest['image_name']
   end
