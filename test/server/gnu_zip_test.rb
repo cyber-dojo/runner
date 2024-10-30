@@ -8,16 +8,12 @@ class GnuZipTest < TestBase
     'Cw4'
   end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test '4A1', %w[simple gzip round-trip of non-empty string] do
     expected = 'sdgfadsfghfghsfhdfghdfghdfgh'
     zipped = Gnu.zip(expected)
     actual = Gnu.unzip(zipped)
     assert_equal expected, actual
   end
-
-  # - - - - - - - - - - - - - - - - - - - - -
 
   test '4A2', %w[simple gzip round-trip of empty string] do
     expected = ''

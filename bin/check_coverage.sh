@@ -41,38 +41,16 @@ check_args()
 check_coverage()
 {
   check_args "$@"
-  local -r TYPE="${1}"           # eg server
-
-  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Run tests (with coverage) inside the container.
-
+  local -r TYPE="${1}"           # {server|client}
   local -r TEST_LOG=test.run.log
-
-  local -r CONTAINER_REPORTS_DIR="/tmp/reports" # where tests write to.
-                                                # NB fs is read-only, tmpfs at /tmp
-                                                # NB run.sh ensures this dir exists
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Extract test-run results and coverage data from the container.
-  # You can't [docker cp] from a tmpfs
-  #   https://docs.docker.com/engine/reference/commandline/cp/#extended-description
-  # So tar-piping out.
-
   local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
-  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where report files have been written be
+  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where report files have been written to
+  local -r CONTAINER_TMP_DIR=/tmp                          # where to mount to in container
 
-  # Check we generated expected files.
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/summary.json"
-
-  # Check metrics limits file exists
   exit_non_zero_unless_file_exists "${HOST_TEST_DIR}/max_metrics.json"
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Run metrics check against test-run results and coverage data.
-
-  local -r CONTAINER_TMP_DIR=/tmp # where to mount to in container
 
   set +e
   docker run \

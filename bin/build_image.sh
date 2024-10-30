@@ -26,7 +26,13 @@ check_args()
       show_help
       exit 0
       ;;
-    'server' | 'client')
+    'server')
+      if [ -n "${CI:-}" ] ; then
+        stderr "In CI workflow - use previous docker/build-push-action@v6 GitHub Action"
+        exit 42
+      fi
+      ;;
+    'client')
       ;;
     '')
       show_help
@@ -43,18 +49,12 @@ check_args()
 build_image()
 {
   check_args "$@"
-
   local -r type="${1}"
-
-  if [ -n "${CI:-}" ] && [ "${type}" == 'server' ] ; then
-    stderr "In CI workflow - use previous docker/build-push-action@v6 GitHub Action"
-    exit 42
-  fi
-
   exit_non_zero_unless_installed docker
   export $(echo_versioner_env_vars)
   containers_down
   remove_old_images
+
   docker compose build --build-arg COMMIT_SHA="${COMMIT_SHA}" server
   if [ "${type}" == 'client' ]; then
     docker compose build --build-arg COMMIT_SHA="${COMMIT_SHA}" client
