@@ -13,8 +13,6 @@ class Runner
     @traffic_light = TrafficLight.new(context)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def run_cyber_dojo_sh(id:, files:, manifest:)
     image_name = manifest['image_name']
     return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
@@ -68,8 +66,6 @@ class Runner
   include FilesDelta
   include HomeFiles
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def threaded_docker_stop_container(id, image_name, container_name)
     # Send the stop signal, wait 1 second, send the kill signal.
     command = "docker stop --time 1 #{container_name}"
@@ -84,8 +80,6 @@ class Runner
       end
     end
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def timed_out_result(run)
     empty_result(:timed_out, 'timed_out', run)
@@ -140,8 +134,6 @@ class Runner
     }
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - -
-
   def at_most(size, new_files)
     # Limit number of created text files returned to browser.
     # NB: I tried to do this inside the run container, using
@@ -155,8 +147,6 @@ class Runner
     # which then become deleted files!
     new_files.keys.sort[0...size].to_h { |filename| [filename, new_files[filename]] }
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     # --init makes container removal much faster
@@ -178,8 +168,6 @@ class Runner
       bash -c 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'
     SHELL
   end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def ulimits(image_name)
     # [1] the nproc --limit is per user across all containers. See
@@ -238,8 +226,6 @@ class Runner
 
   TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=50M,uid=#{UID},gid=#{GID}"
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777' # Set /tmp sticky-bit
-
-  # - - - - - - - - - - - - - - - - - - - - - -
 
   def utf8_clean(result)
     result[:stdout] = Utf8.clean(result[:stdout])

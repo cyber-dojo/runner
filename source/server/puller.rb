@@ -9,19 +9,13 @@ class Puller
     @pulling = SynchronizedSet.new
   end
 
-  # - - - - - - - - - - - - - - - - - - -
-
   def image_names
     @pulled.to_a
   end
 
-  # - - - - - - - - - - - - - - - - - - -
-
   def add(image_name)
     @pulled.add(image_name)
   end
-
-  # - - - - - - - - - - - - - - - - - - -
 
   def pull_image(id:, image_name:)
     image_name = ::Docker.tagged_image_name(image_name)
@@ -54,8 +48,6 @@ class Puller
   ensure
     @pulling.delete(image_name)
   end
-
-  # - - - - - - - - - - - - - - - - - - -
 
   def logger
     @context.logger

@@ -1,2 +1,0 @@
-
-investigate demo output showing "undefined method `[]' for nil"
