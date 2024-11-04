@@ -9,7 +9,7 @@ require 'json'
 def coloured(arg)
   red = 31
   green = 32
-  colourize(tf ? green : red, arg)
+  colourize(arg ? green : red, arg)
 end
 
 def colourize(code, word)
