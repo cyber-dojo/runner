@@ -64,7 +64,7 @@ run_tests_in_container()
   echo '=================================='
 
   local -r CONTAINER_COVERAGE_DIR="/tmp/reports"
-  local -r TEST_LOG=test.run.log
+  local -r TEST_LOG=test.log
 
   set +e
   docker exec \
