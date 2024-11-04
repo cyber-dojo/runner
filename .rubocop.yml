@@ -15,7 +15,19 @@ Layout/EmptyLineAfterMagicComment:
 Layout/LineLength:
   Exclude:
     - source/client/demo.rb
-    - test/lib/simplecov_json.rb
+    - test/lib/simplecov_formatter_json.rb
+
+Layout/SpaceInsideArrayLiteralBrackets:
+  Exclude:
+    - test/*/check_test_metrics.rb
+
+Layout/SpaceInsideReferenceBrackets:
+  Exclude:
+    - test/*/check_test_metrics.rb
+
+Layout/ExtraSpacing:
+  Exclude:
+    - test/*/check_test_metrics.rb
 
 Lint/PercentStringArray:
   Exclude:
@@ -92,6 +104,14 @@ Naming/VariableNumber:
   Exclude:
     - test/**/*
 
+Security/Eval:
+  Exclude:
+    - test/*/check_test_metrics.rb
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - test/slim_json_reporter.rb
+
 Style/ClassVars:
   Exclude:
     - test/test_base.rb
@@ -103,9 +123,22 @@ Style/Documentation:
     - source/*/**/*
     - test/**/*
 
+Style/DocumentDynamicEvalDefinition:
+  Exclude:
+    - test/*/check_test_metrics.rb
+
+Style/EvalWithLocation:
+  Exclude:
+    - test/*/check_test_metrics.rb
+
 Style/FormatStringToken:
   Exclude:
     - test/id58_test_base.rb
+    - test/*/check_test_metrics.rb
+
+Style/FormatString:
+  Exclude:
+    - test/*/check_test_metrics.rb
 
 Style/FrozenStringLiteralComment:
   Exclude:
@@ -124,5 +157,9 @@ Style/RedundantInitialize:
 Style/StringConcatenation:
   Exclude:
     - test/doubles/bash_sheller_stub.rb
+
+Style/TrailingCommaInArrayLiteral:
+  Exclude:
+    - test/*/check_test_metrics.rb
 
 

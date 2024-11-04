@@ -260,7 +260,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest junit test evidence to Kosli
+      - name: Attest JUnit test evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         env:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
@@ -278,7 +278,7 @@ jobs:
           kosli attest generic \
               --description="unit-test branch-coverage and metrics" \
               --name=runner.unit-test-branch-coverage \
-              --user-data="./reports/server/summary.json"
+              --user-data="./reports/server/coverage_metrics.json"
 
 
   integration-tests:
@@ -332,7 +332,7 @@ jobs:
           kosli attest generic \
               --description="integration-test branch-coverage and metrics" \
               --name=runner.integration-test-branch-coverage \
-              --user-data="./reports/client/summary.json"
+              --user-data="./reports/client/coverage_metrics.json"
 
 
   snyk-container-scan:

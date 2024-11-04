@@ -42,31 +42,28 @@ check_coverage()
 {
   check_args "$@"
   local -r TYPE="${1}"           # {server|client}
-  local -r TEST_LOG=test.run.log
+  local -r TEST_LOG=test.log
   local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
-  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where report files have been written to
-  local -r CONTAINER_TMP_DIR=/tmp                          # where to mount to in container
+  local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where report json files have been written to
+  local -r CONTAINER_TMP_DIR=/tmp
 
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/summary.json"
-  exit_non_zero_unless_file_exists "${HOST_TEST_DIR}/max_metrics.json"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/test_metrics.json"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage_metrics.json"
 
   set +e
   docker run \
     --rm \
-    --env CODE_DIR=app \
-    --env TEST_DIR=test \
-    --volume ${HOST_REPORTS_DIR}/${TEST_LOG}:${CONTAINER_TMP_DIR}/${TEST_LOG}:ro \
-    --volume ${HOST_REPORTS_DIR}/summary.json:${CONTAINER_TMP_DIR}/summary.json:ro \
-    --volume ${HOST_TEST_DIR}/max_metrics.json:${CONTAINER_TMP_DIR}/max_metrics.json:ro \
-    cyberdojo/check-test-metrics:latest \
-      "${CONTAINER_TMP_DIR}/${TEST_LOG}" \
-      "${CONTAINER_TMP_DIR}/summary.json" \
-      "${CONTAINER_TMP_DIR}/max_metrics.json" \
-    | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
+    --entrypoint="" \
+    --env COVERAGE_ROOT="${CONTAINER_TMP_DIR}" \
+    --env COVERAGE_CODE_TAB_NAME=app \
+    --env COVERAGE_TEST_TAB_NAME=test \
+    --volume ${HOST_REPORTS_DIR}/test_metrics.json:${CONTAINER_TMP_DIR}/test_metrics.json:ro \
+    --volume ${HOST_REPORTS_DIR}/coverage_metrics.json:${CONTAINER_TMP_DIR}/coverage_metrics.json:ro \
+    --volume ${HOST_TEST_DIR}/check_test_metrics.rb:${CONTAINER_TMP_DIR}/check_test_metrics.rb:ro \
+      cyberdojo/runner:latest \
+        sh -c "ruby ${CONTAINER_TMP_DIR}/check_test_metrics.rb"
 
-  local -r STATUS=${PIPESTATUS[0]}
+  local -r STATUS=$?
   set -e
 
   echo "${TYPE} coverage status == ${STATUS}"
