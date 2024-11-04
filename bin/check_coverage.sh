@@ -41,14 +41,18 @@ check_args()
 check_coverage()
 {
   check_args "$@"
+  export $(echo_versioner_env_vars)
+
   local -r TYPE="${1}"           # {server|client}
   local -r TEST_LOG=test.log
   local -r HOST_TEST_DIR="${ROOT_DIR}/test/${TYPE}"
   local -r HOST_REPORTS_DIR="${ROOT_DIR}/reports/${TYPE}"  # where report json files have been written to
   local -r CONTAINER_TMP_DIR=/tmp
 
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/test_metrics.json"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage_metrics.json"
+  exit_non_zero_unless_file_exists "${HOST_TEST_DIR}/check_test_metrics.rb"
 
   set +e
   docker run \
@@ -60,10 +64,11 @@ check_coverage()
     --volume ${HOST_REPORTS_DIR}/test_metrics.json:${CONTAINER_TMP_DIR}/test_metrics.json:ro \
     --volume ${HOST_REPORTS_DIR}/coverage_metrics.json:${CONTAINER_TMP_DIR}/coverage_metrics.json:ro \
     --volume ${HOST_TEST_DIR}/check_test_metrics.rb:${CONTAINER_TMP_DIR}/check_test_metrics.rb:ro \
-      cyberdojo/runner:latest \
-        sh -c "ruby ${CONTAINER_TMP_DIR}/check_test_metrics.rb"
+      "${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}" \
+        sh -c "ruby ${CONTAINER_TMP_DIR}/check_test_metrics.rb" \
+        | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
 
-  local -r STATUS=$?
+  local -r STATUS=${PIPESTATUS[0]}
   set -e
 
   echo "${TYPE} coverage status == ${STATUS}"

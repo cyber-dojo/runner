@@ -18,7 +18,7 @@ all_client: test_client coverage_client
 image_client:
 	${PWD}/bin/build_image.sh client
 
-test_client: image_client
+test_client:
 	${PWD}/bin/run_tests.sh client
 
 coverage_client:

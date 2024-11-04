@@ -301,7 +301,7 @@ jobs:
 
       - name: Run integration tests
         run:
-          make test_client
+          make image_client test_client
 
       - name: Get integration test coverage
         id: coverage
