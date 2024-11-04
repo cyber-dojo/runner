@@ -43,7 +43,7 @@ module SimpleCov
       end
 
       def output_filename
-        'summary.json'
+        'coverage_metrics.json'
       end
 
       def output_message(result)

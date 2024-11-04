@@ -55,16 +55,16 @@ echo_versioner_env_vars()
 
   echo CYBER_DOJO_RUNNER_SHA="${sha}"
   echo CYBER_DOJO_RUNNER_TAG="${sha:0:7}"
-  #
+
   echo CYBER_DOJO_RUNNER_CLIENT_IMAGE=cyberdojo/runner-client
   echo CYBER_DOJO_RUNNER_CLIENT_PORT=9999
-  #
+
   echo CYBER_DOJO_RUNNER_CLIENT_USER=nobody
   echo CYBER_DOJO_RUNNER_SERVER_USER=root
-  #
+
   echo CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME=test_runner_client
   echo CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME=test_runner_server
-  #
+
   local -r AWS_ACCOUNT_ID=244531986313
   local -r AWS_REGION=eu-central-1
   echo CYBER_DOJO_RUNNER_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/runner"
@@ -100,9 +100,7 @@ exit_non_zero_unless_started_cleanly()
   local -r SERVICE_NAME="${1}"
   echo
   echo "Checking if ${SERVICE_NAME} started cleanly."
-  if [ "$(top_5)" == "$(clean_top_5)" ]; then
-    echo "${SERVICE_NAME} started cleanly."
-  else
+  if [ "$(top_5)" != "$(clean_top_5)" ]; then
     echo "${SERVICE_NAME} did not start cleanly: docker log..."
     echo 'expected------------------'
     echo "$(clean_top_5)"

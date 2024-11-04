@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'simplecov'
-require_relative 'simplecov_json'
+require_relative 'simplecov_formatter_json'
 
 CONTEXT = ENV.fetch('CONTEXT', nil)
 

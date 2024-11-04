@@ -89,7 +89,8 @@ run_tests_in_container()
   # Check we generated the expected files.
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/${TEST_LOG}"
   exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/index.html"
-  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/summary.json"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/coverage_metrics.json"
+  exit_non_zero_unless_file_exists "${HOST_REPORTS_DIR}/test_metrics.json"
 
   echo "${TYPE} test branch-coverage report is at:"
   echo "${HOST_REPORTS_DIR}/index.html"

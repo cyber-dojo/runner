@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 require 'English'
 require 'minitest/autorun'
-require 'minitest/ci'
+require 'minitest/reporters'
 require_relative 'require_code'
+require_relative 'slim_json_reporter'
 
-Minitest::Ci.report_dir = "#{ENV.fetch('COVERAGE_ROOT', nil)}/junit"
+reporters = [
+  Minitest::Reporters::DefaultReporter.new,
+  Minitest::Reporters::SlimJsonReporter.new,
+  Minitest::Reporters::JUnitReporter.new("#{ENV.fetch('COVERAGE_ROOT')}/junit")
+]
+Minitest::Reporters.use!(reporters)
 
 class Id58TestBase < Minitest::Test
   def initialize(arg)
@@ -52,7 +58,7 @@ class Id58TestBase < Minitest::Test
   Minitest.after_run do
     slow = @@timings.select { |_name, secs| secs > 0.000 }
     sorted = slow.sort_by { |_name, secs| -secs }.to_h
-    size = [sorted.size, 25].min
+    size = [sorted.size, 5].min
     puts
     puts "Slowest #{size} tests are..." if size != 0
     sorted.each_with_index do |(name, secs), index|
