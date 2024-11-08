@@ -2,7 +2,7 @@
 
 readonly MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export COVERAGE_ROOT="${1}" # eg /tmp/coverage
-readonly TEST_LOG="${2}"    # eg testlog
+readonly TEST_LOG="${2}"    # eg test.log
 readonly TYPE="${3}"        # eg client|server
 shift; shift; shift
 
