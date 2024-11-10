@@ -32,14 +32,10 @@ rubocop_lint:
 demo:
 	${PWD}/bin/demo.sh
 
-snyk-container:
-	snyk container test ${IMAGE_NAME} \
-        --file=Dockerfile \
-		--sarif \
-		--sarif-file-output=snyk.container.scan.json \
-        --policy-path=.snyk
+snyk_container_scan:
+	${PWD}/bin/snyk_container_scan.sh
 
-snyk-code:
+snyk_code_scan:
 	snyk code test \
 		--sarif \
 		--sarif-file-output=snyk.code.scan.json \
