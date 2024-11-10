@@ -101,7 +101,6 @@ jobs:
           fetch-depth: 1
 
       - name: Run Rubocop lint on source
-        id: lint
         run:
           make rubocop_lint
 
@@ -113,10 +112,10 @@ jobs:
 
       - name: Attest evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        run: |
-          KOSLI_COMPLIANT=$([ "${{ steps.lint.outcome }}" == 'success' ] && echo true || echo false)
-          kosli attest generic \
-            --name=runner.rubocop-lint
+        run:
+          kosli attest junit
+              --name=runner.rubocop-lint
+              --results-dir=./reports/rubocop
 
 
   snyk-code-scan:
