@@ -4,7 +4,8 @@ all_server: image_server test_server coverage_server
 image_server:
 	${PWD}/bin/build_image.sh server
 
-# test_server does NOT depend on build_server, because in the CI workflow, the image is built with a GitHub Action
+# test_server does NOT depend on build_server, because in the CI workflow,
+# the image is built with a GitHub Action.
 # If you want to run only some tests, locally, use run_tests.sh directly
 test_server:
 	${PWD}/bin/run_tests.sh server
@@ -26,19 +27,15 @@ coverage_client:
 
 
 rubocop_lint:
-	docker run --rm --volume "${PWD}:/app" cyberdojo/rubocop --raise-cop-error
+	${PWD}/bin/rubocop_lint.sh
 
 demo:
 	${PWD}/bin/demo.sh
 
-snyk-container:
-	snyk container test ${IMAGE_NAME} \
-        --file=Dockerfile \
-		--sarif \
-		--sarif-file-output=snyk.container.scan.json \
-        --policy-path=.snyk
+snyk_container_scan:
+	${PWD}/bin/snyk_container_scan.sh
 
-snyk-code:
+snyk_code_scan:
 	snyk code test \
 		--sarif \
 		--sarif-file-output=snyk.code.scan.json \

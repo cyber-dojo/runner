@@ -101,7 +101,6 @@ jobs:
           fetch-depth: 1
 
       - name: Run Rubocop lint on source
-        id: lint
         run:
           make rubocop_lint
 
@@ -113,10 +112,10 @@ jobs:
 
       - name: Attest evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        run: |
-          KOSLI_COMPLIANT=$([ "${{ steps.lint.outcome }}" == 'success' ] && echo true || echo false)
-          kosli attest generic \
+        run:
+          kosli attest junit
             --name=runner.rubocop-lint
+            --results-dir=./reports/rubocop
 
 
   snyk-code-scan:
@@ -252,7 +251,7 @@ jobs:
       - name: Get unit test coverage
         id: coverage
         run:
-            make coverage_server
+          make coverage_server
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -266,8 +265,8 @@ jobs:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli attest junit
-              --name=runner.unit-test
-              --results-dir=./reports/server/junit
+            --name=runner.unit-test
+            --results-dir=./reports/server/junit
 
       - name: Attest coverage evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -276,9 +275,9 @@ jobs:
         run: |
           KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-              --description="unit-test branch-coverage and metrics" \
-              --name=runner.unit-test-branch-coverage \
-              --user-data="./reports/server/coverage_metrics.json"
+            --description="unit-test branch-coverage and metrics" \
+            --name=runner.unit-test-branch-coverage \
+            --user-data="./reports/server/coverage_metrics.json"
 
 
   integration-tests:
@@ -320,8 +319,8 @@ jobs:
           KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
         run:
           kosli attest junit
-              --name=runner.integration-test
-              --results-dir=./reports/client/junit
+            --name=runner.integration-test
+            --results-dir=./reports/client/junit
 
       - name: Attest coverage evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -330,9 +329,9 @@ jobs:
         run: |
           KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-              --description="integration-test branch-coverage and metrics" \
-              --name=runner.integration-test-branch-coverage \
-              --user-data="./reports/client/coverage_metrics.json"
+            --description="integration-test branch-coverage and metrics" \
+            --name=runner.integration-test-branch-coverage \
+            --user-data="./reports/client/coverage_metrics.json"
 
 
   snyk-container-scan:
@@ -363,11 +362,7 @@ jobs:
           IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run:
-          snyk container test ${IMAGE_NAME}
-            --file=Dockerfile
-            --policy-path=.snyk
-            --sarif
-            --sarif-file-output="${SARIF_FILENAME}"
+          make snyk_container_scan
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
