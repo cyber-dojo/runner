@@ -8,7 +8,7 @@ trail:
     - name: runner
       attestations:
         - name: rubocop-lint
-          type: generic
+          type: junit
         - name: unit-test
           type: junit
         - name: unit-test-branch-coverage
