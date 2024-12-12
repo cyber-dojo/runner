@@ -15,6 +15,7 @@ env:
   AWS_ECR_ID: ${{ vars.AWS_ECR_ID }}
   AWS_REGION: ${{ vars.AWS_REGION }}
   IMAGE_TAR_FILENAME: /tmp/${{ github.event.repository.name }}:${{ github.sha }}.tar
+  DOCKER_API_VERSION: ${{ vars.DOCKER_API_VERSION }}
 
 jobs:
 
