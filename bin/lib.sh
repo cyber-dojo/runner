@@ -124,10 +124,10 @@ clean_top_5()
 {
   # 1st 5 lines on Puma
   local -r L1="Puma starting in single mode..."
-  local -r L2='* Puma version: 6.4.3 (ruby 3.3.3-p89) ("The Eagle of Durango")'
-  local -r L3="*  Min threads: 0"
-  local -r L4="*  Max threads: 5"
-  local -r L5="*  Environment: production"
+  local -r L2='* Puma version: 6.5.0 ("Sky'"'"'s Version")'
+  local -r L3='* Ruby version: ruby 3.3.6 (2024-11-05 revision 75015d4c1f) [x86_64-linux-musl]'
+  local -r L4="*  Min threads: 0"
+  local -r L5="*  Max threads: 5"
   #
   local -r all5="$(printf "%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}" "${L5}")"
   echo "${all5}"
