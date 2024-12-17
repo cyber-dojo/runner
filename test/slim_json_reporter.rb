@@ -7,7 +7,7 @@ class Minitest::Reporters::SlimJsonReporter < Minitest::Reporters::BaseReporter
     super
     filename = "#{ENV.fetch('COVERAGE_ROOT')}/test_metrics.json"
     metrics = {
-      total_time: format('%.2f', total_time),
+      total_time: total_time.round(2),
       assertion_count: assertions,
       test_count: count,
       failure_count: failures,
