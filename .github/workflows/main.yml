@@ -56,16 +56,23 @@ jobs:
           echo "image_name_previous=${IMAGE_NAME_PREVIOUS}"   >> ${GITHUB_OUTPUT}
 
       - name: Setup Kosli CLI
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest pull-request evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Create Kosli Flow
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        run:
+          kosli create flow "${KOSLI_FLOW}"
+            --description="Test runner"
+            --template-file=.kosli.yml
+
+      - name: Begin Kosli Trail
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli begin trail "${{ env.KOSLI_TRAIL }}"
             --flow="${{ env.KOSLI_FLOW }}"
-            --template-file=.kosli.yml
 
 
   pull-request:
