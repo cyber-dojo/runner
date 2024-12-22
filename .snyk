@@ -5,11 +5,16 @@ ignore:
   SNYK-GOLANG-GITHUBCOMGOLANGJWTJWTV4-8341242:
     - '*':
         reason: No fix available
-        expires: 2025-01-08T10:03:36.581Z
+        expires: 2025-01-18T10:03:36.581Z
         created: 2024-11-08T10:03:36.589Z
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-8496611:
     - '*':
         reason: No fix available
-        expires: 2025-01-08T10:03:36.581Z
+        expires: 2025-01-18T10:03:36.581Z
         created: 2024-12-14T10:03:36.589Z
+  SNYK-GOLANG-GOLANGORGXNETHTML-8535262:
+    - '*':
+        reason: No fix available
+        expires: 2025-01-18T10:03:36.581Z
+        created: 2024-12-22T10:03:36.589Z
 patch: {}
