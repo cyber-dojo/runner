@@ -71,8 +71,7 @@ jobs:
       - name: Begin Kosli Trail
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
-          kosli begin trail "${{ env.KOSLI_TRAIL }}"
-            --flow="${{ env.KOSLI_FLOW }}"
+          kosli begin trail "${KOSLI_TRAIL}"
 
 
   pull-request:
