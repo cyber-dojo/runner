@@ -76,6 +76,7 @@ build_image()
     docker tag "${image_name}" "cyberdojo/runner:latest"
     echo "CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
     echo "CYBER_DOJO_RUNNER_TAG=${CYBER_DOJO_RUNNER_TAG}"
+    echo "${image_name}"
   fi
 }
 

@@ -3,6 +3,8 @@ LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
 
+RUN apk add git=2.47.2-r0  # https://security.snyk.io/vuln/SNYK-ALPINE321-GIT-8625653
+
 WORKDIR /runner
 COPY source/server/ .
 
