@@ -46,11 +46,25 @@ containers_down()
   docker compose down --remove-orphans --volumes
 }
 
-echo_versioner_env_vars()
+echo_base_image()
 {
-  local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
-  echo COMMIT_SHA="${sha}"
+  #local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
+  #echo "${json}" | jq -r '.base_image'
+  echo cyberdojo/docker-base:d6830c0
+}
 
+echo_env_vars()
+{
+  # --build-arg ...
+  if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
+    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
+  fi
+  if [[ ! -v COMMIT_SHA ]] ; then
+    local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
+    echo COMMIT_SHA="${sha}"
+  fi
+
+  # From versioner ...
   docker run --rm cyberdojo/versioner
 
   echo CYBER_DOJO_RUNNER_SHA="${sha}"
