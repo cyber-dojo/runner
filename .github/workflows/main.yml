@@ -191,6 +191,12 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Output the base-image
+        id: vars
+        run: |
+          source ./bin/lib.sh
+          echo "base_image=$(echo_base_image)" >> ${GITHUB_OUTPUT}
+
       - name: Build and push Docker image to ECR
         id: docker_build
         uses: docker/build-push-action@v5
@@ -200,8 +206,9 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}
           cache-from: type=registry,ref=${{ needs.setup.outputs.image_name_previous }}
           cache-to: type=inline,mode=max
-          build-args:
+          build-args: |
             COMMIT_SHA=${{ github.sha }}
+            BASE_IMAGE=${{ steps.vars.outputs.base_image }}
 
       - name: Tar Docker image
         run: |
