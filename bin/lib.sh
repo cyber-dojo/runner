@@ -48,16 +48,16 @@ containers_down()
 
 echo_base_image()
 {
-  local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
-  echo "${json}" | jq -r '.base_image'
+  #local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
+  #echo "${json}" | jq -r '.base_image'
+  echo CYBER_DOJO_RUNNER_BASE_IMAGE=cyberdojo/docker-base:d6830c0
 }
 
 echo_env_vars()
 {
   # --build-arg ...
   if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
-    echo CYBER_DOJO_RUNNER_BASE_IMAGE=cyberdojo/docker-base:d6830c0
-    #echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
+    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
   fi
   if [[ ! -v COMMIT_SHA ]] ; then
     local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
