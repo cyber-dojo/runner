@@ -41,7 +41,7 @@ check_args()
 check_coverage()
 {
   check_args "$@"
-  export $(echo_versioner_env_vars)
+  export $(echo_env_vars)
 
   local -r TYPE="${1}"           # {server|client}
   local -r TEST_LOG=test.log

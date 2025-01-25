@@ -128,6 +128,20 @@ The 40 character git commit sha used to create the Docker image.
   ```
 
 - - - -
+## GET base_image
+The base-image used in the Dockerfile's FROM statement.
+- [JSON-in](#json-in) parameters
+  * none
+- returns the [JSON-out](#json-out) result, keyed on `"base_image"`
+  * eg `"cyberdojo/docker-base:d6830c0"`
+- example
+  ```bash     
+  $ curl --silent --request GET https://${DOMAIN}:${PORT}/base_image
+  {"base_image":"cyberdojo/docker-base:d6830c0"}  
+  ```
+
+
+- - - -
 ## JSON in
 - All methods pass any arguments as a json hash in the http request body.
 - If there are no arguments you can use `''` (which is the default for `curl --data`) instead of `'{}'`.

@@ -13,4 +13,8 @@ class Prober
   def sha
     ENV.fetch('SHA', nil)
   end
+
+  def base_image
+    ENV.fetch('BASE_IMAGE', nil)
+  end
 end

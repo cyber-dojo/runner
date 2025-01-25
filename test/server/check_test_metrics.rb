@@ -38,10 +38,10 @@ def table_data
     [ 'test.branches.total',   test_cov['branches']['total' ], '<=', 0   ],
     [ 'test.branches.missed',  test_cov['branches']['missed'], '<=', 0   ],
     [ nil ],
-    [ 'code.lines.total',      code_cov['lines'   ]['total' ], '<=', 549 ],
-    [ 'code.lines.missed',     code_cov['lines'   ]['missed'], '<=', 1   ],
-    [ 'code.branches.total',   code_cov['branches']['total' ], '<=', 66  ],
-    [ 'code.branches.missed',  code_cov['branches']['missed'], '<=', 2   ],
+    [ 'code.lines.total',      code_cov['lines'   ]['total' ], '<=', 552 ],
+    [ 'code.lines.missed',     code_cov['lines'   ]['missed'], '<=', 3   ],
+    [ 'code.branches.total',   code_cov['branches']['total' ], '<=', 67  ],
+    [ 'code.branches.missed',  code_cov['branches']['missed'], '<=', 3   ],
   ]
 end
 

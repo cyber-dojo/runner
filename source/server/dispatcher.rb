@@ -12,9 +12,10 @@ class Dispatcher
   def call(path, body)
     args = parse_json_args(body)
     case path
-    when '/sha'                then ['sha',               prober.sha(**args)]
     when '/alive'              then ['alive?',            prober.alive?(**args)]
     when '/ready'              then ['ready?',            prober.ready?(**args)]
+    when '/sha'                then ['sha',               prober.sha(**args)]
+    when '/base_image'         then ['base_image',        prober.base_image(**args)]
     when '/pull_image'         then ['pull_image',        puller.pull_image(**args)]
     when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', runner.run_cyber_dojo_sh(**args)]
     else
