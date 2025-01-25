@@ -80,7 +80,7 @@ Pulls **image_name** onto the node if not already present.
 - example
   ```bash
   JSON='{"id":"34de2W","image_name":"cyberdojofoundation/python_pytest:56fa098"}'
-  $ curl --data "${JSON}" --silent --request POST http://${IP_ADDRESS}:${PORT}/pull_image  
+  $ curl --data "${JSON}" --silent --request POST https://${DOMAIN}:${PORT}/pull_image  
   {"pull_image":"pulled"}
   ```
 
@@ -95,7 +95,7 @@ Used as a [Kubernetes](https://kubernetes.io/) liveness probe.
   * **true**
 - example
   ```bash     
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/alive
+  $ curl --silent --request GET https://${DOMAIN}:${PORT}/alive
   {"alive?":true}
   ```
 
@@ -110,7 +110,7 @@ Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
   * **false** if the service is not ready
 - example
   ```bash     
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/ready
+  $ curl --silent --request GET https://${DOMAIN}:${PORT}/ready
   {"ready?":false}
   ```
 
@@ -123,28 +123,27 @@ The 40 character git commit sha used to create the Docker image.
   * eg `"41d7e6068ab75716e4c7b9262a3a44323b4d1448"`
 - example
   ```bash     
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/sha
+  $ curl --silent --request GET https://${DOMAIN}:${PORT}/sha
   {"sha":"41d7e6068ab75716e4c7b9262a3a44323b4d1448"}
   ```
 
 - - - -
 ## JSON in
 - All methods pass any arguments as a json hash in the http request body.
-- If there are no arguments you can use `''` (which is the default
-  for `curl --data`) instead of `'{}'`.
+- If there are no arguments you can use `''` (which is the default for `curl --data`) instead of `'{}'`.
 
 - - - -
 ## JSON out      
 - All methods return a json hash in the http response body.
 - If the method completes, a key equals the method's name. eg
   ```bash
-  $ curl --silent --request GET http://${IP_ADDRESS}:${PORT}/ready
+  $ curl --silent --request GET https://${DOMAIN}:${PORT}/ready
   { "ready?":true}
   ```
 - If the method raises an exception, a key equals `"exception"`, with
   a json-hash as its value. eg
   ```bash
-  $ curl --silent --request POST http://${IP_ADDRESS}:${PORT}/run_cyber_dojo_sh | jq      
+  $ curl --silent --request POST https://${DOMAIN}:${PORT}/run_cyber_dojo_sh | jq      
   { "exception": {
       "path": "/run_cyber_dojo_sh",
       "body": "",
