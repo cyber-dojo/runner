@@ -29,22 +29,17 @@ jobs:
       service_name: ${{ steps.vars.outputs.service_name }}
       image_tag: ${{ steps.vars.outputs.image_tag }}
       image_name: ${{ steps.vars.outputs.image_name }}
-      image_name_previous: ${{ steps.vars.outputs.image_name_previous }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 1
 
       - name: Prepare outputs for workflow jobs
         id: vars
         run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}        
-          IMAGE_TAG_PREVIOUS=$(git rev-parse --short=7 HEAD^)
-
           ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          
           IMAGE_NAME="${ECR_REGISTRY}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
-          IMAGE_NAME_PREVIOUS="${ECR_REGISTRY}/${{ env.SERVICE_NAME }}:${IMAGE_TAG_PREVIOUS}"
           
           echo "aws_account_id=${AWS_ACCOUNT_ID}"             >> ${GITHUB_OUTPUT}
           echo "ecr_registry=${ECR_REGISTRY}"                 >> ${GITHUB_OUTPUT}
@@ -53,7 +48,6 @@ jobs:
           echo "service_name=${{ env.SERVICE_NAME }}"         >> ${GITHUB_OUTPUT}
           echo "image_tag=${IMAGE_TAG}"                       >> ${GITHUB_OUTPUT}
           echo "image_name=${IMAGE_NAME}"                     >> ${GITHUB_OUTPUT}
-          echo "image_name_previous=${IMAGE_NAME_PREVIOUS}"   >> ${GITHUB_OUTPUT}
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -204,8 +198,6 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE_NAME }}
-          cache-from: type=registry,ref=${{ needs.setup.outputs.image_name_previous }}
-          cache-to: type=inline,mode=max
           build-args: |
             COMMIT_SHA=${{ github.sha }}
             BASE_IMAGE=${{ steps.vars.outputs.base_image }}
