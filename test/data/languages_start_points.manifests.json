@@ -1048,6 +1048,46 @@
         }
       }
     },
+    "Go 1.18, testify": {
+      "display_name": "Go 1.18, testify",
+      "filename_extension": [
+        ".go"
+      ],
+      "image_name": "cyberdojofoundation/go_testify:3f62bba",
+      "max_seconds": 20,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "go test\n"
+        },
+        "hiker.go": {
+          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
+        },
+        "hiker_test.go": {
+          "content": "package hiker\n\nimport (\n    \"testing\"\n    \"github.com/stretchr/testify/assert\"\n)\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    assert.Equal(t, 42, answer())\n}\n"
+        }
+      }
+    },
+    "Go 1.23.4, testing": {
+      "display_name": "Go 1.23.4, testing",
+      "filename_extension": [
+        ".go"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/go_testing:a3f0b41",
+      "max_seconds": 15,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "go env -w GO111MODULE=auto\ngo test\n"
+        },
+        "hiker.go": {
+          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
+        },
+        "hiker_test.go": {
+          "content": "package hiker\n\nimport (\"testing\")\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    if answer() != 42 {\n        t.Error(\"answer() != 42 as expected.\")\n    }\n}\n"
+        }
+      }
+    },
     "Go, convey": {
       "display_name": "Go, convey",
       "filename_extension": [
@@ -1065,46 +1105,6 @@
         },
         "hiker_test.go": {
           "content": "package hiker\n\nimport (\n    \"testing\"\n    . \"github.com/smartystreets/goconvey/convey\"\n)\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    Convey(\"A simple example to start you off\", t, func() {\n        So(answer(), ShouldEqual, 42)\n    })\n}\n"
-        }
-      }
-    },
-    "Go, testify": {
-      "display_name": "Go, testify",
-      "filename_extension": [
-        ".go"
-      ],
-      "image_name": "cyberdojofoundation/go_testify:3f62bba",
-      "max_seconds": 15,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "go test\n"
-        },
-        "hiker.go": {
-          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
-        },
-        "hiker_test.go": {
-          "content": "package hiker\n\nimport (\n    \"testing\"\n    \"github.com/stretchr/testify/assert\"\n)\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    assert.Equal(t, 42, answer())\n}\n"
-        }
-      }
-    },
-    "Go, testing": {
-      "display_name": "Go, testing",
-      "filename_extension": [
-        ".go"
-      ],
-      "image_name": "cyberdojofoundation/go_testing:a2dbf73",
-      "max_seconds": 15,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "go env -w GO111MODULE=auto\ngo test\n"
-        },
-        "hiker.go": {
-          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
-        },
-        "hiker_test.go": {
-          "content": "package hiker\n\nimport (\"testing\")\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    if answer() != 42 {\n        t.Error(\"answer() != 42 as expected.\")\n    }\n}\n"
         }
       }
     },
@@ -1342,7 +1342,7 @@
           "content": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n\nclass HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        Hiker.Listener listener = mock(Hiker.Listener.class);\n        Hiker douglas = new Hiker(listener);\n        douglas.answer();\n        verify(listener).onAnswer(42);\n        verifyNoMoreInteractions(listener);\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /mockito/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview --release 21 -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java --enable-preview -jar /mockito/junit-platform-console-standalone-1.11.3.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /mockito/*.jar | tr '\\n' ':'`\n\nif javac --enable-preview --release 21 -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java --enable-preview -javaagent:/mockito/byte-buddy-agent-1.15.4.jar \\\n      -jar /mockito/junit-platform-console-standalone-1.11.3.jar \\\n      execute --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path .:$CLASSES \\\n      --scan-class-path\nfi\n"
         }
       }
     },
@@ -1372,12 +1372,98 @@
         }
       }
     },
-    "JavaScript 23.1, Mocha 10.8.2/chai 5.11/sinon 19.0.2/sinon-chai 4.0.0": {
-      "display_name": "JavaScript 23.1, Mocha 10.8.2/chai 5.11/sinon 19.0.2/sinon-chai 4.0.0",
+    "JavaScript 23.6, Cucumber 11.2": {
+      "display_name": "JavaScript 23.6, Cucumber 11.2",
+      "filename_extension": [
+        ".js",
+        ".feature"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_cucumber:93280de",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        ".jshintrc": {
+          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nPATH=/home/sandbox/node_modules/@cucumber/cucumber/bin:${PATH}\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  cd /home/sandbox\n  cucumber-js \\\n    --format-options '{\"colorsEnabled\":false}' \\\n    ${CYBER_DOJO_SANDBOX}/*.feature\nfi\n"
+        },
+        "hiker.feature": {
+          "content": "Feature: hitch-hiker playing scrabble\n\n  Scenario: hitch-hiker playing scrabble in the past\n    Given the hitch-hiker selects some tiles\n    When they spell 6 times 9\n    Then the score is 42\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer(a, b) {\n  return a * b;\n}\n"
+        },
+        "hiker_steps.js": {
+          "content": "'use strict';\n\nconst {Given,When,Then} = require('@cucumber/cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
+        }
+      }
+    },
+    "JavaScript 23.6, Jasmine 5.5": {
+      "display_name": "JavaScript 23.6, Jasmine 5.5",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_mocha_chai_sinon:0ad0d5e",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jasmine:6302c53",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "/(d+) specs?, ([1-9]d*) failures?/",
+        "/(d+) specs?, (0) failures?/"
+      ],
+      "tab_size": 2,
+      "visible_files": {
+        ".eslintrc.json": {
+          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "hiker-spec.js": {
+          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "jasmine.json": {
+          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
+        }
+      }
+    },
+    "JavaScript 23.6, Jest 29.7": {
+      "display_name": "JavaScript 23.6, Jest 29.7",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jest:9d0baa7",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        ".eslintrc.json": {
+          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nmodule.exports = answer;\n"
+        },
+        "hiker.test.js": {
+          "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
+        }
+      }
+    },
+    "JavaScript 23.6, Mocha 11.0.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0": {
+      "display_name": "JavaScript 23.6, Mocha 11.0.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_mocha_chai_sinon:8865dcb",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1407,12 +1493,12 @@
         }
       }
     },
-    "JavaScript 23.1, assert": {
-      "display_name": "JavaScript 23.1, assert",
+    "JavaScript 23.6, assert": {
+      "display_name": "JavaScript 23.6, assert",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert:0f6f5bf",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert:aba164b",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1430,99 +1516,13 @@
         }
       }
     },
-    "JavaScript 23.1.0, Cucumber 11.0.1": {
-      "display_name": "JavaScript 23.1.0, Cucumber 11.0.1",
-      "filename_extension": [
-        ".js",
-        ".feature"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_cucumber:66247ad",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".jshintrc": {
-          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nPATH=/home/sandbox/node_modules/@cucumber/cucumber/bin:${PATH}\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  cd /home/sandbox\n  cucumber-js \\\n    --format-options '{\"colorsEnabled\":false}' \\\n    ${CYBER_DOJO_SANDBOX}/*.feature\nfi\n"
-        },
-        "hiker.feature": {
-          "content": "Feature: hitch-hiker playing scrabble\n\n  Scenario: hitch-hiker playing scrabble in the past\n    Given the hitch-hiker selects some tiles\n    When they spell 6 times 9\n    Then the score is 42\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer(a, b) {\n  return a * b;\n}\n"
-        },
-        "hiker_steps.js": {
-          "content": "'use strict';\n\nconst {Given,When,Then} = require('@cucumber/cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
-        }
-      }
-    },
-    "JavaScript 23.1.0, Jasmine 5.4": {
-      "display_name": "JavaScript 23.1.0, Jasmine 5.4",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jasmine:03d196a",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "/(d+) specs?, ([1-9]d*) failures?/",
-        "/(d+) specs?, (0) failures?/"
-      ],
-      "tab_size": 2,
-      "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "hiker-spec.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "jasmine.json": {
-          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
-        }
-      }
-    },
-    "JavaScript 23.1.0, Jest 29.7.0": {
-      "display_name": "JavaScript 23.1.0, Jest 29.7.0",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jest:f68da88",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nmodule.exports = answer;\n"
-        },
-        "hiker.test.js": {
-          "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
-        }
-      }
-    },
-    "JavaScript 23.1.0, assert+jQuery 3.7.1": {
-      "display_name": "JavaScript 23.1.0, assert+jQuery 3.7.1",
+    "JavaScript 23.6, assert+jQuery 3.7.1": {
+      "display_name": "JavaScript 23.6, assert+jQuery 3.7.1",
       "filename_extension": [
         ".js",
         ".html"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert_jquery:ccace68",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert_jquery:6826ced",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1546,12 +1546,12 @@
         }
       }
     },
-    "JavaScript 23.1.0, qunit 2.222/sinon 19.0.2": {
-      "display_name": "JavaScript 23.1.0, qunit 2.222/sinon 19.0.2",
+    "JavaScript 23.6, qunit 2.23.1/sinon 19.0.2": {
+      "display_name": "JavaScript 23.6, qunit 2.23.1/sinon 19.0.2",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_qunit_sinon:0e23df3",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_qunit_sinon:f715c86",
       "max_seconds": 10,
       "progress_regexs": [
         "/W*d+W+d+W+d+W+([1-9]d*)W+(d+)W+d+W+/",
@@ -1701,12 +1701,12 @@
         }
       }
     },
-    "Python 3.13, Pytest 8.3.3": {
-      "display_name": "Python 3.13, Pytest 8.3.3",
+    "Python 3.13, Pytest 8.3.4": {
+      "display_name": "Python 3.13, Pytest 8.3.4",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:5e6d1d9",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:756400c",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1721,14 +1721,14 @@
         }
       }
     },
-    "Python 3.13, approval-unittest 14.1": {
-      "display_name": "Python 3.13, approval-unittest 14.1",
+    "Python 3.13, approval-unittest 14.3": {
+      "display_name": "Python 3.13, approval-unittest 14.3",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:082f3cc",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:57d8b07",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1754,7 +1754,7 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:340d513",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:1d2e95b",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1775,7 +1775,7 @@
         ".py",
         ".feature"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:5a492e9",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:e41f08e",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1793,14 +1793,14 @@
         }
       }
     },
-    "Python 3.13, pytest-approvaltests 0.2.4-14.1": {
-      "display_name": "Python 3.13, pytest-approvaltests 0.2.4-14.1",
+    "Python 3.13, pytest-approvaltests 0.2.4-14.3": {
+      "display_name": "Python 3.13, pytest-approvaltests 0.2.4-14.3",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:77adb6a",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:f057b9a",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1820,7 +1820,7 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:cf9843d",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:417d013",
       "progress_regexs": [
         "FAILED \\(failures=\\d+\\)",
         "OK"
@@ -1884,37 +1884,14 @@
         }
       }
     },
-    "Ruby 3.3.6, Test::Unit": {
-      "display_name": "Ruby 3.3.6, Test::Unit",
-      "filename_extension": [
-        ".rb"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/ruby_test_unit:c246168",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        "coverage.rb": {
-          "content": "require 'simplecov'\nrequire 'simplecov-console'\nrequire 'stringio'\n\nmodule SimpleCov\n  module Formatter\n    class FileWriter\n      def format(result)\n        stdout = capture_stdout {\n          SimpleCov::Formatter::Console.new.format(result)\n        }\n        `mkdir #{report_dir} 2> /dev/null`\n        IO.write(\"#{report_dir}/coverage.txt\", stdout)\n      end\n      def report_dir\n        \"#{ENV['CYBER_DOJO_SANDBOX']}/report\"\n      end\n      def capture_stdout\n        begin\n          uncaptured_stdout = $stdout\n          captured_stdout = StringIO.new('', 'w')\n          $stdout = captured_stdout\n          yield\n          $stdout.string\n        ensure\n          $stdout = uncaptured_stdout\n        end\n      end\n    end\n  end\nend\n\nSimpleCov.command_name \"Test::Unit\"\nSimpleCov.at_exit do\n  # I'd like to only write the coverage report if the\n  # traffic-light is green but it seems there is no way.\n  if $!.is_a?(SystemExit) # !amber-traffic-light\n    SimpleCov::Formatter::FileWriter.new.format(SimpleCov.result)\n  end\nend\nSimpleCov.start\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs coverage # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# turn off colour for new coverage report\nexport NO_COLOR=1\n\nfor test_file in *test*.rb\ndo\n  ruby $test_file || true\ndone\n"
-        },
-        "hiker.rb": {
-          "content": "# The starting files are unrelated to the exercise.\n#\n# They simply show syntax for writing and testing\n#  o) a global function\n#  o) an instance method\n# Pick the style that best fits the exercise.\n# Then delete the other one, along with this comment!\n\ndef global_answer\n  6 * 9\nend\n\nclass Hiker\n\n  def instance_answer\n    global_answer\n  end\n\nend\n"
-        },
-        "test_hiker.rb": {
-          "content": "require_relative 'coverage'\nrequire_relative 'hiker'\nrequire 'test/unit'\n\nclass TestHiker < Test::Unit::TestCase\n\n  def test_global_function\n    assert_equal 42, global_answer\n  end\n\n  def test_instance_method\n    assert_equal 42, Hiker.new.instance_answer\n  end\n\nend\n"
-        }
-      }
-    },
-    "Ruby, Approval": {
-      "display_name": "Ruby, Approval",
+    "Ruby 3.4.1, Approval 0.0.26": {
+      "display_name": "Ruby 3.4.1, Approval 0.0.26",
       "filename_extension": [
         ".rb",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "cyberdojofoundation/ruby_approval:e979c02",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_approval:1c26599",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1938,13 +1915,13 @@
         }
       }
     },
-    "Ruby, Cucumber": {
-      "display_name": "Ruby, Cucumber",
+    "Ruby 3.4.1, Cucumber 9.2": {
+      "display_name": "Ruby 3.4.1, Cucumber 9.2",
       "filename_extension": [
         ".rb",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/ruby_cucumber:d09da14",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_cucumber:c1d3969",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1965,12 +1942,12 @@
         }
       }
     },
-    "Ruby, MiniTest": {
-      "display_name": "Ruby, MiniTest",
+    "Ruby 3.4.1, MiniTest 5.25": {
+      "display_name": "Ruby 3.4.1, MiniTest 5.25",
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "cyberdojofoundation/ruby_mini_test:a074c0a",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_mini_test:f945f74",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1983,16 +1960,16 @@
           "content": "# The starting files are unrelated to the exercise.\n#\n# They simply show syntax for writing and testing\n#  o) a global function\n#  o) an instance method\n# Pick the style that best fits the exercise.\n# Then delete the other one, along with this comment!\n\ndef global_answer\n  6 * 9\nend\n\nclass Hiker\n\n  def instance_answer\n    global_answer\n  end\n\nend\n"
         },
         "test_hiker.rb": {
-          "content": "require_relative 'coverage'\nrequire_relative 'hiker'\nrequire 'minitest/autorun'\n\nclass TestHiker < MiniTest::Test\n\n  def test_global_function\n    assert_equal 42, global_answer\n  end\n\n  def test_instance_method\n    assert_equal 42, Hiker.new.instance_answer\n  end\n\nend\n"
+          "content": "require_relative 'coverage'\nrequire_relative 'hiker'\nrequire 'minitest/autorun'\n\nclass TestHiker < Minitest::Test\n\n  def test_global_function\n    assert_equal 42, global_answer\n  end\n\n  def test_instance_method\n    assert_equal 42, Hiker.new.instance_answer\n  end\n\nend\n"
         }
       }
     },
-    "Ruby, RSpec": {
-      "display_name": "Ruby, RSpec",
+    "Ruby 3.4.1, RSpec 3.13": {
+      "display_name": "Ruby 3.4.1, RSpec 3.13",
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "cyberdojofoundation/ruby_rspec:a09cb45",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_rspec:69fb3ed",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -2010,12 +1987,35 @@
         }
       }
     },
-    "Rust 1.82, test": {
-      "display_name": "Rust 1.82, test",
+    "Ruby 3.4.1, Test::Unit": {
+      "display_name": "Ruby 3.4.1, Test::Unit",
+      "filename_extension": [
+        ".rb"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_test_unit:c3a64a6",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        "coverage.rb": {
+          "content": "require 'simplecov'\nrequire 'simplecov-console'\nrequire 'stringio'\n\nmodule SimpleCov\n  module Formatter\n    class FileWriter\n      def format(result)\n        stdout = capture_stdout {\n          SimpleCov::Formatter::Console.new.format(result)\n        }\n        `mkdir #{report_dir} 2> /dev/null`\n        IO.write(\"#{report_dir}/coverage.txt\", stdout)\n      end\n      def report_dir\n        \"#{ENV['CYBER_DOJO_SANDBOX']}/report\"\n      end\n      def capture_stdout\n        begin\n          uncaptured_stdout = $stdout\n          captured_stdout = StringIO.new('', 'w')\n          $stdout = captured_stdout\n          yield\n          $stdout.string\n        ensure\n          $stdout = uncaptured_stdout\n        end\n      end\n    end\n  end\nend\n\nSimpleCov.command_name \"Test::Unit\"\nSimpleCov.at_exit do\n  # I'd like to only write the coverage report if the\n  # traffic-light is green but it seems there is no way.\n  if $!.is_a?(SystemExit) # !amber-traffic-light\n    SimpleCov::Formatter::FileWriter.new.format(SimpleCov.result)\n  end\nend\nSimpleCov.start\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs coverage # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# turn off colour for new coverage report\nexport NO_COLOR=1\n\nfor test_file in *test*.rb\ndo\n  ruby $test_file || true\ndone\n"
+        },
+        "hiker.rb": {
+          "content": "# The starting files are unrelated to the exercise.\n#\n# They simply show syntax for writing and testing\n#  o) a global function\n#  o) an instance method\n# Pick the style that best fits the exercise.\n# Then delete the other one, along with this comment!\n\ndef global_answer\n  6 * 9\nend\n\nclass Hiker\n\n  def instance_answer\n    global_answer\n  end\n\nend\n"
+        },
+        "test_hiker.rb": {
+          "content": "require_relative 'coverage'\nrequire_relative 'hiker'\nrequire 'test/unit'\n\nclass TestHiker < Test::Unit::TestCase\n\n  def test_global_function\n    assert_equal 42, global_answer\n  end\n\n  def test_instance_method\n    assert_equal 42, Hiker.new.instance_answer\n  end\n\nend\n"
+        }
+      }
+    },
+    "Rust 1.84, test": {
+      "display_name": "Rust 1.84, test",
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:1ebaca4",
+      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:e5e2739",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
