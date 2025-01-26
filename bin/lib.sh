@@ -1,6 +1,44 @@
 #!/usr/bin/env bash
 set -Eeu
 
+echo_base_image()
+{
+  local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
+  echo "${json}" | jq -r '.base_image'
+  #echo cyberdojo/docker-base:d6830c0
+}
+
+echo_env_vars()
+{
+  # --build-arg ...
+  if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
+    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
+  fi
+  if [[ ! -v COMMIT_SHA ]] ; then
+    local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
+    echo COMMIT_SHA="${sha}"
+  fi
+
+  # From versioner ...
+  docker run --rm cyberdojo/versioner
+
+  echo CYBER_DOJO_RUNNER_SHA="${sha}"
+  echo CYBER_DOJO_RUNNER_TAG="${sha:0:7}"
+
+  echo CYBER_DOJO_RUNNER_CLIENT_IMAGE=cyberdojo/runner-client
+  echo CYBER_DOJO_RUNNER_CLIENT_PORT=9999
+
+  echo CYBER_DOJO_RUNNER_CLIENT_USER=nobody
+  echo CYBER_DOJO_RUNNER_SERVER_USER=root
+
+  echo CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME=test_runner_client
+  echo CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME=test_runner_server
+
+  local -r AWS_ACCOUNT_ID=244531986313
+  local -r AWS_REGION=eu-central-1
+  echo CYBER_DOJO_RUNNER_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/runner"
+}
+
 exit_non_zero_unless_installed()
 {
   for dependent in "$@"
@@ -44,44 +82,6 @@ abs_filename()
 containers_down()
 {
   docker compose down --remove-orphans --volumes
-}
-
-echo_base_image()
-{
-  local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
-  echo "${json}" | jq -r '.base_image'
-  #echo cyberdojo/docker-base:d6830c0
-}
-
-echo_env_vars()
-{
-  # --build-arg ...
-  if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
-    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
-  fi
-  if [[ ! -v COMMIT_SHA ]] ; then
-    local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
-    echo COMMIT_SHA="${sha}"
-  fi
-
-  # From versioner ...
-  docker run --rm cyberdojo/versioner
-
-  echo CYBER_DOJO_RUNNER_SHA="${sha}"
-  echo CYBER_DOJO_RUNNER_TAG="${sha:0:7}"
-
-  echo CYBER_DOJO_RUNNER_CLIENT_IMAGE=cyberdojo/runner-client
-  echo CYBER_DOJO_RUNNER_CLIENT_PORT=9999
-
-  echo CYBER_DOJO_RUNNER_CLIENT_USER=nobody
-  echo CYBER_DOJO_RUNNER_SERVER_USER=root
-
-  echo CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME=test_runner_client
-  echo CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME=test_runner_server
-
-  local -r AWS_ACCOUNT_ID=244531986313
-  local -r AWS_REGION=eu-central-1
-  echo CYBER_DOJO_RUNNER_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/runner"
 }
 
 remove_old_images()

@@ -1,0 +1,34 @@
+name: Base Image Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_image:
+        description: "Image-Tag for cyberdojo/docker-base (short commit SHA - first 7 digits) eg edb2887"
+        required: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      base_image:  ${{ steps.vars.outputs.base_image }}
+      kosli_trail: ${{ steps.vars.outputs.kosli_trail }}
+    steps:
+      - name: Outputs
+        id: vars
+        run: | 
+          echo "base_image=cyberdojo/docker-base:${{ inputs.base_image }}" >> ${GITHUB_OUTPUT}
+          echo "kosli_trail=base-image-update-${{ inputs.base_image }}"    >> ${GITHUB_OUTPUT}
+
+  trigger:
+    needs: [setup]
+    uses: ./.github/workflows/main.yml
+    with:
+      BASE_IMAGE:  ${{ needs.setup.outputs.base_image }}
+      KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
+    secrets:
+      DOCKER_USER:     ${{ secrets.DOCKER_USER }}
+      DOCKER_PASS:     ${{ secrets.DOCKER_PASS }}
+      SNYK_TOKEN:      ${{ secrets.SNYK_TOKEN }}
+      KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
+

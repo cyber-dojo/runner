@@ -6,7 +6,7 @@ export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${ROOT_DIR}/bin/lib.sh"
 source "${ROOT_DIR}/bin/create_test_data_manifests_file.sh"
 source "${ROOT_DIR}/bin/setup_dependent_images.sh"
-
+# shellcheck disable=SC2046
 export $(echo_env_vars)
 
 show_help()
