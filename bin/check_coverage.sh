@@ -41,6 +41,7 @@ check_args()
 check_coverage()
 {
   check_args "$@"
+  # shellcheck disable=SC2046
   export $(echo_env_vars)
 
   local -r TYPE="${1}"           # {server|client}

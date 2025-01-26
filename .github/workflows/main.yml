@@ -1,19 +1,36 @@
-name: Main
+name: Sub - main
 
 on:
-  push:
+  workflow_call:
+    inputs:
+      BASE_IMAGE:
+        required: true
+        type: string
+      KOSLI_TRAIL:
+        required: true
+        type: string
+    secrets:
+      DOCKER_USER:
+        required: true
+      DOCKER_PASS:
+        required: true
+      SNYK_TOKEN:
+        required: true
+      KOSLI_API_TOKEN:
+        required: true
 
 env:
   KOSLI_DRY_RUN: ${{ vars.KOSLI_DRY_RUN }}           # false
   KOSLI_HOST: ${{ vars.KOSLI_HOST }}                 # https://app.kosli.com
+  KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
   KOSLI_ORG: ${{ vars.KOSLI_ORG }}                   # cyber-dojo
   KOSLI_FLOW: ${{ vars.KOSLI_FLOW }}                 # runner-ci
-  KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
   KOSLI_TRAIL: ${{ github.sha }}
-  SERVICE_NAME: ${{ github.event.repository.name }}  # runner
+
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   AWS_ECR_ID: ${{ vars.AWS_ECR_ID }}
   AWS_REGION: ${{ vars.AWS_REGION }}
+  SERVICE_NAME: ${{ github.event.repository.name }}  # runner
   IMAGE_TAR_FILENAME: /tmp/${{ github.event.repository.name }}:${{ github.sha }}.tar
   DOCKER_API_VERSION: ${{ vars.DOCKER_API_VERSION }}
 
@@ -185,12 +202,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Output the base-image
-        id: vars
-        run: |
-          source ./bin/lib.sh
-          echo "base_image=$(echo_base_image)" >> ${GITHUB_OUTPUT}
-
       - name: Build and push Docker image to ECR
         id: docker_build
         uses: docker/build-push-action@v5
@@ -200,7 +211,7 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
             COMMIT_SHA=${{ github.sha }}
-            BASE_IMAGE=${{ steps.vars.outputs.base_image }}
+            BASE_IMAGE=${{ inputs.base_image }}
 
       - name: Tar Docker image
         run: |

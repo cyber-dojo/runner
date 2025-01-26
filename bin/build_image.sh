@@ -28,7 +28,7 @@ check_args()
       ;;
     'server')
       if [ -n "${CI:-}" ] ; then
-        stderr "In CI workflow - use previous docker/build-push-action@v6 GitHub Action"
+        stderr "In CI workflow - use docker/build-push-action@v6 GitHub Action"
         exit 42
       fi
       ;;
@@ -51,9 +51,18 @@ build_image()
   check_args "$@"
   local -r type="${1}"
   exit_non_zero_unless_installed docker
+  # shellcheck disable=SC2046
   export $(echo_env_vars)
   containers_down
   remove_old_images
+
+  echo
+  echo "Building with --build-args"
+  echo "  COMMIT_SHA=${COMMIT_SHA}"
+  echo "  BASE_IMAGE=${CYBER_DOJO_RUNNER_BASE_IMAGE}"
+  echo "To change this run:"
+  echo "$ COMMIT_SHA=... CYBER_DOJO_RUNNER_BASE_IMAGE=cyberdojo/docker-base:... make image_${type}"
+  echo
 
   docker compose build server
   if [ "${type}" == 'client' ]; then
@@ -72,7 +81,7 @@ build_image()
   if [ "${type}" == 'server' ]; then
     # Create latest tag for image build cache
     docker tag "${image_name}" "${CYBER_DOJO_RUNNER_IMAGE}:latest"
-    # Tag image-name for local development where runners name comes from echo-versioner-env-vars
+    # Tag image-name for local development where runners name comes from echo-env-vars
     docker tag "${image_name}" "cyberdojo/runner:latest"
     echo "CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
     echo "CYBER_DOJO_RUNNER_TAG=${CYBER_DOJO_RUNNER_TAG}"
