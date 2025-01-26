@@ -17,8 +17,8 @@ show_help()
     Use: ${MY_NAME} {server|client} [ID...]
 
     Options:
-       server  - only run tests from inside the server (local only)
-       client  - only run tests from inside the client (local and CI workflow)
+       server  - only run tests from inside the server
+       client  - only run tests from inside the client
        ID...   - only run tests matching these identifiers
 
     To see the test ID and filename as each test runs:
@@ -110,11 +110,13 @@ run_tests_in_container()
 run_tests()
 {
   check_args "$@"
+  local -r TYPE="${1}" # {server|client}
   containers_down
   setup_dependent_images "$@"
   create_test_data_manifests_file
-  docker compose --progress=plain up --no-build --wait --wait-timeout=10 "${1}"
-  exit_non_zero_unless_started_cleanly "${1}"
+  # Don't do a build here, because in CI workflow, server image is built with GitHub Action
+  docker compose --progress=plain up --no-build --wait --wait-timeout=10 "${TYPE}"
+  echo_warnings "${TYPE}"
   run_tests_in_container "$@"
 }
 
