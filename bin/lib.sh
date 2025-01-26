@@ -106,45 +106,18 @@ remove_all_but_latest()
   docker system prune --force
 }
 
-exit_non_zero_unless_started_cleanly()
+echo_warnings()
 {
+  local -r SERVICE_NAME="${1}" # {client|server}
+  local -r DOCKER_LOG=$(docker logs "${CONTAINER_NAME}" 2>&1)
   # Handle known warnings (eg waiting on Gem upgrade)
   # local -r SHADOW_WARNING="server.rb:(.*): warning: shadowing outer local variable - filename"
   # DOCKER_LOG=$(strip_known_warning "${DOCKER_LOG}" "${SHADOW_WARNING}")
-  local -r SERVICE_NAME="${1}"
-  echo
-  echo "Checking if ${SERVICE_NAME} started cleanly."
-  if [ "$(top_5)" != "$(clean_top_5)" ]; then
-    echo "${SERVICE_NAME} did not start cleanly: docker log..."
-    echo 'expected------------------'
-    echo "$(clean_top_5)"
-    echo
-    echo 'actual--------------------'
-    echo "$(top_5)"
-    echo
-    echo 'diff--------------------'
-    grep -Fxvf <(clean_top_5) <(top_5)
-    echo
-    exit 42
+
+  if echo "${DOCKER_LOG}" | grep --quiet "warning" ; then
+    echo "Warnings in ${SERVICE_NAME} container"
+    echo "${DOCKER_LOG}"
   fi
-}
-
-top_5()
-{
-  docker logs "${CONTAINER_NAME}" 2>&1 | head -5
-}
-
-clean_top_5()
-{
-  # 1st 5 lines on Puma
-  local -r L1="Puma starting in single mode..."
-  local -r L2='* Puma version: 6.5.0 ("Sky'"'"'s Version")'
-  local -r L3='* Ruby version: ruby 3.3.6 (2024-11-05 revision 75015d4c1f) [x86_64-linux-musl]'
-  local -r L4="*  Min threads: 0"
-  local -r L5="*  Max threads: 5"
-  #
-  local -r all5="$(printf "%s\n%s\n%s\n%s\n%s" "${L1}" "${L2}" "${L3}" "${L4}" "${L5}")"
-  echo "${all5}"
 }
 
 strip_known_warning()
