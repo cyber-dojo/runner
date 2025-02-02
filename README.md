@@ -9,8 +9,8 @@
 # Development
 
 There are two sets of tests:
-- server: these run from inside the saver container
-- client: these run from outside the saver container, making api calls only 
+- server: these run from inside the runner container
+- client: these run from outside the runner container, making api calls only 
 
 ```bash
 # Build the images
@@ -21,7 +21,7 @@ $ make {test_server|test_client}
 
 # Run only specific tests
 $ ./bin/run_tests.sh {-h|--help}
-$ ./bin/run_tests.sh server B56
+$ ./bin/run_tests.sh server C5a
 
 # Check coverage metrics
 $ make {coverage_server|coverage_client}
