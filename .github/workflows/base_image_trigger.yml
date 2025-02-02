@@ -3,8 +3,11 @@ name: Base Image Update
 on:
   workflow_dispatch:
     inputs:
-      base_image:
-        description: "Image-Tag for cyberdojo/docker-base (short commit SHA - first 7 digits) eg edb2887"
+      base_image_tag:
+        description: "Image-Tag for cyberdojo/docker-base (short commit SHA - first 7 digits), eg d6830c0"
+        required: true
+      base_image_digest:
+        description: "Image-Digest for cyberdojo/docker-base, eg 4be745df9..."
         required: true
 
 jobs:
@@ -17,8 +20,9 @@ jobs:
       - name: Outputs
         id: vars
         run: | 
-          echo "base_image=cyberdojo/docker-base:${{ inputs.base_image }}" >> ${GITHUB_OUTPUT}
-          echo "kosli_trail=base-image-update-${{ inputs.base_image }}"    >> ${GITHUB_OUTPUT}
+          TAG_WITH_DIGEST="${{ inputs.base_image_tag }}@sha256:${{ inputs.base_image_digest }}"          
+          echo "base_image=cyberdojo/docker-base:${TAG_WITH_DIGEST}"        >> ${GITHUB_OUTPUT}
+          echo "kosli_trail=base-image-update-${{ inputs.base_image_tag }}" >> ${GITHUB_OUTPUT}
 
   trigger:
     needs: [setup]
