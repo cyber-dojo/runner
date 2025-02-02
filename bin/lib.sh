@@ -10,6 +10,12 @@ echo_base_image()
 
 echo_env_vars()
 {
+  # Get identities of dependent services from versioner
+  docker run --rm cyberdojo/versioner
+  export $(docker run --rm cyberdojo/versioner)
+  echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}"
+
+  # Set env-vars for the runner service living in this repo
   # --build-arg ...
   if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
     echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
@@ -18,9 +24,6 @@ echo_env_vars()
     local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
     echo COMMIT_SHA="${sha}"
   fi
-
-  # From versioner ...
-  docker run --rm cyberdojo/versioner
 
   echo CYBER_DOJO_RUNNER_SHA="${sha}"
   echo CYBER_DOJO_RUNNER_TAG="${sha:0:7}"
