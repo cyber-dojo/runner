@@ -183,7 +183,7 @@ jobs:
       id-token: write
       contents: write
     outputs:
-      artifact_digest: ${{ steps.variables.outputs.artifact_digest }}
+      digest: ${{ steps.variables.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -224,11 +224,11 @@ jobs:
           path: ${{ env.IMAGE_TAR_FILENAME }}
           key: ${{ env.IMAGE_NAME }}
 
-      - name: Make Artifact fingerprint available to following jobs
+      - name: Make image digest available to following jobs
         id: variables
         run: |
-          FINGERPRINT=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')          
-          echo "artifact_digest=${FINGERPRINT}" >> ${GITHUB_OUTPUT}
+          DIGEST=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')          
+          echo "digest=${DIGEST}" >> ${GITHUB_OUTPUT}
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -249,7 +249,7 @@ jobs:
     needs: [setup, build-image]
     env:
       IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -302,7 +302,7 @@ jobs:
     needs: [setup, build-image]
     env:
       IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -355,7 +355,7 @@ jobs:
     needs: [setup, build-image]
     env:
       IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
       SARIF_FILENAME: snyk.container.scan.json
     steps:
       - uses: actions/checkout@v4
@@ -402,7 +402,7 @@ jobs:
     needs: [setup, build-image, pull-request, rubocop-lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
     env:
       IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -419,7 +419,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     environment:
       name: staging
       url: https://beta.cyber-dojo.org
@@ -455,7 +455,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.artifact_digest }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     environment:
       name: production
       url: https://cyber-dojo.org
