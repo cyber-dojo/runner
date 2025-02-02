@@ -1,3 +1,5 @@
+.env
+
 snyk.container.scan.json
 snyk.code.scan.json
 

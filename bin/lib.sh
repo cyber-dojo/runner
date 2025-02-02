@@ -10,19 +10,24 @@ echo_base_image()
 
 echo_env_vars()
 {
+  # Setup port env-vars in .env file using versioner
+  local -r env_filename="${ROOT_DIR}/.env"
+  docker run --rm cyberdojo/versioner | grep PORT > "${env_filename}"
+  echo "CYBER_DOJO_PROMETHEUS=true" >> "${env_filename}"
+  echo "CYBER_DOJO_RUNNER_CLIENT_PORT=9999" >> "${env_filename}"
+
   # Get identities of dependent services from versioner
   docker run --rm cyberdojo/versioner
   export $(docker run --rm cyberdojo/versioner)
   echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}"
 
-  # Set env-vars for the runner service living in this repo
-  # --build-arg ...
+  # Set env-vars for this repos runner service
   if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
-    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"
+    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"  # --build-arg
   fi
   if [[ ! -v COMMIT_SHA ]] ; then
     local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
-    echo COMMIT_SHA="${sha}"
+    echo COMMIT_SHA="${sha}"  # --build-arg
   fi
 
   echo CYBER_DOJO_RUNNER_SHA="${sha}"
