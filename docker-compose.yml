@@ -15,7 +15,7 @@ services:
     env_file: [ .env ]
     environment:
       - CONTEXT=client
-      - SHOW_TEST_IDS=false
+      - SHOW_TEST_IDS=true
     read_only: true
     restart: no
     tmpfs: /tmp
