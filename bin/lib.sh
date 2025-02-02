@@ -5,7 +5,7 @@ echo_base_image()
 {
   local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
   echo "${json}" | jq -r '.base_image'
-  #echo cyberdojo/docker-base:d6830c0
+  # echo cyberdojo/docker-base:d6830c0@sha256:4be745df921403085fd2626b1013707352d81a1a943b2cc8c198300246d6f6f7
 }
 
 echo_env_vars()
@@ -19,7 +19,7 @@ echo_env_vars()
   # Get identities of dependent services from versioner
   docker run --rm cyberdojo/versioner
   export $(docker run --rm cyberdojo/versioner)
-  echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}"
+  echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}@sha256:${CYBER_DOJO_LANGUAGES_START_POINTS_DIGEST}"
 
   # Set env-vars for this repos runner service
   if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
