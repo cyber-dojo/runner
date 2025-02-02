@@ -22,8 +22,8 @@ echo_env_vars()
   echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}@sha256:${CYBER_DOJO_LANGUAGES_START_POINTS_DIGEST}"
 
   # Set env-vars for this repos runner service
-  if [[ ! -v CYBER_DOJO_RUNNER_BASE_IMAGE ]] ; then
-    echo CYBER_DOJO_RUNNER_BASE_IMAGE="$(echo_base_image)"  # --build-arg
+  if [[ ! -v BASE_IMAGE ]] ; then
+    echo BASE_IMAGE="$(echo_base_image)"  # --build-arg
   fi
   if [[ ! -v COMMIT_SHA ]] ; then
     local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
