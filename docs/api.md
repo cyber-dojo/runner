@@ -87,8 +87,7 @@ Pulls **image_name** onto the node if not already present.
 
 - - - -
 ## GET alive
-Tests if the service is alive.
-Used as a [Kubernetes](https://kubernetes.io/) liveness probe.  
+The runtime liveness probe to see if the service is alive.
 - [JSON-in](#json-in) parameters
   * none
 - returns the [JSON-out](#json-out) result, keyed on `"alive?"`
@@ -101,8 +100,7 @@ Used as a [Kubernetes](https://kubernetes.io/) liveness probe.
 
 - - - -
 ## GET ready
-Tests if the service is ready to handle requests.
-Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
+The runtime readiness probe to see if the service is ready to handle requests.  
 - [JSON-in](#json-in) parameters
   * none
 - returns [JSON-out](#json-out) result, keyed on `"ready?"`
@@ -116,7 +114,7 @@ Used as a [Kubernetes](https://kubernetes.io/) readiness probe.
 
 - - - -
 ## GET sha
-The 40 character git commit sha used to create the Docker image.
+The git commit sha used to create the Docker image.
 - [JSON-in](#json-in) parameters
   * none
 - returns the [JSON-out](#json-out) result, keyed on `"sha"`
