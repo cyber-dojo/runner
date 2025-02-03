@@ -1412,8 +1412,8 @@
       ],
       "tab_size": 2,
       "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        "eslint.config.js": {
+          "content": "export default [\n\t{\n\t\t\"languageOptions\" : {\n\t\t\t\"parserOptions\": {\n\t\t\t\t\"ecmaVersion\": 13,\n\t\t\t\t\"sourceType\": \"module\"\n\t\t\t}\n\t\t},\n\t\t\"rules\": {\n\t\t\t\"semi\": \"error\"\n\t\t}\n\t}\n];\n"
         },
         "cyber-dojo.sh": {
           "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
@@ -1428,7 +1428,7 @@
           "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
         },
         "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
+          "content": "{\n  \"type\":\"module\",\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
         }
       }
     },
@@ -1441,8 +1441,8 @@
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        "eslint.config.js": {
+          "content": "export default [\n\t{\n\t\t\"languageOptions\" : {\n\t\t\t\"parserOptions\": {\n\t\t\t\t\"ecmaVersion\": 13,\n\t\t\t\t\"sourceType\": \"module\"\n\t\t\t}\n\t\t},\n\t\t\"rules\": {\n\t\t\t\"semi\": \"error\"\n\t\t}\n\t}\n];\n"
         },
         "cyber-dojo.sh": {
           "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
@@ -1454,7 +1454,7 @@
           "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
         },
         "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
+          "content": "{\n  \"type\":\"module\",\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
         }
       }
     },
@@ -1480,7 +1480,7 @@
           "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/mocha/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
         },
         "eslint.config.js": {
-          "content": "\nmodule.exports =\n    {\n        languageOptions: {\n            ecmaVersion: 8,\n            sourceType: \"module\"\n        }\n    },\n    {\n        rules: {\n            semi: [\"error\"]\n        }\n    }\n"
+          "content": "export default [\n\t{\n\t\t\"languageOptions\" : {\n\t\t\t\"parserOptions\": {\n\t\t\t\t\"ecmaVersion\": 13,\n\t\t\t\t\"sourceType\": \"module\"\n\t\t\t}\n\t\t},\n\t\t\"rules\": {\n\t\t\t\"semi\": \"error\"\n\t\t}\n\t}\n];\n"
         },
         "hiker.js": {
           "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
@@ -1489,7 +1489,7 @@
           "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('Should Style: Answer', () => {\n  it('to life the universe and everything', () => {\n    hiker.answer().should.equal(42);\n  });\n});\n"
         },
         "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc mocha --require config.js --no-colors *Test.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"commonjs\"\n}\n"
+          "content": "{\n  \"type\":\"module\",\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc mocha --require config.js --no-colors *Test.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"commonjs\"\n}\n"
         }
       }
     },
@@ -1559,8 +1559,8 @@
       ],
       "tab_size": 2,
       "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
+        "eslint.config.js": {
+          "content": "export default [\n\t{\n\t\t\"languageOptions\" : {\n\t\t\t\"parserOptions\": {\n\t\t\t\t\"ecmaVersion\": 13,\n\t\t\t\t\"sourceType\": \"module\"\n\t\t\t}\n\t\t},\n\t\t\"rules\": {\n\t\t\t\"semi\": \"error\"\n\t\t}\n\t}\n];\n"
         },
         "cyber-dojo.sh": {
           "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/qunit_sinon/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
@@ -1572,7 +1572,7 @@
           "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
         },
         "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc qunit-cli *test*.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
+          "content": "{\n  \"type\":\"module\",\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc qunit-cli *test*.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
         }
       }
     },
