@@ -10,7 +10,6 @@ readonly IMAGE_NAME="${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
 readonly SARIF_FILENAME=${SARIF_FILENAME:-snyk.container.scan.json}
 
 snyk container test "${IMAGE_NAME}" \
-  --file="${ROOT_DIR}/Dockerfile" \
+  --policy-path="${ROOT_DIR}/.snyk" \
   --sarif \
-  --sarif-file-output="${ROOT_DIR}/${SARIF_FILENAME}" \
-  --policy-path="${ROOT_DIR}/.snyk"
+  --sarif-file-output="${ROOT_DIR}/${SARIF_FILENAME}"

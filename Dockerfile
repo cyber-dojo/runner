@@ -1,4 +1,4 @@
-ARG BASE_IMAGE
+ARG BASE_IMAGE=always-provided
 FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 
