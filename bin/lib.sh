@@ -6,8 +6,8 @@ echo_base_image()
   # This is set to the env-var BASE_IMAGE which is set as a docker compose build --build-arg
   # and used the Dockerfile's 'FROM ${BASE_IMAGE}' statement
   # This BASE_IMAGE abstraction is to facilitate the base_image_update.yml workflow.
-  # echo_base_image_via_curl
-  echo_base_image_via_code
+  echo_base_image_via_curl
+  # echo_base_image_via_code
 }
 
 echo_base_image_via_curl()
