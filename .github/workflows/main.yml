@@ -515,37 +515,33 @@ jobs:
   #   - use the 1st 7 chars of the SHA as a latest-equivalent tag
 
   push-latest:
-    needs: [setup, deploy-to-prod]
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write
+    needs: [setup, deploy-to-prod]
+    env:
+      IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
+      IMAGE_TAG:  ${{ needs.setup.outputs.image_tag }}
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Retrieve Docker image from cache
+        uses: actions/cache@v4
         with:
-          aws-region: ${{ needs.setup.outputs.aws_region }}
-          role-duration-seconds: 900
-          role-session-name: ${{ github.event.repository.name }}
-          role-to-assume: arn:aws:iam::${{ needs.setup.outputs.aws_account_id }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-          mask-aws-account-id: 'no'
+          path: ${{ env.IMAGE_TAR_FILENAME }}
+          key:  ${{ env.IMAGE_NAME }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Load Docker image
+        run:
+          docker image load --input "${IMAGE_TAR_FILENAME}"
 
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
-      - name: Tag image to :latest and push to Dockerhub Registry
-        env:
-          IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
-          IMAGE_TAG:  ${{ needs.setup.outputs.image_tag }}
+      - name: Tag images and push to Dockerhub
         run: |
-          docker pull "${IMAGE_NAME}"
-          docker tag "${IMAGE_NAME}" cyberdojo/${{ env.SERVICE_NAME }}:${IMAGE_TAG}
-          docker tag "${IMAGE_NAME}" cyberdojo/${{ env.SERVICE_NAME }}:latest
-          docker push cyberdojo/${{ env.SERVICE_NAME }}:${IMAGE_TAG}
-          docker push cyberdojo/${{ env.SERVICE_NAME }}:latest
+          TAGGED="cyberdojo/${SERVICE_NAME}:${IMAGE_TAG}"
+          docker tag "${IMAGE_NAME}" "${TAGGED}"
+          docker push "${TAGGED}"
+          
+          LATEST="cyberdojo/${SERVICE_NAME}:latest"
+          docker tag "${IMAGE_NAME}" "${LATEST}"
+          docker push "${LATEST}"
