@@ -3,22 +3,38 @@ set -Eeu
 
 echo_base_image()
 {
+  # This is set to the env-var BASE_IMAGE which is set as a docker compose build --build-arg
+  # and used the Dockerfile's 'FROM ${BASE_IMAGE}' statement
+  # This BASE_IMAGE abstraction is to facilitate the base_image_update.yml workflow.
+  # echo_base_image_via_curl
+  echo_base_image_via_code
+}
+
+echo_base_image_via_curl()
+{
   local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
   echo "${json}" | jq -r '.base_image'
-  # echo cyberdojo/docker-base:d6830c0@sha256:4be745df921403085fd2626b1013707352d81a1a943b2cc8c198300246d6f6f7
+}
+
+echo_base_image_via_code()
+{
+  # An alternative echo_base_image for local development.
+  local -r tag=d6830c0
+  local -r digest=4be745df921403085fd2626b1013707352d81a1a943b2cc8c198300246d6f6f7
+  echo "cyberdojo/docker-base:${tag}@sha256:${digest}"
 }
 
 echo_env_vars()
 {
   # Setup port env-vars in .env file using versioner
   local -r env_filename="${ROOT_DIR}/.env"
-  docker run --rm cyberdojo/versioner | grep PORT > "${env_filename}"
+  docker run --rm cyberdojo/versioner 2> /dev/null | grep PORT > "${env_filename}"
   echo "CYBER_DOJO_PROMETHEUS=true" >> "${env_filename}"
   echo "CYBER_DOJO_RUNNER_CLIENT_PORT=9999" >> "${env_filename}"
 
   # Get identities of dependent services from versioner
-  docker run --rm cyberdojo/versioner
-  export $(docker run --rm cyberdojo/versioner)
+  docker run --rm cyberdojo/versioner 2> /dev/null
+  export $(docker run --rm cyberdojo/versioner 2> /dev/null)
   echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}@sha256:${CYBER_DOJO_LANGUAGES_START_POINTS_DIGEST}"
 
   # Set env-vars for this repos runner service
