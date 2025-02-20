@@ -37,5 +37,15 @@ ignore:
         reason: No fix available
         expires: 2025-03-18T10:03:36.581Z
         created: 2025-02-18T10:03:36.589Z
+  SNYK-ALPINE321-OPENSSH-8732740:
+    - '*':
+        reason: No fix available
+        expires: 2025-03-18T10:03:36.581Z
+        created: 2025-02-18T10:03:36.589Z
+  SNYK-ALPINE321-OPENSSH-8732743:
+    - '*':
+        reason: No fix available
+        expires: 2025-03-18T10:03:36.581Z
+        created: 2025-02-18T10:03:36.589Z
 
 patch: {}
