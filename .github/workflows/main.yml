@@ -78,6 +78,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
+      # This is currently the Kosli live-docs example target for the create-flow command.
       - name: Create Kosli Flow
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
@@ -221,9 +222,9 @@ jobs:
             BASE_IMAGE=${{ inputs.base_image }}
 
       - name: Tar Docker image
-        run: |
-          docker pull ${IMAGE_NAME}          
-          docker image save ${IMAGE_NAME} --output ${IMAGE_TAR_FILENAME}
+        run:
+          docker image save ${IMAGE_NAME} 
+            --output ${IMAGE_TAR_FILENAME}
 
       - name: Cache Docker image
         uses: actions/cache@v4
@@ -247,7 +248,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run:
           kosli attest artifact "${IMAGE_NAME}"
-            --artifact-type=docker          
+            --artifact-type=docker   
             --name=runner
 
 
@@ -270,7 +271,8 @@ jobs:
 
       - name: Load Docker image
         run:
-          docker image load --input ${IMAGE_TAR_FILENAME}
+          docker image load
+            --input ${IMAGE_TAR_FILENAME}
 
       - name: Run unit tests
         run:
@@ -323,7 +325,8 @@ jobs:
 
       - name: Load Docker image
         run:
-          docker image load --input ${IMAGE_TAR_FILENAME}
+          docker image load
+            --input ${IMAGE_TAR_FILENAME}
 
       - name: Run integration tests
         run:
@@ -377,7 +380,8 @@ jobs:
 
       - name: Load Docker image
         run:
-          docker image load --input ${IMAGE_TAR_FILENAME}
+          docker image load
+            --input ${IMAGE_TAR_FILENAME}
 
       - name: Setup Snyk
         uses: snyk/actions/setup@master
