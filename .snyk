@@ -47,5 +47,16 @@ ignore:
         reason: No fix available
         expires: 2025-04-25T10:03:36.581Z
         created: 2025-03-25T10:03:36.589Z
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSH-8747056:
+    - '*':
+        reason: Waiting for fix
+        expires: 2025-04-25T10:03:36.581Z
+        created: 2025-03-25T10:03:36.589Z
+  SNYK-GOLANG-GOLANGORGXOAUTH2JWS-8749594:
+    - '*':
+        reason: Waiting for fix
+        expires: 2025-04-25T10:03:36.581Z
+        created: 2025-03-25T10:03:36.589Z
+
 
 patch: {}
