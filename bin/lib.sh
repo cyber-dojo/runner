@@ -6,8 +6,8 @@ echo_base_image()
   # This is set to the env-var BASE_IMAGE which is set as a docker compose build --build-arg
   # and used the Dockerfile's 'FROM ${BASE_IMAGE}' statement
   # This BASE_IMAGE abstraction is to facilitate the base_image_update.yml workflow.
-  echo_base_image_via_curl
-  # echo_base_image_via_code
+  # echo_base_image_via_curl
+  echo_base_image_via_code
 }
 
 echo_base_image_via_curl()
@@ -19,8 +19,8 @@ echo_base_image_via_curl()
 echo_base_image_via_code()
 {
   # An alternative echo_base_image for local development.
-  local -r tag=d6830c0
-  local -r digest=4be745df921403085fd2626b1013707352d81a1a943b2cc8c198300246d6f6f7
+  local -r tag=86abb67
+  local -r digest=e60b58216371d9c405ec8bf6389f83ecf44e38d0a83e280ca4528ae7caed4c4a
   echo "cyberdojo/docker-base:${tag}@sha256:${digest}"
 }
 
