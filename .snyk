@@ -15,4 +15,10 @@ ignore:
         expires: 2025-04-08T10:03:36.581Z
         created: 2025-03-08T10:03:36.589Z
 
+  SNYK-ALPINE321-EXPAT-9459843:
+    - '*':
+        reason: Waiting for fix
+        expires: 2025-17-08T10:03:36.581Z
+        created: 2025-17-08T10:03:36.589Z
+
 patch: {}
