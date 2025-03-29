@@ -18,7 +18,25 @@ ignore:
   SNYK-ALPINE321-EXPAT-9459843:
     - '*':
         reason: Waiting for fix
-        expires: 2025-17-08T10:03:36.581Z
-        created: 2025-17-08T10:03:36.589Z
+        expires: 2025-04-17T10:03:36.581Z
+        created: 2025-03-17T10:03:36.589Z
+
+  SNYK-GOLANG-GITHUBCOMDOCKERBUILDXLOCALSTATE-9480107:
+    - '*':
+        reason: Waiting for fix
+        expires: 2025-04-17T10:03:36.581Z
+        created: 2025-03-17T10:03:36.589Z
+
+  SNYK-GOLANG-GITHUBCOMGOLANGJWTJWTV5-9510922:
+    - '*':
+        reason: Waiting for fix
+        expires: 2025-04-17T10:03:36.581Z
+        created: 2025-03-17T10:03:36.589Z
+
+  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGOCI-9479987:
+    - '*':
+        reason: Waiting for fix
+        expires: 2025-04-17T10:03:36.581Z
+        created: 2025-03-17T10:03:36.589Z
 
 patch: {}
