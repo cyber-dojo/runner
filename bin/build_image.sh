@@ -54,7 +54,10 @@ build_image()
   # shellcheck disable=SC2046
   export $(echo_env_vars)
   containers_down
-  remove_old_images
+
+  # Commenting out the removal of old images because it currently deleted the image
+  # pulled just after the secure-docker-build workflow runs.
+  # remove_old_images
 
   echo
   echo "Building with --build-args"
