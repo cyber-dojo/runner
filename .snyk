@@ -1,55 +1,18 @@
 # This file specifies snyk vulnerabilities to be ignored.
 # If this file contains only comments, then no vulnerabilities are ignored
 # but do not delete this file - it is needed for the live-snyk-scans repo workflows.
+
 ignore:
-
-  SNYK-GOLANG-GOLANGORGXOAUTH2JWS-8749594:
-    - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-8747056:
     - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
-  SNYK-ALPINE321-XZ-9666601:
-    - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
-  SNYK-ALPINE321-EXPAT-9459843:
-    - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
-  SNYK-GOLANG-GITHUBCOMDOCKERBUILDXLOCALSTATE-9480107:
-    - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
-  SNYK-GOLANG-GITHUBCOMGOLANGJWTJWTV5-9510922:
-    - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
-  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGOCI-9479987:
-    - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
+        reason: No fix available
+        expires: 2025-05-12T10:03:36.581Z
+        created: 2025-04-12T10:03:36.589Z
 
   SNYK-GOLANG-GOLANGORGXNETHTML-9572088:
     - '*':
-        reason: Waiting for fix
-        expires: 2025-05-05T10:03:36.581Z
-        created: 2025-04-05T10:03:36.589Z
-
+        reason: No fix available
+        expires: 2025-05-12T10:03:36.581Z
+        created: 2025-04-12T10:03:36.589Z
 
 patch: {}
