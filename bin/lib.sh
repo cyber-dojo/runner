@@ -19,8 +19,8 @@ echo_base_image_via_curl()
 echo_base_image_via_code()
 {
   # An alternative echo_base_image for local development and for initial base-image upgrade.
-  local -r tag=21da71c
-  local -r digest=b3b15a9f03929fc9958e1b8a8427f798f6a634b5bfba6250edf03ccf4757d2ed
+  local -r tag=5ea8a57
+  local -r digest=351c6b9d3c9d5113b2cc71bfb1400037a1fd22a4d7ac66496cd5909ec6c41faf
   echo "cyberdojo/docker-base:${tag}@sha256:${digest}"
 }
 
