@@ -104,8 +104,8 @@ jobs:
       - name: Attest pull-request evidence to Kosli
         run:
           kosli attest pullrequest github
-            --github-token=${{ secrets.GITHUB_TOKEN }}
-            --name=pull-request
+            --github-token "${{ secrets.GITHUB_TOKEN }}"
+            --name pull-request
 
 
   rubocop-lint:
@@ -130,8 +130,8 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest junit
-            --name=runner.rubocop-lint
-            --results-dir=./reports/rubocop
+            --name runner.rubocop-lint
+            --results-dir ./reports/rubocop
 
 
   snyk-code-scan:
@@ -167,9 +167,9 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest snyk
-            --attachments=.snyk
-            --name=runner.snyk-code-scan 
-            --scan-results="${SARIF_FILENAME}"
+            --attachments .snyk
+            --name runner.snyk-code-scan 
+            --scan-results "${SARIF_FILENAME}"
 
 
   build-image:
@@ -227,17 +227,17 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest junit
-            --name=runner.unit-test
-            --results-dir=./reports/server/junit
+            --name unit-test
+            --results-dir ./reports/server/junit
 
       - name: Attest coverage evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run: |
           KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-            --description="unit-test branch-coverage and metrics" \
-            --name=runner.unit-test-branch-coverage \
-            --user-data="./reports/server/coverage_metrics.json"
+            --description "unit-test branch-coverage and metrics" \
+            --name unit-test-branch-coverage \
+            --user-data "./reports/server/coverage_metrics.json"
 
 
   integration-tests:
@@ -275,17 +275,17 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest junit
-            --name=runner.integration-test
-            --results-dir=./reports/client/junit
+            --name integration-test
+            --results-dir ./reports/client/junit
 
       - name: Attest coverage evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run: |
           KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
           kosli attest generic \
-            --description="integration-test branch-coverage and metrics" \
-            --name=runner.integration-test-branch-coverage \
-            --user-data="./reports/client/coverage_metrics.json"
+            --description "integration-test branch-coverage and metrics" \
+            --name integration-test-branch-coverage \
+            --user-data "./reports/client/coverage_metrics.json"
 
 
   snyk-container-scan:
@@ -325,8 +325,8 @@ jobs:
         run:
           kosli attest snyk 
             --attachments=.snyk          
-            --name=runner.snyk-container-scan 
-            --scan-results="${SARIF_FILENAME}"
+            --name snyk-container-scan 
+            --scan-results "${SARIF_FILENAME}"
 
 
   sdlc-control-gate:
@@ -344,8 +344,8 @@ jobs:
 
       - name: Kosli SDLC gate to short-circuit the workflow
         run:
-          kosli assert artifact ${IMAGE_NAME}
-            --environment=${KOSLI_AWS_BETA}
+          kosli assert artifact "${IMAGE_NAME}"
+            --environment "${KOSLI_AWS_BETA}"
 
 
   approve-deployment-to-beta:
@@ -369,9 +369,9 @@ jobs:
 
       - name: Attest approval of deployment to Kosli
         run:
-          kosli report approval ${IMAGE_NAME}
-            --approver="${{ github.actor }}"
-            --environment=${KOSLI_AWS_BETA}
+          kosli report approval "${IMAGE_NAME}"
+            --approver "${{ github.actor }}"
+            --environment "${KOSLI_AWS_BETA}"
 
 
   deploy-to-beta:
