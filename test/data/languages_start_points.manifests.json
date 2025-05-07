@@ -1068,12 +1068,12 @@
         }
       }
     },
-    "Go 1.23.4, testing": {
-      "display_name": "Go 1.23.4, testing",
+    "Go 1.23.5, testing": {
+      "display_name": "Go 1.23.5, testing",
       "filename_extension": [
         ".go"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/go_testing:a3f0b41",
+      "image_name": "ghcr.io/cyber-dojo-languages/go_testing:248a3e3",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -1372,127 +1372,6 @@
         }
       }
     },
-    "JavaScript 23.6, Cucumber 11.2": {
-      "display_name": "JavaScript 23.6, Cucumber 11.2",
-      "filename_extension": [
-        ".js",
-        ".feature"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_cucumber:93280de",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".jshintrc": {
-          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nPATH=/home/sandbox/node_modules/@cucumber/cucumber/bin:${PATH}\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  cd /home/sandbox\n  cucumber-js \\\n    --format-options '{\"colorsEnabled\":false}' \\\n    ${CYBER_DOJO_SANDBOX}/*.feature\nfi\n"
-        },
-        "hiker.feature": {
-          "content": "Feature: hitch-hiker playing scrabble\n\n  Scenario: hitch-hiker playing scrabble in the past\n    Given the hitch-hiker selects some tiles\n    When they spell 6 times 9\n    Then the score is 42\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer(a, b) {\n  return a * b;\n}\n"
-        },
-        "hiker_steps.js": {
-          "content": "'use strict';\n\nconst {Given,When,Then} = require('@cucumber/cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
-        }
-      }
-    },
-    "JavaScript 23.6, Jasmine 5.5": {
-      "display_name": "JavaScript 23.6, Jasmine 5.5",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jasmine:6302c53",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "/(d+) specs?, ([1-9]d*) failures?/",
-        "/(d+) specs?, (0) failures?/"
-      ],
-      "tab_size": 2,
-      "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "hiker-spec.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "jasmine.json": {
-          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
-        }
-      }
-    },
-    "JavaScript 23.6, Jest 29.7": {
-      "display_name": "JavaScript 23.6, Jest 29.7",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jest:9d0baa7",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nmodule.exports = answer;\n"
-        },
-        "hiker.test.js": {
-          "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  }\n}\n"
-        }
-      }
-    },
-    "JavaScript 23.6, Mocha 11.0.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0": {
-      "display_name": "JavaScript 23.6, Mocha 11.0.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_mocha_chai_sinon:8865dcb",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        "config.js": {
-          "content": "// global config file so each test does not need to be configured\n// you can probably leave this file alone\n\nconst chai = require('chai');\nconst sinonChai = require('sinon-chai').default;\n\nglobal.sinon = require('sinon');\n\n// although you will probably only choose one style\n// assert, expect, and should are all here\n\nglobal.assert = chai.assert;\nglobal.expect = chai.expect;\nglobal.should = chai.should(); // Note that should has to be executed\n\nchai.config.includeStack = true;\nchai.use(sinonChai);\n"
-        },
-        "crib_chai.txt": {
-          "content": "'use strict';\n\n//----------------------------------------------------\n// This is a TEXT file giving examples of chai tests.\n//----------------------------------------------------\n\nconst the = require('./hiker.js');\n\ndescribe('Assert Style: Answer', function () {\n  it('to life the universe and everything', function () {\n    assert.equal(the.answer(), 42);\n  });\n});\n\ndescribe('Expect Style: Answer', function () {\n  it('to life the universe and everything', function () {\n    expect(the.answer()).to.equal(42);\n  });\n});\n\ndescribe('Should Style: Answer', function () {\n  it('to life the universe and everything', function () {\n    the.answer().should.equal(42);\n  });\n});\n"
-        },
-        "crib_sinon.txt": {
-          "content": "'use strict';\n\n//----------------------------------------------------\n// This is a TEXT file giving examples of sinon tests.\n//----------------------------------------------------\n\n//hello would normally be defined in your module\nfunction hello(name, cb) {\n  cb('hello ' + name);\n}\n\ndescribe('hello with callback', function() {\n  var cb;\n\n  //arrange and act here\n  beforeEach(function() {\n    cb = sinon.spy();\n    hello('foo', cb);\n  });\n\n  it('assert call callback with correct greeting with ' +\n    'sinon + chai assert',\n    function() {\n      assert(cb.calledWith('hello foo'));\n    });\n\n  it('should call callback with correct greeting with ' +\n    'sinon + chai expect',\n    function() {\n      expect(cb.calledWith('hello foo')).to.be.ok;\n    });\n\n  it('should call callback with correct greeting with ' +\n    'sinon + chai should',\n    function() {\n      cb.calledWith('hello foo').should.be.ok;\n    });\n\n  it('expect call callback with correct greeting with ' +\n    'chai expect + sinon + sinon-chai',\n    function() {\n      expect(cb).to.have.been.calledWith('hello foo');\n    });\n\n  it('should call callback with correct greeting with ' +\n    'chai should + sinon + sinon-chai',\n    function() {\n      cb.should.have.been.calledWith('hello foo');\n    });\n});\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/mocha/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "eslint.config.js": {
-          "content": "\nmodule.exports =\n    {\n        languageOptions: {\n            ecmaVersion: 8,\n            sourceType: \"module\"\n        }\n    },\n    {\n        rules: {\n            semi: [\"error\"]\n        }\n    }\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "hikerTest.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\ndescribe('Should Style: Answer', () => {\n  it('to life the universe and everything', () => {\n    hiker.answer().should.equal(42);\n  });\n});\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc mocha --require config.js --no-colors *Test.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"commonjs\"\n}\n"
-        }
-      }
-    },
     "JavaScript 23.6, assert": {
       "display_name": "JavaScript 23.6, assert",
       "filename_extension": [
@@ -1516,13 +1395,134 @@
         }
       }
     },
-    "JavaScript 23.6, assert+jQuery 3.7.1": {
-      "display_name": "JavaScript 23.6, assert+jQuery 3.7.1",
+    "JavaScript 23.7, Cucumber 11.2": {
+      "display_name": "JavaScript 23.7, Cucumber 11.2",
+      "filename_extension": [
+        ".js",
+        ".feature"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_cucumber:30d0dec",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        ".jshintrc": {
+          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nPATH=/home/sandbox/node_modules/@cucumber/cucumber/bin:${PATH}\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  cd /home/sandbox\n  cucumber-js \\\n    --format-options '{\"colorsEnabled\":false}' \\\n    ${CYBER_DOJO_SANDBOX}/*.feature\nfi\n"
+        },
+        "hiker.feature": {
+          "content": "Feature: hitch-hiker playing scrabble\n\n  Scenario: hitch-hiker playing scrabble in the past\n    Given the hitch-hiker selects some tiles\n    When they spell 6 times 9\n    Then the score is 42\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer(a, b) {\n  return a * b;\n}\n"
+        },
+        "hiker_steps.js": {
+          "content": "'use strict';\n\nconst {Given,When,Then} = require('@cucumber/cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
+        }
+      }
+    },
+    "JavaScript 23.7, Jasmine 5.6": {
+      "display_name": "JavaScript 23.7, Jasmine 5.6",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jasmine:fd66a23",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "/(d+) specs?, ([1-9]d*) failures?/",
+        "/(d+) specs?, (0) failures?/"
+      ],
+      "tab_size": 2,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "eslint.config.js": {
+          "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];"
+        },
+        "hiker-spec.js": {
+          "content": "'use strict';\n\nimport hiker from './hiker.js';\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nexport default {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "jasmine.json": {
+          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
+        }
+      }
+    },
+    "JavaScript 23.7, Jest 29.7": {
+      "display_name": "JavaScript 23.7, Jest 29.7",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jest:daccb6d",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "eslint.config.js": {
+          "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nexport default answer;\n"
+        },
+        "hiker.test.js": {
+          "content": "'use strict';\n\nimport answer from './hiker';\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"node --experimental-vm-modules ${CYBER_DOJO_SANDBOX}/node_modules/jest/bin/jest.js --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
+        }
+      }
+    },
+    "JavaScript 23.7, Mocha 11.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0": {
+      "display_name": "JavaScript 23.7, Mocha 11.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_mocha_chai_sinon:db3e231",
+      "max_seconds": 10,
+      "tab_size": 2,
+      "visible_files": {
+        "config.js": {
+          "content": "// global config file so each test does not need to be configured\n// you can probably leave this file alone\n\nimport sinonChai from 'sinon-chai';\nimport * as chai from 'chai';\n\nimport sinon from 'sinon';\nglobal.sinon = sinon;\n\n// although you will probably only choose one style\n// assert, expect, and should are all here\n\nglobal.assert = chai.assert;\nglobal.expect = chai.expect;\nglobal.should = chai.should(); // Note that should has to be executed\n\nchai.config.includeStack = true;\nchai.use(sinonChai);\n"
+        },
+        "crib_chai.txt": {
+          "content": "'use strict';\n\n//----------------------------------------------------\n// This is a TEXT file giving examples of chai tests.\n//----------------------------------------------------\n\nimport the from './hiker.js';\n\ndescribe('Assert Style: Answer', function () {\n  it('to life the universe and everything', function () {\n    assert.equal(the.answer(), 42);\n  });\n});\n\ndescribe('Expect Style: Answer', function () {\n  it('to life the universe and everything', function () {\n    expect(the.answer()).to.equal(42);\n  });\n});\n\ndescribe('Should Style: Answer', function () {\n  it('to life the universe and everything', function () {\n    the.answer().should.equal(42);\n  });\n});\n"
+        },
+        "crib_sinon.txt": {
+          "content": "'use strict';\n\n//----------------------------------------------------\n// This is a TEXT file giving examples of sinon tests.\n//----------------------------------------------------\n\n//hello would normally be defined in your module\nfunction hello(name, cb) {\n  cb('hello ' + name);\n}\n\ndescribe('hello with callback', function() {\n  var cb;\n\n  //arrange and act here\n  beforeEach(function() {\n    cb = sinon.spy();\n    hello('foo', cb);\n  });\n\n  it('assert call callback with correct greeting with ' +\n    'sinon + chai assert',\n    function() {\n      assert(cb.calledWith('hello foo'));\n    });\n\n  it('should call callback with correct greeting with ' +\n    'sinon + chai expect',\n    function() {\n      expect(cb.calledWith('hello foo')).to.be.ok;\n    });\n\n  it('should call callback with correct greeting with ' +\n    'sinon + chai should',\n    function() {\n      cb.calledWith('hello foo').should.be.ok;\n    });\n\n  it('expect call callback with correct greeting with ' +\n    'chai expect + sinon + sinon-chai',\n    function() {\n      expect(cb).to.have.been.calledWith('hello foo');\n    });\n\n  it('should call callback with correct greeting with ' +\n    'chai should + sinon + sinon-chai',\n    function() {\n      cb.should.have.been.calledWith('hello foo');\n    });\n});\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/mocha/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+        },
+        "eslint.config.js": {
+          "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nexport default {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "hikerTest.js": {
+          "content": "'use strict';\n\nimport hiker from './hiker.js';\n\ndescribe('Should Style: Answer', () => {\n  it('to life the universe and everything', () => {\n    hiker.answer().should.equal(42);\n  });\n});\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc mocha --require config.js --no-colors *Test.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
+        }
+      }
+    },
+    "JavaScript 23.7, assert+jQuery 3.7.1": {
+      "display_name": "JavaScript 23.7, assert+jQuery 3.7.1",
       "filename_extension": [
         ".js",
         ".html"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert_jquery:6826ced",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert_jquery:c5441d1",
       "max_seconds": 10,
       "tab_size": 2,
       "visible_files": {
@@ -1546,12 +1546,12 @@
         }
       }
     },
-    "JavaScript 23.6, qunit 2.23.1/sinon 19.0.2": {
-      "display_name": "JavaScript 23.6, qunit 2.23.1/sinon 19.0.2",
+    "JavaScript 23.7, qunit 2.24/sinon 19.0": {
+      "display_name": "JavaScript 23.7, qunit 2.24/sinon 19.0",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_qunit_sinon:f715c86",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_qunit_sinon:16e8cb6",
       "max_seconds": 10,
       "progress_regexs": [
         "/W*d+W+d+W+d+W+([1-9]d*)W+(d+)W+d+W+/",
@@ -1559,20 +1559,20 @@
       ],
       "tab_size": 2,
       "visible_files": {
-        ".eslintrc.json": {
-          "content": "{\n    \"parserOptions\": {\n        \"ecmaVersion\": 8,\n        \"sourceType\": \"module\"\n    },\n    \"rules\": {\n        \"semi\": \"error\"\n    }\n}\n"
-        },
         "cyber-dojo.sh": {
           "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/qunit_sinon/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
         },
+        "eslint.config.js": {
+          "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
+        },
         "hiker-test.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\n\nQUnit.test('answer', function(assert) {\n    const info = 'to life the universe and everything';\n    assert.equal(hiker.answer(), 42, info);\n});\n"
+          "content": "'use strict';\n\nimport hiker from './hiker.js';\n\nQUnit.test('answer', function(assert) {\n    const info = 'to life the universe and everything';\n    assert.equal(hiker.answer(), 42, info);\n});\n"
         },
         "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+          "content": "'use strict';\n\nexport default {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
         },
         "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/.eslintrc.json /**/*.js\",\n    \"test\": \"nyc qunit-cli *test*.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  }\n}\n"
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc qunit-cli *test*.js\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
         }
       }
     },
@@ -1701,12 +1701,12 @@
         }
       }
     },
-    "Python 3.13, Pytest 8.3.4": {
-      "display_name": "Python 3.13, Pytest 8.3.4",
+    "Python 3.13, Pytest 8.3.5": {
+      "display_name": "Python 3.13, Pytest 8.3.5",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:756400c",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:07cc074",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1721,14 +1721,14 @@
         }
       }
     },
-    "Python 3.13, approval-unittest 14.3": {
-      "display_name": "Python 3.13, approval-unittest 14.3",
+    "Python 3.13, approval-unittest 14.5": {
+      "display_name": "Python 3.13, approval-unittest 14.5",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:57d8b07",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:5635d1f",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1754,7 +1754,7 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:1d2e95b",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:c04ec49",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1775,7 +1775,7 @@
         ".py",
         ".feature"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:e41f08e",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:2fd3cfa",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1793,14 +1793,14 @@
         }
       }
     },
-    "Python 3.13, pytest-approvaltests 0.2.4-14.3": {
-      "display_name": "Python 3.13, pytest-approvaltests 0.2.4-14.3",
+    "Python 3.13, pytest-approvaltests 0.2.4-14.5": {
+      "display_name": "Python 3.13, pytest-approvaltests 0.2.4-14.5",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:f057b9a",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:692b778",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1820,7 +1820,7 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:417d013",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:011321c",
       "progress_regexs": [
         "FAILED \\(failures=\\d+\\)",
         "OK"
@@ -2015,7 +2015,7 @@
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:e5e2739",
+      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:35587ca",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
