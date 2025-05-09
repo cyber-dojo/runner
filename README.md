@@ -39,7 +39,6 @@ $ make demo
 * [GET alive](docs/api.md#get-alive)
 * [GET ready](docs/api.md#get-ready)
 * [GET sha](docs/api.md#get-sha)
-* [GET base_image](docs/api.md#get-base-image)
 * [POST run_cyber_dojo_sh(id,files,manifest)](docs/api.md#post-run_cyber_dojo_shidfilesmanifest)
 * [POST pull_image(id,image_name)](docs/api.md#post-pull_imageidimage_name)
 

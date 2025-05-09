@@ -6,7 +6,6 @@ services:
       context: source/client
       args:
         - COMMIT_SHA
-        - BASE_IMAGE=${BASE_IMAGE}
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
     container_name: ${CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME}
@@ -27,7 +26,6 @@ services:
       context: .
       args:
         - COMMIT_SHA
-        - BASE_IMAGE=${BASE_IMAGE}
     image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
     container_name: ${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}

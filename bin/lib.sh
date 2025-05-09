@@ -1,29 +1,6 @@
 #!/usr/bin/env bash
 set -Eeu
 
-echo_base_image()
-{
-  # This is set to the env-var BASE_IMAGE which is set as a docker compose build --build-arg
-  # and used the Dockerfile's 'FROM ${BASE_IMAGE}' statement
-  # This BASE_IMAGE abstraction is to facilitate the base_image_update.yml workflow.
-  #echo_base_image_via_curl
-  echo_base_image_via_code
-}
-
-echo_base_image_via_curl()
-{
-  local -r json="$(curl --fail --silent --request GET https://beta.cyber-dojo.org/runner/base_image)"
-  echo "${json}" | jq -r '.base_image'
-}
-
-echo_base_image_via_code()
-{
-  # An alternative echo_base_image for local development and for initial base-image upgrade.
-  local -r tag=0ce6666
-  local -r digest=3e2248e992f75cbdfcc302f157497364f81849d57d55d21590763dcb2f627911
-  echo "cyberdojo/docker-base:${tag}@sha256:${digest}"
-}
-
 echo_env_vars()
 {
   # Setup port env-vars in .env file using versioner
@@ -38,9 +15,6 @@ echo_env_vars()
   echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}@sha256:${CYBER_DOJO_LANGUAGES_START_POINTS_DIGEST}"
 
   # Set env-vars for this repos runner service
-  if [[ ! -v BASE_IMAGE ]] ; then
-    echo BASE_IMAGE="$(echo_base_image)"  # --build-arg
-  fi
   if [[ ! -v COMMIT_SHA ]] ; then
     local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
     echo COMMIT_SHA="${sha}"  # --build-arg
