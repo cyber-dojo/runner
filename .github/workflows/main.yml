@@ -1,19 +1,7 @@
-name: Sub - main
+name: Main
 
 on:
-  workflow_call:
-    inputs:
-      BASE_IMAGE:
-        required: true
-        type: string
-      KOSLI_TRAIL:
-        required: true
-        type: string
-    secrets:
-      SNYK_TOKEN:
-        required: true
-      KOSLI_API_TOKEN:
-        required: true
+  push:
 
 env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
@@ -183,7 +171,6 @@ jobs:
       image_tag: ${{ needs.setup.outputs.image_tag }}
       image_build_args: |
         COMMIT_SHA=${{ github.sha }}
-        BASE_IMAGE=${{ inputs.BASE_IMAGE }}
       kosli_flow: ${{ vars.KOSLI_FLOW }}
       kosli_trail: ${{ inputs.KOSLI_TRAIL }}
       kosli_reference_name: ${{ needs.setup.outputs.service_name }}

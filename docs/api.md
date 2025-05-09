@@ -125,19 +125,6 @@ The git commit sha used to create the Docker image.
   {"sha":"41d7e6068ab75716e4c7b9262a3a44323b4d1448"}
   ```
 
-- - - -
-## GET base_image
-The base-image used in the Dockerfile's FROM statement.
-- [JSON-in](#json-in) parameters
-  * none
-- returns the [JSON-out](#json-out) result, keyed on `"base_image"`
-  * eg `"cyberdojo/docker-base:d6830c0"`
-- example
-  ```bash     
-  $ curl --silent --request GET https://${DOMAIN}:${PORT}/base_image
-  {"base_image":"cyberdojo/docker-base:d6830c0"}  
-  ```
-
 
 - - - -
 ## JSON in

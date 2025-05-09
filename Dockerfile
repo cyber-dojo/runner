@@ -1,10 +1,6 @@
-ARG BASE_IMAGE=always-provided
-FROM ${BASE_IMAGE}
+FROM cyberdojo/docker-base:0ce6666@sha256:3e2248e992f75cbdfcc302f157497364f81849d57d55d21590763dcb2f627911
+# The FROM statement above is typically set via an automated pull-request from the docker-base repo
 LABEL maintainer=jon@jaggersoft.com
-
-# ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
-ARG BASE_IMAGE
-ENV BASE_IMAGE=${BASE_IMAGE}
 
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
