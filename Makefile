@@ -14,7 +14,7 @@ coverage_server:
 	${PWD}/bin/check_coverage.sh server
 
 
-all_client: test_client coverage_client
+all_client: image_client test_client coverage_client
 
 image_client:
 	${PWD}/bin/build_image.sh client
