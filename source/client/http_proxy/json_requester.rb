@@ -28,7 +28,7 @@ module HttpProxy
       uri = URI.parse("http://#{@hostname}:#{@port}/#{path}")
       req = yield uri
       req.content_type = 'application/json'
-      req.body = JSON.fast_generate(args)
+      req.body = JSON.generate(args)
       @http.start(@hostname, @port, req)
     end
   end
