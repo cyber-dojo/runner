@@ -24,7 +24,7 @@ class RackDispatcher
   private
 
   def json_response_pass(status, response)
-    json = JSON.fast_generate(response)
+    json = JSON.generate(response)
     [status, CONTENT_TYPE_JSON, [json]]
   end
 
