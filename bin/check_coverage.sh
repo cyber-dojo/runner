@@ -29,12 +29,12 @@ check_args()
     '')
       show_help
       stderr "no argument - must be 'client' or 'server'"
-      exit 42
+      exit_non_zero
       ;;
     *)
       show_help
       stderr "argument is '${1:-}' - must be 'client' or 'server'"
-      exit 42
+      exit_non_zero
   esac
 }
 
