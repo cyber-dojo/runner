@@ -29,7 +29,7 @@ check_args()
     'server')
       if [ -n "${CI:-}" ] ; then
         stderr "In CI workflow - use docker/build-push-action@v6 GitHub Action"
-        exit 42
+        exit_non_zero
       fi
       ;;
     'client')
@@ -37,12 +37,12 @@ check_args()
     '')
       show_help
       stderr "no argument - must be 'client' or 'server'"
-      exit 42
+      exit_non_zero
       ;;
     *)
       show_help
       stderr "argument is '${1:-}' - must be 'client' or 'server'"
-      exit 42
+      exit_non_zero
   esac
 }
 
@@ -79,7 +79,7 @@ build_image()
     echo "ERROR: unexpected env-var inside image ${image_name}"
     echo "expected: 'SHA=${COMMIT_SHA}'"
     echo "  actual: 'SHA=${sha_in_image}'"
-    exit 42
+    exit_non_zero
   fi
 
   if [ "${type}" == 'server' ]; then

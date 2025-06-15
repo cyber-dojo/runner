@@ -50,7 +50,7 @@ pull_dependent_images()
               echo "${name}"
             fi
           done
-          exit 42
+          exit_non_zero
         fi
         if ! echo "${IMAGE_NAMES}" | grep "${image_name}" ; then
           docker pull "${image_name}"
