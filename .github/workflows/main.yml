@@ -204,9 +204,8 @@ jobs:
 
   unit-tests:
     runs-on: ubuntu-latest
-    needs: [setup, build-image]
+    needs: [build-image]
     env:
-      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - name: Harden Runner
@@ -257,9 +256,8 @@ jobs:
 
   integration-tests:
     runs-on: ubuntu-latest
-    needs: [setup, build-image]
+    needs: [build-image]
     env:
-      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - name: Harden Runner
@@ -310,9 +308,9 @@ jobs:
 
   snyk-container-scan:
     runs-on: ubuntu-latest
-    needs: [setup, build-image]
+    needs: [build-image]
     env:
-      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+      IMAGE_NAME:        ${{ needs.build-image.outputs.tagged_image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
       SARIF_FILENAME:    snyk.container.scan.json
     steps:
@@ -357,9 +355,8 @@ jobs:
   sdlc-control-gate:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    needs: [setup, build-image, pull-request, rubocop-lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
+    needs: [build-image, pull-request, rubocop-lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
     env:
-      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - name: Harden Runner
@@ -378,15 +375,14 @@ jobs:
 
       - name: Kosli SDLC gate to short-circuit the workflow
         run:
-          kosli assert artifact "${IMAGE_NAME}"
+          kosli assert artifact
             --environment="${KOSLI_AWS_BETA}"
 
 
   approve-deployment-to-beta:
-    needs: [setup, build-image, sdlc-control-gate]
+    needs: [build-image, sdlc-control-gate]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     environment:
       name: staging
@@ -408,7 +404,7 @@ jobs:
 
       - name: Attest approval of deployment to Kosli
         run:
-          kosli report approval "${IMAGE_NAME}"
+          kosli report approval
             --approver="${{ github.actor }}"
             --environment="${KOSLI_AWS_BETA}"
 
