@@ -46,7 +46,7 @@ jobs:
         id: vars
         run: |
           ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          IMAGE_TAG=${GITHUB_SHA:0:7}        
+          IMAGE_TAG="${GITHUB_SHA:0:7}"        
           IMAGE_NAME="${ECR_REGISTRY}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
           {
             echo "aws_account_id_beta=${AWS_ACCOUNT_ID_BETA}"             
@@ -105,7 +105,7 @@ jobs:
       - name: Attest pull-request evidence to Kosli
         run:
           kosli attest pullrequest github
-            --github-token=${{ secrets.GITHUB_TOKEN }}
+            --github-token="${{ secrets.GITHUB_TOKEN }}"
             --name=pull-request
 
 
@@ -378,8 +378,8 @@ jobs:
 
       - name: Kosli SDLC gate to short-circuit the workflow
         run:
-          kosli assert artifact ${IMAGE_NAME}
-            --environment=${KOSLI_AWS_BETA}
+          kosli assert artifact "${IMAGE_NAME}"
+            --environment="${KOSLI_AWS_BETA}"
 
 
   approve-deployment-to-beta:
@@ -408,9 +408,9 @@ jobs:
 
       - name: Attest approval of deployment to Kosli
         run:
-          kosli report approval ${IMAGE_NAME}
+          kosli report approval "${IMAGE_NAME}"
             --approver="${{ github.actor }}"
-            --environment=${KOSLI_AWS_BETA}
+            --environment="${KOSLI_AWS_BETA}"
 
 
   deploy-to-beta:
