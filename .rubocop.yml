@@ -150,6 +150,11 @@ Style/MissingRespondToMissing:
   Exclude:
     - test/doubles/process_spawner_stub.rb
 
+Style/MutableConstant:
+  Exclude:
+    - source/client/rack_dispatcher.rb
+    - source/server/rack_dispatcher.rb
+
 Style/RedundantInitialize:
   Exclude:
     - source/server/prober.rb
