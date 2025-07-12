@@ -12,9 +12,9 @@ class RackDispatcher
   def call(env, request_class = Rack::Request)
     request = request_class.new(env)
     path = request.path_info
-    request.body.rewind
-    body = request.body.read
-    name, result = @dispatcher.call(path, body)
+    body = request.body
+    body.rewind
+    name, result = @dispatcher.call(path, body.read)
     json_response_pass(200, { name => result })
   rescue Dispatcher::RequestError => e
     json_response_fail(400, path, body, e)

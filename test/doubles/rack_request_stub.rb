@@ -7,10 +7,24 @@ class RackRequestStub
   end
 
   def body
-    Struct.new(:read).new(@env[:body])
+    RackRequestBodyStub.new(@env)
   end
 
   def path_info
     "/#{@env[:path_info]}"
   end
+end
+
+class RackRequestBodyStub
+  def initialize(env)
+    @env = env
+  end
+
+  def read
+    @env[:body]
+  end
+
+  def rewind
+  end
+
 end
