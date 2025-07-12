@@ -1,4 +1,4 @@
-FROM cyberdojo/docker-base:623a63d@sha256:94fa06fcd6d728b03943344b4cd0c237efa864c3d91cb29a4b5544e5181d0999
+FROM cyberdojo/docker-base:644342a@sha256:c7ab22f97b992690fe7e5ae92516176d727bc1232148ba1ac730e4d554f4a5ae
 # The FROM statement above is typically set via an automated pull-request from the docker-base repo
 LABEL maintainer=jon@jaggersoft.com
 
