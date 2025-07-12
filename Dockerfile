@@ -5,7 +5,10 @@ LABEL maintainer=jon@jaggersoft.com
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
 
+RUN apk add --upgrade git=2.47.3-r0      # https://security.snyk.io/vuln/SNYK-ALPINE320-GIT-10669667
+
 RUN gem install --no-document 'concurrent-ruby'
+
 WORKDIR /runner
 COPY source/server/ .
 USER root
