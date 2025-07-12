@@ -38,9 +38,10 @@ pull_dependent_images()
       do
         local image_name=$(echo "${JSON_DATA}" | jq --raw-output ".[\"${display_name}\"].image_name")
         if [ "${image_name}" == "null" ]; then
-          echo "ERROR: ${display_name}"
+          echo "ERROR: '${display_name}'"
           echo "Has no entry in test/dependent_display_names.rb"
           echo "This is probably because of a language and/or unit-test framework upgrade."
+          echo "If you are getting '' as the error, you probably need to rebuild the images after a local commit."
           echo "Possible updated display_names are:"
           local -r lang=$(echo "${display_name}" | awk '{print $1;}')
           local -r all_names=$(echo "${JSON_DATA}" | jq 'keys')
