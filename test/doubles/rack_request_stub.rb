@@ -24,7 +24,5 @@ class RackRequestBodyStub
     @env[:body]
   end
 
-  def rewind
-  end
-
+  def rewind; end
 end
