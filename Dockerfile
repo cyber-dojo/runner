@@ -6,6 +6,7 @@ ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
 
 RUN apk add --upgrade git=2.47.3-r0      # https://security.snyk.io/vuln/SNYK-ALPINE320-GIT-10669667
+RUN apk add --upgrade sqlite=3.48.0-r3   # https://security.snyk.io/vuln/SNYK-ALPINE321-SQLITE-11191065
 
 RUN gem install --no-document 'concurrent-ruby'
 
