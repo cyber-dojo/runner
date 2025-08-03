@@ -201,7 +201,8 @@ class Runner
   end
 
   def clang?(image_name)
-    image_name.start_with?('cyberdojofoundation/clang')
+    image_name.start_with?('cyberdojofoundation/clang') ||
+      image_name.start_with?('ghcr.io/cyber-dojo-languages/clang')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
