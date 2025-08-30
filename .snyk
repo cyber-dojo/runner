@@ -6,5 +6,11 @@ ignore:
   SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-10558294:
     - '*':
         reason: Waiting for fix
-        expires: 2025-08-28T10:03:36.581Z
-        created: 2025-07-28T10:03:36.589Z
+        expires: 2025-09-30T10:53:10.182Z
+        created: 2025-08-30T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-12177854:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2025-09-30T10:53:10.182Z
+        created: 2025-08-30T10:53:10.201Z
