@@ -69,7 +69,7 @@ module Dual
         # :nocov_server:
         assert_equal "All tests passed\n", stdout
         expected_stderr =
-          "(INFO) Reading coverage data...\n" +
+          "(INFO) Reading coverage data...\n" \
           "(INFO) Writing coverage report...\n"
         assert_equal expected_stderr, stderr
         assert_equal '0', status

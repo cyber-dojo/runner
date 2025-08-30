@@ -162,7 +162,7 @@ class ContainerPropertiesTest < TestBase
 
   def clang?
     image_name.start_with?('cyberdojofoundation/clang') or
-    image_name.start_with?('ghcr.io/cyber-dojo-languages/clang')
+      image_name.start_with?('ghcr.io/cyber-dojo-languages/clang')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
