@@ -43,8 +43,7 @@ module Dual
         # :nocov_server:
         expected_stdout = ''
         expected_stderr = [
-          'hiker.c:5:16: error: invalid suffix "s" on integer constant',
-          'hiker.c:6:1: warning: control reaches end of non-void function [-Wreturn-type]',
+          "hiker.c:5:16: error: invalid suffix 's' on integer constant",
           'make: *** [makefile:22: test] Error 1'
         ]
         expected_status = '2'
