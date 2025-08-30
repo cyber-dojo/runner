@@ -48,12 +48,12 @@
         }
       }
     },
-    "Bash, bash_unit": {
-      "display_name": "Bash, bash_unit",
+    "Bash 5.2.37, bash_unit 2.3.2": {
+      "display_name": "Bash 5.2.37, bash_unit 2.3.2",
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_unit:c4906b6",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_unit:09ea179",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -71,12 +71,12 @@
         }
       }
     },
-    "Bash, bats": {
-      "display_name": "Bash, bats",
+    "Bash 5.2.37, bats 1.12.0": {
+      "display_name": "Bash 5.2.37, bats 1.12.0",
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_bats:d566884",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_bats:eb2db1e",
       "tab_size": 4,
       "visible_files": {
         "bats_help.txt": {
@@ -93,12 +93,12 @@
         }
       }
     },
-    "Bash, shunit2": {
-      "display_name": "Bash, shunit2",
+    "Bash 5.2.37, shunit2 2.1.8": {
+      "display_name": "Bash 5.2.37, shunit2 2.1.8",
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "cyberdojofoundation/bash_shunit2:31d4d63",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_shunit2:870be1c",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -116,13 +116,13 @@
         }
       }
     },
-    "C (clang), Cgreen": {
-      "display_name": "C (clang), Cgreen",
+    "C (clang 14.0.0), Cgreen 1.6.3": {
+      "display_name": "C (clang 14.0.0), Cgreen 1.6.3",
       "filename_extension": [
         ".c",
         ".h"
       ],
-      "image_name": "cyberdojofoundation/clang_cgreen:9a688ed",
+      "image_name": "ghcr.io/cyber-dojo-languages/clang_cgreen:e006ccc",
       "max_seconds": 10,
       "progress_regexs": [
         "((\\d)+ tests)",
@@ -147,13 +147,13 @@
         }
       }
     },
-    "C (clang), assert": {
-      "display_name": "C (clang), assert",
+    "C (clang 14.0.0), assert": {
+      "display_name": "C (clang 14.0.0), assert",
       "filename_extension": [
         ".c",
         ".h"
       ],
-      "image_name": "cyberdojofoundation/clang_assert:2ab0e67",
+      "image_name": "ghcr.io/cyber-dojo-languages/clang_assert:2acce4b",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -174,13 +174,13 @@
         }
       }
     },
-    "C (gcc), Cgreen": {
-      "display_name": "C (gcc), Cgreen",
+    "C (gcc 14.3.0), Cgreen 1.6.3": {
+      "display_name": "C (gcc 14.3.0), Cgreen 1.6.3",
       "filename_extension": [
         ".c",
         ".h"
       ],
-      "image_name": "cyberdojofoundation/gcc_cgreen:f1b0ca1",
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_cgreen:6581efd",
       "max_seconds": 10,
       "progress_regexs": [
         "((\\d)+ tests)",
@@ -202,6 +202,61 @@
         },
         "hiker_tests.c": {
           "content": "#include <cgreen/cgreen.h>\n#include \"hiker.h\"\n\nDescribe(hiker);\nBeforeEach(hiker) {}\nAfterEach(hiker) {}\n\nEnsure(hiker, answers_42) {\n    assert_that(answer(), is_equal_to(42));\n}\n"
+        }
+      }
+    },
+    "C (gcc 14.3.0), GoogleTest 1.16.0": {
+      "display_name": "C (gcc 14.3.0), GoogleTest 1.16.0",
+      "filename_extension": [
+        ".c",
+        ".h",
+        ".cpp",
+        ".hpp"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_googletest:76fffa0",
+      "max_seconds": 15,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --root . > report/coverage.txt\n"
+        },
+        "hiker.c": {
+          "content": "#include \"hiker.h\"\n\nint answer()\n{\n    return 6 * 9;\n}\n"
+        },
+        "hiker.h": {
+          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer();\n\n#endif\n"
+        },
+        "hiker.tests.cpp": {
+          "content": "#include <gtest/gtest.h>\n\nextern \"C\"\n{\n#include \"hiker.h\"\n}\n\nusing namespace ::testing;\n\nTEST(Hiker, Life_the_universe_and_everything)\n{\n    ASSERT_EQ(42, answer());\n}\n"
+        },
+        "makefile": {
+          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall -Wextra\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCFLAGS += -I.\nCFLAGS += -std=c18\nCFLAGS += -Wall -Wextra -Werror\nCFLAGS += -fprofile-arcs -ftest-coverage\n\nGTEST_LIBS = -lgtest -lgtest_main -pthread\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\nCOMPILED_CPP_FILES = $(patsubst %.cpp,%.o,$(CPP_FILES))\n\nH_FILES = $(wildcard *.h)\nCOMPILED_H_FILES = $(patsubst %.h,%.compiled_h,$(H_FILES))\nC_FILES = $(wildcard *.c)\nCOMPILED_C_FILES = $(patsubst %.c,%.o,$(C_FILES))\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$< --gtest_shuffle\n\ntest: $(COMPILED_CPP_FILES) $(COMPILED_C_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(COMPILED_CPP_FILES) $(COMPILED_C_FILES) $(GTEST_LIBS) -o $@\n\n%.o: %.cpp\n\t@$(CXX) -c $(CXXFLAGS) -O $< -o $@\n\n%.o: %.c\n\t@$(CC) -c $(CFLAGS) -O $< -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n\n%.compiled_h: %.h\n\t@$(C) -x c $(CFLAGS) -c -o $@ $<\n"
+        }
+      }
+    },
+    "C (gcc 14.3.0), assert": {
+      "display_name": "C (gcc 14.3.0), assert",
+      "filename_extension": [
+        ".c",
+        ".h"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_assert:98e787d",
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --root . > report/coverage.txt\n"
+        },
+        "hiker.c": {
+          "content": "#include \"hiker.h\"\r\n\r\nint answer(void)\r\n{\r\n    return 6 * 9;\r\n}\r\n"
+        },
+        "hiker.h": {
+          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer(void);\n\n#endif\n"
+        },
+        "hiker.tests.c": {
+          "content": "#include \"hiker.h\"\n#include <assert.h>\n#include <stdio.h>\n\nstatic void life_the_universe_and_everything(void)\n{\n    assert(answer() == 42);\n}\n\nint main(void)\n{\n    life_the_universe_and_everything();\n    puts(\"All tests passed\");\n}\n"
+        },
+        "makefile": {
+          "content": "CFLAGS += -I.\nCFLAGS += -std=c18\nCFLAGS += -Wall\nCFLAGS += -Wextra\nCFLAGS += -Wsequence-point\nCFLAGS += -Wstrict-prototypes\nCFLAGS += -Wmissing-prototypes\nCFLAGS += -Wshadow\nCFLAGS += -Wfloat-equal\nCFLAGS += -O\nCFLAGS += -fprofile-arcs -ftest-coverage\n\nH_FILES = $(wildcard *.h)\nCOMPILED_H_FILES = $(patsubst %.h,%.compiled_h,$(H_FILES))\nC_FILES = $(wildcard *.c)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: makefile $(C_FILES) $(COMPILED_H_FILES)\n\t@gcc $(CFLAGS) $(C_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .c files which are not #included).\n\n%.compiled_h: %.h\n\t@gcc -x c $(CFLAGS) -c -o $@ $<\n"
         }
       }
     },
@@ -242,61 +297,6 @@
         },
         "untitledTest.cpp": {
           "content": "#include \"CppUTest/TestHarness.h\"\r\n\r\nextern \"C\"\r\n{\r\n#include \"untitled.h\"\r\n}\r\n\r\nTEST_GROUP(TheGroupName)\r\n{\r\n    void setup()\r\n    {\r\n    }\r\n\r\n    void teardown()\r\n    {\r\n    }\r\n};\r\n\r\nTEST(TheGroupName, a_meaningful_test_name)\r\n{\r\n    // a simple example to start you off\r\n    LONGS_EQUAL(42, the_answer_is());\r\n    //CHECK(1);\r\n    //CHECK_TRUE(1);\r\n    //CHECK_FALSE(0);\r\n    //STRCMP_EQUAL(\"hey\", \"hey\");\r\n    //FAIL(\"Start here\");\r\n}\r\n"
-        }
-      }
-    },
-    "C (gcc), GoogleTest": {
-      "display_name": "C (gcc), GoogleTest",
-      "filename_extension": [
-        ".c",
-        ".h",
-        ".cpp",
-        ".hpp"
-      ],
-      "image_name": "cyberdojofoundation/gcc_googletest:4ef2b73",
-      "max_seconds": 15,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --root . > report/coverage.txt\n"
-        },
-        "hiker.c": {
-          "content": "#include \"hiker.h\"\n\nint answer()\n{\n    return 6 * 9;\n}\n"
-        },
-        "hiker.h": {
-          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer();\n\n#endif\n"
-        },
-        "hiker.tests.cpp": {
-          "content": "#include <gtest/gtest.h>\n\nextern \"C\"\n{\n#include \"hiker.h\"\n}\n\nusing namespace ::testing;\n\nTEST(Hiker, Life_the_universe_and_everything)\n{\n    ASSERT_EQ(42, answer());\n}\n"
-        },
-        "makefile": {
-          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall -Wextra\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCFLAGS += -I.\nCFLAGS += -std=c18\nCFLAGS += -Wall -Wextra -Werror\nCFLAGS += -fprofile-arcs -ftest-coverage\n\nGTEST_LIBS = -lgtest -lgtest_main -pthread\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\nCOMPILED_CPP_FILES = $(patsubst %.cpp,%.o,$(CPP_FILES))\n\nH_FILES = $(wildcard *.h)\nCOMPILED_H_FILES = $(patsubst %.h,%.compiled_h,$(H_FILES))\nC_FILES = $(wildcard *.c)\nCOMPILED_C_FILES = $(patsubst %.c,%.o,$(C_FILES))\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$< --gtest_shuffle\n\ntest: $(COMPILED_CPP_FILES) $(COMPILED_C_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(COMPILED_CPP_FILES) $(COMPILED_C_FILES) $(GTEST_LIBS) -o $@\n\n%.o: %.cpp\n\t@$(CXX) -c $(CXXFLAGS) -O $< -o $@\n\n%.o: %.c\n\t@$(CC) -c $(CFLAGS) -O $< -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n\n%.compiled_h: %.h\n\t@$(C) -x c $(CFLAGS) -c -o $@ $<\n"
-        }
-      }
-    },
-    "C (gcc), assert": {
-      "display_name": "C (gcc), assert",
-      "filename_extension": [
-        ".c",
-        ".h"
-      ],
-      "image_name": "cyberdojofoundation/gcc_assert:ed4d5d5",
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --root . > report/coverage.txt\n"
-        },
-        "hiker.c": {
-          "content": "#include \"hiker.h\"\r\n\r\nint answer(void)\r\n{\r\n    return 6 * 9;\r\n}\r\n"
-        },
-        "hiker.h": {
-          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer(void);\n\n#endif\n"
-        },
-        "hiker.tests.c": {
-          "content": "#include \"hiker.h\"\n#include <assert.h>\n#include <stdio.h>\n\nstatic void life_the_universe_and_everything(void)\n{\n    assert(answer() == 42);\n}\n\nint main(void)\n{\n    life_the_universe_and_everything();\n    puts(\"All tests passed\");\n}\n"
-        },
-        "makefile": {
-          "content": "CFLAGS += -I.\nCFLAGS += -std=c18\nCFLAGS += -Wall\nCFLAGS += -Wextra\nCFLAGS += -Wsequence-point\nCFLAGS += -Wstrict-prototypes\nCFLAGS += -Wmissing-prototypes\nCFLAGS += -Wshadow\nCFLAGS += -Wfloat-equal\nCFLAGS += -O\nCFLAGS += -fprofile-arcs -ftest-coverage\n\nH_FILES = $(wildcard *.h)\nCOMPILED_H_FILES = $(patsubst %.h,%.compiled_h,$(H_FILES))\nC_FILES = $(wildcard *.c)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: makefile $(C_FILES) $(COMPILED_H_FILES)\n\t@gcc $(CFLAGS) $(C_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .c files which are not #included).\n\n%.compiled_h: %.h\n\t@gcc -x c $(CFLAGS) -c -o $@ $<\n"
         }
       }
     },
@@ -361,6 +361,67 @@
         },
         "cyber-dojo.sh": {
           "content": "#!/bin/bash\n\n# ------------------------------------------------------------------------\n# cyber-dojo returns text files under /sandbox that are\n# created/deleted/changed. In tidy_up you can remove any\n# such files you don't want returned to the browser.\n\ntrap tidy_up EXIT\n\nfunction tidy_up()\n{\n  delete_files TestResult.xml\n  delete_files TechTalk.SpecFlow.targets\n  delete_files TechTalk.SpecFlow.tasks\n  delete_files TechTalk.SpecFlow.props\n  delete_files specflow.json\n  delete_files specflow.exe.config\n  delete_files plugincompability.config\n  delete_files app.config\n  delete_files RunTests.csproj\n  delete_files *.feature.cs\n}\n\nfunction delete_files()\n{\n  for filename in \"$@\"\n  do\n      rm \"${filename}\" 2> /dev/null || true\n  done\n}\n\n# ------------------------------------------------------------------------\n# build project file\n{\n  cat <<PREFIX\n  <Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n    <ItemGroup>\nPREFIX\n  for file in *.feature\n  do\n    cat <<EACH_FILE\n        <None Include=\"${file}\">\n          <Generator>SpecFlowSingleFileGenerator</Generator>\n          <LastGenOutput>${file}.cs</LastGenOutput>\n        </None>\nEACH_FILE\n  done\n  cat <<SUFFIX\n    </ItemGroup>\n    <ItemGroup>\n      <None Include=\"specflow.json\" />\n    </ItemGroup>\n  </Project>\nSUFFIX\n} > RunTests.csproj\n\n# build specflow.json\ncat <<EOF > specflow.json\n{\n  \"specflow\": {\n    \"runtime\": {\"missingOrPendingStepsOutcome\": \"Error\"},\n    \"unitTestProvider\": {\"name\": \"NUnit\"}\n  }\n}\nEOF\n\nNUNIT_PATH=/nunit/lib/net45\nexport MONO_PATH=${NUNIT_PATH}\n\n# ------------------------------------------------------------------------\n# generate 'code behind' and run\n\nfind . -iname '*.feature.cs' -exec rm '{}' \\;\nmono /specflow/specflow.exe generateall RunTests.csproj\n\nmcs -t:library \\\n  -r:/specflow/TechTalk.SpecFlow.dll \\\n  -r:${NUNIT_PATH}/nunit.framework.dll \\\n  -out:RunTests.dll *.cs\n\ncp /specflow/* .\n\nif [ $? -eq 0 ]; then\n  NUNIT_RUNNERS_PATH=/nunit/tools\n  mono ${NUNIT_RUNNERS_PATH}/nunit3-console.exe --noheader ./RunTests.dll\nfi\n"
+        }
+      }
+    },
+    "C++ (clang++ 14.0.0), Igloo 1.1.1": {
+      "display_name": "C++ (clang++ 14.0.0), Igloo 1.1.1",
+      "filename_extension": [
+        ".cpp",
+        ".hpp",
+        ".c",
+        ".h"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/clangpp_igloo:e328dc6",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --gcov-executable 'llvm-cov gcov' --root . > report/coverage.txt\n"
+        },
+        "hiker.cpp": {
+          "content": "// The starting files are unrelated to the exercise.\r\n//\r\n// They simply show syntax for writing and testing\r\n//  o) a global function\r\n//  o) an instance method\r\n// Pick the style that best fits the exercise.\r\n// Then delete the other one, along with this comment!\r\n\r\n#include \"hiker.hpp\"\r\n\r\nint answer()\r\n{\r\n    return 6 * 9;\r\n}\r\n\r\nint hiker::answer() const\r\n{\r\n    return ::answer();\r\n}\r\n"
+        },
+        "hiker.hpp": {
+          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer();\n\nclass hiker\n{\npublic:\n    int answer() const;\n};\n\n#endif\n"
+        },
+        "hiker.tests.cpp": {
+          "content": "#include \"hiker.hpp\"\n#include <igloo/igloo.h>\n\nusing namespace igloo;\n\nContext(Hiker)\n{\n  Spec(global_function_example)\n  {\n    Assert::That(answer(), Equals(42));\n  }\n  Spec(instance_method_example)\n  {\n    Assert::That(hiker().answer(), Equals(42));\n  }\n};\n"
+        },
+        "main.cpp": {
+          "content": "#include <igloo/igloo_alt.h>\n\nusing namespace igloo;\n\nint main(int argc, const char *argv[])\n{\n  return TestRunner::RunAllTests(argc, argv);\n}\n"
+        },
+        "makefile": {
+          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
+        }
+      }
+    },
+    "C++ (clang++ 14.0.0), assert": {
+      "display_name": "C++ (clang++ 14.0.0), assert",
+      "filename_extension": [
+        ".cpp",
+        ".hpp",
+        ".c",
+        ".h"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/clangplusplus_assert:ecf1a38",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --gcov-executable 'llvm-cov gcov' --root . > report/coverage.txt\n"
+        },
+        "hiker.cpp": {
+          "content": "// The starting files are unrelated to the exercise.\r\n//\r\n// They simply show syntax for writing and testing\r\n//  o) a global function\r\n//  o) an instance method\r\n// Pick the style that best fits the exercise.\r\n// Then delete the other one, along with this comment!\r\n\r\n#include \"hiker.hpp\"\r\n\r\nint answer()\r\n{\r\n    return 6 * 9;\r\n}\r\n\r\nint hiker::answer() const\r\n{\r\n    return ::answer();\r\n}\r\n"
+        },
+        "hiker.hpp": {
+          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer();\n\nclass hiker\n{\npublic:\n    int answer() const;\n};\n\n#endif\n"
+        },
+        "hiker.tests.cpp": {
+          "content": "#include \"hiker.hpp\"\n#include <cassert>\n#include <iostream>\n\nnamespace\n{\n    void test_global_function()\n    {\n        assert(answer() == 42);\n    }\n\n    void test_instance_method()\n    {\n        assert(hiker().answer() == 42);\n    }\n}\n\nint main()\n{\n    test_global_function();\n    test_instance_method();\n    std::cout << \"All tests passed\\n\";\n}\n"
+        },
+        "makefile": {
+          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
         }
       }
     },
@@ -489,67 +550,6 @@
         },
         "makefile": {
           "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\n\nGTEST_LIBS = -lgtest -lgtest_main -pthread\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$< --gtest_shuffle\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) $(GTEST_LIBS) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
-        }
-      }
-    },
-    "C++ (clang++), Igloo": {
-      "display_name": "C++ (clang++), Igloo",
-      "filename_extension": [
-        ".cpp",
-        ".hpp",
-        ".c",
-        ".h"
-      ],
-      "image_name": "cyberdojofoundation/clangpp_igloo:a97f795",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --gcov-executable 'llvm-cov gcov' --root . > report/coverage.txt\n"
-        },
-        "hiker.cpp": {
-          "content": "// The starting files are unrelated to the exercise.\r\n//\r\n// They simply show syntax for writing and testing\r\n//  o) a global function\r\n//  o) an instance method\r\n// Pick the style that best fits the exercise.\r\n// Then delete the other one, along with this comment!\r\n\r\n#include \"hiker.hpp\"\r\n\r\nint answer()\r\n{\r\n    return 6 * 9;\r\n}\r\n\r\nint hiker::answer() const\r\n{\r\n    return ::answer();\r\n}\r\n"
-        },
-        "hiker.hpp": {
-          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer();\n\nclass hiker\n{\npublic:\n    int answer() const;\n};\n\n#endif\n"
-        },
-        "hiker.tests.cpp": {
-          "content": "#include \"hiker.hpp\"\n#include <igloo/igloo.h>\n\nusing namespace igloo;\n\nContext(Hiker)\n{\n  Spec(global_function_example)\n  {\n    Assert::That(answer(), Equals(42));\n  }\n  Spec(instance_method_example)\n  {\n    Assert::That(hiker().answer(), Equals(42));\n  }\n};\n"
-        },
-        "main.cpp": {
-          "content": "#include <igloo/igloo_alt.h>\n\nusing namespace igloo;\n\nint main(int argc, const char *argv[])\n{\n  return TestRunner::RunAllTests(argc, argv);\n}\n"
-        },
-        "makefile": {
-          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
-        }
-      }
-    },
-    "C++ (clang++), assert": {
-      "display_name": "C++ (clang++), assert",
-      "filename_extension": [
-        ".cpp",
-        ".hpp",
-        ".c",
-        ".h"
-      ],
-      "image_name": "cyberdojofoundation/clangpp_assert:02b9551",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nmake\ngcovr --gcov-executable 'llvm-cov gcov' --root . > report/coverage.txt\n"
-        },
-        "hiker.cpp": {
-          "content": "// The starting files are unrelated to the exercise.\r\n//\r\n// They simply show syntax for writing and testing\r\n//  o) a global function\r\n//  o) an instance method\r\n// Pick the style that best fits the exercise.\r\n// Then delete the other one, along with this comment!\r\n\r\n#include \"hiker.hpp\"\r\n\r\nint answer()\r\n{\r\n    return 6 * 9;\r\n}\r\n\r\nint hiker::answer() const\r\n{\r\n    return ::answer();\r\n}\r\n"
-        },
-        "hiker.hpp": {
-          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nint answer();\n\nclass hiker\n{\npublic:\n    int answer() const;\n};\n\n#endif\n"
-        },
-        "hiker.tests.cpp": {
-          "content": "#include \"hiker.hpp\"\n#include <cassert>\n#include <iostream>\n\nnamespace\n{\n    void test_global_function()\n    {\n        assert(answer() == 42);\n    }\n\n    void test_instance_method()\n    {\n        assert(hiker().answer() == 42);\n    }\n}\n\nint main()\n{\n    test_global_function();\n    test_instance_method();\n    std::cout << \"All tests passed\\n\";\n}\n"
-        },
-        "makefile": {
-          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
         }
       }
     },
@@ -828,7 +828,7 @@
         ".c",
         ".h"
       ],
-      "image_name": "cyberdojofoundation/gpp_assert:08f19a9",
+      "image_name": "ghcr.io/cyber-dojo-languages/gpp_assert:e6a885f\n",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -2010,12 +2010,12 @@
         }
       }
     },
-    "Rust 1.84, test": {
-      "display_name": "Rust 1.84, test",
+    "Rust 1.86, test": {
+      "display_name": "Rust 1.86, test",
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:35587ca",
+      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:70311f5",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
