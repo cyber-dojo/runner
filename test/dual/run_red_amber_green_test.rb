@@ -68,7 +68,10 @@ module Dual
       on_client do
         # :nocov_server:
         assert_equal "All tests passed\n", stdout
-        assert_equal '', stderr
+        expected_stderr =
+          "(INFO) Reading coverage data...\n" +
+          "(INFO) Writing coverage report...\n"
+        assert_equal expected_stderr, stderr
         assert_equal '0', status
         # :nocov_server:
       end
