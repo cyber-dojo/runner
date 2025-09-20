@@ -4,19 +4,22 @@ set -Eeu
 echo_env_vars()
 {
   # Setup port env-vars in .env file using versioner
-  local -r env_filename="${ROOT_DIR}/.env"
-  docker run --rm cyberdojo/versioner 2> /dev/null | grep PORT > "${env_filename}"
-  echo "CYBER_DOJO_PROMETHEUS=true" >> "${env_filename}"
-  echo "CYBER_DOJO_RUNNER_CLIENT_PORT=9999" >> "${env_filename}"
+  {
+    echo "# This file is generated in bin/lib.sh echo_env_vars()"
+    echo "CYBER_DOJO_RUNNER_CLIENT_PORT=9999"
+    echo "CYBER_DOJO_PROMETHEUS=true"
+    docker run --rm cyberdojo/versioner 2> /dev/null | grep PORT
+  } > "${ROOT_DIR}/.env"
 
   # Get identities of dependent services from versioner
   docker run --rm cyberdojo/versioner 2> /dev/null
   export $(docker run --rm cyberdojo/versioner 2> /dev/null)
   echo "CYBER_DOJO_LANGUAGES_START_POINTS=${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}@sha256:${CYBER_DOJO_LANGUAGES_START_POINTS_DIGEST}"
 
+  local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
+
   # Set env-vars for this repos runner service
   if [[ ! -v COMMIT_SHA ]] ; then
-    local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
     echo COMMIT_SHA="${sha}"  # --build-arg
   fi
 
@@ -39,8 +42,7 @@ echo_env_vars()
 
 exit_non_zero_unless_installed()
 {
-  for dependent in "$@"
-  do
+  for dependent in "$@"; do
     if ! installed "${dependent}" ; then
       stderr "${dependent} is not installed!"
       exit_non_zero
