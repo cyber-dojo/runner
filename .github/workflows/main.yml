@@ -71,12 +71,12 @@ jobs:
         run:
           kosli create flow "${KOSLI_FLOW}"
             --description="Test runner"
-            --template-file=.kosli.yml
 
       - name: Begin Kosli Trail
         if: ${{ github.ref == 'refs/heads/main' }}
         run:
           kosli begin trail "${KOSLI_TRAIL}"
+            --template-file=.kosli.yml
 
 
   pull-request:
