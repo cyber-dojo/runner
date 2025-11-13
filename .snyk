@@ -20,3 +20,9 @@ ignore:
         reason: Waiting for base image upgrade
         expires: 2025-11-20T10:53:10.182Z
         created: 2025-10-20T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSSELINUXGOSELINUX-13843568:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2025-11-20T10:53:10.182Z
+        created: 2025-11-13T10:53:10.201Z
