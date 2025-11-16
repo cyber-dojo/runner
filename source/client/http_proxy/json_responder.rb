@@ -48,7 +48,7 @@ module HttpProxy
     # - - - - - - - - - - - - - - - - - - - - -
 
     def error_message(body, text)
-      "http response.body #{text}:#{body}"
+      "http response.body #{text}:#{body}:"
     end
   end
 end
