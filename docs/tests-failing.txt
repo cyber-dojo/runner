@@ -1,0 +1,28 @@
+
+Currently one test passes locally (macbook) but fails on CI (Ubuntu).
+Eg see
+https://github.com/cyber-dojo/runner/actions/runs/19404644389/job/55517413049
+
+The test is a multi-os test, so fails three times, for [Debian, Ubuntu, Alpine]
+On Alpine it is...
+
+Failure:
+ContainerPropertiesTest#test_
+id='3A8D97'
+os=Alpine
+'multiple container properties' [/runner/test/client/container_properties_test.rb:67]
+Minitest::Assertion: permission.
+Expected: "drwxrwxrwt"
+  Actual: "drwxr-xr-x"
+
+
+This is the assert 
+
+  assert_equal 'drwxrwxrwt', created_file('dir.stat.A'), :permission
+
+dir.stat.A is a generated file, created with the line:
+
+  "stat --printf='%A' #{sandbox_dir} > #{sandbox_dir}/dir.stat.A"
+
+  
+
