@@ -1,6 +1,6 @@
-#FROM cyberdojo/docker-base:93aaaee@sha256:676847afbea1f6463dc7bef6f5ea0cb080c01dd4157f5d33e76565fde22cb365
+FROM cyberdojo/docker-base:93aaaee@sha256:676847afbea1f6463dc7bef6f5ea0cb080c01dd4157f5d33e76565fde22cb365
 
-FROM cyberdojo/docker-base:0ce6666@sha256:3e2248e992f75cbdfcc302f157497364f81849d57d55d21590763dcb2f627911
+#FROM cyberdojo/docker-base:0ce6666@sha256:3e2248e992f75cbdfcc302f157497364f81849d57d55d21590763dcb2f627911
 LABEL maintainer=jon@jaggersoft.com
 
 ARG COMMIT_SHA
