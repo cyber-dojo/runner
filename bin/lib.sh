@@ -45,6 +45,11 @@ exit_non_zero_unless_installed()
   for dependent in "$@"; do
     if ! installed "${dependent}" ; then
       stderr "${dependent} is not installed!"
+      if [ "${dependent}" == snyk ]; then
+        stderr "On a Mac you can install with:"
+        stderr "  brew tap snyk/tap"
+        stderr "  brew install snyk-cli"
+      fi
       exit_non_zero
     fi
   done
@@ -108,7 +113,6 @@ remove_all_but_latest()
       docker image rm "${image_name}"
     fi
   done
-  docker system prune --force
 }
 
 echo_warnings()

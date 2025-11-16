@@ -28,16 +28,12 @@ class RackDispatcher
     [status, CONTENT_TYPE_JSON, [json]]
   end
 
-  # - - - - - - - - - - - - - - - -
-
   def json_response_fail(status, path, body, error)
     response = diagnostic(path, body, error)
     json = JSON.pretty_generate(response)
     @context.logger.log(json)
     [status, CONTENT_TYPE_JSON, [json]]
   end
-
-  # - - - - - - - - - - - - - - - -
 
   def diagnostic(path, body, error)
     { 'exception' => {
@@ -48,8 +44,6 @@ class RackDispatcher
       'backtrace' => error.backtrace
     } }
   end
-
-  # - - - - - - - - - - - - - - - -
 
   CONTENT_TYPE_JSON = { 'Content-Type' => 'application/json' }.freeze
 end

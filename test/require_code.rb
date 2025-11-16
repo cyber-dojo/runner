@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 def require_code(required)
-  require_relative "../#{required}"
+  require_relative "../source/#{required}"
 end
 
 def require_server_code(required)

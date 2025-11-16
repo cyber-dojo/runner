@@ -4,9 +4,9 @@ all_server: image_server test_server coverage_server
 image_server:
 	${PWD}/bin/build_image.sh server
 
-# test_server does NOT depend on build_server, because in the CI workflow,
+# test_server does NOT depend on image_server, because in the CI workflow,
 # the image is built with a GitHub Action.
-# If you want to run only some tests, locally, use run_tests.sh directly
+# If you want to run only some tests, locally, use run_tests.sh directly as per README.md
 test_server:
 	${PWD}/bin/run_tests.sh server
 
