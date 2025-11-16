@@ -12,9 +12,9 @@ RUN apk upgrade libcrypto3 libssl3            # https://security.snyk.io/vuln/SN
 
 RUN gem install --no-document 'concurrent-ruby'
 
-WORKDIR /runner
+WORKDIR /runner/source
 COPY source/server/ .
 USER root
-HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/config/healthcheck.sh
+HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD /runner/source/config/healthcheck.sh
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
-CMD [ "/runner/config/up.sh" ]
+CMD [ "/runner/source/config/up.sh" ]
