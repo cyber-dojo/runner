@@ -17,10 +17,11 @@ end
 use_containerd = ENV['CYBER_DOJO_USE_CONTAINERD'] == 'true'
 $stdout.puts("CYBER_DOJO_USE_CONTAINERD:#{use_containerd}")
 
-require 'rack'
-use Rack::Deflater, if: lambda { |_, _, _, body|
-  body.any? && body[0].length > 512
-}
+# This causes "incorrect header check" errors in the client-tests.
+# require 'rack'
+# use Rack::Deflater, if: lambda { |_, _, _, body|
+#   body.any? && body[0].length > 512
+# }
 
 require_relative '../context'
 context = Context.new
