@@ -45,7 +45,7 @@ class JsonResponderTest < TestBase
     stub = HttpProxyJsonRequesterStub.new(body)
     target = ::HttpProxy::JsonResponder.new(stub, DummyError)
     error = assert_raises(DummyError) { target.get(path, {}) }
-    assert_equal "http response.body is not JSON:#{body}", error.message
+    assert_equal "http response.body is not JSON:#{body}:", error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -56,7 +56,7 @@ class JsonResponderTest < TestBase
     stub = HttpProxyJsonRequesterStub.new(body)
     target = ::HttpProxy::JsonResponder.new(stub, DummyError)
     error = assert_raises(DummyError) { target.post(path, {}) }
-    assert_equal "http response.body is not JSON Hash:#{body}", error.message
+    assert_equal "http response.body is not JSON Hash:#{body}:", error.message
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -83,7 +83,7 @@ class JsonResponderTest < TestBase
     stub = HttpProxyJsonRequesterStub.new(body)
     target = ::HttpProxy::JsonResponder.new(stub, DummyError)
     error = assert_raises(DummyError) { target.post(path, {}) }
-    assert_equal "http response.body has no key for 'red_queen':#{body}", error.message
+    assert_equal "http response.body has no key for 'red_queen':#{body}:", error.message
   end
 
   class HttpProxyJsonRequesterStub
