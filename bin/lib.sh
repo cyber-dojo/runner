@@ -113,7 +113,6 @@ remove_all_but_latest()
       docker image rm "${image_name}"
     fi
   done
-  docker system prune --force
 }
 
 echo_warnings()
