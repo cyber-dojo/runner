@@ -21,6 +21,12 @@ ignore:
         expires: 2025-12-20T10:53:10.182Z
         created: 2025-10-20T10:53:10.201Z
 
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-14059804:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2025-12-20T10:53:10.182Z
+        created: 2025-10-20T10:53:10.201Z
+
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-14059803:
     - '*':
         reason: Waiting for base image upgrade
