@@ -78,6 +78,12 @@ jobs:
           kosli begin trail "${KOSLI_TRAIL}"
             --template-file=.kosli.yml
 
+      - name: Write Trail URL to GitHub Step Summary
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          url="https://app.kosli.com/${KOSLI_ORG}/flows/${KOSLI_FLOW}/trails/${KOSLI_TRAIL}"
+          echo "[Kosli Trail](${url})" > "${GITHUB_STEP_SUMMARY}"
+
 
   pull-request:
     if: ${{ github.ref == 'refs/heads/main' }}
