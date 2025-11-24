@@ -2,45 +2,49 @@
 # If this file contains only comments, then no vulnerabilities are ignored
 # but do not delete this file - it is needed for the live-snyk-scans repo workflows.
 
+version: v1.25.0
+
+patch: {}
+
 ignore:
-  SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-10558294:
+  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSSELINUXGOSELINUX-13843568: # High
     - '*':
-        reason: Waiting for fix
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-10-20T10:53:10.201Z
+      reason: Waiting for base image upgrade
+      expires: 2025-12-24T10:53:10.182Z
+      created: 2025-11-24T10:53:10.201Z
 
-  SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-12177854:
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-12668891: # High
     - '*':
-        reason: Waiting for base image upgrade
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-10-20T10:53:10.201Z
+      reason: Waiting for base image upgrade
+      expires: 2025-12-24T10:53:10.182Z
+      created: 2025-11-24T10:53:10.201Z
 
-  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-12668891:
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-14059804: # Medium
     - '*':
-        reason: Waiting for base image upgrade
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-10-20T10:53:10.201Z
+      reason: Waiting for base image upgrade
+      expires: 2025-12-24T10:53:10.182Z
+      created: 2025-11-24T10:53:10.201Z
 
-  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-14059804:
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSH-14059803: # Medium
     - '*':
-        reason: Waiting for base image upgrade
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-10-20T10:53:10.201Z
+      reason: Waiting for base image upgrade
+      expires: 2025-12-24T10:53:10.182Z
+      created: 2025-11-24T10:53:10.201Z
 
-  SNYK-GOLANG-GOLANGORGXCRYPTOSSH-14059803:
-    - '*':
-        reason: Waiting for base image upgrade
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-10-20T10:53:10.201Z
+  # SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-10558294:
+  #   - '*':
+  #       reason: Waiting for fix
+  #       expires: 2025-12-20T10:53:10.182Z
+  #       created: 2025-10-20T10:53:10.201Z
 
-  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSSELINUXGOSELINUX-13843568:
-    - '*':
-        reason: Waiting for base image upgrade
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-11-13T10:53:10.201Z
+  # SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-12177854:
+  #   - '*':
+  #       reason: Waiting for base image upgrade
+  #       expires: 2025-12-20T10:53:10.182Z
+  #       created: 2025-10-20T10:53:10.201Z
 
-  SNYK-ALPINE321-RUBY-14100871:
-    - '*':
-        reason: Waiting for base image upgrade
-        expires: 2025-12-20T10:53:10.182Z
-        created: 2025-11-13T10:53:10.201Z
+  # SNYK-ALPINE321-RUBY-14100871:
+  #   - '*':
+  #       reason: Waiting for base image upgrade
+  #       expires: 2025-12-20T10:53:10.182Z
+  #       created: 2025-11-13T10:53:10.201Z
