@@ -5,6 +5,7 @@ LABEL maintainer=jon@jaggersoft.com
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
 
+RUN apk add --upgrade busybox=1.37.0-r14      # https://security.snyk.io/vuln/SNYK-ALPINE321-BUSYBOX-14102399
 RUN apk add --upgrade git=2.47.3-r0           # https://security.snyk.io/vuln/SNYK-ALPINE320-GIT-10669667
 RUN apk add --upgrade sqlite=3.48.0-r4        # https://security.snyk.io/vuln/SNYK-ALPINE321-SQLITE-11191066
 RUN apk add --upgrade sqlite-libs=3.48.0-r4   # https://security.snyk.io/vuln/SNYK-ALPINE321-SQLITE-11191066
