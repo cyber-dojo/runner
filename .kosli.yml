@@ -28,6 +28,3 @@ trail:
           type: snyk
         - name: snyk-code-scan
           type: snyk
-
-# - name: integration-test-branch-coverage
-#   type: generic

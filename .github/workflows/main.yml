@@ -133,13 +133,13 @@ jobs:
           make rubocop_lint
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest junit
             --name=runner.rubocop-lint
@@ -175,13 +175,13 @@ jobs:
             .
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest snyk
             --attachments=.snyk
@@ -232,11 +232,6 @@ jobs:
         run:
           make test_server coverage_server 
 
-      # - name: Get unit test coverage
-      #   id: coverage
-      #   run:
-      #     make coverage_server
-
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v2
@@ -266,15 +261,6 @@ jobs:
             --name=runner.unit-test-coverage-metrics
             --type=coverage-metrics
 
-      # - name: Attest coverage evidence to Kosli
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   run: |
-      #     KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
-      #     kosli attest generic \
-      #       --description="unit-test branch-coverage and metrics" \
-      #       --name=runner.unit-test-branch-coverage \
-      #       --user-data="./reports/server/coverage_metrics.json"
-
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -299,11 +285,6 @@ jobs:
       - name: Run integration tests
         run:
           make image_client test_client coverage_client
-
-      # - name: Get integration test coverage
-      #   id: coverage
-      #   run:
-      #     make coverage_client
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
@@ -333,15 +314,6 @@ jobs:
             --attestation-data=./reports/client/coverage_metrics.json 
             --name=runner.integration-test-coverage-metrics
             --type=coverage-metrics
-
-      # - name: Attest coverage evidence to Kosli
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   run: |
-      #     KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
-      #     kosli attest generic \
-      #       --description="integration-test branch-coverage and metrics" \
-      #       --name=runner.integration-test-branch-coverage \
-      #       --user-data="./reports/client/coverage_metrics.json"
 
 
   snyk-container-scan:
@@ -376,13 +348,13 @@ jobs:
           make snyk_container_scan
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest snyk 
             --attachments=.snyk          
