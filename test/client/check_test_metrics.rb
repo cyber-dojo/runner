@@ -21,8 +21,8 @@ def table_data
   stats = JSON.parse(File.read("#{cov_root}/test_metrics.json"))
 
   cov_json = JSON.parse(File.read("#{cov_root}/coverage_metrics.json"))
-  test_cov = cov_json['groups'][ENV.fetch('COVERAGE_TEST_TAB_NAME')]
-  code_cov = cov_json['groups'][ENV.fetch('COVERAGE_CODE_TAB_NAME')]
+  test_cov = cov_json[ENV.fetch('COVERAGE_TEST_TAB_NAME')]
+  code_cov = cov_json[ENV.fetch('COVERAGE_CODE_TAB_NAME')]
 
   [
     [ nil ],
