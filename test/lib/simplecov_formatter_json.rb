@@ -8,11 +8,14 @@ module SimpleCov
       # based on https://github.com/vicentllongo/simplecov-json
 
       def format(result)
-        groups = {}
+        data = {
+          timestamp: result.created_at.to_i,
+          command_name: result.command_name
+        }
         result.groups.each do |name, file_list|
           next if name == 'Ungrouped'
 
-          groups[name] = {
+          data[name] = {
             lines: {
               total: file_list.lines_of_code,
               covered: file_list.covered_lines,
@@ -25,11 +28,6 @@ module SimpleCov
             }
           }
         end
-        data = {
-          timestamp: result.created_at.to_i,
-          command_name: result.command_name,
-          groups: groups
-        }
         File.open(output_filepath, 'w+') do |file|
           file.print(JSON.pretty_generate(data))
         end

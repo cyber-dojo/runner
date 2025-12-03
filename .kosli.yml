@@ -9,17 +9,25 @@ trail:
       attestations:
         - name: rubocop-lint
           type: junit
+
         - name: unit-test
           type: junit
         - name: unit-test-metrics
           type: custom:test-metrics
         - name: unit-test-coverage-metrics
           type: custom:coverage-metrics
+
         - name: integration-test
           type: junit
-        - name: integration-test-branch-coverage
-          type: generic
+        - name: integration-test-metrics
+          type: custom:test-metrics
+        - name: integration-test-coverage-metrics
+          type: custom:coverage-metrics
+
         - name: snyk-container-scan
           type: snyk
         - name: snyk-code-scan
           type: snyk
+
+# - name: integration-test-branch-coverage
+#   type: generic
