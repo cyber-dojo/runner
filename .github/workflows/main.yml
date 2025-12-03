@@ -230,34 +230,51 @@ jobs:
 
       - name: Run unit tests
         run:
-          make test_server
+          make test_server coverage_server 
 
-      - name: Get unit test coverage
-        id: coverage
-        run:
-          make coverage_server
+      # - name: Get unit test coverage
+      #   id: coverage
+      #   run:
+      #     make coverage_server
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest JUnit test evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run:
           kosli attest junit
             --name=runner.unit-test
             --results-dir=./reports/server/junit
 
-      - name: Attest coverage evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run: |
-          KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
-          kosli attest generic \
-            --description="unit-test branch-coverage and metrics" \
-            --name=runner.unit-test-branch-coverage \
-            --user-data="./reports/server/coverage_metrics.json"
+      # - name: Attest coverage evidence to Kosli
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   run: |
+      #     KOSLI_COMPLIANT=$([ "${{ steps.coverage.outcome }}" == 'success' ] && echo true || echo false)
+      #     kosli attest generic \
+      #       --description="unit-test branch-coverage and metrics" \
+      #       --name=runner.unit-test-branch-coverage \
+      #       --user-data="./reports/server/coverage_metrics.json"
+
+      - name: Attest test metrics to Kosli
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        run:
+          kosli attest custom
+            --attestation-data=./reports/server/test_metrics.json 
+            --name=runner.unit-test-metrics
+            --type=test-metrics
+
+      - name: Attest coverage metrics to Kosli
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        run:
+          kosli attest custom
+            --attestation-data=./reports/server/coverage_metrics.json 
+            --name=runner.unit-test-coverage-metrics
+            --type=coverage-metrics
+
 
 
   integration-tests:

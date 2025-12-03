@@ -11,8 +11,10 @@ trail:
           type: junit
         - name: unit-test
           type: junit
-        - name: unit-test-branch-coverage
-          type: generic
+        - name: unit-test-metrics
+          type: custom:test-metrics
+        - name: unit-test-coverage-metrics
+          type: custom:coverage-metrics
         - name: integration-test
           type: junit
         - name: integration-test-branch-coverage
