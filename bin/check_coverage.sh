@@ -60,7 +60,7 @@ check_coverage()
     --rm \
     --entrypoint="" \
     --env COVERAGE_ROOT="${CONTAINER_TMP_DIR}" \
-    --env COVERAGE_CODE_TAB_NAME=app \
+    --env COVERAGE_CODE_TAB_NAME=code \
     --env COVERAGE_TEST_TAB_NAME=test \
     --volume ${HOST_REPORTS_DIR}/test_metrics.json:${CONTAINER_TMP_DIR}/test_metrics.json:ro \
     --volume ${HOST_REPORTS_DIR}/coverage_metrics.json:${CONTAINER_TMP_DIR}/coverage_metrics.json:ro \
