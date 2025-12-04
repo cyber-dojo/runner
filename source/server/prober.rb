@@ -11,6 +11,6 @@ class Prober
   end
 
   def sha
-    ENV.fetch('SHA', nil)
+    ENV.fetch('COMMIT_SHA', nil)
   end
 end
