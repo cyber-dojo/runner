@@ -78,7 +78,7 @@ class PullImageTest < TestBase
       sheller: BashShellerStub.new
     )
     stdout = [
-      "Some message",
+      'Some message',
       "docker.io/#{gcc_assert}"
     ].join("\n")
     stderr = 'A diagnostic'
@@ -103,7 +103,7 @@ class PullImageTest < TestBase
     given gcc_assert has NOT already been pulled,
     but is currently being pulled,
     when I call pull_image(id, gcc_assert),
-    then the docker-pull does NOT run 
+    then the docker-pull does NOT run
     nothing is logged
     and the result is :pulling
   ) do

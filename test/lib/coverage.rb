@@ -2,8 +2,8 @@
 require 'simplecov'
 require_relative 'simplecov_formatter_json'
 
-CONTEXT = ENV['CONTEXT']
-APP_DIR = ENV['APP_DIR']
+CONTEXT = ENV.fetch('CONTEXT')
+APP_DIR = ENV.fetch('APP_DIR')
 
 def runner_nocov_token
   ['nocov', CONTEXT].join('_')
@@ -16,8 +16,8 @@ SimpleCov.start do
   nocov_token(runner_nocov_token)
   root(APP_DIR)
 
-  code_tab = ENV['COVERAGE_CODE_TAB_NAME']
-  test_tab = ENV['COVERAGE_TEST_TAB_NAME']
+  code_tab = ENV.fetch('COVERAGE_CODE_TAB_NAME')
+  test_tab = ENV.fetch('COVERAGE_TEST_TAB_NAME')
 
   # add_group('debug') { |the| puts the.filename; false }
 
