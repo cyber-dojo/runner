@@ -2,8 +2,8 @@
 require 'simplecov'
 require_relative 'simplecov_formatter_json'
 
-CONTEXT = ENV.fetch('CONTEXT', nil)
-ROOT_DIR = '/runner'
+CONTEXT = ENV['CONTEXT']
+APP_DIR = ENV['APP_DIR']
 
 def runner_nocov_token
   ['nocov', CONTEXT].join('_')
@@ -14,18 +14,18 @@ SimpleCov.start do
   filters.clear
   coverage_dir(ENV.fetch('COVERAGE_ROOT', nil).to_s)
   nocov_token(runner_nocov_token)
-  root(ROOT_DIR)
+  root(APP_DIR)
 
-  code_tab = ENV.fetch('COVERAGE_CODE_TAB_NAME', nil)
-  test_tab = ENV.fetch('COVERAGE_TEST_TAB_NAME', nil)
+  code_tab = ENV['COVERAGE_CODE_TAB_NAME']
+  test_tab = ENV['COVERAGE_TEST_TAB_NAME']
 
-  # add_group('debug') { |src| puts src.filename; false }
+  # add_group('debug') { |the| puts the.filename; false }
 
-  add_group(test_tab) do |src|
-    src.filename.start_with?("#{ROOT_DIR}/test/#{CONTEXT}/") || src.filename.start_with?("#{ROOT_DIR}/test/dual/")
+  add_group(test_tab) do |the|
+    the.filename.start_with?("#{APP_DIR}/test/#{CONTEXT}/") || the.filename.start_with?("#{APP_DIR}/test/dual/")
   end
-  add_group(code_tab) do |src|
-    src.filename.start_with?("#{ROOT_DIR}/source/")
+  add_group(code_tab) do |the|
+    the.filename.start_with?("#{APP_DIR}/source/")
   end
 end
 
