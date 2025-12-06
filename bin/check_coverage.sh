@@ -2,8 +2,9 @@
 set -Eeu
 
 export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
 source "${ROOT_DIR}/bin/lib.sh"
+# shellcheck disable=SC2046
+export $(echo_env_vars)
 
 show_help()
 {
@@ -41,8 +42,6 @@ check_args()
 check_coverage()
 {
   check_args "$@"
-  # shellcheck disable=SC2046
-  export $(echo_env_vars)
 
   local -r TYPE="${1}"           # {server|client}
   local -r TEST_LOG=test.log
@@ -60,8 +59,8 @@ check_coverage()
     --rm \
     --entrypoint="" \
     --env COVERAGE_ROOT="${CONTAINER_TMP_DIR}" \
-    --env COVERAGE_CODE_TAB_NAME=code \
-    --env COVERAGE_TEST_TAB_NAME=test \
+    --env COVERAGE_CODE_TAB_NAME \
+    --env COVERAGE_TEST_TAB_NAME \
     --volume ${HOST_REPORTS_DIR}/test_metrics.json:${CONTAINER_TMP_DIR}/test_metrics.json:ro \
     --volume ${HOST_REPORTS_DIR}/coverage_metrics.json:${CONTAINER_TMP_DIR}/coverage_metrics.json:ro \
     --volume ${HOST_TEST_DIR}/check_test_metrics.rb:${CONTAINER_TMP_DIR}/check_test_metrics.rb:ro \

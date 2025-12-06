@@ -7,7 +7,7 @@ def run
     DisplayNames::ALPINE,
     DisplayNames::DEBIAN,
     DisplayNames::UBUNTU,
-    'Python 3.13, Pytest 8.3.5', # Used in traffic-light tests
+    'Python 3.14, pytest 9.0.1', # Used in traffic-light tests
     # Client-side tests
     'VisualBasic, NUnit'
   ].each do |display_name|
