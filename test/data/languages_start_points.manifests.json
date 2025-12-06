@@ -205,6 +205,46 @@
         }
       }
     },
+    "C (gcc 15.2.0), CppUTest 4.0": {
+      "display_name": "C (gcc 15.2.0), CppUTest 4.0",
+      "filename_extension": [
+        ".c",
+        ".h",
+        ".cpp"
+      ],
+      "highlight_filenames": [
+        "untitled.c",
+        "untitled.h",
+        "untitledTest.cpp"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_cpputest:301c0ac",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "Errors (.* ms)",
+        "OK (.* ms)"
+      ],
+      "tab_size": 4,
+      "visible_files": {
+        "AllTests.cpp": {
+          "content": "#include \"CppUTest/CommandLineTestRunner.h\"\n\nint main(int ac, char** av)\n{\n    return RUN_ALL_TESTS(ac, av);\n}\n\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text dirs/files we don't want returned.\n  cyber_dojo_delete_dirs objs/ # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nexport CPPUTEST_HOME=/cpputest\nmake\n"
+        },
+        "makefile": {
+          "content": "#Set this to @ to keep the makefile quiet\r\nSILENCE = @\r\n\r\n#---- Outputs ----#\r\nCOMPONENT_NAME = untitled\r\n\r\n#--- Inputs ----#\r\nPROJECT_HOME_DIR = .\r\n\r\nSRC_FILES = untitled.c\r\n\r\nTEST_SRC_FILES = untitledTest.cpp AllTests.cpp\r\n\r\nINCLUDE_DIRS =\\\r\n\t.\\\r\n\t$(CPPUTEST_HOME)/include/\r\n\r\nCPPUTEST_WARNINGFLAGS += -Wall\r\nCPPUTEST_WARNINGFLAGS += -Wswitch-default\r\nCPPUTEST_WARNINGFLAGS += -Wfatal-errors\r\nCPPUTEST_CXXFLAGS +=  -std=c++2a\r\nCPPUTEST_CFLAGS += -std=c18\r\n\r\ninclude $(CPPUTEST_HOME)/build/MakefileWorker.mk\r\n"
+        },
+        "untitled.c": {
+          "content": "#include \"untitled.h\"\n\nint the_answer_is(void)\n{\n    return 6 * 9;\n}\n"
+        },
+        "untitled.h": {
+          "content": "#ifndef UNTITLED_INCLUDED\r\n#define UNTITLED_INCLUDED\r\n\r\nint the_answer_is(void);\r\n\r\n#endif\r\n\r\n"
+        },
+        "untitledTest.cpp": {
+          "content": "#include \"CppUTest/TestHarness.h\"\r\n\r\nextern \"C\"\r\n{\r\n#include \"untitled.h\"\r\n}\r\n\r\nTEST_GROUP(TheGroupName)\r\n{\r\n    void setup()\r\n    {\r\n    }\r\n\r\n    void teardown()\r\n    {\r\n    }\r\n};\r\n\r\nTEST(TheGroupName, a_meaningful_test_name)\r\n{\r\n    // a simple example to start you off\r\n    LONGS_EQUAL(42, the_answer_is());\r\n    //CHECK(1);\r\n    //CHECK_TRUE(1);\r\n    //CHECK_FALSE(0);\r\n    //STRCMP_EQUAL(\"hey\", \"hey\");\r\n    //FAIL(\"Start here\");\r\n}\r\n"
+        }
+      }
+    },
     "C (gcc 15.2.0), GoogleTest 1.16.0": {
       "display_name": "C (gcc 15.2.0), GoogleTest 1.16.0",
       "filename_extension": [
@@ -257,46 +297,6 @@
         },
         "makefile": {
           "content": "CFLAGS += -I.\nCFLAGS += -std=c18\nCFLAGS += -Wall\nCFLAGS += -Wextra\nCFLAGS += -Wsequence-point\nCFLAGS += -Wstrict-prototypes\nCFLAGS += -Wmissing-prototypes\nCFLAGS += -Wshadow\nCFLAGS += -Wfloat-equal\nCFLAGS += -O\nCFLAGS += -fprofile-arcs -ftest-coverage\n\nH_FILES = $(wildcard *.h)\nCOMPILED_H_FILES = $(patsubst %.h,%.compiled_h,$(H_FILES))\nC_FILES = $(wildcard *.c)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: makefile $(C_FILES) $(COMPILED_H_FILES)\n\t@gcc $(CFLAGS) $(C_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .c files which are not #included).\n\n%.compiled_h: %.h\n\t@gcc -x c $(CFLAGS) -c -o $@ $<\n"
-        }
-      }
-    },
-    "C (gcc), CppUTest": {
-      "display_name": "C (gcc), CppUTest",
-      "filename_extension": [
-        ".c",
-        ".h",
-        ".cpp"
-      ],
-      "highlight_filenames": [
-        "untitled.c",
-        "untitled.h",
-        "untitledTest.cpp"
-      ],
-      "image_name": "cyberdojofoundation/gcc_cpputest:95cf2bd",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "Errors (.* ms)",
-        "OK (.* ms)"
-      ],
-      "tab_size": 4,
-      "visible_files": {
-        "AllTests.cpp": {
-          "content": "#include \"CppUTest/CommandLineTestRunner.h\"\n\nint main(int ac, char** av)\n{\n    return RUN_ALL_TESTS(ac, av);\n}\n\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text dirs/files we don't want returned.\n  cyber_dojo_delete_dirs objs/ # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nexport CPPUTEST_HOME=/cpputest\nmake\n"
-        },
-        "makefile": {
-          "content": "#Set this to @ to keep the makefile quiet\r\nSILENCE = @\r\n\r\n#---- Outputs ----#\r\nCOMPONENT_NAME = untitled\r\n\r\n#--- Inputs ----#\r\nPROJECT_HOME_DIR = .\r\n\r\nSRC_FILES = untitled.c\r\n\r\nTEST_SRC_FILES = untitledTest.cpp AllTests.cpp\r\n\r\nINCLUDE_DIRS =\\\r\n\t.\\\r\n\t$(CPPUTEST_HOME)/include/ \\\r\n\t$(CPPUTEST_HOME)/include/Platforms/Gcc\\\r\n\r\nCPPUTEST_WARNINGFLAGS += -Wall\r\nCPPUTEST_WARNINGFLAGS += -Wswitch-default\r\nCPPUTEST_WARNINGFLAGS += -Wfatal-errors\r\nCPPUTEST_CXXFLAGS +=  -std=c++2a\r\nCPPUTEST_CFLAGS += -std=c18\r\n\r\ninclude $(CPPUTEST_HOME)/build/MakefileWorker.mk\r\n"
-        },
-        "untitled.c": {
-          "content": "#include \"untitled.h\"\n\nint the_answer_is(void)\n{\n    return 6 * 9;\n}\n"
-        },
-        "untitled.h": {
-          "content": "#ifndef UNTITLED_INCLUDED\r\n#define UNTITLED_INCLUDED\r\n\r\nint the_answer_is(void);\r\n\r\n#endif\r\n\r\n"
-        },
-        "untitledTest.cpp": {
-          "content": "#include \"CppUTest/TestHarness.h\"\r\n\r\nextern \"C\"\r\n{\r\n#include \"untitled.h\"\r\n}\r\n\r\nTEST_GROUP(TheGroupName)\r\n{\r\n    void setup()\r\n    {\r\n    }\r\n\r\n    void teardown()\r\n    {\r\n    }\r\n};\r\n\r\nTEST(TheGroupName, a_meaningful_test_name)\r\n{\r\n    // a simple example to start you off\r\n    LONGS_EQUAL(42, the_answer_is());\r\n    //CHECK(1);\r\n    //CHECK_TRUE(1);\r\n    //CHECK_FALSE(0);\r\n    //STRCMP_EQUAL(\"hey\", \"hey\");\r\n    //FAIL(\"Start here\");\r\n}\r\n"
         }
       }
     },
@@ -640,6 +640,42 @@
         }
       }
     },
+    "C++ (g++ 15.1.0), CppUTest 4.0": {
+      "display_name": "C++ (g++ 15.1.0), CppUTest 4.0",
+      "filename_extension": [
+        ".cpp",
+        ".hpp",
+        ".c",
+        ".h"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/gpp_cpputest:30cb7f7",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "Errors \\((\\d)+ failures, (\\d)+ tests, (\\d)+ ran, (\\d)+ checks, (\\d)+ ignored, (\\d)+ filtered out, (\\d)+ ms\\)",
+        "OK \\((\\d)+ tests, (\\d)+ ran, (\\d)+ checks, (\\d)+ ignored, (\\d)+ filtered out, (\\d)+ ms\\)"
+      ],
+      "tab_size": 4,
+      "visible_files": {
+        "Hiker.cpp": {
+          "content": "#include \"Hiker.hpp\"\n\nHiker::Hiker()\n{\n}\n\nHiker::~Hiker()\n{\n}\n\nint Hiker::answer() const\n{\n    return 6 * 9;\n}"
+        },
+        "Hiker.hpp": {
+          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nclass Hiker\n{\npublic:\n  explicit Hiker();\n  ~Hiker();\n\n  int answer() const;\n\n  Hiker(const Hiker &) = delete;\n  Hiker & operator=(const Hiker &) = delete;\n};\n\n#endif\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text dirs/files we don't want returned.\n  cyber_dojo_delete_dirs objs/ # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nexport CPPUTEST_HOME=/cpputest\nmake\n"
+        },
+        "makefile": {
+          "content": "#Set this to @ to keep the makefile quiet\nSILENCE = @\n\nLD_LIBRARIES = -L$(CPPUTEST_HOME)/lib -lCppUTest -lCppUTestExt\n\n#---- Outputs ----#\nCOMPONENT_NAME = Hiker\n\nSRC_DIRS = \\\n  .\n\nTEST_SRC_DIRS = \\\n  tests\n\nINCLUDE_DIRS =\\\n\t.\\\n\t$(CPPUTEST_HOME)/include/\n\nCXXFLAGS += -Wall -Wswitch-default -Wfatal-errors\nCXXFLAGS += -std=c++2a\nCFLAGS += -std=c18\n\ninclude $(CPPUTEST_HOME)/build/MakefileWorker.mk\n"
+        },
+        "tests/AllTests.cpp": {
+          "content": "#include \"CppUTest/CommandLineTestRunner.h\"\n\nint main(int ac, char** av)\n{\n    return RUN_ALL_TESTS(ac, av);\n}\n"
+        },
+        "tests/HikerTest.cpp": {
+          "content": "#include \"Hiker.hpp\"\n#include \"CppUTest/TestHarness.h\"\n\nTEST_GROUP(Hiker)\n{\n    Hiker * hhg;\n\n    void setup()\n    {\n        hhg = new Hiker();\n    }\n    void teardown()\n    {\n        delete hhg;\n    }\n};\n\nTEST(Hiker, Life_the_universe_and_everything)\n{\n    // a simple example to start you off\n    LONGS_EQUAL(42, hhg->answer());\n    //CHECK(1);\n    //CHECK_TRUE(1);\n    //CHECK_FALSE(0);\n    //STRCMP_EQUAL(\"hey\", \"hey\");\n    //FAIL(\"Start here\");\n}\n"
+        }
+      }
+    },
     "C++ (g++ 15.1.0), Cucumber-cpp 0.7.0": {
       "display_name": "C++ (g++ 15.1.0), Cucumber-cpp 0.7.0",
       "filename_extension": [
@@ -660,7 +696,7 @@
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "LANG=c\nif  make --always-make 2>&1 ; then\n  # Test output can be formatted as progress or documentation\n  sleep 1\n  cucumber -f progress . -r .\nfi\n"
+          "content": "LANG=c\n\nif  make --always-make 2>&1 ; then\n  # Test output can be formatted as progress or documentation\n  sleep 1\n  cucumber --publish-quiet -f progress . -r .\nfi\n"
         },
         "features/hiker.feature": {
           "content": "Feature: hitch-hiker playing scrabble\n\nScenario: earthling playing scrabble in the past\n  Given the hitch-hiker selects some tiles\n  When they spell 6 times 9\n  Then the score is 42\n"
@@ -810,42 +846,6 @@
         },
         "makefile": {
           "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall -Wextra -pthread\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$<\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
-        }
-      }
-    },
-    "C++ (g++), CppUTest": {
-      "display_name": "C++ (g++), CppUTest",
-      "filename_extension": [
-        ".cpp",
-        ".hpp",
-        ".c",
-        ".h"
-      ],
-      "image_name": "cyberdojofoundation/gpp_cpputest:2bcb629",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "Errors \\((\\d)+ failures, (\\d)+ tests, (\\d)+ ran, (\\d)+ checks, (\\d)+ ignored, (\\d)+ filtered out, (\\d)+ ms\\)",
-        "OK \\((\\d)+ tests, (\\d)+ ran, (\\d)+ checks, (\\d)+ ignored, (\\d)+ filtered out, (\\d)+ ms\\)"
-      ],
-      "tab_size": 4,
-      "visible_files": {
-        "Hiker.cpp": {
-          "content": "#include \"Hiker.hpp\"\n\nHiker::Hiker()\n{\n}\n\nHiker::~Hiker()\n{\n}\n\nint Hiker::answer() const\n{\n    return 6 * 9;\n}"
-        },
-        "Hiker.hpp": {
-          "content": "#ifndef HIKER_INCLUDED\n#define HIKER_INCLUDED\n\nclass Hiker\n{\npublic:\n  explicit Hiker();\n  ~Hiker();\n\n  int answer() const;\n\n  Hiker(const Hiker &) = delete;\n  Hiker & operator=(const Hiker &) = delete;\n};\n\n#endif\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text dirs/files we don't want returned.\n  cyber_dojo_delete_dirs objs/ # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nexport CPPUTEST_HOME=/cpputest\nmake\n"
-        },
-        "makefile": {
-          "content": "#Set this to @ to keep the makefile quiet\nSILENCE = @\n\nLD_LIBRARIES = -L$(CPPUTEST_HOME)/lib -lCppUTest -lCppUTestExt\n\n#---- Outputs ----#\nCOMPONENT_NAME = Hiker\n\nSRC_DIRS = \\\n  .\n\nTEST_SRC_DIRS = \\\n  tests\n\nINCLUDE_DIRS =\\\n\t.\\\n\t$(CPPUTEST_HOME)/include/ \\\n\nCXXFLAGS += -Wall -Wswitch-default -Wfatal-errors\nCXXFLAGS += -std=c++2a\nCFLAGS += -std=c18\n\ninclude $(CPPUTEST_HOME)/build/MakefileWorker.mk\n"
-        },
-        "tests/AllTests.cpp": {
-          "content": "#include \"CppUTest/CommandLineTestRunner.h\"\n\nint main(int ac, char** av)\n{\n    return RUN_ALL_TESTS(ac, av);\n}\n"
-        },
-        "tests/HikerTest.cpp": {
-          "content": "#include \"Hiker.hpp\"\n#include \"CppUTest/TestHarness.h\"\n\nTEST_GROUP(Hiker)\n{\n    Hiker * hhg;\n\n    void setup()\n    {\n        hhg = new Hiker();\n    }\n    void teardown()\n    {\n        delete hhg;\n    }\n};\n\nTEST(Hiker, Life_the_universe_and_everything)\n{\n    // a simple example to start you off\n    LONGS_EQUAL(42, hhg->answer());\n    //CHECK(1);\n    //CHECK_TRUE(1);\n    //CHECK_FALSE(0);\n    //STRCMP_EQUAL(\"hey\", \"hey\");\n    //FAIL(\"Start here\");\n}\n"
         }
       }
     },
@@ -1701,34 +1701,123 @@
         }
       }
     },
-    "Python 3.13, Pytest 8.3.5": {
-      "display_name": "Python 3.13, Pytest 8.3.5",
+    "Python 3.14, assert": {
+      "display_name": "Python 3.14, assert",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:07cc074",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:5ed6240",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\n# Print a short summary of each test to stdout.\n# Can produde a lot of output on parameterized tests.\nexport PYTEST_ADDOPTS=\"-v\"\n\n# --------------------------------------------------------------\n# By default pytest captures stdout/stderr.\n# The --capture=tee-sys option ensures sys.stdout and\n# sys.stderr are actually written to.\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --capture=tee-sys \\\n  --random-order-bucket=global \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache\n  cyber_dojo_delete_dirs .mypy_cache\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\necho MyPy\nmypy *.py | tee ${REPORT_DIR}/mypy.txt || true\n\necho\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n    *test*.py\n\n# https://coverage.readthedocs.io\necho\ncoverage3 report \\\n  --show-missing \\\n  | tee ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\necho\npycodestyle ${CYBER_DOJO_SANDBOX} \\\n  --show-source `# show source code for each error` \\\n  --show-pep8   `# show relevant text from pep8` \\\n  --ignore E302,E305,W293 \\\n  --max-line-length=80 \\\n  > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
         },
         "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey show examples of writing and testing\n  o) a global function\n  o) an instance method\nPick the style most suitable to your exercise.\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer() -> int:\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self: Hiker) -> int:\n        return global_answer()\n"
+        },
+        "test_hiker.py": {
+          "content": "from hiker import global_answer, Hiker\n\ndef test_global_function():\n    assert global_answer() == 42\n\ndef test_instance_method():\n    assert Hiker().instance_answer() == 42\n\ndef green_traffic_light_pattern():\n    # The regex pattern for a green traffic-light. Do not remove!\n    return 'All tests passed'\n\n\nif __name__ == '__main__':\n    test_global_function()\n    test_instance_method()\n    print(green_traffic_light_pattern())\n"
+        }
+      }
+    },
+    "Python 3.14, behave 1.3.3": {
+      "display_name": "Python 3.14, behave 1.3.3",
+      "filename_extension": [
+        ".py",
+        ".feature"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:c07ae74",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache\n  cyber_dojo_delete_dirs .mypy_cache\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\necho MyPy\nmypy *.py | tee ${REPORT_DIR}/mypy.txt || true\n\necho\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module behave --no-color\n\n# https://coverage.readthedocs.io\necho\ncoverage3 report \\\n  --show-missing \\\n  | tee ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\necho\npycodestyle ${CYBER_DOJO_SANDBOX} \\\n  --show-source `# show source code for each error` \\\n  --show-pep8   `# show relevant text from pep8` \\\n  --ignore E302,E305,W293 \\\n  --max-line-length=80 \\\n  > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.feature": {
+          "content": "\nFeature: hitch-hiker playing scrabble\n\nScenario: earthling playing scrabble in the past\nGiven the hitch-hiker selects some tiles\nWhen they spell 6 times 9\nThen the score is 42\n"
+        },
+        "hiker.py": {
+          "content": "class Hiker:\n\n    def answer(self: Hiker, first: int, second: int) -> int:\n        return first * second\n"
+        },
+        "steps/hiker_steps.py": {
+          "content": "from behave import *\nfrom hiker import Hiker\n\n\n@given(u'the hitch-hiker selects some tiles')\ndef step_impl(context):\n    pass\n\n\n@when(u'they spell {tile1:d} times {tile2:d}')\ndef step_impl(context, tile1, tile2):\n    douglas = Hiker()\n    context.tileproduct = douglas.answer(tile1, tile2)\n\n\n@then(u'the score is {answer:d}')\ndef step_impl(context, answer):\n    assert context.tileproduct is answer\n"
+        }
+      }
+    },
+    "Python 3.14, pytest 9.0.1": {
+      "display_name": "Python 3.14, pytest 9.0.1",
+      "filename_extension": [
+        ".py"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:b2d30d3",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache\n  cyber_dojo_delete_dirs .mypy_cache\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\n# Print a short summary of each test to stdout.\n# Can produce a lot of output on parameterized tests.\nexport PYTEST_ADDOPTS=\"-v\"\n\necho MyPy\nmypy *.py | tee ${REPORT_DIR}/mypy.txt || true\n\n# --------------------------------------------------------------\n# By default pytest captures stdout/stderr.\n# The --capture=tee-sys option ensures sys.stdout and\n# sys.stderr are actually written to.\n\necho\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --capture=tee-sys \\\n  --random-order-bucket=global \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/latest\necho\ncoverage3 report \\\n  --show-missing \\\n  | tee ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\necho\npycodestyle ${CYBER_DOJO_SANDBOX} \\\n  --show-source `# show source code for each error` \\\n  --show-pep8   `# show relevant text from pep8` \\\n  --ignore E302,E305,W293 \\\n  --max-line-length=80 \\\n  > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.py": {
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey show examples of writing and testing\n  o) a global function\n  o) an instance method\nPick the style most suitable to your exercise.\n'''\n\ndef global_answer() -> int:\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self: Hiker) -> int:\n        return global_answer()\n"
         },
         "test_hiker.py": {
           "content": "from hiker import global_answer, Hiker\n\ndef test_global_function():\n    assert global_answer() == 42\n\ndef test_instance_method():\n    assert Hiker().instance_answer() == 42\n"
         }
       }
     },
-    "Python 3.13, approval-unittest 14.5": {
-      "display_name": "Python 3.13, approval-unittest 14.5",
+    "Python 3.14, pytest-approval 15.3.2": {
+      "display_name": "Python 3.14, pytest-approval 15.3.2",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:5635d1f",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:d27a821",
+      "max_seconds": 10,
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache\n  cyber_dojo_delete_dirs .mypy_cache\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\necho MyPy\nmypy *.py | tee ${REPORT_DIR}/mypy.txt || true\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n  --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io\necho\ncoverage3 report \\\n  --show-missing \\\n  | tee ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\necho\npycodestyle ${CYBER_DOJO_SANDBOX} \\\n  --show-source `# show source code for each error` \\\n  --show-pep8   `# show relevant text from pep8` \\\n  --ignore E302,E305,W293 \\\n  --max-line-length=80 \\\n  > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.py": {
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer() -> int:\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self: Hiker) -> int:\n        return global_answer()\n"
+        },
+        "test_hiker.py": {
+          "content": "from hiker import global_answer, Hiker\n\nfrom approvaltests import verify, Options\nfrom approvaltests.inline.inline_options import InlineOptions\n\noptions = Options().inline(InlineOptions.semi_automatic())\n\n\ndef test_global():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(global_answer())\n    verify(result, options=options)\n\n\ndef test_instance():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(Hiker().instance_answer())\n    verify(result, options=options)\n"
+        }
+      }
+    },
+    "Python 3.14, unittest": {
+      "display_name": "Python 3.14, unittest",
+      "filename_extension": [
+        ".py"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:381692b",
+      "progress_regexs": [
+        "FAILED \\(failures=\\d+\\)",
+        "OK"
+      ],
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache\n  cyber_dojo_delete_dirs .mypy_cache\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\necho MyPy\nmypy *.py | tee ${REPORT_DIR}/mypy.txt || true\n\necho\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module unittest \\\n  *test*.py\n\n# https://coverage.readthedocs.io\necho\ncoverage3 report \\\n  --show-missing \\\n  | tee ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\necho\npycodestyle ${CYBER_DOJO_SANDBOX} \\\n  --show-source `# show source code for each error` \\\n  --show-pep8   `# show relevant text from pep8` \\\n  --ignore E302,E305,W293 \\\n  --max-line-length=80 \\\n  > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+        },
+        "hiker.py": {
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer() -> int:\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self: Hiker) -> int:\n        return global_answer()\n"
+        },
+        "test_hiker.py": {
+          "content": "from hiker import global_answer, Hiker\nimport unittest\n\n\nclass TestHiker(unittest.TestCase):\n\n    def test_global_function(self):\n        self.assertEqual(42, global_answer())\n\n    def test_instance_method(self):\n        self.assertEqual(42, Hiker().instance_answer())\n\n\nif __name__ == '__main__':\n    unittest.main()  # pragma: no cover\n"
+        }
+      }
+    },
+    "Python 3.14, unittest-approval 15.3.2": {
+      "display_name": "Python 3.14, unittest-approval 15.3.2",
+      "filename_extension": [
+        ".py",
+        ".approved.txt",
+        ".received.txt"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:63d49ef",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1739,102 +1828,13 @@
           "content": "42\n"
         },
         "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module unittest \\\n  *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache\n  cyber_dojo_delete_dirs .mypy_cache\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\necho MyPy\nmypy *.py | tee ${REPORT_DIR}/mypy.txt || true\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\necho\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module unittest \\\n  *test*.py\n\n# https://coverage.readthedocs.io\necho\ncoverage3 report \\\n  --show-missing \\\n  | tee ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\necho\npycodestyle ${CYBER_DOJO_SANDBOX} \\\n  --show-source `# show source code for each error` \\\n  --show-pep8   `# show relevant text from pep8` \\\n  --ignore E302,E305,W293 \\\n  --max-line-length=80 \\\n  > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
         },
         "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
+          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer() -> int:\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self: Hiker) -> int:\n        return global_answer()\n"
         },
         "test_hiker.py": {
           "content": "from hiker import global_answer, Hiker\nimport unittest\nfrom approvaltests.approvals import verify\nfrom approvaltests.reporters.report_on_cyber_dojo import ReportOnCyberDojo\nfrom approvaltests import set_default_reporter\n\n\nclass HikerTest(unittest.TestCase):\n    def setUp(self):\n        set_default_reporter(ReportOnCyberDojo())\n\n    # if you want to change the expected result, \n    # move HikerTest.test_global.recieved.txt\n    # to   HikerTest.test_global.approved.txt\n    # to view the differences, \n    # open HikerTest.test_global.diff\n\n    def test_global(self):\n        result = str(global_answer())\n        verify(result)\n\n    def test_instance(self):\n        result = str(Hiker().instance_answer())\n        verify(result)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
-        }
-      }
-    },
-    "Python 3.13, assert": {
-      "display_name": "Python 3.13, assert",
-      "filename_extension": [
-        ".py"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:c04ec49",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n    *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
-        },
-        "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\n\ndef test_global_function():\n    assert global_answer() == 42\n\ndef test_instance_method():\n    assert Hiker().instance_answer() == 42\n\ndef green_traffic_light_pattern():\n    return 'All tests passed'\n\n\nif __name__ == '__main__':\n    test_global_function()\n    test_instance_method()\n    print(green_traffic_light_pattern())\n"
-        }
-      }
-    },
-    "Python 3.13, behave 1.2.6": {
-      "display_name": "Python 3.13, behave 1.2.6",
-      "filename_extension": [
-        ".py",
-        ".feature"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:2fd3cfa",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module behave --no-color\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.feature": {
-          "content": "\nFeature: hitch-hiker playing scrabble\n\nScenario: earthling playing scrabble in the past\nGiven the hitch-hiker selects some tiles\nWhen they spell 6 times 9\nThen the score is 42\n"
-        },
-        "hiker.py": {
-          "content": "class Hiker:\n\n    def answer(self, first, second):\n        return first * second\n"
-        },
-        "steps/hiker_steps.py": {
-          "content": "from behave import *\nfrom hiker import Hiker\n\n\n@given(u'the hitch-hiker selects some tiles')\ndef step_impl(context):\n    pass\n\n\n@when(u'they spell {tile1:d} times {tile2:d}')\ndef step_impl(context, tile1, tile2):\n    douglas = Hiker()\n    context.tileproduct = douglas.answer(tile1, tile2)\n\n\n@then(u'the score is {answer:d}')\ndef step_impl(context, answer):\n    assert context.tileproduct is answer\n"
-        }
-      }
-    },
-    "Python 3.13, pytest-approvaltests 0.2.4-14.5": {
-      "display_name": "Python 3.13, pytest-approvaltests 0.2.4-14.5",
-      "filename_extension": [
-        ".py",
-        ".approved.txt",
-        ".received.txt"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:692b778",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\n# https://github.com/approvals/ApprovalTests.Python\n# https://approvaltests.com/\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module pytest \\\n  --random-order-bucket=global \\\n    --approvaltests-use-reporter='PythonNative'\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
-        },
-        "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\n\nfrom approvaltests import verify, Options\nfrom approvaltests.inline.inline_options import InlineOptions\n\noptions = Options().inline(InlineOptions.semi_automatic())\n\n\ndef test_global():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(global_answer())\n    verify(result, options=options)\n\n\ndef test_instance():\n    \"\"\"\n    42\n    \"\"\"\n    result = str(Hiker().instance_answer())\n    verify(result, options=options)\n"
-        }
-      }
-    },
-    "Python 3.13, unittest": {
-      "display_name": "Python 3.13, unittest",
-      "filename_extension": [
-        ".py"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:011321c",
-      "progress_regexs": [
-        "FAILED \\(failures=\\d+\\)",
-        "OK"
-      ],
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nexport REPORT_DIR=${CYBER_DOJO_SANDBOX}/report\nfunction cyber_dojo_enter()\n{\n  # 1. Only return _newly_ generated reports.\n  cyber_dojo_reset_dirs ${REPORT_DIR}\n}\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .pytest_cache # ...\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\ncoverage3 run \\\n  --source=${CYBER_DOJO_SANDBOX} \\\n  --module unittest \\\n  *test*.py\n\n# https://coverage.readthedocs.io/en/v4.5.x/index.html\n\ncoverage3 report \\\n  --show-missing \\\n    > ${REPORT_DIR}/coverage.txt\n\n# http://pycodestyle.pycqa.org/en/latest/intro.html#configuration\n\npycodestyle \\\n  ${CYBER_DOJO_SANDBOX} \\\n    --show-source `# show source code for each error` \\\n    --show-pep8   `# show relevent text from pep8` \\\n    --ignore E302,E305,W293 \\\n    --max-line-length=80 \\\n      > ${REPORT_DIR}/style.txt\n\n# E302 expected 2 blank lines, found 0\n# E305 expected 2 blank lines after end of function or class\n# W293 blank line contains whitespace\n"
-        },
-        "hiker.py": {
-          "content": "'''The starting files are unrelated to the exercise.\n\nThey simply show syntax for writing and testing\n  o) a global function\n  o) an instance method\nPick the style that best fits the exercise.\nThen delete the other one, along with this comment!\n'''\n\ndef global_answer():\n    return 6 * 9\n\nclass Hiker:\n\n    def instance_answer(self):\n        return global_answer()\n"
-        },
-        "test_hiker.py": {
-          "content": "from hiker import global_answer, Hiker\nimport unittest\n\n\nclass TestHiker(unittest.TestCase):\n\n    def test_global_function(self):\n        self.assertEqual(42, global_answer())\n\n    def test_instance_method(self):\n        self.assertEqual(42, Hiker().instance_answer())\n\n\nif __name__ == '__main__':\n    unittest.main()  # pragma: no cover\n"
         }
       }
     },
