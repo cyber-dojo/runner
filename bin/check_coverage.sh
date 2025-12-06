@@ -2,8 +2,9 @@
 set -Eeu
 
 export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
 source "${ROOT_DIR}/bin/lib.sh"
+# shellcheck disable=SC2046
+export $(echo_env_vars)
 
 show_help()
 {
@@ -41,8 +42,6 @@ check_args()
 check_coverage()
 {
   check_args "$@"
-  # shellcheck disable=SC2046
-  export $(echo_env_vars)
 
   local -r TYPE="${1}"           # {server|client}
   local -r TEST_LOG=test.log
