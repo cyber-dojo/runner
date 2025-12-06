@@ -68,8 +68,8 @@ run_tests_in_container()
 
   set +e
   docker exec \
-    --env COVERAGE_CODE_TAB_NAME=code \
-    --env COVERAGE_TEST_TAB_NAME=test \
+    --env COVERAGE_CODE_TAB_NAME \
+    --env COVERAGE_TEST_TAB_NAME \
     --user "${USER}" \
     "${CONTAINER_NAME}" \
       sh -c "/runner/test/lib/run.sh ${CONTAINER_COVERAGE_DIR} ${TEST_LOG} ${TYPE} ${*:2}"

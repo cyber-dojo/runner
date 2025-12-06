@@ -59,8 +59,8 @@ check_coverage()
     --rm \
     --entrypoint="" \
     --env COVERAGE_ROOT="${CONTAINER_TMP_DIR}" \
-    --env COVERAGE_CODE_TAB_NAME=code \
-    --env COVERAGE_TEST_TAB_NAME=test \
+    --env COVERAGE_CODE_TAB_NAME \
+    --env COVERAGE_TEST_TAB_NAME \
     --volume ${HOST_REPORTS_DIR}/test_metrics.json:${CONTAINER_TMP_DIR}/test_metrics.json:ro \
     --volume ${HOST_REPORTS_DIR}/coverage_metrics.json:${CONTAINER_TMP_DIR}/coverage_metrics.json:ro \
     --volume ${HOST_TEST_DIR}/check_test_metrics.rb:${CONTAINER_TMP_DIR}/check_test_metrics.rb:ro \
