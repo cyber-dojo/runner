@@ -6,7 +6,7 @@ module Utf8
     # to utf-8 is a no-op and invalid byte sequences
     # are not detected.
     str = str.encode('UTF-16', 'UTF-8', invalid: :replace, replace: '')
-    str = str.encode('UTF-8', 'UTF-16')
+    str.encode('UTF-8', 'UTF-16')
   end
 end
 
