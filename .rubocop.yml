@@ -1,37 +1,16 @@
 AllCops:
-    NewCops: enable
-
-Lint/EmptyBlock:
+  NewCops: enable
   Exclude:
-    - test/dual/run_red_amber_green_test.rb
-    - test/server/run_clang_ptrace_test.rb
+    - test/**/*
 
 Layout/EmptyLineAfterMagicComment:
   Exclude:
     - source/server/**/*
     - source/client/**/*
-    - test/**/*
 
 Layout/LineLength:
   Exclude:
     - source/client/demo.rb
-    - test/lib/simplecov_formatter_json.rb
-
-Layout/SpaceInsideArrayLiteralBrackets:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-Layout/SpaceInsideReferenceBrackets:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-Layout/ExtraSpacing:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-Lint/PercentStringArray:
-  Exclude:
-    - test/**/*
 
 Lint/RescueException:
   Exclude:
@@ -39,36 +18,20 @@ Lint/RescueException:
     - source/*/rack_dispatcher.rb
     - source/server/traffic_light.rb
 
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - test/server/run_timed_out_test.rb
-
-# I often give an inline expression a name for readability
-Lint/UselessAssignment:
-  Exclude:
-    - source/**/*
-    - test/**/*
-
 Lint/UselessMethodDefinition:
   Exclude:
     - source/server/empty_binding.rb
 
 Metrics/AbcSize:
   Exclude:
-    - test/**/*
     - source/server/runner.rb
     - source/*/dispatcher.rb
     - source/server/context.rb
     - source/server/capture3_with_timeout.rb
     - source/client/demo.rb
 
-Metrics/BlockLength:
-  Exclude:
-    - test/**/*
-
 Metrics/ClassLength:
   Exclude:
-    - test/**/*
     - source/server/runner.rb
     - source/client/demo.rb
 
@@ -76,11 +39,9 @@ Metrics/CyclomaticComplexity:
   Exclude:
     - source/*/dispatcher.rb
     - source/server/context.rb
-    - test/id58_test_base.rb
 
 Metrics/MethodLength:
   Exclude:
-    - test/**/*
     - source/server/traffic_light.rb
     - source/server/tagged_image_name.rb
     - source/server/runner.rb
@@ -100,66 +61,15 @@ Metrics/PerceivedComplexity:
   Exclude:
     - source/server/context.rb
 
-Naming/VariableNumber:
-  Exclude:
-    - test/**/*
-
-Security/Eval:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-Style/ClassAndModuleChildren:
-  Exclude:
-    - test/slim_json_reporter.rb
-
-Style/ClassVars:
-  Exclude:
-    - test/test_base.rb
-    - test/id58_test_base.rb
-    - test/doubles/traffic_light_stub.rb
-
 Style/Documentation:
   Exclude:
     - source/*/**/*
-    - test/**/*
-
-Style/DocumentDynamicEvalDefinition:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-Style/EvalWithLocation:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-Style/FormatStringToken:
-  Exclude:
-    - test/id58_test_base.rb
-    - test/*/check_test_metrics.rb
-
-Style/FormatString:
-  Exclude:
-    - test/*/check_test_metrics.rb
 
 Style/FrozenStringLiteralComment:
   Exclude:
     - source/server/gnu_zip.rb
     - source/server/tarfile_writer.rb
-    - test/test_base.rb
-
-Style/MissingRespondToMissing:
-  Exclude:
-    - test/doubles/process_spawner_stub.rb
 
 Style/RedundantInitialize:
   Exclude:
     - source/server/prober.rb
-
-Style/StringConcatenation:
-  Exclude:
-    - test/doubles/bash_sheller_stub.rb
-
-Style/TrailingCommaInArrayLiteral:
-  Exclude:
-    - test/*/check_test_metrics.rb
-
-
