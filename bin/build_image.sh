@@ -85,9 +85,10 @@ build_image()
     # Create latest tag for image build cache
     docker tag "${image_name}" "${CYBER_DOJO_RUNNER_IMAGE}:latest"
     # Tag image-name for local development where runners name comes from echo-env-vars
-    docker tag "${image_name}" "cyberdojo/runner:latest"
-    echo "echo CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
-    echo "echo CYBER_DOJO_RUNNER_TAG=${CYBER_DOJO_RUNNER_TAG}"
+    docker tag "${image_name}" cyberdojo/runner:latest
+    docker tag "${image_name}" "cyberdojo/runner:${CYBER_DOJO_RUNNER_TAG}"
+    echo "  echo CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
+    echo "  echo CYBER_DOJO_RUNNER_TAG=${CYBER_DOJO_RUNNER_TAG}"
     echo "${image_name}"
   fi
 }
