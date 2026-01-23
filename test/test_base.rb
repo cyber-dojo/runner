@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative 'data/display_names'
 require_relative 'doubles/all'
 require_relative 'id58_test_base'
@@ -272,8 +273,8 @@ class TestBase < Id58TestBase
     begin
       old_stdout = $stdout
       old_stderr = $stderr
-      $stdout = StringIO.new('', 'w')
-      $stderr = StringIO.new('', 'w')
+      $stdout = StringIO.new(+'', +'w')
+      $stderr = StringIO.new(+'', +'w')
       yield
       stdout = $stdout.string
       stderr = $stderr.string
