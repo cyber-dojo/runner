@@ -2,10 +2,6 @@
 require_relative '../test_base'
 
 class BashShellerStubTest < TestBase
-  def self.id58_prefix
-    'F03'
-  end
-
   def id58_setup
     @sheller = BashShellerStub.new
   end
@@ -14,27 +10,26 @@ class BashShellerStubTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
-  test '4A5',
-       %w(
-         teardown does not raise
-         when no capture()s are stubbed
-         and no capture()s are made
-       ) do
+  test 'F034A5', %w(
+  | teardown does not raise
+  | when no capture()s are stubbed
+  | and no capture()s are made
+  ) do
     sheller.teardown
   end
 
   # - - - - - - - - - - - - - - -
 
-  test '652', %w(
-    capture() raises when capture() is not stubbed
+  test 'F03652', %w(
+  | capture() raises when capture() is not stubbed
   ) do
     assert_raises { sheller.capture(pwd) }
   end
 
   # - - - - - - - - - - - - - - -
 
-  test '181', %w(
-    capture() raises when capture() is stubbed but for a different command
+  test 'F03181', %w(
+  | capture() raises when capture() is stubbed but for a different command
   ) do
     sheller.capture(pwd) { [wd, stderr = '', success] }
     assert_raises { sheller.capture(not_pwd = "cd #{wd}") }
@@ -42,12 +37,11 @@ class BashShellerStubTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
-  test 'B4E',
-       %w(
-         teardown does not raise
-         when one capture() is stubbed
-         and a matching capture() is made
-       ) do
+  test 'F03B4E', %w(
+  | teardown does not raise
+  | when one capture() is stubbed
+  | and a matching capture() is made
+  ) do
     sheller.capture(pwd) { [wd, stderr = '', success] }
     stdout, stderr, status = sheller.capture('pwd')
     assert_equal wd, stdout
@@ -58,21 +52,20 @@ class BashShellerStubTest < TestBase
 
   # - - - - - - - - - - - - - - -
 
-  test 'D0C',
-       %w(
-         teardown raises
-         when a capture() is stubbed
-         and no capture() is made
-       ) do
+  test 'F03D0C', %w(
+  | teardown raises
+  | when a capture() is stubbed
+  | and no capture() is made
+  ) do
     sheller.capture(pwd) { [wd, stderr = '', success] }
     assert_raises { sheller.teardown }
   end
 
   # - - - - - - - - - - - - - - -
 
-  test '470', %w[
-    teardown does not raise
-    when there is an uncaught exception
+  test 'F03470', %w[
+  | teardown does not raise
+  | when there is an uncaught exception
   ] do
     sheller.capture(pwd) { [wd, stderr = '', success] }
     error = assert_raises do

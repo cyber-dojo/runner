@@ -2,14 +2,10 @@
 require_relative '../test_base'
 
 class FileTruncationTest < TestBase
-  def self.id58_prefix
-    'E4A'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  multi_os_test '52A',
-                %w[generated text files bigger than 50K are truncated] do
+  multi_os_test 'E4A52A', %w(
+  | generated text files bigger than 50K are truncated
+  ) do
     set_context
     filename = 'large_file.txt'
     script = "od -An -x /dev/urandom | head -c#{51 * 1024} > #{filename}"
@@ -27,8 +23,9 @@ class FileTruncationTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '52B',
-       %w[stdout and stderr are truncated to 50K] do
+  test 'E4A52B', %w(
+  | stdout and stderr are truncated to 50K
+  ) do
     set_context
     script = [
       "od -An -x /dev/urandom | head -c#{51 * 1024} > /tmp/stdout",

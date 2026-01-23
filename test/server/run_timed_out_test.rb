@@ -3,17 +3,12 @@ require_relative '../test_base'
 require_code 'capture3_with_timeout'
 
 class RunTimedOutTest < TestBase
-  def self.id58_prefix
-    'c7A'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'g55', %w[
-    timeout in wait_thread.value
-    results in timed_out status
-    and any captured stdout/stderr are not part of run_cyber_dojo_sh result
-  ] do
+  test 'c7Ag55', %w(
+  | timeout in wait_thread.value
+  | results in timed_out status
+  | and any captured stdout/stderr are not part of run_cyber_dojo_sh result
+  ) do
     stdout_tgz = 'would-be-proper-tgz-data'
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -74,12 +69,12 @@ class RunTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'g56', %(
-  in capture3_with_timeout()
-  when process.spawn() fails to respond within the timeout period
-  thats also a timeout
-  and no process.detch() call is made
-  and no process.kill() call is made
+  test 'c7Ag56', %(
+  | in capture3_with_timeout()
+  | when process.spawn() fails to respond within the timeout period
+  | thats also a timeout
+  | and no process.detch() call is made
+  | and no process.kill() call is made
   ) do
     stdout_tgz = 'tweedle-dee'
     set_context(
@@ -103,11 +98,11 @@ class RunTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'g57', %w(
-    in capture3_with_timeout()
-    when process.kill(:TERM,-pid) completes
-    then wait_thread.join() returns non nil
-    and the process.kill(:KILL, -pid) call is not made
+  test 'c7Ag57', %w(
+  | in capture3_with_timeout()
+  | when process.kill(:TERM,-pid) completes
+  | then wait_thread.join() returns non nil
+  | and the process.kill(:KILL, -pid) call is not made
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -140,9 +135,9 @@ class RunTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'g58', %w(
-    in capture3_with_timeout()
-    when there is no timeout
+  test 'c7Ag58', %w(
+  | in capture3_with_timeout()
+  | when there is no timeout
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,

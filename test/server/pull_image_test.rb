@@ -2,19 +2,14 @@
 require_relative '../test_base'
 
 class PullImageTest < TestBase
-  def self.id58_prefix
-    '9j5'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 't9K', %w(
-    given gcc_assert HAS already been pulled,
-    when I call pull_image(id,gcc_assert),
-    then a new thread is not started
-    no shell command is run,
-    nothing is logged,
-    and the result is :pulled
+  test '9j5t9K', %w(
+  | given gcc_assert HAS already been pulled,
+  | when I call pull_image(id,gcc_assert),
+  | then a new thread is not started
+  | no shell command is run,
+  | nothing is logged,
+  | and the result is :pulled
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -32,12 +27,12 @@ class PullImageTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 't9M', %w(
-    given gcc_assert has NOT already been pulled,
-    when I call pull_image(id, gcc_assert),
-    then the docker-pull runs in a new thread
-    and a message is logged
-    and the result is :pulling
+  test '9j5t9M', %w(
+  | given gcc_assert has NOT already been pulled,
+  | when I call pull_image(id, gcc_assert),
+  | then the docker-pull runs in a new thread
+  | and a message is logged
+  | and the result is :pulling
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -64,13 +59,13 @@ class PullImageTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 't9N', %w(
-    given gcc_assert has NOT already been pulled,
-    when I call pull_image(id, gcc_assert),
-    then the docker-pull runs in a new thread
-    and if the docker-pull fails a message is logged
-    and gcc_assert is not pulled
-    and the result is :pulling
+  test '9j5t9N', %w(
+  | given gcc_assert has NOT already been pulled,
+  | when I call pull_image(id, gcc_assert),
+  | then the docker-pull runs in a new thread
+  | and if the docker-pull fails a message is logged
+  | and gcc_assert is not pulled
+  | and the result is :pulling
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -99,13 +94,13 @@ class PullImageTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 't9P', %w(
-    given gcc_assert has NOT already been pulled,
-    but is currently being pulled,
-    when I call pull_image(id, gcc_assert),
-    then the docker-pull does NOT run
-    nothing is logged
-    and the result is :pulling
+  test '9j5t9P', %w(
+  | given gcc_assert has NOT already been pulled,
+  | but is currently being pulled,
+  | when I call pull_image(id, gcc_assert),
+  | then the docker-pull does NOT run
+  | nothing is logged
+  | and the result is :pulling
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,

@@ -5,17 +5,12 @@ require_code 'http_proxy/runner'
 require 'stringio'
 
 class BadProxyCallTest < TestBase
-  def self.id58_prefix
-    '14D'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test '2F5', %w[
-    call to existing runner method
-    with bad argument type
-    becomes Runner::Error
-  ] do
+  test '14D2F5', %w(
+  | call to existing runner method
+  | with bad argument type
+  | becomes Runner::Error
+  ) do
     set_context
     error = assert_raises(::HttpProxy::Runner::Error) do
       run_cyber_dojo_sh(max_seconds: 'xxx')
@@ -27,11 +22,11 @@ class BadProxyCallTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '2F6', %w[
-    call to existing languages_start_points method
-    with bad argument type
-    becomes LanguagesStartPoints::Error
-  ] do
+  test '14D2F6', %w(
+  | call to existing languages_start_points method
+  | with bad argument type
+  | becomes LanguagesStartPoints::Error
+  ) do
     set_context
     lsp = ::HttpProxy::LanguagesStartPoints.new
     error = assert_raises(::HttpProxy::LanguagesStartPoints::Error) do

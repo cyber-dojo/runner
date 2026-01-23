@@ -2,14 +2,10 @@
 require_relative '../test_base'
 
 class ClangSanitizeAddressTest < TestBase
-  def self.id58_prefix
-    'D28'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  clang_assert_test '0BB',
-                    %w[clang sanitize address => no ulimit on data] do
+  clang_assert_test 'D280BB', %w(
+  | clang sanitize address => no ulimit on data
+  ) do
     set_context
 
     run_cyber_dojo_sh(

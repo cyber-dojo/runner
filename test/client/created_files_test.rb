@@ -2,14 +2,10 @@
 require_relative '../test_base'
 
 class CreatedFilesTest < TestBase
-  def self.id58_prefix
-    '2D1'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test '160',
-       %w[no file changes] do
+  test '2D1160', %w(
+  | no file changes
+  ) do
     set_context
     run_cyber_dojo_sh
     assert_equal({}, created, :created)
@@ -18,9 +14,10 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test '161',
-                %w[ created binary files are not returned
-                    but created text files are ] do
+  c_assert_test '2D1161', %w(
+  | created binary files are not returned
+  | but created text files are
+  ) do
     set_context
     assert_cyber_dojo_sh([
       'make',
@@ -34,8 +31,9 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '521',
-       %w[return at most 16 created text files] do
+  test '2D1521', %w(
+  | return at most 16 created text files
+  ) do
     set_context
     assert_cyber_dojo_sh([
       'for n in {1..32}; do echo -n Ciao > "file.${n}"; done'
@@ -46,12 +44,11 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '522',
-       %w[
-         created text file with embedded special characters
-         such as ampersand
-         are handled without problems
-       ] do
+  test '2D1522', %w(
+  | created text file with embedded special characters
+  | such as ampersand
+  | are handled without problems
+  ) do
     set_context
     assert_cyber_dojo_sh([
       'echo -n Bonjour > "ampers&and.txt"'
@@ -62,11 +59,10 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '523',
-       %w[
-         created text file called stdout
-         is kept separate to actual stdout
-       ] do
+  test '2D1523', %w(
+  | created text file called stdout
+  | is kept separate to actual stdout
+  ) do
     set_context
     assert_cyber_dojo_sh([
       'echo -n "Hello" > stdout'
@@ -77,11 +73,11 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '524', %w[
-    created text files are returned when
-    their names have leading hyphens which must not
-    be read as a tar option
-  ] do
+  test '2D1524', %w(
+  | created text files are returned when
+  | their names have leading hyphens which must not
+  | be read as a tar option
+  ) do
     set_context
     leading_hyphen = '-JPlOLNY7yt_fFndapHwIg'
     script = "printf 'xxx' > '#{leading_hyphen}';"
@@ -92,9 +88,9 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '526', %w[
-    created text files, including dot files, are returned
-  ] do
+  test '2D1526', %w(
+  | created text files, including dot files, are returned
+  ) do
     set_context
     assert_cyber_dojo_sh([
       'printf "xxx" > newfile.txt',
@@ -109,9 +105,9 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '533', %w[
-    single-char new text files are returned
-  ] do
+  test '2D1533', %w(
+  | single-char new text files are returned
+  ) do
     set_context
     # The file utility says single-char files are binary files!
     filename = 'one-char.txt'
@@ -124,9 +120,9 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '62C', %w[
-    no text files under /sandbox at all, returns everything empty
-  ] do
+  test '2D162C', %w(
+  | no text files under /sandbox at all, returns everything empty
+  ) do
     set_context
     assert_cyber_dojo_sh('rm -rf /sandbox/* /sandbox/.*')
     assert_equal({}, created, :created)
@@ -135,8 +131,9 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '12A',
-       %w[created text files in /sandbox sub-dirs are returned] do
+  test '2D112A', %w(
+  | created text files in /sandbox sub-dirs are returned
+  ) do
     set_context
     # The tar-pipe handles creating dir structure
     assert_browser_can_create_files_in_sandbox_sub_dir('s1')
@@ -145,8 +142,9 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  test '12B',
-       %w[created text files in /sandbox sub-dirs are returned] do
+  test '2D112B', %w(
+  | created text files in /sandbox sub-dirs are returned
+  ) do
     set_context
     assert_cyber_dojo_sh_can_create_files_in_sandbox_sub_dir('d1')
     assert_cyber_dojo_sh_can_create_files_in_sandbox_sub_dir('d1/d2/d3')

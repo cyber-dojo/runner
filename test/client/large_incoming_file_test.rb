@@ -2,14 +2,10 @@
 require_relative '../test_base'
 
 class LargeIncomingFileTest < TestBase
-  def self.id58_prefix
-    '46D'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test '3DB',
-       'large incoming file' do
+  test '46D3DB', %w(
+  | large incoming file
+  ) do
     # Notes
     # 1. docker-compose.yml need a tmpfs for this to pass
     #      tmpfs: /tmp

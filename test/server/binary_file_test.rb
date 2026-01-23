@@ -3,16 +3,10 @@
 #
 # class BinaryFileTest < TestBase
 #
-#   def self.id58_prefix
-#     'd93'
-#   end
-#
-#   # - - - - - - - - - - - - - - - - -
-#
-#   test '52A', %w(
-#   when an incoming file has rogue characters
-#   it is seen as a binary file
-#   and is not harvested from the container
+#   test 'd9352A', %w(
+#   | when an incoming file has rogue characters
+#   | it is seen as a binary file
+#   | and is not harvested from the container
 #   ) do
 #     stdout,stderr = captured_stdout_stderr {
 #       set_context

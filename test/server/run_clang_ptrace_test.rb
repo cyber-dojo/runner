@@ -2,13 +2,8 @@
 require_relative '../test_base'
 
 class RunClangPtraceTest < TestBase
-  def self.id58_prefix
-    's8E'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  clang_assert_test 'k8W', %w[
+  clang_assert_test 's8Ek8W', %w[
     clang image requires docker run command with ptrace capability
   ] do
     stdout_tgz = TGZ.of({ 'stderr' => 'any' })

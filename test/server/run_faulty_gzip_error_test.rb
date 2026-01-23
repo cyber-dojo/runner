@@ -2,13 +2,8 @@
 require_relative '../test_base'
 
 class RunFaultyStatusNonZeroTest < TestBase
-  def self.id58_prefix
-    'c7D'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 'd54', %w[outcome is faulty when gzip error] do
+  test 'c7Dd54', %w[outcome is faulty when gzip error] do
     stub_gzip_error
 
     run_cyber_dojo_sh

@@ -2,16 +2,11 @@
 require_relative '../test_base'
 
 class RunPullingTest < TestBase
-  def self.id58_prefix
-    'C5a'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test '25e', %w(
-    when I call run_cyber_dojo_sh(),
-    with an image_name that has not yet been pulled onto the node,
-    then the docker pull runs in a new thread and the result is :pulling
+  test 'C5a25e', %w(
+  | when I call run_cyber_dojo_sh(),
+  | with an image_name that has not yet been pulled onto the node,
+  | then the docker pull runs in a new thread and the result is :pulling
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,

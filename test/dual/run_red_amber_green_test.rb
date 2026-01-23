@@ -4,13 +4,8 @@ require_server_code 'tgz'
 
 module Dual
   class RunRedAmberGreenTest < TestBase
-    def self.id58_prefix
-      'c7B'
-    end
 
-    # - - - - - - - - - - - - - - - - -
-
-    c_assert_test 'd56', %w[red] do
+    c_assert_test 'c7Bd56', %w[red] do
       stub(:red)
       run_cyber_dojo_sh
       assert red?, run_result
@@ -35,7 +30,7 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    c_assert_test 'd57', %w[amber] do
+    c_assert_test 'c7Bd57', %w[amber] do
       stub(:amber)
       run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 9s')
       assert amber?, run_result
@@ -60,7 +55,7 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    c_assert_test 'd58', %w[green] do
+    c_assert_test 'c7Bd58', %w[green] do
       stub(:green)
       run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 7')
       assert green?, run_result

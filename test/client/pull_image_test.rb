@@ -2,15 +2,10 @@
 require_relative '../test_base'
 
 class PullImageTest < TestBase
-  def self.id58_prefix
-    '4f5'
-  end
 
-  # - - - - - - - - - - - - - - - - -
-
-  test 'g5S', %w(
-    pull_image('busybox:glibc') returns 'pulling',
-    then a short while later it returns 'pulled'
+  test '4f5g5S', %w(
+  | pull_image('busybox:glibc') returns 'pulling',
+  | then a short while later it returns 'pulled'
   ) do
     set_context
     assert_equal 'pulling', pull_image

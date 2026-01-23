@@ -2,15 +2,10 @@
 require_relative '../test_base'
 
 class ContainerPropertiesTest < TestBase
-  def self.id58_prefix
-    '3A8'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  test 'D91', %w[
-    requires bash, won't run in sh
-  ] do
+  test '3A8D91', %w(
+  | requires bash, won't run in sh
+  ) do
     set_context
     any_image_without_bash = 'alpine:latest' # must have been pulled onto node before server started
     run_cyber_dojo_sh(image_name: any_image_without_bash)
@@ -25,7 +20,9 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D97', %w[multiple container properties] do
+  multi_os_test '3A8D97', %w(
+  | multiple container properties
+  ) do
     set_context
     cyber_dojo_sh = [
       "#{stat_cmd}                       > #{sandbox_dir}/files.stat", # [1]
@@ -88,7 +85,9 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D98', %w[container env-vars] do
+  multi_os_test '3A8D98', %w(
+  | container env-vars
+  ) do
     set_context
     cyber_dojo_sh = [
       "env | grep HOME                   > #{sandbox_dir}/env.var.home_dir",
@@ -109,7 +108,9 @@ class ContainerPropertiesTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'D99', %w[ulimit container properties] do
+  multi_os_test '3A8D99', %w(
+  | ulimit container properties
+  ) do
     set_context
     memory_dir = '/sys/fs/cgroup/memory'
     cyber_dojo_sh = [

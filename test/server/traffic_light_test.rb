@@ -4,9 +4,6 @@ require_relative '../data/python_pytest'
 require_code 'traffic_light'
 
 class TrafficLightTest < TestBase
-  def self.id58_prefix
-    '22E'
-  end
 
   def id58_setup
     set_context(
@@ -18,7 +15,7 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
   # red, amber, green
 
-  test 'CB0', %w[red traffic-light] do
+  test '22ECB0', %w[red traffic-light] do
     rag = 'lambda{|so,se,st| :red }'
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
 
@@ -29,7 +26,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB1', %w[amber traffic-light] do
+  test '22ECB1', %w[amber traffic-light] do
     rag = 'lambda{|so,se,st| :amber }'
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
 
@@ -40,7 +37,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB2', %w[green traffic-light] do
+  test '22ECB2', %w[green traffic-light] do
     rag = 'lambda{|so,se,st| :green }'
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
 
@@ -51,7 +48,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB3', %w[read rag-lambda message is logged once] do
+  test '22ECB3', %w[read rag-lambda message is logged once] do
     rag = 'lambda{|so,se,st| :green }'
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
 
@@ -64,7 +61,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'xJ5', %w[lambdas are cached] do
+  test '22ExJ5', %w[lambdas are cached] do
     rag = 'lambda{|so,se,st| :green }'
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
 
@@ -76,7 +73,7 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'xJ7', %w[lambda status argument is an integer in a string] do
+  test '22ExJ7', %w[lambda status argument is an integer in a string] do
     rag = 'lambda{|so,se,st| :red }'
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
 
@@ -87,8 +84,8 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'xJ8', %w(
-    rag-lambda can return a string or a symbol (Postel's Law)
+  test '22ExJ8', %w(
+  | rag-lambda can return a string or a symbol (Postel's Law)
   ) do
     rag = "lambda{|so,se,st| 'red' }"
     bash_stub_capture(docker_run_command) { [rag, '', 0] }
@@ -106,11 +103,11 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
   # faulty
 
-  test 'CB4', %w[
-    image_name with missing rag-lambda file,
-    always gives colour==faulty,
-    adds info to log
-  ] do
+  test '22ECB4', %w(
+  | image_name with missing rag-lambda file,
+  | always gives colour==faulty,
+  | adds info to log
+  ) do
     stderr = "cat: can't open '/usr/local/bin/red_amber_green.rb': No such file or directory"
     bash_stub_capture(docker_run_command) { ['', stderr, 1] }
 
@@ -123,11 +120,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB5', %w[
-    rag-lambda which raises when eval'd,
-    gives colour==faulty,
-    adds message to log
-  ] do
+  test '22ECB5', %w(
+  | rag-lambda which raises when eval'd,
+  | gives colour==faulty,
+  | adds message to log
+  ) do
     lambda_source = 'not-a-lambda'
     bash_stub_capture(docker_run_command) { [lambda_source, '', 0] }
 
@@ -147,11 +144,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB6', %w[
-    rag-lambda which raises when called,
-    gives colour==faulty,
-    adds message to log
-  ] do
+  test '22ECB6', %w(
+  | rag-lambda which raises when called,
+  | gives colour==faulty,
+  | adds message to log
+  ) do
     lambda_source = "lambda{ |so,se,st| fail RuntimeError, '42' }"
     bash_stub_capture(docker_run_command) { [lambda_source, '', 0] }
 
@@ -168,11 +165,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB7', %w[
-    rag-lambda with too few parameters,
-    gives colour==faulty,
-    adds message to log
-  ] do
+  test '22ECB7', %w(
+  | rag-lambda with too few parameters,
+  | gives colour==faulty,
+  | adds message to log
+  ) do
     lambda_source = 'lambda{ |_a,_b| :red }'
     bash_stub_capture(docker_run_command) { [lambda_source, '', 0] }
 
@@ -189,11 +186,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB8', %w[
-    rag-lambda with too many parameters,
-    gives colour==faulty,
-    adds message to log
-  ] do
+  test '22ECB8', %w(
+  | rag-lambda with too many parameters,
+  | gives colour==faulty,
+  | adds message to log
+  ) do
     lambda_source = 'lambda{ |_a,_b,_c,_d| :red }'
     bash_stub_capture(docker_run_command) { [lambda_source, '', 0] }
 
@@ -210,11 +207,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'CB9', %w[
-    rag-lambda which returns non red/amber/green,
-    gives colour==faulty,
-    adds message to log
-  ] do
+  test '22ECB9', %w(
+  | rag-lambda which returns non red/amber/green,
+  | gives colour==faulty,
+  | adds message to log
+  ) do
     lambda_source = [
       'lambda {|so,se,st|',
       '  :orange',
