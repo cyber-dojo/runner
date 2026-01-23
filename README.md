@@ -11,7 +11,7 @@
 
 There are two sets of tests:
 - server: these run from inside the runner container
-- client: these run from outside the runner container, making api calls only 
+- client: these run from outside the runner container, making HTTP api calls only 
 
 ```bash
 # Build the images
@@ -20,9 +20,8 @@ $ make {image_server|image_client}
 # Run all tests
 $ make {test_server|test_client}
 
-# Run only specific tests
-$ ./bin/run_tests.sh {-h|--help}
-$ ./bin/run_tests.sh server C5a
+# Run only tests whose id starts with c5a
+$ make {test_server|test_client} tid=c5a 
 
 # Check coverage metrics
 $ make {coverage_server|coverage_client}
