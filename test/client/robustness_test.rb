@@ -2,15 +2,10 @@
 require_relative '../test_base'
 
 class RobustNessTest < TestBase
-  def self.id58_prefix
-    '1B5'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  c_assert_test 'CD5', %w[
-    fork-bomb does not run indefinitely
-  ] do
+  c_assert_test '1B5CD5', %w(
+  | fork-bomb does not run indefinitely
+  ) do
     set_context
     run_cyber_dojo_sh(
       traffic_light: TrafficLightStub.amber,
@@ -39,9 +34,9 @@ class RobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  multi_os_test 'CD6', %w[
-    shell fork-bomb does not run indefinitely
-  ] do
+  multi_os_test '1B5CD6', %w(
+  | shell fork-bomb does not run indefinitely
+  ) do
     set_context
     run_cyber_dojo_sh(
       traffic_light: TrafficLightStub.amber,
@@ -61,9 +56,9 @@ class RobustNessTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'DB3', %w[
-    file-handles quickly become exhausted
-  ] do
+  c_assert_test '1B5DB3', %w(
+  | file-handles quickly become exhausted
+  ) do
     set_context
     run_cyber_dojo_sh(
       traffic_light: TrafficLightStub.amber,

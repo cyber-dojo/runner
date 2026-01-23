@@ -2,13 +2,8 @@
 require_relative '../test_base'
 
 class ProcessSpawnerStubTest < TestBase
-  def self.id58_prefix
-    'A3r'
-  end
 
-  # - - - - - - - - - - - - - - -
-
-  test 'Kb1', %w[
+  test 'A3rKb1', %w[
     to stub, make a call without any args and with a block taking args,
     and a subsequent call will ignore its args, and pass the args to the block
   ] do

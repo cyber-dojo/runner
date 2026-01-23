@@ -3,11 +3,8 @@ require_relative '../test_base'
 require_code 'externals/random'
 
 class RandomTest < TestBase
-  def self.id58_prefix
-    '4a7'
-  end
 
-  test 'c91', %w[random.hex8 is size 8, each char is hex-digit] do
+  test '4a7c91', %w[random.hex8 is size 8, each char is hex-digit] do
     512.times do
       assert hex8?(Random.new.hex8)
     end

@@ -23,11 +23,11 @@ class Id58TestBase < Minitest::Test
   @@seen_ids = {}
   @@timings = {}
 
-  def self.define_test(os, display_name, id58_suffix, *lines, &test_block)
+  def self.define_test(os, display_name, id58, *lines, &test_block)
     src = test_block.source_location
     src_file = File.basename(src[0])
     src_line = src[1].to_s
-    id58 = checked_id58(os, id58_suffix, lines)
+    id58 = checked_id58(os, id58, lines)
     return unless @@args == [] || @@args.any? { |arg| id58.include?(arg) }
 
     name58 = lines.join(space = ' ')
@@ -79,25 +79,15 @@ class Id58TestBase < Minitest::Test
       str.chars.all? { |char| ID58_ALPHABET.include?(char) }
   end
 
-  def self.checked_id58(os, id58_suffix, lines)
-    method = 'def self.id58_prefix'
-    pointer = pling(' ' * method.index('.'))
-    pointee = ['', pointer, method, '', ''].join("\n")
-    pointer.prepend("\n\n")
-    raise "#{pointer}missing#{pointee}" unless respond_to?(:id58_prefix)
-    raise "#{pointer}empty#{pointee}" if id58_prefix == ''
-    raise "#{pointer}not id58#{pointee}" unless id58?(id58_prefix)
-
-    method = "test '#{id58_suffix}',"
+  def self.checked_id58(os, id58, lines)
+    method = "test '#{id58}',"
     pointer = pling(' ' * method.index("'"))
     proposition = lines.join(space = ' ')
     pointee = ['', pointer, method, "'#{proposition}'", '', ''].join("\n")
-    id58 = id58_prefix + id58_suffix
     pointer.prepend("\n\n")
-    raise "#{pointer}empty#{pointee}" if id58_suffix == ''
-    raise "#{pointer}not id58#{pointee}" unless id58?(id58_suffix)
+    raise "#{pointer}empty#{pointee}" if id58 == ''
+    raise "#{pointer}not id58#{pointee}" unless id58?(id58)
     raise "#{pointer}duplicate#{pointee}" if seen?(id58, os)
-    raise "#{pointer}overlap#{pointee}" if id58_prefix[-2..] == id58_suffix[0..1]
 
     seen(id58, os)
     id58

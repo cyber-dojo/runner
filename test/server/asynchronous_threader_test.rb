@@ -2,13 +2,8 @@
 require_relative '../test_base'
 
 class AsynchronousThreaderTest < TestBase
-  def self.id58_prefix
-    '3H9'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'Ps3', %w[
+  test '3H9Ps3', %w[
     a simple object-wrapper to allow instance-level stubbing
   ] do
     threader = AsynchronousThreader.new

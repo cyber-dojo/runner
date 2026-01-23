@@ -2,13 +2,10 @@
 require_relative '../test_base'
 
 class RunTimedOutTest < TestBase
-  def self.id58_prefix
-    'c7A'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  c_assert_test 'g55', %w[timeout] do
+  c_assert_test 'c7Ag55', %w(
+  | timeout
+  ) do
     set_context
 
     hiker_c = starting_files['hiker.c']

@@ -4,13 +4,8 @@ require_code 'tarfile_reader'
 require_code 'tarfile_writer'
 
 class TarFileTest < TestBase
-  def self.id58_prefix
-    '80B'
-  end
 
-  # - - - - - - - - - - - - - - - - - -
-
-  test '364', 'simple tar round-trip' do
+  test '80B364', 'simple tar round-trip' do
     writer = TarFile::Writer.new
     expected = {
       'hello.txt' => 'greetings earthlings...',
@@ -26,7 +21,7 @@ class TarFileTest < TestBase
 
   # - - - - - - - - - - - - - - - - - -
 
-  test '365', 'writing content where .size != .bytesize does not throw' do
+  test '80B365', 'writing content where .size != .bytesize does not throw' do
     utf8 = [226].pack('U*')
     refute_equal utf8.size, utf8.bytesize
     TarFile::Writer.new.write('hello.txt', utf8)
@@ -35,7 +30,7 @@ class TarFileTest < TestBase
 
   # - - - - - - - - - - - - - - - - - -
 
-  test '366', 'empty file round-trip' do
+  test '80B366', 'empty file round-trip' do
     writer = TarFile::Writer.new
     filename = 'greeting.txt'
     writer.write(filename, '')

@@ -2,17 +2,12 @@
 require_relative '../test_base'
 
 class DockerStopTest < TestBase
-  def self.id58_prefix
-    'c63'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'da5', %w[
-    when cyber-dojo.sh times-out
-    then docker stop is called
-    and a docker-stop call failure is logged
-  ] do
+  test 'c63da5', %w(
+  | when cyber-dojo.sh times-out
+  | then docker stop is called
+  | and a docker-stop call failure is logged
+  ) do
     setup_stubs
 
     docker_stop_called = false
@@ -47,11 +42,11 @@ class DockerStopTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'da6', %w[
-    when cyber-dojo.sh times-out
-    then docker stop is called
-    and a docker-stop call success leaves the log empty
-  ] do
+  test 'c63da6', %w(
+  | when cyber-dojo.sh times-out
+  | then docker stop is called
+  | and a docker-stop call success leaves the log empty
+  ) do
     setup_stubs
 
     docker_stop_called = false

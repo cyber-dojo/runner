@@ -2,17 +2,12 @@
 require_relative '../test_base'
 
 class BaselineSpeedTest < TestBase
-  def self.id58_prefix
-    '159'
-  end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  multi_os_test '8A6', %w[
-    baseline average speed is less than 2 secs,
-    locally much faster than that,
-    but for CI 2 is about right
-  ] do
+  multi_os_test '1598A6', %w(
+  | baseline average speed is less than 2 secs,
+  | locally much faster than that,
+  | but for CI 2 is about right
+  ) do
     set_context
     timings = []
     5.times do

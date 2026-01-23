@@ -4,15 +4,12 @@ require_code 'rack_dispatcher'
 require 'json'
 
 class RackDispatcherTest < TestBase
-  def self.id58_prefix
-    'D06'
-  end
 
   # = = = = = = = = = = = = = = = = =
   # 200
   # = = = = = = = = = = = = = = = = =
 
-  test '82d', %w[
+  test 'D0682d', %w[
     allow '' instead of {} to allow kubernetes
     liveness/readyness http probes
   ] do
@@ -25,7 +22,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '15D', 'alive' do
+  test 'D0615D', 'alive' do
     env = { body: {}.to_json, path_info: 'alive' }
     rack_call(env)
     alive = assert_200('alive?')
@@ -35,7 +32,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'A9E', 'ready' do
+  test 'D06A9E', 'ready' do
     env = { body: {}.to_json, path_info: 'ready' }
     rack_call(env)
     ready = assert_200('ready?')
@@ -45,7 +42,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB0', 'sha' do
+  test 'D06AB0', 'sha' do
     env = { body: {}.to_json, path_info: 'sha' }
     rack_call(env)
     sha = assert_200('sha')
@@ -55,7 +52,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  c_assert_test 'AB5', 'run_cyber_dojo_sh 200' do
+  c_assert_test 'D06AB5', 'run_cyber_dojo_sh 200' do
     args = run_cyber_dojo_sh_args
     env = { path_info: 'run_cyber_dojo_sh', body: args.to_json }
     rack_call(env, runner: dummy = RunnerDummy.new)
@@ -79,7 +76,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'A9F', 'pull_image' do
+  test 'D06A9F', 'pull_image' do
     args = { id: id58, image_name: image_name }
     env = { path_info: 'pull_image', body: args.to_json }
     rack_call(env, puller: dummy = PullerDummy.new)
@@ -105,7 +102,7 @@ class RackDispatcherTest < TestBase
   # 400
   # = = = = = = = = = = = = = = = = =
 
-  test 'BB0',
+  test 'D06BB0',
        %w[malformed json in http payload becomes 400 exception] do
     expected = 'body is not JSON'
     METHOD_NAMES.each do |method_name|
@@ -116,7 +113,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB1',
+  test 'D06BB1',
        %w[json not Hash in http payload becomes 400 exception] do
     expected = 'body is not JSON Hash'
     METHOD_NAMES.each do |method_name|
@@ -129,7 +126,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'BB2',
+  test 'D06BB2',
        %w[unknown path becomes 400 exception] do
     expected = 'unknown path'
     assert_rack_call_400_exception(expected, nil,       '{}')
@@ -142,7 +139,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AA6',
+  test 'D06AA6',
        %w[missing argument becomes 400 exception] do
     f = 'run_cyber_dojo_sh'
     assert_rack_call_400_exception('missing argument: :id', f, { files: {}, manifest: {} }.to_json)
@@ -150,7 +147,7 @@ class RackDispatcherTest < TestBase
     assert_rack_call_400_exception('missing argument: :manifest', f, { id: {}, files: {} }.to_json)
   end
 
-  test 'AA7',
+  test 'D06AA7',
        %w[missing arguments becomes 400 exception] do
     f = 'run_cyber_dojo_sh'
     assert_rack_call_400_exception('missing arguments: :id, :files', f, { manifest: {} }.to_json)
@@ -160,7 +157,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AA8',
+  test 'D06AA8',
        %w[unknown arguments becomes 500 exception] do
     assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', { x: {} }.to_json)
     assert_rack_call_500_exception('wrong number of arguments (given 1, expected 0)', 'sha', { x: {}, y: {} }.to_json)
@@ -173,7 +170,7 @@ class RackDispatcherTest < TestBase
   # 500
   # = = = = = = = = = = = = = = = = =
 
-  test 'AB7', 'server error in RackDispatcher results in 500 status response' do
+  test 'D06AB7', 'server error in RackDispatcher results in 500 status response' do
     path_info = 'run_cyber_dojo_sh'
     body = run_cyber_dojo_sh_args.to_json
     env = { path_info: path_info, body: body, klass: {} }
@@ -184,7 +181,7 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test 'AB8', 'server error in Dispatcher results in 500 status response' do
+  test 'D06AB8', 'server error in Dispatcher results in 500 status response' do
     context = Context.new(process: {}, logger: StdoutLoggerSpy.new)
     rack = RackDispatcher.new(context)
     path_info = 'run_cyber_dojo_sh'

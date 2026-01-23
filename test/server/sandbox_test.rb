@@ -3,24 +3,21 @@ require_relative '../test_base'
 require_code 'sandbox'
 
 class SandboxTest < TestBase
-  def self.id58_prefix
-    'd2b'
-  end
 
-  # - - - - - - - - - - - - - - - - - -
-
-  test 'd55', %w[empty files no-ops] do
+  test 'd2bd55', %w(
+  | empty files no-ops
+  ) do
     assert_equal({}, Sandbox.in({}))
     assert_equal({}, Sandbox.out({}))
   end
 
   # - - - - - - - - - - - - - - - - - -
 
-  test 'd56', %w[
-    Sandbox.in prefixes filenames with sandbox/
-    note there is no leading slash
-    because tar prefers relative paths
-  ] do
+  test 'd2bd56', %w(
+  | Sandbox.in prefixes filenames with sandbox/
+  | note there is no leading slash
+  | because tar prefers relative paths
+  ) do
     greetings = 'greetings earthlings...'
     code = '#include <stdio.h>'
     sandboxed = Sandbox.in({
@@ -36,7 +33,9 @@ class SandboxTest < TestBase
 
   # - - - - - - - - - - - - - - - - - -
 
-  test 'd57', %w[Sandbox.out reverses Sandbox.in] do
+  test 'd2bd57', %w(
+  | Sandbox.out reverses Sandbox.in
+  ) do
     vogon_greeting = 'People of earth, your attention please'
     header = '#include <stdlib.h>'
     unsandboxed = Sandbox.out({

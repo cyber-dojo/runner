@@ -3,13 +3,8 @@ require_relative '../test_base'
 
 module Dual
   class ProberTest < TestBase
-    def self.id58_prefix
-      '6de'
-    end
 
-    # - - - - - - - - - - - - - - - - -
-
-    test '190', %w[
+    test '6de190', %w[
       alive? is true
     ] do
       set_context
@@ -18,7 +13,7 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    test '191', %w[
+    test '6de191', %w[
       ready? is true
     ] do
       set_context
@@ -27,7 +22,7 @@ module Dual
 
     # - - - - - - - - - - - - - - - - -
 
-    #     test '192', %w(
+    #     test '6de192', %w(
     #     sha is SHA of git commit which created docker image
     #     ) do
     #       set_context
