@@ -48,12 +48,12 @@
         }
       }
     },
-    "Bash 5.2.37, bash_unit 2.3.2": {
-      "display_name": "Bash 5.2.37, bash_unit 2.3.2",
+    "Bash 5.3.3, bash_unit 2.3.3": {
+      "display_name": "Bash 5.3.3, bash_unit 2.3.3",
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/bash_unit:09ea179",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_unit:391e152",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -71,12 +71,12 @@
         }
       }
     },
-    "Bash 5.2.37, bats 1.12.0": {
-      "display_name": "Bash 5.2.37, bats 1.12.0",
+    "Bash 5.3.3, bats 1.13.0": {
+      "display_name": "Bash 5.3.3, bats 1.13.0",
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/bash_bats:eb2db1e",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_bats:b9de85d",
       "tab_size": 4,
       "visible_files": {
         "bats_help.txt": {
@@ -93,12 +93,12 @@
         }
       }
     },
-    "Bash 5.2.37, shunit2 2.1.8": {
-      "display_name": "Bash 5.2.37, shunit2 2.1.8",
+    "Bash 5.3.3, shunit2 2.1.9": {
+      "display_name": "Bash 5.3.3, shunit2 2.1.9",
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/bash_shunit2:870be1c",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_shunit2:eb3f310",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -217,7 +217,7 @@
         "untitled.h",
         "untitledTest.cpp"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/gcc_cpputest:301c0ac",
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_cpputest:0230227",
       "max_seconds": 10,
       "progress_regexs": [
         "Errors (.* ms)",
@@ -253,7 +253,7 @@
         ".cpp",
         ".hpp"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/gcc_googletest:66e36ec",
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_googletest:6e73287",
       "max_seconds": 15,
       "tab_size": 4,
       "visible_files": {
@@ -280,7 +280,7 @@
         ".c",
         ".h"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/gcc_assert:6ce3c83",
+      "image_name": "ghcr.io/cyber-dojo-languages/gcc_assert:2733119",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1701,12 +1701,12 @@
         }
       }
     },
-    "Python 3.14, assert": {
-      "display_name": "Python 3.14, assert",
+    "Python 3.14.2, assert": {
+      "display_name": "Python 3.14.2, assert",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:5ed6240",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:7094a60",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1721,13 +1721,13 @@
         }
       }
     },
-    "Python 3.14, behave 1.3.3": {
-      "display_name": "Python 3.14, behave 1.3.3",
+    "Python 3.14.2, behave 1.3.3": {
+      "display_name": "Python 3.14.2, behave 1.3.3",
       "filename_extension": [
         ".py",
         ".feature"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:c07ae74",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:0556024",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1745,12 +1745,12 @@
         }
       }
     },
-    "Python 3.14, pytest 9.0.1": {
-      "display_name": "Python 3.14, pytest 9.0.1",
+    "Python 3.14.2, pytest 9.0.2": {
+      "display_name": "Python 3.14.2, pytest 9.0.2",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:b2d30d3",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:89aeb5d",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1765,14 +1765,14 @@
         }
       }
     },
-    "Python 3.14, pytest-approval 15.3.2": {
-      "display_name": "Python 3.14, pytest-approval 15.3.2",
+    "Python 3.14.2, pytest-approval 16.3.0": {
+      "display_name": "Python 3.14.2, pytest-approval 16.3.0",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:d27a821",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:56089ed",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1787,12 +1787,12 @@
         }
       }
     },
-    "Python 3.14, unittest": {
-      "display_name": "Python 3.14, unittest",
+    "Python 3.14.2, unittest": {
+      "display_name": "Python 3.14.2, unittest",
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:381692b",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:26e3f2b",
       "progress_regexs": [
         "FAILED \\(failures=\\d+\\)",
         "OK"
@@ -1810,14 +1810,14 @@
         }
       }
     },
-    "Python 3.14, unittest-approval 15.3.2": {
-      "display_name": "Python 3.14, unittest-approval 15.3.2",
+    "Python 3.14.2, unittest-approval 16.3.0": {
+      "display_name": "Python 3.14.2, unittest-approval 16.3.0",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:63d49ef",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:fa7af1e",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
