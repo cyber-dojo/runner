@@ -67,8 +67,7 @@ Style/Documentation:
 
 Style/FrozenStringLiteralComment:
   Exclude:
-    - source/server/gnu_zip.rb
-    - source/server/tarfile_writer.rb
+    - source/**/*
 
 Style/RedundantInitialize:
   Exclude:

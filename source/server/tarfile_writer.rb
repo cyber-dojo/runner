@@ -4,7 +4,7 @@ require 'stringio'
 module TarFile
   class Writer
     def initialize
-      @tar_file = StringIO.new('')
+      @tar_file = StringIO.new
       @writer = Gem::Package::TarWriter.new(@tar_file)
     end
 

@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative '../test_base'
 require_relative '../data/python_pytest'
 require_code 'traffic_light'
@@ -135,7 +134,7 @@ class TrafficLightTest < TestBase
       "exception when eval'ing lambda source",
       lambda_source,
       'SyntaxError',
-      ["(eval at /runner/source/traffic_light.rb:86):1: syntax error, unexpected '-'",
+      ["(eval at /runner/source/traffic_light.rb:85):1: syntax error, unexpected '-'",
        'not-a-lambda',
        '   ^',
        ''].join("\n")

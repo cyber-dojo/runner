@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 
 # Uses data from two json files:
 # - reports/client/test_metrics.json     generated in slim_json_reporter.rb by minitest. See id58_test_base.rb

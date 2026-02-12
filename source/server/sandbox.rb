@@ -1,6 +1,5 @@
-# frozen_string_literal: true
 module Sandbox
-  DIR = '/sandbox' # where files are saved to in the container
+  DIR = '/sandbox'.freeze # where files are saved to in the container
 
   def self.in(arg)
     # eg  arg {         'hiker.cs' => content }

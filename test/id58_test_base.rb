@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require 'English'
 require 'minitest/autorun'
 require 'minitest/reporters'
