@@ -334,7 +334,7 @@ jobs:
         with:
           image_digest: ${{ needs.build-image.outputs.digest }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
