@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative 'empty_binding'
 require_relative 'rag_lambdas'
 require 'json'
@@ -76,9 +75,9 @@ class TrafficLight
     end
   end
 
-  RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'
+  RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'.freeze
 
-  SPACE = ' '
+  SPACE = ' '.freeze
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

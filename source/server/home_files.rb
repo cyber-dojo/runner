@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 module HomeFiles
   def home_files(sandbox_dir, max_file_size)
     {
@@ -7,10 +6,10 @@ module HomeFiles
     }
   end
 
-  HOME_DIR = '/home/sandbox'
+  HOME_DIR = '/home/sandbox'.freeze
 
-  MAIN_SH_PATH      = "#{HOME_DIR}/cyber_dojo_main.sh"
-  FS_CLEANERS_PATH  = "#{HOME_DIR}/cyber_dojo_fs_cleaners.sh"
+  MAIN_SH_PATH      = "#{HOME_DIR}/cyber_dojo_main.sh".freeze
+  FS_CLEANERS_PATH  = "#{HOME_DIR}/cyber_dojo_fs_cleaners.sh".freeze
 
   def unrooted(filename)
     filename[1..] # tar prefers relative paths

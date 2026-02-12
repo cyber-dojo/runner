@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 # mix-in
 module Docker
   module_function
@@ -61,23 +60,23 @@ module Docker
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # [[host:port/]registry/]component[:tag][@digest]
 
-  CH = 'a-zA-Z0-9'
-  COMPONENT = "([#{CH}]|[#{CH}][#{CH}-]*[#{CH}])"
-  PORT = '[\d]+'
+  CH = 'a-zA-Z0-9'.freeze
+  COMPONENT = "([#{CH}]|[#{CH}][#{CH}-]*[#{CH}])".freeze
+  PORT = '[\d]+'.freeze
   HOST_NAME = /^(#{COMPONENT}(\.#{COMPONENT})*)(:(#{PORT}))?$/.freeze
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  ALPHA_NUMERIC = '[a-z0-9]+'
-  SEPARATOR = '([.]{1}|[_]{1,2}|[-]+)'
-  REMOTE_COMPONENT = "#{ALPHA_NUMERIC}(#{SEPARATOR}#{ALPHA_NUMERIC})*"
-  NAME = "#{REMOTE_COMPONENT}(/#{REMOTE_COMPONENT})*"
-  TAG = '[\w][\w.-]{0,127}'
-  DIGEST_COMPONENT = '[A-Za-z][A-Za-z0-9]*'
-  DIGEST_SEPARATOR = '[-_+.]'
-  DIGEST_ALGORITHM = "#{DIGEST_COMPONENT}(#{DIGEST_SEPARATOR}#{DIGEST_COMPONENT})*"
-  DIGEST_HEX = '[0-9a-fA-F]{32,}'
-  DIGEST = "#{DIGEST_ALGORITHM}[:]#{DIGEST_HEX}"
+  ALPHA_NUMERIC = '[a-z0-9]+'.freeze
+  SEPARATOR = '([.]{1}|[_]{1,2}|[-]+)'.freeze
+  REMOTE_COMPONENT = "#{ALPHA_NUMERIC}(#{SEPARATOR}#{ALPHA_NUMERIC})*".freeze
+  NAME = "#{REMOTE_COMPONENT}(/#{REMOTE_COMPONENT})*".freeze
+  TAG = '[\w][\w.-]{0,127}'.freeze
+  DIGEST_COMPONENT = '[A-Za-z][A-Za-z0-9]*'.freeze
+  DIGEST_SEPARATOR = '[-_+.]'.freeze
+  DIGEST_ALGORITHM = "#{DIGEST_COMPONENT}(#{DIGEST_SEPARATOR}#{DIGEST_COMPONENT})*".freeze
+  DIGEST_HEX = '[0-9a-fA-F]{32,}'.freeze
+  DIGEST = "#{DIGEST_ALGORITHM}[:]#{DIGEST_HEX}".freeze
   REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/.freeze
 end
 

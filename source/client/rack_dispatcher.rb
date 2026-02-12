@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative 'dispatcher'
 require 'rack'
 require 'json'

@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative 'thread_value_stub'
 
 class StdoutStderrReaderThreaderStub
