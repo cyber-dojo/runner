@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeu
 
-set -x
-
 export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${ROOT_DIR}/bin/lib.sh"
 source "${ROOT_DIR}/bin/echo_env_vars.sh"
@@ -13,6 +11,8 @@ readonly IMAGE_NAME="${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
 readonly SARIF_FILENAME=${SARIF_FILENAME:-snyk.container.scan.json}
 
 exit_non_zero_unless_installed snyk
+
+docker image ls 
 
 snyk container test "${IMAGE_NAME}" -d \
   --policy-path="${ROOT_DIR}/.snyk" \
