@@ -17,7 +17,7 @@ snyk container test "${IMAGE_NAME}" -d \
   --sarif \
   --sarif-file-output="${ROOT_DIR}/${SARIF_FILENAME}" | /tmp/snyk.log
 
-EXIT_CODE=$?
+EXIT_CODE=${PIPESTATUS[0]}
 
 if [ grep Forbidden /tmp/snyk.log ]; then
   >&2 echo FAILED: snyk container test ...
