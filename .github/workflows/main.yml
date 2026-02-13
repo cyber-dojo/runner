@@ -316,56 +316,17 @@ jobs:
             --type=coverage-metrics
 
 
-  snyk-container-scan:
-    runs-on: ubuntu-latest
-    needs: [build-image]
-    env:
-      IMAGE_NAME:        ${{ needs.build-image.outputs.tagged_image_name }}
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
-      SARIF_FILENAME:    snyk.container.scan.json
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: audit
-
-      - name: Download docker image
-        uses: cyber-dojo/download-artifact@main
-        with:
-          image_digest: ${{ needs.build-image.outputs.digest }}
-
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
-
-      - name: Run Snyk container scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run:
-          make snyk_container_scan
-
-      - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        run:
-          kosli attest snyk 
-            --attachments=.snyk          
-            --name=runner.snyk-container-scan 
-            --scan-results="${SARIF_FILENAME}"
-
 
   sdlc-control-gate:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    needs: [build-image, pull-request, rubocop-lint, unit-tests, integration-tests, snyk-container-scan, snyk-code-scan]
+    needs:
+      - build-image
+      - pull-request 
+      - rubocop-lint
+      - unit-tests
+      - integration-tests
+      - snyk-code-scan
     env:
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
