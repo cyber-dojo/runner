@@ -224,8 +224,8 @@ class Runner
   #     - set ownership.
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=50M,uid=#{UID},gid=#{GID}".freeze
-  TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=50M,mode=1777'.freeze # Set /tmp sticky-bit
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{UID},gid=#{GID}".freeze
+  TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=250M,mode=1777'.freeze # Set /tmp sticky-bit
 
   def utf8_clean(result)
     result[:stdout] = Utf8.clean(result[:stdout])
