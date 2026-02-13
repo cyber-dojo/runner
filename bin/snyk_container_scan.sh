@@ -12,8 +12,6 @@ readonly SARIF_FILENAME=${SARIF_FILENAME:-snyk.container.scan.json}
 
 exit_non_zero_unless_installed snyk
 
-docker image ls 
-
 snyk container test "${IMAGE_NAME}" -d \
   --policy-path="${ROOT_DIR}/.snyk" \
   --sarif \
