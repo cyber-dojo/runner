@@ -24,7 +24,5 @@ trail:
         - name: integration-test-coverage-metrics
           type: custom:coverage-metrics
 
-        - name: snyk-container-scan
-          type: snyk
         - name: snyk-code-scan
           type: snyk
