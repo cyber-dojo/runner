@@ -17,8 +17,14 @@ docker image ls
 snyk container test "${IMAGE_NAME}" -d \
   --policy-path="${ROOT_DIR}/.snyk" \
   --sarif \
-  --sarif-file-output="${ROOT_DIR}/${SARIF_FILENAME}"
+  --sarif-file-output="${ROOT_DIR}/${SARIF_FILENAME}" | /tmp/snyk.log
 
 EXIT_CODE=$?
+
+if [ grep Forbidden /tmp/snyk.log ]; then
+  >&2 echo FAILED: snyk container test ...
+  EXIT_CODE=42
+fi
+
 echo "EXIT_CODE=:${EXIT_CODE}:"
 exit ${EXIT_CODE}

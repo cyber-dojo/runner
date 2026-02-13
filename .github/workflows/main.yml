@@ -229,7 +229,8 @@ jobs:
           fetch-depth: 1
 
       - name: Run unit tests
-        run:
+        run: |
+          docker image ls
           make test_server coverage_server 
 
       - name: Setup Kosli CLI
