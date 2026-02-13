@@ -169,16 +169,17 @@ class Runner
   end
 
   def ulimits(image_name)
-    # [1] the nproc --limit is per user across all containers. See
+    # [1] Some start-points have large dll files, eg C# dotnet
+    # [2] The nproc --limit is per user across all containers. See
     # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
     # There is no cpu-ulimit. See
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
       ulimit('core', 0), # no core file
-      ulimit('fsize', 128 * MB), # file size
+      ulimit('fsize', 256 * MB), # file size [1]
       ulimit('locks', 1024), # number of file locks
       ulimit('nofile', 1024), # number of files
-      ulimit('nproc', 1024), # number of processes [1]
+      ulimit('nproc', 1024), # number of processes [2]
       ulimit('stack', 16 * MB),           # stack size
       '--kernel-memory=768m',             # limited
       '--memory=768m',                    # max 768MB ram (same swap)
@@ -220,8 +221,9 @@ class Runner
   #   o) relatime = Update inode access times relative to modify/change time.
   #   So...
   #     - set exec to make binaries and scripts executable.
-  #     - limit size of tmp-fs.
   #     - set ownership.
+  #     - limit size of tmp-fs. Some start-points require large files,
+  #       eg, C#'s "dotnet restore"
   # - - - - - - - - - - - - - - - - - - - - - -
 
   TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{UID},gid=#{GID}".freeze

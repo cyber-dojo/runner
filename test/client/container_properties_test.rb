@@ -129,7 +129,7 @@ class ContainerPropertiesTest < TestBase
     refute timed_out?, pretty_result(:timed_out)
 
     expected_max_data_size = clang? ? 0 : 4 * GB / BLOCK_SIZE
-    expected_max_file_size  = 128 * MB / BLOCK_SIZE
+    expected_max_file_size  = 256 * MB / BLOCK_SIZE
     expected_max_stack_size = 16 * MB / BLOCK_SIZE
 
     assert_ulimit 0,                       :core_size
