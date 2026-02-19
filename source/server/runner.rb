@@ -238,7 +238,7 @@ class Runner
   #       eg, C#'s "dotnet restore"
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250G,uid=#{UID},gid=#{GID}".freeze
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{UID},gid=#{GID}".freeze
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=250M,mode=1777'.freeze # Set /tmp sticky-bit
 
   def utf8_clean(result)
