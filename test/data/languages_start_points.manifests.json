@@ -300,6 +300,29 @@
         }
       }
     },
+    "C# 10.0.103, NUnit 4.3.2": {
+      "display_name": "C# 10.0.103, NUnit 4.3.2",
+      "filename_extension": [
+        ".cs"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/csharp_nunit:80e3fae",
+      "max_seconds": 15,
+      "tab_size": 4,
+      "visible_files": {
+        "Hiker.cs": {
+          "content": "public class Hiker\n{\n    public static int Answer()\n    {\n        return 6 * 9;\n    }\n}\n"
+        },
+        "HikerTest.cs": {
+          "content": "using NUnit.Framework;\n\npublic class HikerTest\n{\n    [Test]\n    public void life_the_universe_and_everything()\n    {\n        // a simple example to start you off\n        Assert.That(Hiker.Answer(), Is.EqualTo(42));\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\ndotnet restore --source /home/sandbox/.nuget/packages/\ndotnet test --no-restore\n"
+        },
+        "dojo.csproj": {
+          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <IsPackable>false</IsPackable>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"coverlet.collector\" Version=\"6.0.4\" />\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit.Analyzers\" Version=\"4.7.0\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
+        }
+      }
+    },
     "C#, Moq": {
       "display_name": "C#, Moq",
       "filename_extension": [
@@ -317,26 +340,6 @@
         },
         "cyber-dojo.sh": {
           "content": "\ntrap tidy_up EXIT\nfunction tidy_up()\n{\n  # cyber-dojo returns text files under /sandbox that are\n  # created/deleted/changed. In here you can remove any\n  # such files you don't want returned to the browser.\n  [ ! -f TestResult.xml ] || rm TestResult.xml\n}\n\nMOQ_PATH=/moq/Moq.4.7.99/lib/net45\nCASTLE_PATH=/moq/Castle.Core.4.1.1/lib/net45\nNUNIT_PATH=/moq/lib/net45\n\nexport MONO_PATH=${MOQ_PATH}:${CASTLE_PATH}:${NUNIT_PATH}\n\nmcs -t:library \\\n  -r:${MOQ_PATH}/Moq.dll \\\n  -r:${CASTLE_PATH}/Castle.Core.dll \\\n  -r:${NUNIT_PATH}/nunit.framework.dll \\\n  -out:RunTests.dll *.cs\n\nif [ $? -eq 0 ]; then\n  NUNIT_RUNNERS_PATH=/moq/tools\n  mono ${NUNIT_RUNNERS_PATH}/nunit3-console.exe --noheader ./RunTests.dll\nfi\n"
-        }
-      }
-    },
-    "C#, NUnit": {
-      "display_name": "C#, NUnit",
-      "filename_extension": [
-        ".cs"
-      ],
-      "image_name": "cyberdojofoundation/csharp_nunit:1452bb7",
-      "max_seconds": 10,
-      "tab_size": 4,
-      "visible_files": {
-        "Hiker.cs": {
-          "content": "public class Hiker\n{\n    public static int Answer()\n    {\n        return 6 * 9;\n    }\n}\n"
-        },
-        "HikerTest.cs": {
-          "content": "using NUnit.Framework;\n\n[TestFixture]\npublic class HikerTest\n{\n    [Test]\n    public void life_the_universe_and_everything()\n    {\n        // a simple example to start you off\n        Assert.AreEqual(42, Hiker.Answer());\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\ntrap tidy_up EXIT\nfunction tidy_up()\n{\n  # cyber-dojo returns text files under /sandbox that are\n  # created/deleted/changed. In here you can remove any\n  # such files you don't want returned to the browser.\n  [ ! -f TestResult.xml ] || rm TestResult.xml\n}\n\nNUNIT_PATH=/nunit/lib/net45\nexport MONO_PATH=${NUNIT_PATH}\n\nmcs -t:library \\\n  -r:${NUNIT_PATH}/nunit.framework.dll \\\n  -out:RunTests.dll *.cs\n\nif [ $? -eq 0 ]; then\n  NUNIT_RUNNERS_PATH=/nunit/tools\n  mono ${NUNIT_RUNNERS_PATH}/nunit3-console.exe --noheader ./RunTests.dll\nfi\n"
         }
       }
     },
@@ -676,8 +679,8 @@
         }
       }
     },
-    "C++ (g++ 15.2.0), Cucumber-cpp 0.8.0": {
-      "display_name": "C++ (g++ 15.2.0), Cucumber-cpp 0.8.0",
+    "C++ (g++ 15.2.0), Cucumber 0.8.0": {
+      "display_name": "C++ (g++ 15.2.0), Cucumber 0.8.0",
       "filename_extension": [
         ".cpp",
         ".hpp",
@@ -935,12 +938,12 @@
         }
       }
     },
-    "D, unittest": {
-      "display_name": "D, unittest",
+    "D 13.3.0, unittest": {
+      "display_name": "D 13.3.0, unittest",
       "filename_extension": [
         ".d"
       ],
-      "image_name": "cyberdojofoundation/d_unittest:c125c91",
+      "image_name": "ghcr.io/cyber-dojo-languages/d_unittest:8cbc812",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
@@ -1027,13 +1030,13 @@
         }
       }
     },
-    "Fortran, FUnit": {
-      "display_name": "Fortran, FUnit",
+    "Fortran 15.2.0, FUnit 0.12.4": {
+      "display_name": "Fortran 15.2.0, FUnit 0.12.4",
       "filename_extension": [
         ".f90",
         ".fun"
       ],
-      "image_name": "cyberdojofoundation/fortran_funit:f13f8ad",
+      "image_name": "ghcr.io/cyber-dojo-languages/fortran_funit:b659ce9",
       "max_seconds": 10,
       "tab_size": 4,
       "visible_files": {
