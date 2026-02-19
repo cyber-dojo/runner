@@ -169,23 +169,23 @@ class Runner
   end
 
   def ulimits(image_name)
-    # [1] Some start-points have large dll files, eg C# dotnet
-    # [2] The nproc --limit is per user across all containers. See
+    # [0] We could allow cores as binary files are not tar piped out of the container.
+    # [1] The nproc --limit is per user across all containers. See
+    # [2] Some start-points have large DLL files
     # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
     # There is no cpu-ulimit. See
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
-      ulimit('core', 0), # no core file
-      ulimit('fsize', 256 * MB), # file size [1]
-      ulimit('locks', 1024), # number of file locks
-      ulimit('nofile', 1024), # number of files
-      ulimit('nproc', 1024), # number of processes [2]
+      ulimit('core', 0),                  # no core file [0]
+      ulimit('locks', 1024),              # number of file locks
+      ulimit('nofile', 1024),             # number of files
+      ulimit('nproc', 1024),              # number of processes [1]
       ulimit('stack', 16 * MB),           # stack size
-      '--kernel-memory=768m',             # limited
-      '--memory=768m',                    # max 768MB ram (same swap)
+      '--kernel-memory=2g',               # limited
+      '--memory=2g',                      # max 768MB ram (same swap)
       '--net=none',                       # no network
       '--pids-limit=128',                 # no fork bombs
-      '--security-opt=no-new-privileges' # no escalation
+      '--security-opt=no-new-privileges'  # no escalation
     ]
     # Special handling of clang/clang++'s -fsanitize=address
     options << if clang?(image_name)
@@ -193,6 +193,14 @@ class Runner
                else
                  ulimit('data', 4 * GB) # data segment size
                end
+
+    # C# reqnroll creates very large files [2]
+    options << if csharp_reqnroll?(image_name)
+                 ulimit('fsize', 2048 * GB) # file size
+               else
+                 ulimit('fsize', 256 * MB)  # file size
+               end
+
     options.join(SPACE)
   end
 
@@ -203,6 +211,10 @@ class Runner
   def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang') ||
       image_name.start_with?('ghcr.io/cyber-dojo-languages/clang')
+  end
+
+  def csharp_reqnroll?(image_name)
+    image_name.start_with?('ghcr.io/cyber-dojo-languages/csharp_reqnroll')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
@@ -226,7 +238,7 @@ class Runner
   #       eg, C#'s "dotnet restore"
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{UID},gid=#{GID}".freeze
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250G,uid=#{UID},gid=#{GID}".freeze
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=250M,mode=1777'.freeze # Set /tmp sticky-bit
 
   def utf8_clean(result)

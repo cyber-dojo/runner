@@ -23,6 +23,3 @@ trail:
           type: custom:test-metrics
         - name: integration-test-coverage-metrics
           type: custom:coverage-metrics
-
-        - name: snyk-code-scan
-          type: snyk
