@@ -10,6 +10,9 @@ trail:
         - name: rubocop-lint
           type: junit
 
+        - name: snyk-container-scan
+          type: snyk
+
         - name: unit-test
           type: junit
         - name: unit-test-metrics
