@@ -20,13 +20,28 @@ class Runner
 
     if run[:timed_out]
       log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
-      timed_out_result(run)
+      return timed_out_result(run)
     elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
       log(id: id, image_name: image_name, message: 'faulty', result: utf8_clean(run))
-      faulty_result(run)
-    else
-      colour_result(id, image_name, files_in, run[:stdout])
+      return faulty_result(run)
     end
+
+    tgz_out = run[:stdout]
+    files_out, stdout, stderr, status = files_sss_from(tgz_out)
+
+    sss = [stdout['content'], stderr['content'], status['content']]
+    colour, log_info = *@traffic_light.colour(image_name, *sss)
+
+    created, changed = files_delta(files_in, files_out)
+    result(
+      stdout, stderr, status['content'],
+      colour, log_info,
+      Sandbox.out(at_most(16, created)),
+      Sandbox.out(changed)
+    )
+  rescue Zlib::GzipFile::Error
+    log(id: id, image_name: image_name, error: 'Zlib::GzipFile::Error')
+    empty_result(:gzip_error, 'faulty', {})
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -88,25 +103,14 @@ class Runner
     end
   end
 
-  def colour_result(id, image_name, files_in, tgz_out)
+  def files_sss_from(tgz_out)
     files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename, content), memo|
       memo[filename] = truncated(content)
     end
     stdout = files_out.delete('tmp/stdout') || truncated('')
     stderr = files_out.delete('tmp/stderr') || truncated('')
     status = files_out.delete('tmp/status') || truncated('145')
-    sss = [stdout['content'], stderr['content'], status['content']]
-    outcome, log_info = *@traffic_light.colour(image_name, *sss)
-    created, changed = files_delta(files_in, files_out)
-    result(
-      stdout, stderr, status['content'],
-      outcome, log_info,
-      Sandbox.out(at_most(16, created)),
-      Sandbox.out(changed)
-    )
-  rescue Zlib::GzipFile::Error
-    log(id: id, image_name: image_name, error: 'Zlib::GzipFile::Error')
-    empty_result(:gzip_error, 'faulty', {})
+    [files_out, stdout, stderr, status]
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
