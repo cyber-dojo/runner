@@ -277,7 +277,7 @@ class TrafficLightTest < TestBase
   end
 
   def read_red_amber_green_lambda_message_count(lines)
-    message = "Read red-amber-green lambda for #{python_pytest_image_name}"
+    message = "Read red-amber-green lambda from #{python_pytest_image_name}"
     lines.count { |line| line.include?(message) }
   end
 

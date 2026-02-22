@@ -31,6 +31,10 @@ class TestBase < Id58TestBase
     context.sheller
   end
 
+  def logger
+    context.logger
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 1. test on one OS or many
 
@@ -96,6 +100,10 @@ class TestBase < Id58TestBase
       'image_name' => defaulted_arg(options, :image_name, image_name),
       'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
+
+    # if options.key?(:colour)
+    #   manifest['colour'] = options[:colour]
+    # end
 
     @run_result = runner.run_cyber_dojo_sh(
       id: id,

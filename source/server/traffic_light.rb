@@ -61,7 +61,7 @@ class TrafficLight
     ].join(SPACE)
     stdout, stderr, status = sheller.capture(command)
     if status.zero?
-      message = "Read red-amber-green lambda for #{image_name}"
+      message = "Read red-amber-green lambda from #{image_name}"
       logger.log(message)
       stdout
     else
