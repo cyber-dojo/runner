@@ -101,9 +101,9 @@ class TestBase < Id58TestBase
       'max_seconds' => defaulted_arg(options, :max_seconds, max_seconds)
     }
 
-    # if options.key?(:colour)
-    #   manifest['colour'] = options[:colour]
-    # end
+    if options.key?(:rag_lambda)
+      manifest['rag_lambda'] = options[:rag_lambda]
+    end
 
     @run_result = runner.run_cyber_dojo_sh(
       id: id,

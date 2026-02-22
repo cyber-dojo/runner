@@ -30,10 +30,11 @@ class Runner
     files_out, stdout, stderr, status = files_sss_from(tgz_out)
 
     sss = [stdout['content'], stderr['content'], status['content']]
-    # if manifest.key?('colour')
-    #  TODO
-    # end
-    colour, log_info = *@traffic_light.colour(image_name, *sss)
+    if manifest.key?('rag_lambda')
+      colour, log_info = *@traffic_light.colour_from_lambda(manifest['rag_lambda'], *sss)
+    else
+      colour, log_info = *@traffic_light.colour_from_image(image_name, *sss)
+    end
 
     created, changed = files_delta(files_in, files_out)
     result(

@@ -18,13 +18,32 @@ class TrafficLight
     @rag_lambdas = RagLambdas.new
   end
 
-  def colour(image_name, stdout, stderr, status)
+  def colour_from_image(image_name, stdout, stderr, status)
     [self[image_name].call(stdout, stderr, status), {}]
   rescue Fault => e
     fault_info = {
-      call: 'TrafficLight.colour(image_name,stdout,stderr,status)',
+      call: 'TrafficLight.colour_from_image(image_name,stdout,stderr,status)',
       args: {
         image_name: image_name,
+        stdout: stdout.lines,
+        stderr: stderr.lines,
+        status: status
+      },
+      exception: e.properties
+    }
+    logger.log(JSON.pretty_generate(fault_info))
+    ['faulty', fault_info]
+  end
+
+  def colour_from_lambda(lambda_source, stdout, stderr, status)
+    fn = checked_eval(lambda_source)
+    colour = checked_call(fn, lambda_source, stdout, stderr, status)
+    checked_colour(colour, lambda_source)
+  rescue Fault => e
+    fault_info = {
+      call: 'TrafficLight.colour_from_lambda(lambda_source,stdout,stderr,status)',
+      args: {
+        lambda_source: lambda_source,
         stdout: stdout.lines,
         stderr: stderr.lines,
         status: status

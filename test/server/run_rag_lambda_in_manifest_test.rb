@@ -13,14 +13,28 @@ class RunRagLambdaInManifestTest < TestBase
     assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:2733119", image_name
     set_context({ logger: StdoutLoggerSpy.new })
     puller.add(image_name)
-    result = run_cyber_dojo_sh({ :colour => alpine_c_assert_rag_lambda })
+
+    result = run_cyber_dojo_sh({ :rag_lambda => alpine_c_assert_rag_lambda })
 
     assert_equal 'red', result['outcome']
-
     message = "Read red-amber-green lambda from #{image_name}"
     refute logger.logged.include?(message), 'lambda still being read from image'
   end
 
+  alpine_test '1833b1', %w(
+  | when the red-amber-green Ruby lambda in the manifest is malformed
+  | a fault colour is returned
+  ) do
+    assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:2733119", image_name
+    set_context({ logger: StdoutLoggerSpy.new })
+    puller.add(image_name)
+
+    result = run_cyber_dojo_sh({ :rag_lambda => 'x' + alpine_c_assert_rag_lambda })
+
+    assert_equal 'faulty', result['outcome']
+    message = "Read red-amber-green lambda from #{image_name}"
+    refute logger.logged.include?(message), 'lambda still being read from image'
+  end
 end
 
 def alpine_c_assert_rag_lambda

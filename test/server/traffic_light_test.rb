@@ -134,7 +134,7 @@ class TrafficLightTest < TestBase
       "exception when eval'ing lambda source",
       lambda_source,
       'SyntaxError',
-      ["(eval at /runner/source/traffic_light.rb:85):1: syntax error, unexpected '-'",
+      ["(eval at /runner/source/traffic_light.rb:104):1: syntax error, unexpected '-'",
        'not-a-lambda',
        '   ^',
        ''].join("\n")
@@ -235,7 +235,7 @@ class TrafficLightTest < TestBase
     @stdout = options.delete(:stdout) || Test::Data::PythonPytest::STDOUT_RED
     @stderr = options.delete(:stderr) || 'unused'
     @status = options.delete(:status) || 0
-    @outcome, @fault_info = *traffic_light.colour(@image_name, @stdout, @stderr, @status)
+    @outcome, @fault_info = *traffic_light.colour_from_image(@image_name, @stdout, @stderr, @status)
   end
 
   def python_pytest_image_name
@@ -337,7 +337,7 @@ class TrafficLightTest < TestBase
 
   def assert_call_info_logged(properties)
     assert_logged_fault_info({
-                               call: 'TrafficLight.colour(image_name,stdout,stderr,status)',
+                               call: 'TrafficLight.colour_from_image(image_name,stdout,stderr,status)',
                                args: {
                                  image_name: @image_name,
                                  stdout: @stdout.lines,
