@@ -33,6 +33,7 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Exclude:
     - source/server/runner.rb
+    - source/server/traffic_light.rb
     - source/client/demo.rb
 
 Metrics/CyclomaticComplexity:

@@ -3,9 +3,7 @@ set -Eeu
 
 setup_dependent_images()
 {
-  if [ "${1:-}" != server ]; then
-    pull_dependent_images
-  fi
+  pull_dependent_images
   remove_pulled_image
 }
 
@@ -13,9 +11,7 @@ pull_dependent_images()
 {
   echo
   echo Pulling images used in server-side tests
-
   local -r IMAGE_NAMES=$(docker image ls --format '{{.Repository}}:{{.Tag}}' | sort | uniq)
-
   if ! echo "${IMAGE_NAMES}" | grep alpine:latest ; then
     # alpine:latest is used for tests showing bash must be in the image_name
     docker pull alpine:latest
