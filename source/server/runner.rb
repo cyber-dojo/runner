@@ -16,17 +16,9 @@ class Runner
     image_name = manifest['image_name']
     return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
 
-    random_id = @context.random.hex8
-    container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
-    max_seconds = [15, Integer(manifest['max_seconds'])].min
-    files_in = Sandbox.in(files)
-    tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
-
-    run = Capture3WithTimeout.new(@context).run(command, max_seconds, tgz_in)
+    run, container_name, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
 
     if run[:timed_out]
-      threaded_docker_stop_container(id, image_name, container_name)
       log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
       timed_out_result(run)
     elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
@@ -65,6 +57,23 @@ class Runner
   include FilesDelta
   include HomeFiles
 
+  def run_cyber_dojo_sh_inner(id, files, manifest)
+    image_name = manifest['image_name']
+    random_id = @context.random.hex8
+    container_name = ['cyber_dojo_runner', id, random_id].join('_')
+    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
+    max_seconds = [15, Integer(manifest['max_seconds'])].min
+    files_in = Sandbox.in(files)
+    tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
+
+    run = Capture3WithTimeout.new(@context).run(command, max_seconds, tgz_in)
+    if run[:timed_out]
+      threaded_docker_stop_container(id, image_name, container_name)
+    end
+
+    return run, container_name, files_in
+  end
+
   def threaded_docker_stop_container(id, image_name, container_name)
     # Send the stop signal, wait 1 second, send the kill signal.
     command = "docker stop --time 1 #{container_name}"
@@ -78,14 +87,6 @@ class Runner
         log(id: id, image_name: image_name, command: command, stdout: stdout, stderr: stderr, status: status)
       end
     end
-  end
-
-  def timed_out_result(run)
-    empty_result(:timed_out, 'timed_out', run)
-  end
-
-  def faulty_result(run)
-    empty_result(:faulty, 'faulty', run)
   end
 
   def colour_result(id, image_name, files_in, tgz_out)
@@ -107,6 +108,16 @@ class Runner
   rescue Zlib::GzipFile::Error
     log(id: id, image_name: image_name, error: 'Zlib::GzipFile::Error')
     empty_result(:gzip_error, 'faulty', {})
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+  
+  def timed_out_result(run)
+    empty_result(:timed_out, 'timed_out', run)
+  end
+
+  def faulty_result(run)
+    empty_result(:faulty, 'faulty', run)
   end
 
   def empty_result(code, outcome, log_info)
