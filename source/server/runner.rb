@@ -16,7 +16,7 @@ class Runner
     image_name = manifest['image_name']
     return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
 
-    run, container_name, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
+    run, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
 
     if run[:timed_out]
       log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
@@ -67,11 +67,10 @@ class Runner
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
     run = Capture3WithTimeout.new(@context).run(command, max_seconds, tgz_in)
-    if run[:timed_out]
-      threaded_docker_stop_container(id, image_name, container_name)
-    end
 
-    return run, container_name, files_in
+    threaded_docker_stop_container(id, image_name, container_name) if run[:timed_out]
+
+    [run, files_in]
   end
 
   def threaded_docker_stop_container(id, image_name, container_name)
@@ -111,7 +110,7 @@ class Runner
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
-  
+
   def timed_out_result(run)
     empty_result(:timed_out, 'timed_out', run)
   end
