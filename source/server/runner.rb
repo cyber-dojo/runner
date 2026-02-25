@@ -189,12 +189,12 @@ class Runner
   def ulimits(image_name)
     # [0] We could allow cores as binary files are not tar piped out of the container.
     # [1] The nproc --limit is per user across all containers. See
-    # [2] Some start-points have large DLL files
     # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
     # There is no cpu-ulimit. See
     # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
     options = [
       ulimit('core', 0),                  # no core file [0]
+      ulimit('fsize', 256 * MB),          # file size
       ulimit('locks', 1024),              # number of file locks
       ulimit('nofile', 1024),             # number of files
       ulimit('nproc', 1024),              # number of processes [1]
@@ -212,13 +212,6 @@ class Runner
                  ulimit('data', 4 * GB) # data segment size
                end
 
-    # C# reqnroll creates very large files [2]
-    options << if csharp_reqnroll?(image_name)
-                 ulimit('fsize', 2048 * GB) # file size
-               else
-                 ulimit('fsize', 256 * MB)  # file size
-               end
-
     options.join(SPACE)
   end
 
@@ -229,10 +222,6 @@ class Runner
   def clang?(image_name)
     image_name.start_with?('cyberdojofoundation/clang') ||
       image_name.start_with?('ghcr.io/cyber-dojo-languages/clang')
-  end
-
-  def csharp_reqnroll?(image_name)
-    image_name.start_with?('ghcr.io/cyber-dojo-languages/csharp_reqnroll')
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
