@@ -2,7 +2,7 @@ FROM cyberdojo/docker-base:93aaaee@sha256:676847afbea1f6463dc7bef6f5ea0cb080c01d
 # The FROM statement above is typically set via an automated pull-request from the docker-base repo
 LABEL maintainer=jon@jaggersoft.com
 
-RUN apk add --upgrade expat=2.7.4-r0          # https://security.snyk.io/vuln/SNYK-ALPINE321-EXPAT-15199474
+RUN apk add --upgrade expat=2.7.5-r0          # https://security.snyk.io/vuln/SNYK-ALPINE321-EXPAT-15199474
 RUN apk add --upgrade c-ares=1.34.6-r0        # https://security.snyk.io/vuln/SNYK-ALPINE322-CARES-14409293
 RUN apk add --upgrade busybox=1.37.0-r14      # https://security.snyk.io/vuln/SNYK-ALPINE321-BUSYBOX-14102399
 RUN apk add --upgrade git=2.47.3-r0           # https://security.snyk.io/vuln/SNYK-ALPINE320-GIT-10669667
