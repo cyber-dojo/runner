@@ -30,7 +30,7 @@ check_args()
       ;;
     'server')
       if [ -n "${CI:-}" ] ; then
-        stderr "In CI workflow - use docker/build-push-action@v6 GitHub Action"
+        stderr "Inside CI workflow you must use secure-docker-build.yml reusable workflow"
         exit_non_zero
       fi
       ;;
