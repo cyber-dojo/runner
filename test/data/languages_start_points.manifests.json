@@ -7,8 +7,9 @@
         ".h",
         ".c"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/nasm_assert:8798822",
+      "image_name": "ghcr.io/cyber-dojo-languages/nasm_assert:00ed53b",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /(.*)Assertion(.*)failed./.match(output)\n  return :green if /(All|\\d*) tests passed/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -33,8 +34,9 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/bash_unit:391e152",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_unit:19b5bea",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,_status|\n  return :red   if /\\.\\.\\. FAILURE/.match(stdout) && stderr==''\n  return :green if /\\.\\.\\. SUCCESS/.match(stdout) && stderr==''\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -79,8 +81,9 @@
       "filename_extension": [
         ".sh"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/bash_shunit2:eb3f310",
+      "image_name": "ghcr.io/cyber-dojo-languages/bash_shunit2:07becff",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  return :green if status == 0\n  return :amber if /error token is/.match(stderr)\n  return :red\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -286,8 +289,9 @@
       "filename_extension": [
         ".cs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/csharp_moq:40d9862",
+      "image_name": "ghcr.io/cyber-dojo-languages/csharp_moq:34870bf",
       "max_seconds": 15,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "HikerTest.cs": {
@@ -309,8 +313,9 @@
       "filename_extension": [
         ".cs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/csharp_nunit:80e3fae",
+      "image_name": "ghcr.io/cyber-dojo-languages/csharp_nunit:70e19ed",
       "max_seconds": 15,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n   #dotnet test:\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n\n  #nunit console runner:\n  return :green if /^\\s+Overall result: Passed/.match(output)\n  return :red   if /^\\s+Failed Tests/.match(output) \n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.cs": {
@@ -320,34 +325,41 @@
           "content": "using NUnit.Framework;\n\npublic class HikerTest\n{\n    [Test]\n    public void life_the_universe_and_everything()\n    {\n        // a simple example to start you off\n        Assert.That(Hiker.Answer(), Is.EqualTo(42));\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  #cyber_dojo_delete_files ...\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\ndotnet restore --source /home/sandbox/.nuget/packages/\ndotnet test --no-restore --nologo\n"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n#FALLBACK, SLOWER ~5.4s: \n# comment in the next line if compilation fails\n#time (ln -s /home/sandbox/dotnet_obj obj && dotnet test --no-restore --nologo ) && exit\n\n#FAST ~1.2s: \nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -out:dojo.dll \\\n  -r:/home/sandbox/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )"
         },
         "dojo.csproj": {
-          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <IsPackable>false</IsPackable>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"coverlet.collector\" Version=\"6.0.4\" />\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit.Analyzers\" Version=\"4.7.0\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
+          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>disable</Nullable>\n    <IsPackable>false</IsPackable>\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>\n    <AnalysisLevel>none</AnalysisLevel>\n    <EnableNETAnalyzers>false</EnableNETAnalyzers>\n\n    <Optimize>true</Optimize>\n    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>  <!-- No extra lang packs -->\n\n    <!-- Help Roslyn / build go faster -->\n    <NoWarn>$(NoWarn);CS1701;CS1702</NoWarn> <!-- minor warning noise -->\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild> <!-- already have -->\n\n    <!-- If no large constants / resources -->\n    <UseRidGraph>false</UseRidGraph>\n\n    <EnableNUnitRunner>true</EnableNUnitRunner>  <!-- Enables MTP-based NUnit runner -->\n    <OutputType>Exe</OutputType> <!-- Builds a runnable exe -->\n    <Optimize>true</Optimize>\n    <DebugType>embedded</DebugType> <!-- No separate .pdb file → faster emit -->\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
+        },
+        "dojo.runtimeconfig.json": {
+          "content": "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net10.0\",\n    \"framework\": {\n      \"name\": \"Microsoft.NETCore.App\",\n      \"version\": \"10.0.0\"\n    },\n    \"configProperties\": {\n      \"MSTest.EnableParentProcessQuery\": true,\n      \"System.Reflection.Metadata.MetadataUpdater.IsSupported\": false,\n      \"System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization\": false,\n      \"System.Runtime.Loader.UseRidGraph\": false\n    }\n  }\n}"
         }
       }
     },
-    "C#, SpecFlow": {
-      "display_name": "C#, SpecFlow",
+    "C# 9.0, Reqnroll 3.3.3 (a.k.a. SpecFlow)": {
+      "display_name": "C# 9.0, Reqnroll 3.3.3 (a.k.a. SpecFlow)",
       "filename_extension": [
         ".cs",
         ".feature"
       ],
-      "image_name": "cyberdojofoundation/csharp_specflow:b1b68a6",
-      "max_seconds": 10,
+      "image_name": "ghcr.io/cyber-dojo-languages/csharp_reqnroll:56116a8",
+      "max_seconds": 20,
+      "rag_lambda": "lambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n  return :amber\n}",
       "tab_size": 4,
       "visible_files": {
-        "Hiker.cs": {
-          "content": "\npublic class Hiker\n{\n    public static int Answer()\n    {\n        return 6 * 9;\n    }\n}\n"
-        },
-        "HikerSpec.feature": {
+        "Features/Hiker.feature": {
           "content": "Feature: A simple specification to start you off\n\n  Scenario: The meaning of life, the universe and everything\n    Given life, the universe and everything\n    When I ask for the meaning\n    Then the answer is 42"
         },
-        "HikerSteps.cs": {
-          "content": "using System;\nusing TechTalk.SpecFlow;\nusing NUnit.Framework;\n\n[Binding]\npublic class HikerSteps\n{\n    private int answer;\n\n    [Given(@\"life, the universe and everything\")]\n    public void GivenLifeTheUniverseAndEverything()\n    {\n        // Life, the universe and everything needs no creation by us\n    }\n\n    [When(@\"I ask for the meaning\")]\n    public void WhenIAskForTheMeaning()\n    {\n        answer = Hiker.Answer();\n    }\n\n    [Then(@\"the answer is (.*)\")]\n    public void ThenTheAnswerIs(int expected)\n    {\n        Assert.AreEqual(expected, answer);\n    }\n}\n"
+        "Hiker.cs": {
+          "content": "public class Hiker\n{\n    public static int Answer()\n    {\n        return 6 * 9;\n    }\n}\n"
+        },
+        "StepDefinitions/HikerSteps.cs": {
+          "content": "using System;\nusing Reqnroll;\nusing NUnit.Framework;\n\nnamespace StepDefinitions;\n[Binding]\npublic class HikerSteps\n{\n    private int answer;\n\n    [Given(@\"life, the universe and everything\")]\n    public void GivenLifeTheUniverseAndEverything()\n    {\n        // Life, the universe and everything needs no creation by us\n    }\n\n    [When(@\"I ask for the meaning\")]\n    public void WhenIAskForTheMeaning()\n    {\n        answer = Hiker.Answer();\n    }\n\n    [Then(@\"the answer is (.*)\")]\n    public void ThenTheAnswerIs(int expected)\n    {\n        Assert.That(answer, Is.EqualTo(expected));\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "#!/bin/bash\n\n# ------------------------------------------------------------------------\n# cyber-dojo returns text files under /sandbox that are\n# created/deleted/changed. In tidy_up you can remove any\n# such files you don't want returned to the browser.\n\ntrap tidy_up EXIT\n\nfunction tidy_up()\n{\n  delete_files TestResult.xml\n  delete_files TechTalk.SpecFlow.targets\n  delete_files TechTalk.SpecFlow.tasks\n  delete_files TechTalk.SpecFlow.props\n  delete_files specflow.json\n  delete_files specflow.exe.config\n  delete_files plugincompability.config\n  delete_files app.config\n  delete_files RunTests.csproj\n  delete_files *.feature.cs\n}\n\nfunction delete_files()\n{\n  for filename in \"$@\"\n  do\n      rm \"${filename}\" 2> /dev/null || true\n  done\n}\n\n# ------------------------------------------------------------------------\n# build project file\n{\n  cat <<PREFIX\n  <Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n    <ItemGroup>\nPREFIX\n  for file in *.feature\n  do\n    cat <<EACH_FILE\n        <None Include=\"${file}\">\n          <Generator>SpecFlowSingleFileGenerator</Generator>\n          <LastGenOutput>${file}.cs</LastGenOutput>\n        </None>\nEACH_FILE\n  done\n  cat <<SUFFIX\n    </ItemGroup>\n    <ItemGroup>\n      <None Include=\"specflow.json\" />\n    </ItemGroup>\n  </Project>\nSUFFIX\n} > RunTests.csproj\n\n# build specflow.json\ncat <<EOF > specflow.json\n{\n  \"specflow\": {\n    \"runtime\": {\"missingOrPendingStepsOutcome\": \"Error\"},\n    \"unitTestProvider\": {\"name\": \"NUnit\"}\n  }\n}\nEOF\n\nNUNIT_PATH=/nunit/lib/net45\nexport MONO_PATH=${NUNIT_PATH}\n\n# ------------------------------------------------------------------------\n# generate 'code behind' and run\n\nfind . -iname '*.feature.cs' -exec rm '{}' \\;\nmono /specflow/specflow.exe generateall RunTests.csproj\n\nmcs -t:library \\\n  -r:/specflow/TechTalk.SpecFlow.dll \\\n  -r:${NUNIT_PATH}/nunit.framework.dll \\\n  -out:RunTests.dll *.cs\n\ncp /specflow/* .\n\nif [ $? -eq 0 ]; then\n  NUNIT_RUNNERS_PATH=/nunit/tools\n  mono ${NUNIT_RUNNERS_PATH}/nunit3-console.exe --noheader ./RunTests.dll\nfi\n"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\n\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files /sandbox/Reqnroll/userid\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\ndotnet restore --source /home/sandbox/.nuget/packages/\nDOTNET_ROLL_FORWARD=LatestMajor dotnet test --no-restore\n"
+        },
+        "dojo.csproj": {
+          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net9.0</TargetFramework>\n    <ReqnrollUseIntermediateOutputPathForCodeBehind>true</ReqnrollUseIntermediateOutputPathForCodeBehind>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.8.0\" />\n    <PackageReference Include=\"Reqnroll.NUnit\" Version=\"3.3.3\" />\n    <PackageReference Include=\"nunit\" Version=\"4.4.0\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.2.0\" />\n  </ItemGroup>\n\n</Project>"
         }
       }
     },
@@ -417,8 +429,9 @@
         ".c",
         ".h"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/clangpp_googlemock:3b09fba",
-      "max_seconds": 15,
+      "image_name": "ghcr.io/cyber-dojo-languages/clangpp_googlemock:806bfec",
+      "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /\\[  FAILED  \\]/.match(output)\n  return :green if /\\[  PASSED  \\]/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -443,7 +456,7 @@
           "content": "#ifndef LOGGER_INCLUDED\n#define LOGGER_INCLUDED\n\n#include <string>\n\nclass Logger // interface\n{\npublic:\n    virtual void log(const std::string &) = 0;\n};\n\n#endif"
         },
         "makefile": {
-          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++2a\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\n\nGTEST_LIBS = -lgtest -lgmock -lgmock_main -pthread\n\nHPP_FILES = $(wildcard *.hpp)\nCOMPILED_HPP_FILES = $(patsubst %.hpp,%.compiled_hpp,$(HPP_FILES))\nCPP_FILES = $(wildcard *.cpp)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$< --gtest_shuffle\n\ntest: $(CPP_FILES) $(COMPILED_HPP_FILES)\n\t@$(CXX) $(CXXFLAGS) -O $(CPP_FILES) $(GTEST_LIBS) -o $@\n\n# This rule ensures header files build in their own right.\n# The quality of header files is important because header files\n# are #included from other files and thus have a large span\n# of influence (unlike .cpp files which are not #included)\n\n%.compiled_hpp: %.hpp\n\t@$(CXX) -x c++ $(CXXFLAGS) -c -o $@ $<\n"
+          "content": "CXXFLAGS += -I.\nCXXFLAGS += -std=c++20\nCXXFLAGS += -Wall\nCXXFLAGS += -Wextra\nCXXFLAGS += -Wshadow\nCXXFLAGS += -Wfloat-equal\nCXXFLAGS += -O0\nCXXFLAGS += -Wsequence-point\nCXXFLAGS += -Wmissing-noreturn\nCXXFLAGS += -Wunreachable-code\n\nCXXFLAGS += -fprofile-arcs -ftest-coverage\n\nCXXFLAGS += -fsanitize=leak,address\nCXXFLAGS += -fno-sanitize-recover=undefined\nCXXFLAGS += -fno-omit-frame-pointer\nCXXFLAGS += -pthread\n\n# Works only if the above compilation flags are NOT changed\n# Remove otherwise.\nCXXFLAGS += -include-pch /usr/local/include/gtest/gtest.h.pch\nCXXFLAGS += -include-pch /usr/local/include/gmock/gmock.h.pch\n\nGTEST_LIBS = -lgtest -lgmock -lgmock_main\n\nHPP_FILES = $(wildcard *.hpp)\nCPP_FILES = $(wildcard *.cpp)\nOBJ_FILES = $(CPP_FILES:.cpp=.o)\n\n.PHONY: test.output\ntest.output: test makefile\n\t@./$< --gtest_shuffle\n\ntest: $(OBJ_FILES)\n\t@$(CXX) $(CXXFLAGS) $^ $(GTEST_LIBS) -o $@\n\n%.o: %.cpp $(HPP_FILES) makefile\n\t@$(CXX) $(CXXFLAGS) -c $< -o $@\n"
         },
         "mock_logger.hpp": {
           "content": "#ifndef MOCK_LOGGER_INCLUDED\n#define MOCK_LOGGER_INCLUDED\n\n#include \"logger.hpp\"\n#include <gmock/gmock.h>\n\nclass MockLogger : public Logger\n{\npublic:\n    MOCK_METHOD1(log, void(const std::string&));\n};\n\n#endif\n"
@@ -1141,8 +1154,9 @@
         ".java",
         ".txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/java_approval:e2178d4",
+      "image_name": "ghcr.io/cyber-dojo-languages/java_approval:4015dc6",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  containers_pattern = Regexp.new('^\\[\\s+(\\d+) containers failed\\s+\\]')\n  if match = containers_pattern.match(output)\n    if match[1] != '0'\n      return :amber\n    end\n  end\n  tests_pattern = Regexp.new('^\\[\\s+(\\d+) tests failed\\s+\\]')\n  if match = tests_pattern.match(output)\n    if match[1] == '0'\n      return :green\n    else\n      return :red\n    end\n  else\n    return :amber\n  end\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.java": {
@@ -1269,30 +1283,6 @@
         }
       }
     },
-    "Java 21, JUnit 5": {
-      "display_name": "Java 21, JUnit 5",
-      "filename_extension": [
-        ".java"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/java_junit:30b6214",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "Failures (\\d)\\:",
-        "^\\[\\s+(\\d+) tests successful\\s+\\]"
-      ],
-      "tab_size": 4,
-      "visible_files": {
-        "Hiker.java": {
-          "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}\n"
-        },
-        "HikerTest.java": {
-          "content": "// A simple example to get you started\n// JUnit assertion - the default Java assertion library\n// https://junit.org/junit5/\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)\npublic class HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        int expected = 42;\n        int actual = Hiker.answer();\n        assertEquals(expected, actual);\n    }\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /junit/*.jar | tr '\\n' ':'`\n\nif javac -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java -jar /junit/junit-platform-console-standalone-1.11.3.jar \\\n      --disable-banner \\\n      --disable-ansi-colors \\\n      --details=tree \\\n      --details-theme=ascii \\\n      --class-path . \\\n      --scan-class-path\nfi\n"
-        }
-      }
-    },
     "Java 21, Mockito 5.14": {
       "display_name": "Java 21, Mockito 5.14",
       "filename_extension": [
@@ -1336,6 +1326,31 @@
         },
         "cyber-dojo.sh": {
           "content": "\nCLASSES=.:`ls /powermockito/*.jar | tr '\\n' ':'`\njavac -Xlint:unchecked -cp $CLASSES  *.java \n\nif [ $? -eq 0 ]; then\n  # run test classes even if they are inner classes\n  java --add-opens java.base/java.lang=ALL-UNNAMED \\\n      --add-opens java.base/jdk.internal.loader=ALL-UNNAMED \\\n      --add-opens java.base/java.security=ALL-UNNAMED \\\n      -cp $CLASSES org.junit.runner.JUnitCore \\\n      `ls -1 *Test*.class | grep -v '\\\\$' | sed 's/\\(.*\\)\\..*/\\1/'`\nfi\n"
+        }
+      }
+    },
+    "Java 25.0.2, JUnit 6.0.3": {
+      "display_name": "Java 25.0.2, JUnit 6.0.3",
+      "filename_extension": [
+        ".java"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/java_junit:7aa5992",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "Failures (\\d)\\:",
+        "^\\[\\s+(\\d+) tests successful\\s+\\]"
+      ],
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  containers_pattern = Regexp.new('^\\[\\s+(\\d+) containers failed\\s+\\]')\n  if match = containers_pattern.match(output)\n    if match[1] != '0'\n      return :amber\n    end\n  end\n  tests_pattern = Regexp.new('^\\[\\s+(\\d+) tests failed\\s+\\]')\n  if match = tests_pattern.match(output)\n    if match[1] == '0'\n      return :green\n    else\n      return :red\n    end\n  else\n    return :amber\n  end\n}\n",
+      "tab_size": 4,
+      "visible_files": {
+        "Hiker.java": {
+          "content": "\npublic class Hiker {\n\n    public static int answer() {\n        return 6 * 9;\n    }\n}\n"
+        },
+        "HikerTest.java": {
+          "content": "// A simple example to get you started\n// JUnit assertion - the default Java assertion library\n// https://junit.org/junit5/\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)\npublic class HikerTest {\n\n    @Test\n    void life_the_universe_and_everything() {\n        int expected = 42;\n        int actual = Hiker.answer();\n        assertEquals(expected, actual);\n    }\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "#! /bin/bash\nset -e\n\ncd ${CYBER_DOJO_SANDBOX}\n\nCLASSES=.:`ls /junit/*.jar | tr '\\n' ':'`\n\nif javac -Xlint:preview -Xlint:unchecked -Xlint:deprecation -cp $CLASSES *.java; then\n  java \\\n    -jar /junit/junit-platform-console-standalone-6.0.3.jar \\\n    execute \\\n    --class-path . \\\n    --disable-banner \\\n    --disable-ansi-colors \\\n    --details=tree \\\n    --details-theme=ascii \\\n    --scan-class-path\nfi\n\n\n"
         }
       }
     },
@@ -1627,14 +1642,15 @@
         }
       }
     },
-    "Prolog 10.1.1, plunit": {
-      "display_name": "Prolog 10.1.1, plunit",
+    "Prolog 10.1.3, plunit": {
+      "display_name": "Prolog 10.1.3, plunit",
       "filename_extension": [
         ".pl",
         ".plt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/prolog_plunit:7197dd8",
+      "image_name": "ghcr.io/cyber-dojo-languages/prolog_plunit:7aaf4aa",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :green if status === 0\n  return :red   if /\\stest (\\S+): failed/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1653,8 +1669,9 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:80f0f37",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_assert:822940c",
       "max_seconds": 10,
+      "rag_lambda": "lambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /^AssertionError/.match(output)\n  return :green if /^All tests passed/.match(output)\n  return :amber\n}",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1674,8 +1691,9 @@
         ".py",
         ".feature"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:4e1bb94",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_behave:9e24065",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /Failing scenarios/.match(output)\n  return :green if /, 0 failed, /.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1697,8 +1715,9 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:199138f",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:4833cf7",
       "max_seconds": 10,
+      "rag_lambda": "\n# Python-pytest, like most test frameworks does not\n# set status to non-zero at appropriate times :-(\n# So you have to look at stdout/stderr.\n# The particular problem is distinguishing red from amber.\n# Below is a start at trapping some specific amber errors.\n# There are no doubt more.\n\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n\n  return :amber if /=== ERRORS ===/.match(output)\n\n  %w(\n    Attribute\n    Index\n    Key\n    Name\n    Type\n    UnboundLocal\n  ).each do |syntax_error_prefix|\n     return :amber if\n       /=== FAILURES ===/.match(output) &&\n         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)\n  end\n\n  return :green if /=== (\\d+) passed/.match(output)\n  return :red\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1712,15 +1731,16 @@
         }
       }
     },
-    "Python 3.14.3, pytest-approval 16.3.0": {
-      "display_name": "Python 3.14.3, pytest-approval 16.3.0",
+    "Python 3.14.3, pytest-approval 17.2.1": {
+      "display_name": "Python 3.14.3, pytest-approval 17.2.1",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:bd343c8",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:0839d76",
       "max_seconds": 10,
+      "rag_lambda": "\n# Python-pytest, like most test frameworks does not\n# set status to non-zero at appropriate times :-(\n# So you have to look at stdout/stderr.\n# The particular problem is distinguishing red from amber.\n# Below is a start at trapping some specific amber errors.\n# There are no doubt more.\n\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n\n  return :amber if /=== ERRORS ===/.match(output)\n\n  %w(\n    Attribute\n    Index\n    Key\n    Name\n    Type\n    UnboundLocal\n  ).each do |syntax_error_prefix|\n     return :amber if\n       /=== FAILURES ===/.match(output) &&\n         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)\n  end\n\n  return :green if /=== (\\d+) passed/.match(output)\n  return :red\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1739,11 +1759,12 @@
       "filename_extension": [
         ".py"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:c5e44a0",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_unittest:9e3179c",
       "progress_regexs": [
         "FAILED \\(failures=\\d+\\)",
         "OK"
       ],
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /FAILED \\(failures=/.match(output)\n  return :green if /OK/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1757,15 +1778,16 @@
         }
       }
     },
-    "Python 3.14.3, unittest-approval 16.3.0": {
-      "display_name": "Python 3.14.3, unittest-approval 16.3.0",
+    "Python 3.14.3, unittest-approval 17.2.1": {
+      "display_name": "Python 3.14.3, unittest-approval 17.2.1",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:66a1418",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:e38951e",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /FAILED \\(failures=/.match(output)\n  return :red   if /FAILED \\(errors=/.match(output)\n  return :green if /OK/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "HikerTest.test_global.approved.txt": {
@@ -1790,8 +1812,9 @@
       "filename_extension": [
         ".R"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/r_runit:9129af4",
+      "image_name": "ghcr.io/cyber-dojo-languages/r_runit:265c9f4",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /Error in check(.*)/.match(output)\n  return :green if /All tests passed/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1838,8 +1861,9 @@
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/ruby_approval:6412933",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_approval:6084b46",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :amber if /(\\d+) example(s?), (\\d+) failure(s?), (\\d+) error(s?)/.match(output)\n  return :green if /(\\d+) example(s?), 0 failures/.match(output)\n  return :red   if /(\\d+) example(s?), (\\d+) failure(s?)/.match(output)\n  return :red   if /(\\d+) scenario(s?) \\((\\d+) failed/.match(output)\n  return :green if /(\\d+) scenario(s?) \\((\\d+) passed/.match(output)\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1868,8 +1892,9 @@
         ".rb",
         ".feature"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/ruby_cucumber:1355d2b",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_cucumber:2c18d33",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n\n  return :amber if /SyntaxError/.match(output)\n  return :amber if /NameError/.match(output)\n  return :amber if /Parser errors:/.match(output)\n  return :amber if /^undefined method/.match(output)\n  return :amber if /^[.\\-UAPF]*U[.\\-UAPF]*$/.match(output)\n  return :amber if /^[.\\-UAPF]*A[.\\-UAPF]*$/.match(output)\n  return :red   if /^[.\\-UAPF]*P[.\\-UAPF]*$/.match(output)\n  return :red   if /^[.\\-UAPF]*F[.\\-UAPF]*$/.match(output)\n  return :red   if /^\\(\\:\\:\\) failed steps \\(\\:\\:\\)$/.match(output)\n  return :red   if /^\\(\\:\\:\\) pending steps \\(\\:\\:\\)$/.match(output)\n  return :green\n}\n",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1894,7 +1919,8 @@
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/ruby_mini_test:ff4e2bb",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_mini_test:da2b0dd",
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  ruby_pattern = Regexp.new('^(\\d+) runs, (\\d+) assertions, (\\d+) failures, (\\d+) errors')\n  if match = ruby_pattern.match(output)\n    return :amber if match[4] != '0'\n    return :red   if match[3] != '0'\n    return :green\n  else\n    return :amber\n  end\n}\n",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1916,8 +1942,9 @@
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/ruby_rspec:5c49bbb",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_rspec:961d9ee",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :amber if /(\\d+) example(s?), (\\d+) failure(s?), (\\d+) error(s?)/.match(output)\n  return :green if /(\\d+) example(s?), 0 failures/.match(output)\n  return :red   if /(\\d+) example(s?), (\\d+) failure(s?)/.match(output)\n  return :red   if /(\\d+) scenario(s?) \\((\\d+) failed/.match(output)\n  return :green if /(\\d+) scenario(s?) \\((\\d+) passed/.match(output)\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1939,8 +1966,9 @@
       "filename_extension": [
         ".rb"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/ruby_test_unit:7eddad5",
+      "image_name": "ghcr.io/cyber-dojo-languages/ruby_test_unit:f961a02",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  ruby_pattern = Regexp.new('^(\\d+) tests, (\\d+) assertions, (\\d+) failures, (\\d+) errors')\n  if match = ruby_pattern.match(output)\n    return :amber if match[4] != '0'\n    return :red   if match[3] != '0'\n    return :green\n  else\n    return :amber\n  end\n}\n",
       "tab_size": 2,
       "visible_files": {
         "coverage.rb": {
@@ -1957,13 +1985,14 @@
         }
       }
     },
-    "Rust 1.93.0, test": {
-      "display_name": "Rust 1.93.0, test",
+    "Rust 1.93.1, test": {
+      "display_name": "Rust 1.93.1, test",
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:0a92c80",
+      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:2e43b8c",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /test result: FAILED/.match(output)\n  return :green if /test result: ok/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Cargo.toml": {
