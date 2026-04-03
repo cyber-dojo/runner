@@ -17,7 +17,6 @@ env:
   AWS_REGION:          ${{ vars.AWS_REGION }}
   AWS_ACCOUNT_ID_BETA: ${{ vars.AWS_ACCOUNT_ID_BETA }}
   SERVICE_NAME:        ${{ github.event.repository.name }}  # runner
-  DOCKER_API_VERSION:  ${{ vars.DOCKER_API_VERSION }}
 
 jobs:
 
