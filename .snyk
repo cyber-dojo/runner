@@ -58,3 +58,26 @@ ignore:
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  SNYK-GOLANG-GITHUBCOMDOCKERCLICLIPLUGINSMANAGER-15435878:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOURCEHTTP-15790741:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOURCEGIT-15790743:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSSELINUXGOSELINUX-13843568:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
