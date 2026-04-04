@@ -1,0 +1,106 @@
+# This file specifies snyk vulnerabilities to be ignored.
+# If this file contains only comments, then no vulnerabilities are ignored.
+# Referenced in the workflow's synk-test.
+
+ignore:
+  SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-10558294:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMGOVIPERMAPSTRUCTUREV2-12177854:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-12668891:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-14059804:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOLANGORGXCRYPTOSSH-14059803:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSSELINUXGOSELINUX-13843568:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-ALPINE321-RUBY-14100871:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15182758:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOLANGORGXNETHTML-15237516:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOLANGORGXNETHTML-15237740:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMDOCKERCLICLIPLUGINSMANAGER-15435878:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOURCEHTTP-15790741:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITCLIENTLLB-15790742:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOURCEGIT-15790743:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITUTILGITUTIL-15790744:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMVBATTSTARSPLITARCHIVETAR-15857048:
+    - '*':
+        reason: Waiting for base image upgrade
+        expires: 2026-04-15T10:53:10.182Z
+        created: 2026-03-15T10:53:10.201Z
