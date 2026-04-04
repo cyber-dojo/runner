@@ -190,8 +190,9 @@ class Runner
     # [0] We could allow cores as binary files are not tar piped out of the container.
     # [1] The nproc --limit is per user across all containers. See
     # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
-    # There is no cpu-ulimit. See
-    # https://github.com/cyber-dojo-retired/runner-stateless/issues/2
+    # There is no cpu-ulimit. See https://github.com/cyber-dojo-retired/runner-stateless/issues/2
+    # We used to add --kernel-memory=2g but this flag was removed from Docker 29.
+    # When docker run encounters this unknown flag, it exits non-zero, so it is removed.
     options = [
       ulimit('core', 0),                  # no core file [0]
       ulimit('fsize', 256 * MB),          # file size
@@ -199,7 +200,6 @@ class Runner
       ulimit('nofile', 1024),             # number of files
       ulimit('nproc', 1024),              # number of processes [1]
       ulimit('stack', 16 * MB),           # stack size
-      '--kernel-memory=2g',               # limited
       '--memory=2g',                      # max 768MB ram (same swap)
       '--net=none',                       # no network
       '--pids-limit=128',                 # no fork bombs

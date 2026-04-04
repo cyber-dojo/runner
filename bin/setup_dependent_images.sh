@@ -37,6 +37,7 @@ pull_dependent_images()
           echo "ERROR: ${display_name}"
           echo "Has no entry in test/dependent_display_names.rb"
           echo "This is probably because of a language and/or unit-test framework upgrade."
+          echo "Try 'docker pull cyberdojo/versioner:latest' and retry?"
           echo "Possible updated display_names are:"
           local -r lang=$(echo "${display_name}" | awk '{print $1;}')
           local -r all_names=$(echo "${JSON_DATA}" | jq 'keys')
