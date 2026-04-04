@@ -81,3 +81,27 @@ ignore:
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4CIPHER-15875224:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-ALPINE322-OPENSSH-14139238:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-ALPINE322-OPENSSH-14137201:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
