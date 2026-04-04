@@ -30,10 +30,10 @@ module HomeFiles
   #     Eg -J... is a tar compression option (but not on Ubuntu 16.04)
   #     This next line used to be:
   #       tar -rf "${TAR_FILE}" --verbatim-files-from --null -T <(print0_filenames)
-  #     Bash process substitution <(print0_filenames) fails silently inside Ubuntu containers under 
-  #    Docker 29.0.1. Process substitution requires /dev/fd/N (via /proc/self/fd) — this is blocked
-  #    by an updated AppArmor or seccomp profile in Docker 29 for Ubuntu containers.
-  # 
+  #     Bash process substitution <(print0_filenames) fails silently inside Ubuntu containers under
+  #     Docker 29.0.1. Process substitution requires /dev/fd/N (via /proc/self/fd) — this is blocked
+  #     by an updated AppArmor or seccomp profile in Docker 29 for Ubuntu containers.
+  #
   # [1] Must be //; dont add space between // and ;
   # [2] /usr/bin/file reports small text files as binary.
   #     If size==0,1 assume a text file.
