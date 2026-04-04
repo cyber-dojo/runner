@@ -1,10 +1,6 @@
-FROM cyberdojo/docker-base:8bdc8d4@sha256:5f648cc4380bbf30aa1bf0e3fe1bc6660993ecb12081fd1d250178bf9dff6af2
+FROM cyberdojo/docker-base:77d4203@sha256:56aa599981168c97518c19ec9236e2e3eb271f04adf7ae6aa479703ad76f9d01
 # The FROM statement above is typically set via an automated pull-request from the docker-base repo
 LABEL maintainer=jon@jaggersoft.com
-
-RUN apk add --upgrade expat=2.7.5-r0          # https://security.snyk.io/vuln/SNYK-ALPINE321-EXPAT-15199474
-RUN apk add --upgrade c-ares=1.34.6-r0        # https://security.snyk.io/vuln/SNYK-ALPINE322-CARES-14409293
-RUN apk upgrade libcrypto3 libssl3            # https://security.snyk.io/vuln/SNYK-ALPINE322-OPENSSL-13174133
 
 RUN gem install --no-document 'concurrent-ruby'
 

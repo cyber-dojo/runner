@@ -12,7 +12,7 @@ readonly SARIF_FILENAME=${SARIF_FILENAME:-snyk.container.scan.json}
 
 exit_non_zero_unless_installed snyk
 
-snyk container test "${IMAGE_NAME}" -d \
+snyk container test "${IMAGE_NAME}" \
   --policy-path="${ROOT_DIR}/.snyk" \
   --sarif \
   --sarif-file-output="${ROOT_DIR}/${SARIF_FILENAME}" | /tmp/snyk.log
