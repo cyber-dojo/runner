@@ -202,6 +202,7 @@ class ContainerPropertiesTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def created_file(filename)
+    assert created.keys.include?(filename), created.keys
     created[filename]['content']
   end
 end

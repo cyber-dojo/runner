@@ -289,9 +289,13 @@
       "filename_extension": [
         ".cs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/csharp_moq:34870bf",
+      "image_name": "ghcr.io/cyber-dojo-languages/csharp_moq:f802f40",
       "max_seconds": 15,
-      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n  return :amber\n}\n",
+      "progress_regexs": [
+        "^\\s+Failed Tests - Failures: \\d+",
+        "Passed: \\d+"
+      ],
+      "rag_lambda": "lambda { |stdout,stderr,status|\n  output = stdout + stderr\n   #dotnet test:\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n\n  #nunit console runner:\n  return :green if /^\\s+Overall result: Passed/.match(output)\n  return :red   if /^\\s+Failed Tests/.match(output) \n  return :amber\n}",
       "tab_size": 4,
       "visible_files": {
         "HikerTest.cs": {
@@ -301,7 +305,7 @@
           "content": "\npublic interface IHiker\n{\n    int Answer();\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_exit()\n{\n  : # ...Remove files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\ndotnet restore --source /home/sandbox/.nuget/packages/\ndotnet test --no-restore --nologo\n"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n\n#FALLBACK, SLOWER ~8.1s: \n# comment in the next line if compilation fails\n#time (dotnet restore --source /home/sandbox/.nuget/packages/ && dotnet test --no-restore --nologo ) && exit\n\nln -s ~/.nuget/packages/moq/4.20.72/lib/net6.0/Moq.dll Moq.dll\nln -s ~/.nuget/packages/castle.core/5.1.1/lib/net6.0/Castle.Core.dll Castle.Core.dll\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\n#use legacy asserts eg: AreEqual(42, 42)\n# needs on top of file: using static NUnit.Framework.Legacy.ClassicAssert;\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.legacy.dll nunit.framework.legacy.dll \n\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -nologo \\\n  -out:dojo.dll \\\n  -r:nunit.framework.dll \\\n  -r:Moq.dll \\\n  -r:Castle.Core.dll \\\n  -r:nunit.framework.legacy.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Linq.Expressions.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )"
         },
         "dojo.csproj": {
           "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <IsPackable>false</IsPackable>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"coverlet.collector\" Version=\"6.0.4\" />\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"Moq\" Version=\"4.20.72\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit.Analyzers\" Version=\"4.7.0\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
@@ -315,6 +319,10 @@
       ],
       "image_name": "ghcr.io/cyber-dojo-languages/csharp_nunit:70e19ed",
       "max_seconds": 15,
+      "progress_regexs": [
+        "^\\s+Failed Tests - Failures: \\d+",
+        "Passed: \\d+"
+      ],
       "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n   #dotnet test:\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n\n  #nunit console runner:\n  return :green if /^\\s+Overall result: Passed/.match(output)\n  return :red   if /^\\s+Failed Tests/.match(output) \n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
@@ -325,13 +333,10 @@
           "content": "using NUnit.Framework;\n\npublic class HikerTest\n{\n    [Test]\n    public void life_the_universe_and_everything()\n    {\n        // a simple example to start you off\n        Assert.That(Hiker.Answer(), Is.EqualTo(42));\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n#FALLBACK, SLOWER ~5.4s: \n# comment in the next line if compilation fails\n#time (ln -s /home/sandbox/dotnet_obj obj && dotnet test --no-restore --nologo ) && exit\n\n#FAST ~1.2s: \nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -out:dojo.dll \\\n  -r:/home/sandbox/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n#FALLBACK, SLOWER ~5.4s: \n# comment in the next line if compilation fails\n#time (ln -s /home/sandbox/dotnet_obj obj && dotnet test --no-restore --nologo ) && exit\n\n#FAST ~1.2s: \nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -nologo \\\n  -out:dojo.dll \\\n  -r:/home/sandbox/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )\n"
         },
         "dojo.csproj": {
           "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>disable</Nullable>\n    <IsPackable>false</IsPackable>\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>\n    <AnalysisLevel>none</AnalysisLevel>\n    <EnableNETAnalyzers>false</EnableNETAnalyzers>\n\n    <Optimize>true</Optimize>\n    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>  <!-- No extra lang packs -->\n\n    <!-- Help Roslyn / build go faster -->\n    <NoWarn>$(NoWarn);CS1701;CS1702</NoWarn> <!-- minor warning noise -->\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild> <!-- already have -->\n\n    <!-- If no large constants / resources -->\n    <UseRidGraph>false</UseRidGraph>\n\n    <EnableNUnitRunner>true</EnableNUnitRunner>  <!-- Enables MTP-based NUnit runner -->\n    <OutputType>Exe</OutputType> <!-- Builds a runnable exe -->\n    <Optimize>true</Optimize>\n    <DebugType>embedded</DebugType> <!-- No separate .pdb file → faster emit -->\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
-        },
-        "dojo.runtimeconfig.json": {
-          "content": "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net10.0\",\n    \"framework\": {\n      \"name\": \"Microsoft.NETCore.App\",\n      \"version\": \"10.0.0\"\n    },\n    \"configProperties\": {\n      \"MSTest.EnableParentProcessQuery\": true,\n      \"System.Reflection.Metadata.MetadataUpdater.IsSupported\": false,\n      \"System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization\": false,\n      \"System.Runtime.Loader.UseRidGraph\": false\n    }\n  }\n}"
         }
       }
     },
@@ -895,13 +900,14 @@
         }
       }
     },
-    "CoffeeScript, jasmine": {
-      "display_name": "CoffeeScript, jasmine",
+    "CoffeeScript 2.7.0, jasmine 3.0.0": {
+      "display_name": "CoffeeScript 2.7.0, jasmine 3.0.0",
       "filename_extension": [
         ".coffee"
       ],
-      "image_name": "cyberdojofoundation/coffeescript_jasmine:61aae85",
+      "image_name": "ghcr.io/cyber-dojo-languages/coffeescript_jasmine:c9b16e0",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  pattern = /(\\d+) test(s?), (\\d+) assertion(s?), (\\d+) failure(s?), (\\d+) skipped/\n  if match = pattern.match(output)\n    match[5] == '0' ? :green : :red\n  else\n    :amber\n  end\n}\n",
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1028,57 +1034,24 @@
         }
       }
     },
-    "Go 1.18, testify": {
-      "display_name": "Go 1.18, testify",
+    "Go 1.26.1, convey 1.8.1": {
+      "display_name": "Go 1.26.1, convey 1.8.1",
       "filename_extension": [
         ".go"
       ],
-      "image_name": "cyberdojofoundation/go_testify:3f62bba",
-      "max_seconds": 20,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "go test\n"
-        },
-        "hiker.go": {
-          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
-        },
-        "hiker_test.go": {
-          "content": "package hiker\n\nimport (\n    \"testing\"\n    \"github.com/stretchr/testify/assert\"\n)\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    assert.Equal(t, 42, answer())\n}\n"
-        }
-      }
-    },
-    "Go 1.23.5, testing": {
-      "display_name": "Go 1.23.5, testing",
-      "filename_extension": [
-        ".go"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/go_testing:248a3e3",
+      "image_name": "ghcr.io/cyber-dojo-languages/go_convey:3ceabba",
       "max_seconds": 15,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :amber if /FAIL(\\s*)_\\/sandbox(.*)\\[build failed\\]/.match(output)\n  return :amber if /syntax error:/.match(output)\n  return :red   if /FAIL/.match(output)\n  return :green if /PASS/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "go env -w GO111MODULE=auto\ngo test\n"
+          "content": "#!/bin/bash\n\n# There is no internet access so do not contact any module proxy\n# to download or resolve modules.\nexport GOPROXY=off\n# There is no internet access so do not verify any module's checksum\n# against the public checksum database (sum.golang.org)\nexport GONOSUMDB='*'\n# Use cache pre-populated in the docker image we are running in.\nexport GOCACHE=/go/build-cache\n\ngo test\n"
         },
-        "hiker.go": {
-          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
+        "go.mod": {
+          "content": "module cyber-dojo-go-convey\n\ngo 1.26.1\n\nrequire github.com/smartystreets/goconvey v1.8.1\n\nrequire (\n\tgithub.com/gopherjs/gopherjs v1.17.2 // indirect\n\tgithub.com/jtolds/gls v4.20.0+incompatible // indirect\n\tgithub.com/smarty/assertions v1.15.0 // indirect\n)\n"
         },
-        "hiker_test.go": {
-          "content": "package hiker\n\nimport (\"testing\")\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    if answer() != 42 {\n        t.Error(\"answer() != 42 as expected.\")\n    }\n}\n"
-        }
-      }
-    },
-    "Go, convey": {
-      "display_name": "Go, convey",
-      "filename_extension": [
-        ".go"
-      ],
-      "image_name": "cyberdojofoundation/go_convey:f7e690a",
-      "max_seconds": 15,
-      "tab_size": 4,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "go test\n"
+        "go.sum": {
+          "content": "github.com/gopherjs/gopherjs v1.17.2 h1:fQnZVsXk8uxXIStYb0N4bGk7jeyTalG/wsZjQ25dO0g=\ngithub.com/gopherjs/gopherjs v1.17.2/go.mod h1:pRRIvn/QzFLrKfvEz3qUuEhtE/zLCWfreZ6J5gM2i+k=\ngithub.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=\ngithub.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=\ngithub.com/smarty/assertions v1.15.0 h1:cR//PqUBUiQRakZWqBiFFQ9wb8emQGDb0HeGdqGByCY=\ngithub.com/smarty/assertions v1.15.0/go.mod h1:yABtdzeQs6l1brC900WlRNwj6ZR55d7B+E8C6HtKdec=\ngithub.com/smartystreets/goconvey v1.8.1 h1:qGjIddxOk4grTu9JPOU31tVfq3cNdBlNa5sSznIX1xY=\ngithub.com/smartystreets/goconvey v1.8.1/go.mod h1:+/u4qLyY6x1jReYOp7GOM2FSt8aP9CzCZL03bI28W60=\n"
         },
         "hiker.go": {
           "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
@@ -1088,13 +1061,68 @@
         }
       }
     },
-    "Groovy 4.0.23, JUnit 4.13.2": {
-      "display_name": "Groovy 4.0.23, JUnit 4.13.2",
+    "Go 1.26.1, testify 1.11.1": {
+      "display_name": "Go 1.26.1, testify 1.11.1",
+      "filename_extension": [
+        ".go"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/go_testify:8cfca73",
+      "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :amber if /FAIL(\\s*)_\\/sandbox(.*)\\[build failed\\]/.match(output)\n  return :amber if /syntax error:/.match(output)\n  return :red   if /FAIL/.match(output)\n  return :green if /PASS/.match(output)\n  return :amber\n}\n",
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "#!/bin/bash\nGOPROXY=off GONOSUMDB='*' GOCACHE=/go/build-cache go test\n"
+        },
+        "go.mod": {
+          "content": "module cyber-dojo-go-testify\n\ngo 1.26.1\n\nrequire github.com/stretchr/testify v1.11.1\n\nrequire (\n\tgithub.com/davecgh/go-spew v1.1.1 // indirect\n\tgithub.com/pmezard/go-difflib v1.0.0 // indirect\n\tgopkg.in/yaml.v3 v3.0.1 // indirect\n)\n"
+        },
+        "go.sum": {
+          "content": "github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=\ngithub.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=\ngithub.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=\ngithub.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=\ngithub.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=\ngithub.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=\ngopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=\ngopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=\n"
+        },
+        "hiker.go": {
+          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
+        },
+        "hiker_test.go": {
+          "content": "package hiker\n\nimport (\n    \"testing\"\n    \"github.com/stretchr/testify/assert\"\n)\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n    assert.Equal(t, 42, answer())\n}\n"
+        }
+      }
+    },
+    "Go 1.26.1, testing": {
+      "display_name": "Go 1.26.1, testing",
+      "filename_extension": [
+        ".go"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/go_testing:e7f7140",
+      "max_seconds": 15,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :amber if /FAIL(\\s*)_\\/sandbox(.*)\\[build failed\\]/.match(output)\n  return :amber if /syntax error:/.match(output)\n  return :red   if /FAIL/.match(output)\n  return :green if /PASS/.match(output)\n  return :amber\n}\n",
+      "tab_size": 4,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "#!/bin/bash\n\n# There is no internet access so do not contact any module proxy\n# to download or resolve modules.\nexport GOPROXY=off\n# There is no internet access so do not verify any module's checksum\n# against the public checksum database (sum.golang.org)\nexport GONOSUMDB='*'\n# Use cache pre-populated in the docker image we are running in.\nexport GOCACHE=/go/build-cache\n\ngo test\n"
+        },
+        "go.mod": {
+          "content": "module cyber-dojo-go-testing\n\ngo 1.26.1\n"
+        },
+        "go.sum": {
+          "content": ""
+        },
+        "hiker.go": {
+          "content": "package hiker\n\nfunc answer() int {\n    return 6 * 9\n}\n"
+        },
+        "hiker_test.go": {
+          "content": "package hiker\n\nimport \"testing\"\n\nfunc Test_life_the_universe_and_everything(t *testing.T) {\n\tif have, want := answer(), 42; have != want {\n\t\tt.Errorf(\"answer: have %d; want: %d\", have, want)\n\t}\n}\n"
+        }
+      }
+    },
+    "Groovy 5.0.0, JUnit 4.13.2": {
+      "display_name": "Groovy 5.0.0, JUnit 4.13.2",
       "filename_extension": [
         ".groovy"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/groovy_junit:a0168a3",
+      "image_name": "ghcr.io/cyber-dojo-languages/groovy_junit:2051310",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /^Tests run: (\\d+),(\\s)+Failures: (\\d+)/.match(output)\n  return :green if /^OK \\((\\d+) test/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.groovy": {
@@ -1108,13 +1136,14 @@
         }
       }
     },
-    "Groovy 4.0.23, Spock 2.4": {
-      "display_name": "Groovy 4.0.23, Spock 2.4",
+    "Groovy 5.0.0, Spock 2.4": {
+      "display_name": "Groovy 5.0.0, Spock 2.4",
       "filename_extension": [
         ".groovy"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/groovy_spock:6e1460e",
+      "image_name": "ghcr.io/cyber-dojo-languages/groovy_spock:06dbcd8",
       "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  pattern = Regexp.new('JUnit5 launcher: passed=(\\d+), aborted=(\\d+), failed=(\\d+)')\n  if match = pattern.match(output)\n    return :red if match[3].to_i > 0\n    return :green\n  end\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.groovy": {
@@ -1124,7 +1153,7 @@
           "content": "import spock.lang.*\n\nclass HikerSpec extends Specification {\n\n    def \"life the universe and everything\" () {\n        def douglas = new Hiker()\n        expect:\n            douglas.answer() == 42\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "\n# There appears to be no way to pass all the Spec class names\n# to groovy in one go. So I'm calling groovy once for each one.\n# Groovy is so interminably ...sssssslllllllooooooowwwwwww....\n# that you're likely to timeout if you use more than 2 Spec classes!\n# Can you help?\n\nSPECS=($(ls *Spec.groovy | cut -d '.' -f 1))\nfor SPEC in \"${SPECS[@]}\"\ndo\n  groovy -cp /groovy/spock-core-2.4-M1-groovy-4.0.jar ${SPEC}\ndone\n"
+          "content": "\n# There appears to be no way to pass all the Spec class names\n# to groovy in one go. So I'm calling groovy once for each one.\n\nSPECS=($(ls *Spec.groovy | cut -d '.' -f 1))\nfor SPEC in \"${SPECS[@]}\"\ndo\n  groovy -cp /groovy/spock-core-2.4-groovy-5.0.jar ${SPEC}\ndone\n"
         }
       }
     },
@@ -1354,56 +1383,6 @@
         }
       }
     },
-    "JavaScript 23.6, assert": {
-      "display_name": "JavaScript 23.6, assert",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert:aba164b",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".jshintrc": {
-          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "hikerTest.js": {
-          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\nconst assert = require('assert');\n\nassert.equal(hiker.answer(), 42 );\n\n// - - - - - - - - - - - - - - - - - - - - - -\n\nconst greenTrafficLightPattern = function() {\n  return 'All tests passed';\n};\nconsole.log(greenTrafficLightPattern());\n"
-        }
-      }
-    },
-    "JavaScript 23.7, Cucumber 11.2": {
-      "display_name": "JavaScript 23.7, Cucumber 11.2",
-      "filename_extension": [
-        ".js",
-        ".feature"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_cucumber:30d0dec",
-      "max_seconds": 10,
-      "tab_size": 2,
-      "visible_files": {
-        ".jshintrc": {
-          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
-        },
-        "cyber-dojo.sh": {
-          "content": "\nPATH=/home/sandbox/node_modules/@cucumber/cucumber/bin:${PATH}\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  cd /home/sandbox\n  cucumber-js \\\n    --format-options '{\"colorsEnabled\":false}' \\\n    ${CYBER_DOJO_SANDBOX}/*.feature\nfi\n"
-        },
-        "hiker.feature": {
-          "content": "Feature: hitch-hiker playing scrabble\n\n  Scenario: hitch-hiker playing scrabble in the past\n    Given the hitch-hiker selects some tiles\n    When they spell 6 times 9\n    Then the score is 42\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer(a, b) {\n  return a * b;\n}\n"
-        },
-        "hiker_steps.js": {
-          "content": "'use strict';\n\nconst {Given,When,Then} = require('@cucumber/cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
-        }
-      }
-    },
     "JavaScript 23.7, Jasmine 5.6": {
       "display_name": "JavaScript 23.7, Jasmine 5.6",
       "filename_extension": [
@@ -1437,39 +1416,69 @@
         }
       }
     },
-    "JavaScript 23.7, Jest 29.7": {
-      "display_name": "JavaScript 23.7, Jest 29.7",
+    "JavaScript 25.8, Cucumber 12.7": {
+      "display_name": "JavaScript 25.8, Cucumber 12.7",
+      "filename_extension": [
+        ".js",
+        ".feature"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_cucumber:e8513d4",
+      "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  js_hint_pattern = /^(\\d+) error(s?)/\n  return :amber if js_hint_pattern.match(output)\n  return :red   if /\\(\\d+ failed/.match(output)\n  return :green if /\\(\\d+ passed\\)/.match(output)\n  return :amber\n}\n",
+      "tab_size": 2,
+      "visible_files": {
+        ".jshintrc": {
+          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nFORCE_COLOR=0 # disable colour\nPATH=/home/sandbox/node_modules/@cucumber/cucumber/bin:${PATH}\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  cd /home/sandbox\n  cucumber-js \\\n    ${CYBER_DOJO_SANDBOX}/*.feature\nfi\n"
+        },
+        "hiker.feature": {
+          "content": "Feature: hitch-hiker playing scrabble\n\n  Scenario: hitch-hiker playing scrabble in the past\n    Given the hitch-hiker selects some tiles\n    When they spell 6 times 9\n    Then the score is 42\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer(a, b) {\n  return a * b;\n}\n"
+        },
+        "hiker_steps.js": {
+          "content": "'use strict';\n\nconst {Given,When,Then} = require('@cucumber/cucumber');\nconst assert = require('assert');\nconst hiker = require('./hiker');\n\nlet score;\n\nGiven(/^the hitch-hiker selects some tiles$/, function() {\n});\n\nWhen(/^they spell (\\d+) times (\\d+)$/, function(a, b) {\n  score = hiker.answer(parseInt(a), parseInt(b));\n});\n\nThen(/^the score is (\\d+)$/, function(expectedScore) {\n  assert.equal(score, expectedScore);\n});\n"
+        }
+      }
+    },
+    "JavaScript 25.8, Jest 30.2": {
+      "display_name": "JavaScript 25.8, Jest 30.2",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jest:daccb6d",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jest:a455acb",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  if /SyntaxError:/.match(output)\n    :amber\n  elsif /^FAIL/.match(output)\n    :red\n  elsif /^PASS/.match(output)\n    :green\n  else\n    :amber\n  end\n}\n",
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
           "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
         },
         "eslint.config.js": {
-          "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
+          "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": \"latest\",\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
         },
         "hiker.js": {
-          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nexport default answer;\n"
+          "content": "'use strict';\n\nfunction answer() {\n  return 6 * 9;\n}\n\nmodule.exports = answer;\n"
         },
         "hiker.test.js": {
-          "content": "'use strict';\n\nimport answer from './hiker';\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
+          "content": "'use strict';\n\nconst answer = require('./hiker');\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(answer()).toEqual(42);\n  });\n});\n"
         },
         "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"node --experimental-vm-modules ${CYBER_DOJO_SANDBOX}/node_modules/jest/bin/jest.js --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"jest --coverage\"\n  },\n  \"jest\": {\n    \"coverageReporters\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
         }
       }
     },
-    "JavaScript 23.7, Mocha 11.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0": {
-      "display_name": "JavaScript 23.7, Mocha 11.1/chai 5.12/sinon 19.0.2/sinon-chai 4.0",
+    "JavaScript 25.8, Mocha 11.7/chai 6.2/sinon 21.0/sinon-chai 4.0": {
+      "display_name": "JavaScript 25.8, Mocha 11.7/chai 6.2/sinon 21.0/sinon-chai 4.0",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_mocha_chai_sinon:db3e231",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_mocha_chai_sinon:8df8a3f",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /AssertionError:/.match(output)\n  return :green if status === 0\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         "config.js": {
@@ -1485,7 +1494,7 @@
           "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/mocha/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
         },
         "eslint.config.js": {
-          "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
+          "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": \"latest\",\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
         },
         "hiker.js": {
           "content": "'use strict';\n\nexport default {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
@@ -1498,21 +1507,46 @@
         }
       }
     },
-    "JavaScript 23.7, assert+jQuery 3.7.1": {
-      "display_name": "JavaScript 23.7, assert+jQuery 3.7.1",
+    "JavaScript 25.8, assert": {
+      "display_name": "JavaScript 25.8, assert",
       "filename_extension": [
-        ".js",
-        ".html"
+        ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert_jquery:c5441d1",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert:360a2c3",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  js_hint_pattern = /^(\\d+) error(s?)/\n  return :amber if js_hint_pattern.match(output)\n  return :red   if /^AssertionError/.match(output)\n  return :green if /^All tests passed/.match(output)\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         ".jshintrc": {
           "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "\nexport NODE_PATH=/usr/local/lib/node_modules\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
+          "content": "\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nmodule.exports = {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "hikerTest.js": {
+          "content": "'use strict';\n\nconst hiker = require('./hiker.js');\nconst assert = require('assert');\n\nassert.equal(hiker.answer(), 42 );\n\n// - - - - - - - - - - - - - - - - - - - - - -\n\nconst greenTrafficLightPattern = function() {\n  return 'All tests passed';\n};\nconsole.log(greenTrafficLightPattern());\n"
+        }
+      }
+    },
+    "JavaScript 25.8, assert+jQuery 3.7.1": {
+      "display_name": "JavaScript 25.8, assert+jQuery 3.7.1",
+      "filename_extension": [
+        ".js",
+        ".html"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_assert_jquery:24b37ca",
+      "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  js_hint_pattern = /^(\\d+) error(s?)/\n  return :amber if js_hint_pattern.match(output)\n  return :red   if /^AssertionError/.match(output)\n  return :green if /^All tests passed/.match(output)\n  return :amber\n}\n",
+      "tab_size": 2,
+      "visible_files": {
+        ".jshintrc": {
+          "content": "{\n    // DO NOT WANT TO USE JSHINT =>\n    // DELETE THIS FILE\n    //\n    // JSHint Default Configuration File (as on JSHint website)\n    // See http://jshint.com/docs/ for more details\n\n    \"maxerr\"        : 50,       // {int} Maximum error before stopping\n\n    // Enforcing\n    \"bitwise\"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)\n    \"camelcase\"     : false,    // true: Identifiers must be in camelCase\n    \"curly\"         : true,     // true: Require {} for every new block or scope\n    \"eqeqeq\"        : true,     // true: Require triple equals (===) for comparison\n    \"forin\"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()\n    \"freeze\"        : true,     // true: prohibits overwriting prototypes of native objects such as Array, Date etc.\n    \"immed\"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`\n    \"indent\"        : false,        // {int} Number of spaces to use for indentation\n    \"latedef\"       : false,    // true: Require variables/functions to be defined before being used\n    \"newcap\"        : false,    // true: Require capitalization of all constructor functions e.g. `new F()`\n    \"noarg\"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`\n    \"noempty\"       : true,     // true: Prohibit use of empty blocks\n    \"nonbsp\"        : true,     // true: Prohibit \"non-breaking whitespace\" characters.\n    \"nonew\"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)\n    \"plusplus\"      : false,    // true: Prohibit use of `++` and `--`\n    \"quotmark\"      : false,    // Quotation mark consistency:\n                                //   false    : do nothing (default)\n                                //   true     : ensure whatever is used is consistent\n                                //   \"single\" : require single quotes\n                                //   \"double\" : require double quotes\n    \"undef\"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)\n    \"unused\"        : true,     // Unused variables:\n                                //   true     : all variables, last function parameter\n                                //   \"vars\"   : all variables only\n                                //   \"strict\" : all variables, all function parameters\n    \"strict\"        : true,     // true: Requires all functions run in ES5 Strict Mode\n    \"maxparams\"     : false,    // {int} Max number of formal params allowed per function\n    \"maxdepth\"      : false,    // {int} Max depth of nested blocks (within functions)\n    \"maxstatements\" : false,    // {int} Max number statements per function\n    \"maxcomplexity\" : false,    // {int} Max cyclomatic complexity per function\n    \"maxlen\"        : false,    // {int} Max number of characters per line\n    \"varstmt\"       : false,    // true: Disallow any var statements. Only `let` and `const` are allowed.\n\n    // Relaxing\n    \"asi\"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)\n    \"boss\"          : false,     // true: Tolerate assignments where comparisons would be expected\n    \"debug\"         : false,     // true: Allow debugger statements e.g. browser breakpoints.\n    \"eqnull\"        : false,     // true: Tolerate use of `== null`\n    \"es5\"           : false,      // true: Allow ES5 syntax (ex: getters and setters)\n    \"esnext\"        : true,     // true: Allow ES.next (ES6) syntax (ex: `const`)\n    \"moz\"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)\n                                 // (ex: `for each`, multiple try/catch, function expression…)\n    \"evil\"          : false,     // true: Tolerate use of `eval` and `new Function()`\n    \"expr\"          : false,     // true: Tolerate `ExpressionStatement` as Programs\n    \"funcscope\"     : false,     // true: Tolerate defining variables inside control statements\n    \"globalstrict\"  : false,     // true: Allow global \"use strict\" (also enables 'strict')\n    \"iterator\"      : false,     // true: Tolerate using the `__iterator__` property\n    \"lastsemic\"     : false,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block\n    \"laxbreak\"      : false,     // true: Tolerate possibly unsafe line breakings\n    \"laxcomma\"      : false,     // true: Tolerate comma-first style coding\n    \"loopfunc\"      : false,     // true: Tolerate functions being defined in loops\n    \"multistr\"      : false,     // true: Tolerate multi-line strings\n    \"noyield\"       : false,     // true: Tolerate generator functions with no yield statement in them.\n    \"notypeof\"      : false,     // true: Tolerate invalid typeof operator values\n    \"proto\"         : false,     // true: Tolerate using the `__proto__` property\n    \"scripturl\"     : false,     // true: Tolerate script-targeted URLs\n    \"shadow\"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`\n    \"sub\"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation\n    \"supernew\"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`\n    \"validthis\"     : true,     // true: Tolerate using this in a non-constructor function\n\n    // Environments\n    \"browser\"       : false,     // Web Browser (window, document, etc)\n    \"browserify\"    : false,    // Browserify (node.js code in the browser)\n    \"couch\"         : false,    // CouchDB\n    \"devel\"         : true,     // Development/debugging (alert, confirm, etc)\n    \"dojo\"          : false,    // Dojo Toolkit\n    \"jasmine\"       : false,    // Jasmine\n    \"jquery\"        : false,    // jQuery\n    \"mocha\"         : true,     // Mocha\n    \"mootools\"      : false,    // MooTools\n    \"node\"          : true,    // Node.js\n    \"nonstandard\"   : false,    // Widely adopted globals (escape, unescape, etc)\n    \"phantom\"       : false,    // PhantomJS\n    \"prototypejs\"   : false,    // Prototype and Scriptaculous\n    \"qunit\"         : false,    // QUnit\n    \"rhino\"         : false,    // Rhino\n    \"shelljs\"       : false,    // ShellJS\n    \"typed\"         : false,    // Globals for typed array constructions\n    \"worker\"        : false,    // Web Workers\n    \"wsh\"           : false,    // Windows Scripting Host\n    \"yui\"           : false,    // Yahoo User Interface\n\n    // Custom Globals\n    \"globals\"       : {}        // additional predefined global variables\n}\n"
+        },
+        "cyber-dojo.sh": {
+          "content": "\nln -s /etc/jquery/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nif [ -f .jshintrc ]; then\n  jshint --config .jshintrc *.js\nfi\n\nif [ $? == 0 ]; then\n  node *Test*.js\nfi\n"
         },
         "hiker.html": {
           "content": "<html>\n  <head>\n  </head>\n  <body>\n    <question>what is 6 * 9</question>\n    <answer>54</answer>\n  </body>\n</html>"
@@ -1528,24 +1562,25 @@
         }
       }
     },
-    "JavaScript 23.7, qunit 2.24/sinon 19.0": {
-      "display_name": "JavaScript 23.7, qunit 2.24/sinon 19.0",
+    "JavaScript 25.8, qunit 2.25/sinon 21.0": {
+      "display_name": "JavaScript 25.8, qunit 2.25/sinon 21.0",
       "filename_extension": [
         ".js"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_qunit_sinon:16e8cb6",
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_qunit_sinon:7904a9a",
       "max_seconds": 10,
       "progress_regexs": [
         "/W*d+W+d+W+d+W+([1-9]d*)W+(d+)W+d+W+/",
         "/W*d+W+d+W+d+W+(0)W+d+W+d+W+/"
       ],
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n\n  died_pattern = /Died on test/\n  return :amber if died_pattern.match(output)\n\n  red_pattern = /\\d+ tests of \\d+ passed, \\d+ failed/\n  return :red if red_pattern.match(output)\n\n  green_pattern = /\\d+ tests of \\d+ passed\\./\n  return :green if green_pattern.match(output)\n\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
           "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/qunit_sinon/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
         },
         "eslint.config.js": {
-          "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
+          "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": \"latest\",\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
         },
         "hiker-test.js": {
           "content": "'use strict';\n\nimport hiker from './hiker.js';\n\nQUnit.test('answer', function(assert) {\n    const info = 'to life the universe and everything';\n    assert.equal(hiker.answer(), 42, info);\n});\n"
@@ -1558,13 +1593,14 @@
         }
       }
     },
-    "Julia, test": {
-      "display_name": "Julia, test",
+    "Julia 1.12.5, test": {
+      "display_name": "Julia 1.12.5, test",
       "filename_extension": [
         ".jl"
       ],
-      "image_name": "cyberdojofoundation/julia_test:81ccc5d",
+      "image_name": "ghcr.io/cyber-dojo-languages/julia_test:a6c5c63",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,_stderr,status|\n  return :green if status === 0\n  return :red if stdout.include?('Test Failed at')\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.jl": {
@@ -1621,14 +1657,15 @@
         }
       }
     },
-    "Perl 5.42.0, Test::Simple": {
-      "display_name": "Perl 5.42.0, Test::Simple",
+    "Perl 5.42.1, Test::Simple": {
+      "display_name": "Perl 5.42.1, Test::Simple",
       "filename_extension": [
         ".pl",
         ".t"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/perl_test_simple:8e862fb",
+      "image_name": "ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :amber if /^# Looks like your test exited with 255/.match(output)\n  return :red if /^#Looks like you planned (\\d+) test(s?) but ran (\\d+)/.match(output)\n  return :red if /^# Looks like you failed (\\d+) test(s?) of/.match(output)\n  return :green if /^ok (\\d+) -/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -1642,13 +1679,13 @@
         }
       }
     },
-    "Prolog 10.1.3, plunit": {
-      "display_name": "Prolog 10.1.3, plunit",
+    "Prolog 10.1.5, plunit": {
+      "display_name": "Prolog 10.1.5, plunit",
       "filename_extension": [
         ".pl",
         ".plt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/prolog_plunit:7aaf4aa",
+      "image_name": "ghcr.io/cyber-dojo-languages/prolog_plunit:cdb7542",
       "max_seconds": 10,
       "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :green if status === 0\n  return :red   if /\\stest (\\S+): failed/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
@@ -1731,14 +1768,14 @@
         }
       }
     },
-    "Python 3.14.3, pytest-approval 17.2.1": {
-      "display_name": "Python 3.14.3, pytest-approval 17.2.1",
+    "Python 3.14.3, pytest-approval 17.4.0": {
+      "display_name": "Python 3.14.3, pytest-approval 17.4.0",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:0839d76",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_pytest:a0b570d",
       "max_seconds": 10,
       "rag_lambda": "\n# Python-pytest, like most test frameworks does not\n# set status to non-zero at appropriate times :-(\n# So you have to look at stdout/stderr.\n# The particular problem is distinguishing red from amber.\n# Below is a start at trapping some specific amber errors.\n# There are no doubt more.\n\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n\n  return :amber if /=== ERRORS ===/.match(output)\n\n  %w(\n    Attribute\n    Index\n    Key\n    Name\n    Type\n    UnboundLocal\n  ).each do |syntax_error_prefix|\n     return :amber if\n       /=== FAILURES ===/.match(output) &&\n         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)\n  end\n\n  return :green if /=== (\\d+) passed/.match(output)\n  return :red\n}\n",
       "tab_size": 4,
@@ -1778,14 +1815,14 @@
         }
       }
     },
-    "Python 3.14.3, unittest-approval 17.2.1": {
-      "display_name": "Python 3.14.3, unittest-approval 17.2.1",
+    "Python 3.14.3, unittest-approval 17.4.0": {
+      "display_name": "Python 3.14.3, unittest-approval 17.4.0",
       "filename_extension": [
         ".py",
         ".approved.txt",
         ".received.txt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:e38951e",
+      "image_name": "ghcr.io/cyber-dojo-languages/python_approval_unittest:e355f35",
       "max_seconds": 10,
       "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /FAILED \\(failures=/.match(output)\n  return :red   if /FAILED \\(errors=/.match(output)\n  return :green if /OK/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
@@ -1985,12 +2022,12 @@
         }
       }
     },
-    "Rust 1.93.1, test": {
-      "display_name": "Rust 1.93.1, test",
+    "Rust 1.94.0, test": {
+      "display_name": "Rust 1.94.0, test",
       "filename_extension": [
         ".rs"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:2e43b8c",
+      "image_name": "ghcr.io/cyber-dojo-languages/rust_test:fe2626f",
       "max_seconds": 10,
       "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /test result: FAILED/.match(output)\n  return :green if /test result: ok/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
@@ -2058,13 +2095,14 @@
         }
       }
     },
-    "TypeScript, jest": {
-      "display_name": "TypeScript, jest",
+    "TypeScript 25.8, jest 30.2.0": {
+      "display_name": "TypeScript 25.8, jest 30.2.0",
       "filename_extension": [
         ".ts"
       ],
-      "image_name": "cyberdojofoundation/typescript_node_jest:4ddf46a",
+      "image_name": "ghcr.io/cyber-dojo-languages/typescript_node_jest:0c8621f",
       "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  if status === 0\n    return :green\n  end\n  output = stdout + stderr\n  if output.include?('Test suite failed to run')\n    :amber\n  elsif /^FAIL/.match(output)\n    :red\n  elsif /^PASS/.match(output)\n    :green\n  else\n    :amber\n  end\n}\n",
       "tab_size": 2,
       "visible_files": {
         ".eslintrc.js": {
@@ -2090,17 +2128,18 @@
         }
       }
     },
-    "VHDL, assert": {
-      "display_name": "VHDL, assert",
+    "VHDL 4.1.0, assert": {
+      "display_name": "VHDL 4.1.0, assert",
       "filename_extension": [
         ".vhdl"
       ],
-      "image_name": "cyberdojofoundation/vhdl_assert:6629459",
+      "image_name": "ghcr.io/cyber-dojo-languages/vhdl_assert:756e36a",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /assertion failed/.match(output)\n  return :green if /All tests passed/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "# Imports all vhdl files into workspace\nrm work-obj93.cf\nghdl -i *.vhdl\n\n# Scrapes the workspace file for all entity names\nentities=$(grep entity work-obj93.cf | cut -d \\  -f 4)\necho $entities;\n\n# Compilation step\ncompilation_successful=true\nfor entity in $entities; do\n   if ! ghdl -m $entity; then\n      compilation_successful=false\n   fi\ndone\n\nif [ \"$compilation_successful\" = false ] ; then\n   echo \"Encountered a compilation error\"\n   exit 1\nfi\n\n# Simulation step\nsimulation_successful=true\nfor entity in $entities; do\n   if ! ghdl -r $entity; then\n      simulation_successful=false\n   fi\ndone\n\nif [ \"$simulation_successful\" = true ] ; then\n   echo \"All tests passed!\"\n   exit 0\nfi\n\nexit 1\n"
+          "content": "set -e\n\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text files we don't want returned.\n  #cyber_dojo_delete_dirs ...\n  cyber_dojo_delete_files work-obj93.cf\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n\nghdl import *.vhdl\n\n# Scrapes the workspace file for all entity names\nentities=$(grep entity work-obj93.cf | cut -d \\  -f 4)\necho $entities\n\n# Compilation step\ncompilation_successful=true\nfor entity in $entities; do\n   echo \"entity=:${entity}:\"\n   if ! ghdl make $entity; then\n      compilation_successful=false\n   fi\ndone\n\nif [ \"$compilation_successful\" = false ] ; then\n   echo \"Encountered a compilation error\"\n   exit 42\nfi\n\n# Simulation step\nsimulation_successful=true\nfor entity in $entities; do\n   if ! ghdl run $entity; then\n      simulation_successful=false\n   fi\ndone\n\nif [ \"$simulation_successful\" = true ] ; then\n   echo \"All tests passed!\"\n   exit 0\nfi\n\nexit 42\n"
         },
         "hiker.vhdl": {
           "content": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\n\nentity hiker is \n   port (meaning_of_life : out std_logic_vector (7 downto 0));\nend hiker;\n\narchitecture dataflow of hiker is\nbegin\n   meaning_of_life <= \"00110110\";  -- 54\nend dataflow;\n\n\n"
