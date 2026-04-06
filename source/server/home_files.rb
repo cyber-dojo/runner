@@ -28,11 +28,12 @@ module HomeFiles
   # [0] --verbatim-files-from ensure filenames are not read as
   #     tar command options.
   #     Eg -J... is a tar compression option (but not on Ubuntu 16.04)
-  #     This next line used to be:
+  #     We used to run print0_filenames with process substitution:
   #       tar -rf "${TAR_FILE}" --verbatim-files-from --null -T <(print0_filenames)
-  #     Bash process substitution <(print0_filenames) fails silently inside Ubuntu containers under
-  #     Docker 29.0.1. Process substitution requires /dev/fd/N (via /proc/self/fd) — this is blocked
-  #     by an updated AppArmor or seccomp profile in Docker 29 for Ubuntu containers.
+  #     Process substitution has historically failed in certain Docker container configurations.
+  #     Bash process substitution <(cmd) uses /dev/fd/N symlinks, which resolve via /proc/self/fd.
+  #     Docker's default AppArmor profile does restrict some /proc access by design.
+  #     So prefer not to use process substitution.
   #
   # [1] Must be //; dont add space between // and ;
   # [2] /usr/bin/file reports small text files as binary.
@@ -112,7 +113,7 @@ module HomeFiles
   #    cyber_dojo_delete_files
   #
   # For example, see:
-  # https://github.com/cyber-dojo-start-points/python-pytest/blob/master/start_point/cyber-dojo.sh
+  # https://github.com/cyber-dojo-start-points/python-pytest/blob/main/start_point/cyber-dojo.sh
   # which contains this to remove the .pytest_cache dir.
   #
   #    function cyber_dojo_exit()
