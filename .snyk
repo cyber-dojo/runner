@@ -105,3 +105,9 @@ ignore:
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GOETCDIOBBOLT-15922383:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
