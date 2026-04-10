@@ -129,3 +129,21 @@ ignore:
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPTRACEOTLPTRACEHTTP-15954196:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPMETRICOTLPMETRICHTTP-15954197:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
+
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-05-09T10:53:10.182Z
+        created: 2026-04-09T10:53:10.201Z
