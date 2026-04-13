@@ -10,7 +10,8 @@ ENV COMMIT_SHA=${COMMIT_SHA}
 ARG APP_DIR=/runner 
 ENV APP_DIR=${APP_DIR}
 
-RUN apk add --upgrade openssl=3.5.6-r0  # https://security.snyk.io/vuln/SNYK-ALPINE322-OPENSSL-15993406
+RUN apk add --upgrade openssl=3.5.6-r0     # https://security.snyk.io/vuln/SNYK-ALPINE322-OPENSSL-15993406
+RUN apk add --upgrade util-linux=2.41.4-r0 # https://security.snyk.io/vuln/SNYK-ALPINE323-UTILLINUX-15993298
 
 WORKDIR ${APP_DIR}/source
 COPY source/server/ .
