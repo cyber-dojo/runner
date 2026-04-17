@@ -199,10 +199,12 @@ jobs:
     needs: [snyk-scan]
     if: always() && needs.snyk-scan.result == 'success'
     runs-on: ubuntu-latest
+    env:
+      TRAIL_NAMES: ${{ needs.snyk-scan.outputs.trail_names }} 
     steps:
       - name: Print trail names
         run: |
-          echo '${{ needs.snyk-scan.outputs.trail_names }}' | jq .
+          echo "${TRAIL_NAMES}" | jq .
 
 
   unit-tests:
