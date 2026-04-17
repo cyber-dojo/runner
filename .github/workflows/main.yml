@@ -224,12 +224,16 @@ jobs:
         run: |
           jq . <<< "${TRAIL_NAMES_JSON}"
           TRAIL_NAMES="$(jq --raw-output '. | join(" ")' <<< "${TRAIL_NAMES_JSON}")"
-          EVALUATION_JSON="$(kosli evaluate trails \
+          kosli evaluate trails \
             --policy "${POLICY_FILENAME}" \
             --output json \
-            "${TRAIL_NAMES}")"
+            "${TRAIL_NAMES}" > snyk-evaluation.json
 
-          echo "${EVALUATION_JSON}"
+          kosli attest custom \
+            --attestation-data=snyk-evaluation.json 
+            --name=runner.new-snyk-container-scan
+            --type=coverage-metrics
+
 
 
   unit-tests:
