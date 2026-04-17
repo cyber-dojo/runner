@@ -187,9 +187,6 @@ jobs:
       aws_rolename:         gh_actions_services
       artifact_name:        ${{ needs.build-image.outputs.tagged_image_name }}
       artifact_fingerprint: ${{ needs.build-image.outputs.digest }}
-      repo_name:            ${{ github.event.repository.name }}
-      git_commit:           ${{ github.sha }}
-      raw_snyk_policy_url:  https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/.snyk
       kosli_flow:           snyk-vulns-build
     secrets:
       snyk_token:      ${{ secrets.SNYK_TOKEN }}

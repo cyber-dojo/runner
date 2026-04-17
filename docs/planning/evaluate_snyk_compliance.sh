@@ -30,4 +30,4 @@ kosli evaluate trails \
   --output json \
   --show-input \
   --output json \
-  ${TRAIL_NAME1} ${TRAIL_NAME1}
+  ${TRAIL_NAMES}
