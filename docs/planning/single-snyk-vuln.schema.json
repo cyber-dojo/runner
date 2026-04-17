@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Schema for a specific Artifact with a specific Snyk vulnerability",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "The version of Snyk that found the vulnerability, eg 1.1300.2"
+    },
+    "id": {
+      "type": "string",
+      "description": "The full identifier of the vulnerability, eg SNYK-ALPINE321-RUBY-14100871"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "The severity of the vulnerability"
+    },
+    "url": {
+      "type": "string",
+      "description": "The URL of the vulnerability"
+    },
+    "ignore_expires_exists": {
+      "type": "boolean",
+      "description": "Whether the vulnerability has an active Snyk ignore entry"
+    },
+    "ignore_expires": {
+      "type": "string",
+      "description": "The expiry date of the Snyk ignore entry, empty string if none"
+    },
+    "ignore_expires_ts": {
+      "type": "number",
+      "description": "Unix timestamp of the ignore expiry, 0 if none"
+    },
+    "first_seen_ts": {
+      "type": "number",
+      "description": "Unix timestamp when this vulnerability was first seen (Kosli trail creation time)"
+    }
+  },
+  "required": [
+    "version",
+    "id",
+    "severity",
+    "url",
+    "ignore_expires_exists",
+    "ignore_expires",
+    "ignore_expires_ts",
+    "first_seen_ts"
+  ]
+}

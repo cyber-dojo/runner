@@ -1,0 +1,224 @@
+
+# Implementation Plan: Snyk Vulnerability Compliance Evaluation
+
+## Overview
+
+For each vulnerability trail in the Kosli snyk-vulns-build flow (listed in
+trail_names.json), we will:
+
+  1. Retrieve trail data from Kosli
+  2. Extract the single-snyk-vuln attestation payload
+  3. Evaluate it against a Rego policy encoding our compliance rules
+  4. Aggregate all per-vulnerability results into one boolean
+  5. Attest that single true/false outcome to the main runner-ci trail
+     using ONE kosli attest generic call (outside the loop)
+
+
+## New Files to Create
+
+  A. policy/snyk-vuln-compliance.rego
+     OPA Rego policy implementing the three compliance rules.
+
+  B. bin/evaluate_snyk_compliance.sh
+     Shell script that loops over trails, evaluates each, and exits 0
+     (all compliant) or 1 (any non-compliant). The single
+     kosli attest generic call lives in the workflow job step, not
+     in this script.
+
+  C. A new job added to .github/workflows/main.yml.
+     See the Workflow Integration section below.
+
+
+## Step 1: Rego Policy  (policy/snyk-vuln-compliance.rego)
+
+Input:  a single-snyk-vuln JSON object (see single-snyk-vuln.schema.json)
+Output: allow (boolean)
+
+```
+package snyk_vuln_compliance
+
+import future.keywords.if
+
+max_days_by_severity := {
+    "critical": 3,
+    "high":     7,
+    "medium":   30,
+    "low":      90,
+}
+
+default allow := false
+
+allow if {
+    not age_violation
+    not ignore_expired
+}
+
+# rule-1: too old for its severity
+age_violation if {
+    now_secs := time.now_ns() / 1000000000
+    age_days := (now_secs - input.first_seen_ts) / 86400
+    max      := max_days_by_severity[input.severity]
+    age_days > max
+}
+
+# rule-2: had an ignore entry but it has now expired
+ignore_expired if {
+    input.ignore_expires_exists == true
+    now_secs := time.now_ns() / 1000000000
+    input.ignore_expires_ts < now_secs
+}
+
+# rule-3: allow = true if neither age_violation nor ignore_expired fires
+#   (expressed implicitly by the "allow if { not ... not ... }" rule above)
+```
+
+Note on rule-3 interaction: a vulnerability that has a currently valid
+(not-yet-expired) ignore entry will still fail rule-1 if it is older than
+the severity threshold. If the intent is that a valid ignore should excuse
+an age violation, the policy logic needs adjusting -- raise this with the
+team before writing the final rego.
+
+
+## Step 2: Shell Script  (bin/evaluate_snyk_compliance.sh)
+
+The script iterates over trail names, gets each trail, extracts the
+attestation payload, evaluates the policy, and accumulates results.
+It exits 0 if all vulnerabilities are compliant, 1 if any are not.
+The kosli attest generic call is NOT in this script.
+
+Inputs (expected as env vars, matching plan.txt):
+  KOSLI_HOST       https://staging.app.kosli.com (or prod)
+  KOSLI_ORG        cyber-dojo
+  KOSLI_API_TOKEN  (secret)
+
+  TRAIL_NAMES_FILE (default: docs/planning/trail_names.json)
+  OR TRAIL_NAMES env var if set (JSON array string from CI job output)
+
+Pseudocode:
+
+  all_compliant=true
+
+  for each trail_name in trail_names:
+
+    # Step 1 from plan: get trail data
+    trail_json=$(kosli get trail "$trail_name" \
+                   --flow snyk-vulns-build \
+                   --output json)
+
+    # Step 2: extract single-snyk-vuln attestation payload
+    # VERIFY: exact jq path -- run against real output first (see below)
+    vuln_json=$(echo "$trail_json" | jq '.attestations["single-snyk-vuln"].payload')
+
+    echo "$vuln_json" > /tmp/vuln_payload.json
+
+    # Step 3+4: evaluate against Rego policy
+    # VERIFY: exact kosli evaluate syntax (see Uncertainties below)
+    result=$(kosli evaluate policy \
+               --policy policy/snyk-vuln-compliance.rego \
+               --input  /tmp/vuln_payload.json \
+               --output json \
+             | jq -r '.allow')
+
+    if [ "$result" != "true" ]; then
+      all_compliant=false
+      echo "FAIL: $trail_name"
+    fi
+
+  done
+
+  if [ "$all_compliant" = "true" ]; then
+    exit 0
+  else
+    exit 1
+  fi
+
+
+## Step 3: Workflow Integration
+
+Add a new job to main.yml:
+
+  Job name:         evaluate-snyk-compliance
+  Placed after:     snyk-scan
+  Feeds into:       sdlc-control-gate (add to its needs list)
+
+  TRAIL_NAMES comes from:  ${{ needs.snyk-scan.outputs.trail_names }}
+  KOSLI_FLOW is runner-ci (the default); the script uses --flow
+  snyk-vulns-build explicitly when calling kosli get trail.
+
+  The job:
+    1. Checks out the repo (needed for the rego policy file)
+    2. Sets up the Kosli CLI
+    3. Runs bin/evaluate_snyk_compliance.sh (exits 0 or 1)
+    4. Calls kosli attest generic ONCE, using success() || failure()
+       so it always attests regardless of the script exit code,
+       and sets --compliant based on the script's exit code.
+
+  Sketch of the relevant steps:
+
+    - name: Evaluate snyk vuln compliance
+      id: evaluate
+      run: bash bin/evaluate_snyk_compliance.sh
+      continue-on-error: true
+
+    - name: Attest snyk vuln compliance to Kosli
+      if: success() || failure()
+      run: |
+        kosli attest generic \
+          --name snyk-vuln-compliance \
+          --compliant ${{ steps.evaluate.outcome == 'success' }}
+
+
+## Key Uncertainties -- Resolve Before Writing Code
+
+Use the staging credentials in plan.txt for exploration.
+
+1. TRAIL JSON STRUCTURE
+   Run:  kosli get trail runner-high-SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221 \
+              --flow snyk-vulns-build --output json
+   Goal: determine the exact jq path to the single-snyk-vuln attestation
+         payload, i.e., the JSON object defined by single-snyk-vuln.schema.json
+
+2. KOSLI EVALUATE COMMAND
+   Run:  kosli evaluate --help
+   Goal: confirm the command name, flag names (--policy, --input, --output),
+         and the shape of the JSON output (how to extract the allow value)
+
+3. KOSLI ATTEST GENERIC FLAGS
+   Run:  kosli attest generic --help
+   Goal: confirm --name, --compliant, and whether KOSLI_FINGERPRINT must
+         be set (the main runner-ci trail is artifact-scoped)
+
+4. OPA TIME BUILT-IN COMPATIBILITY
+   Confirm that the kosli evaluate command uses OPA with the time.now_ns()
+   built-in available (standard in OPA >= 0.18).
+
+5. RULE-1 / IGNORE INTERACTION (see policy note above)
+   Clarify with the team whether a valid (not expired) ignore entry should
+   excuse an age-threshold violation.
+
+
+## Recommended Exploration Order
+
+  1. Run kosli get trail against one trail name with the staging creds
+     to see the real JSON structure.
+
+  2. Run kosli evaluate --help and kosli attest generic --help.
+
+  3. Write a minimal test for the Rego policy using `opa eval` locally:
+       opa eval --data policy/snyk-vuln-compliance.rego \
+                --input /tmp/test_vuln.json \
+                'data.snyk_vuln_compliance.allow'
+
+  4. Implement bin/evaluate_snyk_compliance.sh, test it locally against
+     the staging instance using the trail names from trail_names.json.
+
+  5. Add the workflow job to main.yml and wire into sdlc-control-gate.
+
+
+## Files Summary
+
+  New:    policy/snyk-vuln-compliance.rego
+          bin/evaluate_snyk_compliance.sh
+  Modify: .github/workflows/main.yml
+            - add job evaluate-snyk-compliance
+            - add evaluate-snyk-compliance to sdlc-control-gate needs

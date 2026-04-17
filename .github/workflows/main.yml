@@ -179,6 +179,7 @@ jobs:
           kosli_cli_version: ${{ vars.KOSLI_CLI_VERSION }}
           attestation_name:  runner.snyk-container-scan
 
+
   snyk-scan:
     needs: [build-image]
     uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
@@ -195,16 +196,43 @@ jobs:
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
 
 
-  print-snyk-trail-names:
+  attest-snyk-scan-result:
     needs: [snyk-scan]
     if: always() && needs.snyk-scan.result == 'success'
     runs-on: ubuntu-latest
-    env:
-      TRAIL_NAMES: ${{ needs.snyk-scan.outputs.trail_names }} 
     steps:
-      - name: Print trail names
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Setup Kosli CLI
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        uses: kosli-dev/setup-cli-action@v3
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Attest the snyk-scan results
+        env:
+          TRAIL_NAMES_JSON: ${{ needs.snyk-scan.outputs.trail_names_json }}
+          POLICY_FILENAME: snyk-vuln-compliance.rego
+        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run: |
-          echo "${TRAIL_NAMES}" | jq .
+          jq . <<< "${TRAIL_NAMES_JSON}"
+          TRAIL_NAMES="$(jq --raw-output '. | join(" ")' <<< "${TRAIL_NAMES_JSON}")"
+          kosli evaluate trails \
+            --policy "${POLICY_FILENAME}" \
+            --output json \
+            "${TRAIL_NAMES}" > snyk-evaluation.json
+
+          kosli attest custom \
+            --attestation-data=snyk-evaluation.json \
+            --name=runner.new-snyk-container-scan \
+            --type=kosli-evaluate-trails
 
 
   unit-tests:
@@ -323,6 +351,7 @@ jobs:
       - build-image
       - snyk-container-scan
       - snyk-scan
+      - attest-snyk-scan-result
       - rubocop-lint
       - unit-tests
       - integration-tests
