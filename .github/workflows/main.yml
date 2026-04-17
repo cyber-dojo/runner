@@ -200,9 +200,6 @@ jobs:
     needs: [snyk-scan]
     if: always() && needs.snyk-scan.result == 'success'
     runs-on: ubuntu-latest
-    env:
-      TRAIL_NAMES_JSON: ${{ needs.snyk-scan.outputs.trail_names_json }}
-      POLICY_FILENAME: ./github/workflows/snyk-vuln-compliance.rego
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
@@ -219,9 +216,14 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Evaluate the snyk-scan results
+      - name: Attest the snyk-scan results
+        env:
+          TRAIL_NAMES_JSON: ${{ needs.snyk-scan.outputs.trail_names_json }}
+          POLICY_FILENAME: snyk-vuln-compliance.rego
         # if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run: |
+          pwd
+          ls -al
           jq . <<< "${TRAIL_NAMES_JSON}"
           TRAIL_NAMES="$(jq --raw-output '. | join(" ")' <<< "${TRAIL_NAMES_JSON}")"
           kosli evaluate trails \
