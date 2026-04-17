@@ -17,17 +17,13 @@ readarray -t trail_names < <(jq -r '.[]' "${TRAIL_NAMES_FILE}")
 TRAIL_NAMES_JSON="$(cat "${TRAIL_NAMES_FILE}")"
 TRAIL_NAMES="$(jq --raw-output '. | join(" ")' <<< "${TRAIL_NAMES_JSON}")"
 
-# EVAL="$(kosli evaluate trails \
-#   --policy "${POLICY_FILE}" \
-#   --output json \
-#   ${TRAIL_NAMES})"
-
 TRAIL_NAME1=runner-high-SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221
 TRAIL_NAME2=runner-critical-SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172
 
 kosli evaluate trails \
   --policy "${POLICY_FILE}" \
+  --attestations single-snyk-vuln \
   --output json \
   --show-input \
   --output json \
-  ${TRAIL_NAMES}
+  ${TRAIL_NAME1} ${TRAIL_NAME2}

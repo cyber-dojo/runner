@@ -228,7 +228,7 @@ jobs:
 
           kosli attest generic \
             --compliant="$(jq '.allow' evaluation.json)" \
-            --attachments="${POLICY_FILENAME},evaluation.json \
+            --attachments="${POLICY_FILENAME},evaluation.json" \
             --name=runner.new-snyk-container-scan
 
 
