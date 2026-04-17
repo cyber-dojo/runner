@@ -197,7 +197,7 @@ jobs:
 
 
   attest-snyk-scan-result:
-    needs: [snyk-scan]
+    needs: [build-image, snyk-scan]
     if: always() && needs.snyk-scan.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -218,6 +218,7 @@ jobs:
 
       - name: Attest the snyk-scan results
         env:
+          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
           TRAIL_NAMES_JSON: ${{ needs.snyk-scan.outputs.trail_names_json }}
           POLICY_FILENAME: snyk-vuln-compliance.rego
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
