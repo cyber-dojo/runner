@@ -179,7 +179,7 @@ jobs:
           kosli_cli_version: ${{ vars.KOSLI_CLI_VERSION }}
           attestation_name:  runner.snyk-container-scan
 
-  new-snyk-scan:
+  snyk-scan:
     needs: [build-image]
     uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
     with:
@@ -193,6 +193,16 @@ jobs:
     secrets:
       snyk_token:      ${{ secrets.SNYK_TOKEN }}
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+
+
+  print-snyk-trail-names:
+    needs: [snyk-scan]
+    if: always() && needs.snyk-scan.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print trail names
+        run: |
+          echo '${{ needs.snyk-scan.outputs.trail_names }}' | jq .
 
 
   unit-tests:
@@ -310,7 +320,7 @@ jobs:
       - pull-request
       - build-image
       - snyk-container-scan
-      - new-snyk-scan
+      - snyk-scan
       - rubocop-lint
       - unit-tests
       - integration-tests
