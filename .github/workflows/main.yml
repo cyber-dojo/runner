@@ -179,6 +179,22 @@ jobs:
           kosli_cli_version: ${{ vars.KOSLI_CLI_VERSION }}
           attestation_name:  runner.snyk-container-scan
 
+  new-snyk-scan:
+    needs: [build-image]
+    uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
+    with:
+      aws_rolename:         gh_actions_services
+      artifact_name:        ${{ needs.build-image.outputs.tagged_image_name }}
+      artifact_fingerprint: ${{ needs.build-image.outputs.digest }}
+      repo_name:            ${{ github.event.repository.name }}
+      git_commit:           ${{ github.sha }}
+      commit_url:           https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+      raw_snyk_policy_url:  https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/.snyk
+      kosli_flow:           snyk-vulns-build
+    secrets:
+      snyk_token:      ${{ secrets.SNYK_TOKEN }}
+      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -295,6 +311,7 @@ jobs:
       - pull-request
       - build-image
       - snyk-container-scan
+      - new-snyk-scan
       - rubocop-lint
       - unit-tests
       - integration-tests
