@@ -1,0 +1,53 @@
+
+
+
+# What to do:
+
+1. Read https://kosli.mintlify.app/tutorials/evaluate_trails_with_opa
+   to learn how to use kosli-evaluate-trails 
+
+2. Example trail names are in the file trail_names.json
+   
+3. Correct env-vars for these trail names are
+   FINGERPRINT=922ee4faefd82c95bebe9b55f3e00a9eba5c2023377e57b9771d431f5cfd7949
+   KOSLI_HOST=https://staging.app.kosli.com
+   KOSLI_ORG=cyber-dojo
+   KOSLI_API_TOKEN=dummy-read-only
+   KOSLI_FLOW=snyk-vulns-build
+
+4. The trails have custom attestations of type single-snyk-vuln 
+   This type's schema is the file single-snyk-vuln.schema.json 
+   which defines the json for each attestations --attestation-data
+   It has fields called 
+      severity
+      first_seen_ts
+      ignore_expires_exists
+      ignore_expires_ts
+
+5. Write a rego policy.
+   It will be used in a kosli-evaluate-trails command which is passed
+   the names of the trails from 2)
+   It will check each json entry in the list, using the style suggested 
+   by the examples in https://kosli.mintlify.app/tutorials/evaluate_trails_with_opa
+
+   Its rules are:
+
+   rule-1)
+      SEVERITY     MAX-DAYS
+      critical     3
+      high         7
+      medium       30
+      low          90
+
+      the age of the vuln is (now - first_seen_ts)
+      if the age > MAX_DAYS for the specific severity
+      this is a violation
+
+   rule-2) 
+      if ignore_expires_exists is true
+      and (ignore_expires_ts > now)
+      this is a violation
+
+6. Write a shell script which calls kosli-evaluate-trails 
+   as described above for the hard-wired arguments defined in
+   2) and 3)
