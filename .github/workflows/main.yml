@@ -204,7 +204,19 @@ jobs:
       TRAIL_NAMES_JSON: ${{ needs.snyk-scan.outputs.trail_names_json }}
       POLICY_FILENAME: ./github/workflows/snyk-vuln-compliance.rego
     steps:
-      - name: Attest result to Kosli
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Setup Kosli CLI
+        # if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        uses: kosli-dev/setup-cli-action@v3
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Evaluate the snyk-scan results
+        # if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run: |
           jq . <<< "${TRAIL_NAMES_JSON}"
           TRAIL_NAMES="$(jq --raw-output '. | join(" ")' <<< "${TRAIL_NAMES_JSON}")"

@@ -14,7 +14,7 @@ default allow = false
 # rule-1: vulnerability age exceeds the threshold for its severity
 violations contains msg if {
     some trail in input.trails
-    vuln := trail.compliance_status.artifacts_statuses["artifact"].attestations_statuses["snyk"].attestation_data
+    vuln := trail.compliance_status.attestations_statuses["snyk"].attestation_data
     now_secs := time.now_ns() / 1000000000
     age_days := (now_secs - vuln.first_seen_ts) / 86400
     max := max_days_by_severity[vuln.severity]
@@ -28,7 +28,7 @@ violations contains msg if {
 # rule-2: vulnerability has an ignore entry whose expiry is in the past
 violations contains msg if {
     some trail in input.trails
-    vuln := trail.compliance_status.artifacts_statuses["artifact"].attestations_statuses["snyk"].attestation_data
+    vuln := trail.compliance_status.attestations_statuses["snyk"].attestation_data
     vuln.ignore_expires_exists == true
     now_secs := time.now_ns() / 1000000000    
     vuln.ignore_expires_ts < now_secs
