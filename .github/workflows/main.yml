@@ -209,6 +209,10 @@ jobs:
         with:
           egress-policy: audit
 
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
       - name: Setup Kosli CLI
         # if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         uses: kosli-dev/setup-cli-action@v3
