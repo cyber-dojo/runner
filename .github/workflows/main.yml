@@ -222,8 +222,6 @@ jobs:
           POLICY_FILENAME: snyk-vuln-compliance.rego
         # if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
         run: |
-          pwd
-          ls -al
           jq . <<< "${TRAIL_NAMES_JSON}"
           TRAIL_NAMES="$(jq --raw-output '. | join(" ")' <<< "${TRAIL_NAMES_JSON}")"
           kosli evaluate trails \
@@ -232,8 +230,8 @@ jobs:
             "${TRAIL_NAMES}" > snyk-evaluation.json
 
           kosli attest custom \
-            --attestation-data=snyk-evaluation.json 
-            --name=runner.new-snyk-container-scan
+            --attestation-data=snyk-evaluation.json \
+            --name=runner.new-snyk-container-scan \
             --type=coverage-metrics
 
 
