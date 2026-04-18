@@ -179,18 +179,18 @@ jobs:
           attestation_name:  runner.snyk-container-scan
 
 
-  snyk-scan:
-    needs: [build-image]
-    uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
-    with:
-      aws_rolename:  gh_actions_services
-      artifact_name: ${{ needs.build-image.outputs.tagged_image_name }}
-      kosli_flow: ${{vars.KOSLI_FLOW}}
-      kosli_trail: ${{github.sha}}
-      kosli_attestation_name: runner.new-snyk-container-scan
-    secrets:
-      snyk_token:      ${{ secrets.SNYK_TOKEN }}
-      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+  # snyk-scan:
+  #   needs: [build-image]
+  #   uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
+  #   with:
+  #     aws_rolename:  gh_actions_services
+  #     artifact_name: ${{ needs.build-image.outputs.tagged_image_name }}
+  #     kosli_flow: ${{vars.KOSLI_FLOW}}
+  #     kosli_trail: ${{github.sha}}
+  #     kosli_attestation_name: runner.new-snyk-container-scan
+  #   secrets:
+  #     snyk_token:      ${{ secrets.SNYK_TOKEN }}
+  #     kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
 
 
   unit-tests:
@@ -308,7 +308,7 @@ jobs:
       - pull-request
       - build-image
       - snyk-container-scan
-      - snyk-scan
+      #- snyk-scan
       - rubocop-lint
       - unit-tests
       - integration-tests
