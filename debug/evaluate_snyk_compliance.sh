@@ -21,9 +21,15 @@ TRAIL_NAME1=runner-high-SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221
 TRAIL_NAME2=runner-critical-SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172
 
 kosli evaluate trails \
+  --attestations snyk \
+  --output json \
   --policy "${POLICY_FILE}" \
-  --attestations single-snyk-vuln \
-  --output json \
-  --show-input \
-  --output json \
-  ${TRAIL_NAME1} ${TRAIL_NAME2}
+  ${TRAIL_NAMES}
+
+# kosli evaluate trails \
+#   --attestations snyk \
+#   --output json \
+#   --policy "${POLICY_FILE}" \
+#   --show-input \
+#   ${TRAIL_NAME1}
+
