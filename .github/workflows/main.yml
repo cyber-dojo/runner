@@ -98,7 +98,8 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@v6
+      - uses: cyber-dojo/pinned-checkout@main
+      #- uses: actions/checkout@v6
 
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v3
