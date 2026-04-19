@@ -59,33 +59,33 @@ jobs:
           } >> ${GITHUB_OUTPUT}          
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
         uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       # This is currently the Kosli live-docs example target for the create-flow command.
       - name: Create Kosli Flow
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
         run:
           kosli create flow "${KOSLI_FLOW}"
             --description="Test runner"
             --template-file=.kosli.yml
 
       - name: Begin Kosli Trail
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
         run:
           kosli begin trail "${KOSLI_TRAIL}"
 
       - name: Write Trail URL to GitHub Step Summary
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
         run: |
           url="https://app.kosli.com/${KOSLI_ORG}/flows/${KOSLI_FLOW}/trails/${KOSLI_TRAIL}"
           echo "[Kosli Trail](${url})" > "${GITHUB_STEP_SUMMARY}"
 
 
   pull-request:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: github.ref == 'refs/heads/main'
     needs: [setup]
     runs-on: ubuntu-latest
     permissions:
@@ -134,13 +134,13 @@ jobs:
           make rubocop_lint
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest junit
             --name=runner.rubocop-lint
@@ -221,20 +221,20 @@ jobs:
           make test_server coverage_server 
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest JUnit test evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest junit
             --name=runner.unit-test
             --results-dir=./reports/server/junit
 
       - name: Attest test metrics to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest custom
             --attestation-data=./reports/server/test_metrics.json 
@@ -242,7 +242,7 @@ jobs:
             --type=test-metrics
 
       - name: Attest coverage metrics to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest custom
             --attestation-data=./reports/server/coverage_metrics.json 
@@ -275,20 +275,20 @@ jobs:
           make image_client test_client coverage_client
 
       - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest junit test evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest junit
             --name=runner.integration-test
             --results-dir=./reports/client/junit
 
       - name: Attest test metrics to Kosli    
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest custom
             --attestation-data=./reports/client/test_metrics.json 
@@ -296,7 +296,7 @@ jobs:
             --type=test-metrics
 
       - name: Attest coverage metrics to Kosli
-        if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
+        if: github.ref == 'refs/heads/main' && (success() || failure())
         run:
           kosli attest custom
             --attestation-data=./reports/client/coverage_metrics.json 
@@ -305,7 +305,7 @@ jobs:
 
 
   sdlc-control-gate:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs:
       - pull-request
