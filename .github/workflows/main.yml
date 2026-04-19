@@ -99,12 +99,15 @@ jobs:
           egress-policy: audit
 
       - uses: cyber-dojo/pinned-checkout@main
-      #- uses: actions/checkout@v6
 
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Wait long enough for CLI use of GitHub's GraphQL associatedPullRequests eventual-consistency
+        run:
+          sleep 60
 
       - name: Attest pull-request evidence to Kosli
         run:
