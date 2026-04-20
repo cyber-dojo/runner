@@ -174,7 +174,7 @@ jobs:
       artifact_name: ${{ needs.build-image.outputs.tagged_image_name }}
       kosli_flow: ${{vars.KOSLI_FLOW}}
       kosli_trail: ${{github.sha}}
-      kosli_attestation_name: runner.new-snyk-container-scan
+      kosli_attestation_name: runner.snyk-container-scan
     secrets:
       snyk_token: ${{ secrets.SNYK_TOKEN }}
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
