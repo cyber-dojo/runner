@@ -16,72 +16,6 @@ ignore:
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
-  SNYK-GOLANG-GOLANGORGXNETHTML-15237740:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GOLANGORGXNETHTML-15237516:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-14059804:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-12668891:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GOLANGORGXCRYPTOSSH-14059803:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITUTILGITUTIL-15790744:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITCLIENTLLB-15790742:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GITHUBCOMDOCKERCLICLIPLUGINSMANAGER-15435878:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOURCEHTTP-15790741:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOURCEGIT-15790743:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GITHUBCOMOPENCONTAINERSSELINUXGOSELINUX-13843568:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
   SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4CIPHER-15875224:
     - '*':
         reason: Waiting for fix
@@ -89,24 +23,6 @@ ignore:
         created: 2026-04-09T10:53:10.201Z
 
   SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-ALPINE322-OPENSSH-14139238:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-ALPINE322-OPENSSH-14137201:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-05-09T10:53:10.182Z
-        created: 2026-04-09T10:53:10.201Z
-
-  SNYK-GOLANG-GOETCDIOBBOLT-15922383:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
