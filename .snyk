@@ -4,60 +4,70 @@
 
 
 ignore:
+  # CVE-2026-24051 | OTel SDK resource | Score 7.3 | Not exploitable: macOS-only (ioreg)
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15182758:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-33186 | gRPC-Go | Score 9.1 | Not exploitable: --net=none; no gRPC exposure
   SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-34986 | go-jose v4 | Score 7.5 | Not exploitable: --net=none; no JWE endpoint exposed
   SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4CIPHER-15875224:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-34986 | go-jose v4 | Score 7.5 | Not exploitable: --net=none; no JWE endpoint exposed
   SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELPROPAGATION-15928420:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELINTERNALGLOBAL-15928418:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELBAGGAGE-15928416:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPTRACEOTLPTRACEHTTP-15954196:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPMETRICOTLPMETRICHTTP-15954197:
     - '*':
         reason: Waiting for fix
         expires: 2026-05-09T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
+  # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
     - '*':
         reason: Waiting for fix
