@@ -88,3 +88,10 @@ ignore:
         expires: 2026-06-01T10:53:10.182Z
         created: 2026-05-08T10:53:10.201Z
 
+  # CVE-2026-33814 | golang.org/x/net/http2 | Score 8.7 | Not exploitable: Go agent connects to trusted internal endpoints only; attacker cannot inject SETTINGS_MAX_FRAME_SIZE=0
+  SNYK-GOLANG-GOLANGORGXNETHTTP2-16535157:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-01T10:53:10.182Z
+        created: 2026-05-08T10:53:10.201Z
+
