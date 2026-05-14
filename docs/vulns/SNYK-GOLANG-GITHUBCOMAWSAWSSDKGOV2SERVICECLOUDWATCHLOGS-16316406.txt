@@ -1,0 +1,10 @@
+SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2SERVICECLOUDWATCHLOGS-16316406 | aws-sdk-go-v2 CloudWatch Logs | CVSS 8.2 | High | no CVE assigned
+What: An uncaught exception in the EventStream decoder crashes the host process
+when it receives a crafted EventStream response containing an invalid header
+value type byte outside the valid range.
+For cyber-dojo: aws-sdk-go-v2 is used by the Go agent to ship logs to
+CloudWatch. The crafted response would need to arrive over the TLS-protected
+CloudWatch endpoint, requiring a MITM position on that connection. User code
+runs with --net=none and cannot interact with the CloudWatch connection at all.
+Verdict: Not exploitable by user code. DoS-only; requires MITM of a TLS
+CloudWatch endpoint.
