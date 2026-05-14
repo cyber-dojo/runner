@@ -1,0 +1,11 @@
+SNYK-GOLANG-GITHUBCOMSIGSTORETIMESTAMPAUTHORITYV2PKGVERIFICATION-16134930 | sigstore/timestamp-authority v2 | CVSS 6.7 | Medium
+What: Improper certificate validation in VerifyTimestampResponse. An attacker
+can prepend a forged certificate to the certificate bag so that signature
+validation uses one certificate while authorization is checked against another,
+bypassing time-based policy controls. Fixed in v2.0.6.
+For cyber-dojo: The affected code lives inside the cosign binary in the base
+image. cosign runs in the runner service container, not in user code sandbox
+containers. User code cannot call cosign or interact with sigstore tooling in
+any way. The attack vector is local and requires controlling the certificate
+chain passed to the binary -- not achievable from within the sandbox.
+Verdict: Not exploitable by user code. cosign is not accessible from the sandbox.
