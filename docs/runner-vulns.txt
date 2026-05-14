@@ -233,6 +233,45 @@ and plant malicious plugin binaries that execute with elevated context.
 For cyber-dojo: cyber-dojo runs on Linux.
 Verdict: Not applicable. Windows-only vulnerability.
 
+-- CVE-2026-33814: golang.org/x/net/http2 infinite loop --
+
+CVE-2026-33814 | golang.org/x/net/http2 | CVSS 8.7 | High
+What: An infinite loop in HTTP/2 SETTINGS frame processing. When the transport
+receives a SETTINGS_MAX_FRAME_SIZE value of 0 it endlessly writes CONTINUATION
+frames, exhausting resources and crashing the service.
+For cyber-dojo: golang.org/x/net/http2 is used by Docker daemon and Go-based
+tooling in the base image. User code runs with --net=none and cannot send
+crafted HTTP/2 SETTINGS frames to any endpoint.
+Verdict: Not exploitable by user code. Requires sending a malformed SETTINGS
+frame to a reachable HTTP/2 server.
+
+-- aws-sdk-go-v2 CloudWatch Logs EventStream: process crash --
+
+SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2SERVICECLOUDWATCHLOGS-16316406 | aws-sdk-go-v2 CloudWatch Logs | CVSS 8.2 | High | no CVE assigned
+What: An uncaught exception in the EventStream decoder crashes the host process
+when it receives a crafted EventStream response containing an invalid header
+value type byte outside the valid range.
+For cyber-dojo: aws-sdk-go-v2 is used by the Go agent to ship logs to
+CloudWatch. The crafted response would need to arrive over the TLS-protected
+CloudWatch endpoint, requiring a MITM position on that connection. User code
+runs with --net=none and cannot interact with the CloudWatch connection at all.
+Verdict: Not exploitable by user code. DoS-only; requires MITM of a TLS
+CloudWatch endpoint.
+
+-- sigstore/timestamp-authority: improper certificate validation --
+
+SNYK-GOLANG-GITHUBCOMSIGSTORETIMESTAMPAUTHORITYV2PKGVERIFICATION-16134930 | sigstore/timestamp-authority v2 | CVSS 6.7 | Medium
+What: Improper certificate validation in VerifyTimestampResponse. An attacker
+can prepend a forged certificate to the certificate bag so that signature
+validation uses one certificate while authorization is checked against another,
+bypassing time-based policy controls. Fixed in v2.0.6.
+For cyber-dojo: The affected code lives inside the cosign binary in the base
+image. cosign runs in the runner service container, not in user code sandbox
+containers. User code cannot call cosign or interact with sigstore tooling in
+any way. The attack vector is local and requires controlling the certificate
+chain passed to the binary -- not achievable from within the sandbox.
+Verdict: Not exploitable by user code. cosign is not accessible from the sandbox.
+
 == Summary table ==
 
 CVE / ID               Package                 Score  Exploitable?  Reason
@@ -241,8 +280,10 @@ CVE-2026-33186         gRPC-Go                  9.1   No   --net=none; no gRPC e
 CVE-2026-34040         Docker Engine            8.8   No   No AuthZ plugins in use
 CVE-2026-29181         OTel baggage+family      8.7   No   --net=none; can't send baggage headers
 CVE-2026-35469         spdystream               8.7   No   --net=none; DoS only
+CVE-2026-33814         golang.org/x/net/http2   8.7   No   --net=none; can't send SETTINGS frames
 CVE-2026-33747         buildkit/source/http     8.6   No   docker build not used with user content
 CVE-2026-33748         buildkit git/llb/gitutil 8.2   No   docker build not used with user content
+CloudWatch-16316406    aws-sdk-go-v2 CloudWatch 8.2   No   --net=none; DoS only; requires MITM of TLS
 CVE-2026-35385         OpenSSH server           7.5   No   --net=none; sshd not running
 CVE-2026-3805          curl                     7.5   No   --net=none
 CVE-2026-27135         nghttp2                  7.5   No   --net=none
@@ -258,6 +299,7 @@ CVE-2025-58181         x/crypto/ssh             6.9   No   --net=none; no SSH se
 CVE-2025-47914         x/crypto/ssh/agent       6.9   No   --net=none; no SSH agent exposed
 CVE-2025-58190         x/net/html               6.9   No   --net=none; can't reach HTML parser
 CVE-2025-47911         x/net/html               6.9   No   --net=none; can't reach HTML parser
+sigstore-ts-auth(Snyk) sigstore/ts-authority    6.7   No   cosign in service image; not accessible from sandbox
 CVE-2025-61985         OpenSSH client           5.3   No   --net=none; ProxyCommand not configured
 CVE-2025-61984         OpenSSH client           5.3   No   --net=none; ProxyCommand not configured
 bbolt (no CVE yet)     go.etcd.io/bbolt         n/a   No   Requires corrupted containerd metadata

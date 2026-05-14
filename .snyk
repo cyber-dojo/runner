@@ -95,3 +95,10 @@ ignore:
         expires: 2026-06-01T10:53:10.182Z
         created: 2026-05-08T10:53:10.201Z
 
+  # sigstore/timestamp-authority v2 | Score 6.7 | Not exploitable: cosign runs in runner service image, not in user code sandbox; user code cannot call or interact with sigstore tooling
+  SNYK-GOLANG-GITHUBCOMSIGSTORETIMESTAMPAUTHORITYV2PKGVERIFICATION-16134930:
+    - '*':
+        reason: Waiting for base image fix
+        expires: 2026-06-01T10:53:10.182Z
+        created: 2026-05-14T00:00:00.000Z
+
