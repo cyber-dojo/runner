@@ -1,0 +1,194 @@
+Faster CI Runs: Branch-first Attestation
+=========================================
+
+Background
+----------
+The current main.yml workflow triggers on every push (branches and main).
+All the compute-heavy jobs -- build-image, unit-tests, integration-tests,
+rubocop-lint, snyk-container-scan -- run on both branch pushes and main
+pushes. However, all Kosli attestation steps are guarded by
+`if: github.ref == 'refs/heads/main'`, so branch runs produce no
+attestations. After a PR is merged, the entire pipeline runs again from
+scratch, this time writing attestations. The image is built twice from
+the same source, and every test and scan runs twice.
+
+
+Proposed approach: two workflows
+---------------------------------
+Split main.yml into two separate workflow files.
+
+Workflow 1 -- branch workflow (replaces current main.yml)
+  Trigger: push to non-main branches.
+  Jobs: all current jobs (rubocop-lint, build-image, snyk-container-scan,
+    unit-tests, integration-tests), but with all Kosli attestation guards
+    removed so attestations land on the Trail on every push.
+  Remove: pull-request, sdlc-control-gate, deploy-to-beta (these do not
+    belong on branch builds).
+  Net effect: each branch push produces a complete, fully-attested Kosli
+    Trail keyed by the commit SHA.
+
+Workflow 2 -- merge workflow (new file)
+  Trigger: pull_request with type [closed], filtered by
+    github.event.pull_request.merged == true.
+  Jobs:
+    - setup: reconstruct image name/tag from
+      github.event.pull_request.head.sha (the branch tip SHA, which is
+      what the image was tagged with and what the Kosli Trail is keyed by)
+    - pull-request attestation: this is where it naturally belongs --
+      after the PR is actually merged
+    - sdlc-control-gate: kosli assert artifact --environment=aws-beta
+    - deploy-to-beta
+  No build. No tests. No Snyk scan.
+  Estimated merge-to-deploy time: 2-3 minutes instead of 15-20 minutes.
+
+
+Why this works: kosli assert artifact checks by fingerprint
+-----------------------------------------------------------
+kosli assert artifact determines compliance by looking up the artifact's
+attestations by fingerprint (SHA256 digest) across all Trails, not only
+within the Trail identified by the current KOSLI_TRAIL. This is the key
+property that makes the approach viable.
+
+The branch workflow builds the image and pushes it to ECR (confirmed
+below). The image digest is the same object that the branch Trail's
+attestations refer to. When the merge workflow runs kosli assert artifact,
+it presents the same fingerprint, and Kosli finds the attestations from
+the branch Trail. No rebuild required.
+
+
+Key findings from reading the reusable workflows
+-------------------------------------------------
+secure-docker-build.yml (cyber-dojo/reusable-actions-workflows)
+  Line 135: `push: true` is unconditional. The image is pushed to ECR
+  on every call, branch or main, regardless of the attest_to_kosli input.
+  The attest_to_kosli flag controls only the three Kosli attestation steps
+  at the bottom of the workflow (artifact, provenance, SBOM). So today,
+  branch builds already produce an image in ECR tagged with the branch
+  commit SHA. No change needed here to enable the proposal.
+
+artifact_snyk_test.yml (cyber-dojo/snyk-scanning)
+  The attest_to_kosli input defaults to
+    `${{github.ref == 'refs/heads/main'}}`
+  and runner/main.yml does not override it, so the aggregated snyk
+  attestation is currently main-only. However, the scan itself
+  (find-snyk-vulns) and the per-vuln attestations to the separate
+  snyk-aws-beta-per-vuln flow run unconditionally on every push today.
+  For the branch workflow, attest_to_kosli: true must be passed explicitly
+  so the aggregated attestation lands on the runner Trail.
+  For the merge workflow, the snyk-container-scan job is simply absent.
+
+
+Changes required to runner/main.yml (branch workflow)
+------------------------------------------------------
+1. Change trigger to exclude main:
+     push:
+       branches-ignore: [main]
+
+2. In the setup job, remove `if: github.ref == 'refs/heads/main'` from:
+     - Setup Kosli CLI
+     - Create Kosli Flow
+     - Begin Kosli Trail
+     - Write Trail URL to GitHub Step Summary
+
+3. In build-image, change:
+     attest_to_kosli: ${{ github.ref == 'refs/heads/main' }}
+   to:
+     attest_to_kosli: true
+
+4. In snyk-container-scan, add:
+     attest_to_kosli: true
+
+5. In rubocop-lint, unit-tests, integration-tests, remove
+   `if: github.ref == 'refs/heads/main'` from the Kosli CLI setup and
+   attest steps.
+
+6. Remove the pull-request, sdlc-control-gate, and deploy-to-beta jobs.
+
+
+New merge workflow (outline)
+----------------------------
+Trigger:
+  on:
+    pull_request:
+      types: [closed]
+
+Top-level condition (all jobs):
+  if: github.event.pull_request.merged == true
+
+env:
+  KOSLI_TRAIL: ${{ github.event.pull_request.head.sha }}
+  (The branch tip SHA -- the key used for the Trail and the image tag.)
+
+Jobs:
+  setup
+    Compute image_tag = first 7 chars of pull_request.head.sha
+    Compute image_name from ECR registry + service name + image_tag
+    Begin Kosli Trail (idempotent -- Trail already exists from branch run,
+      but beginning it again with the same key is a no-op)
+
+  pull-request
+    kosli attest pullrequest github
+    (Attests that the PR existed and was merged. Requires the PR to have
+    been merged, which is guaranteed by the trigger condition.)
+
+  sdlc-control-gate
+    Needs KOSLI_FINGERPRINT. See open question below.
+    kosli assert artifact --environment=aws-beta
+
+  deploy-to-beta
+    Uses the image name/tag from setup -- same image built on the branch.
+
+
+How the merge workflow obtains KOSLI_FINGERPRINT
+-------------------------------------------------
+The current sdlc-control-gate job gets the digest from
+needs.build-image.outputs.digest. In the merge workflow there is no
+build-image job.
+
+Use kosli get trail <branch-sha> --output json to retrieve the artifact
+fingerprint recorded during the branch run. No AWS credentials needed.
+The ECR registry has immutable tags enabled, so the fingerprint recorded
+during the branch run is guaranteed to match what is deployed.
+
+
+Git merge strategies: all safe
+-------------------------------
+The proposal relies on github.event.pull_request.head.sha being the same
+SHA that was used to build the image and key the Kosli Trail. This holds
+for all three merge strategies GitHub offers via the PR UI:
+
+  Merge commit    -- new merge commit created on main;
+                     branch tip SHA unchanged
+  Squash and merge -- branch commits squashed into one new commit on main;
+                     branch tip SHA unchanged
+  Rebase and merge -- branch commits replayed with new SHAs on main;
+                     branch tip SHA unchanged
+
+In all three cases, pull_request.head.sha is the pre-merge branch tip.
+
+Octopus merges (a single commit with 3+ parents, merging multiple branches
+simultaneously) cannot be created via GitHub's PR workflow. If someone
+pushed one directly to main from the command line, the merge workflow
+would not trigger (it is pull_request-triggered, not push-triggered), so
+no deployment would happen. That is the correct safe failure mode.
+
+Edge case: if additional commits are pushed to the branch after CI last
+ran but before the PR is merged, pull_request.head.sha at merge time
+points to a commit with no Trail and no image. The gate fails. This is
+the correct behaviour, and is already handled by standard branch
+protection rules requiring CI to pass on the latest commit before merge.
+
+
+Summary of savings
+------------------
+Current main pipeline (after merge): build image, run rubocop, run
+unit tests, run integration tests, run snyk scan, attest all of it,
+gate, deploy. Approximately 15-20 minutes.
+
+Proposed merge pipeline: pull-request attestation, compliance gate,
+deploy. Approximately 2-3 minutes.
+
+The branch pipeline is unchanged in duration, but its output is now
+useful -- it produces a complete Trail -- rather than being discarded.
+Total CI wall-clock time per change is similar; the painful merge-to-
+deploy latency drops by ~85%.
