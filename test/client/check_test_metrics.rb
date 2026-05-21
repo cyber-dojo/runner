@@ -25,7 +25,7 @@ def table_data
 
   [
     [ nil ],
-    [ 'test.count',    stats['test_count'],    '>=',  67 ],
+    [ 'test.count',    stats['test_count'],    '>=',  66 ],
     [ 'test.duration', stats['total_time'],    '<=', 100 ],
     [ nil ],
     [ 'test.failures', stats['failure_count'], '<=',  0 ],

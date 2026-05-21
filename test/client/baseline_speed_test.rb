@@ -19,6 +19,8 @@ class BaselineSpeedTest < TestBase
       timings << ((secs * 1000) + millisecs)
     end
     mean = timings.reduce(0, :+) / timings.size
-    assert mean < max = 2000, "mean=#{mean}, max=#{max}"
+    # 4s (raised from 2s) because parallel test execution means all three
+    # OS variants run their Docker containers concurrently, increasing load.
+    assert mean < max = 4000, "mean=#{mean}, max=#{max}"
   end
 end

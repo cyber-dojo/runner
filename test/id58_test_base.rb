@@ -1,14 +1,18 @@
 require 'English'
+require 'etc'
 require 'minitest/autorun'
 require 'minitest/reporters'
 require_relative 'require_code'
 require_relative 'slim_json_reporter'
+require_relative 'slow_tests_reporter'
 
 reporters = [
   Minitest::Reporters::DefaultReporter.new,
   Minitest::Reporters::SlimJsonReporter.new,
-  Minitest::Reporters::JUnitReporter.new("#{ENV.fetch('COVERAGE_ROOT')}/junit")
+  Minitest::Reporters::JUnitReporter.new("#{ENV.fetch('COVERAGE_ROOT')}/junit"),
+  Minitest::Reporters::SlowTestsReporter.new
 ]
+Minitest.parallel_executor = Minitest::Parallel::Executor.new(Etc.nprocessors)
 Minitest::Reporters.use!(reporters)
 
 class Id58TestBase < Minitest::Test
@@ -18,9 +22,10 @@ class Id58TestBase < Minitest::Test
     super
   end
 
+  parallelize_me!
+
   @@args = (ARGV.sort.uniq - ['--']) # eg 2m4
   @@seen_ids = {}
-  @@timings = {}
 
   def self.define_test(os, display_name, id58, *lines, &test_block)
     src = test_block.source_location
@@ -31,7 +36,6 @@ class Id58TestBase < Minitest::Test
 
     name58 = lines.join(space = ' ')
     execute_around = lambda {
-      ENV['ID58'] = id58
       p [id58, src_file].join(':') if ENV['SHOW_TEST_IDS'] == 'true'
       @_os = os
       @_display_name = display_name
@@ -42,8 +46,9 @@ class Id58TestBase < Minitest::Test
         t1 = Time.now
         instance_eval(&test_block)
         t2 = Time.now
-        info = [id58, os.to_s, display_name, name58, "#{src_file}:#{src_line}"].join(' - ')
-        @@timings[info] = (t2 - t1)
+        description = trimmed(name58.split("\n").join.gsub(/\A[\s|]+/, ''))
+        info = [id58, os.to_s, description, "#{src_file}:#{src_line}"].join(' - ')
+        SlowTestsTimings::LOCK.synchronize { SlowTestsTimings::TIMINGS[info] = (t2 - t1) }
       ensure
         puts $ERROR_INFO.message unless $ERROR_INFO.nil?
         id58_teardown
@@ -52,19 +57,6 @@ class Id58TestBase < Minitest::Test
     name = "id='#{id58}'\nos=#{os}\n'#{name58}'"
     define_method(:"test_
 #{name}", &execute_around)
-  end
-
-  Minitest.after_run do
-    slow = @@timings.select { |_name, secs| secs > 0.000 }
-    sorted = slow.sort_by { |_name, secs| -secs }.to_h
-    size = [sorted.size, 5].min
-    puts
-    puts "Slowest #{size} tests are..." if size != 0
-    sorted.each_with_index do |(name, secs), index|
-      puts format('%3.4f - %-72s', secs, name)
-      break if index == size
-    end
-    puts
   end
 
   ID58_ALPHABET = %w[
@@ -94,6 +86,14 @@ class Id58TestBase < Minitest::Test
 
   def self.pling(str)
     "#{str}!"
+  end
+
+  def trimmed(s)
+    s.length > 75 ? s[0..75] + '...' : s
+  end
+
+  def self.multi_os?(id58)
+    (@@seen_ids[id58] || []).length > 1
   end
 
   def self.seen?(id58, os)

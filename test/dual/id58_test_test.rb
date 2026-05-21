@@ -3,13 +3,6 @@ require_relative '../test_base'
 module Dual
   class Id58TestTest < TestBase
 
-    test '89cC80',
-         'test-id is available via environment variable' do
-      assert_equal '89cC80', ENV.fetch('ID58', nil)
-    end
-
-    # - - - - - - - - - - - - - - - - - - - - -
-
     test '89c57B',
          'test-id is also available via a method',
          'and is the id58_prefix concatenated with the test-id' do
@@ -63,7 +56,6 @@ module Dual
     # - - - - - - - - - - - - - - - - - - - - -
 
     test '89ce3a', %w[digits can be UPPERCASE or lowercase] do
-      assert_equal '89ce3a', ENV.fetch('ID58', nil)
       assert_equal '89ce3a', id58
     end
   end

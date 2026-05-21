@@ -68,13 +68,13 @@ class RunTimedOutTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'c7Ag56', %(
-  | in capture3_with_timeout()
-  | when process.spawn() fails to respond within the timeout period
-  | thats also a timeout
-  | and no process.detch() call is made
-  | and no process.kill() call is made
-  ) do
+  test 'c7Ag56', %w[
+    in capture3_with_timeout()
+    when process.spawn() fails to respond within the timeout period
+    thats also a timeout
+    and no process.detch() call is made
+    and no process.kill() call is made
+  ] do
     stdout_tgz = 'tweedle-dee'
     set_context(
       logger: StdoutLoggerSpy.new,
