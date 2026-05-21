@@ -67,7 +67,7 @@ build_image()
   fi
 
   local -r image_name="${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}"
-  local -r sha_in_image=$(docker run --rm --entrypoint="" "${image_name}" sh -c 'echo -n ${COMMIT_SHA}')
+  local -r sha_in_image=$(docker run --rm --platform linux/amd64 --entrypoint="" "${image_name}" sh -c 'echo -n ${COMMIT_SHA}')
   if [ "${COMMIT_SHA}" != "${sha_in_image}" ]; then
     echo "ERROR: unexpected env-var inside image ${image_name}"
     echo "expected: 'COMMIT_SHA=${COMMIT_SHA}'"

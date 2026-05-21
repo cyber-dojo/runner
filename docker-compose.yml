@@ -14,7 +14,7 @@ services:
     env_file: [ .env ]
     environment:
       - CONTEXT=client
-      - SHOW_TEST_IDS=true
+      - SHOW_TEST_IDS=false
     read_only: true
     restart: no
     tmpfs: /tmp
@@ -23,6 +23,7 @@ services:
       - ./test:/runner/test/:ro
 
   server:
+    platform: linux/amd64
     build:
       context: .
       args:
@@ -45,6 +46,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   languages-start-points:
+    platform: linux/amd64
     image: ${CYBER_DOJO_LANGUAGES_START_POINTS}
     ports: [ "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}" ]
     user: nobody
