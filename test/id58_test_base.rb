@@ -1,4 +1,5 @@
 require 'English'
+require 'etc'
 require 'minitest/autorun'
 require 'minitest/reporters'
 require_relative 'require_code'
@@ -11,6 +12,7 @@ reporters = [
   Minitest::Reporters::JUnitReporter.new("#{ENV.fetch('COVERAGE_ROOT')}/junit"),
   Minitest::Reporters::SlowTestsReporter.new
 ]
+Minitest.parallel_executor = Minitest::Parallel::Executor.new(Etc.nprocessors)
 Minitest::Reporters.use!(reporters)
 
 class Id58TestBase < Minitest::Test
@@ -19,6 +21,8 @@ class Id58TestBase < Minitest::Test
     @_name58 = nil
     super
   end
+
+  parallelize_me!
 
   @@args = (ARGV.sort.uniq - ['--']) # eg 2m4
   @@seen_ids = {}
@@ -32,7 +36,6 @@ class Id58TestBase < Minitest::Test
 
     name58 = lines.join(space = ' ')
     execute_around = lambda {
-      ENV['ID58'] = id58
       p [id58, src_file].join(':') if ENV['SHOW_TEST_IDS'] == 'true'
       @_os = os
       @_display_name = display_name
@@ -87,6 +90,10 @@ class Id58TestBase < Minitest::Test
 
   def trimmed(s)
     s.length > 75 ? s[0..75] + '...' : s
+  end
+
+  def self.multi_os?(id58)
+    (@@seen_ids[id58] || []).length > 1
   end
 
   def self.seen?(id58, os)

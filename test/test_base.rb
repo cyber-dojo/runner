@@ -120,7 +120,9 @@ class TestBase < Id58TestBase
   # 3. call arguments
 
   def id
-    id58[0..5]
+    # multi_os_test variants share the same id58 but run in parallel, so
+    # append the OS initial to avoid Docker container id collisions.
+    Id58TestBase.multi_os?(id58) ? id58 + os.to_s[0] : id58
   end
 
   def starting_files

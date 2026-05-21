@@ -2,6 +2,7 @@
 services:
 
   client:
+    platform: linux/amd64
     build:
       context: source/client
       args:

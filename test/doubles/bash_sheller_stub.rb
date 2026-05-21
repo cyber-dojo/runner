@@ -13,7 +13,7 @@ class BashShellerStub
     return if @stubs == []
 
     pretty = JSON.pretty_generate(@stubs)
-    raise "#{ENV.fetch('ID58', nil)}: uncalled stubs(#{pretty})"
+    raise "uncalled stubs(#{pretty})"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - -
