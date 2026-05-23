@@ -1,9 +1,0 @@
-SNYK-GOLANG-GOETCDIOBBOLT-15922383 | go.etcd.io/bbolt | no CVE assigned yet
-What: Bucket.Stats() panics with an index out-of-range when it encounters a branch
-page with zero elements (corrupted or partially-written database). Fix merged
-2026-03-30; no release tag at time of writing.
-For cyber-dojo: bbolt is an embedded key-value store used by containerd for its
-metadata. The panic requires a corrupted bbolt database, which user code cannot
-cause -- the containerd metadata store is entirely outside the sandbox.
-Verdict: Not exploitable by user code. Data-corruption resilience concern for
-containerd, not a sandbox escape risk.
