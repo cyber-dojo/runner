@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-04-30
+Generated: 2026-05-23
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -21,7 +21,11 @@ CVE-2026-34040         Docker Engine            8.8   No   No AuthZ plugins in u
 CVE-2026-29181         OTel baggage+family      8.7   No   --net=none; can't send baggage headers
 CVE-2026-35469         spdystream               8.7   No   --net=none; DoS only
 CVE-2026-33814         golang.org/x/net/http2   8.7   No   --net=none; can't send SETTINGS frames
+CVE-2026-46597         x/crypto/ssh             8.7   No   --net=none; no SSH server exposed
+CVE-2026-39835         x/crypto/ssh             8.7   No   --net=none; no SSH server exposed
+CVE-2026-46598         x/crypto/ssh/agent       8.7   No   --net=none; no SSH agent exposed
 CVE-2026-33747         buildkit/source/http     8.6   No   docker build not used with user content
+CVE-2026-39831         x/crypto/ssh             8.6   No   --net=none; client-side; no outbound SSH
 CVE-2026-33748         buildkit git/llb/gitutil 8.2   No   docker build not used with user content
 CloudWatch-16316406    aws-sdk-go-v2 CloudWatch 8.2   No   --net=none; DoS only; requires MITM of TLS
 CVE-2026-35385         OpenSSH server           7.5   No   --net=none; sshd not running
@@ -34,14 +38,22 @@ CVE-2026-34986         go-jose v4               7.5   No   --net=none; no JWE en
 CVE-2025-52881         opencontainers/selinux   7.3   No   /proc namespaced; no-new-privileges
 CVE-2026-24051         OTel SDK resource        7.3   No   macOS-only (ioreg)
 CVE-2025-47913         x/crypto/ssh/agent       7.1   No   --net=none; no SSH agent exposed
+CVE-2026-39827         x/crypto/ssh             7.1   No   --net=none; no SSH server exposed
 CVE-2025-15558         docker/cli plugins       7.0   No   Linux deployment; Windows-only
 CVE-2025-58181         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
 CVE-2025-47914         x/crypto/ssh/agent       6.9   No   --net=none; no SSH agent exposed
 CVE-2025-58190         x/net/html               6.9   No   --net=none; can't reach HTML parser
 CVE-2025-47911         x/net/html               6.9   No   --net=none; can't reach HTML parser
+CVE-2026-39829         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
+CVE-2026-39834         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
+CVE-2026-39830         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
 sigstore-ts-auth(Snyk) sigstore/ts-authority    6.7   No   cosign in service image; not accessible from sandbox
 CVE-2025-61985         OpenSSH client           5.3   No   --net=none; ProxyCommand not configured
 CVE-2025-61984         OpenSSH client           5.3   No   --net=none; ProxyCommand not configured
+CVE-2026-39828         x/crypto/ssh             5.3   No   --net=none; no SSH server exposed
+CVE-2026-46595         x/crypto/ssh             5.3   No   --net=none; no SSH server exposed
+CVE-2026-39832         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
+CVE-2026-39833         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
 bbolt (no CVE yet)     go.etcd.io/bbolt         n/a   No   Requires corrupted containerd metadata
 
 == Key caveat ==
