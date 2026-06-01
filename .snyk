@@ -193,3 +193,10 @@ ignore:
         expires: 2026-06-21T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
+  # CVE-2026-39821 | golang.org/x/net/idna | Score 9.3 | Not exploitable: runner resolves only trusted endpoints; no user-controlled input reaches IDNA path
+  SNYK-GOLANG-GOLANGORGXNETIDNA-17116876:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-01T00:00:00.000Z
+
