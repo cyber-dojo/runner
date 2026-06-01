@@ -16,6 +16,7 @@ Runner reaches Docker via mounted socket (/var/run/docker.sock), not from inside
 
 CVE / ID               Package                 Score  Exploitable?  Reason
 ------------------------------------------------------------------------------
+CVE-2026-39821         golang.org/x/net/idna    9.3   No   runner resolves only trusted endpoints; no user-controlled IDNA input
 CVE-2026-33186         gRPC-Go                  9.1   No   --net=none; no gRPC exposure
 CVE-2026-29181         OTel baggage+family      8.7   No   --net=none; can't send baggage headers
 CVE-2026-33814         golang.org/x/net/http2   8.7   No   --net=none; can't send SETTINGS frames
