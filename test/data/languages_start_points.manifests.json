@@ -305,10 +305,10 @@
           "content": "\npublic interface IHiker\n{\n    int Answer();\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n\n#FALLBACK, SLOWER ~8.1s: \n# comment in the next line if compilation fails\n#time (dotnet restore --source /home/sandbox/.nuget/packages/ && dotnet test --no-restore --nologo ) && exit\n\nln -s ~/.nuget/packages/moq/4.20.72/lib/net6.0/Moq.dll Moq.dll\nln -s ~/.nuget/packages/castle.core/5.1.1/lib/net6.0/Castle.Core.dll Castle.Core.dll\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\n#use legacy asserts eg: AreEqual(42, 42)\n# needs on top of file: using static NUnit.Framework.Legacy.ClassicAssert;\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.legacy.dll nunit.framework.legacy.dll \n\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -nologo \\\n  -out:dojo.dll \\\n  -r:nunit.framework.dll \\\n  -r:Moq.dll \\\n  -r:Castle.Core.dll \\\n  -r:nunit.framework.legacy.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Linq.Expressions.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n\n#FALLBACK, SLOWER ~8.1s: \n# comment in the next line if compilation fails\n#time (dotnet restore --source /home/sandbox/.nuget/packages/ && dotnet test --no-restore --nologo ) ; exit\n\nln -s ~/.nuget/packages/moq/4.20.72/lib/net6.0/Moq.dll Moq.dll\nln -s ~/.nuget/packages/castle.core/5.1.1/lib/net6.0/Castle.Core.dll Castle.Core.dll\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\n\n#in order to use legacy asserts eg: AreEqual(42, 42);\n# add on top of the .cs file: using static NUnit.Framework.Legacy.ClassicAssert;\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.legacy.dll nunit.framework.legacy.dll \n\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -nologo \\\n  -out:dojo.dll \\\n  -r:nunit.framework.dll \\\n  -r:Moq.dll \\\n  -r:Castle.Core.dll \\\n  -r:nunit.framework.legacy.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Linq.Expressions.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Linq.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Collections.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )\n"
         },
         "dojo.csproj": {
-          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <IsPackable>false</IsPackable>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"coverlet.collector\" Version=\"6.0.4\" />\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"Moq\" Version=\"4.20.72\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit.Analyzers\" Version=\"4.7.0\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
+          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>disable</Nullable>\n    <IsPackable>false</IsPackable>\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>\n    <AnalysisLevel>none</AnalysisLevel>\n    <RunAnalysis>false</RunAnalysis>\n    <EnableNETAnalyzers>false</EnableNETAnalyzers>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"Moq\" Version=\"4.20.72\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n</Project>"
         }
       }
     },
@@ -323,7 +323,7 @@
         "^\\s+Failed Tests - Failures: \\d+",
         "Passed: \\d+"
       ],
-      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n   #dotnet test:\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n\n  #nunit console runner:\n  return :green if /^\\s+Overall result: Passed/.match(output)\n  return :red   if /^\\s+Failed Tests/.match(output) \n  return :amber\n}\n",
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n   #dotnet test:\n  return :green if /^Passed!/.match(output)\n  return :red   if /^Failed!/.match(output)\n\n  #nunit console runner:\n  return :green if /^\\s+Overall result: (Passed|Warning)/.match(output) #'Warning' matches also Ignored tests\n  return :red   if /^\\s+Failed Tests/.match(output) \n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.cs": {
@@ -333,10 +333,10 @@
           "content": "using NUnit.Framework;\n\npublic class HikerTest\n{\n    [Test]\n    public void life_the_universe_and_everything()\n    {\n        // a simple example to start you off\n        Assert.That(Hiker.Answer(), Is.EqualTo(42));\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n#FALLBACK, SLOWER ~5.4s: \n# comment in the next line if compilation fails\n#time (ln -s /home/sandbox/dotnet_obj obj && dotnet test --no-restore --nologo ) && exit\n\n#FAST ~1.2s: \nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -nologo \\\n  -out:dojo.dll \\\n  -r:/home/sandbox/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )\n"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\n\nfunction cyber_dojo_enter()\n{\n  : # 1. Only return _newly_ generated reports.\n  #cyber_dojo_reset_dirs ${...}\n}\nfunction cyber_dojo_exit()\n{\n  : # 2. Remove new text files we don't want returned.\n  cyber_dojo_delete_dirs /sandbox/bin \n  cyber_dojo_delete_dirs /sandbox/obj\n  cyber_dojo_delete_files TestResult.xml\n}\ncyber_dojo_enter\ntrap cyber_dojo_exit EXIT SIGTERM\n\n#FALLBACK, SLOWER ~5.4s: \n# comment in the next line if compilation fails\n#time (ln -s /home/sandbox/dotnet_obj obj && dotnet test --no-restore --nologo ) ; exit\n\n#FAST ~1.2s: \nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.dll nunit.framework.dll\n#in order to use legacy asserts eg: AreEqual(42, 42);\n# add on top of the .cs file: using static NUnit.Framework.Legacy.ClassicAssert;\nln -s ~/.nuget/packages/nunit/4.3.2/lib/net8.0/nunit.framework.legacy.dll nunit.framework.legacy.dll \n\ntime (dotnet /usr/share/dotnet/sdk/10.0.103/Roslyn/bincore/csc.dll \\\n  -target:library \\\n  -nologo \\\n  -out:dojo.dll \\\n  -r:nunit.framework.dll \\\n  -r:nunit.framework.legacy.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Private.CoreLib.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Runtime.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Linq.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Collections.dll \\\n  -r:/usr/share/dotnet/shared/Microsoft.NETCore.App/10.0.3/System.Text.RegularExpressions.dll \\\n  *.cs && /home/sandbox/.dotnet/tools/nunit dojo.dll --noheader --noresult --nocolor )\n"
         },
         "dojo.csproj": {
-          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>disable</Nullable>\n    <IsPackable>false</IsPackable>\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>\n    <AnalysisLevel>none</AnalysisLevel>\n    <EnableNETAnalyzers>false</EnableNETAnalyzers>\n\n    <Optimize>true</Optimize>\n    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>  <!-- No extra lang packs -->\n\n    <!-- Help Roslyn / build go faster -->\n    <NoWarn>$(NoWarn);CS1701;CS1702</NoWarn> <!-- minor warning noise -->\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild> <!-- already have -->\n\n    <!-- If no large constants / resources -->\n    <UseRidGraph>false</UseRidGraph>\n\n    <EnableNUnitRunner>true</EnableNUnitRunner>  <!-- Enables MTP-based NUnit runner -->\n    <OutputType>Exe</OutputType> <!-- Builds a runnable exe -->\n    <Optimize>true</Optimize>\n    <DebugType>embedded</DebugType> <!-- No separate .pdb file → faster emit -->\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Using Include=\"NUnit.Framework\" />\n  </ItemGroup>\n\n</Project>"
+          "content": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <TargetFramework>net10.0</TargetFramework>\n    <LangVersion>latest</LangVersion>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>disable</Nullable>\n    <IsPackable>false</IsPackable>\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>\n    <AnalysisLevel>none</AnalysisLevel>\n    <EnableNETAnalyzers>false</EnableNETAnalyzers>\n    <RunAnalyzers>false</RunAnalyzers>\n\n    <Optimize>true</Optimize>\n    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>  <!-- No extra lang packs -->\n\n    <!-- Help Roslyn / build go faster -->\n    <NoWarn>$(NoWarn);CS1701;CS1702</NoWarn> <!-- minor warning noise -->\n    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild> <!-- already have -->\n\n    <!-- If no large constants / resources -->\n    <UseRidGraph>false</UseRidGraph>\n\n    <EnableNUnitRunner>true</EnableNUnitRunner>  <!-- Enables MTP-based NUnit runner -->\n    <OutputType>Exe</OutputType> <!-- Builds a runnable exe -->\n    <Optimize>true</Optimize>\n    <DebugType>embedded</DebugType> <!-- No separate .pdb file → faster emit -->\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.14.0\" />\n    <PackageReference Include=\"NUnit\" Version=\"4.3.2\" />\n    <PackageReference Include=\"NUnit3TestAdapter\" Version=\"5.0.0\" />\n  </ItemGroup>\n\n</Project>"
         }
       }
     },
@@ -854,17 +854,18 @@
         }
       }
     },
-    "Clojure, Midje": {
-      "display_name": "Clojure, Midje",
+    "Clojure 1.12.4, Midje 1.10.10": {
+      "display_name": "Clojure 1.12.4, Midje 1.10.10",
       "filename_extension": [
         ".clj"
       ],
-      "image_name": "cyberdojofoundation/clojure_midje:06ae634",
+      "image_name": "ghcr.io/cyber-dojo-languages/clojure_midje:3d30f7a",
       "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red if /^FAILURE: .* failed./.match(output)\n  return :green if /^All checks .* succeeded./.match(output)\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "# ------------------------------------------------------------------------\n# cyber-dojo returns text files under /sandbox that are\n# created/deleted/changed. In tidy_up you can remove any\n# such files you don't want returned to the browser.\n\ntrap tidy_up EXIT\n\nfunction tidy_up()\n{\n  delete_dirs target\n}\n\nfunction delete_dirs()\n{\n  for dirname in \"$@\"\n  do\n      rm -rf \"${dirname}\" 2> /dev/null || true\n  done\n}\n\nfunction delete_files()\n{\n  for filename in \"$@\"\n  do\n      rm \"${filename}\" 2> /dev/null || true\n  done\n}\n\n# ------------------------------------------------------------------------\nln -sf /.lein ~/\nln -sf /.m2 ~/\nlein midje\n"
+          "content": "\n# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # 2. Remove text dirs/files we don't want returned.\n  cyber_dojo_delete_dirs target # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n# --------------------------------------------------------------\n\nln -sf /.lein ~/\nln -sf /.m2 ~/\n# Neither MIDJE_COLORIZE=false nor NO_COLOR=1 fully suppresses ANSI escape\n# codes from the colorize and io.aviso/pretty libraries used by Midje 1.10.10.\n# Strip them from stdout here, preserving lein's exit code via PIPESTATUS.\nlein midje | sed 's/\\x1b\\[[0-9;]*[a-zA-Z]//g'\nexit \"${PIPESTATUS[0]}\"\n"
         },
         "hiker.clj": {
           "content": "(ns hiker)\n\n(defn answer []\n    (* 6 9))\n"
@@ -873,17 +874,18 @@
           "content": "(ns hiker-test\n  (:require [midje.sweet :refer :all]\n            [hiker :refer :all]))\n\n(facts \"about life, the universe, and everything\"\n  (answer) => 42)\n"
         },
         "project.clj": {
-          "content": "(defproject hiker \"1.0.0\"\n  :description \"Run midje tests inside cyber-dojo\"\n  :dependencies [[org.clojure/clojure \"1.8.0\"]\n                 [midje \"1.8.3\"]]\n  :source-paths [\".\"]\n  :plugins      [[lein-midje \"3.2\"]])\n"
+          "content": "(defproject hiker \"1.0.0\"\n  :description \"Run midje tests inside cyber-dojo\"\n  :dependencies [[org.clojure/clojure \"RELEASE\"]\n                 [midje \"1.10.10\"]]\n  :source-paths [\".\"]\n  :plugins      [[lein-midje \"3.2.2\"]])\n"
         }
       }
     },
-    "Clojure, clojure.test": {
-      "display_name": "Clojure, clojure.test",
+    "Clojure 1.12.4, clojure.test": {
+      "display_name": "Clojure 1.12.4, clojure.test",
       "filename_extension": [
         ".clj"
       ],
-      "image_name": "cyberdojofoundation/clojure_test:0bcbdd6",
+      "image_name": "ghcr.io/cyber-dojo-languages/clojure_test:a58737d",
       "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  syntax_error_pattern = /Exception in thread/\n  ran_pattern = /Ran (\\d+) tests containing (\\d+) assertions.(\\s*)(\\d+) failures, (\\d+) errors./\n  return :amber if syntax_error_pattern.match(output)\n  return :red   if output.scan(ran_pattern).any? { |res| res[3] != '0' || res[4] != '0' }\n  return :green if output.scan(ran_pattern).any? { |res| res[3] == '0' && res[4] == '0' }\n  return :amber\n}\n",
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -896,7 +898,7 @@
           "content": "(ns hiker-test\n  (:require [clojure.test :refer :all]\n            [hiker :refer :all]))\n\n(deftest life-the-universe-and-everything\n  (is (= 42 (answer))))\n"
         },
         "project.clj": {
-          "content": "(defproject hiker \"0.0.1-SNAPSHOT\"\n  :description \"Run clojure.test tests inside cyber-dojo\"\n  :dependencies [[org.clojure/clojure \"1.8.0\"]]\n  :source-paths [\".\"])\n"
+          "content": "(defproject hiker \"0.0.1-SNAPSHOT\"\n  :description \"Run clojure.test tests inside cyber-dojo\"\n  :dependencies [[org.clojure/clojure \"RELEASE\"]]\n  :source-paths [\".\"])\n"
         }
       }
     },
@@ -941,26 +943,21 @@
         }
       }
     },
-    "Elixir, ExUnit": {
-      "display_name": "Elixir, ExUnit",
+    "Elixir 1.19.5, ExUnit": {
+      "display_name": "Elixir 1.19.5, ExUnit",
       "filename_extension": [
         ".ex"
       ],
-      "image_name": "cyberdojofoundation/elixir_exunit:cef373a",
+      "image_name": "ghcr.io/cyber-dojo-languages/elixir_exunit:18b801a",
       "max_seconds": 15,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :green   if /^(\\d+) test(s?), 0 failures/.match(output)\n  return :red     if /^(\\d+) test(s?), (\\d+) failure(s?)/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
-        "config/config.exs": {
-          "content": "# This file is responsible for configuring your application\r\n# and its dependencies with the aid of the Mix.Config module.\r\nuse Mix.Config\r\n\r\n# This configuration is loaded before any dependency and is restricted\r\n# to this project. If another project depends on this project, this\r\n# file won't be loaded nor affect the parent project. For this reason,\r\n# if you want to provide default values for your application for\r\n# 3rd-party users, it should be done in your \"mix.exs\" file.\r\n\r\n# You can configure for your application as:\r\n#\r\n#     config :hiker, key: :value\r\n#\r\n# And access this configuration in your application as:\r\n#\r\n#     Application.get_env(:hiker, :key)\r\n#\r\n# Or configure a 3rd-party app:\r\n#\r\n#     config :logger, level: :info\r\n#\r\n\r\n# It is also possible to import configuration files, relative to this\r\n# directory. For example, you can emulate configuration per environment\r\n# by uncommenting the line below and defining dev.exs, test.exs and such.\r\n# Configuration from the imported file will override the ones defined\r\n# here (which is why it is important to import them last).\r\n#\r\n#     import_config \"#{Mix.env}.exs\"\r\n"
-        },
         "cyber-dojo.sh": {
-          "content": "mix test"
+          "content": "elixir -r 'lib/**/*.ex' -r test/test_helper.exs -r 'test/**/*_test.exs'\n"
         },
         "lib/hiker.ex": {
           "content": "defmodule HIKER do\r\n\r\n  def answer do\r\n    6 * 9\r\n  end\r\n\r\nend\r\n"
-        },
-        "mix.exs": {
-          "content": "defmodule HIKER.Mixfile do\r\n  use Mix.Project\r\n\r\n  def project do\r\n    [app: :hiker,\r\n     version: \"0.0.1\",\r\n     elixir: \"~> 1.2\",\r\n     build_embedded: Mix.env == :prod,\r\n     start_permanent: Mix.env == :prod,\r\n     deps: deps]\r\n  end\r\n\r\n  # Configuration for the OTP application\r\n  #\r\n  # Type \"mix help compile.app\" for more information\r\n  def application do\r\n    [applications: [:logger]]\r\n  end\r\n\r\n  # Dependencies can be Hex packages:\r\n  #\r\n  #   {:mydep, \"~> 0.3.0\"}\r\n  #\r\n  # Or git/path repositories:\r\n  #\r\n  #   {:mydep, git: \"https://github.com/elixir-lang/mydep.git\", tag: \"0.1.0\"}\r\n  #\r\n  # Type \"mix help deps\" for more examples and options\r\n  defp deps do\r\n    []\r\n  end\r\nend\r\n"
         },
         "test/hiker_test.exs": {
           "content": "defmodule HIKERTest do\r\n  use ExUnit.Case\r\n\r\n  test \"life the universe and everything\" do\r\n    assert HIKER.answer == 42\r\n  end\r\n\r\nend\r\n"
@@ -1383,39 +1380,6 @@
         }
       }
     },
-    "JavaScript 23.7, Jasmine 5.6": {
-      "display_name": "JavaScript 23.7, Jasmine 5.6",
-      "filename_extension": [
-        ".js"
-      ],
-      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jasmine:fd66a23",
-      "max_seconds": 10,
-      "progress_regexs": [
-        "/(d+) specs?, ([1-9]d*) failures?/",
-        "/(d+) specs?, (0) failures?/"
-      ],
-      "tab_size": 2,
-      "visible_files": {
-        "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
-        },
-        "eslint.config.js": {
-          "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];"
-        },
-        "hiker-spec.js": {
-          "content": "'use strict';\n\nimport hiker from './hiker.js';\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
-        },
-        "hiker.js": {
-          "content": "'use strict';\n\nexport default {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
-        },
-        "jasmine.json": {
-          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
-        },
-        "package.json": {
-          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
-        }
-      }
-    },
     "JavaScript 25.8, Cucumber 12.7": {
       "display_name": "JavaScript 25.8, Cucumber 12.7",
       "filename_extension": [
@@ -1444,6 +1408,40 @@
         }
       }
     },
+    "JavaScript 25.8, Jasmine 6.1.0": {
+      "display_name": "JavaScript 25.8, Jasmine 6.1.0",
+      "filename_extension": [
+        ".js"
+      ],
+      "image_name": "ghcr.io/cyber-dojo-languages/javascript_node_jasmine:8c1dd0c",
+      "max_seconds": 10,
+      "progress_regexs": [
+        "/(d+) specs?, ([1-9]d*) failures?/",
+        "/(d+) specs?, (0) failures?/"
+      ],
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  pattern = /^(\\d+) spec(s?), (\\d+) failure(s?)/\n  if match = pattern.match(output)\n    match[3] == '0' ? :green : :red\n  else\n    :amber\n  end\n}\n",
+      "tab_size": 2,
+      "visible_files": {
+        "cyber-dojo.sh": {
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/jasmine/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\n# Calling [npm run ...] is sloooow so we don't to that.\n\n/etc/jasmine/node_modules/.bin/eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\n/etc/jasmine/node_modules/.bin/nyc /etc/jasmine/node_modules/.bin/jasmine JASMINE_CONFIG_PATH=\"${CYBER_DOJO_SANDBOX}/jasmine.json\"\n"
+        },
+        "eslint.config.js": {
+          "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": 13,\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];"
+        },
+        "hiker-spec.js": {
+          "content": "'use strict';\n\nimport hiker from './hiker.js';\n\ndescribe('answer', () => {\n  it('to life the universe and everything', () => {\n    expect(hiker.answer()).toEqual(42);\n  });\n});\n"
+        },
+        "hiker.js": {
+          "content": "'use strict';\n\nexport default {\n  answer\n};\n\nfunction answer() {\n  return 6 * 9;\n}\n"
+        },
+        "jasmine.json": {
+          "content": "{\n    \"spec_dir\": \".\",\n    \"spec_files\": [ \"*[sS]pec.js\" ],\n    \"helpers\": [ \"*helper.js\" ]\n}\n"
+        },
+        "package.json": {
+          "content": "{\n  \"scripts\": {\n    \"lint\": \"eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\",\n    \"test\": \"nyc jasmine JASMINE_CONFIG_PATH=\\\"${CYBER_DOJO_SANDBOX}/jasmine.json\\\"\"\n  },\n  \"nyc\": {\n    \"reporter\": [ \"text\" ]\n  },\n  \"type\": \"module\"\n}\n"
+        }
+      }
+    },
     "JavaScript 25.8, Jest 30.2": {
       "display_name": "JavaScript 25.8, Jest 30.2",
       "filename_extension": [
@@ -1455,7 +1453,7 @@
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+          "content": "\nln -s /etc/jest/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\n# Calling [npm run ...] is sloooow so don't to that.\n\nnode_modules/.bin/eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\nnode_modules/.bin/jest --coverage\n"
         },
         "eslint.config.js": {
           "content": "export default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": \"latest\",\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
@@ -1491,7 +1489,7 @@
           "content": "'use strict';\n\n//----------------------------------------------------\n// This is a TEXT file giving examples of sinon tests.\n//----------------------------------------------------\n\n//hello would normally be defined in your module\nfunction hello(name, cb) {\n  cb('hello ' + name);\n}\n\ndescribe('hello with callback', function() {\n  var cb;\n\n  //arrange and act here\n  beforeEach(function() {\n    cb = sinon.spy();\n    hello('foo', cb);\n  });\n\n  it('assert call callback with correct greeting with ' +\n    'sinon + chai assert',\n    function() {\n      assert(cb.calledWith('hello foo'));\n    });\n\n  it('should call callback with correct greeting with ' +\n    'sinon + chai expect',\n    function() {\n      expect(cb.calledWith('hello foo')).to.be.ok;\n    });\n\n  it('should call callback with correct greeting with ' +\n    'sinon + chai should',\n    function() {\n      cb.calledWith('hello foo').should.be.ok;\n    });\n\n  it('expect call callback with correct greeting with ' +\n    'chai expect + sinon + sinon-chai',\n    function() {\n      expect(cb).to.have.been.calledWith('hello foo');\n    });\n\n  it('should call callback with correct greeting with ' +\n    'chai should + sinon + sinon-chai',\n    function() {\n      cb.should.have.been.calledWith('hello foo');\n    });\n});\n"
         },
         "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/mocha/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/mocha/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\n# Calling [npm run ...] is sloooow so we don't to that.\n\n/etc/mocha/node_modules/.bin/eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\n/etc/mocha/node_modules/.bin/nyc /etc/mocha/node_modules/.bin/mocha --require config.js --no-colors *Test.js\n"
         },
         "eslint.config.js": {
           "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": \"latest\",\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
@@ -1577,7 +1575,7 @@
       "tab_size": 2,
       "visible_files": {
         "cyber-dojo.sh": {
-          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/qunit_sinon/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\nnpm run lint\nnpm run test\n"
+          "content": "# --------------------------------------------------------------\n# Text files under /sandbox are automatically returned...\nsource ~/cyber_dojo_fs_cleaners.sh\nfunction cyber_dojo_exit()\n{\n  # Remove text files we don't want returned.\n  cyber_dojo_delete_dirs .nyc_output # ...\n  #cyber_dojo_delete_files ...\n}\ntrap cyber_dojo_exit EXIT SIGTERM\n\n# --------------------------------------------------------------\nln -s /etc/qunit_sinon/node_modules ${CYBER_DOJO_SANDBOX}/node_modules\n\n# Calling [npm run ...] is sloooow so we don't to that.\n\nnode_modules/.bin/eslint --config ${CYBER_DOJO_SANDBOX}/eslint.config.js /**/*.js\nnode_modules/.bin/nyc node_modules/.bin/qunit-cli *test*.js\n"
         },
         "eslint.config.js": {
           "content": "\nexport default [\n    {\n        \"languageOptions\" : {\n            \"parserOptions\": {\n                \"ecmaVersion\": \"latest\",\n                \"sourceType\": \"module\"\n            }\n        },\n        \"rules\": {\n            \"semi\": \"error\"\n        }\n    }\n];\n"
@@ -1614,26 +1612,24 @@
         }
       }
     },
-    "Kotlin 2.0.21, Kotest 5.9.1": {
-      "display_name": "Kotlin 2.0.21, Kotest 5.9.1",
+    "Kotlin 2.3.20, Kotest 5.9.1": {
+      "display_name": "Kotlin 2.3.20, Kotest 5.9.1",
       "filename_extension": [
         ".kt"
       ],
-      "image_name": "ghcr.io/cyber-dojo-languages/kotlin_kotest:37a0736",
+      "image_name": "ghcr.io/cyber-dojo-languages/kotlin_kotest:c11793c",
       "max_seconds": 20,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  return :red   if /^Tests:   0 passed, 0 failed, 0 ignored/.match(output)\n  return :red   if /^Tests:   (\\d+) passed, [1-9][0-9]* failed, (\\d+) ignored/.match(output)\n  return :green if /^Tests:   (\\d+) passed, 0 failed, (\\d+) ignored/.match(output)\n  return :amber\n}\n",
       "tab_size": 4,
       "visible_files": {
         "Hiker.kt": {
-          "content": "package hiker\n\nfun answer():Int {\n    return 6 * 9\n}\n"
+          "content": "package dojo\n\nfun answer():Int {\n    return 6 * 9\n}\n"
         },
         "HikerTest.kt": {
-          "content": "// [X] See please-help.txt \n\npackage hiker /*[X]*/\n\nimport io.kotest.core.spec.style.StringSpec\nimport io.kotest.matchers.shouldBe\nimport io.kotest.matchers.shouldNotBe\n\n\nclass HikerTest : StringSpec() { /*[X]*/\n\n    init {\n        \"Example Test\" {\n            hiker.answer() shouldBe 42\n        }\n\n        \"Other example test\" {\n            \"a\" shouldNotBe \"b\"\n        }\n    }\n}\n"
+          "content": "package dojo /* see comment at top of cyber-dojo.sh */\n\nimport io.kotest.core.spec.style.StringSpec\nimport io.kotest.matchers.shouldBe\nimport io.kotest.matchers.shouldNotBe\n\n\nclass HikerTest : StringSpec() {\n\n    init {\n        \"Example Test\" {\n            answer() shouldBe 42\n        }\n\n        \"Other example test\" {\n            \"a\" shouldNotBe \"b\"\n        }\n    }\n}\n"
         },
         "cyber-dojo.sh": {
-          "content": "# [X] See hard-wired-test-name.txt\n\nCLASSES=.:`ls /usr/share/kotlin/kotlinc/lib/*.jar | tr '\\n' ':'`\nCLASSES=`ls /kotlin/*.jar | tr '\\n' ':'`${CLASSES}\nkotlinc *.kt -include-runtime -cp $CLASSES\nif [ $? -eq 0 ]; then\n  java -cp $CLASSES \\\n    io.kotest.engine.launcher.MainKt \\\n    --spec hiker.HikerTest \\\n    --termcolor true\n    # [X]\nfi\n"
-        },
-        "please-help.txt": {
-          "content": "\nA KotlinTest project usually executes with Gradle or Maven,\nand these tools know how to find all the test classes and\nexecute them one by one.\n\ncyber-dojo uses the command-line only, so we don't have that\nkind of intelligence out-of-the-box. Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n\nTo get something working the test package and test class name\nis hard-wired in the cyber-dojo.sh file. If you change the\ntest package name and/or the test class name you must update\ncyber-dojo.sh appropriately.\n\nNote that cyber-dojo.sh uses the option [--writer basic]\nwhich writes red/green terminal colour codes to the output.\nThese don't render properly in a plain textarea and there appears\nto be no way to turn it off. Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n\nIf you write more than one test with the same name kotlin-test\nappears to run no tests at all! Maybe you can help?\nIf so please email feedback@cyber-dojo.org\n"
+          "content": "# We are using the \"--package dojo\" flag so Kotest will\n# discover and run all test classes in that package.\n# All test classes must be in the dojo package.\n\nCLASSES=.:`ls /usr/share/kotlin/kotlinc/lib/*.jar | tr '\\n' ':'`\nCLASSES=`ls /kotlin/*.jar | tr '\\n' ':'`${CLASSES}\nkotlinc *.kt -include-runtime -cp $CLASSES\nif [ $? -eq 0 ]; then\n  # By default you get a _large_ stack-trace when tests fail. \n  # The grep filters stack-trace lines eg \"  some.Class.method(File.kt:42)\"\n  java -XX:TieredStopAtLevel=1 \\\n    -Dkotest.framework.disableTestNestedJarScanning=true \\\n    -Dkotest.framework.classpath.scanning.autoscan.disable=true \\\n    -cp $CLASSES \\\n    io.kotest.engine.launcher.MainKt \\\n    --package dojo \\\n    --termcolor false \\\n    2>&1 | grep -vE '^[[:space:]]+[[:alnum:]_][[:alnum:]_.$]*\\('\nfi\n"
         }
       }
     },
@@ -1753,7 +1749,7 @@
         ".py"
       ],
       "image_name": "ghcr.io/cyber-dojo-languages/python_pytest:4833cf7",
-      "max_seconds": 10,
+      "max_seconds": 15,
       "rag_lambda": "\n# Python-pytest, like most test frameworks does not\n# set status to non-zero at appropriate times :-(\n# So you have to look at stdout/stderr.\n# The particular problem is distinguishing red from amber.\n# Below is a start at trapping some specific amber errors.\n# There are no doubt more.\n\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n\n  return :amber if /=== ERRORS ===/.match(output)\n\n  %w(\n    Attribute\n    Index\n    Key\n    Name\n    Type\n    UnboundLocal\n  ).each do |syntax_error_prefix|\n     return :amber if\n       /=== FAILURES ===/.match(output) &&\n         Regexp.new(\".*:[0-9]+: #{syntax_error_prefix}Error\").match(output)\n  end\n\n  return :green if /=== (\\d+) passed/.match(output)\n  return :red\n}\n",
       "tab_size": 4,
       "visible_files": {
@@ -2046,13 +2042,14 @@
         }
       }
     },
-    "Swift, Swordfish": {
-      "display_name": "Swift, Swordfish",
+    "Swift 6.0.3, Swordfish": {
+      "display_name": "Swift 6.0.3, Swordfish",
       "filename_extension": [
         ".swift"
       ],
-      "image_name": "cyberdojofoundation/swift_swordfish:5f3d03f",
+      "image_name": "ghcr.io/cyber-dojo-languages/swift_swordfish:e41146b",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  matches = output.scan(/Executed (\\d+) test(s?), with (\\d+) failure/)\n  return :amber if matches.count == 0\n  matches.each { |m| return :red if m[2].to_i > 0 }\n  return :green\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -2062,23 +2059,24 @@
           "content": "class Hiker {\n    func answer() -> Int {\n        return 6 * 9\n    }\n}\n"
         },
         "hikertests.swift": {
-          "content": "// For more information on the excellent Swordfish test framework\n// see https://github.com/philsquared/Swordfish\n\nclass HikerTests: SwordfishTests {\n  var hiker : Hiker!\n\n  override func setUp() {\n    super.setUp()\n    hiker = Hiker()\n  }\n\n  func testLife_the_universe_and_everything() {\n    require() | hiker.answer() == 42\n  }\n}\n\nextension HikerTests {\n  static var allTests : [(String, (HikerTests) -> () throws -> Void)] {\n    var name = \"testLife_the_universe_and_everything\"\n    var fun = testLife_the_universe_and_everything\n    return [ (name, fun), ]\n  }\n}\n"
+          "content": "// For more information on the excellent Swordfish test framework\n// see https://github.com/philsquared/Swordfish\n\nclass HikerTests: SwordfishTests {\n  func testLife_the_universe_and_everything() {\n    require() | Hiker().answer() == 42\n  }\n}\n\nextension HikerTests {\n    static var allTests = [\n        (\"testLife_the_universe_and_everything\", testLife_the_universe_and_everything),\n    ]\n}\n"
         },
         "main.swift": {
-          "content": "import XCTest\n\nXCTMain([ testCase(HikerTests.allTests) ])\n"
+          "content": "import XCTest\n\nXCTMain([\n    testCase(HikerTests.allTests),\n])\n"
         },
         "swordfish.swift": {
           "content": "// Swordfish\n// By Phil Nash\n//\n// Include this file into a test target folder of a Swift project to use\n//\n// The repository is hosted at: https://github.com/philsquared/Swordfish\n// This project is licensed under the BSD 2-Clause License\n// See the associated LICENSE file in the root of this repository\n\nimport XCTest\n\npublic class SwordfishTests : XCTestCase {}\n\n\n// Holds the LHS of the expression (as well as the auxiliary info,\n// message, file and line) and provides overloads for comparison\n// operators that forward on to XCTAssert...\n// - as with Assertion, we should be able to capture rhs by @autoclosure\npublic struct ExprLhs<T : Equatable> {\n    let msg : String\n    let lhs : T\n    let file: StaticString\n    let line: UInt\n\n    func assertEqual( _ rhs: T ) {\n        XCTAssertEqual( lhs, rhs, msg, file:file, line: line )\n    }\n    func assertNotEqual( _ rhs: T ) {\n        XCTAssertNotEqual( lhs, rhs, msg, file:file, line: line )\n    }\n    public static func ==( lhsExpr : ExprLhs, rhs: T ) {\n        lhsExpr.assertEqual( rhs )\n    }\n    public static func !=( lhsExpr : ExprLhs, rhs: T ) {\n        lhsExpr.assertNotEqual( rhs )\n    }\n}\n\n// For now the only role of this type is to allow | to be overloaded, and\n// pass on the message, file and line to the start of the expression object\npublic struct Assertion {\n    let msg : String\n    let file: StaticString\n    let line: UInt\n\n    // We're capturing the LHS value eagerly, but we should be able to capture\n    // as an @autoclosure\n    public static func | <T>(assertion: Assertion, lhs: T) -> ExprLhs<T> {\n        return ExprLhs(msg: assertion.msg, lhs: lhs, file: assertion.file, line: assertion.line )\n    }\n}\n\n// Captures an optional message, as well as file/ line number and bundles that up\n// in an Assertion object\npublic func require( _ msg : String = String(), file: StaticString = #file, line: UInt = #line ) -> Assertion {\n    return Assertion( msg: msg, file: file, line: line )\n}"
         }
       }
     },
-    "Swift, XCTest": {
-      "display_name": "Swift, XCTest",
+    "Swift 6.0.3, XCTest": {
+      "display_name": "Swift 6.0.3, XCTest",
       "filename_extension": [
         ".swift"
       ],
-      "image_name": "cyberdojofoundation/swift_xctest:1f5382e",
+      "image_name": "ghcr.io/cyber-dojo-languages/swift_xctest:8f3a0e7",
       "max_seconds": 10,
+      "rag_lambda": "\nlambda { |stdout,stderr,status|\n  output = stdout + stderr\n  matches = output.scan(/Executed (\\d+) test(s?), with (\\d+) failure/)\n  return :amber if matches.count == 0\n  matches.each { |m| return :red if m[2].to_i > 0 }\n  return :green\n}\n",
       "tab_size": 4,
       "visible_files": {
         "cyber-dojo.sh": {
@@ -2088,10 +2086,10 @@
           "content": "class Hiker {\n    func answer() -> Int {\n        return 6 * 9\n    }\n}\n"
         },
         "hikertests.swift": {
-          "content": "import XCTest\n\nclass HikerTests: XCTestCase {\n  var hiker : Hiker!\n\n  override func setUp() {\n    super.setUp()\n    hiker = Hiker()\n  }\n\n  func testLife_the_universe_and_everything() {\n    XCTAssertEqual(hiker.answer(), 42)\n  }\n}\n\nextension HikerTests {\n  static var allTests : [(String, (HikerTests) -> () throws -> Void)] {\n    var name = \"testLife_the_universe_and_everything\"\n    var fun = testLife_the_universe_and_everything\n    return [ (name, fun), ]\n  }\n}\n"
+          "content": "import XCTest\n\nclass HikerTests: XCTestCase {\n    func testLife_the_universe_and_everything() {\n        XCTAssertEqual(Hiker().answer(), 42)\n    }  \n}\n\nextension HikerTests {\n    static var allTests = [\n        (\"testLife_the_universe_and_everything\", testLife_the_universe_and_everything),\n    ]\n}\n"
         },
         "main.swift": {
-          "content": "import XCTest\n\nXCTMain([ testCase(HikerTests.allTests) ])\n"
+          "content": "import XCTest\n\nXCTMain([\n    testCase(HikerTests.allTests),\n])"
         }
       }
     },

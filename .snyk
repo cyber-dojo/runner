@@ -172,3 +172,24 @@ ignore:
         expires: 2026-06-21T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
+  # CVE-2026-41178 | OTel propagation | Score 6.9 | Not exploitable: affected binaries are dockerd (Unix socket only) and docker-compose/docker-buildx (CLI tools, no inbound HTTP)
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELPROPAGATION-17054905:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-01T00:00:00.000Z
+
+  # CVE-2026-41178 | OTel baggage | Score 6.9 | Not exploitable: affected binaries are dockerd (Unix socket only) and docker-compose/docker-buildx (CLI tools, no inbound HTTP)
+  SNYK-GOLANG-GOOPENTELEMETRYIOOTELBAGGAGE-17054906:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-01T00:00:00.000Z
+
+  # CVE-2026-6732 | libxml2 | Score 7.5 | Not exploitable: runner parses no XML; libxml2 not called by application code
+  SNYK-ALPINE323-LIBXML2-17111950:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-01T00:00:00.000Z
+
