@@ -26,7 +26,6 @@ CVE-2026-46598         x/crypto/ssh/agent       8.7   No   --net=none; no SSH ag
 CVE-2026-39831         x/crypto/ssh             8.6   No   --net=none; client-side; no outbound SSH
 CloudWatch-16316406    aws-sdk-go-v2 CloudWatch 8.2   No   --net=none; DoS only; requires MITM of TLS
 CVE-2026-34986         go-jose v4               7.5   No   --net=none; no JWE endpoint exposed
-CVE-2026-6732          libxml2                  7.5   No   runner parses no XML; libxml2 not called by application code
 CVE-2026-24051         OTel SDK resource        7.3   No   macOS-only (ioreg)
 CVE-2026-39827         x/crypto/ssh             7.1   No   --net=none; no SSH server exposed
 CVE-2026-41178         OTel baggage/propagation 6.9   No   Docker toolchain only; dockerd Unix socket; CLI tools, no inbound HTTP
@@ -37,6 +36,11 @@ CVE-2026-39828         x/crypto/ssh             5.3   No   --net=none; no SSH se
 CVE-2026-46595         x/crypto/ssh             5.3   No   --net=none; no SSH server exposed
 CVE-2026-39832         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
 CVE-2026-39833         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
+CVE-2026-42506         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-27136         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-42502         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-25681         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-25680         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML parsed
 
 == Key caveat ==
 

@@ -186,17 +186,45 @@ ignore:
         expires: 2026-06-21T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
-  # CVE-2026-6732 | libxml2 | Score 7.5 | Not exploitable: runner parses no XML; libxml2 not called by application code
-  SNYK-ALPINE323-LIBXML2-17111950:
-    - '*':
-        reason: Waiting for fix
-        expires: 2026-06-21T10:53:10.182Z
-        created: 2026-06-01T00:00:00.000Z
-
   # CVE-2026-39821 | golang.org/x/net/idna | Score 9.3 | Not exploitable: runner resolves only trusted endpoints; no user-controlled input reaches IDNA path
   SNYK-GOLANG-GOLANGORGXNETIDNA-17116876:
     - '*':
         reason: Waiting for fix
         expires: 2026-06-21T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
+
+  # CVE-2026-42506 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
+  SNYK-GOLANG-GOLANGORGXNETHTML-16873672:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-05T00:00:00.000Z
+
+  # CVE-2026-27136 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
+  SNYK-GOLANG-GOLANGORGXNETHTML-16873674:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-05T00:00:00.000Z
+
+  # CVE-2026-42502 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
+  SNYK-GOLANG-GOLANGORGXNETHTML-16873676:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-05T00:00:00.000Z
+
+  # CVE-2026-25681 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
+  SNYK-GOLANG-GOLANGORGXNETHTML-16873774:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-05T00:00:00.000Z
+
+  # CVE-2026-25680 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML parsed
+  SNYK-GOLANG-GOLANGORGXNETHTML-16873779:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-06-21T10:53:10.182Z
+        created: 2026-06-05T00:00:00.000Z
 
