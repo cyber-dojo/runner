@@ -36,6 +36,11 @@ CVE-2026-39828         x/crypto/ssh             5.3   No   --net=none; no SSH se
 CVE-2026-46595         x/crypto/ssh             5.3   No   --net=none; no SSH server exposed
 CVE-2026-39832         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
 CVE-2026-39833         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
+CVE-2026-42506         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-27136         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-42502         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-25681         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
+CVE-2026-25680         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML parsed
 
 == Key caveat ==
 

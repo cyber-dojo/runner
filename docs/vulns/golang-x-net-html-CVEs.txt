@@ -1,0 +1,35 @@
+golang.org/x/net/html (5 CVEs) | CVSS 5.3 each | Medium
+CVE-2026-42506  Snyk SNYK-GOLANG-GOLANGORGXNETHTML-16873672  XSS, inBodyEndTagOther() (unmatched tags)
+CVE-2026-27136  Snyk SNYK-GOLANG-GOLANGORGXNETHTML-16873674  XSS, readStartTag() (duplicate attributes)
+CVE-2026-42502  Snyk SNYK-GOLANG-GOLANGORGXNETHTML-16873676  XSS, childTextNodesAreLiteral() in render.go (fostered elements)
+CVE-2026-25681  Snyk SNYK-GOLANG-GOLANGORGXNETHTML-16873774  XSS, writeQuoted() (unescaped > in DOCTYPE data)
+CVE-2026-25680  Snyk SNYK-GOLANG-GOLANGORGXNETHTML-16873779  DoS, parse.go attribute checking (excessive CPU)
+
+All five are in golang.org/x/net/html and are fixed in x/net v0.55.0.
+
+What: Four are cross-site-scripting flaws in the HTML renderer/tokenizer that
+let crafted HTML produce output which executes scripts when the sanitised
+result is rendered in a browser. The fifth is an algorithmic-complexity denial
+of service triggered by parsing attacker-controlled HTML.
+
+For cyber-dojo: x/net/html is a statically compiled Go module, not an Alpine
+apk package, so there is no apk fix -- the runner's docker binaries live under
+/usr/local and no apk package owns them. I scanned every Go binary in the
+base image (cyberdojo/docker-base, alpine 3.23.4). Several binaries carry the
+x/net module below v0.55.0 (dockerd v0.54.0, containerd/ctr/shim v0.47.0,
+docker-compose v0.51.0, docker-buildx v0.53.0, runc v0.35.0), so Snyk flags
+them at the module level. But the vulnerable html package is actually linked
+into only ONE binary: docker-buildx (the cli-plugin, x/net v0.53.0). No other
+binary compiles in golang.org/x/net/html, and the runner's own server is Ruby
+(no Go at all).
+
+docker-buildx is a build-time CLI plugin with no inbound network surface. The
+XSS flaws require rendering sanitised HTML to a browser, which buildx never
+does. The DoS requires feeding untrusted HTML to html.Parse, which buildx
+never does. cyber-dojo does not build images from user content, and user code
+runs with --net=none, non-root, no-new-privileges.
+
+Verdict: Not exploitable. The vulnerable html package is present only in
+docker-buildx, which neither parses nor renders untrusted HTML in the runner.
+Fix arrives upstream when Docker rebuilds buildx against x/net >= 0.55.0 and
+the docker-base image bumps the buildx version.
