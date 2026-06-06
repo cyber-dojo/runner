@@ -63,6 +63,15 @@ jobs:
             --description="Test runner"
             --template-file=.kosli.yml
 
+      - name: Tag Kosli Flow
+        if: github.ref == 'refs/heads/main'
+        run:
+          kosli tag flow "${KOSLI_FLOW}"
+            --set env=${KOSLI_AWS_BETA}
+            --set kind=build
+            --set ci=github
+            --set repo_url=${{ github.server_url }}/${{ github.repository }}
+
       - name: Begin Kosli Trail
         if: github.ref == 'refs/heads/main'
         run:
