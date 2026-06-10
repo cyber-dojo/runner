@@ -9,8 +9,6 @@ services:
         - COMMIT_SHA
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_CLIENT_USER}
-    container_name: ${CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME}
-    ports: [ "${CYBER_DOJO_RUNNER_CLIENT_PORT}:${CYBER_DOJO_RUNNER_CLIENT_PORT}" ]
     depends_on: [ server ]
     env_file: [ .env ]
     environment:
@@ -31,8 +29,6 @@ services:
         - COMMIT_SHA
     image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
     user: ${CYBER_DOJO_RUNNER_SERVER_USER}
-    container_name: ${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}
-    ports: [ "${CYBER_DOJO_RUNNER_PORT}:${CYBER_DOJO_RUNNER_PORT}" ]
     depends_on: [ languages-start-points ]
     env_file: [ .env ]
     environment:
@@ -49,7 +45,6 @@ services:
   languages-start-points:
     platform: linux/amd64
     image: ${CYBER_DOJO_LANGUAGES_START_POINTS}
-    ports: [ "${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT}" ]
     user: nobody
     env_file: [ .env ]
     read_only: true

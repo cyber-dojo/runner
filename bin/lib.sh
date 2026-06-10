@@ -25,6 +25,21 @@ installed()
   fi
 }
 
+service_container()
+{
+  # Echo the container id of the given docker-compose service within this
+  # demo/test's project. The project is COMPOSE_PROJECT_NAME (set by
+  # bin/demo.sh and bin/run_tests.sh), defaulting to runner so the helpers
+  # work against a plain run when the var is not exported in the shell.
+  # Resolving by compose label (not a fixed container_name) lets several
+  # demos/tests, here and in sibling repos, run at once without colliding.
+  local -r service="${1}"
+  docker ps \
+    --filter "label=com.docker.compose.project=${COMPOSE_PROJECT_NAME:-runner}" \
+    --filter "label=com.docker.compose.service=${service}" \
+    --format '{{.ID}}'
+}
+
 stderr()
 {
   local -r message="${1}"

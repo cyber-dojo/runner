@@ -9,6 +9,11 @@ source "${ROOT_DIR}/bin/setup_dependent_images.sh"
 # shellcheck disable=SC2046
 export $(echo_env_vars)
 
+# Run as our own docker-compose project so this repo's tests (and sibling
+# repos' demos/tests) can run at once without their container names or
+# networks colliding. Override to run a second set alongside the first.
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-runner}"
+
 show_help()
 {
     local -r MY_NAME=$(basename "${BASH_SOURCE[0]}")
@@ -36,11 +41,9 @@ check_args()
       ;;
     'server')
       export USER="${CYBER_DOJO_RUNNER_SERVER_USER}"
-      export CONTAINER_NAME="${CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME}"
       ;;
     'client')
       export USER="${CYBER_DOJO_RUNNER_CLIENT_USER}"
-      export CONTAINER_NAME="${CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME}"
       ;;
     '')
       show_help
@@ -116,6 +119,9 @@ run_tests()
   create_test_data_manifests_file
   # Don't do a build here, because in CI workflow, server image is built with GitHub Action
   docker compose --progress=plain up --no-build --wait --wait-timeout=10 "${TYPE}"
+  # Resolved here (not in check_args) because the container does not exist
+  # until the compose up above. TYPE is the compose service name (client|server).
+  export CONTAINER_NAME="$(service_container "${TYPE}")"
   echo_warnings "${TYPE}"
   run_tests_in_container "$@"
 }
