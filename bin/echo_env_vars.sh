@@ -32,9 +32,6 @@ echo_env_vars()
   echo CYBER_DOJO_RUNNER_CLIENT_USER=nobody
   echo CYBER_DOJO_RUNNER_SERVER_USER=root
 
-  echo CYBER_DOJO_RUNNER_CLIENT_CONTAINER_NAME=test_runner_client
-  echo CYBER_DOJO_RUNNER_SERVER_CONTAINER_NAME=test_runner_server
-
   echo COVERAGE_CODE_TAB_NAME=code
   echo COVERAGE_TEST_TAB_NAME=test
 
