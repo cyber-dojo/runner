@@ -7,224 +7,231 @@ ignore:
   # CVE-2026-24051 | OTel SDK resource | Score 7.3 | Not exploitable: macOS-only (ioreg)
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15182758:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-33186 | gRPC-Go | Score 9.1 | Not exploitable: --net=none; no gRPC exposure
   SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELPROPAGATION-15928420:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELINTERNALGLOBAL-15928418:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELBAGGAGE-15928416:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPTRACEOTLPTRACEHTTP-15954196:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPMETRICOTLPMETRICHTTP-15954197:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # no CVE | aws-sdk-go-v2 CloudWatch Logs EventStream | Score 8.2 | Not exploitable: requires MITM of TLS CloudWatch endpoint; DoS only
   SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2SERVICECLOUDWATCHLOGS-16316406:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-08T10:53:10.201Z
 
   # CVE-2026-33814 | golang.org/x/net/http2 | Score 8.7 | Not exploitable: Go agent connects to trusted internal endpoints only; attacker cannot inject SETTINGS_MAX_FRAME_SIZE=0
   SNYK-GOLANG-GOLANGORGXNETHTTP2-16535157:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-08T10:53:10.201Z
 
   # CVE-2026-46597 | x/crypto/ssh | Score 8.7 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796326:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39835 | x/crypto/ssh | Score 8.7 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796332:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-46598 | x/crypto/ssh/agent | Score 8.7 | Not exploitable: --net=none; no SSH agent exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-16796334:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39831 | x/crypto/ssh | Score 8.6 | Not exploitable: --net=none; client-side; no outbound SSH
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795344:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39827 | x/crypto/ssh | Score 7.1 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795342:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39829 | x/crypto/ssh | Score 6.9 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795338:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39834 | x/crypto/ssh | Score 6.9 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795340:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39830 | x/crypto/ssh | Score 6.9 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796305:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39828 | x/crypto/ssh | Score 5.3 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796309:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-46595 | x/crypto/ssh | Score 5.3 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796316:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39832 | x/crypto/ssh/agent | Score 5.3 | Not exploitable: --net=none; no SSH agent exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-16796343:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39833 | x/crypto/ssh/agent | Score 5.3 | Not exploitable: --net=none; no SSH agent exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-16796347:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-41178 | OTel propagation | Score 6.9 | Not exploitable: affected binaries are dockerd (Unix socket only) and docker-compose/docker-buildx (CLI tools, no inbound HTTP)
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELPROPAGATION-17054905:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
   # CVE-2026-41178 | OTel baggage | Score 6.9 | Not exploitable: affected binaries are dockerd (Unix socket only) and docker-compose/docker-buildx (CLI tools, no inbound HTTP)
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELBAGGAGE-17054906:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
   # CVE-2026-39821 | golang.org/x/net/idna | Score 9.3 | Not exploitable: runner resolves only trusted endpoints; no user-controlled input reaches IDNA path
   SNYK-GOLANG-GOLANGORGXNETIDNA-17116876:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
   # CVE-2026-42506 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873672:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-27136 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873674:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-42502 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873676:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-25681 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873774:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-25680 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML parsed
   SNYK-GOLANG-GOLANGORGXNETHTML-16873779:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-53488 | containerd CRI labels | Score 8.7 | Not exploitable: dockerd uses moby integration, not the containerd CRI plugin; runner only runs trusted images
   SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17391524:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
   # CVE-2026-53488 | containerd v2/client | Score 8.7 | Not exploitable: same CVE as 17391524 attributed to a second containerd package; runner only runs trusted images so no attacker LABELs reach any path
   SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2CLIENT-17391516:
     - '*':
-        reason: Waiting for fix
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-07-16T10:53:10.182Z
+        created: 2026-06-24T00:00:00.000Z
+
+  # CVE-2026-50195 | containerd CRI checkpoint import | Score 5.6 (GHSA rates Critical) | Not exploitable: CRI/Kubernetes checkpoint-import path; dockerd uses the moby integration not CRI; runner is not Kubernetes and runs only trusted images
+  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17393921:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 

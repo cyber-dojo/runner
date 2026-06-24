@@ -33,6 +33,7 @@ CVE-2026-41178         OTel baggage/propagation 6.9   No   Docker toolchain only
 CVE-2026-39829         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
 CVE-2026-39834         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
 CVE-2026-39830         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
+CVE-2026-50195         containerd CRI checkpoint 5.6  No   CRI checkpoint import (Kubernetes); dockerd uses moby integration; not K8s; only trusted images (GHSA: Critical)
 CVE-2026-39828         x/crypto/ssh             5.3   No   --net=none; no SSH server exposed
 CVE-2026-46595         x/crypto/ssh             5.3   No   --net=none; no SSH server exposed
 CVE-2026-39832         x/crypto/ssh/agent       5.3   No   --net=none; no SSH agent exposed
