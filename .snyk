@@ -221,3 +221,10 @@ ignore:
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
+  # CVE-2026-53488 | containerd v2/client | Score 8.7 | Not exploitable: same CVE as 17391524 attributed to a second containerd package; runner only runs trusted images so no attacker LABELs reach any path
+  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2CLIENT-17391516:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-07-16T10:53:10.182Z
+        created: 2026-06-24T00:00:00.000Z
+
