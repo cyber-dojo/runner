@@ -1,0 +1,20 @@
+SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17391524 | github.com/containerd/containerd/v2/pkg/labels | CVSS 8.7 | High | CVE-2026-53488
+What: The containerd CRI plugin propagates LABEL values from an image's
+config to container labels without validation. A downstream consumer of those
+labels (the restart-monitor's binary:// logger) then runs them, so a crafted
+image LABEL becomes arbitrary command execution on the host as root, triggered
+by pulling/running the malicious image. Exploitation requires the CRI plugin
+(the Kubernetes/crictl runtime path) and an attacker-supplied image.
+Fix available: containerd 2.0.10, 2.1.9, 2.2.5, 2.3.2 (and 1.7.33 on the 1.7 line)
+For cyber-dojo: containerd ships inside the dind image as part of Docker
+Engine. The runner reaches Docker only through dockerd via the mounted
+/var/run/docker.sock, and dockerd uses its own moby/containerd client
+integration -- NOT the containerd CRI plugin, which is only exercised by
+Kubernetes/crictl. The CRI plugin is therefore never enabled or invoked. The
+runner also runs only fixed, trusted language images (cyberdojofoundation/*,
+ghcr.io/cyber-dojo-languages/*); user code runs inside a container with
+--net=none, --user=41966:51966 and --security-opt=no-new-privileges, and
+cannot supply its own image or its LABEL values.
+Verdict: Not exploitable. The vulnerable code path is the containerd CRI
+plugin, which Docker Engine does not use; and the runner never pulls
+attacker-controlled images whose LABELs could reach it.

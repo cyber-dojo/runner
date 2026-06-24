@@ -18,6 +18,7 @@ CVE / ID               Package                 Score  Exploitable?  Reason
 ------------------------------------------------------------------------------
 CVE-2026-39821         golang.org/x/net/idna    9.3   No   runner resolves only trusted endpoints; no user-controlled IDNA input
 CVE-2026-33186         gRPC-Go                  9.1   No   --net=none; no gRPC exposure
+CVE-2026-53488         containerd CRI labels    8.7   No   dockerd uses moby integration, not the CRI plugin; only trusted images run
 CVE-2026-29181         OTel baggage+family      8.7   No   --net=none; can't send baggage headers
 CVE-2026-33814         golang.org/x/net/http2   8.7   No   --net=none; can't send SETTINGS frames
 CVE-2026-46597         x/crypto/ssh             8.7   No   --net=none; no SSH server exposed

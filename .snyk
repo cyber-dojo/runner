@@ -214,3 +214,10 @@ ignore:
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
+  # CVE-2026-53488 | containerd CRI labels | Score 8.7 | Not exploitable: dockerd uses moby integration, not the containerd CRI plugin; runner only runs trusted images
+  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17391524:
+    - '*':
+        reason: Waiting for fix
+        expires: 2026-07-16T10:53:10.182Z
+        created: 2026-06-24T00:00:00.000Z
+
