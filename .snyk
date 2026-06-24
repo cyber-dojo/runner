@@ -235,3 +235,10 @@ ignore:
         expires: 2026-07-16T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
+  # CVE-2026-50195 | containerd v2/client | Score 5.6 (GHSA rates Critical) | Not exploitable: same CVE as 17393921 attributed to a second containerd package; CRI checkpoint-import path unused; runner is not Kubernetes and runs only trusted images
+  SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2CLIENT-17393922:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-07-16T10:53:10.182Z
+        created: 2026-06-24T00:00:00.000Z
+

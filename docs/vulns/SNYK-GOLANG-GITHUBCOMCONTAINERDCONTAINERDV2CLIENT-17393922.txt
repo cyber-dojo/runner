@@ -1,0 +1,41 @@
+SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2CLIENT-17393922 | github.com/containerd/containerd/v2/client | CVSS 5.6 (GHSA rates Critical) | CVE-2026-50195 | GHSA-cvxm-645q-p574
+What: This is the same advisory as
+SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17393921 (CVE-2026-50195),
+which Snyk attributes to a second import path in the containerd module: "CRI
+checkpoint import allows local image tag poisoning". containerd's CRI
+checkpoint-import process fails to validate the image references inside a
+checkpoint image's configuration, so an attacker can inject a malicious image
+into the local image cache under an arbitrary local tag. Subsequent pods that
+use the poisoned tag with an IfNotPresent or Never pull policy then unknowingly
+execute attacker-controlled code under the victim pod's identity. The
+vulnerable mechanism lives in the CRI checkpoint-import path, not in the
+generic client API; both packages are flagged because the fix ships at the
+module level (identical fixed versions).
+Note on score: Snyk reports CVSS 5.6 (Medium); the upstream GitHub advisory
+GHSA-cvxm-645q-p574 rates it Critical. We treat the higher rating as the one
+to defend against.
+Fix available: containerd 2.1.9, 2.2.5, 2.3.2 (vulnerable: >=2.1.0 <2.1.9,
+>=2.2.0 <2.2.5, >=2.3.0 <2.3.1). Same fixed versions as CVE-2026-53488, which
+is why both advisories clear on the same module bump.
+For cyber-dojo: containerd ships inside the dind image as part of Docker
+Engine. Unlike pkg/labels, the v2/client package IS reachable in principle,
+because dockerd's moby/containerd integration uses the containerd client API.
+However, the exploit requires three things, none of which hold here. First,
+the vulnerable code is the CRI checkpoint-import path, which is the
+Kubernetes/CRI runtime interface; the runner reaches Docker only through
+dockerd via the mounted /var/run/docker.sock, and dockerd uses its own
+moby/containerd client integration, NOT the containerd CRI plugin. The CRI
+plugin is never enabled or invoked. Second, the attack needs a threat actor
+with permission to create pods on the target -- the runner is not Kubernetes
+and has no pods, no kubelet and no crictl. Third, it needs an attacker-supplied
+crafted checkpoint image; the runner only ever runs fixed, trusted language
+images (cyberdojofoundation/*, ghcr.io/cyber-dojo-languages/*), and user code
+runs inside a container with --net=none, --user=41966:51966 and
+--security-opt=no-new-privileges, and cannot supply its own image, checkpoint
+or tags.
+Verdict: Not exploitable. Even taking the conservative view that v2/client is
+linked, the vulnerable path is the containerd CRI checkpoint import, which
+Docker Engine does not use; the runner is not Kubernetes so there is no
+pod-create surface; and the runner never imports attacker-controlled checkpoint
+images. The real fix is bumping containerd to 2.1.9 / 2.2.5 / 2.3.2+, which
+clears this advisory alongside CVE-2026-53488.
