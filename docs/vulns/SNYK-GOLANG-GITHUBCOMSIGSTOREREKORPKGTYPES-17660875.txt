@@ -1,0 +1,25 @@
+SNYK-GOLANG-GITHUBCOMSIGSTOREREKORPKGTYPES-17660875 | github.com/sigstore/rekor/pkg/types | CVSS 8.7 | High | CVE-2026-48702
+What: "Allocation of Resources Without Limits or Throttling" (CWE-770). A Rekor
+transparency-log server can be crashed by sending a specially crafted
+gzip-compressed APK file with a very high compression ratio to its
+unauthenticated upload endpoints. Inflating the bomb consumes excessive memory,
+so an unauthenticated remote attacker can exhaust the server's memory and take
+the process down. The vulnerable code is the Alpine/APK entry type in Rekor's
+pkg/types, which only runs on the server side when ingesting a submitted log
+entry.
+Fix available: rekor 1.5.2 (vulnerable: >=0.3.0 <1.5.2).
+For cyber-dojo: rekor/pkg/types is part of the sigstore transparency-log
+toolchain; it is linked transitively through the Docker image-signing and
+attestation toolchain (cosign / docker buildx) bundled in the dind image, not
+through any code cyber-dojo writes. The vulnerability is purely server-side: it
+requires operating a Rekor transparency-log server that exposes the
+unauthenticated APK-upload endpoints and accepts attacker-supplied log entries.
+The runner does not run a Rekor server, exposes no such endpoint, and ingests
+no externally submitted log entries. User code runs inside a sandbox container
+with --net=none, --user=41966:51966 and --security-opt=no-new-privileges, so it
+cannot reach any network endpoint at all, let alone submit a crafted APK to a
+Rekor upload handler. Whatever links pkg/types does so as a client of the public
+sigstore infrastructure, never as a server.
+Verdict: Not exploitable. The DoS targets a Rekor server's unauthenticated
+upload endpoints; the runner runs no Rekor server and the affected ingest path
+is never invoked. The real fix is bumping rekor to 1.5.2+.
