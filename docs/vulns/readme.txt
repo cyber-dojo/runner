@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-06-01
+Generated: 2026-06-01 (curl/libcurl low-severity batch added 2026-07-03)
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -45,6 +45,32 @@ CVE-2026-27136         golang.org/x/net/html    5.3   No   only docker-buildx li
 CVE-2026-42502         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
 CVE-2026-25681         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
 CVE-2026-25680         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML parsed
+curl 18 CVEs (below)   Alpine curl < 8.21.0-r0  low   No   curl CLI removed; libcurl only via git (no net transport used); --net=none; see SNYK-ALPINE324-CURL.txt
+
+== curl / libcurl low-severity batch (Alpine 3.24 apk "curl" < 8.21.0-r0) ==
+
+The curl CLI is removed from the base image; the "curl" apk package remains only
+because git links libcurl. All Low, NVD analysis pending (no CVSS yet).
+Detail and exploitability assessment: docs/vulns/SNYK-ALPINE324-CURL.txt
+
+CVE-2026-11586  SNYK-ALPINE324-CURL-17716543
+CVE-2026-11352  SNYK-ALPINE324-CURL-17716663
+CVE-2026-12064  SNYK-ALPINE324-CURL-17717190
+CVE-2026-9079   SNYK-ALPINE324-CURL-17717313
+CVE-2026-8286   SNYK-ALPINE324-CURL-17717410
+CVE-2026-8932   SNYK-ALPINE324-CURL-17717433
+CVE-2026-9545   SNYK-ALPINE324-CURL-17717489
+CVE-2026-11564  SNYK-ALPINE324-CURL-17717495
+CVE-2026-8458   SNYK-ALPINE324-CURL-17717584
+CVE-2026-9546   SNYK-ALPINE324-CURL-17717618
+CVE-2026-11856  SNYK-ALPINE324-CURL-17717651
+CVE-2026-8925   SNYK-ALPINE324-CURL-17717674
+CVE-2026-9547   SNYK-ALPINE324-CURL-17717707
+CVE-2026-8924   SNYK-ALPINE324-CURL-17717716
+CVE-2026-9080   SNYK-ALPINE324-CURL-17717717
+CVE-2026-8926   SNYK-ALPINE324-CURL-17717718
+CVE-2026-10536  SNYK-ALPINE324-CURL-17717719
+CVE-2026-8927   SNYK-ALPINE324-CURL-17717720
 
 == Key caveat ==
 
