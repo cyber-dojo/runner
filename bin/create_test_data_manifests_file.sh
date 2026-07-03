@@ -8,7 +8,10 @@ create_test_data_manifests_file()
   # demos/tests in this and sibling repos can run at once without colliding),
   # so reach it the same way the rest of the suite does: docker exec into the
   # container, resolved by compose project+service via service_container(),
-  # and curl its in-container localhost.
+  # and fetch from its in-container loopback address. The base image is now
+  # Alpine-based, whose BusyBox wget replaces curl; use 127.0.0.1 (not
+  # localhost) because BusyBox wget resolves localhost to IPv6 ::1 while the
+  # server listens on IPv4.
   #
   # Write to a temp file first and only replace the committed fixture once we
   # have valid, non-empty JSON. A failed fetch must not silently truncate the
@@ -29,7 +32,7 @@ create_test_data_manifests_file()
   # before the non-empty guard below runs and prints a clear message.
   set +e
   docker exec "${CONTAINER}" \
-    curl --silent --fail --request GET "http://localhost:${PORT}/manifests" \
+    wget --quiet --output-document=- "http://127.0.0.1:${PORT}/manifests" \
       | jq --sort-keys '.' > "${TMP_FILENAME}"
   set -e
 
