@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-06-01 (curl/libcurl low-severity batch added 2026-07-03)
+Generated: 2026-06-01 (curl/libcurl low-severity batch added 2026-07-03; cilium/ebpf/btf added 2026-07-04)
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -45,6 +45,7 @@ CVE-2026-27136         golang.org/x/net/html    5.3   No   only docker-buildx li
 CVE-2026-42502         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
 CVE-2026-25681         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
 CVE-2026-25680         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML parsed
+CVE-2026-10722         cilium/ebpf/btf          4.8   No   sandboxed user code lacks CAP_BPF to load eBPF; only trusted toolchain BTF specs parsed; DoS only
 curl 18 CVEs (below)   Alpine curl < 8.21.0-r0  low   No   curl CLI removed; libcurl only via git (no net transport used); --net=none; see SNYK-ALPINE324-CURL.txt
 
 == curl / libcurl low-severity batch (Alpine 3.24 apk "curl" < 8.21.0-r0) ==
