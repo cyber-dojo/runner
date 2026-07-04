@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-06-01 (curl/libcurl low-severity batch added 2026-07-03; cilium/ebpf/btf added 2026-07-04)
+Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below)
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -46,32 +46,17 @@ CVE-2026-42502         golang.org/x/net/html    5.3   No   only docker-buildx li
 CVE-2026-25681         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
 CVE-2026-25680         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML parsed
 CVE-2026-10722         cilium/ebpf/btf          4.8   No   sandboxed user code lacks CAP_BPF to load eBPF; only trusted toolchain BTF specs parsed; DoS only
-curl 18 CVEs (below)   Alpine curl < 8.21.0-r0  low   No   curl CLI removed; libcurl only via git (no net transport used); --net=none; see SNYK-ALPINE324-CURL.txt
 
-== curl / libcurl low-severity batch (Alpine 3.24 apk "curl" < 8.21.0-r0) ==
+== curl / libcurl low-severity batch: removed 2026-07-04 ==
 
-The curl CLI is removed from the base image; the "curl" apk package remains only
-because git links libcurl. All Low, NVD analysis pending (no CVSS yet).
-Detail and exploitability assessment: docs/vulns/SNYK-ALPINE324-CURL.txt
-
-CVE-2026-11586  SNYK-ALPINE324-CURL-17716543
-CVE-2026-11352  SNYK-ALPINE324-CURL-17716663
-CVE-2026-12064  SNYK-ALPINE324-CURL-17717190
-CVE-2026-9079   SNYK-ALPINE324-CURL-17717313
-CVE-2026-8286   SNYK-ALPINE324-CURL-17717410
-CVE-2026-8932   SNYK-ALPINE324-CURL-17717433
-CVE-2026-9545   SNYK-ALPINE324-CURL-17717489
-CVE-2026-11564  SNYK-ALPINE324-CURL-17717495
-CVE-2026-8458   SNYK-ALPINE324-CURL-17717584
-CVE-2026-9546   SNYK-ALPINE324-CURL-17717618
-CVE-2026-11856  SNYK-ALPINE324-CURL-17717651
-CVE-2026-8925   SNYK-ALPINE324-CURL-17717674
-CVE-2026-9547   SNYK-ALPINE324-CURL-17717707
-CVE-2026-8924   SNYK-ALPINE324-CURL-17717716
-CVE-2026-9080   SNYK-ALPINE324-CURL-17717717
-CVE-2026-8926   SNYK-ALPINE324-CURL-17717718
-CVE-2026-10536  SNYK-ALPINE324-CURL-17717719
-CVE-2026-8927   SNYK-ALPINE324-CURL-17717720
+The runner previously carried 18 Low-severity Alpine "curl" (libcurl) CVEs.
+libcurl was present only because the upstream docker:dind base image installs
+git, and git links libcurl; the runner itself never uses git at runtime (only
+host-side build scripts run "git rev-parse HEAD"). The runner Dockerfile now
+runs "apk del git", which removes git and libcurl (git is the sole package that
+pulls libcurl in), so those 18 CVEs no longer appear in the runner scan. A raw
+snyk container scan of the rebuilt image confirms zero OS-package vulnerabilities.
+commander keeps git (via docker-base) because it does use "git clone" at runtime.
 
 == Key caveat ==
 

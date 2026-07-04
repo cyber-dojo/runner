@@ -4,6 +4,15 @@ LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
 
+# Remove git, which is inherited from the upstream docker:dind base image.
+# The runner never uses git at runtime; the only git calls in this repo are
+# host-side build scripts (bin/echo_env_vars.sh runs "git rev-parse HEAD" on the
+# host, not inside the image). git is the sole package that pulls in libcurl, so
+# deleting it also removes libcurl and clears the recurring Alpine libcurl CVEs
+# from the runner's Snyk scan. docker-base keeps git for commander, which does
+# use "git clone" at runtime.
+RUN apk del git
+
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}
 
