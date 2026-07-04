@@ -8,370 +8,377 @@ ignore:
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15182758:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-33186 | gRPC-Go | Score 9.1 | Not exploitable: --net=none; no gRPC exposure
   SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELPROPAGATION-15928420:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELINTERNALGLOBAL-15928418:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELBAGGAGE-15928416:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPTRACEOTLPTRACEHTTP-15954196:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELEXPORTERSOTLPOTLPMETRICOTLPMETRICHTTP-15954197:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # CVE-2026-29181 | OTel baggage+family | Score 8.7 | Not exploitable: --net=none; can't send baggage headers
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELSDKRESOURCE-15954212:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-04-09T10:53:10.201Z
 
   # no CVE | aws-sdk-go-v2 CloudWatch Logs EventStream | Score 8.2 | Not exploitable: requires MITM of TLS CloudWatch endpoint; DoS only
   SNYK-GOLANG-GITHUBCOMAWSAWSSDKGOV2SERVICECLOUDWATCHLOGS-16316406:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-08T10:53:10.201Z
 
   # CVE-2026-33814 | golang.org/x/net/http2 | Score 8.7 | Not exploitable: Go agent connects to trusted internal endpoints only; attacker cannot inject SETTINGS_MAX_FRAME_SIZE=0
   SNYK-GOLANG-GOLANGORGXNETHTTP2-16535157:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-08T10:53:10.201Z
 
   # CVE-2026-46597 | x/crypto/ssh | Score 8.7 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796326:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39835 | x/crypto/ssh | Score 8.7 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796332:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-46598 | x/crypto/ssh/agent | Score 8.7 | Not exploitable: --net=none; no SSH agent exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-16796334:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39831 | x/crypto/ssh | Score 8.6 | Not exploitable: --net=none; client-side; no outbound SSH
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795344:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39827 | x/crypto/ssh | Score 7.1 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795342:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39829 | x/crypto/ssh | Score 6.9 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795338:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39834 | x/crypto/ssh | Score 6.9 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16795340:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39830 | x/crypto/ssh | Score 6.9 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796305:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39828 | x/crypto/ssh | Score 5.3 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796309:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-46595 | x/crypto/ssh | Score 5.3 | Not exploitable: --net=none; no SSH server exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSH-16796316:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39832 | x/crypto/ssh/agent | Score 5.3 | Not exploitable: --net=none; no SSH agent exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-16796343:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-39833 | x/crypto/ssh/agent | Score 5.3 | Not exploitable: --net=none; no SSH agent exposed
   SNYK-GOLANG-GOLANGORGXCRYPTOSSHAGENT-16796347:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-05-23T10:53:10.201Z
 
   # CVE-2026-41178 | OTel propagation | Score 6.9 | Not exploitable: affected binaries are dockerd (Unix socket only) and docker-compose/docker-buildx (CLI tools, no inbound HTTP)
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELPROPAGATION-17054905:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
   # CVE-2026-41178 | OTel baggage | Score 6.9 | Not exploitable: affected binaries are dockerd (Unix socket only) and docker-compose/docker-buildx (CLI tools, no inbound HTTP)
   SNYK-GOLANG-GOOPENTELEMETRYIOOTELBAGGAGE-17054906:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
   # CVE-2026-39821 | golang.org/x/net/idna | Score 9.3 | Not exploitable: runner resolves only trusted endpoints; no user-controlled input reaches IDNA path
   SNYK-GOLANG-GOLANGORGXNETIDNA-17116876:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-01T00:00:00.000Z
 
   # CVE-2026-42506 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873672:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-27136 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873674:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-42502 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873676:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-25681 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML rendered
   SNYK-GOLANG-GOLANGORGXNETHTML-16873774:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-25680 | x/net/html | Score 5.3 | Not exploitable: only docker-buildx links html pkg; build-time CLI plugin; no untrusted HTML parsed
   SNYK-GOLANG-GOLANGORGXNETHTML-16873779:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-05T00:00:00.000Z
 
   # CVE-2026-53488 | containerd CRI labels | Score 8.7 | Not exploitable: dockerd uses moby integration, not the containerd CRI plugin; runner only runs trusted images
   SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17391524:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
   # CVE-2026-53488 | containerd v2/client | Score 8.7 | Not exploitable: same CVE as 17391524 attributed to a second containerd package; runner only runs trusted images so no attacker LABELs reach any path
   SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2CLIENT-17391516:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
   # CVE-2026-50195 | containerd CRI checkpoint import | Score 5.6 (GHSA rates Critical) | Not exploitable: CRI/Kubernetes checkpoint-import path; dockerd uses the moby integration not CRI; runner is not Kubernetes and runs only trusted images
   SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2PKGLABELS-17393921:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
   # CVE-2026-50195 | containerd v2/client | Score 5.6 (GHSA rates Critical) | Not exploitable: same CVE as 17393921 attributed to a second containerd package; CRI checkpoint-import path unused; runner is not Kubernetes and runs only trusted images
   SNYK-GOLANG-GITHUBCOMCONTAINERDCONTAINERDV2CLIENT-17393922:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-24T00:00:00.000Z
 
   # CVE-2026-48702 | sigstore/rekor pkg/types | Score 8.7 | Not exploitable: server-side DoS against a Rekor server's unauthenticated APK-upload endpoints; runner runs no Rekor server and --net=none blocks user code from any endpoint
   SNYK-GOLANG-GITHUBCOMSIGSTOREREKORPKGTYPES-17660875:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-06-30T00:00:00.000Z
 
   # CVE-2026-11586 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17716543:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-11352 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17716663:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-12064 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717190:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-9079 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717313:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8286 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717410:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8932 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717433:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-9545 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717489:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-11564 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717495:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8458 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717584:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-9546 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717618:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-11856 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717651:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8925 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717674:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-9547 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717707:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8924 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717716:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-9080 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717717:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8926 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717718:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-10536 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717719:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
 
   # CVE-2026-8927 | Alpine curl < 8.21.0-r0 | Low (NVD pending) | Not exploitable: curl CLI removed; libcurl only via git; --net=none; see docs/vulns/SNYK-ALPINE324-CURL.txt
   SNYK-ALPINE324-CURL-17717720:
     - '*':
         reason: Not exploitable in runner context; see docs/vulns/readme.txt
-        expires: 2026-07-16T10:53:10.182Z
+        expires: 2026-08-03T10:53:10.182Z
         created: 2026-07-03T00:00:00.000Z
+
+  # CVE-2026-10722 | cilium/ebpf/btf | Score 4.8 | Not exploitable: sandboxed user code lacks CAP_BPF to load eBPF; only trusted toolchain BTF specs parsed; DoS only
+  SNYK-GOLANG-GITHUBCOMCILIUMEBPFBTF-17810931:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-08-03T10:53:10.182Z
+        created: 2026-07-04T00:00:00.000Z
 
