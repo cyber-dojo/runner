@@ -90,7 +90,7 @@ remove_all_but_latest()
       # compose project (eg creator-runner-1) cannot be removed. Skip it rather
       # than aborting the whole build under set -Eeu; it will be cleaned by a
       # later build once nothing is using it.
-      docker image rm "${image_name}" || echo "  skipped ${image_name} (in use)"
+      docker image rm --force "${image_name}" || echo "  skipped ${image_name} (in use)"
     fi
   done
 }
