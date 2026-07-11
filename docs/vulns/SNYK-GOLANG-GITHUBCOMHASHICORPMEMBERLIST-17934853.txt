@@ -1,0 +1,25 @@
+SNYK-GOLANG-GITHUBCOMHASHICORPMEMBERLIST-17934853 | github.com/hashicorp/memberlist | CVSS 6.9 | Medium | CVE-2026-14362
+What: "Allocation of Resources Without Limits or Throttling" (CWE-770). A DoS in
+memberlist's push/pull state-handling process. An attacker who can send crafted
+network traffic to the gossip listener can cause memory exhaustion and terminate
+the process. Impact is availability only; there is no confidentiality or
+integrity effect. The flaw is only reachable when the component is configured to
+run as a live gossip agent with the gossip listener enabled and accessible over
+the network (UDP/TCP, commonly port 7946 or 9094). HashiCorp's own mitigation is
+to restrict network access to the gossip port to trusted cluster members.
+Fix available: memberlist 0.6.0 (vulnerable: < 0.6.0; the image ships v0.5.4).
+For cyber-dojo: github.com/hashicorp/memberlist is HashiCorp's gossip-protocol
+library used by Docker Swarm mode for overlay-network and cluster membership; it
+is linked into the dockerd binary (/usr/local/bin/dockerd) bundled in the dind
+image, not through any code cyber-dojo writes. Reaching the vulnerable push/pull
+path requires a running gossip agent with its listener bound and network-
+accessible. The runner uses dockerd purely to launch single sandbox containers
+via the mounted /var/run/docker.sock; it never runs Docker in swarm mode, so no
+gossip agent is started and no gossip listener (7946/9094) is ever bound. There
+is therefore no listener for crafted traffic to reach. User code additionally
+runs inside a sandbox container with --net=none, --user=41966:51966 and
+--security-opt=no-new-privileges, so it has no network path to any dockerd port
+regardless.
+Verdict: Not exploitable. The DoS requires a live, network-reachable memberlist
+gossip listener; the runner runs no Docker swarm and binds no gossip port, so the
+vulnerable path is never active. The real fix is bumping memberlist to 0.6.0+.
