@@ -270,3 +270,10 @@ ignore:
         expires: 2026-08-10T10:53:10.182Z
         created: 2026-07-11T00:00:00.000Z
 
+  # no CVE | gRPC-Go internal/transport | Score 8.8 | Not exploitable: --net=none; no gRPC service exposed; runner configures no xDS RBAC policies
+  SNYK-GOLANG-GOOGLEGOLANGORGGRPCINTERNALTRANSPORT-18172578:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-08-10T10:53:10.182Z
+        created: 2026-07-23T00:00:00.000Z
+

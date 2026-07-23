@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below; sigstore-go pkg/verify and hashicorp/memberlist added 2026-07-11)
+Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below; sigstore-go pkg/verify and hashicorp/memberlist added 2026-07-11; gRPC-Go internal/transport 18172578 added 2026-07-23)
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -18,6 +18,7 @@ CVE / ID               Package                 Score  Exploitable?  Reason
 ------------------------------------------------------------------------------
 CVE-2026-39821         golang.org/x/net/idna    9.3   No   runner resolves only trusted endpoints; no user-controlled IDNA input
 CVE-2026-33186         gRPC-Go                  9.1   No   --net=none; no gRPC exposure
+gRPC-transport-18172578 gRPC-Go internal/transport 8.8 No   --net=none; no gRPC service exposed; no xDS RBAC configured
 CVE-2026-53488         containerd CRI labels    8.7   No   dockerd uses moby integration, not the CRI plugin; only trusted images run
 CVE-2026-53488         containerd v2/client     8.7   No   same CVE as above, 2nd package (Snyk 17391516); CRI plugin path unused; only trusted images run
 CVE-2026-29181         OTel baggage+family      8.7   No   --net=none; can't send baggage headers

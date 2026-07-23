@@ -1,0 +1,11 @@
+SNYK-GOLANG-GOOGLEGOLANGORGGRPCINTERNALTRANSPORT-18172578 | gRPC-Go internal/transport | CVSS 8.8 | High (no CVE assigned)
+What: Incorrect authorization in gRPC-Go's xDS RBAC policy processing plus HTTP/2
+transport handling (< 1.82.1). Crafted policy updates with unsupported matcher
+fields, or NOT rules wrapping unhandled fields, can bypass RBAC deny rules; the
+HTTP/2 path can also bypass rapid-reset mitigations or panic the server.
+For cyber-dojo: User code runs with --net=none and cannot send any network frames
+to anything, let alone a gRPC endpoint. Exploitation requires a network-reachable
+gRPC server, and the RBAC bypass additionally requires xDS-configured RBAC policies.
+The runner exposes no gRPC service and configures no xDS RBAC.
+Verdict: Not exploitable by user code. Relevant only if something in your
+infrastructure exposes a gRPC service (with xDS RBAC) to untrusted callers.
