@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below; sigstore-go pkg/verify and hashicorp/memberlist added 2026-07-11; gRPC-Go internal/transport 18172578 added 2026-07-23)
+Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below; sigstore-go pkg/verify and hashicorp/memberlist added 2026-07-11; gRPC-Go internal/transport 18172578 added 2026-07-23; buildkit source/git CVE-2026-15793 added 2026-07-24)
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -30,6 +30,7 @@ CVE-2026-48702         sigstore/rekor pkg/types 8.7   No   server-side DoS; runn
 CVE-2026-39831         x/crypto/ssh             8.6   No   --net=none; client-side; no outbound SSH
 CloudWatch-16316406    aws-sdk-go-v2 CloudWatch 8.2   No   --net=none; DoS only; requires MITM of TLS
 CVE-2026-24051         OTel SDK resource        7.3   No   macOS-only (ioreg)
+CVE-2026-15793         buildkit source/git      7.3   No   runner never builds from user Dockerfiles/git sources; buildx is a bundled CLI only
 CVE-2026-39827         x/crypto/ssh             7.1   No   --net=none; no SSH server exposed
 CVE-2026-41178         OTel baggage/propagation 6.9   No   Docker toolchain only; dockerd Unix socket; CLI tools, no inbound HTTP
 CVE-2026-39829         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
