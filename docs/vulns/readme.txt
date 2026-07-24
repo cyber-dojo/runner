@@ -1,5 +1,5 @@
 CVE Assessment: docker:29.4.1-dind-alpine3.23 for cyber-dojo
-Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below; sigstore-go pkg/verify and hashicorp/memberlist added 2026-07-11; gRPC-Go internal/transport 18172578 added 2026-07-23; buildkit source/git CVE-2026-15793 added 2026-07-24; buildkit executor/oci CVE-2026-15788 added 2026-07-24; buildkit solver/llbsolver/ops CVE-2026-15792 added 2026-07-24; buildkit solver/llbsolver/ops/opsutils 18265270 (same CVE-2026-15792) added 2026-07-24)
+Generated: 2026-06-01 (cilium/ebpf/btf added 2026-07-04; curl/libcurl batch removed 2026-07-04 -- git deleted from the runner image, see below; sigstore-go pkg/verify and hashicorp/memberlist added 2026-07-11; gRPC-Go internal/transport 18172578 added 2026-07-23; buildkit source/git CVE-2026-15793 added 2026-07-24; buildkit executor/oci CVE-2026-15788 added 2026-07-24; buildkit solver/llbsolver/ops CVE-2026-15792 added 2026-07-24; buildkit solver/llbsolver/ops/opsutils 18265270 (same CVE-2026-15792) added 2026-07-24; buildkit solver/llbsolver 18265269 (same CVE-2026-15792) added 2026-07-24; buildkit solver/llbsolver/file CVE-2026-15791 added 2026-07-24)
 
 Each vulnerability has its own file in this directory named after its CVE or Snyk ID.
 
@@ -37,8 +37,9 @@ CVE-2026-39829         x/crypto/ssh             6.9   No   --net=none; no SSH se
 CVE-2026-39834         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
 CVE-2026-39830         x/crypto/ssh             6.9   No   --net=none; no SSH server exposed
 CVE-2026-14362         hashicorp/memberlist     6.9   No   Swarm gossip DoS; runner runs no swarm; no gossip listener (7946/9094) bound
-CVE-2026-15792         buildkit solver/llbsolver 6.0  No   daemon-crash DoS via malicious LLB def; runner never builds from user sources; buildx is a bundled CLI only; --net=none
+CVE-2026-15792         buildkit llbsolver/ops   6.0   No   daemon-crash DoS via malicious LLB def; runner never builds from user sources; buildx is a bundled CLI only; --net=none
 CVE-2026-15792         buildkit opsutils        6.0   No   same CVE as above, 2nd package (Snyk 18265270); daemon-crash DoS via malicious LLB def; runner never builds from user sources; --net=none
+CVE-2026-15792         buildkit llbsolver       6.0   No   same CVE as above, 3rd package (Snyk 18265269); daemon-crash DoS via malicious LLB def; runner never builds from user sources; --net=none
 CVE-2026-49834         sigstore-go pkg/verify   5.9   No   multi-log threshold bypass; needs N>1 logs + compromised log; bundled cosign uses threshold 1
 CVE-2026-50195         containerd CRI checkpoint 5.6  No   CRI checkpoint import (Kubernetes); dockerd uses moby integration; not K8s; only trusted images (GHSA: Critical)
 CVE-2026-50195         containerd v2/client     5.6   No   same CVE as above, 2nd package (Snyk 17393922); CRI checkpoint path unused; not K8s; only trusted images (GHSA: Critical)
@@ -53,6 +54,7 @@ CVE-2026-42502         golang.org/x/net/html    5.3   No   only docker-buildx li
 CVE-2026-25681         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML rendered
 CVE-2026-25680         golang.org/x/net/html    5.3   No   only docker-buildx links html pkg; build-time CLI; no untrusted HTML parsed
 CVE-2026-10722         cilium/ebpf/btf          4.8   No   sandboxed user code lacks CAP_BPF to load eBPF; only trusted toolchain BTF specs parsed; DoS only
+CVE-2026-15791         buildkit llbsolver/file  1.8   No   fileop path traversal deletes outside build root; runner never builds from user sources; buildx is a bundled CLI only
 
 == curl / libcurl low-severity batch: removed 2026-07-04 ==
 
