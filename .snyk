@@ -305,3 +305,17 @@ ignore:
         expires: 2026-08-10T10:53:10.182Z
         created: 2026-07-24T00:00:00.000Z
 
+  # CVE-2026-15792 | buildkit solver/llbsolver | Score 6.0 | Not exploitable: same CVE as 18265271 attributed to a third buildkit package; DoS crash of the BuildKit daemon via a malicious frontend/LLB definition; runner never runs BuildKit against user-supplied build definitions; buildx is a bundled build-time CLI plugin only; --net=none
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOLVERLLBSOLVER-18265269:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-08-10T10:53:10.182Z
+        created: 2026-07-24T00:00:00.000Z
+
+  # CVE-2026-15791 | buildkit solver/llbsolver/file | Score 1.8 | Not exploitable: fileop path traversal deleting files outside the build root; runner never runs BuildKit against user-supplied build definitions; buildx is a bundled build-time CLI plugin only; --net=none
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOLVERLLBSOLVERFILE-18269949:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-08-10T10:53:10.182Z
+        created: 2026-07-24T00:00:00.000Z
+
