@@ -291,3 +291,10 @@ ignore:
         expires: 2026-08-10T10:53:10.182Z
         created: 2026-07-24T00:00:00.000Z
 
+  # CVE-2026-15792 | buildkit solver/llbsolver/ops | Score 6.0 | Not exploitable: DoS crash of the BuildKit daemon via a malicious frontend/LLB definition; runner never runs BuildKit against user-supplied build definitions; buildx is a bundled build-time CLI plugin only; --net=none
+  SNYK-GOLANG-GITHUBCOMMOBYBUILDKITSOLVERLLBSOLVEROPS-18265271:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-08-10T10:53:10.182Z
+        created: 2026-07-24T00:00:00.000Z
+
