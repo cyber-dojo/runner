@@ -319,3 +319,10 @@ ignore:
         expires: 2026-08-26T10:53:10.182Z
         created: 2026-07-24T00:00:00.000Z
 
+  # CVE-2026-54787 | sigstore-go pkg/verify | Score 2.3 | Not exploitable: expired-key acceptance when verifying self-managed public-key bundles with ExpiringKey semantics; runner performs no sigstore bundle verification at runtime; cosign is build-time tooling only
+  SNYK-GOLANG-GITHUBCOMSIGSTORESIGSTOREGOPKGVERIFY-18508018:
+    - '*':
+        reason: Not exploitable in runner context; see docs/vulns/readme.txt
+        expires: 2026-08-26T10:53:10.182Z
+        created: 2026-08-04T00:00:00.000Z
+
