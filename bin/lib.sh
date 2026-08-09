@@ -57,7 +57,7 @@ exit_non_zero_unless_file_exists()
 
 exit_non_zero()
 {
-  kill -INT $$
+  exit 42
 }
 
 abs_filename()
