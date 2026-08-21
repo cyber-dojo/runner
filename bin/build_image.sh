@@ -56,8 +56,6 @@ build_image()
   containers_down
 
   if [ "${CI:-}" != 'true' ]; then
-    # In CI workflow, don't remove image pulled in the 'Download docker image' CI workflow jobs.
-    remove_old_images
     # Locally, client and server tests both need a server
     docker --log-level=ERROR compose build server
   fi
@@ -81,6 +79,11 @@ build_image()
     # Tag image-name for local development where runners name comes from echo-env-vars
     docker tag "${image_name}" cyberdojo/runner:latest
     docker tag "${image_name}" "cyberdojo/runner:${CYBER_DOJO_RUNNER_TAG}"
+    # After tagging, so removing an earlier build's tags takes its last tag with
+    # them and the image itself goes, rather than being left dangling when
+    # :latest moves to this build. check_args rejects 'server' inside CI, so the
+    # image pulled by the 'Download docker image' CI job is never at risk here.
+    remove_old_images
     echo
     echo "  echo CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
     echo "  echo CYBER_DOJO_RUNNER_TAG=${CYBER_DOJO_RUNNER_TAG}"
