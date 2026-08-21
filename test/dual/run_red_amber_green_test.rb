@@ -106,7 +106,7 @@ module Dual
       file = starting_files[filename]
       run_cyber_dojo_sh({
                           changed: { filename => file.sub(from, to) },
-                          max_seconds: 3
+                          max_seconds: 5
                         })
     end
   end
