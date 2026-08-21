@@ -73,24 +73,33 @@ containers_down()
 remove_old_images()
 {
   echo Removing old images
-  local -r dil=$(docker image ls --format "{{.Repository}}:{{.Tag}}" | grep runner)
-  remove_all_but_latest "${dil}" "${CYBER_DOJO_RUNNER_CLIENT_IMAGE}"
-  remove_all_but_latest "${dil}" "${CYBER_DOJO_RUNNER_IMAGE}"
-  remove_all_but_latest "${dil}" cyberdojo/runner
+  # grep exits non-zero when the machine holds no runner image, eg one whose
+  # images have just been cleared, so an empty list must not end the build.
+  local -r dil=$(docker image ls --format "{{.Repository}}:{{.Tag}}" | grep runner || true)
+  remove_all_but_current "${dil}" "${CYBER_DOJO_RUNNER_CLIENT_IMAGE}"
+  remove_all_but_current "${dil}" "${CYBER_DOJO_RUNNER_IMAGE}"
+  remove_all_but_current "${dil}" cyberdojo/runner
 }
 
-remove_all_but_latest()
+# Keeps :latest, which local tooling and the build cache refer to, and this
+# commit's tag, which names the build just made. Every older tag goes, and an
+# earlier build whose last tag was one of those goes with it.
+remove_all_but_current()
 {
   local -r docker_image_ls="${1}"
   local -r name="${2}"
-  for image_name in $(echo "${docker_image_ls}" | grep "${name}:")
+  # Its own name, not image_name: bash locals are dynamically scoped, and
+  # build_image declares image_name readonly before calling this.
+  local tagged_name
+  for tagged_name in $(echo "${docker_image_ls}" | grep "${name}:" || true)
   do
-    if [ "${image_name}" != "${name}:latest" ]; then
+    if [ "${tagged_name}" != "${name}:latest" ] \
+    && [ "${tagged_name}" != "${name}:${CYBER_DOJO_RUNNER_TAG}" ]; then
       # Best-effort: an image still referenced by a container from another
       # compose project (eg creator-runner-1) cannot be removed. Skip it rather
       # than aborting the whole build under set -Eeu; it will be cleaned by a
       # later build once nothing is using it.
-      docker image rm --force "${image_name}" || echo "  skipped ${image_name} (in use)"
+      docker image rm --force "${tagged_name}" || echo "  skipped ${tagged_name} (in use)"
     fi
   done
 }
