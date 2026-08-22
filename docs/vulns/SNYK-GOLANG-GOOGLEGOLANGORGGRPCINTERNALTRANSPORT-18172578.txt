@@ -3,7 +3,10 @@ What: Incorrect authorization in gRPC-Go's xDS RBAC policy processing plus HTTP/
 transport handling (< 1.82.1). Crafted policy updates with unsupported matcher
 fields, or NOT rules wrapping unhandled fields, can bypass RBAC deny rules; the
 HTTP/2 path can also bypass rapid-reset mitigations or panic the server.
-For cyber-dojo: User code runs with --net=none and cannot send any network frames
+For cyber-dojo: the vulnerable copies are in containerd and ctr, which vendor
+v1.80.0; dockerd and docker-compose vendor v1.82.1 and are patched. containerd
+serves gRPC over a local Unix socket rather than a network listener.
+User code runs with --net=none and cannot send any network frames
 to anything, let alone a gRPC endpoint. Exploitation requires a network-reachable
 gRPC server, and the RBAC bypass additionally requires xDS-configured RBAC policies.
 The runner exposes no gRPC service and configures no xDS RBAC.
