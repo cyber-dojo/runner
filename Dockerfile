@@ -13,6 +13,15 @@ RUN gem install --no-document 'concurrent-ruby'
 # use "git clone" at runtime.
 RUN apk del git
 
+# Remove docker-buildx, a CLI plugin the runner never invokes; it drives docker
+# only through run, stop, rm, pull and image. buildx is the one binary left in
+# the image vendoring a vulnerable moby/go-archive, and it is the source of every
+# buildkit finding in the Snyk scan. The plugin arrives from the base image, so
+# deleting it here only marks it removed in a later layer: the image is no
+# smaller to pull, but the binary is absent from the running container and from
+# the filesystem the scanner sees.
+RUN rm -rf /usr/local/libexec/docker/cli-plugins/docker-buildx
+
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}
 
