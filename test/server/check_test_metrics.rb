@@ -1,7 +1,7 @@
 
 # Uses data from two json files:
 # - reports/server/test_metrics.json     generated in slim_json_reporter.rb by minitest. See id58_test_base.rb
-# - reports/server/coverage_metrics.json generated in simplecov_formatter_json.rb by simplecov. See coverage.rb
+# - reports/server/coverage_metrics.json generated in coverage_metrics_formatter.rb by simplecov. See coverage.rb
 
 require 'json'
 
@@ -32,7 +32,7 @@ def table_data
     [ 'test.errors',   stats['error_count'  ], '<=',  0 ],
     [ 'test.skips',    stats['skip_count'   ], '<=',  0 ],
     [ nil ],
-    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 954 ],
+    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 944 ],
     [ 'test.lines.missed',     test_cov['lines'   ]['missed'], '<=', 0   ],
     [ 'test.branches.total',   test_cov['branches']['total' ], '<=', 0   ],
     [ 'test.branches.missed',  test_cov['branches']['missed'], '<=', 0   ],

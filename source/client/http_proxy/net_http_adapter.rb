@@ -7,9 +7,9 @@ module HttpProxy
     end
 
     def post(uri)
-      # :nocov_server:
+      # simplecov:disable
       Net::HTTP::Post.new(uri)
-      # :nocov_server:
+      # simplecov:enable
     end
 
     def start(hostname, port, req)
