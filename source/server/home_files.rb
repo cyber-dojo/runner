@@ -41,6 +41,22 @@ module HomeFiles
   # [3] grep -q is --quiet, we are generating filenames.
   # [4] truncates text files to MAX_FILE_SIZE+1 so
   #     runner.rb can detect the truncation.
+  # [5] --magic-file /dev/null suppresses the 10.3MB magic database that
+  #     file loads on every invocation. --mime-encoding does not consult it
+  #     to reach its answer: a PDF, PostScript or GIF file whose bytes are
+  #     all ASCII reports us-ascii whether the database is loaded or not.
+  #     Suppressing it takes this call from 7185us to 232us per file on an
+  #     Alpine based image, which is below the cost of spawning bash.
+  #     docs/profiling/compare_magic_db_verdicts.sh gates the claim that no
+  #     file changes side of the binary/non-binary boundary, and
+  #     docs/profiling/time_file_without_magic_db.sh measures the saving.
+  #     The long flag is safe here, unlike xargs --null which busybox
+  #     rejects: docs/profiling/check_magic_file_flag_support.sh surveyed
+  #     all 100 language images, spanning alpine 3.20 to 3.24, debian 11 to
+  #     13, ubuntu 22.04 and 24.04, and file 5.39 to 5.47, and every one
+  #     accepts it and returns the same verdicts.
+  #     Note this does not make [2] unnecessary: an empty or one-byte text
+  #     file is reported as binary either way.
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
@@ -75,7 +91,7 @@ module HomeFiles
         local -r size=$(stat -c%s "${filename}")
         if [ "${size}" -lt 2 ]; then
           false # [2]
-        elif file --mime-encoding "${filename}" | grep -q "${filename}:\\sbinary" ; then
+        elif file --magic-file /dev/null --mime-encoding "${filename}" | grep -q "${filename}:\\sbinary" ; then # [5]
           true # [3]
         else
           false
