@@ -22,6 +22,17 @@ module HomeFiles
   # into a tgz file which becomes the container's stdout
   # which is read in capture3_with_timeout.rb
   #
+  # Compression is at level 1. The pipe to the runner is local, so the
+  # smaller payload buys almost no transfer time; what gzip is here for is
+  # its CRC32 and length trailer. A tar alone has no integrity check that
+  # Ruby will act on, and garbage bytes parse into entries with junk names
+  # that would reach the browser. Level 1 costs about a third of the default
+  # level and keeps most of the compression, and every language image
+  # accepts it: docs/profiling/check_gzip_level_1_flag_support.sh surveyed
+  # alpine 3.11 to 3.24, debian 9 to 13 and ubuntu 18.04 to 24.04. Level 0
+  # is not an option; GNU gzip rejects it.
+  # See docs/profiling/where-the-traffic-light-time-goes.txt
+  #
   # There are important comments on the exit-status of
   # cyber_dojo_main.sh at the end of capture3_with_timeout.rb
   #
@@ -85,7 +96,7 @@ module HomeFiles
         truncate_large_files
         tar -rf "${TAR_FILE}" /tmp/stdout /tmp/stderr /tmp/status
         print0_filenames | tar -rf "${TAR_FILE}" --verbatim-files-from --null -T - # [0]
-        gzip  < "${TAR_FILE}"
+        gzip -1 < "${TAR_FILE}"
       }
       function remove_binary_files()
       {

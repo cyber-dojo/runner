@@ -1,27 +1,32 @@
 require_relative '../test_base'
 
-class RunFaultyGzipErrorTest < TestBase
+class RunFaultyTarErrorTest < TestBase
 
-  test 'c7Dd54', %w[outcome is faulty when the container's stdout is not a gzip stream] do
-    stub_gzip_error
+  test 'Bc4a9F', %w[outcome is faulty when the payload inflates to something that is not a tar] do
+    stub_tar_error
 
     run_cyber_dojo_sh
 
     assert faulty?, run_result
     assert_equal '144', status, run_result
+    assert_equal({}, created, run_result)
     lines = @logger.logged.lines
     assert_equal 1, lines.size
     assert_json_line(lines[0], {
                        id: id58,
                        image_name: image_name,
-                       error: 'Zlib::GzipFile::Error'
+                       error: 'Gem::Package::TarInvalidError'
                      })
   end
 
   private
 
-  def stub_gzip_error
-    stdout_tgz = 'not-a-tgz'
+  # Gem::Package::TarHeader verifies neither the header checksum nor the ustar
+  # magic, so bytes like these parse into entries with junk names. The names
+  # and their contents would reach the browser as created files, which is what
+  # TarFile::Reader's ustar check exists to stop.
+  def stub_tar_error
+    stdout_tgz = Gnu.zip('not-a-tar')
     stderr = ''
     set_context(
       logger: @logger = StdoutLoggerSpy.new,

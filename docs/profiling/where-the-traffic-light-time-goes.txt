@@ -1,0 +1,190 @@
+Where the traffic-light time goes
+=================================
+
+A review of the run path in runner.rb, capture3_with_timeout.rb and
+home_files.rb, asking one question: what stands between the learner pressing
+the test button and the traffic-light lighting up, and what does not have to
+be there.
+
+The measurements come from three probes in this directory:
+
+  time_tgz_vs_tar_emit.sh            container side of the gzip question
+  time_tgz_vs_tar_parse.sh (+ .rb)   runner side of the gzip question
+  time_container_stdout_throughput.sh  what fewer bytes are worth
+  check_gzip_level_1_flag_support.sh   whether -1 is portable across images
+
+Measurement conditions
+----------------------
+arm64 host, Docker Desktop, language image ghcr.io/cyber-dojo-languages/
+python_pytest:e8d7fcd, which is arm64 and so runs natively. The ruby half runs
+in ruby:3.4-alpine rather than the runner image, because the runner image is
+amd64 and emulating it inflates the very CPU cost being measured.
+
+Production is amd64 on Linux with no VM boundary, so treat the ratios here as
+portable and the absolute numbers as not. In particular the container startup
+figure below is a Docker Desktop figure and is pessimistic.
+
+Payload profiles are 12x2K, 40x10K, 16x50K and 50x50K. 50 files is the
+practical ceiling on what a kata returns, and 50K is the per-file truncation
+cap in runner.rb.
+
+
+What is on the critical path
+----------------------------
+1. Container create and start.
+2. Untar of the incoming files, then cyber-dojo.sh itself.
+3. The exit trap: binary-file scan, truncation, tar, gzip.
+4. Transfer of the payload to the runner over the daemon socket.
+5. Inflate and untar in the runner, then the rag-lambda.
+6. Container teardown. capture3_with_timeout.rb reads stdout to EOF in a
+   thread but the result waits on waiter.value, which is the docker CLI
+   exiting, which is after --rm has removed the container.
+
+Steps 1 and 6 are the container lifecycle. Neither has to be on the path.
+
+
+Finding: compression is worth its CRC, not its bytes, so it runs at level 1
+---------------------------------------------------------------------------
+send_tgz() compresses the payload. The pipe is local, so that buys no network
+time. It trades CPU in the container, plus CPU in the runner to inflate it
+again, for fewer bytes through the daemon socket, and for gzip's CRC32 and
+length trailer. The bytes turn out not to be worth much; the CRC is, and
+level 1 is the cheap way to keep it.
+
+Container side, microseconds, gzip cost is the difference:
+
+  profile             files  tar bytes   gz bytes     cat us    gzip us  gzip cost
+  typical       12 x     2K      40960       8159        299        740        441
+  medium        40 x    10K     440320     101757        307       7917       7610
+  large         16 x    50K     829440     206673        326      15689      15363
+  ceiling       50 x    50K    2590720     649720        597      47478      46881
+
+Runner side, TGZ.files against TarFile::Reader alone:
+
+  profile       tar bytes     gz bytes     tar us     tgz us  gzip cost
+  typical           40960         7866         55        243        188
+  medium           440320        97914        352       1264        912
+  large            829440       198890        254       2226       1972
+  ceiling         2590720       625154        815       7041       6226
+
+Combined cost of compressing: 0.6ms typical, 8.5ms medium, 17.3ms large,
+53.1ms at the ceiling. Compression is about 4x on real source text.
+
+What the saved bytes are worth, from a container's stdout to the host, with the
+empty-payload run subtracted to remove startup:
+
+        payload      docker run   minus startup
+           0 KB       153078 us       153078 us
+          40 KB       150500 us        -2578 us   typical, plain
+           8 KB       150844 us        -2234 us   typical, gzipped
+        2560 KB       178098 us        25020 us   ceiling, plain
+         640 KB       155839 us         2761 us   ceiling, gzipped
+
+Run-to-run noise is about 2.5ms, so at typical sizes the transfer saving is
+not measurable at all. At the ceiling it is 25.0 - 2.8 = 22.2ms, against a
+53.1ms cost.
+
+So the default level is a bad deal: no compression at all is about 0.5ms
+faster on a typical kata and about 31ms faster at the ceiling. But sending a
+bare tar gives up the only integrity check in the payload, and that check
+cannot be given up. See the next section.
+
+Level 1 is what makes the check affordable. Same probe, same payloads:
+
+  profile          files tar bytes  gz bytes gz1 bytes   cat us  gzip us gzip1 us
+  typical     12 x    2K     40960      8159      9272      241      676      474
+  medium      40 x   10K    440320    101761    124305      277     7052     3226
+  large       16 x   50K    829440    206679    252515      329    14226     6743
+  ceiling     50 x   50K   2590720    649646    789570      357    42535    18456
+
+Level 1 costs about a third of the default and still compresses 3.3x. Adding
+emit, transfer and runner parse, the ceiling comes to roughly 26ms for a bare
+tar, 29ms at level 1, and 52ms at the default. The integrity check therefore
+costs about 3ms at the ceiling and 0.4ms on a typical kata.
+
+GNU gzip rejects -0, so level 1 is as cheap as gzip goes.
+check_gzip_level_1_flag_support.sh surveyed 103 language images: alpine 3.11
+to 3.24 (busybox 1.31 to 1.37), debian 9 to 13, ubuntu 18.04 to 24.04. Every
+one accepts -1, rejects -0, and round-trips. Both directions run at level 1:
+send_tgz() in home_files.rb and Gnu.zip in gnu_zip.rb.
+
+
+Why the CRC cannot be given up
+------------------------------
+Gem::Package::TarHeader.from verifies neither the header checksum nor the
+ustar magic: it requires only that a few fields match /\A[0-7]*\z/ once
+stripped, and the empty string matches. Bytes that are not a tar therefore
+parse into entries with junk names, and those names and contents would be
+returned to the browser as created files. Measured directly: a corrupt payload
+came back as an amber traffic-light carrying a file named "r".
+
+Rubygems offers no strict mode, and minitar does not verify checksums either
+(it does enforce the magic, raising Minitar::InvalidTarStream). So the tar
+layer alone cannot be trusted, and TarFile::Reader checks the ustar magic on
+every entry, raising Gem::Package::TarInvalidError otherwise.
+
+That leaves two checks, and both are pinned:
+  run_faulty_gzip_error_test.rb  payload is not a gzip stream, Zlib rejects it
+  run_faulty_tar_error_test.rb   payload inflates to something that is not a tar
+
+Note the second only fires for payloads short enough that rubygems' own octal
+check passes. That is exactly the lenient case the ustar check exists for.
+
+Truncation is a separate matter and is still undetected. The streams are tarred
+before the sandbox files, so a truncated payload keeps tmp/status and loses
+trailing files. Catching it means requiring the two 512-byte zero blocks that
+end an archive, which Gem's reader does not.
+
+
+Finding: container startup dwarfs everything else
+-------------------------------------------------
+An empty container costs 153ms here. Every millisecond above is small beside
+it. Two changes take the lifecycle off the critical path:
+
+  Reply at stdout EOF. The payload is complete when the container's stdout
+  closes. The remaining wait is only the docker CLI exiting after --rm. Reap
+  it in a thread instead. The one dependency is run[:status], which runner.rb
+  uses to spot a faulty run. A payload that parses and contains tmp/status is
+  itself proof the run was fine, so the real status need only be consulted
+  when the payload is missing or unusable, or when the run timed out.
+
+  Pre-start containers per hot image. The container blocks on [tar -zxf -]
+  reading stdin, so create, start and tmpfs mount can all happen before the
+  learner presses anything. Writing the payload to stdin becomes the trigger,
+  and the timeout clock starts there. Each container is still used exactly
+  once and then discarded, so isolation is unchanged, and a pool miss simply
+  falls back to a cold start.
+
+Doing the first creates the seam the second needs: the reap path stops being
+"wait for --rm" and becomes "hand the container back".
+
+
+Ruled out: sending the traffic-light early on container stderr
+--------------------------------------------------------------
+The container's stderr carries nothing (runner.rb only logs it on failure), so
+it looked free for stdout/stderr/status, letting the colour be computed before
+the sandbox file-walk, tar and gzip finished. It does not help: the response to
+the browser has to carry the created, changed and deleted file data with the
+colour, and cannot be split. Nothing can be answered early while the rest is
+still being collected.
+
+
+Not measured: per-avatar build state
+------------------------------------
+Every run starts from a fresh tmpfs, so every run recompiles from cold. For a
+compiled language that dominates all of the above. Keeping build artifacts
+between successive runs is the largest available win and the largest change.
+
+The unit has to be the avatar, not the kata. Several avatars work the same
+kata and their files differ, so a cache they shared would be wrong, not merely
+slow. The runner cannot key one today: the only identifier it receives is id,
+documented in docs/api.md as being for tracing, and it names the kata. So this
+starts with an API change, and then needs instance affinity, a reaper for
+abandoned avatars, and it gives up a sandbox that starts clean every time.
+
+
+Loose ends
+----------
+The corpus and sandbox builders are duplicated between the two gzip probes.
+They have to agree for the two halves to be addable, so they belong in
+probe_lib.sh.
