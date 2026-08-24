@@ -3,12 +3,12 @@
 # runner's exit trap, and whether the grep flags such a test needs even exist.
 #
 # It cannot, on two counts, which is why this probe is kept: to stop the idea
-# being re-proposed. See cyber-dojo/faster-traffic-light.md, finding 1.
+# being re-proposed.
 #
 #   1. `grep -P` is absent from the Alpine images, and a literal NUL cannot be
 #      passed as a pattern argument, so there is no portable NUL search.
 #   2. `file --mime-encoding` reports a UTF-16 file as utf-16le, which is not
-#      the string "binary", so is_binary_file keeps it. Any NUL-based test calls
+#      the string "binary", so the exit trap keeps it. Any NUL-based test calls
 #      it binary and would delete it, silently discarding UTF-16 files from
 #      katas.
 set -euo pipefail

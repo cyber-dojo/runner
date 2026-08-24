@@ -8,8 +8,7 @@
 # architecture or emulation.
 #
 # It found the lifecycle to be about 92ms native and the CLI about 16ms, which
-# is why reducing container creation matters more than replacing the CLI. See
-# cyber-dojo/faster-traffic-light.md, finding 6.
+# is why reducing container creation matters more than replacing the CLI.
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

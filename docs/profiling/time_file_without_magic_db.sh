@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Measure how much of `file --mime-encoding` is its magic database.
 #
-# faster-traffic-light.md finding 1 attributes the 7.6 ms per-file cost on the
-# Alpine images to the 10.3 MB magic database that file(1) loads on every
-# invocation, but tests only batching, which amortises that load rather than
-# avoiding it. Encoding detection is a byte-classification pass over the file, so
+# The 7.6 ms per-file cost on the Alpine images, measured by
+# time_trap_spawns.sh, is attributable to the 10.3 MB magic database that
+# file(1) loads on every invocation. time_file_batching.sh tests only batching,
+# which amortises that load rather than avoiding it. Encoding detection is a byte-classification pass over the file, so
 # it need not consult the database at all, and `--magic-file /dev/null` asks for
 # that. Batching and suppression attack the same cost by different means, so both
 # are measured here, separately and together.

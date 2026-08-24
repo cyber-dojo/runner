@@ -7,8 +7,7 @@
 #
 # It measured 44x on an Alpine image (1507ms for 200 files against 34ms) and 22x
 # on a Debian one, with identical verdicts, which is why batching is the
-# recommended fix rather than substituting a cheaper test. See
-# cyber-dojo/faster-traffic-light.md, finding 1.
+# recommended fix rather than substituting a cheaper test.
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

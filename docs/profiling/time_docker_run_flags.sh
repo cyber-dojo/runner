@@ -5,8 +5,7 @@
 # It found that everything except --net=none is free within noise, and that
 # --net=none saves about 36ms against default bridge networking and is already
 # passed. So there is no flag-level win left, and in particular the two 250MB
-# tmpfs mounts cost nothing to set up and are not worth shrinking. See
-# cyber-dojo/faster-traffic-light.md, finding 6.
+# tmpfs mounts cost nothing to set up and are not worth shrinking.
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

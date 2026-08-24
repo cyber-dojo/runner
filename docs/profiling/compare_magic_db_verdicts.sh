@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Check whether suppressing file(1)'s magic database changes any verdict that
-# is_binary_file acts on.
+# the runner exit trap acts on.
 #
 # time_file_without_magic_db.sh shows `--magic-file /dev/null` making
 # `--mime-encoding` 31x faster on a text file, because the 10.3 MB database is
@@ -15,7 +15,7 @@
 # would then keep a file it currently deletes.
 #
 # Only the binary/non-binary boundary matters, not the encoding name, because
-# is_binary_file tests for the single string "binary". A differing name that
+# the exit trap tests for the single string "binary". A differing name that
 # stays on the same side of that boundary changes nothing, so this probe fails
 # only on a crossing.
 set -euo pipefail
@@ -78,8 +78,8 @@ probe_environment
 echo "file version: $(file --version | head -1)"
 echo
 
-# True when file(1) calls the file binary, which is the only thing the runner's
-# is_binary_file acts on.
+# True when file(1) calls the file binary, which is the only thing the runner
+# exit trap acts on.
 is_binary_verdict()
 {
   [ "${1}" = binary ]

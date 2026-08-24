@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Shared helpers for the timing probes in this directory.
 #
-# The probes exist to decompose the latency of a cyber-dojo traffic-light. See
-# cyber-dojo/faster-traffic-light.md for the findings they produced.
+# The probes exist to decompose the latency of a cyber-dojo traffic-light. Each
+# one states in its own header what it measures and what it found.
 #
 # Timing uses bash's EPOCHREALTIME builtin rather than date(1). Removing its dot
 # yields integer microseconds, and a builtin costs no process spawn, which

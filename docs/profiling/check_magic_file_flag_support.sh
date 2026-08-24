@@ -10,9 +10,9 @@
 # image can be read as a table.
 #
 # The short form is reported alongside the long one because portability here is
-# not a given. faster-traffic-light.md finding 1 records `xargs --null` failing on
-# the busybox xargs the Alpine images ship, where `xargs -0` works, so a long
-# option is exactly the kind of thing that does not survive every image.
+# not a given. `xargs --null` fails on the busybox xargs the Alpine images ship,
+# where `xargs -0` works, so a long option is exactly the kind of thing that
+# does not survive every image.
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

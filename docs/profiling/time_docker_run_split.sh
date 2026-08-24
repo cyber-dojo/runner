@@ -9,8 +9,7 @@
 # The answer is mostly no. It found create at about 16ms of daemon work against
 # start at about 48ms, so pre-creating recovers only the smaller half. It also
 # found removal at about 15ms, which the runner pays inside the timed span
-# because it passes --rm, and which a background reap would recover. See
-# cyber-dojo/faster-traffic-light.md, finding 6.
+# because it passes --rm, and which a background reap would recover.
 #
 # Each phase pays one docker CLI invocation, about 15ms, so subtract that from
 # each figure to get the daemon's own work.

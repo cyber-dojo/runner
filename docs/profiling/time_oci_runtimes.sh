@@ -5,7 +5,7 @@
 # It found runc at 6226us and crun at 2532us for the whole lifecycle. crun is
 # 2.5x faster, but that is only 3.7ms off a 92ms lifecycle, about 4%, so the OCI
 # runtime is not where the fixed floor lives and a runtime swap is not worth
-# doing for latency. See cyber-dojo/faster-traffic-light.md, finding 6.
+# doing for latency.
 #
 # This probe is kept to stop the runtime-swap idea being re-proposed, and to be
 # re-run on native Linux, where the ratio may differ from Docker Desktop's VM.

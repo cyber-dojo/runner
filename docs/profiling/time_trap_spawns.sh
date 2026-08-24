@@ -8,7 +8,7 @@
 #
 # It found that `file --mime-encoding` is 49% of the per-file cost on a Debian
 # based image and 77% on an Alpine one, because of the magic database `file`
-# loads on every invocation. See cyber-dojo/faster-traffic-light.md, finding 1.
+# loads on every invocation.
 #
 # The short flags below are deliberate: they replicate exactly what
 # home_files.rb runs, so changing them would measure something else.
