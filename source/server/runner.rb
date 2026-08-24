@@ -2,6 +2,7 @@ require_relative 'capture3_with_timeout'
 require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'sandbox'
+require_relative 'tarfile_reader'
 require_relative 'tgz'
 require_relative 'traffic_light'
 require_relative 'utf8_clean'
@@ -43,9 +44,13 @@ class Runner
       Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
-  rescue Zlib::GzipFile::Error
-    log(id: id, image_name: image_name, error: 'Zlib::GzipFile::Error')
-    empty_result(:gzip_error, 'faulty', {})
+  rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e
+    # Zlib rejects a payload whose gzip CRC32 or length trailer does not
+    # match; TarFile::Reader rejects one that inflates to something which is
+    # not a tar. Either way the container did not send a run result, and
+    # nothing in it may reach the browser.
+    log(id: id, image_name: image_name, error: e.class.name)
+    empty_result(:corrupt_payload, 'faulty', {})
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,7 +73,7 @@ class Runner
     pulling: 141,
     timed_out: 142,
     faulty: 143,
-    gzip_error: 144
+    corrupt_payload: 144
   }.freeze
 
   private
