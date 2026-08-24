@@ -58,6 +58,24 @@ class CreatedFilesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '2D1527', %w(
+  | created text files are returned when their names contain
+  | the colon-space that the file utility puts between a
+  | filename and its verdict
+  ) do
+    set_context
+    # The exit trap decides which files are binary from the output of the file
+    # utility, which reads "<name>: <encoding>". A name holding ": binary"
+    # makes that output ambiguous, so a reader that splits on the separator can
+    # take this text file for a binary one and delete it.
+    filename = 'awkward: binary.txt'
+    assert_cyber_dojo_sh("printf 'xxx' > '#{filename}'")
+    assert_equal({ filename => intact('xxx') }, created, :created)
+    assert_equal({}, changed, :changed)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test '2D1523', %w(
   | created text file called stdout
   | is kept separate to actual stdout

@@ -35,12 +35,42 @@ module HomeFiles
   #     Docker's default AppArmor profile does restrict some /proc access by design.
   #     So prefer not to use process substitution.
   #
-  # [1] Must be //; dont add space between // and ;
-  # [2] /usr/bin/file reports small text files as binary.
-  #     If size==0,1 assume a text file.
-  # [3] grep -q is --quiet, we are generating filenames.
+  # The walk makes one `file` call for the whole sandbox rather than one per
+  # file, and selects the oversized files with find rather than stat, so its
+  # cost is a handful of processes instead of six per file. `file` startup
+  # dominates its runtime, so batching is worth about 44x on an Alpine image.
+  #
+  # [1] file reports an empty or a one-byte text file as binary, so -size +1c
+  #     holds them out of the scan and they survive as text. Selecting on size
+  #     here is also what removes stat from the walk.
+  # [2] --print0 writes a NUL directly after each filename, ahead of the ":"
+  #     separator, which is what makes the output parseable. Without it a kata
+  #     file named "awkward: binary.txt" prints as
+  #     "awkward: binary.txt: us-ascii" and any split on ": " reads the verdict
+  #     as binary and deletes a text file. The NUL also carries filenames
+  #     containing newlines safely.
+  #     docs/profiling/check_batched_file_output_parsing.sh demonstrates that
+  #     ambiguity and confirms --print0 on all 100 language images.
+  # [3] The verdict line for the filename just read, ": <encoding>" padded with
+  #     spaces. Only the single word "binary" means delete.
   # [4] truncates text files to MAX_FILE_SIZE+1 so
   #     runner.rb can detect the truncation.
+  # [5] --magic-file /dev/null suppresses the 10.3MB magic database that
+  #     file loads on every invocation. --mime-encoding does not consult it
+  #     to reach its answer: a PDF, PostScript or GIF file whose bytes are
+  #     all ASCII reports us-ascii whether the database is loaded or not.
+  #     Suppressing it takes this call from 7185us to 232us per file on an
+  #     Alpine based image, which is below the cost of spawning bash.
+  #     docs/profiling/compare_magic_db_verdicts.sh gates the claim that no
+  #     file changes side of the binary/non-binary boundary, and
+  #     docs/profiling/time_file_without_magic_db.sh measures the saving.
+  #     The long flag is safe here, unlike xargs --null which busybox
+  #     rejects: docs/profiling/check_magic_file_flag_support.sh surveyed
+  #     all 100 language images, spanning alpine 3.20 to 3.24, debian 11 to
+  #     13, ubuntu 22.04 and 24.04, and file 5.39 to 5.47, and every one
+  #     accepts it and returns the same verdicts.
+  #     Note this does not make [2] unnecessary: an empty or one-byte text
+  #     file is reported as binary either way.
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
@@ -63,38 +93,30 @@ module HomeFiles
       }
       function print0_binary_filenames()
       {
-        find #{sandbox_dir} -type f -exec bash -c "is_binary_file \\"{}\\"" \\; -print0 # [1]
+        # [1] [2] [5]
+        find #{sandbox_dir} -type f -size +1c -print0 \\
+          | xargs -0 file --print0 --magic-file /dev/null --mime-encoding \\
+          | print0_names_with_binary_verdict
+      }
+      function print0_names_with_binary_verdict()
+      {
+        local filename verdict
+        while IFS= read -r -d '' filename; do
+          IFS= read -r verdict || verdict='' # [3]
+          if [ "${verdict##*[[:space:]]}" = binary ]; then
+            printf '%s\\0' "${filename}"
+          fi
+        done
       }
       function print0_filenames()
       {
         find #{sandbox_dir} -type f -print0
       }
-      function is_binary_file()
-      {
-        local -r filename="${1}"
-        local -r size=$(stat -c%s "${filename}")
-        if [ "${size}" -lt 2 ]; then
-          false # [2]
-        elif file --mime-encoding "${filename}" | grep -q "${filename}:\\sbinary" ; then
-          true # [3]
-        else
-          false
-        fi
-      }
       function truncate_large_files()
       {
-        find #{sandbox_dir} -type f -exec bash -c "truncate_dont_extend \\"{}\\"" \\;
+        find #{sandbox_dir} -type f -size +#{max_file_size}c -print0 \\
+          | xargs -0 truncate --size #{max_file_size + 1} # [4]
       }
-      function truncate_dont_extend()
-      {
-        local -r filename="${1}"
-        local -r size=$(stat -c%s "${filename}")
-        if [ "${size}" -gt #{max_file_size} ] ; then
-          truncate --size #{max_file_size + 1} "${filename}" # [4]
-        fi
-      }
-      export -f is_binary_file
-      export -f truncate_dont_extend
       # - - - - - - - - - - - - - - - - - - -
       trap send_tgz EXIT
       cd #{sandbox_dir}
