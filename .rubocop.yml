@@ -2,6 +2,11 @@ AllCops:
   NewCops: enable
   Exclude:
     - test/**/*
+    # The timing probes in docs/profiling are throwaway measuring instruments,
+    # not runner code. They deliberately do things the cops object to, such as
+    # printf'ing tables and hand-rolling HTTP, and holding them to the same
+    # standard buys nothing.
+    - docs/**/*
 
 Layout/EmptyLineAfterMagicComment:
   Exclude:
