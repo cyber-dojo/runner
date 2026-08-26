@@ -1,5 +1,3 @@
-require 'ostruct'
-
 class RackRequestStub
   def initialize(env)
     @env = env

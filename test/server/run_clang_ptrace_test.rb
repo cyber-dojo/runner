@@ -15,7 +15,6 @@ class RunClangPtraceTest < TestBase
     command = nil
     process.spawn { |cmd| command = cmd }
     process.detach { ThreadValueStub.new(42) }
-    process.kill {}
 
     run_cyber_dojo_sh
 

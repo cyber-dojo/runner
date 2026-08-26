@@ -81,8 +81,7 @@ class DockerStopTest < TestBase
       random: RandomHex8Stub.new(hex8_stub)
     )
     process.spawn { |_cmd, _opts| 42 } # pid
-    process.detach { |_pid| WaitThreadTimedOutStub.new(57, false) } # status,joined
-    process.kill { |_signal, _pid| nil }
+    process.detach { |_pid| WaitThreadTimedOutStub.new(57) } # status
   end
 
   def expected_docker_stop_command
@@ -99,22 +98,9 @@ class DockerStopTest < TestBase
     def thread(name)
       stubs = {
         'stdout-reader' => ThreadValueStub.new(''),
-        'stderr-reader' => ThreadValueStub.new(''),
-        'docker-stopper' => yield
+        'stderr-reader' => ThreadValueStub.new('')
       }
       stubs[name]
-    end
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  class RandomHex8Stub
-    def initialize(stub)
-      @stub = stub
-    end
-
-    def hex8
-      @stub
     end
   end
 end

@@ -35,6 +35,5 @@ class RunFaultyGzipErrorTest < TestBase
       tp.detach(pid)
       ThreadValueStub.new(status = 42)
     end
-    process.kill { |signal, pid| tp.kill(signal, pid) }
   end
 end

@@ -1,5 +1,3 @@
-require 'ostruct'
-
 class PipeMaker
   def make
     Pipe.new(*IO.pipe)

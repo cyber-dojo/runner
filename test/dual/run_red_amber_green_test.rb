@@ -90,7 +90,6 @@ module Dual
         puller.add(image_name)
         process.spawn {}
         process.detach { ThreadValueStub.new(0) }
-        process.kill {}
         command = "docker run --rm --entrypoint=cat #{image_name} /usr/local/bin/red_amber_green.rb"
         sheller.capture(command) do
           stdout = "lambda{|stdout,stderr,status| '#{colour}' }"
