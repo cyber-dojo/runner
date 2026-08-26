@@ -90,26 +90,22 @@ class Runner
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = Capture3WithTimeout.new(@context).run(command, max_seconds, tgz_in)
+    run = Capture3WithTimeout.new(@context, container_name).run(command, max_seconds, tgz_in)
 
-    threaded_docker_stop_container(id, image_name, container_name) if run[:timed_out]
+    # Taken off the run because everything left in it reaches the browser.
+    # There is no :docker_stop key unless the run timed out, and Hash#delete
+    # answers nil for a key that is not there.
+    log_failed_docker_stop(id, image_name, run.delete(:docker_stop))
 
     [run, files_in]
   end
 
-  def threaded_docker_stop_container(id, image_name, container_name)
-    # Send the stop signal, wait 1 second, send the kill signal.
-    command = "docker stop --time 1 #{container_name}"
-    # If [docker run] times-out then Capture3WithTimeout
-    # makes process.kill() calls to kill the [docker rm] process.
-    # However, this does *not* kill the *container* the
-    # [docker run] initiated. Hence the [docker stop]
-    @context.threader.thread('docker-stopper') do
-      stdout, stderr, status = @context.sheller.capture(command)
-      unless status.zero?
-        log(id: id, image_name: image_name, command: command, stdout: stdout, stderr: stderr, status: status)
-      end
-    end
+  # A docker stop is made only when the run times out, and only a failing one
+  # is worth a log line.
+  def log_failed_docker_stop(id, image_name, stop)
+    return if stop.nil? || stop[:status].zero?
+
+    log({ id: id, image_name: image_name }.merge(stop))
   end
 
   def files_sss_from(tgz_out)

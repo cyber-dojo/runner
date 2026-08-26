@@ -18,6 +18,7 @@ The measurements come from three probes in this directory:
   measure_idle_warm_container_cost.sh  what an idle pooled container costs
   time_press_via_daemon_api_vs_cli.rb  what the docker CLI itself costs
   time_timeout_path_api_vs_cli.rb      what a timed-out press costs each way
+  time_docker_stop_alone_to_cli_exit.rb  how soon the CLI exits after the stop
   time_streamed_tar_vs_tar_file.sh     what send_tgz()'s intermediate file costs
 
 Measurement conditions
@@ -360,16 +361,16 @@ of what the CLI costs is the CLI's own process.
 
 Finding: the timeout path is simpler and tighter over the socket
 ----------------------------------------------------------------
-A timed-out press is the case the happy-path probes never touch, and the one
-where the current design is most awkward. capture3_with_timeout.rb wraps
-Timeout.timeout around waiting for the CLI, sends TERM to the process group,
-sends KILL if the join fails, and then fires a docker stop besides, because
-killing the CLI does not kill the container. runner.rb says as much in a
-comment.
+A timed-out press is the case the happy-path probes never touch.
+capture3_with_timeout.rb wraps Timeout.timeout around waiting for the CLI and
+then stops the container, which is what makes the CLI exit. See
+docs/simplify-the-timeout-path.md.
 
 Over the socket it is a deadline on a read and then one call addressed at the
 container. time_timeout_path_api_vs_cli.rb runs a kata that hangs, with
-max_seconds 2, and reports how far past that the learner waits:
+max_seconds 2, and reports how far past that the learner waits. Its cli row
+signals the CLI's process group as well as stopping the container, so read it
+as an upper bound on that path:
 
   timed-out press                      total ms   overshoot ms
   cli: Timeout, kill group, stop         2081.2           81.2

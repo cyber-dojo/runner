@@ -40,6 +40,5 @@ class RunFaultyTarErrorTest < TestBase
       tp.detach(pid)
       ThreadValueStub.new(0)
     end
-    process.kill { |signal, pid| tp.kill(signal, pid) }
   end
 end

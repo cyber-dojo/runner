@@ -11,7 +11,6 @@ class ProcessSpawnerTest < TestBase
     w.close
     echoed = r.read
     processor.detach(pid)
-    processor.kill(:TERM, pid)
     assert_equal 'hello', echoed
   end
 end

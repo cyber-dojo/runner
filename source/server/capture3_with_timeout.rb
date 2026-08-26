@@ -1,9 +1,10 @@
 require 'timeout'
-require 'ostruct'
 
 # [X] See comments at the end of file.
 class Capture3WithTimeout
-  def initialize(context)
+  def initialize(context, container_name)
+    @context = context
+    @container_name = container_name
     @piper = context.piper
     @process  = context.process
     @threader = context.threader
@@ -25,7 +26,9 @@ class Capture3WithTimeout
       end
     rescue Timeout::Error
       result[:timed_out] = true
-      kill_process_group(pid, waiter)
+      # A nil pid means the spawn itself did not return, so there is no
+      # container to stop.
+      result[:docker_stop] = docker_stop unless pid.nil?
     ensure
       result[:status] = waiter.value
       result[:stdout] = stdout_reader.value
@@ -39,7 +42,9 @@ class Capture3WithTimeout
 
   private
 
-  attr_reader :piper, :process, :threader
+  attr_reader :context, :container_name, :piper, :process, :threader
+
+  STOP_SECONDS = 1
 
   def make_binary_pipes
     pipes = { stdin: piper.make, stdout: piper.make, stderr: piper.make }
@@ -60,7 +65,6 @@ class Capture3WithTimeout
 
   def spawn_detached_process(command, pipes, tgz_in)
     pid = process.spawn(command, {
-                          pgroup: true, # [X] process group
                           in: pipes[:stdin].in,
                           out: pipes[:stdout].out,
                           err: pipes[:stderr].out
@@ -76,15 +80,20 @@ class Capture3WithTimeout
 
   # - - - - - - - - - - - - - - - - - -
 
-  def kill_process_group(pid, waiter)
-    return if pid.nil?
-
-    process.kill(:TERM, -pid)
-    return if waiter.join(1)
-
-    # join failed (returned nil) indicating the
-    # process.kill(:TERM,-pid) was ignored, so...
-    process.kill(:KILL, -pid)
+  # Stopping the container is what ends a timed-out run. When the container
+  # stops, [docker run] exits, its stdout closes, and the readers complete.
+  # --time 1 is SIGTERM and then SIGKILL a second later, so cyber-dojo.sh's
+  # own EXIT trap still gets its chance to run.
+  # See docs/profiling/time_docker_stop_alone_to_cli_exit.rb
+  def docker_stop
+    command = "docker stop --time #{STOP_SECONDS} #{container_name}"
+    stdout, stderr, status = context.sheller.capture(command)
+    {
+      command: command,
+      stdout: stdout,
+      stderr: stderr,
+      status: status
+    }
   end
 
   # - - - - - - - - - - - - - - - - - -

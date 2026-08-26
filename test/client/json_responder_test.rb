@@ -1,7 +1,6 @@
 require_relative '../test_base'
 require_code 'http_proxy/json_responder'
 require 'json'
-require 'ostruct'
 
 class JsonResponderTest < TestBase
 
