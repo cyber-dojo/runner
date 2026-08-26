@@ -14,7 +14,7 @@ class DeadlineReaderTest < TestBase
 
     assert_equal 'hel', reader.read(3)
   ensure
-    read_end&.close
+    read_end.close
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -32,7 +32,7 @@ class DeadlineReaderTest < TestBase
 
     assert_raises(DeadlineReader::Expired) { reader.read(3) }
   ensure
-    read_end&.close
+    read_end.close
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -47,8 +47,8 @@ class DeadlineReaderTest < TestBase
 
     assert_raises(DeadlineReader::Expired) { reader.read(3) }
   ensure
-    read_end&.close
-    write_end&.close
+    read_end.close
+    write_end.close
   end
 
   private

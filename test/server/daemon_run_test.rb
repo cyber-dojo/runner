@@ -113,7 +113,7 @@ class DaemonRunTest < TestBase
     # AutoRemove disposes of a container that exits, but not of one that never
     # started, and this name is the same on every run. Without this a failure
     # here leaves a container that makes the next run collide with it.
-    client&.request('DELETE', "/containers/#{name}?force=true")
+    client.request('DELETE', "/containers/#{name}?force=true")
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -137,19 +137,50 @@ class DaemonRunTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf17', %w(
-  | a real fork bomb against the real daemon times out
-  | and leaves no container behind
-  | the bomb saturating --pids-limit so send_tgz cannot fork what it needs
+  | a real fork bomb against the real daemon leaves no container behind
+  | however the bomb ends, the bomb saturating PidsLimit so that send_tgz
+  | cannot fork the find, file, tar and gzip its EXIT trap needs
   ) do
     client = UnixSocketHttp.new('/var/run/docker.sock')
     name = "cyber_dojo_runner_#{id58}"
 
-    result = DaemonRun.new(client).run(id58, image_name, name, 2, real_tgz_in(FORK_BOMB))
+    # Nothing about the result is asserted here, and adding an assert on it
+    # makes this test flaky rather than stricter. A bomb has two ends, and
+    # which one it takes is a race:
+    #   - the fork failures leave PID 1 stuck, so the deadline expires and the
+    #     run answers timed_out with empty strings
+    #   - the fork failures take PID 1 down with them, so the attach stream
+    #     ends and the run answers timed_out false, carrying whatever complete
+    #     frames arrived, which need not be nothing
+    # Pinning the deadline is c9Gf18's job, with a kata that cannot end early.
+    # What keeps a payload that arrives whole but does not inflate out of the
+    # browser is runner.rb answering faulty, which is pinned by c7Dd54 in
+    # test/server/run_faulty_gzip_error_test.rb
+    DaemonRun.new(client).run(id58, image_name, name, 2, real_tgz_in(FORK_BOMB))
 
-    assert result[:timed_out], 'timed_out'
     assert gone?(client, name), "#{name} was left behind"
   ensure
-    client&.request('DELETE', "/containers/#{name}?force=true")
+    client.request('DELETE', "/containers/#{name}?force=true")
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf18', %w(
+  | a real container that sends nothing before the deadline times out
+  | and is stopped, with no partial payload to report
+  | a sleeping kata rather than a bomb, because a sleep cannot end early:
+  | it sends nothing and nothing kills its PID 1
+  ) do
+    client = UnixSocketHttp.new('/var/run/docker.sock')
+    name = "cyber_dojo_runner_#{id58}"
+
+    result = DaemonRun.new(client).run(id58, image_name, name, 1, real_tgz_in("sleep 30\n"))
+
+    assert result[:timed_out], 'timed_out'
+    assert_equal '', result[:stdout]
+    assert gone?(client, name), "#{name} was left behind"
+  ensure
+    client.request('DELETE', "/containers/#{name}?force=true")
   end
 
   private
@@ -166,14 +197,17 @@ class DaemonRunTest < TestBase
 
   # AutoRemove disposes of the container once it has exited, which is not the
   # instant the stop returns.
+  # A single answer at the end says whether the container went, however many
+  # polls it took, so the giving-up path is the same path as the going one.
   def gone?(client, name)
+    code = nil
     20.times do
       code, _body = client.request('GET', "/containers/#{name}/json")
-      return true if code == 404
+      break if code == 404
 
       sleep 0.2
     end
-    false
+    code == 404
   end
 
   include HomeFiles

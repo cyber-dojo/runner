@@ -20,7 +20,7 @@ module HomeFiles
   # installs the send_tgz() in an EXIT trap handler.
   # send_tgz() multiplexes cyber-dojo.sh's stdout/stderr/status
   # into a tgz file which becomes the container's stdout
-  # which is read in capture3_with_timeout.rb
+  # which is read in daemon_run.rb
   #
   # Compression is at level 1. The pipe to the runner is local, so the
   # smaller payload buys almost no transfer time; what gzip is here for is
@@ -33,8 +33,9 @@ module HomeFiles
   # is not an option; GNU gzip rejects it.
   # See docs/profiling/where-the-traffic-light-time-goes.txt
   #
-  # There are important comments on the exit-status of
-  # cyber_dojo_main.sh at the end of capture3_with_timeout.rb
+  # cyber_dojo_main.sh's own exit status is not consulted. The container is
+  # created with AutoRemove, so it is gone the moment it exits, and what the
+  # kata's cyber-dojo.sh exited with arrives inside the payload as tmp/status.
   #
   # [0] --verbatim-files-from ensure filenames are not read as
   #     tar command options.

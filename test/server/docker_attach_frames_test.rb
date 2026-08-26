@@ -111,7 +111,7 @@ class DockerAttachFramesTest < TestBase
     assert_equal 'the quick brown fox', stdout
     assert_equal 'warning: unused', stderr
   ensure
-    read_end&.close
+    read_end.close
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -130,8 +130,8 @@ class DockerAttachFramesTest < TestBase
       DockerAttachFrames.demultiplex(reader)
     end
   ensure
-    read_end&.close
-    write_end&.close
+    read_end.close
+    write_end.close
   end
 
   private
