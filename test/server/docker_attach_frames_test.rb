@@ -1,5 +1,6 @@
 require_relative '../test_base'
 require_code 'docker_attach_frames'
+require_code 'deadline_reader'
 require 'stringio'
 
 class DockerAttachFramesTest < TestBase
@@ -91,7 +92,53 @@ class DockerAttachFramesTest < TestBase
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'e4Fb16', %w(
+  | frames arriving on a real stream, read under a deadline, demultiplex
+  | which is the pairing a run of cyber-dojo.sh relies on
+  | and which neither module can show on its own
+  ) do
+    read_end, write_end = IO.pipe
+    write_end.write(frame(STDOUT_STREAM, 'the quick '))
+    write_end.write(frame(STDERR_STREAM, 'warning: unused'))
+    write_end.write(frame(STDOUT_STREAM, 'brown fox'))
+    write_end.close
+
+    reader = DeadlineReader.new(read_end, now + 5)
+    stdout, stderr = DockerAttachFrames.demultiplex(reader)
+
+    assert_equal 'the quick brown fox', stdout
+    assert_equal 'warning: unused', stderr
+  ensure
+    read_end&.close
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'e4Fb17', %w(
+  | a stream that stops arriving raises when the deadline passes
+  | rather than answering the frames that did arrive
+  | which is the hung kata: the container is alive and sending no more
+  ) do
+    read_end, write_end = IO.pipe
+    write_end.write(frame(STDOUT_STREAM, 'the quick ')) # and then nothing more
+
+    reader = DeadlineReader.new(read_end, now + 0.1)
+
+    assert_raises(DeadlineReader::Expired) do
+      DockerAttachFrames.demultiplex(reader)
+    end
+  ensure
+    read_end&.close
+    write_end&.close
+  end
+
   private
+
+  def now
+    Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  end
 
   HEADER_BYTES = 8
 

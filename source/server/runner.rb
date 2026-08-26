@@ -1,4 +1,4 @@
-require_relative 'capture3_with_timeout'
+require_relative 'daemon_run'
 require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'sandbox'
@@ -22,9 +22,6 @@ class Runner
     if run[:timed_out]
       log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
       return timed_out_result(run)
-    elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
-      log(id: id, image_name: image_name, message: 'faulty', result: utf8_clean(run))
-      return faulty_result(run)
     end
 
     tgz_out = run[:stdout]
@@ -44,13 +41,24 @@ class Runner
       Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
+  rescue DaemonRun::DaemonRefused => e
+    # The daemon would not run the container, so there is no result to report
+    # and nothing the kata did wrong. The learner is owed a traffic light
+    # rather than a 500, and what the daemon said belongs in the log rather
+    # than in the browser.
+    log(id: id, image_name: image_name, error: e.message)
+    faulty_result({})
   rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e
     # Zlib rejects a payload whose gzip CRC32 or length trailer does not
     # match; TarFile::Reader rejects one that inflates to something which is
     # not a tar. Either way the container did not send a run result, and
     # nothing in it may reach the browser.
     log(id: id, image_name: image_name, error: e.class.name)
-    empty_result(:corrupt_payload, 'faulty', {})
+    # The container's stderr is the only account of why there is no payload,
+    # eg tini reporting that it could not exec bash. Losing it leaves nothing
+    # to diagnose a run that produced nothing.
+    utf8_clean(run)
+    empty_result(:corrupt_payload, 'faulty', run)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,27 +90,13 @@ class Runner
     image_name = manifest['image_name']
     random_id = @context.random.hex8
     container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     max_seconds = [15, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = Capture3WithTimeout.new(@context, container_name).run(command, max_seconds, tgz_in)
-
-    # Taken off the run because everything left in it reaches the browser.
-    # There is no :docker_stop key unless the run timed out, and Hash#delete
-    # answers nil for a key that is not there.
-    log_failed_docker_stop(id, image_name, run.delete(:docker_stop))
+    run = DaemonRun.new(@context.daemon).run(id, image_name, container_name, max_seconds, tgz_in)
 
     [run, files_in]
-  end
-
-  # A docker stop is made only when the run times out, and only a failing one
-  # is worth a log line.
-  def log_failed_docker_stop(id, image_name, stop)
-    return if stop.nil? || stop[:status].zero?
-
-    log({ id: id, image_name: image_name }.merge(stop))
   end
 
   def files_sss_from(tgz_out)

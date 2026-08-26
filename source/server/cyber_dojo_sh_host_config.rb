@@ -1,8 +1,8 @@
 require_relative 'sandbox'
 
-# The HostConfig of a POST /containers/create for one press, gathering what
-# the daemon does around the container rather than inside it. Its entries
-# arrive in groups, the same way CyberDojoShContainerConfig's do.
+# The HostConfig of a POST /containers/create for one run of cyber-dojo.sh,
+# gathering what the daemon does around the container rather than inside it.
+# Its entries arrive in groups, the same way CyberDojoShContainerConfig's do.
 module CyberDojoShHostConfig
   def self.config(image_name)
     {

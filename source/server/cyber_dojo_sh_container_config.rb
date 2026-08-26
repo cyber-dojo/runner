@@ -1,9 +1,10 @@
 require_relative 'cyber_dojo_sh_host_config'
 require_relative 'sandbox'
 
-# The body of a POST /containers/create for one press, saying everything the
-# docker CLI would otherwise be told in flags. Every entry arrives the same
-# way: as a group of keys merged in by the method that explains it.
+# The body of a POST /containers/create for one run of cyber-dojo.sh, saying
+# everything the docker CLI would otherwise be told in flags. Every entry
+# arrives the same way: as a group of keys merged in by the method that
+# explains it.
 module CyberDojoShContainerConfig
   def self.create_config(id, image_name)
     [

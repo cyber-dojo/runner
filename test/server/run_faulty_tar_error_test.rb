@@ -26,19 +26,10 @@ class RunFaultyTarErrorTest < TestBase
   # and their contents would reach the browser as created files, which is what
   # TarFile::Reader's ustar check exists to stop.
   def stub_tar_error
-    stdout_tgz = Gnu.zip('not-a-tar')
-    stderr = ''
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      process: process = ProcessSpawnerStub.new,
-      threader: StdoutStderrReaderThreaderStub.new(stdout_tgz, stderr)
+      daemon: DaemonStub.new(stdout: Gnu.zip('not-a-tar'))
     )
     puller.add(image_name)
-    tp = ProcessSpawner.new
-    process.spawn { |_cmd, opts| tp.spawn('sleep 10', opts) }
-    process.detach do |pid|
-      tp.detach(pid)
-      ThreadValueStub.new(0)
-    end
   end
 end

@@ -21,19 +21,10 @@ class RunFaultyGzipErrorTest < TestBase
   private
 
   def stub_gzip_error
-    stdout_tgz = 'not-a-tgz'
-    stderr = ''
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      process: process = ProcessSpawnerStub.new,
-      threader: StdoutStderrReaderThreaderStub.new(stdout_tgz, stderr)
+      daemon: DaemonStub.new(stdout: 'not-a-tgz')
     )
     puller.add(image_name)
-    tp = ProcessSpawner.new
-    process.spawn { |_cmd, opts| tp.spawn('sleep 10', opts) }
-    process.detach do |pid|
-      tp.detach(pid)
-      ThreadValueStub.new(0)
-    end
   end
 end
