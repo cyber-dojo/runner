@@ -210,7 +210,10 @@ class CreatedFilesTest < TestBase
 
   def assert_stats(filename, permissions, size)
     stats = stdout_stats[filename]
-    refute_nil stats, filename
+    # The whole result, because a missing stat line says nothing about why it
+    # is missing: an outcome that is not green, an empty stdout, and a stdout
+    # that simply does not name the file all arrive here looking the same.
+    refute_nil stats, pretty_result(filename)
     diagnostic = { filename => stats }
     assert_equal permissions, stats[:permissions], diagnostic
     assert_equal uid, stats[:uid], diagnostic

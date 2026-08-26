@@ -1,9 +1,6 @@
 FROM cyberdojo/docker-base:909ba1d@sha256:20ac5af0c95cd148ad9acba9ca8da9c9145d6df478f40cccac52042aa071427f
 LABEL maintainer=jon@jaggersoft.com
 
-ARG COMMIT_SHA
-ENV COMMIT_SHA=${COMMIT_SHA}
-
 ARG APP_DIR=/runner
 ENV APP_DIR=${APP_DIR}
 

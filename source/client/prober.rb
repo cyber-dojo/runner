@@ -11,10 +11,6 @@ class Prober
     [languages_start_points, runner].all?(&:ready?)
   end
 
-  def sha
-    ENV.fetch('SHA', nil)
-  end
-
   private
 
   def languages_start_points
