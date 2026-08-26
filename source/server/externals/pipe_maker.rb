@@ -1,7 +1,0 @@
-class PipeMaker
-  def make
-    Pipe.new(*IO.pipe)
-  end
-
-  Pipe = Struct.new(:in, :out)
-end

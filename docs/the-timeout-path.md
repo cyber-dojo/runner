@@ -4,110 +4,100 @@ How a timed-out press ends, and why it is shaped this way.
 
 ## What happens
 
-`capture3_with_timeout.rb` spawns the docker CLI, detaches it, and waits with
-`waiter.join(max_seconds)`. `Thread#join` answers `nil` when the wait runs out
-with the process still alive, so timing out is a returned value rather than a
-raised exception. There is no `Timeout`, and nothing reads with a deadline.
+`daemon_run.rb` runs cyber-dojo.sh in a container over the daemon socket, and
+what bounds the run is the reading of the attach stream. There is no child
+process to wait on, so timing out is neither a `Thread#join` answering `nil`
+nor a `Timeout` firing.
 
-On expiry it runs `docker stop --time 1 <container_name>`. Stopping the
-container is the whole of it: `docker run` exits, its stdout closes, and the
-reader threads reach EOF. No signal is sent to the CLI, so there is no process
-group. `--time 1` is SIGTERM and then SIGKILL a second later, so
-cyber-dojo.sh's own EXIT trap still gets its chance to run.
+`read_payload` takes an absolute deadline of `max_seconds` from the moment the
+container has everything it needs, and `DeadlineReader` reapplies what is left
+of it before every read. A read with nothing left, or a socket whose own
+`IO#timeout=` runs out, raises `DeadlineReader::Expired`. `runner.rb` caps
+`max_seconds` at 15 whatever the manifest asks for.
 
-The stop is synchronous, and a thread would buy nothing: the CLI cannot exit
-before the container does, and it exits about 25ms after the stop returns.
+On `Expired` the run sends `POST /containers/<id>/stop?t=1` and answers
+`{timed_out: true, stdout: '', stderr: ''}`. Nothing partial is answered: what
+arrived before the deadline passed is not a whole payload.
 
-A second `waiter.join(GRACE_SECONDS)` follows, and the CLI process is killed if
-that also runs out. That is the backstop for a stop which never takes effect,
-eg an unresponsive daemon; without it `waiter.value` waits for ever. Reaching
-it means something is wrong rather than slow.
+Stopping the container is the whole of it. `t=1` is SIGTERM and then SIGKILL a
+second later, so cyber-dojo.sh's own EXIT trap still gets its chance to run,
+and the container is created with `AutoRemove`, so the daemon disposes of it
+once it exits.
 
-`runner.rb` keeps the log line for a failing stop. `run` carries the stop's
-outcome back under `:docker_stop`, and `runner.rb` takes that key off, because
-everything left in the run reaches the browser.
+`runner.rb` logs the timed-out run and answers `timed_out_result`: an empty
+result carrying status 142. What the run said goes to the log rather than to
+the browser.
 
-## Why the readers need no deadline
+## Why the deadline is absolute
 
-The reader threads read to EOF. The CLI exiting closes their pipes, and the
-backstop guarantees the CLI exits, so a deadline on the reads would add a
-mechanism without adding a bound.
+The deadline bounds the whole run rather than each read of it. A container
+dribbling output would never trip a timeout that started again on every read,
+and `IO#timeout=` on its own bounds a single read, which is why the budget is
+recomputed before each one. That needs the reading to be a loop rather than a
+read to EOF, and it is: `DockerAttachFrames.demultiplex` reads frame by frame.
 
-`IO#timeout=` would in any case be the wrong tool as a one-liner: it bounds a
-single read, not a read to EOF, so a stream that keeps trickling never trips
-it. Bounding the whole press that way needs an absolute deadline recomputed
-before each read, which means replacing `in.read` with a chunk loop.
-
-Note the trickle is reachable by a determined kata, though not by a learner
-doing anything normal. cyber-dojo.sh's own stdout is redirected to a file, but
-tini runs as the sandbox user, so a child can write to the container's stdout
-through `/proc/1/fd/1`, bypassing `send_tgz`. Such a kata also corrupts the
-tgz, which the gzip CRC catches.
+The trickle is reachable by a determined kata, though not by a learner doing
+anything normal. cyber-dojo.sh's own stdout is redirected to a file, but the
+container's stdout is the attach stream, and everything inside runs as the
+sandbox user, so a process can write to it directly through `/proc/1/fd/1`,
+bypassing `send_tgz`. Such a kata also corrupts the tgz, which the gzip CRC
+catches.
 
 ## Why the stdin write is not bounded
 
-`spawn_detached_process` writes the incoming tgz to the CLI's stdin on the same
-thread that then joins, so a write that blocked would block before the deadline
-was armed. `docs/profiling/measure_stdin_bytes_before_docker_run_blocks.rb`
-measures how much goes in first:
+`send_tgz` writes the incoming tgz to the hijacked socket and shuts down the
+writing half, on the same thread that then reads, so a write that blocked would
+block before the deadline was armed.
 
-```
-stdin filled                        KB accepted outcome
-bare pipe, nobody reading                    64 stalled after 2s
-docker run, never reads stdin              3328 stalled after 2s
-docker run, drains stdin                  65536 no stall
-```
+Blocking needs a payload of megabytes and a container that never reads its
+stdin, and the body's first act is `tar -C / -zxf -`.
+`docs/profiling/measure_stdin_bytes_before_docker_run_blocks.rb` measures how
+much goes in before a container that never drains stalls. It measures the CLI's
+stdin rather than a hijacked socket, and it is a Docker Desktop figure either
+way, so treat the magnitude as indicative rather than portable.
 
-So the CLI absorbs about 3.25MB beyond the OS pipe buffer, and a container that
-drains takes 64MB without pausing. Blocking needs a payload over ~3.25MB and a
-container that never reads stdin, and the body's first act is
-`tar -C / -zxf -`. The 3.25MB is a Docker Desktop figure, so treat the
-magnitude as indicative rather than portable.
+## Why no signals
 
-## What the stop costs
+There is no CLI process to signal, so the stop is the only way the run ends.
+`docs/profiling/time_docker_stop_alone_to_cli_exit.rb` and
+`docs/profiling/time_timeout_path_api_vs_cli.rb` hold the measurements behind
+preferring the stop even when there was a process to signal: signalling a fork
+bomb does not always take the same way out, and killing the reader can return a
+partial payload for the runner to parse.
 
-`docs/profiling/time_docker_stop_alone_to_cli_exit.rb` measures a timed-out
-press ended by the stop alone against one ended by signalling the CLI first.
-Two katas: a `sleep`, and the shell fork bomb from
-`test/client/robustness_test.rb` 1B5CD6, which saturates `--pids-limit` so that
-`send_tgz` cannot fork the `find`, `file`, `tar` and `gzip` its EXIT trap needs.
-`max_seconds` is 2, and the figures are milliseconds past it:
-
-```
-timed-out press                    overshoot   stop to exit   stop
-sleep:     kill group, then stop        86.3              -      -
-sleep:     stop only, no signals       105.1          100.0   76.7
-fork bomb: kill group, then stop     unstable              -      -
-fork bomb: stop only, no signals      1110.2         1106.1 1082.9
-```
-
-So the stop costs about 20ms on a press where the learner has already waited
-`max_seconds`.
-
-The fork bomb ignores the SIGTERM, so `--time 1`'s SIGKILL is what ends it and
-the overshoot is about a second. That is the same second either way; it is the
-container refusing to go, not the way it was asked. What matters for a bomb is
-that the press terminates and that nothing is left behind, and the probe checks
-the second of those directly: `docker ps --all` lists no survivors.
-
-The signalling row is the unstable one. A fork bomb does not always take the
-same way out, and killing the CLI can return a partial payload for the runner
-to parse, which the stop-first path does not.
+A fork bomb ignores the SIGTERM, so `t=1`'s SIGKILL is what ends it and the
+overshoot is about a second. That is the container refusing to go rather than
+the way it was asked. What matters for a bomb is that the run terminates and
+that nothing is left behind.
 
 ## Testing
 
-`test/server/docker_stop_test.rb` drives the timed-out path with stubs,
-asserting the exact `docker stop --time 1 cyber_dojo_runner_...` command.
-`test/server/run_timed_out_test.rb` c7Ag55 pins the two deadlines the run is
-bounded by, and c7Ag59 pins the backstop kill.
+`test/server/deadline_reader_test.rb` pins the reader itself: a read with time
+left, a deadline already past, and a read still waiting when the deadline
+passes.
 
-Note two traps in those doubles:
+`test/server/daemon_run_test.rb` c9Gf14 drives the timed-out path with a
+stubbed socket, asserting the stop is `POST /containers/c0ffee/stop?t=1` and
+that the result carries no partial payload.
 
-- `BashShellerStub#capture(command) { ... }` yields when the stub is
-  *registered*, not when it is called, so a flag set inside that block proves
-  nothing. `teardown` is what proves a stub was consumed, and nothing calls it
-  automatically.
-- the threader stub in `docker_stop_test.rb` hands the stdout and stderr
-  readers `''`. That is harmless on the timed-out path, where no payload is
-  expected, but it silently empties the payload on any test of a successful
-  run.
+c9Gf18 pins the same thing against the real daemon, using a sleeping kata. A
+sleep is what makes that test deterministic: it sends nothing before the
+deadline and nothing kills its PID 1, so the deadline is the only way the run
+can end.
+
+c9Gf17 runs a real fork bomb, which saturates `PidsLimit` so that `send_tgz`
+cannot fork the `find`, `file`, `tar` and `gzip` its EXIT trap needs, and
+asserts only that no container is left behind. A bomb has two ends, and which
+one it takes is a race:
+
+- the fork failures leave PID 1 stuck, so the deadline expires and the run
+  answers `timed_out` with empty strings
+- the fork failures take PID 1 down with them, so the attach stream ends and
+  the run answers whatever complete frames arrived, which need not be nothing
+
+So neither the timeout nor an empty stdout can be asserted of a bomb. A payload
+that arrives whole but does not inflate is `runner.rb`'s to answer faulty for,
+not `daemon_run.rb`'s.
+
+`test/server/run_timed_out_test.rb` e7Kc20 pins what `runner.rb` makes of a
+timed-out run: outcome `timed_out`, status 142, and the run logged.

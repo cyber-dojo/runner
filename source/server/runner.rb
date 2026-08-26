@@ -1,4 +1,4 @@
-require_relative 'capture3_with_timeout'
+require_relative 'daemon_run'
 require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'sandbox'
@@ -22,9 +22,6 @@ class Runner
     if run[:timed_out]
       log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
       return timed_out_result(run)
-    elsif run[:status] != 0 # See comments at end of capture3_with_timeout.rb
-      log(id: id, image_name: image_name, message: 'faulty', result: utf8_clean(run))
-      return faulty_result(run)
     end
 
     tgz_out = run[:stdout]
@@ -44,13 +41,24 @@ class Runner
       Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
+  rescue DaemonRun::DaemonRefused => e
+    # The daemon would not run the container, so there is no result to report
+    # and nothing the kata did wrong. The learner is owed a traffic light
+    # rather than a 500, and what the daemon said belongs in the log rather
+    # than in the browser.
+    log(id: id, image_name: image_name, error: e.message)
+    faulty_result({})
   rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e
     # Zlib rejects a payload whose gzip CRC32 or length trailer does not
     # match; TarFile::Reader rejects one that inflates to something which is
     # not a tar. Either way the container did not send a run result, and
     # nothing in it may reach the browser.
     log(id: id, image_name: image_name, error: e.class.name)
-    empty_result(:corrupt_payload, 'faulty', {})
+    # The container's stderr is the only account of why there is no payload,
+    # eg tini reporting that it could not exec bash. Losing it leaves nothing
+    # to diagnose a run that produced nothing.
+    utf8_clean(run)
+    empty_result(:corrupt_payload, 'faulty', run)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -60,12 +68,7 @@ class Runner
   # These are satisfied by image_name being built with
   # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 
-  UID = 41_966 # sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51_966 # sandbox group - runs /sandbox/cyber-dojo.sh
-
   KB = 1024
-  MB = 1024 * KB
-  GB = 1024 * MB
 
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
@@ -85,27 +88,13 @@ class Runner
     image_name = manifest['image_name']
     random_id = @context.random.hex8
     container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    command = docker_run_cyber_dojo_sh_command(id, image_name, container_name)
     max_seconds = [15, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = Capture3WithTimeout.new(@context, container_name).run(command, max_seconds, tgz_in)
-
-    # Taken off the run because everything left in it reaches the browser.
-    # There is no :docker_stop key unless the run timed out, and Hash#delete
-    # answers nil for a key that is not there.
-    log_failed_docker_stop(id, image_name, run.delete(:docker_stop))
+    run = DaemonRun.new(@context.daemon).run(id, image_name, container_name, max_seconds, tgz_in)
 
     [run, files_in]
-  end
-
-  # A docker stop is made only when the run times out, and only a failing one
-  # is worth a log line.
-  def log_failed_docker_stop(id, image_name, stop)
-    return if stop.nil? || stop[:status].zero?
-
-    log({ id: id, image_name: image_name }.merge(stop))
   end
 
   def files_sss_from(tgz_out)
@@ -166,96 +155,6 @@ class Runner
     new_files.keys.sort[0...size].to_h { |filename| [filename, new_files[filename]] }
   end
 
-  def docker_run_cyber_dojo_sh_command(id, image_name, container_name)
-    # --init makes container removal much faster
-    <<~SHELL.strip
-      docker run                                  \
-      --entrypoint=""                             \
-      --env CYBER_DOJO_IMAGE_NAME='#{image_name}' \
-      --env CYBER_DOJO_ID='#{id}'                 \
-      --env CYBER_DOJO_SANDBOX='#{Sandbox::DIR}'  \
-      --init                   \
-      --interactive            \
-      --name=#{container_name} \
-      #{TMP_FS_SANDBOX_DIR}    \
-      #{TMP_FS_TMP_DIR}        \
-      #{ulimits(image_name)}   \
-      --rm                     \
-      --user=#{UID}:#{GID}     \
-      #{image_name}            \
-      bash -c 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'
-    SHELL
-  end
-
-  def ulimits(image_name)
-    # [0] We could allow cores as binary files are not tar piped out of the container.
-    # [1] The nproc --limit is per user across all containers. See
-    # https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
-    # There is no cpu-ulimit. See https://github.com/cyber-dojo-retired/runner-stateless/issues/2
-    #
-    # We used to add --kernel-memory=2g but this flag was removed from Docker 29.
-    # When docker run encounters this unknown flag, it exits non-zero, so it is removed.
-    # --kernel-memory was removed because modern Linux kernels (5.4+) no longer support per-cgroup
-    # kernel memory limits — CONFIG_MEMCG_KMEM became unconditional and the per-container cap was
-    # dropped from the kernel itself. The flag had been a no-op for some time before Docker 29
-    # formally dropped it. The existing --memory=2g flag is sufficient: on cgroup v2
-    # (which Docker 29 targets), kernel memory is accounted within the total memory limit.
-
-    options = [
-      ulimit('core', 0),                  # no core file [0]
-      ulimit('fsize', 256 * MB),          # file size
-      ulimit('locks', 1024),              # number of file locks
-      ulimit('nofile', 1024),             # number of files
-      ulimit('nproc', 1024),              # number of processes [1]
-      ulimit('stack', 16 * MB),           # stack size
-      '--memory=2g',                      # max 768MB ram (same swap)
-      '--net=none',                       # no network
-      '--pids-limit=128',                 # no fork bombs
-      '--security-opt=no-new-privileges'  # no escalation
-    ]
-    # Special handling of clang/clang++'s -fsanitize=address
-    options << if clang?(image_name)
-                 '--cap-add=SYS_PTRACE'
-               else
-                 ulimit('data', 4 * GB) # data segment size
-               end
-
-    options.join(SPACE)
-  end
-
-  def ulimit(name, limit)
-    "--ulimit #{name}=#{limit}"
-  end
-
-  def clang?(image_name)
-    image_name.start_with?('cyberdojofoundation/clang') ||
-      image_name.start_with?('ghcr.io/cyber-dojo-languages/clang')
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # temporary file systems
-  # - - - - - - - - - - - - - - - - - - - - - -
-  # Making the sandbox dir a tmpfs should improve speed.
-  # By default, tmp-fs's are setup as secure mountpoints.
-  # If you use only '--tmpfs #{Sandbox::DIR}'
-  # then a [cat /etc/mtab] will reveal something like
-  # "tmpfs /sandbox tmpfs rw,nosuid,nodev,noexec,relatime,size=10240k 0 0"
-  #   o) rw = Mount the filesystem read-write.
-  #   o) nosuid = Do not allow set-user-identifier or
-  #      set-group-identifier bits to take effect.
-  #   o) nodev = Do not interpret character or block special devices.
-  #   o) noexec = Do not allow direct execution of any binaries.
-  #   o) relatime = Update inode access times relative to modify/change time.
-  #   So...
-  #     - set exec to make binaries and scripts executable.
-  #     - set ownership.
-  #     - limit size of tmp-fs. Some start-points require large files,
-  #       eg, C#'s "dotnet restore"
-  # - - - - - - - - - - - - - - - - - - - - - -
-
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{UID},gid=#{GID}".freeze
-  TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=250M,mode=1777'.freeze # Set /tmp sticky-bit
-
   def utf8_clean(result)
     result[:stdout] = Utf8.clean(result[:stdout])
     result[:stderr] = Utf8.clean(result[:stderr])
@@ -268,6 +167,4 @@ class Runner
   def puller
     @context.puller
   end
-
-  SPACE = ' '.freeze
 end

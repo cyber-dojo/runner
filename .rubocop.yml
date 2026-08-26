@@ -32,7 +32,6 @@ Metrics/AbcSize:
     - source/server/runner.rb
     - source/*/dispatcher.rb
     - source/server/context.rb
-    - source/server/capture3_with_timeout.rb
     - source/client/demo.rb
 
 Metrics/ClassLength:
@@ -55,7 +54,6 @@ Metrics/MethodLength:
     - source/server/files_delta.rb
     - source/server/externals/bash_sheller.rb
     - source/*/dispatcher.rb
-    - source/server/capture3_with_timeout.rb
     - source/client/demo.rb
     - source/server/home_files.rb
 
