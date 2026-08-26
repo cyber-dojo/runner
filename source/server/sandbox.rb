@@ -1,5 +1,7 @@
 module Sandbox
   DIR = '/sandbox'.freeze # where files are saved to in the container
+  UID = 41_966            # sandbox user  - runs /sandbox/cyber-dojo.sh
+  GID = 51_966            # sandbox group - runs /sandbox/cyber-dojo.sh
 
   def self.in(arg)
     # eg  arg {         'hiker.cs' => content }

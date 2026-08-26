@@ -60,9 +60,6 @@ class Runner
   # These are satisfied by image_name being built with
   # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
 
-  UID = 41_966 # sandbox user  - runs /sandbox/cyber-dojo.sh
-  GID = 51_966 # sandbox group - runs /sandbox/cyber-dojo.sh
-
   KB = 1024
   MB = 1024 * KB
   GB = 1024 * MB
@@ -181,7 +178,7 @@ class Runner
       #{TMP_FS_TMP_DIR}        \
       #{ulimits(image_name)}   \
       --rm                     \
-      --user=#{UID}:#{GID}     \
+      --user=#{Sandbox::UID}:#{Sandbox::GID} \
       #{image_name}            \
       bash -c 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'
     SHELL
@@ -253,7 +250,7 @@ class Runner
   #       eg, C#'s "dotnet restore"
   # - - - - - - - - - - - - - - - - - - - - - -
 
-  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{UID},gid=#{GID}".freeze
+  TMP_FS_SANDBOX_DIR = "--tmpfs #{Sandbox::DIR}:exec,size=250M,uid=#{Sandbox::UID},gid=#{Sandbox::GID}".freeze
   TMP_FS_TMP_DIR     = '--tmpfs /tmp:exec,size=250M,mode=1777'.freeze # Set /tmp sticky-bit
 
   def utf8_clean(result)
