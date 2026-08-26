@@ -135,6 +135,39 @@ class RunTimedOutTest < TestBase
     assert_equal expected, result
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c7Ag59', %w(
+  | in capture3_with_timeout()
+  | when the docker stop does not make the docker CLI exit
+  | then the CLI process is killed
+  | so that the runner does not wait for ever
+  ) do
+    set_context(
+      logger: StdoutLoggerSpy.new,
+      piper: PipeMakerStub.new('dormouse'),
+      process: process = ProcessSpawnerStub.new,
+      sheller: sheller = BashShellerStub.new,
+      random: RandomHex8Stub.new(hex8_stub)
+    )
+    sheller.capture(docker_stop_command(CONTAINER_NAME)) { ['', '', 0] }
+
+    pid = 45
+    process.spawn { |_cmd, _opts| pid }
+    process.detach { |_pid| WaitThreadTimedOutStub.new(61, joined: false) }
+
+    kill_args = []
+    process.kill do |signal, pid|
+      kill_args << [signal, pid]
+      nil
+    end
+
+    capture3_with_timeout
+
+    assert_equal [[:KILL, pid]], kill_args
+    sheller.teardown
+  end
+
   private
 
   CONTAINER_NAME = 'cyber_dojo_runner_stub'

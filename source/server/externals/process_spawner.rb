@@ -6,4 +6,8 @@ class ProcessSpawner
   def detach(pid)
     Process.detach(pid)
   end
+
+  def kill(signal, pid)
+    Process.kill(signal, pid)
+  end
 end

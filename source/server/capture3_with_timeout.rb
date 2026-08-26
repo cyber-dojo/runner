@@ -28,7 +28,10 @@ class Capture3WithTimeout
       result[:timed_out] = true
       # A nil pid means the spawn itself did not return, so there is no
       # container to stop.
-      result[:docker_stop] = docker_stop unless pid.nil?
+      unless pid.nil?
+        result[:docker_stop] = docker_stop
+        kill_cli(pid) unless waiter.join(GRACE_SECONDS)
+      end
     ensure
       result[:status] = waiter.value
       result[:stdout] = stdout_reader.value
@@ -45,6 +48,16 @@ class Capture3WithTimeout
   attr_reader :context, :container_name, :piper, :process, :threader
 
   STOP_SECONDS = 1
+  GRACE_SECONDS = 10
+
+  # The backstop for a docker stop that does not take effect, eg the daemon is
+  # unresponsive. Without it waiter.value in the ensure block waits for ever.
+  # A stopped container releases the CLI in about 25ms, so reaching here means
+  # something is wrong rather than slow.
+  # See docs/profiling/time_docker_stop_alone_to_cli_exit.rb
+  def kill_cli(pid)
+    process.kill(:KILL, pid)
+  end
 
   def make_binary_pipes
     pipes = { stdin: piper.make, stdout: piper.make, stderr: piper.make }
