@@ -1,25 +1,29 @@
-require 'timeout'
-
 class WaitThreadTimedOutStub
   # as returned from process.detach() call
 
+  # Thread#join(seconds) answers
+  #   nil     when the wait runs out, the process is still alive
+  #   thread  when the process has exited
+  # The first join is the max_seconds wait, which times out here. The second
+  # is the grace given to the docker stop, which @joined decides.
   def initialize(status, joined: true)
+    @status = status
     @n = 0
-    @value_stubs = {
-      1 => -> { raise Timeout::Error }, # .value in main-block
-      2 => -> { status }                # .value in ensure block
+    @join_stubs = {
+      1 => nil,
+      2 => { true => self, false => nil }[joined]
     }
-    # Thread#join(seconds) answers
-    #   nil     when the wait runs out, the process is still alive
-    #   thread  when the process has exited
-    @joined = { true => self, false => nil }[joined]
+    @join_seconds = []
+  end
+
+  attr_reader :join_seconds
+
+  def join(seconds)
+    @join_seconds << seconds
+    @join_stubs[@n += 1]
   end
 
   def value
-    @value_stubs[@n += 1].call
-  end
-
-  def join(_seconds)
-    @joined
+    @status
   end
 end

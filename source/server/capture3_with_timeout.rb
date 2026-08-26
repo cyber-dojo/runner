@@ -1,5 +1,3 @@
-require 'timeout'
-
 # [X] See comments at the end of file.
 class Capture3WithTimeout
   def initialize(context, container_name)
@@ -14,28 +12,21 @@ class Capture3WithTimeout
 
   def run(command, max_seconds, tgz_in)
     result = { timed_out: false }
-    pid = nil
-    waiter = Struct.new(:value).new(nil)
     pipes = make_binary_pipes
     stdout_reader = threaded('stdout-reader') { pipes[:stdout].in.read }
     stderr_reader = threaded('stderr-reader') { pipes[:stderr].in.read }
     begin
-      Timeout.timeout(max_seconds) do
-        pid, waiter = spawn_detached_process(command, pipes, tgz_in)
-        result[:status] = waiter.value
-      end
-    rescue Timeout::Error
-      result[:timed_out] = true
-      # A nil pid means the spawn itself did not return, so there is no
-      # container to stop.
-      unless pid.nil?
+      pid, waiter = spawn_detached_process(command, pipes, tgz_in)
+      # join answers nil when max_seconds runs out with the CLI still alive.
+      if waiter.join(max_seconds).nil?
+        result[:timed_out] = true
         result[:docker_stop] = docker_stop
-        kill_cli(pid) unless waiter.join(GRACE_SECONDS)
+        kill_cli_unless_stop_released_it(waiter, pid)
       end
-    ensure
       result[:status] = waiter.value
       result[:stdout] = stdout_reader.value
       result[:stderr] = stderr_reader.value
+    ensure
       close_pipe(pipes[:stdin].in)
       close_pipe(pipes[:stdout].out)
       close_pipe(pipes[:stderr].out)
@@ -51,11 +42,13 @@ class Capture3WithTimeout
   GRACE_SECONDS = 10
 
   # The backstop for a docker stop that does not take effect, eg the daemon is
-  # unresponsive. Without it waiter.value in the ensure block waits for ever.
-  # A stopped container releases the CLI in about 25ms, so reaching here means
-  # something is wrong rather than slow.
+  # unresponsive. Without it waiter.value waits for ever. A stopped container
+  # releases the CLI in about 25ms, so exhausting the grace means something is
+  # wrong rather than slow.
   # See docs/profiling/time_docker_stop_alone_to_cli_exit.rb
-  def kill_cli(pid)
+  def kill_cli_unless_stop_released_it(waiter, pid)
+    return unless waiter.join(GRACE_SECONDS).nil?
+
     process.kill(:KILL, pid)
   end
 
@@ -134,9 +127,9 @@ end
 #   only when you do not intend to explicitly wait for the
 #   child to terminate.
 #
-# We are not calling wait(), we are using Timeout.timeout()
-# instead. So we need to call Process.detach(). The
-# documentation for Process.detach() continues...
+# We are not calling wait(), we are bounding the wait with
+# Thread#join(max_seconds) instead. So we need to call
+# Process.detach(), whose documentation continues...
 #
 #   The waiting thread returns the exit status of the
 #   detached process when it terminates, so you can use

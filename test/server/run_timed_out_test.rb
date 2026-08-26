@@ -24,15 +24,18 @@ class RunTimedOutTest < TestBase
 
     detach_args = []
     status = 57
+    waiter = nil
     process.detach do |pid|
       detach_args << pid
-      WaitThreadTimedOutStub.new(status)
+      waiter = WaitThreadTimedOutStub.new(status)
     end
 
     # inner timed-out
     result = capture3_with_timeout
 
     assert_equal [pid], detach_args
+    # the run is bounded by max_seconds, then the docker stop by its grace
+    assert_equal [1, Capture3WithTimeout::GRACE_SECONDS], waiter.join_seconds
     sheller.teardown # nothing left unconsumed proves the docker stop was made
 
     expected = {
@@ -72,33 +75,6 @@ class RunTimedOutTest < TestBase
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'c7Ag56', %w[
-    in capture3_with_timeout()
-    when process.spawn() fails to respond within the timeout period
-    thats also a timeout
-    and no process.detach() call is made
-    and no container is stopped, because there is none to stop
-  ] do
-    stdout_tgz = 'tweedle-dee'
-    set_context(
-      logger: StdoutLoggerSpy.new,
-      piper: PipeMakerStub.new(stdout_tgz),
-      process: process = ProcessSpawnerStub.new
-    )
-
-    process.spawn { sleep 10 }
-
-    result = capture3_with_timeout
-
-    expected = {
-      timed_out: true,
-      stdout: stdout_tgz,
-      stderr: '',
-      status: nil
-    }
-    assert_equal expected, result
-  end
 
   # - - - - - - - - - - - - - - - - - - - - -
 

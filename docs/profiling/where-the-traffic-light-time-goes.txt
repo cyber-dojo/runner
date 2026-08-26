@@ -364,7 +364,7 @@ Finding: the timeout path is simpler and tighter over the socket
 A timed-out press is the case the happy-path probes never touch.
 capture3_with_timeout.rb wraps Timeout.timeout around waiting for the CLI and
 then stops the container, which is what makes the CLI exit. See
-docs/simplify-the-timeout-path.md.
+docs/the-timeout-path.md.
 
 Over the socket it is a deadline on a read and then one call addressed at the
 container. time_timeout_path_api_vs_cli.rb runs a kata that hangs, with
