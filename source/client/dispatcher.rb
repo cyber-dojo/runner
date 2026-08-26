@@ -11,7 +11,6 @@ class Dispatcher
   def call(path, body)
     args = parse_json_args(body)
     case path
-    when '/sha'                then ['sha',               prober.sha(**args)]
     when '/alive'              then ['alive?',            prober.alive?(**args)]
     when '/ready'              then ['ready?',            prober.ready?(**args)]
     when '/pull_image'         then ['pull_image',        runner.pull_image(**args)]

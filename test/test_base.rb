@@ -215,6 +215,13 @@ class TestBase < Id58TestBase
                         changed: { 'cyber-dojo.sh' => script }
                       })
     refute timed_out?, pretty_result(:timed_out)
+    # A faulty run that gives no account of itself is one the press never
+    # happened for, eg the daemon refusing to create the container. It answers
+    # empty stdout/stderr, so a test that goes on to look at the payload fails
+    # somewhere further down saying only that what it wanted is not there.
+    # A colour that could not be determined is faulty too, and is not this: it
+    # always names the call it failed in.
+    refute(faulty? && run_result['log'] == {}, pretty_result(:faulty_with_no_account))
   end
 
   def assert_sha(sha)

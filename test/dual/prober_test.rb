@@ -18,14 +18,5 @@ module Dual
       set_context
       assert prober.ready?.is_a?(TrueClass)
     end
-
-    # - - - - - - - - - - - - - - - - -
-
-    #     test '6de192', %w(
-    #     sha is SHA of git commit which created docker image
-    #     ) do
-    #       set_context
-    #       assert_sha(prober.sha)
-    #     end
   end
 end
