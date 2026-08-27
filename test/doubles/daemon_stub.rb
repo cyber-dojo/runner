@@ -6,19 +6,32 @@ class DaemonStub
   # way the daemon frames it. timed_out: true makes that stream stand in for a
   # container which never finishes what it is saying.
 
-  def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}', timed_out: false)
+  def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}', timed_out: false, archive: nil)
     @stdout = stdout
     @create_code = create_code
     @create_body = create_body
     @timed_out = timed_out
+    @archive = archive
   end
 
+  # The only create this answers is a container's. Matching the path rather
+  # than the word keeps an image pull, POST /images/create, out of it.
+  # An archive is TrafficLight reading the rag-lambda out of the image, which
+  # only a test that was given one can answer.
   def request(_method, path, _body = nil)
-    if path.include?('create')
+    if path.start_with?('/containers/create')
       [@create_code, @create_body]
+    elsif path.include?('/archive?')
+      archive_response
     else
       [204, '']
     end
+  end
+
+  def archive_response
+    return [200, @archive] unless @archive.nil?
+
+    [404, '{"message":"DaemonStub was given no archive: to answer with"}']
   end
 
   def attach(_path)

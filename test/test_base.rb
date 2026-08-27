@@ -27,10 +27,6 @@ class TestBase < Id58TestBase
     context.runner
   end
 
-  def sheller
-    context.sheller
-  end
-
   def logger
     context.logger
   end

@@ -1,4 +1,5 @@
-require_relative 'bash_sheller_stub'
+require_relative 'daemon_one_request_stub'
+require_relative 'daemon_sequence_stub'
 require_relative 'daemon_stub'
 require_relative 'puller_spy'
 require_relative 'rack_request_stub'

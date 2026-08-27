@@ -1,3 +1,4 @@
+require 'json'
 require_relative 'synchronized_set'
 require_relative 'tagged_image_name'
 
@@ -18,7 +19,7 @@ class Puller
 
   # Drops the belief that image_name is on the node, so the next pull_image
   # pulls it rather than answering :pulled. What @pulled holds is a belief:
-  # config.ru seeds it from `docker image ls` at boot, and an image removed
+  # config.ru seeds it from the node's images at boot, and an image removed
   # after that leaves no trace in it.
   def forget_image(image_name)
     @pulled.delete(image_name)
@@ -43,26 +44,38 @@ class Puller
 
   def threaded_pull_image(_id, image_name)
     t0 = Time.now
-    command = "docker pull #{image_name}"
-    stdout, stderr, status = sheller.capture(command)
-    if status.zero?
+    # The tag rides inside fromImage, which the daemon parses as one
+    # reference, so nothing here has to split the name apart. This blocks
+    # until the pull ends, which is what running on its own thread allows.
+    code, body = daemon.request('POST', "/images/create?fromImage=#{image_name}")
+    if code == 200 && !stream_error?(body)
       t1 = Time.now
       add(image_name)
       took = (t1 - t0).round(1)
       logger.log("Pulled docker image #{image_name} (#{took} secs)")
     else
-      logger.log("Failed to pull docker image #{image_name}, stdout=#{stdout}, stderr=#{stderr}")
+      logger.log("Failed to pull docker image #{image_name}, code=#{code}, body=#{body}")
     end
   ensure
     @pulling.delete(image_name)
+  end
+
+  # The daemon sends its status code before the transfer begins, so a pull it
+  # starts and cannot finish is a 200 whose newline-delimited stream carries
+  # an error object. The stream ends with a newline, hence the blank line.
+  def stream_error?(body)
+    body.each_line.any? do |line|
+      stripped = line.strip
+      !stripped.empty? && JSON.parse(stripped).key?('error')
+    end
   end
 
   def logger
     @context.logger
   end
 
-  def sheller
-    @context.sheller
+  def daemon
+    @context.daemon
   end
 
   def threader

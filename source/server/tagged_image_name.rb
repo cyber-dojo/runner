@@ -23,12 +23,11 @@ module Docker
   # what answers the malformed case.
   #
   # That takes a digest with no tag, eg name@sha256:..., down with it, and a
-  # digest pins harder than any tag does. It goes anyway, because config.ru
-  # seeds Puller's set of images-present-on-the-node from `docker image ls`,
-  # which only ever answers repo:tag. A digest-only name matches nothing in
-  # that seed, so it is pulled afresh after every restart. One way to name a
-  # start-point, and one the seed can recognise, is worth more here than the
-  # stronger pin.
+  # digest pins harder than any tag does. It goes anyway so that a start-point
+  # is named one way. The set of images-present-on-the-node that config.ru
+  # seeds Puller with carries digest-only references among its tags, so what
+  # the refusal turns on is what a manifest may say, not what the seed can
+  # match.
   def assert_image_name(str)
     raise UnversionedImageName, str.inspect if tag_of(tagged_image_name(str)) == LATEST
   end

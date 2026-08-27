@@ -1,5 +1,6 @@
 require_relative 'empty_binding'
 require_relative 'rag_lambdas'
+require_relative 'tarfile_reader'
 require 'json'
 
 class TrafficLight
@@ -72,31 +73,38 @@ class TrafficLight
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  # Reads one file out of the image. The container is created and never
+  # started, which is enough for the daemon to copy a file out of it, and is
+  # why none of DaemonRun's machinery appears here. Nothing removes a
+  # container that never ran, so the DELETE is not optional.
+  # See docs/profiling/check_archive_from_unstarted_container.rb
   def checked_read_lambda_source(image_name)
-    command = [
-      'docker run --rm --entrypoint=cat',
-      image_name,
-      RAG_LAMBDA_FILENAME
-    ].join(SPACE)
-    stdout, stderr, status = sheller.capture(command)
-    if status.zero?
-      message = "Read red-amber-green lambda from #{image_name}"
-      logger.log(message)
-      stdout
-    else
+    id = created_container_id(image_name)
+    begin
+      code, body = daemon.request('GET', "/containers/#{id}/archive?path=#{RAG_LAMBDA_FILENAME}")
+    ensure
+      daemon.request('DELETE', "/containers/#{id}")
+    end
+    unless code == 200
       raise Fault.new({
                         context: "image_name must have #{RAG_LAMBDA_FILENAME} file",
-                        command: command,
-                        stdout: stdout.lines,
-                        stderr: stderr.lines,
-                        status: status
+                        image_name: image_name,
+                        code: code,
+                        body: body
                       })
     end
+
+    logger.log("Read red-amber-green lambda from #{image_name}")
+    TarFile::Reader.new(body).files.values.first
+  end
+
+  # Image is all the create needs, since nothing in the container executes.
+  def created_container_id(image_name)
+    _code, body = daemon.request('POST', '/containers/create', { 'Image' => image_name })
+    JSON.parse(body)['Id']
   end
 
   RAG_LAMBDA_FILENAME = '/usr/local/bin/red_amber_green.rb'.freeze
-
-  SPACE = ' '.freeze
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -146,7 +154,7 @@ class TrafficLight
     @context.logger
   end
 
-  def sheller
-    @context.sheller
+  def daemon
+    @context.daemon
   end
 end
