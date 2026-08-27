@@ -1,4 +1,3 @@
-require_relative 'externals/bash_sheller'
 require_relative 'externals/random'
 require_relative 'externals/stdout_logger'
 require_relative 'externals/asynchronous_threader'
@@ -18,7 +17,7 @@ class Context
     externals(options)
   end
 
-  attr_reader :node, :prober, :puller, :runner, :daemon, :sheller, :threader, :logger, :random
+  attr_reader :node, :prober, :puller, :runner, :daemon, :threader, :logger, :random
 
   # Where the docker daemon listens. The socket is docker's, so the path
   # belongs here at the wiring rather than inside UnixSocketHttp, which knows
@@ -31,7 +30,6 @@ class Context
   # test replaces to keep the outside world out of it.
   def externals(options)
     @daemon   = options[:daemon] || UnixSocketHttp.new(DOCKER_SOCKET)
-    @sheller  = options[:sheller] || BashSheller.new(self)
     @threader = options[:threader] || AsynchronousThreader.new
     @logger   = options[:logger] || StdoutLogger.new
     @random   = options[:random] || Random.new

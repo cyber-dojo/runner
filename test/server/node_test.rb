@@ -1,36 +1,28 @@
 require_relative '../test_base'
+require_code 'externals/unix_socket_http'
 
 class NodeTest < TestBase
 
-  test '3q1Ps3', %w[image_names are retrieved from the node via docker image ls call] do
-    set_context(sheller: BashShellerStub.new)
-    sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"), '', 0] }
+  test '3q1Ps3', %w[image_names are the RepoTags the daemon answers,
+                    one image being able to carry several of them] do
+    set_context(daemon: daemon = DaemonOneRequestStub.new([200, JSON.generate(images)]))
     actual = node.image_names
     assert_equal expected, actual
+    assert_equal ['GET', '/images/json', nil], daemon.call
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test '3q1Ps4', %w[<none>:<none> image_names are filtered out] do
-    set_context(sheller: BashShellerStub.new)
-    tainted = (expected + (['<none>:<none>'] * 3)).shuffle
-    sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [tainted.join("\n"), '', 0] }
-    actual = node.image_names
-    assert_equal expected, actual
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test '3q1Ps7', %w[image_names with a repository and a <none> tag
-                    are filtered out too, being no more nameable
-                    than <none>:<none>] do
-    set_context(sheller: BashShellerStub.new)
-    untagged = %w[
-      cyberdojo/runner:<none>
-      registry.example.com:5000/gcc_assert:<none>
+  test '3q1Ps4', %w[an image with no RepoTags names nothing a manifest could
+                    hold, and contributes no image_name] do
+    dangling = [
+      { 'Id' => 'sha256:34a35c5c04b4a0e5cfdd853a8477192634f5a1a5a54b6a80b3b33edd1e7fcdcb',
+        'RepoTags' => [] },
+      { 'Id' => 'sha256:34692745a2bfde5d67ba19550b5a3aed1110ec5aabb4cdc2cf72541d5e516e33',
+        'RepoTags' => [] }
     ]
-    tainted = (expected + untagged).shuffle
-    sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [tainted.join("\n"), '', 0] }
+    tainted = (images + dangling).shuffle
+    set_context(daemon: DaemonOneRequestStub.new([200, JSON.generate(tainted)]))
     actual = node.image_names
     assert_equal expected, actual
   end
@@ -38,8 +30,7 @@ class NodeTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '3q1Ps5', %w[image_names populate puller in config.ru] do
-    set_context(sheller: BashShellerStub.new)
-    sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"), '', 0] }
+    set_context(daemon: DaemonOneRequestStub.new([200, JSON.generate(images)]))
     node.image_names.each do |image_name|
       puller.add(image_name)
     end
@@ -48,25 +39,64 @@ class NodeTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test '3q1Ps6', %w[when docker image ls call fails exception is raised] do
-    set_context(sheller: BashShellerStub.new)
-    sheller.capture(DOCKER_IMAGE_LS_COMMAND) { ['', 'stderr-info', 1] }
+  test '3q1Ps6', %w[when the daemon does not answer 200 an exception is raised
+                    carrying what it said instead] do
+    message = '{"message":"client version 1.22 is too old"}'
+    set_context(daemon: DaemonOneRequestStub.new([400, message]))
     error = assert_raises { node.image_names }
-    assert_equal 'stderr-info', error.message
+    assert_equal message, error.message
+  end
+
+  test '3q1Ps8', %w[a real GET /images/json against the real daemon,
+                    which is the only thing that says the socket request,
+                    its headers and its chunked body carry a name the
+                    daemon really holds, none of which a stub can judge] do
+    set_context(daemon: client = UnixSocketHttp.new('/var/run/docker.sock'))
+    tagged = "#{owned_repo}:v1"
+
+    refute_includes node.image_names, tagged
+
+    code, body = client.request('POST', "/images/alpine:3.24/tag?repo=#{owned_repo}&tag=v1")
+    assert_equal 201, code, body
+
+    assert_includes node.image_names, tagged
+  ensure
+    # The tag is this test's own, so removing it takes nothing else with it.
+    # alpine:3.24 keeps the image alive for the tests that pulled it.
+    client.request('DELETE', "/images/#{tagged}")
   end
 
   private
 
-  DOCKER_IMAGE_LS_COMMAND = "docker image ls --format '{{.Repository}}:{{.Tag}}'"
+  # Lowercase because a repository name may not carry capitals, and per-test
+  # so that a name this test asserts the absence of cannot be one another
+  # test, or another run, put there.
+  def owned_repo
+    "cyber-dojo-node-test-#{id58.downcase}"
+  end
+
+  # As GET /images/json answers them, out of alphabetical order, and with
+  # fields alongside RepoTags that say nothing about what an image is named.
+  def images
+    [
+      { 'Id' => 'sha256:8fabf019a49303ba48925e4769944d3d27f02fee2b581c09537fa82f9f758951',
+        'RepoTags' => ['cyberdojo/runner:83c2554', 'cyberdojo/runner:latest'] },
+      { 'Id' => 'sha256:0ce768d6bf6ca3e2bd001cb7a014df7cfb92bed461e7da6bb5bb9637fd92ffc5',
+        'RepoTags' => ['openjdk:13-jdk-alpine'] },
+      { 'Id' => 'sha256:30e6b0d669915981e3fa85a7debbc2d81bf23a2289f3d772ac8d642e2fc5b3aa',
+        'RepoTags' => ['cyberdojo/saver:723349e'] },
+      { 'Id' => 'sha256:1fce37b0a7ba4b9e5c0d8e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d',
+        'RepoTags' => ['registry.example.com:5000/gcc_assert:2f1a3c9'] }
+    ]
+  end
 
   def expected
     %w[
-      cyberdojo/avatars:1fce37b
+      cyberdojo/runner:83c2554
+      cyberdojo/runner:latest
       cyberdojo/saver:723349e
       openjdk:13-jdk-alpine
-      cyberdojo/versioner:latest
-      cyberdojo/commander:b291513
-      cyberdojo/web-base:63adedc
+      registry.example.com:5000/gcc_assert:2f1a3c9
     ].sort
   end
 end

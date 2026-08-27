@@ -10,17 +10,10 @@ class RunPullingTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      sheller: BashShellerStub.new
+      daemon: DaemonOneRequestStub.new(
+        [200, %({"status":"Status: Downloaded newer image for #{image_name}"})]
+      )
     )
-    context.sheller.capture("docker pull #{image_name}") do
-      stdout = [
-        "Status: Downloaded newer image for #{image_name}",
-        "docker.io/#{image_name}"
-      ].join("\n")
-      stderr = ''
-      status = 0
-      [stdout, stderr, status]
-    end
     assert_equal [], puller.image_names
     run_cyber_dojo_sh
     assert pulling?, pretty_result(:outcome)

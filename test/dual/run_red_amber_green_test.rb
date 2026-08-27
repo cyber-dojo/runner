@@ -1,5 +1,6 @@
 require_relative '../test_base'
 require_server_code 'tgz'
+require_server_code 'tarfile_writer'
 
 module Dual
   class RunRedAmberGreenTest < TestBase
@@ -81,17 +82,15 @@ module Dual
       on_server do
         # simplecov:disable
         stdout_tgz = TGZ.of({ 'stderr' => 'any' })
+        # The rag-lambda arrives as a tar, being what the daemon's archive
+        # endpoint answers when TrafficLight reads it out of the image.
+        tar = TarFile::Writer.new
+        tar.write('red_amber_green.rb', "lambda{|stdout,stderr,status| '#{colour}' }")
         set_context(
           logger: StdoutLoggerSpy.new,
-          daemon: DaemonStub.new(stdout: stdout_tgz),
-          sheller: sheller = BashShellerStub.new
+          daemon: DaemonStub.new(stdout: stdout_tgz, archive: tar.tar_file)
         )
         puller.add(image_name)
-        command = "docker run --rm --entrypoint=cat #{image_name} /usr/local/bin/red_amber_green.rb"
-        sheller.capture(command) do
-          stdout = "lambda{|stdout,stderr,status| '#{colour}' }"
-          [stdout, stderr = '', status = 0]
-        end
         # simplecov:enable
       end
     end
