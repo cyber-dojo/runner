@@ -7,14 +7,20 @@ setup_dependent_images()
   remove_pulled_image
 }
 
+# Must match any_image_without_bash in test/client/container_properties_test.rb
+readonly ALPINE_WITHOUT_BASH=alpine:3.24
+
 pull_dependent_images()
 {
   echo
   echo Pulling images used in server-side tests
   local -r IMAGE_NAMES=$(docker image ls --format '{{.Repository}}:{{.Tag}}' | sort | uniq)
-  if ! echo "${IMAGE_NAMES}" | grep alpine:latest ; then
-    # alpine:latest is used for tests showing bash must be in the image_name
-    docker pull --platform linux/amd64 alpine:latest
+  if ! echo "${IMAGE_NAMES}" | grep "${ALPINE_WITHOUT_BASH}" ; then
+    # Used by the test showing bash must be in the image_name.
+    # Pinned to a version because the runner refuses an unversioned
+    # image_name, and because a test naming :latest is a test whose
+    # subject can change without the test changing.
+    docker pull --platform linux/amd64 "${ALPINE_WITHOUT_BASH}"
   fi
 
   local -r DISPLAY_NAMES="$(

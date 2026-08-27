@@ -6,7 +6,9 @@ class ContainerPropertiesTest < TestBase
   | requires bash, won't run in sh
   ) do
     set_context
-    any_image_without_bash = 'alpine:latest' # must have been pulled onto node before server started
+    # Pulled onto the node before the server started, by
+    # bin/setup_dependent_images.sh, which names the same version.
+    any_image_without_bash = 'alpine:3.24'
     run_cyber_dojo_sh(image_name: any_image_without_bash)
     refute timed_out?, pretty_result(:timed_out)
     assert stdout.empty?, pretty_result(:stdout)
