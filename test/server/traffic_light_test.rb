@@ -65,14 +65,18 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '22ExJ5', %w[lambdas are cached] do
-    rag = 'lambda{|so,se,st| :green }'
-    daemon_spy_lambda_source(rag)
+  test '22ExJ5', %w[
+  | a rag-lambda read out of an image is read once and compiled once
+  | however many test-runs ask that image for a colour
+  ] do
+    daemon_spy_lambda_source(counted_lambda_source)
 
-    image_name = python_pytest_image_name
-    f1 = traffic_light.send('[]', image_name)
-    f2 = traffic_light.send('[]', image_name)
-    assert_equal f1.object_id, f2.object_id, :caching
+    2.times { traffic_light_colour(stdout: Test::Data::PythonPytest::STDOUT_GREEN) }
+
+    assert_green
+    assert_equal 1, EvalCounter.count(id58)
+    # The create, the archive read and the removal, once between them.
+    assert_equal 3, docker.calls.size
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -123,9 +127,11 @@ class TrafficLightTest < TestBase
     # bin/setup_dependent_images.sh, and carrying a rag-lambda file.
     image_name = 'ghcr.io/cyber-dojo-languages/gcc_assert:2733119'
 
-    fn = traffic_light.send('[]', image_name)
+    colour, fault_info = traffic_light.colour_from_image(image_name, 'unused', 'unused', 0)
 
-    assert fn.is_a?(Proc), fn.class.name
+    # Which colour is the image's own lambda's business; that it answers one of
+    # the three at all is what says a real read compiled into a working lambda.
+    assert_includes %w[red amber green], colour, fault_info
     assert_logged("Read red-amber-green lambda from #{image_name}", :real_read)
   end
 
@@ -163,7 +169,7 @@ class TrafficLightTest < TestBase
       "exception when eval'ing lambda source",
       lambda_source,
       'SyntaxError',
-      ["(eval at /runner/source/traffic_light.rb:112):1: syntax error found",
+      ["(eval at /runner/source/traffic_light.rb:131):1: syntax error found",
        '> 1 | not-a-lambda',
        '    | ^~~ expected an expression after `not`',
        ''].join("\n")
@@ -257,7 +263,63 @@ class TrafficLightTest < TestBase
     )
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test '22ExJ0', %w[
+  | a rag-lambda from the manifest is compiled once however many test-runs
+  | ask it for a colour, the source belonging to a start-point rather than
+  | to a kata, so the same few sources arrive over and over
+  ] do
+    3.times do
+      colour, fault_info = traffic_light.colour_from_lambda(counted_lambda_source, assertion_failed_stdout, '', 134)
+      assert_equal 'red', colour, log
+      assert_equal({}, fault_info, log)
+    end
+
+    assert_equal 1, EvalCounter.count(id58)
+  end
+
+  # Counts how often a source is compiled, by being called while it is being
+  # eval'd rather than when the lambda it answers is called. Reachable from
+  # Empty.binding because TrafficLightTest is a top-level constant.
+  #
+  # Counted per token rather than in one tally, because parallelize_me! runs
+  # the tests that use this in threads of one process, so a single tally would
+  # have each of them counting the others' evals.
+  class EvalCounter
+    @counts = {}
+    @mutex = Mutex.new
+
+    def self.bump(token)
+      @mutex.synchronize { @counts[token] = (@counts[token] || 0) + 1 }
+    end
+
+    def self.count(token)
+      @mutex.synchronize { @counts[token] || 0 }
+    end
+  end
+
   private
+
+  # The gcc_assert start-point's rag-lambda, as
+  # test/data/languages_start_points.manifests.json carries it, with one line
+  # added that says when it is compiled.
+  def counted_lambda_source
+    [
+      "TrafficLightTest::EvalCounter.bump('#{id58}')",
+      'lambda { |stdout, stderr, status|',
+      '  output = stdout + stderr',
+      '  return :green if status == 0',
+      '  return :red   if /(.*)Assertion(.*)failed/.match(output)',
+      '  return :amber',
+      '}'
+    ].join("\n")
+  end
+
+  # What a failed C assert says, and the status the abort answers with.
+  def assertion_failed_stdout
+    "test: hiker.tests.c:9: test_answer: Assertion `answer() == 42' failed.\n"
+  end
 
   def traffic_light_colour(options = {})
     @image_name = python_pytest_image_name
