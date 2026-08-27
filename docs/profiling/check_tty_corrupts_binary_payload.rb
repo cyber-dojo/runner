@@ -12,7 +12,7 @@
 #
 #   newlines   printf of three newline-separated letters, so the translation
 #              can be seen byte for byte
-#   payload    a gzip stream, which is what a press actually returns, checked
+#   payload    a gzip stream, which is what a test-run actually returns, checked
 #              by inflating it the way the runner does
 #
 # Run on the host:

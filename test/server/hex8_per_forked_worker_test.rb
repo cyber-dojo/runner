@@ -7,7 +7,7 @@ class Hex8PerForkedWorkerTest < TestBase
   | because config.ru builds the Context while puma preloads the app, and
   | puma then forks Etc.nprocessors workers, each holding a Random whose
   | state is identical to every one of its siblings
-  | two workers answering presses of the same kata id would otherwise build
+  | two workers answering test-runs of the same kata id would otherwise build
   | the same container name, and the daemon refuses the second with a 409
   ) do
     seed = 1234

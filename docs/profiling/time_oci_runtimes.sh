@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Compare crun against runc on the same OCI bundle, to price the OCI runtime's
-# share of the runner's per-press container-lifecycle cost.
+# share of the runner's per-test-run container-lifecycle cost.
 #
 # It found runc at 6226us and crun at 2532us for the whole lifecycle. crun is
 # 2.5x faster, but that is only 3.7ms off a 92ms lifecycle, about 4%, so the OCI

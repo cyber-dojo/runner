@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Measures what a timed-out press costs beyond max_seconds, and whether the
+# Measures what a timed-out test-run costs beyond max_seconds, and whether the
 # container is actually gone afterwards.
 #
 # A learner whose cyber-dojo.sh loops forever should wait max_seconds and then
@@ -127,7 +127,7 @@ end
 
 # Reads exactly n bytes, or raises DeadlineReached, or returns nil at end of
 # stream. The deadline is absolute and reapplied before every wait, because it
-# bounds the whole press rather than one read: a container dribbling output
+# bounds the whole test-run rather than one read: a container dribbling output
 # would never trip a per-read timeout.
 #
 # Production would write this with IO#timeout=, which ruby 3.4 has and which
@@ -160,7 +160,7 @@ def read_frames_until(socket, deadline)
   end
 end
 
-# Times a timed-out press over the socket. When threaded_stop is true the
+# Times a timed-out test-run over the socket. When threaded_stop is true the
 # answer is given the moment the deadline fires and the container is stopped
 # behind it, which is what a runner would do.
 def timeout_via_api(name, threaded_stop:)
@@ -187,7 +187,8 @@ def timeout_via_api(name, threaded_stop:)
   [seconds, name]
 end
 
-# Times a timed-out press through the CLI, reproducing capture3_with_timeout.rb:
+# Times a timed-out test-run through the CLI, reproducing
+# capture3_with_timeout.rb:
 # Timeout.timeout around the wait, then TERM to the process group, then KILL if
 # the join fails, and a docker stop besides, because killing the CLI leaves the
 # container running.
@@ -272,7 +273,7 @@ end
 
 puts "image: #{IMAGE}"
 puts "max_seconds: #{MAX_SECONDS}"
-puts(format('%-34s %10s %14s', 'timed-out press', 'total ms', 'overshoot ms'))
+puts(format('%-34s %10s %14s', 'timed-out test-run', 'total ms', 'overshoot ms'))
 print_row('cli: Timeout, kill group, stop', cli)
 print_row('api: read deadline, stop inline', api)
 print_row('api: read deadline, stop threaded', api_threaded)

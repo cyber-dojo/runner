@@ -2,12 +2,12 @@
 
 # Measures how soon [docker run] exits once [docker stop] has been issued.
 #
-# capture3_with_timeout.rb ends a timed-out press by stopping the container and
+# capture3_with_timeout.rb ends a timed-out test-run by stopping the container and
 # nothing else: the container's stdout closes, so the CLI exits and the
 # runner's read completes. This probe is what that rests on, and it also prices
 # the alternative of signalling the CLI first.
 #
-# Two ways of ending a timed-out press:
+# Two ways of ending a timed-out test-run:
 #
 #   stop only  no signals at all: docker stop --time 1, then wait for the CLI
 #   kill+stop  TERM then KILL to the CLI's process group, and a docker stop
@@ -22,7 +22,7 @@
 #              end and send_tgz cannot fork the find, file, tar and gzip its
 #              EXIT trap needs
 #
-# The press is the real one: the payload carries cyber_dojo_main.sh from
+# The test-run is the real one: the payload carries cyber_dojo_main.sh from
 # home_files.rb next to the kata, and the container runs it, so the EXIT trap
 # and the pids-limit interact as they do in production. A cyber-dojo.sh that
 # merely backgrounds work is not enough on its own; that returns at once and
@@ -102,10 +102,10 @@ def docker_run_command(name)
   ].join(' ')
 end
 
-# Starts the press and returns the pieces needed to wait it out: the waiter
+# Starts the test-run and returns the pieces needed to wait it out: the waiter
 # thread for the CLI process, its pid, a thread reading stdout to EOF, the read
-# end of that pipe, and the monotonic instant the press began.
-def start_press(name, kata, pgroup:)
+# end of that pipe, and the monotonic instant the test-run began.
+def start_test_run(name, kata, pgroup:)
   in_read, in_write = IO.pipe
   out_read, out_write = IO.pipe
   in_write.binmode
@@ -131,12 +131,12 @@ def docker_stop(name)
   now - t0
 end
 
-# Times a timed-out press ended by docker stop alone, with no signals sent to
+# Times a timed-out test-run ended by docker stop alone, with no signals sent to
 # the CLI at all. The stop runs on a thread so that the interval being measured
 # is the CLI's exit against the instant the stop was issued, rather than against
 # the stop returning.
 def timeout_via_stop_only(name, kata)
-  waiter, _pid, reader, out_read, t0 = start_press(name, kata, pgroup: false)
+  waiter, _pid, reader, out_read, t0 = start_test_run(name, kata, pgroup: false)
 
   waiter.join(MAX_SECONDS)
   t_stop = now
@@ -153,11 +153,11 @@ def timeout_via_stop_only(name, kata)
     bytes: stdout.to_s.bytesize, name: name }
 end
 
-# Times a timed-out press ended by signalling the CLI first: Timeout.timeout
+# Times a timed-out test-run ended by signalling the CLI first: Timeout.timeout
 # around the wait, TERM to the process group, KILL if the join fails, and a
 # docker stop besides, because killing the CLI leaves the container running.
 def timeout_via_kill_and_stop(name, kata)
-  waiter, pid, reader, out_read, t0 = start_press(name, kata, pgroup: true)
+  waiter, pid, reader, out_read, t0 = start_test_run(name, kata, pgroup: true)
 
   begin
     Timeout.timeout(MAX_SECONDS) { waiter.value }
@@ -225,7 +225,7 @@ end
 puts "image: #{IMAGE}"
 puts "max_seconds: #{MAX_SECONDS}"
 puts(format('%-32s %9s %13s %13s %9s %10s',
-            'timed-out press', 'total ms', 'overshoot ms', 'stop to exit', 'stop ms', 'payload B'))
+            'timed-out test-run', 'total ms', 'overshoot ms', 'stop to exit', 'stop ms', 'payload B'))
 rows.each { |label, results| print_row(label, results) }
 
 left = survivors(names)

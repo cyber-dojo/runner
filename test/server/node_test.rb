@@ -21,6 +21,22 @@ class NodeTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test '3q1Ps7', %w[image_names with a repository and a <none> tag
+                    are filtered out too, being no more nameable
+                    than <none>:<none>] do
+    set_context(sheller: BashShellerStub.new)
+    untagged = %w[
+      cyberdojo/runner:<none>
+      registry.example.com:5000/gcc_assert:<none>
+    ]
+    tainted = (expected + untagged).shuffle
+    sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [tainted.join("\n"), '', 0] }
+    actual = node.image_names
+    assert_equal expected, actual
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test '3q1Ps5', %w[image_names populate puller in config.ru] do
     set_context(sheller: BashShellerStub.new)
     sheller.capture(DOCKER_IMAGE_LS_COMMAND) { [expected.join("\n"), '', 0] }

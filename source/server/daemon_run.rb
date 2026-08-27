@@ -16,7 +16,21 @@ class DaemonRun
   # The daemon would not do what it was asked. Carrying on regardless means
   # working with no container id, and failing later somewhere that says
   # nothing about why.
+  #
+  # It carries the status code because which refusal it is decides what the
+  # runner does next. 404 is the daemon saying the image is not on the node,
+  # which is the only refusal that says anything about the image at all: the
+  # image is checked before the name, so every other code is reached having
+  # already found it.
   class DaemonRefused < RuntimeError
+    def initialize(code, message)
+      @code = code
+      super(message)
+    end
+
+    attr_reader :code
+
+    NO_SUCH_IMAGE = 404
   end
 
   def initialize(client)
@@ -45,7 +59,7 @@ class DaemonRun
       "/containers/create?name=#{container_name}",
       CyberDojoShContainerConfig.create_config(id, image_name)
     )
-    raise DaemonRefused, "create answered #{code}: #{body}" unless code.between?(200, 299)
+    raise DaemonRefused.new(code, "create answered #{code}: #{body}") unless code.between?(200, 299)
 
     JSON.parse(body)['Id']
   end

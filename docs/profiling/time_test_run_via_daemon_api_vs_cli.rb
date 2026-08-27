@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Measures a press driven straight against the docker daemon, against the same
-# press driven through the docker CLI.
+# Measures a test-run driven straight against the docker daemon, against the
+# same test-run driven through the docker CLI. A test-run is one run of a
+# kata's cyber-dojo.sh, which is what the browser's [test] button asks for.
 #
-# Every press currently spawns the CLI, which does HTTP against
+# Every test-run currently spawns the CLI, which does HTTP against
 # /var/run/docker.sock on the runner's behalf: create, attach, start, proxy the
 # streams, and with --rm wait for the removal before exiting. The runner waits
 # on that process, so it inherits all of it. Doing the same calls directly
@@ -16,7 +17,7 @@
 #
 # Run on the host:
 #
-#   ruby docs/profiling/time_press_via_daemon_api_vs_cli.rb
+#   ruby docs/profiling/time_test_run_via_daemon_api_vs_cli.rb
 #
 # Not inside the runner image on a developer machine whose architecture differs
 # from it. What is being compared is largely the cost of the docker CLI's own
@@ -34,11 +35,11 @@ SOCKET_PATH = '/var/run/docker.sock'
 UID = 41_966
 GID = 51_966
 
-# What the container does with the press: take the files on stdin and send a
+# What the container does with the test-run: take the files on stdin and send a
 # payload back, which is the shape of cyber_dojo_main.sh without the kata.
 BODY = 'tar -C /tmp -zxf - && dd if=/dev/zero bs=1024 count=64 status=none | gzip -1'
 
-# The files a press delivers, sized like a small kata's.
+# The files a test-run delivers, sized like a small kata's.
 PAYLOAD_IN = TGZ.of({
                       'tmp/hiker.pl' => "sub answer {\n  return 6 * 9;\n}\n\n1;\n",
                       'tmp/hiker.t' => "use Test::Simple tests => 1;\nok(answer() == 42);\n",
@@ -158,8 +159,8 @@ def read_frames(socket)
   stdout
 end
 
-# Times one press driven straight against the daemon.
-def press_via_api(name)
+# Times one test-run driven straight against the daemon.
+def test_run_via_api(name)
   t0 = now
   code, body = request('POST', "/containers/create?name=#{name}", create_body(BODY))
   raise "create failed: #{code} #{body}" unless [200, 201].include?(code)
@@ -171,7 +172,7 @@ def press_via_api(name)
 
   stream.write(PAYLOAD_IN)
   # Half-close, so the container's [tar -zxf -] sees EOF on stdin. Without it
-  # tar waits for more input and the press never completes.
+  # tar waits for more input and the test-run never completes.
   stream.close_write
   read_frames(stream)
   stream.close
@@ -180,7 +181,7 @@ end
 
 # Starts a container that sits idle, which is what a pool holds ready. Returns
 # its id, and the seconds it took, since that is the work the refill thread
-# does after a press rather than during one.
+# does after a test-run rather than during one.
 def start_idle_container(name)
   t0 = now
   body = create_body('sleep 300')
@@ -197,10 +198,10 @@ def start_idle_container(name)
   [id, now - t0]
 end
 
-# Times a press into a pooled container, over the socket. An exec is created
+# Times a test-run into a pooled container, over the socket. An exec is created
 # and then started, and starting it hijacks the connection the same way attach
 # does, so the payload and the frames travel over that one socket.
-def press_via_api_pool(id)
+def test_run_via_api_pool(id)
   t0 = now
   code, response = request('POST', "/containers/#{id}/exec", {
                              'AttachStdin' => true,
@@ -230,9 +231,9 @@ def press_via_api_pool(id)
   now - t0
 end
 
-# Times a press driven by spawning a docker CLI command, writing the payload to
-# its stdin and reading its stdout, the way capture3_with_timeout.rb does.
-def spawned_press(command)
+# Times a test-run driven by spawning a docker CLI command, writing the payload
+# to its stdin and reading its stdout, the way capture3_with_timeout.rb does.
+def spawned_test_run(command)
   in_read, in_write = IO.pipe
   out_read, out_write = IO.pipe
   in_write.binmode
@@ -253,9 +254,9 @@ def spawned_press(command)
   seconds
 end
 
-# Times the press driven through the CLI, as runner.rb does it now.
-def press_via_cli(name)
-  spawned_press([
+# Times the test-run driven through the CLI, as runner.rb does it now.
+def test_run_via_cli(name)
+  spawned_test_run([
     'docker run --rm --init --interactive',
     "--user=#{UID}:#{GID}",
     "--tmpfs /sandbox:exec,size=250M,uid=#{UID},gid=#{GID}",
@@ -268,11 +269,11 @@ def press_via_cli(name)
   ].join(' '))
 end
 
-# Times a press into a container the CLI started earlier and which has only
+# Times a test-run into a container the CLI started earlier and which has only
 # ever run sleep, which is the best a pool built on the CLI can do. Included
 # here so it is measured in the same run as the other two rather than compared
 # across probes and machines.
-def press_via_cli_prestarted(name)
+def test_run_via_cli_prestarted(name)
   prepare = [
     'docker run --detach --init --interactive',
     "--user=#{UID}:#{GID}",
@@ -286,7 +287,7 @@ def press_via_cli_prestarted(name)
   ].join(' ')
   system(prepare, out: File::NULL, err: File::NULL)
 
-  seconds = spawned_press(%(docker exec --interactive #{name} bash -c "#{BODY}"))
+  seconds = spawned_test_run(%(docker exec --interactive #{name} bash -c "#{BODY}"))
   system("docker rm --force #{name}", out: File::NULL, err: File::NULL)
   seconds
 end
@@ -303,23 +304,23 @@ api_pool = []
 refill = []
 
 RUNS.times do |i|
-  api << press_via_api("probe_api_#{i}_#{Process.pid}")
-  cli << press_via_cli("probe_cli_#{i}_#{Process.pid}")
-  cli_prestarted << press_via_cli_prestarted("probe_warm_#{i}_#{Process.pid}")
+  api << test_run_via_api("probe_api_#{i}_#{Process.pid}")
+  cli << test_run_via_cli("probe_cli_#{i}_#{Process.pid}")
+  cli_prestarted << test_run_via_cli_prestarted("probe_warm_#{i}_#{Process.pid}")
 
   # Prepared before the clock starts, exactly as a pool prepares it before the
-  # learner presses anything.
+  # learner asks for a test-run.
   id, seconds = start_idle_container("probe_apipool_#{i}_#{Process.pid}")
   refill << seconds
-  api_pool << press_via_api_pool(id)
+  api_pool << test_run_via_api_pool(id)
   request('POST', "/containers/#{id}/kill")
 end
 
 puts "image: #{IMAGE}"
-puts(format('%-40s %10s', 'press', 'ms'))
+puts(format('%-40s %10s', 'test-run', 'ms'))
 puts(format('%-40s %10s', 'via docker CLI (docker run --rm)', mean_millis(cli)))
 puts(format('%-40s %10s', 'via docker CLI, pre-started (exec)', mean_millis(cli_prestarted)))
 puts(format('%-40s %10s', 'via daemon API (AutoRemove, no wait)', mean_millis(api)))
 puts(format('%-40s %10s', 'via daemon API, pre-started (exec)', mean_millis(api_pool)))
 puts
-puts(format('%-40s %10s', 'off the press: preparing a spare', mean_millis(refill)))
+puts(format('%-40s %10s', 'off the test-run: preparing a spare', mean_millis(refill)))

@@ -25,21 +25,21 @@ def table_data
 
   [
     [ nil ],
-    [ 'test.count',    stats['test_count'],    '>=', 131 ],
+    [ 'test.count',    stats['test_count'],    '>=', 139 ],
     [ 'test.duration', stats['total_time'],    '<=',  10 ],
     [ nil ],
     [ 'test.failures', stats['failure_count'], '<=',  0 ],
     [ 'test.errors',   stats['error_count'  ], '<=',  0 ],
     [ 'test.skips',    stats['skip_count'   ], '<=',  0 ],
     [ nil ],
-    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 1133 ],
+    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 1184 ],
     [ 'test.lines.missed',     test_cov['lines'   ]['missed'], '<=',    0 ],
     [ 'test.branches.total',   test_cov['branches']['total' ], '<=',    8 ],
     [ 'test.branches.missed',  test_cov['branches']['missed'], '<=',    0 ],
     [ nil ],
-    [ 'code.lines.total',      code_cov['lines'   ]['total' ], '<=', 662 ],
+    [ 'code.lines.total',      code_cov['lines'   ]['total' ], '<=', 684 ],
     [ 'code.lines.missed',     code_cov['lines'   ]['missed'], '<=', 0   ],
-    [ 'code.branches.total',   code_cov['branches']['total' ], '<=', 82  ],
+    [ 'code.branches.total',   code_cov['branches']['total' ], '<=', 86  ],
     [ 'code.branches.missed',  code_cov['branches']['missed'], '<=', 0   ],
   ]
 end

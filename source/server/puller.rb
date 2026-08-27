@@ -16,7 +16,16 @@ class Puller
     @pulled.add(image_name)
   end
 
+  # Drops the belief that image_name is on the node, so the next pull_image
+  # pulls it rather than answering :pulled. What @pulled holds is a belief:
+  # config.ru seeds it from `docker image ls` at boot, and an image removed
+  # after that leaves no trace in it.
+  def forget_image(image_name)
+    @pulled.delete(image_name)
+  end
+
   def pull_image(id:, image_name:)
+    ::Docker.assert_image_name(image_name)
     image_name = ::Docker.tagged_image_name(image_name)
     if @pulled.include?(image_name)
       :pulled

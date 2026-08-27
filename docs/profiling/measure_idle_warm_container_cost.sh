@@ -14,7 +14,7 @@ set -Eeu -o pipefail
 #   o) memory the whole machine has lost, which includes the daemon's own
 #      bookkeeping and not merely the containers' processes
 #   o) what docker itself reports for one container
-#   o) how long a press takes, since a daemon tracking hundreds of containers
+#   o) how long a test-run takes, since a daemon tracking hundreds of containers
 #      may answer more slowly even when memory is fine
 #
 # Memory is read from inside a container because containers share the kernel
@@ -28,7 +28,7 @@ probe_help_check "${1:-}" \
 "Usage: docs/profiling/measure_idle_warm_container_cost.sh [-h] [IMAGE]
 
 Starts idle containers in batches and reports memory lost, per-container usage
-and press latency at each batch size. Removes every container it started.
+and test-run latency at each batch size. Removes every container it started.
 
 Options:
   -h    Show this help
@@ -39,7 +39,7 @@ Example:
 readonly IMAGE="${1:-ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a}"
 readonly NAME_PREFIX="probe_idle_$$"
 readonly LEVELS='10 25 50'
-readonly PRESS_RUNS=5
+readonly TEST_RUN_SAMPLES=5
 
 readonly UID_SANDBOX=41966
 readonly GID_SANDBOX=51966
@@ -75,17 +75,17 @@ available_kb()
     awk '/MemAvailable/ { print $2 }' /proc/meminfo
 }
 
-# Prints the mean milliseconds of a press that creates its own container, which
-# is what a pool miss costs and what a busy daemon would slow down.
-press_ms()
+# Prints the mean milliseconds of a test-run that creates its own container,
+# which is what a pool miss costs and what a busy daemon would slow down.
+test_run_ms()
 {
   local i
   local -r t0=${EPOCHREALTIME/./}
-  for (( i = 0; i < PRESS_RUNS; i++ )); do
+  for (( i = 0; i < TEST_RUN_SAMPLES; i++ )); do
     docker run --rm --entrypoint='' "${IMAGE}" true > /dev/null 2>&1
   done
   local -r t1=${EPOCHREALTIME/./}
-  echo $(( (t1 - t0) / PRESS_RUNS / 1000 ))
+  echo $(( (t1 - t0) / TEST_RUN_SAMPLES / 1000 ))
 }
 
 # Starts count idle containers, numbered from the current total.
@@ -105,10 +105,10 @@ echo "image: ${IMAGE}"
 echo
 
 readonly BASE_KB="$(available_kb)"
-readonly BASE_PRESS="$(press_ms)"
+readonly BASE_TEST_RUN="$(test_run_ms)"
 
-printf '%8s %14s %14s %12s %10s\n' idle 'avail KB' 'lost KB' 'KB each' 'press ms'
-printf '%8s %14s %14s %12s %10s\n' 0 "${BASE_KB}" 0 0 "${BASE_PRESS}"
+printf '%8s %14s %14s %12s %11s\n' idle 'avail KB' 'lost KB' 'KB each' 'test-run ms'
+printf '%8s %14s %14s %12s %11s\n' 0 "${BASE_KB}" 0 0 "${BASE_TEST_RUN}"
 
 started=0
 for level in ${LEVELS}; do
@@ -117,8 +117,8 @@ for level in ${LEVELS}; do
 
   avail_kb="$(available_kb)"
   lost_kb=$(( BASE_KB - avail_kb ))
-  printf '%8s %14s %14s %12s %10s\n' \
-    "${started}" "${avail_kb}" "${lost_kb}" "$(( lost_kb / started ))" "$(press_ms)"
+  printf '%8s %14s %14s %12s %11s\n' \
+    "${started}" "${avail_kb}" "${lost_kb}" "$(( lost_kb / started ))" "$(test_run_ms)"
 done
 
 echo

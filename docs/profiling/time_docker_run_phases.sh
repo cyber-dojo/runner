@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Decompose the runner's fixed per-press overhead into docker CLI cost and
+# Decompose the runner's fixed per-test-run overhead into docker CLI cost and
 # daemon container-lifecycle cost.
 #
 # Run it twice: on the host, and inside the runner image with the docker socket

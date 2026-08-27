@@ -22,4 +22,23 @@ class RunDaemonRefusedTest < TestBase
     assert_equal Runner::STATUS[:faulty].to_s, run['status']
     assert_includes @logger.logged, 'already in use'
   end
+
+  test 'd4Hb11', %w[
+  | a create refused with 409 leaves the pulled set alone
+  | because the daemon checks the image before the name,
+  | so reaching a name conflict proves the image is on the node
+  ] do
+    set_context(
+      logger: @logger = StdoutLoggerSpy.new,
+      daemon: DaemonStub.new(
+        create_code: 409,
+        create_body: '{"message":"Conflict. The container name is already in use"}'
+      )
+    )
+    puller.add(image_name)
+
+    run_cyber_dojo_sh
+
+    assert_equal [image_name], puller.image_names
+  end
 end

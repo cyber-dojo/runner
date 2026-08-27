@@ -8,10 +8,15 @@ class Node
     ls, stderr, status = sheller.capture(command)
     raise stderr.to_s unless status.zero?
 
-    ls.split("\n").sort.uniq - ['<none>:<none>']
+    # A <none> tag names no image the runner could ever be asked for,
+    # whether or not the repository half is set. Both are dropped so that
+    # what this answers is only names a manifest could hold.
+    ls.split("\n").sort.uniq.reject { |image_name| image_name.end_with?(NO_TAG) }
   end
 
   private
+
+  NO_TAG = ':<none>'.freeze
 
   def sheller
     @context.sheller
