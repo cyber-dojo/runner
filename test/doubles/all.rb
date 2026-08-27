@@ -1,6 +1,5 @@
-require_relative 'daemon_one_request_stub'
-require_relative 'daemon_sequence_stub'
-require_relative 'daemon_stub'
+require_relative 'docker_daemon_spy'
+require_relative 'docker_daemon_stub'
 require_relative 'puller_spy'
 require_relative 'rack_request_stub'
 require_relative 'random_hex8_stub'

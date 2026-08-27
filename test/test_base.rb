@@ -27,6 +27,10 @@ class TestBase < Id58TestBase
     context.runner
   end
 
+  def docker
+    context.docker
+  end
+
   def logger
     context.logger
   end

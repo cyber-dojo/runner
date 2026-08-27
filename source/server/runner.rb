@@ -1,8 +1,8 @@
-require_relative 'daemon_run'
+require_relative 'cyber_dojo_sh_runner'
 require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'sandbox'
-require_relative 'tagged_image_name'
+require_relative 'docker_image_name'
 require_relative 'tarfile_reader'
 require_relative 'tgz'
 require_relative 'traffic_light'
@@ -19,7 +19,7 @@ class Runner
     # Checked here rather than left to pull_image's own tagging, so that what
     # the manifest says is this method's business and a run never depends on
     # how far a bad name happens to travel before something objects.
-    ::Docker.assert_image_name(image_name)
+    ::DockerImageName.assert_versioned(image_name)
 
     return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
 
@@ -47,7 +47,7 @@ class Runner
       Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
-  rescue DaemonRun::DaemonRefused => e
+  rescue CyberDojoShRunner::DaemonRefused => e
     # The daemon would not run the container, so there is no result to report
     # and nothing the kata did wrong. The learner is owed a traffic light
     # rather than a 500, and what the daemon said belongs in the log rather
@@ -56,7 +56,7 @@ class Runner
     # refusal is the only sign the runner gets that what @pulled believes
     # about the node is wrong, and believing it anyway makes every later
     # test-run for this image faulty too.
-    puller.forget_image(image_name) if e.code == DaemonRun::DaemonRefused::NO_SUCH_IMAGE
+    puller.forget_image(image_name) if e.code == CyberDojoShRunner::DaemonRefused::NO_SUCH_IMAGE
     log(id: id, image_name: image_name, error: e.message)
     faulty_result({})
   rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e
@@ -103,7 +103,7 @@ class Runner
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = DaemonRun.new(@context.daemon).run(id, image_name, container_name, max_seconds, tgz_in)
+    run = CyberDojoShRunner.new(@context.docker).run(id, image_name, container_name, max_seconds, tgz_in)
 
     [run, files_in]
   end

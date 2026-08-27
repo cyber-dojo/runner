@@ -28,7 +28,7 @@ class RunFaultyTarErrorTest < TestBase
   def stub_tar_error
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      daemon: DaemonStub.new(stdout: Gnu.zip('not-a-tar'))
+      docker: DockerDaemonStub.new(stdout: Gnu.zip('not-a-tar'))
     )
     puller.add(image_name)
   end

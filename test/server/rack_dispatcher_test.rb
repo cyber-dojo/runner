@@ -140,7 +140,7 @@ class RackDispatcherTest < TestBase
 
   test 'D06BB3',
        %w[malformed image_name becomes 400 exception
-          rather than reaching tagged_image_name and becoming a 500] do
+          rather than reaching DockerImageName and becoming a 500] do
     expected = 'malformed image_name'
     bad_image_name = 'UPPERCASE/name:latest'
 

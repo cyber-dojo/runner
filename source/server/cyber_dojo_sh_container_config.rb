@@ -19,12 +19,10 @@ module CyberDojoShContainerConfig
   # Unpacks the incoming files, then hands over to the script that runs the
   # kata's cyber-dojo.sh and sends the payload back on stdout. The image's own
   # entrypoint is dropped so that the command is what runs.
-  BODY = 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'.freeze
-
   def self.image_and_command(image_name)
     {
       'Image' => image_name,
-      'Cmd' => ['bash', '-c', BODY],
+      'Cmd' => ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'],
       'Entrypoint' => []
     }
   end

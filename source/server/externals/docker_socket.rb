@@ -1,12 +1,15 @@
 require 'json'
 require 'socket'
 
-# Speaks HTTP over a unix socket, which Net::HTTP does not do. The docker
-# daemon listens on one, and running cyber-dojo.sh over it costs about 33ms
-# less than spawning the docker CLI to do the same.
+# Speaks HTTP on docker's socket, which Net::HTTP does not do. Running
+# cyber-dojo.sh over it costs about 33ms less than spawning the docker CLI to
+# do the same.
 # See docs/profiling/time_test_run_via_daemon_api_vs_cli.rb
-class UnixSocketHttp
-  def initialize(socket_path)
+class DockerSocket
+  # Where the docker daemon listens. A test serving a fake socket of its own is
+  # the only caller that says otherwise, which is what lets a response the real
+  # daemon will not send, eg a body chunked mid-json, be pinned.
+  def initialize(socket_path = '/var/run/docker.sock')
     @socket_path = socket_path
   end
 

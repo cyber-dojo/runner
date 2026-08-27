@@ -1,6 +1,6 @@
 require 'json'
 require_relative 'synchronized_set'
-require_relative 'tagged_image_name'
+require_relative 'docker_image_name'
 
 class Puller
   def initialize(context)
@@ -26,8 +26,8 @@ class Puller
   end
 
   def pull_image(id:, image_name:)
-    ::Docker.assert_image_name(image_name)
-    image_name = ::Docker.tagged_image_name(image_name)
+    ::DockerImageName.assert_versioned(image_name)
+    image_name = ::DockerImageName.tagged(image_name)
     if @pulled.include?(image_name)
       :pulled
     else
@@ -44,10 +44,9 @@ class Puller
 
   def threaded_pull_image(_id, image_name)
     t0 = Time.now
-    # The tag rides inside fromImage, which the daemon parses as one
-    # reference, so nothing here has to split the name apart. This blocks
-    # until the pull ends, which is what running on its own thread allows.
-    code, body = daemon.request('POST', "/images/create?fromImage=#{image_name}")
+    # This blocks until the pull ends, which is what running on its own thread
+    # allows.
+    code, body = docker.pull_image(image_name)
     if code == 200 && !stream_error?(body)
       t1 = Time.now
       add(image_name)
@@ -74,8 +73,8 @@ class Puller
     @context.logger
   end
 
-  def daemon
-    @context.daemon
+  def docker
+    @context.docker
   end
 
   def threader

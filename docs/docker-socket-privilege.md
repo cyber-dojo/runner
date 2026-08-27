@@ -58,20 +58,20 @@ uid.
 
 ## What would reduce it
 
-Refusing what the runner does not use. Every call it makes on the daemon is now
-a `UnixSocketHttp#request` or `#attach` with a literal path, so the whole set
-can be read off the source:
+Refusing what the runner does not use. Every call it makes on the daemon is a
+method on `DockerDaemon`, so the whole set is that one class rather than
+something to be gathered from its callers:
 
-| Endpoint | Caller |
-| --- | --- |
-| `GET /images/json` | `node.rb` |
-| `POST /images/create?fromImage=` | `puller.rb` |
-| `POST /containers/create` | `daemon_run.rb`, `traffic_light.rb` |
-| `POST /containers/{id}/attach` | `daemon_run.rb` |
-| `POST /containers/{id}/start` | `daemon_run.rb` |
-| `POST /containers/{id}/stop` | `daemon_run.rb` |
-| `GET /containers/{id}/archive` | `traffic_light.rb` |
-| `DELETE /containers/{id}` | `traffic_light.rb` |
+| Endpoint | `DockerDaemon` | Caller |
+| --- | --- | --- |
+| `GET /images/json` | `image_names` | `node.rb` |
+| `POST /images/create?fromImage=` | `pull_image` | `puller.rb` |
+| `POST /containers/create` | `create_container` | `cyber_dojo_sh_runner.rb`, `traffic_light.rb` |
+| `POST /containers/{id}/attach` | `attach_container` | `cyber_dojo_sh_runner.rb` |
+| `POST /containers/{id}/start` | `start_container` | `cyber_dojo_sh_runner.rb` |
+| `POST /containers/{id}/stop` | `stop_container` | `cyber_dojo_sh_runner.rb` |
+| `GET /containers/{id}/archive` | `read_file` | `traffic_light.rb` |
+| `DELETE /containers/{id}` | `remove_container` | `traffic_light.rb` |
 
 A proxy in front of the socket that allows those and refuses everything else
 removes the privileged-container escape, and it does so without the runner

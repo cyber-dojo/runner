@@ -1,15 +1,17 @@
-# mix-in
-module Docker
+# Docker's own grammar for naming an image, and what the runner will accept
+# from outside written in terms of it. A namespace rather than a mix-in:
+# nothing includes it.
+module DockerImageName
   # str does not name a docker image, so there is nothing to tag. Saying so
   # is what keeps a caller's bad argument from surfacing as a NoMethodError
   # raised on the nil that str.match answered.
-  class MalformedImageName < RuntimeError
+  class Malformed < RuntimeError
   end
 
   # str names a docker image, but names whichever image was pushed to
   # :latest rather than one particular image. A start-point pointing at
   # :latest can change underneath the kata, so the runner will not take one.
-  class UnversionedImageName < RuntimeError
+  class Unversioned < RuntimeError
   end
 
   module_function
@@ -18,9 +20,9 @@ module Docker
 
   # Raises unless str is a docker image name pinned to a tag other than
   # :latest, which is what the runner accepts from outside. Every way of
-  # asking for :latest collapses to one check here, since tagged_image_name
-  # answers an untagged name with the :latest it means. tagged_image_name is
-  # what answers the malformed case.
+  # asking for :latest collapses to one check here, since tagged answers an
+  # untagged name with the :latest it means. tagged is what answers the
+  # malformed case.
   #
   # That takes a digest with no tag, eg name@sha256:..., down with it, and a
   # digest pins harder than any tag does. It goes anyway so that a start-point
@@ -28,8 +30,8 @@ module Docker
   # seeds Puller with carries digest-only references among its tags, so what
   # the refusal turns on is what a manifest may say, not what the seed can
   # match.
-  def assert_image_name(str)
-    raise UnversionedImageName, str.inspect if tag_of(tagged_image_name(str)) == LATEST
+  def assert_versioned(str)
+    raise Unversioned, str.inspect if tag_of(tagged(str)) == LATEST
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -47,8 +49,8 @@ module Docker
   # explicit :latest tag. The image_name in pull_image()
   # and run_cyber_dojo_sh()'s manifest must match.
   # eg 'cdf/gcc_assert' ==> 'cdf/gcc_assert:latest'
-  def tagged_image_name(str)
-    raise MalformedImageName, str.inspect unless image_name?(str)
+  def tagged(str)
+    raise Malformed, str.inspect unless valid?(str)
 
     name, match = name_and_match(str)
     "#{name}:#{match[8] || LATEST}#{match[9]}"
@@ -73,7 +75,7 @@ module Docker
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def image_name?(str)
+  def valid?(str)
     return false if str.nil?
     return false unless str.is_a?(String)
 
@@ -129,7 +131,7 @@ module Docker
   REMOTE_NAME = /^(#{NAME})(:(#{TAG}))?(@#{DIGEST})?$/.freeze
 end
 
-Docker.freeze
+DockerImageName.freeze
 
 # http://stackoverflow.com/questions/37861791/
 # https://github.com/moby/moby/blob/master/image/spec/v1.1.md

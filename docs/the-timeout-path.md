@@ -4,9 +4,9 @@ How a timed-out test-run ends, and why it is shaped this way.
 
 ## What happens
 
-`daemon_run.rb` runs cyber-dojo.sh in a container over the daemon socket, and
-what bounds the run is the reading of the attach stream. There is no child
-process to wait on, so timing out is neither a `Thread#join` answering `nil`
+`cyber_dojo_sh_runner.rb` runs cyber-dojo.sh in a container over the daemon
+socket, and what bounds the run is the reading of the attach stream. There is
+no child process to wait on, so timing out is neither a `Thread#join` answering `nil`
 nor a `Timeout` firing.
 
 `read_payload` takes an absolute deadline of `max_seconds` from the moment the
@@ -76,9 +76,9 @@ that nothing is left behind.
 left, a deadline already past, and a read still waiting when the deadline
 passes.
 
-`test/server/daemon_run_test.rb` c9Gf14 drives the timed-out path with a
-stubbed socket, asserting the stop is `POST /containers/c0ffee/stop?t=1` and
-that the result carries no partial payload.
+`test/server/cyber_dojo_sh_runner_test.rb` c9Gf14 drives the timed-out path
+with a stalling daemon spy, asserting the stop names one second, that it comes
+after create, attach and start, and that the result carries no partial payload.
 
 c9Gf18 pins the same thing against the real daemon, using a sleeping kata. A
 sleep is what makes that test deterministic: it sends nothing before the
@@ -97,7 +97,7 @@ one it takes is a race:
 
 So neither the timeout nor an empty stdout can be asserted of a bomb. A payload
 that arrives whole but does not inflate is `runner.rb`'s to answer faulty for,
-not `daemon_run.rb`'s.
+not `cyber_dojo_sh_runner.rb`'s.
 
 `test/server/run_timed_out_test.rb` e7Kc20 pins what `runner.rb` makes of a
 timed-out run: outcome `timed_out`, status 142, and the run logged.

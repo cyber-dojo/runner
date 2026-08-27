@@ -88,7 +88,7 @@ module Dual
         tar.write('red_amber_green.rb', "lambda{|stdout,stderr,status| '#{colour}' }")
         set_context(
           logger: StdoutLoggerSpy.new,
-          daemon: DaemonStub.new(stdout: stdout_tgz, archive: tar.tar_file)
+          docker: DockerDaemonStub.new(stdout: stdout_tgz, archive: tar.tar_file)
         )
         puller.add(image_name)
         # simplecov:enable
