@@ -1,6 +1,6 @@
 require_relative 'empty_binding'
-require_relative 'rag_lambdas'
 require_relative 'tarfile_reader'
+require 'concurrent'
 require 'json'
 
 class TrafficLight
@@ -16,11 +16,15 @@ class TrafficLight
 
   def initialize(context)
     @context = context
-    @rag_lambdas = RagLambdas.new
+    # Keyed by the source rather than by whoever supplied it, so a rag-lambda
+    # written once in a start-point is compiled once however many images and
+    # katas answer with it.
+    @lambdas = Concurrent::Map.new # lambda_source => fn
+    @sources = Concurrent::Map.new # image_name => lambda_source
   end
 
   def colour_from_image(image_name, stdout, stderr, status)
-    [self[image_name].call(stdout, stderr, status), {}]
+    [colour_of(source_from_image(image_name), stdout, stderr, status), {}]
   rescue Fault => e
     fault_info = {
       call: 'TrafficLight.colour_from_image(image_name,stdout,stderr,status)',
@@ -37,9 +41,7 @@ class TrafficLight
   end
 
   def colour_from_lambda(lambda_source, stdout, stderr, status)
-    fn = checked_eval(lambda_source)
-    colour = checked_call(fn, lambda_source, stdout, stderr, status)
-    checked_colour(colour, lambda_source)
+    [colour_of(lambda_source, stdout, stderr, status), {}]
   rescue Fault => e
     fault_info = {
       call: 'TrafficLight.colour_from_lambda(lambda_source,stdout,stderr,status)',
@@ -57,18 +59,35 @@ class TrafficLight
 
   private
 
-  def [](image_name)
-    light = @rag_lambdas[image_name]
-    return light unless light.nil?
+  # What both entry points do once they have the source, whether it came from
+  # a manifest or out of an image.
+  def colour_of(lambda_source, stdout, stderr, status)
+    fn = fn_of(lambda_source)
+    colour = checked_call(fn, lambda_source, stdout, stderr, status)
+    checked_colour(colour, lambda_source)
+  end
+
+  # The eval happens outside the store, so a source that will not compile
+  # raises on every call and nothing is remembered for it. Two callers racing
+  # on the same new source both compile it and the second one's fn wins, which
+  # costs a duplicate eval and answers the same lambda either way.
+  def fn_of(lambda_source)
+    fn = @lambdas[lambda_source]
+    return fn unless fn.nil?
+
+    fn = checked_eval(lambda_source)
+    @lambdas.compute(lambda_source) { fn }
+  end
+
+  # Reading a source out of an image costs a container created and removed, so
+  # it happens once per image. Nothing invalidates it: an image re-pushed
+  # under the same tag keeps its old lambda until the process restarts.
+  def source_from_image(image_name)
+    lambda_source = @sources[image_name]
+    return lambda_source unless lambda_source.nil?
 
     lambda_source = checked_read_lambda_source(image_name)
-    fn = checked_eval(lambda_source)
-    @rag_lambdas.compute(image_name) do
-      lambda { |stdout, stderr, status|
-        colour = checked_call(fn, lambda_source, stdout, stderr, status)
-        checked_colour(colour, lambda_source)
-      }
-    end
+    @sources.compute(image_name) { lambda_source }
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
