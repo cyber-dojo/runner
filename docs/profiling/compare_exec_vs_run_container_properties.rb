@@ -36,7 +36,7 @@ require 'json'
 require 'socket'
 require_relative '../../source/server/cyber_dojo_sh_container_config'
 require_relative '../../source/server/docker_attach_frames'
-require_relative '../../source/server/externals/unix_socket_http'
+require_relative '../../source/server/externals/docker_socket'
 require_relative '../../source/server/sandbox'
 
 IMAGE = ARGV[0] || 'ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a'
@@ -71,7 +71,7 @@ PROBE_BODY = PROBE_PARTS.join('; ')
 
 # The daemon, spoken to the way the runner speaks to it.
 def client
-  @client ||= UnixSocketHttp.new(SOCKET_PATH)
+  @client ||= DockerSocket.new(SOCKET_PATH)
 end
 
 # Answers the new container's id. A refusal is raised rather than carried on
@@ -155,7 +155,7 @@ end
 
 # Starting an exec hijacks the connection the way attach does, but it carries a
 # body where attach carries none, so the request is written here rather than
-# through UnixSocketHttp#attach.
+# through DockerSocket#attach.
 def exec_start(exec_id)
   socket = UNIXSocket.new(SOCKET_PATH)
   body = JSON.generate({ 'Detach' => false, 'Tty' => false })

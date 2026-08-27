@@ -55,19 +55,19 @@ Anything that removes an image after puma starts is invisible to @pulled.
 
 The two paths agree on the key, which is worth knowing because they reach it
 differently: config.ru adds the raw image-ls name, while pull_image tags the
-manifest name through ::Docker.tagged_image_name. Checked against a real node's
+manifest name through ::DockerImageName.tagged. Checked against a real node's
 176 names, tagging is the identity on all of them, and no start-point manifest
 uses a digest, which is the form where the two would diverge.
 
 One name did not survive tagging. node.rb filters the exact string
 '<none>:<none>' but not a name like repo/name:<none>, where the repository is
-set and the tag is not. tagged_image_name raises NoMethodError on that, its
+set and the tag is not. DockerImageName.tagged raises NoMethodError on that, its
 regex having matched nothing. Such a name is nothing to do with cyber-dojo: it
 is whatever else the host happens to have built.
 
-Nothing hits it today, because puller.rb:20 is the only caller of
-tagged_image_name and it tags manifest names, never seeded ones: the junk name
-sits in @pulled and matches nothing. It stops being harmless as soon as
+Nothing hits it today, because puller.rb's pull_image is the only caller of
+DockerImageName.tagged and it tags manifest names, never seeded ones: the junk
+name sits in @pulled and matches nothing. It stops being harmless as soon as
 anything tags a seeded name, which is what the fix below would do. So the
 filter in node.rb wants widening to any name whose tag is <none>, in the same
 change.
@@ -81,7 +81,7 @@ there, pull_image answers :pulled forever. If the image then leaves the node,
 every test-run for it does this:
 
   1. pull_image answers :pulled, so runner.rb goes on rather than pulling
-  2. DaemonRun#create gets 404 and raises DaemonRefused
+  2. CyberDojoShRunner#create gets 404 and raises DaemonRefused
   3. runner.rb rescues it, logs, and answers faulty_result({})
 
 There is no path out. Nothing re-pulls, because the only pull is gated behind

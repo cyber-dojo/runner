@@ -1,14 +1,14 @@
 require_relative '../test_base'
-require_code 'externals/unix_socket_http'
+require_code 'externals/docker_socket'
 
 class NodeTest < TestBase
 
   test '3q1Ps3', %w[image_names are the RepoTags the daemon answers,
                     one image being able to carry several of them] do
-    set_context(daemon: daemon = DaemonOneRequestStub.new([200, JSON.generate(images)]))
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(images)]]))
     actual = node.image_names
     assert_equal expected, actual
-    assert_equal ['GET', '/images/json', nil], daemon.call
+    assert_equal [[:image_names]], docker.calls
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -22,7 +22,7 @@ class NodeTest < TestBase
         'RepoTags' => [] }
     ]
     tainted = (images + dangling).shuffle
-    set_context(daemon: DaemonOneRequestStub.new([200, JSON.generate(tainted)]))
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(tainted)]]))
     actual = node.image_names
     assert_equal expected, actual
   end
@@ -30,7 +30,7 @@ class NodeTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '3q1Ps5', %w[image_names populate puller in config.ru] do
-    set_context(daemon: DaemonOneRequestStub.new([200, JSON.generate(images)]))
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(images)]]))
     node.image_names.each do |image_name|
       puller.add(image_name)
     end
@@ -42,7 +42,7 @@ class NodeTest < TestBase
   test '3q1Ps6', %w[when the daemon does not answer 200 an exception is raised
                     carrying what it said instead] do
     message = '{"message":"client version 1.22 is too old"}'
-    set_context(daemon: DaemonOneRequestStub.new([400, message]))
+    set_context(docker: DockerDaemonSpy.new([[400, message]]))
     error = assert_raises { node.image_names }
     assert_equal message, error.message
   end
@@ -51,7 +51,7 @@ class NodeTest < TestBase
                     which is the only thing that says the socket request,
                     its headers and its chunked body carry a name the
                     daemon really holds, none of which a stub can judge] do
-    set_context(daemon: client = UnixSocketHttp.new('/var/run/docker.sock'))
+    set_context(http: client = DockerSocket.new)
     tagged = "#{owned_repo}:v1"
 
     refute_includes node.image_names, tagged

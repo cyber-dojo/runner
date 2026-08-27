@@ -23,7 +23,7 @@ class RunFaultyGzipErrorTest < TestBase
   def stub_gzip_error
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      daemon: DaemonStub.new(stdout: 'not-a-tgz')
+      docker: DockerDaemonStub.new(stdout: 'not-a-tgz')
     )
     puller.add(image_name)
   end

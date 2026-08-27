@@ -75,15 +75,15 @@ class TrafficLight
 
   # Reads one file out of the image. The container is created and never
   # started, which is enough for the daemon to copy a file out of it, and is
-  # why none of DaemonRun's machinery appears here. Nothing removes a
+  # why none of CyberDojoShRunner's machinery appears here. Nothing removes a
   # container that never ran, so the DELETE is not optional.
   # See docs/profiling/check_archive_from_unstarted_container.rb
   def checked_read_lambda_source(image_name)
     id = created_container_id(image_name)
     begin
-      code, body = daemon.request('GET', "/containers/#{id}/archive?path=#{RAG_LAMBDA_FILENAME}")
+      code, body = docker.read_file(id, RAG_LAMBDA_FILENAME)
     ensure
-      daemon.request('DELETE', "/containers/#{id}")
+      docker.remove_container(id)
     end
     unless code == 200
       raise Fault.new({
@@ -100,7 +100,7 @@ class TrafficLight
 
   # Image is all the create needs, since nothing in the container executes.
   def created_container_id(image_name)
-    _code, body = daemon.request('POST', '/containers/create', { 'Image' => image_name })
+    _code, body = docker.create_container({ 'Image' => image_name })
     JSON.parse(body)['Id']
   end
 
@@ -135,7 +135,7 @@ class TrafficLight
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def checked_colour(colour, lambda_source)
-    if LEGAL_COLOURS.include?(colour)
+    if %w[red amber green].include?(colour)
       colour
     else
       raise Fault.new({
@@ -146,15 +146,13 @@ class TrafficLight
     end
   end
 
-  LEGAL_COLOURS = %w[red amber green].freeze
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def logger
     @context.logger
   end
 
-  def daemon
-    @context.daemon
+  def docker
+    @context.docker
   end
 end

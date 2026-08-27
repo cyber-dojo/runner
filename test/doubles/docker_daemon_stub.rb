@@ -1,10 +1,13 @@
-class DaemonStub
-  # as passed to set_context(daemon:), standing in for the docker daemon.
+class DockerDaemonStub
+  # as passed to set_context(docker:), standing in for the docker daemon in a
+  # whole test-run.
   #
   # Answers create, start and stop, and hands back an attach stream carrying
   # whatever the container is said to have written to its stdout, framed the
   # way the daemon frames it. timed_out: true makes that stream stand in for a
-  # container which never finishes what it is saying.
+  # container which never finishes what it is saying. An archive is
+  # TrafficLight reading the rag-lambda out of the image, which only a test
+  # that was given one can answer.
 
   def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}', timed_out: false, archive: nil)
     @stdout = stdout
@@ -14,28 +17,30 @@ class DaemonStub
     @archive = archive
   end
 
-  # The only create this answers is a container's. Matching the path rather
-  # than the word keeps an image pull, POST /images/create, out of it.
-  # An archive is TrafficLight reading the rag-lambda out of the image, which
-  # only a test that was given one can answer.
-  def request(_method, path, _body = nil)
-    if path.start_with?('/containers/create')
-      [@create_code, @create_body]
-    elsif path.include?('/archive?')
-      archive_response
-    else
-      [204, '']
-    end
+  def create_container(_config, name: nil)
+    [@create_code, @create_body]
   end
 
-  def archive_response
+  def attach_container(_id)
+    AttachStreamStub.new(@stdout, timed_out: @timed_out)
+  end
+
+  def start_container(_id)
+    [204, '']
+  end
+
+  def stop_container(_id, seconds:)
+    [204, '']
+  end
+
+  def read_file(_id, _path)
     return [200, @archive] unless @archive.nil?
 
-    [404, '{"message":"DaemonStub was given no archive: to answer with"}']
+    [404, '{"message":"DockerDaemonStub was given no archive: to answer with"}']
   end
 
-  def attach(_path)
-    AttachStreamStub.new(@stdout, timed_out: @timed_out)
+  def remove_container(_id)
+    [204, '']
   end
 
   # Stands in for the hijacked socket.

@@ -9,7 +9,7 @@ class RunDaemonRefusedTest < TestBase
   ) do
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      daemon: DaemonStub.new(
+      docker: DockerDaemonStub.new(
         create_code: 409,
         create_body: '{"message":"Conflict. The container name is already in use"}'
       )
@@ -30,7 +30,7 @@ class RunDaemonRefusedTest < TestBase
   ] do
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      daemon: DaemonStub.new(
+      docker: DockerDaemonStub.new(
         create_code: 409,
         create_body: '{"message":"Conflict. The container name is already in use"}'
       )

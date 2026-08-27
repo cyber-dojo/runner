@@ -9,7 +9,7 @@ class RunMissingImageInvalidatesPulledTest < TestBase
   ) do
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      daemon: DaemonStub.new(
+      docker: DockerDaemonStub.new(
         create_code: 404,
         create_body: %({"message":"No such image: #{image_name}"})
       )

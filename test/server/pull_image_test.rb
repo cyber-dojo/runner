@@ -1,5 +1,5 @@
 require_relative '../test_base'
-require_code 'externals/unix_socket_http'
+require_code 'externals/docker_socket'
 
 class PullImageTest < TestBase
 
@@ -37,7 +37,7 @@ class PullImageTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      daemon: daemon = DaemonOneRequestStub.new([200, pull_progress])
+      docker: DockerDaemonSpy.new([[200, pull_progress]])
     )
     assert_equal [], puller.image_names
     expected = :pulling
@@ -46,7 +46,7 @@ class PullImageTest < TestBase
     assert context.threader.called
     assert_equal [gcc_assert], puller.image_names
     assert_equal context.logger.logged, "Pulled docker image #{gcc_assert} (0.0 secs)\n"
-    assert_equal ['POST', "/images/create?fromImage=#{gcc_assert}", nil], daemon.call
+    assert_equal [[:pull_image, gcc_assert]], docker.calls
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -67,7 +67,7 @@ class PullImageTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      daemon: DaemonOneRequestStub.new([404, body])
+      docker: DockerDaemonSpy.new([[404, body]])
     )
     assert_equal [], puller.image_names
     expected = :pulling
@@ -99,7 +99,7 @@ class PullImageTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      daemon: DaemonOneRequestStub.new([200, body])
+      docker: DockerDaemonSpy.new([[200, body]])
     )
 
     assert_equal :pulling, puller.pull_image(id: id, image_name: gcc_assert)
@@ -147,7 +147,7 @@ class PullImageTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      daemon: UnixSocketHttp.new('/var/run/docker.sock')
+      http: DockerSocket.new
     )
 
     assert_equal :pulling, puller.pull_image(id: id, image_name: alpine)

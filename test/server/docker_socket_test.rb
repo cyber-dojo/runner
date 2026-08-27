@@ -1,15 +1,15 @@
 require_relative '../test_base'
-require_code 'externals/unix_socket_http'
+require_code 'externals/docker_socket'
 require 'fileutils'
 require 'socket'
 
-class UnixSocketHttpTest < TestBase
+class DockerSocketTest < TestBase
 
   test 'a3Bd10', %w(
   | a request answers the response code and body
   ) do
     code, body = against_server("HTTP/1.1 201 Created\r\nConnection: close\r\n\r\n{\"Id\":\"abc\"}") do |path|
-      UnixSocketHttp.new(path).request('POST', '/containers/create')
+      DockerSocket.new(path).request('POST', '/containers/create')
     end
 
     assert_equal 201, code
@@ -24,7 +24,7 @@ class UnixSocketHttpTest < TestBase
   | so that reading the response is a read to the end of the stream
   ) do
     against_server("HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n") do |path|
-      UnixSocketHttp.new(path).request('POST', '/containers/abc/start', { 'Detach' => false })
+      DockerSocket.new(path).request('POST', '/containers/abc/start', { 'Detach' => false })
     end
 
     assert_equal [
@@ -55,7 +55,7 @@ class UnixSocketHttpTest < TestBase
     ].join("\r\n")
 
     bytes = against_server(upgraded) do |path|
-      UnixSocketHttp.new(path).attach('/containers/abc/attach?stream=1&stdout=1').read
+      DockerSocket.new(path).attach('/containers/abc/attach?stream=1&stdout=1').read
     end
 
     assert_equal 'raw-stream-bytes', bytes
@@ -70,7 +70,7 @@ class UnixSocketHttpTest < TestBase
   ) do
     upgraded = "HTTP/1.1 101 UPGRADED\r\nUpgrade: tcp\r\n\r\n"
     against_server(upgraded) do |path|
-      UnixSocketHttp.new(path).attach('/containers/abc/attach?stream=1').read
+      DockerSocket.new(path).attach('/containers/abc/attach?stream=1').read
     end
 
     assert_equal [
@@ -104,7 +104,7 @@ class UnixSocketHttpTest < TestBase
     ].join("\r\n")
 
     code, body = against_server(chunked) do |path|
-      UnixSocketHttp.new(path).request('POST', '/containers/create')
+      DockerSocket.new(path).request('POST', '/containers/create')
     end
 
     assert_equal 201, code

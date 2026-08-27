@@ -6,7 +6,7 @@ class Node
   end
 
   def image_names
-    code, body = daemon.request('GET', '/images/json')
+    code, body = docker.image_names
     raise body.to_s unless code == 200
 
     # One image can carry several RepoTags, and an image carrying none names
@@ -16,7 +16,7 @@ class Node
 
   private
 
-  def daemon
-    @context.daemon
+  def docker
+    @context.docker
   end
 end

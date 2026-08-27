@@ -10,8 +10,8 @@ class RunPullingTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      daemon: DaemonOneRequestStub.new(
-        [200, %({"status":"Status: Downloaded newer image for #{image_name}"})]
+      docker: DockerDaemonSpy.new(
+        [[200, %({"status":"Status: Downloaded newer image for #{image_name}"})]]
       )
     )
     assert_equal [], puller.image_names

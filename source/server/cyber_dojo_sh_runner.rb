@@ -3,16 +3,15 @@ require_relative 'cyber_dojo_sh_container_config'
 require_relative 'deadline_reader'
 require_relative 'docker_attach_frames'
 
-# Runs one cyber-dojo.sh in a container, talking to the docker daemon over its
-# socket rather than spawning the docker CLI to do it. Answers what the
-# container sent back, and whether it ran out of time.
+# Runs one cyber-dojo.sh in a container, over the docker daemon's socket.
+# Answers what the container sent back, and whether it ran out of time.
 #
 # There is no exit status in the answer. The container is created with
 # AutoRemove, so it is gone the moment it exits and there is nothing left to
 # ask; and a payload that parses and holds tmp/status is itself proof the run
 # was fine. A payload that does not parse is faulty however the container
 # exited.
-class DaemonRun
+class CyberDojoShRunner
   # The daemon would not do what it was asked. Carrying on regardless means
   # working with no container id, and failing later somewhere that says
   # nothing about why.
@@ -33,43 +32,30 @@ class DaemonRun
     NO_SUCH_IMAGE = 404
   end
 
-  def initialize(client)
-    @client = client
+  def initialize(docker)
+    @docker = docker
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
     container_id = create(id, image_name, container_name)
     # Attaching before starting is what stops the container's first bytes
     # being written before anything is listening for them.
-    stream = attach(container_id)
-    start(container_id)
+    stream = docker.attach_container(container_id)
+    docker.start_container(container_id)
     send_tgz(stream, tgz_in)
     result_of(container_id, stream, max_seconds)
   end
 
   private
 
-  attr_reader :client
+  attr_reader :docker
 
-  # The name is a query parameter rather than part of the body, which is the
-  # one thing the CLI's flags say that the create config does not.
   def create(id, image_name, container_name)
-    code, body = client.request(
-      'POST',
-      "/containers/create?name=#{container_name}",
-      CyberDojoShContainerConfig.create_config(id, image_name)
-    )
+    config = CyberDojoShContainerConfig.create_config(id, image_name)
+    code, body = docker.create_container(config, name: container_name)
     raise DaemonRefused.new(code, "create answered #{code}: #{body}") unless code.between?(200, 299)
 
     JSON.parse(body)['Id']
-  end
-
-  def attach(container_id)
-    client.attach("/containers/#{container_id}/attach?stream=1&stdin=1&stdout=1&stderr=1")
-  end
-
-  def start(container_id)
-    client.request('POST', "/containers/#{container_id}/start")
   end
 
   # Shutting down the writing half is what gives the container's
@@ -88,17 +74,11 @@ class DaemonRun
     stdout, stderr = read_payload(stream, max_seconds)
     { timed_out: false, stdout: stdout, stderr: stderr }
   rescue DeadlineReader::Expired
-    stop(container_id)
+    # Stopping the container is what ends a timed-out run. One second is enough
+    # for cyber-dojo.sh's own EXIT trap to get its chance to run before the
+    # SIGKILL, and AutoRemove then disposes of the container.
+    docker.stop_container(container_id, seconds: 1)
     { timed_out: true, stdout: '', stderr: '' }
-  end
-
-  STOP_SECONDS = 1
-
-  # Stopping the container is what ends a timed-out run. --time 1 is SIGTERM
-  # and then SIGKILL a second later, so cyber-dojo.sh's own EXIT trap still
-  # gets its chance to run, and AutoRemove then disposes of the container.
-  def stop(container_id)
-    client.request('POST', "/containers/#{container_id}/stop?t=#{STOP_SECONDS}")
   end
 
   # The deadline starts once the container has everything it needs, and bounds

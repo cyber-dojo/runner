@@ -20,7 +20,7 @@ module HomeFiles
   # installs the send_tgz() in an EXIT trap handler.
   # send_tgz() multiplexes cyber-dojo.sh's stdout/stderr/status
   # into a tgz file which becomes the container's stdout
-  # which is read in daemon_run.rb
+  # which is read in cyber_dojo_sh_runner.rb
   #
   # Compression is at level 1. The pipe to the runner is local, so the
   # smaller payload buys almost no transfer time; what gzip is here for is

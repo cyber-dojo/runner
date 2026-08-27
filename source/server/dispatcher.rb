@@ -1,5 +1,5 @@
 require 'json'
-require_relative 'tagged_image_name'
+require_relative 'docker_image_name'
 
 class Dispatcher
   class RequestError < RuntimeError
@@ -22,9 +22,9 @@ class Dispatcher
     end
   rescue JSON::JSONError
     raise request_error('body is not JSON')
-  rescue Docker::MalformedImageName
+  rescue DockerImageName::Malformed
     raise request_error('malformed image_name')
-  rescue Docker::UnversionedImageName
+  rescue DockerImageName::Unversioned
     raise request_error('unversioned image_name')
   rescue Exception => e
     if (r = e.message.match('(missing|unknown) keyword(s?): (.*)'))

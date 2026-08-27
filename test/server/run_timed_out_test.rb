@@ -9,7 +9,7 @@ class RunTimedOutTest < TestBase
   ) do
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
-      daemon: DaemonStub.new(timed_out: true)
+      docker: DockerDaemonStub.new(timed_out: true)
     )
     puller.add(image_name)
 

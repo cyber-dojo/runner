@@ -47,22 +47,22 @@ CYBER_DOJO_SANDBOX) and a per-test-run half (CYBER_DOJO_ID, and the stdio
 group, which a spare does not want). A spare is the per-image half with a sleep
 Cmd, stdin off, and a label marking it a runner spare and naming its image.
 
-## 2. An exec'd test-run beside DaemonRun
+## 2. An exec'd test-run beside CyberDojoShRunner
 
 Exec create, then a hijacked POST /exec/{id}/start.
 profiling/time_test_run_via_daemon_api_vs_cli.rb is a working sketch of both.
 DockerAttachFrames and DeadlineReader carry over untouched, because the frames
 and the deadline are the same either way.
 
-UnixSocketHttp#attach does not, though. It sends Content-Length: 0, and
+DockerSocket#attach does not, though. It sends Content-Length: 0, and
 exec-start carries a body saying Detach and Tty, so it needs a hijack that can
 take one. compare_exec_vs_run_container_properties.rb writes that request
 itself and is the shape to lift.
 
 ## 3. The timeout path
 
-DaemonRun#stop leans on AutoRemove disposing of the container once it stops. A
-pooled container needs its exec killed, and is then discarded rather than
+CyberDojoShRunner's stop leans on AutoRemove disposing of the container once it
+stops. A pooled container needs its exec killed, and is then discarded rather than
 returned, because what a timed-out kata left running is not something the next
 test-run should inherit.
 

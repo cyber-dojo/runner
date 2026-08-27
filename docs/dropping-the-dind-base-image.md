@@ -16,7 +16,7 @@ daemon through the socket bind-mounted by `docker-compose.yml`:
 
 That mount is a compose / task-definition concern. It works regardless of which
 base image the runner is built from, because opening a unix socket needs no
-docker binaries at all: `source/server/externals/unix_socket_http.rb` speaks
+docker binaries at all: `source/server/externals/docker_socket.rb` speaks
 HTTP over the socket directly.
 
 So "runner needs the docker socket" and "runner needs a dind base image" are
@@ -45,7 +45,7 @@ in-stream half is docker's documented behaviour and is not something this repo
 has reproduced, which `9j5t9R` says of itself in a comment; forcing a transfer
 to fail mid-stream needs a registry that misbehaves on purpose.
 
-`UnixSocketHttp#request` writes a fixed set of headers and takes no argument
+`DockerSocket#request` writes a fixed set of headers and takes no argument
 for more, so there is nowhere to put the `X-Registry-Auth` that a private
 registry wants. That is a capability the CLI had through its own `config.json`
 and this route does not, and it is deliberate rather than merely tolerable.
@@ -59,7 +59,7 @@ they belong.
 
 The pull-on-404 retry in
 `docs/a-missing-image-recovers-only-through-puller.md` is now cheap to write.
-It needs a pull it can call from `DaemonRun#create`, and that is this same
+It needs a pull it can call from `CyberDojoShRunner#create`, and that is this same
 `POST /images/create`, which `Puller` already has.
 
 The rag-lambda read looked like the real work and was not, because it does not
@@ -70,7 +70,7 @@ have to run anything. Reading one file out of an image is three plain
     GET    /containers/{id}/archive?path=/usr/local/bin/red_amber_green.rb
     DELETE /containers/{id}
 
-None of `daemon_run.rb`'s machinery appears in it. No attach hijack, no frame
+None of `cyber_dojo_sh_runner.rb`'s machinery appears in it. No attach hijack, no frame
 demultiplexing, no stdin to half-close, no deadline, no stop. The archive
 response is a tar, and `TarFile::Reader#files` parses one and enforces the
 ustar magic, so pulling the single entry out is a line. The create config is
@@ -88,7 +88,7 @@ profiling/time_docker_run_split.sh puts start at about 48ms of daemon work
 against create at about 16ms. The saving lands on the first test-run for an
 image after a restart, which is where TrafficLight's per-image cache leaves it.
 
-`UnixSocketHttp#request` carries the tar without changes.
+`DockerSocket#request` carries the tar without changes.
 `#attach` sets binmode on its socket and `#request` does not, which looks like
 it would matter and does not: `read_chunked_body` accumulates into `+''`, and
 `socket.read(size)` answers ASCII-8BIT, so the empty buffer adopts ASCII-8BIT
@@ -167,8 +167,8 @@ The daemon answers
 `<none>:<none>`, so the filtering the CLI needed disappeared; but `RepoTags`
 also carries digest-only references, eg `alpine@sha256:...`, which
 `{{.Repository}}:{{.Tag}}` never printed. Those are harmless, since
-`assert_image_name` refuses a digest-only name and no manifest can hold one,
-but they falsified a rationale comment in `tagged_image_name.rb` that had been
+`assert_versioned` refuses a digest-only name and no manifest can hold one,
+but they falsified a rationale comment in `docker_image_name.rb` that had been
 resting on what `docker image ls` answers. Expect each of these swaps to move
 something a CLI format string was quietly hiding, and to find it only by
 probing the real daemon: `test/server/node_test.rb:3q1Ps8` and
