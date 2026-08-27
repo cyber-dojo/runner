@@ -10,7 +10,7 @@ module Dual
       run_cyber_dojo_sh
       assert red?, run_result
       on_client do
-        # :nocov:
+        # simplecov:disable
         expected_stdout = ''
         expected_stderr = [
           'Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)',
@@ -24,7 +24,7 @@ module Dual
           assert stderr.include?(line), diagnostic
         end
         assert_equal expected_status, status, :status
-        # :nocov:
+        # simplecov:enable
       end
     end
 
@@ -35,7 +35,7 @@ module Dual
       run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 9s')
       assert amber?, run_result
       on_client do
-        # :nocov:
+        # simplecov:disable
         expected_stdout = ''
         expected_stderr = [
           "hiker.c:5:16: error: invalid suffix 's' on integer constant",
@@ -49,7 +49,7 @@ module Dual
           assert stderr.include?(line), diagnostic
         end
         assert_equal expected_status, status, :status
-        # :nocov:
+        # simplecov:enable
       end
     end
 
@@ -60,14 +60,14 @@ module Dual
       run_cyber_dojo_sh_with_edit('hiker.c', '6 * 9', '6 * 7')
       assert green?, run_result
       on_client do
-        # :nocov:
+        # simplecov:disable
         assert_equal "All tests passed\n", stdout
         expected_stderr =
           "(INFO) Reading coverage data...\n" \
           "(INFO) Writing coverage report...\n"
         assert_equal expected_stderr, stderr
         assert_equal '0', status
-        # :nocov:
+        # simplecov:enable
       end
     end
 
@@ -75,12 +75,12 @@ module Dual
 
     def stub(colour)
       on_client do
-        # :nocov:
+        # simplecov:disable
         set_context
-        # :nocov:
+        # simplecov:enable
       end
       on_server do
-        # :nocov:
+        # simplecov:disable
         stdout_tgz = TGZ.of({ 'stderr' => 'any' })
         # The rag-lambda arrives as a tar, being what the daemon's archive
         # endpoint answers when TrafficLight reads it out of the image.
@@ -91,7 +91,7 @@ module Dual
           daemon: DaemonStub.new(stdout: stdout_tgz, archive: tar.tar_file)
         )
         puller.add(image_name)
-        # :nocov:
+        # simplecov:enable
       end
     end
 

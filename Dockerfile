@@ -14,7 +14,7 @@ WORKDIR ${APP_DIR}/source
 COPY source/server/ .
 # The runner opens /var/run/docker.sock, which is owned by the host's docker
 # group, so it cannot drop to an unprivileged user without matching that group.
-# See docs/runner-as-docker-group.txt
+# See docs/docker-socket-privilege.md
 USER root
 HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD ./config/healthcheck.sh
 ENTRYPOINT ["/sbin/tini", "-g", "--"]

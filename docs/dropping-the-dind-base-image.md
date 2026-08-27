@@ -132,10 +132,10 @@ request, tar for tar-piping coverage out of tmpfs.
 
 Points to settle before committing to the change:
 
-- The runner must keep `USER root`, or run as a user in the group owning
-  `/var/run/docker.sock`. Saver drops to an unprivileged `saver` user; the
-  runner cannot do the same without matching that group. See
-  `docs/runner-as-docker-group.txt`.
+- The runner keeps `USER root`, because the socket it opens is root-owned and
+  the group that would replace root is a property of the host rather than of
+  the image. See `docs/docker-socket-privilege.md`, which also says why doing
+  it would buy less than it looks like it would.
 - Ruby changes from Alpine's `ruby-dev` package to the official
   `ruby:4.0.5-alpine3.24` image, and the inherited gem set changes from
   `docker-base`'s Gemfile to `sinatra-base`'s. Both carry json, puma, rack,
