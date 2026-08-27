@@ -69,7 +69,7 @@ probe_timeit_ms()
 
 # Describe where the probe is running, so results from different architectures
 # are not accidentally compared. Emulation of the runner image on an arm64 host
-# inflated an earlier round of these measurements by about 72ms per press.
+# inflated an earlier round of these measurements by about 72ms per test-run.
 probe_environment()
 {
   # -m rather than --machine: these probes run on the host as well as inside

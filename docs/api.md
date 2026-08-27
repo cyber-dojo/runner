@@ -9,8 +9,10 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
   * **id:String** for tracing
   * **files:Hash{filename:String => content:String}** assumed to contain a file called `cyber-dojo.sh`
   * **manifest:Hash** containing
-    * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-tools/image_builder)
+    * **image_name:String** created with [image_builder](https://github.com/cyber-dojo-tools/image_builder), and [pinned to a version](#image_name)
     * **max_seconds:Integer** between `1` and `20`
+    * **rag_lambda:String** the source of the Ruby lambda deciding the traffic light.
+      Omitting it is [deprecated](#rag_lambda)
   * eg
     ```json
     { "id": "34de2W",
@@ -61,9 +63,12 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
 - `"outcome"` equals `"pulling"` if **image_name** is not present on the node.
 - `"outcome"` equals `"timed_out"` if `cyber-dojo.sh` failed to complete in **max_seconds**.
 - `"outcome"` equals `"red"`, `"amber"`, `"green"`,
-    as determined by passing `stdout['content']`, `stderr['content']`, `status` to the Ruby lambda, read from **image_name**, at `/usr/local/bin/red_amber_green.rb`
+    as determined by passing `stdout['content']`, `stderr['content']`, `status` to a Ruby lambda.
+    The lambda comes from **manifest**'s **rag_lambda**.
+    With no **rag_lambda**, it is read from **image_name**, at `/usr/local/bin/red_amber_green.rb`,
+    which is [deprecated](#rag_lambda).
 - `"outcome"` equals `"faulty"` (and adds information to **log**) if
-  * `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**
+  * there is no **rag_lambda** and `/usr/local/bin/red_amber_green.rb` does not exist in **image_name**
   * eval'ing the lambda raises an exception
   * calling the lambda raises an exception
   * the lambda returns anything other than `red`, `amber`, or `green` (as a string or a symbol)
@@ -73,7 +78,7 @@ Runs `/sandbox/cyber-dojo.sh` for at most **manifest**'s **max_seconds**.
 Pulls **image_name** onto the node if not already present.
 - [JSON-in](#json-in) parameters
   * **id:String** for tracing
-  * **image_name:String**
+  * **image_name:String** [pinned to a version](#image_name)
 - returns the [JSON-out](#json-out) result, keyed on `"pull_image"`
   * `"pulled"` if **image_name** is already present on the node.
   * `"pulling"` if **image_name** is not already present on the node, and pulls the image asynchronously.
@@ -125,6 +130,30 @@ The git commit sha used to create the Docker image.
   {"sha":"41d7e6068ab75716e4c7b9262a3a44323b4d1448"}
   ```
 
+
+- - - -
+## rag_lambda
+- Give the lambda's source in the **manifest**. Reading it from the image is
+  deprecated and will be removed.
+- Reading it from the image costs a whole container run, to read one file,
+  on the first test-run for that image after a restart. The manifest costs
+  nothing.
+- Until it is removed, a **manifest** with no **rag_lambda** still works.
+
+- - - -
+## image_name
+- Must be pinned to a tag other than `latest`,
+  eg `cyberdojofoundation/python_pytest:56fa098`.
+- `:latest` names whichever image was pushed to it last, so a start-point
+  using it can change underneath the kata. The runner will not take one, so
+  that a start-point names one image and keeps naming it. This is refused
+  however it is asked for: written out as `:latest`, left off entirely
+  (which means `:latest`), or left off in front of a digest.
+- A digest may follow the tag, eg `...:56fa098@sha256:1a2b...`.
+- Both methods taking an **image_name** reject a bad one with a 400, before
+  anything is pulled or run.
+  * `"malformed image_name"` if it does not name a docker image at all.
+  * `"unversioned image_name"` if it names one but resolves to `:latest`.
 
 - - - -
 ## JSON in

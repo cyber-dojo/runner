@@ -1,25 +1,75 @@
 # mix-in
 module Docker
+  # str does not name a docker image, so there is nothing to tag. Saying so
+  # is what keeps a caller's bad argument from surfacing as a NoMethodError
+  # raised on the nil that str.match answered.
+  class MalformedImageName < RuntimeError
+  end
+
+  # str names a docker image, but names whichever image was pushed to
+  # :latest rather than one particular image. A start-point pointing at
+  # :latest can change underneath the kata, so the runner will not take one.
+  class UnversionedImageName < RuntimeError
+  end
+
   module_function
 
+  LATEST = 'latest'.freeze
+
+  # Raises unless str is a docker image name pinned to a tag other than
+  # :latest, which is what the runner accepts from outside. Every way of
+  # asking for :latest collapses to one check here, since tagged_image_name
+  # answers an untagged name with the :latest it means. tagged_image_name is
+  # what answers the malformed case.
+  #
+  # That takes a digest with no tag, eg name@sha256:..., down with it, and a
+  # digest pins harder than any tag does. It goes anyway, because config.ru
+  # seeds Puller's set of images-present-on-the-node from `docker image ls`,
+  # which only ever answers repo:tag. A digest-only name matches nothing in
+  # that seed, so it is pulled afresh after every restart. One way to name a
+  # start-point, and one the seed can recognise, is worth more here than the
+  # stronger pin.
+  def assert_image_name(str)
+    raise UnversionedImageName, str.inspect if tag_of(tagged_image_name(str)) == LATEST
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # Answers the tag of an image name known to carry one. The digest, which
+  # holds a colon of its own, comes off first; a registry's :port cannot be
+  # last, so what follows the last remaining colon is the tag.
+  def tag_of(tagged)
+    tagged.split('@', 2).first.split(':').last
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # The image_names harvested from the nodes have an
+  # explicit :latest tag. The image_name in pull_image()
+  # and run_cyber_dojo_sh()'s manifest must match.
+  # eg 'cdf/gcc_assert' ==> 'cdf/gcc_assert:latest'
   def tagged_image_name(str)
-    # The image_names harvested from the nodes have an
-    # explicit :latest tag. The image_name in pull_image()
-    # and run_cyber_dojo_sh()'s manifest must match.
-    # eg 'cdf/gcc_assert' ==> 'cdf/gcc_assert:latest'
+    raise MalformedImageName, str.inspect unless image_name?(str)
+
+    name, match = name_and_match(str)
+    "#{name}:#{match[8] || LATEST}#{match[9]}"
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # Answers the name as written, and the REMOTE_NAME match holding its tag
+  # and digest. A registry host comes off first, REMOTE_NAME not describing
+  # one, and is put back on the answered name.
+  def name_and_match(str)
     index = str.index('/')
     if index.nil? || remote_name?(str[0...index])
       match = str.match(REMOTE_NAME)
-      name = match[1]
+      [match[1], match]
     else
       host_name, remote_name = cut(str, index)
       match = remote_name.match(REMOTE_NAME)
-      name = "#{host_name}/#{match[1]}"
+      ["#{host_name}/#{match[1]}", match]
     end
-    tag = match[8]
-    digest = match[9]
-    tag = 'latest' if tag.nil?
-    "#{name}:#{tag}#{digest}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -

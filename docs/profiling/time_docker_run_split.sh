@@ -2,9 +2,9 @@
 # Split `docker run` into its create, start and remove phases.
 #
 # The question it answers: could the runner keep a pool of pre-created but
-# never-started containers, paying create ahead of the user's press and only
-# start on the critical path? That would preserve the guarantee that every press
-# gets a container nothing else has touched.
+# never-started containers, paying create ahead of the user's test-run and only
+# start on the critical path? That would preserve the guarantee that every
+# test-run gets a container nothing else has touched.
 #
 # The answer is mostly no. It found create at about 16ms of daemon work against
 # start at about 48ms, so pre-creating recovers only the smaller half. It also

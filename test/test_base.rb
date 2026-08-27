@@ -215,7 +215,7 @@ class TestBase < Id58TestBase
                         changed: { 'cyber-dojo.sh' => script }
                       })
     refute timed_out?, pretty_result(:timed_out)
-    # A faulty run that gives no account of itself is one the press never
+    # A faulty run that gives no account of itself is one the test-run never
     # happened for, eg the daemon refusing to create the container. It answers
     # empty stdout/stderr, so a test that goes on to look at the payload fails
     # somewhere further down saying only that what it wanted is not there.

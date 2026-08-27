@@ -1,6 +1,6 @@
 # The timeout path
 
-How a timed-out press ends, and why it is shaped this way.
+How a timed-out test-run ends, and why it is shaped this way.
 
 ## What happens
 

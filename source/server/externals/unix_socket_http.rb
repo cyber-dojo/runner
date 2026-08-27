@@ -4,7 +4,7 @@ require 'socket'
 # Speaks HTTP over a unix socket, which Net::HTTP does not do. The docker
 # daemon listens on one, and running cyber-dojo.sh over it costs about 33ms
 # less than spawning the docker CLI to do the same.
-# See docs/profiling/time_press_via_daemon_api_vs_cli.rb
+# See docs/profiling/time_test_run_via_daemon_api_vs_cli.rb
 class UnixSocketHttp
   def initialize(socket_path)
     @socket_path = socket_path

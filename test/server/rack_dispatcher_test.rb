@@ -138,6 +138,46 @@ class RackDispatcherTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test 'D06BB3',
+       %w[malformed image_name becomes 400 exception
+          rather than reaching tagged_image_name and becoming a 500] do
+    expected = 'malformed image_name'
+    bad_image_name = 'UPPERCASE/name:latest'
+
+    assert_rack_call_400_exception(
+      expected, 'pull_image',
+      { id: id58, image_name: bad_image_name }.to_json
+    )
+
+    args = run_cyber_dojo_sh_args
+    args['manifest']['image_name'] = bad_image_name
+    assert_rack_call_400_exception(expected, 'run_cyber_dojo_sh', args.to_json)
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test 'D06BB4',
+       %w[image_name resolving to :latest becomes 400 exception
+          because :latest names whatever was pushed last,
+          which is a start-point with no version] do
+    expected = 'unversioned image_name'
+    [
+      'cyberdojofoundation/gcc_assert',        # no tag, so :latest
+      'cyberdojofoundation/gcc_assert:latest'  # said out loud, no better
+    ].each do |unversioned|
+      assert_rack_call_400_exception(
+        expected, 'pull_image',
+        { id: id58, image_name: unversioned }.to_json
+      )
+
+      args = run_cyber_dojo_sh_args
+      args['manifest']['image_name'] = unversioned
+      assert_rack_call_400_exception(expected, 'run_cyber_dojo_sh', args.to_json)
+    end
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test 'D06AA6',
        %w[missing argument becomes 400 exception] do
     f = 'run_cyber_dojo_sh'

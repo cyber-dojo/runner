@@ -2,9 +2,10 @@ Where the traffic-light time goes
 =================================
 
 A review of the run path in runner.rb, capture3_with_timeout.rb and
-home_files.rb, asking one question: what stands between the learner pressing
-the test button and the traffic-light lighting up, and what does not have to
-be there.
+home_files.rb, asking one question: what stands between the learner clicking
+the browser's [test] button and the traffic-light lighting up, and what does
+not have to be there. One click is one test-run: one run of the kata's
+cyber-dojo.sh in a container.
 
 The measurements come from three probes in this directory:
 
@@ -14,10 +15,10 @@ The measurements come from three probes in this directory:
   check_gzip_level_1_flag_support.sh   whether -1 is portable across images
   time_container_removal_inline_vs_deferred.sh  what --rm costs the learner
   time_stdout_eof_to_cli_exit.rb       whether the payload arrives any earlier
-  time_press_with_cold_created_started_container.rb  what a pool takes off the press
+  time_test_run_with_cold_created_started_container.rb  what a pool takes off a test-run
   measure_idle_warm_container_cost.sh  what an idle pooled container costs
-  time_press_via_daemon_api_vs_cli.rb  what the docker CLI itself costs
-  time_timeout_path_api_vs_cli.rb      what a timed-out press costs each way
+  time_test_run_via_daemon_api_vs_cli.rb  what the docker CLI itself costs
+  time_timeout_path_api_vs_cli.rb      what a timed-out test-run costs each way
   time_docker_stop_alone_to_cli_exit.rb  how soon the CLI exits after the stop
   time_streamed_tar_vs_tar_file.sh     what send_tgz()'s intermediate file costs
 
@@ -183,25 +184,25 @@ it, and the lifecycle is what to attack:
   status need only be consulted when the payload is missing or unusable, or
   when the run timed out.
 
-  Have a container ready before the press. Whatever the pool does, the press
-  should not be paying for a container's lifecycle. How much is recoverable
-  depends on how far ahead the container is prepared, and the two useful
-  points are measurably different.
+  Have a container ready before the test-run. Whatever the pool does, the
+  test-run should not be paying for a container's lifecycle. How much is
+  recoverable depends on how far ahead the container is prepared, and the two
+  useful points are measurably different.
 
   time_docker_run_split.sh puts create at about 16ms of daemon work against
   start at about 48ms, so pre-creating alone leaves the larger half on the
-  press. time_press_with_cold_created_started_container.rb measures the press
-  end to end, from the spawn to the whole payload being read back. Run on the
-  host, unemulated. Its cold row does not pass --rm, because every variant
-  here removes its container as a separate step:
+  test-run. time_test_run_with_cold_created_started_container.rb measures the
+  test-run end to end, from the spawn to the whole payload being read back. Run
+  on the host, unemulated. Its cold row does not pass --rm, because every
+  variant here removes its container as a separate step:
 
-    press                                            ms
+    test-run                                         ms
     cold: docker run                               84.7
     pre-created: docker start --attach             63.2
     pre-started: docker exec -i                    32.2
 
   So a pre-created container saves about 21ms and a pre-started one about
-  52ms. Measured instead against what a press costs today, which does pass
+  52ms. Measured instead against what a test-run costs today, which does pass
   --rm and so costs 116.4ms, they save about 53ms and about 84ms.
 
   The gap between those two baselines, 116.4 against 84.7, is the removal
@@ -212,30 +213,30 @@ it, and the lifecycle is what to attack:
   the floor is not zero.
 
   Both keep the isolation the current design has. A pre-started container has
-  only ever run sleep, serves exactly one exec, and is then removed: one press,
-  one container, nothing reused and nothing to reset. A pool miss falls back to
-  a cold start, so correctness never depends on the pool.
+  only ever run sleep, serves exactly one exec, and is then removed: one
+  test-run, one container, nothing reused and nothing to reset. A pool miss
+  falls back to a cold start, so correctness never depends on the pool.
 
   The pool can also be kept very simple. The thread that reaps a used container
-  can create its successor in the same breath, so each press refills the pool
-  it drained, and the only extra bookkeeping is discarding spares for images
-  that stop being used.
+  can create its successor in the same breath, so each test-run refills the
+  pool it drained, and the only extra bookkeeping is discarding spares for
+  images that stop being used.
 
   Sizing it. The pool is per image, because a node runs many katas in many
   languages at once, so the total is the per-image target multiplied by the
   number of hot images. A per-image target follows from concurrency: if at most
-  N presses for one image overlap, N spares is what a simultaneous burst
+  N test-runs for one image overlap, N spares is what a simultaneous burst
   consumes, and a burst only exhausts a smaller pool if it lands inside the
-  refill window. Misses are free in the sense that they cost what every press
-  costs today.
+  refill window. Misses are free in the sense that they cost what every
+  test-run costs today.
 
   What that total costs, from measure_idle_warm_container_cost.sh:
 
-        idle       avail KB        lost KB      KB each   press ms
-           0        7391924              0            0        140
-          10        7241348         150576        15057        142
-          25        7047140         344784        13791        150
-          50        6802536         589388        11787        161
+        idle       avail KB        lost KB      KB each   test-run ms
+           0        7391924              0            0           140
+          10        7241348         150576        15057           142
+          25        7047140         344784        13791           150
+          50        6802536         589388        11787           161
 
     docker stats for one idle container: 708KiB / 2GiB, 2 PIDs
 
@@ -247,13 +248,14 @@ it, and the lifecycle is what to attack:
   one drawn from the node's memory budget, with the per-image target as the
   thing that yields under it.
 
-  The press column looks like it rises with the idle count, and does not. The
-  levels were measured in time order, and a control run with the pool removed
-  gave 169, 147, 148, 143, 141ms, which brackets every figure in the table. No
-  press slowdown is detectable up to 50 idle containers. Memory binds first.
+  The test-run column looks like it rises with the idle count, and does not.
+  The levels were measured in time order, and a control run with the pool
+  removed gave 169, 147, 148, 143, 141ms, which brackets every figure in the
+  table. No slowdown is detectable up to 50 idle containers. Memory binds
+  first.
 
 A pool needs the runner to own the container lifecycle rather than delegate
-all of it to one docker run, so that a container can exist before the press
+all of it to one docker run, so that a container can exist before the test-run
 and its successor can be made after. Note the pool does not need --rm dropped
 to get that: --rm can be set at create time, and the daemon still removes each
 used container on its own.
@@ -310,26 +312,26 @@ still being collected.
 
 Finding: pool and socket compose, and 114ms becomes 14ms
 --------------------------------------------------------
-Every press spawns the docker CLI, which does HTTP against
+Every test-run spawns the docker CLI, which does HTTP against
 /var/run/docker.sock on the runner's behalf: create, attach, start, proxy the
 streams, and with --rm wait for the removal before exiting. The runner waits
 on that process, so it inherits all of it.
 
-time_press_via_daemon_api_vs_cli.rb does the same press four ways in one run,
-each creating with AutoRemove, feeding the same tgz and reading the same
+time_test_run_via_daemon_api_vs_cli.rb does the same test-run four ways in one
+run, each creating with AutoRemove, feeding the same tgz and reading the same
 payload back. Run on the host, so neither client is emulated:
 
-  press                                            ms
+  test-run                                         ms
   via docker CLI (docker run --rm)              114.1
   via docker CLI, pre-started (exec)             37.0
   via daemon API (AutoRemove, no wait)           81.1
   via daemon API, pre-started (exec)             14.2
 
-  off the press: preparing a spare               51.9
+  off the test-run: preparing a spare            51.9
 
 Three things follow.
 
-Talking to the socket directly saves about 48ms a press, some 40%, and gives
+Talking to the socket directly saves about 48ms a test-run, some 40%, and gives
 up nothing: AutoRemove is a property of the container, so the daemon still
 removes it whatever becomes of the client. No rm thread, no orphan sweep, no
 leak. That is more than the 36ms the parts predicted (21ms of removal wait
@@ -340,7 +342,7 @@ dominates everything the client does, and 37.0ms through the CLI is well under
 81.1ms through the socket. If only one is done, it should be the pool.
 
 Together they are worth far more than either. An API-driven pool answers a
-press in 14.2ms against today's 114.1ms, so the two compose rather than
+test-run in 14.2ms against today's 114.1ms, so the two compose rather than
 overlapping: the pool removes create and start, the socket removes the CLI
 process and the removal wait, and what is left is an exec and the body itself.
 Preparing the replacement container costs about 52ms, and that is the refill
@@ -353,7 +355,7 @@ containers. The pooled rows did not move.
 
 Every figure in this file is unemulated, and it has to stay that way to remain
 comparable. Running this probe inside the runner image, which is amd64 on an
-arm64 host, put the CLI press at 203.6ms and the pre-started press at 114.3ms,
+arm64 host, put the CLI test-run at 203.6ms and the pre-started one at 114.3ms,
 against 116.4 and 37.3 here. The API row barely moved (67.6 against 68.1),
 which says that path is daemon-side work rather than client CPU, and that most
 of what the CLI costs is the CLI's own process.
@@ -361,7 +363,7 @@ of what the CLI costs is the CLI's own process.
 
 Finding: the timeout path is simpler and tighter over the socket
 ----------------------------------------------------------------
-A timed-out press is the case the happy-path probes never touch.
+A timed-out test-run is the case the happy-path probes never touch.
 capture3_with_timeout.rb wraps Timeout.timeout around waiting for the CLI and
 then stops the container, which is what makes the CLI exit. See
 docs/the-timeout-path.md.
@@ -372,7 +374,7 @@ max_seconds 2, and reports how far past that the learner waits. Its cli row
 signals the CLI's process group as well as stopping the container, so read it
 as an upper bound on that path:
 
-  timed-out press                      total ms   overshoot ms
+  timed-out test-run                   total ms   overshoot ms
   cli: Timeout, kill group, stop         2081.2           81.2
   api: read deadline, stop inline        2046.5           46.5
   api: read deadline, stop threaded      2004.1            4.1
@@ -386,7 +388,7 @@ disposes of the container. The probe checks this rather than assuming it, and
 nothing survives.
 
 Two details for whoever writes it. The deadline has to be absolute and
-reapplied before each read: it bounds the whole press, and a container
+reapplied before each read: it bounds the whole test-run, and a container
 dribbling output would never trip a per-read timeout. And ruby 3.4, which the
 runner image has, offers IO#timeout= which raises IO::TimeoutError on its own;
 the probe uses IO.select only because it has to run on an older host ruby.
@@ -398,12 +400,12 @@ The saving is measured above; the price is not. It is: HTTP over a unix socket
 by hand, because Net::HTTP does not speak it; the hijacked bidirectional
 stream that attach returns; and the 8-byte header on each attach frame, which
 has to be demultiplexed to separate stdout from stderr.
-time_press_via_daemon_api_vs_cli.rb is a working sketch of all three and is
+time_test_run_via_daemon_api_vs_cli.rb is a working sketch of all three and is
 the place to start reading.
 
 It is less code than it sounds. That sketch is about 65 lines: a socket, an
 HTTP response reader, a one-shot request, the attach hijack, the frame
-demultiplexer, and the press itself. The container config it sends is a
+demultiplexer, and the test-run itself. The container config it sends is a
 further 35 lines, but that replaces the flag string in
 docker_run_cyber_dojo_sh_command rather than adding to it. Against those it
 displaces capture3_with_timeout.rb at 72 lines, process_spawner.rb at 11 and
@@ -411,11 +413,11 @@ pipe_maker.rb at 7. What the sketch does not carry is error handling, partial
 reads, or chunked responses, which it sidesteps with Connection: close.
 
 One detail that will bite: after writing the payload, the attach socket has to
-be half-closed, or the container's [tar -zxf -] never sees EOF and the press
-hangs for ever.
+be half-closed, or the container's [tar -zxf -] never sees EOF and the
+test-run hangs for ever.
 
-On sequencing: the target is both, since together they answer a press in
-14.2ms against 114.1ms today. A pool's press path is the same exec plumbing
+On sequencing: the target is both, since together they answer a test-run in
+14.2ms against 114.1ms today. A pool's test-run path is the same exec plumbing
 this change needs, so building the pool on the CLI means writing that plumbing
 twice. If only one is affordable it should be the pool, which is worth more
 alone than the client change is.
