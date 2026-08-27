@@ -13,12 +13,12 @@ SimpleCov.start do
   code_tab = ENV.fetch('COVERAGE_CODE_TAB_NAME')
   test_tab = ENV.fetch('COVERAGE_TEST_TAB_NAME')
 
-  # add_group('debug') { |the| puts the.filename; false }
+  # group('debug') { |the| puts the.filename; false }
 
-  add_group(test_tab) do |the|
+  group(test_tab) do |the|
     the.filename.start_with?("#{APP_DIR}/test/#{CONTEXT}/") || the.filename.start_with?("#{APP_DIR}/test/dual/")
   end
-  add_group(code_tab) do |the|
+  group(code_tab) do |the|
     the.filename.start_with?("#{APP_DIR}/source/")
   end
 end
