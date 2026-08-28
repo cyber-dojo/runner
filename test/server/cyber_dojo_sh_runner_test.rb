@@ -7,9 +7,11 @@ require_code 'externals/docker_socket'
 class CyberDojoShRunnerTest < TestBase
 
   test 'c9Gf10', %w(
-  | the run creates a container of its own name
-  | from the config that depends on its image alone
-  | saying in json what the docker CLI is told in flags
+  | The pool holds no spare, so the run makes its own container.
+  | That create is the run's first call to the daemon.
+  | The container is named for the run.
+  | Its config comes from the image_name alone.
+  | Nothing about this particular run reaches the create.
   ) do
     spy = DockerDaemonSpy.new(responses_up_to_the_stream)
 

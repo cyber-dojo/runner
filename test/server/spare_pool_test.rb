@@ -5,7 +5,8 @@ class SparePoolTest < TestBase
 
   test '7Bq2E1', %w(
   | The pool holds no spare for the image_name.
-  | A claim answers nil. That is a miss.
+  | A claim answers nil.
+  | That is a miss.
   ) do
     set_context
 
@@ -16,8 +17,9 @@ class SparePoolTest < TestBase
 
   test '7Bq2E2', %w(
   | The pool holds one spare for the image_name.
-  | A claim answers it, and takes it out of the pool. One container serves one
-  | test-run, so the next claim answers nil rather than the same container.
+  | A claim answers it, and takes it out of the pool.
+  | One container serves one test-run.
+  | So the next claim answers nil rather than the same container.
   ) do
     set_context
     spare = add_spare(image_name: an_image, seconds_left: outlives_a_run)
@@ -31,8 +33,8 @@ class SparePoolTest < TestBase
   test '7Bq2E3', %w(
   | The pool holds one spare, made from one image_name, and nothing else.
   | A claim for a different image_name answers nil.
-  | A claim for the image_name the spare was made from answers it. So the nil
-  | came from the image_names differing, not from an empty pool.
+  | A claim for the image_name the spare was made from answers it.
+  | So the nil came from the image_names differing, not from an empty pool.
   ) do
     set_context
     spare = add_spare(image_name: a_different_image, seconds_left: outlives_a_run)
@@ -45,12 +47,10 @@ class SparePoolTest < TestBase
 
   test '7Bq2E4', %w(
   | The pool holds a spare that cannot outlast a whole test-run.
-  | The container's PID 1 is its sleep, and the exec dies with it. That is
-  | probed by docs/profiling/check_spare_sleep_ending_under_a_run.sh.
-  | Handing this spare out would kill its test-run part way through. The
-  | runner would read a truncated payload and answer faulty, though the code
-  | was correct.
+  | A spare has to outlive the run it is given to.
+  | An exec does not survive its container's PID 1, which is the sleep.
   | So the claim answers nil.
+  | See docs/profiling/check_spare_sleep_ending_under_a_run.sh
   ) do
     set_context
     add_spare(image_name: an_image, seconds_left: dies_under_a_run)
@@ -61,11 +61,12 @@ class SparePoolTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '7Bq2E5', %w(
-  | The pool holds two spares for one image_name. The first cannot outlast a
-  | whole test-run. The one behind it can.
+  | The pool holds two spares for one image_name.
+  | The first cannot outlast a whole test-run.
+  | The one behind it can.
   | A claim passes over the first and answers the one behind it.
-  | The next claim answers nil. The first was dropped, not left for a later
-  | claim to look at again.
+  | The next claim answers nil.
+  | The first was dropped, not left for a later claim to look at again.
   ) do
     set_context
     add_spare(image_name: an_image, seconds_left: dies_under_a_run)
@@ -78,11 +79,13 @@ class SparePoolTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test '7Bq2E13', %w(
-  | The pool holds two spares for one image_name, both able to outlast a whole
-  | test-run. The first has less of its sleep left than the one behind it.
+  | The pool holds two spares for one image_name.
+  | Both can outlast a whole test-run.
+  | The first has less of its sleep left than the one behind it.
   | A spare nobody claims expires, and the create that made it bought nothing.
-  | The one nearest its expiry is the one most at risk of that, so a claim
-  | answers the first, and the next claim answers the one behind it.
+  | The one nearest its expiry is the one most at risk of that.
+  | So a claim answers the first.
+  | The next claim answers the one behind it.
   ) do
     set_context
     expires_sooner = add_spare(image_name: an_image, seconds_left: outlives_a_run_narrowly)
@@ -96,12 +99,12 @@ class SparePoolTest < TestBase
 
   test '7Bq2E6', %w(
   | The node has room for another spare.
-  | Warming an image_name creates a container and starts it. The container's
-  | config comes from the image_name alone, which is what lets a spare be made
-  | before the test-run it will serve is known.
+  | Warming an image_name creates a container and starts it.
+  | The container's config comes from the image_name alone.
+  | A spare can therefore be made before the test-run it will serve is known.
   | Its name starts with the prefix every worker's spares share.
-  | The warm happens on a thread, so whatever asked for a spare waits for
-  | neither the create nor the start.
+  | The warm happens on a thread.
+  | Whatever asked for a spare waits for neither the create nor the start.
   ) do
     threader = ThreaderSynchronous.new
     daemon = daemon_holding(an_empty_node, creating: '7c1e04d9')
@@ -121,10 +124,10 @@ class SparePoolTest < TestBase
 
   test '7Bq2E7', %w(
   | The node has room for another spare.
-  | Warming an image_name puts the container it created into the pool. A claim
-  | for that image_name answers it.
-  | The expiry the warm gave it leaves room for a whole test-run, so the claim
-  | is not declined for age.
+  | Warming an image_name puts the container it created into the pool.
+  | A claim for that image_name answers it.
+  | The expiry the warm gave it leaves room for a whole test-run.
+  | So the claim is not declined for age.
   ) do
     daemon = daemon_holding(an_empty_node, creating: 'b52f8a30')
     set_context(docker: daemon, threader: ThreaderSynchronous.new)
@@ -140,11 +143,12 @@ class SparePoolTest < TestBase
   | The node already holds as many spares as it is allowed.
   | A warm asks the daemon how many there are, and creates nothing.
   | The pool is given nothing, so a claim answers nil.
-  | The count comes from the daemon because the cap is the node's, and a
-  | worker cannot see how many peers it has.
-  | It counts containers whose name starts with the spare prefix. A claimed
-  | container keeps the label it was created with, and a claim changes its
-  | name, so the name is what tells a spare from a test-run in flight.
+  | The count comes from the daemon because the cap is the node's.
+  | A worker cannot see how many peers it has.
+  | It counts containers whose name starts with the spare prefix.
+  | A claimed container keeps the label it was created with.
+  | A claim changes its name.
+  | So the name is what tells a spare from a test-run in flight.
   ) do
     daemon = daemon_holding(a_full_node)
     set_context(docker: daemon, threader: ThreaderSynchronous.new)
@@ -160,8 +164,9 @@ class SparePoolTest < TestBase
   test '7Bq2E9', %w(
   | The daemon refuses the create.
   | The warm stops there, and nothing is started.
-  | The refusal is logged, with the code and the body the daemon gave. Nobody
-  | is waiting on a warm, so the log is the only place it can be reported.
+  | The refusal is logged, with the code and the body the daemon gave.
+  | Nobody is waiting on a warm.
+  | So the log is the only place it can be reported.
   ) do
     refused = %({"message":"No such image: #{an_image}"})
     daemon = daemon_refusing_create(404, refused)
@@ -181,8 +186,8 @@ class SparePoolTest < TestBase
   | The image_name is believed to be on the node.
   | The daemon refuses the create with a 404, which says no such image.
   | So the image_name is forgotten.
-  | The run path acts on the same 404. Acting on it here is acting on it
-  | before any learner has been shown anything.
+  | The run path acts on the same 404.
+  | Acting on it here is acting before any learner has been shown anything.
   ) do
     refused = %({"message":"No such image: #{an_image}"})
     set_context(docker: daemon_refusing_create(404, refused),
@@ -199,8 +204,8 @@ class SparePoolTest < TestBase
 
   test '7Bq2E11', %w(
   | The image_name is believed to be on the node.
-  | The daemon refuses the create with a 409, which says the container name is
-  | already in use.
+  | The daemon refuses the create with a 409.
+  | That says the container name is already in use.
   | A taken name says nothing about whether the image is on the node.
   | So the image_name is still believed to be there.
   ) do
@@ -220,8 +225,8 @@ class SparePoolTest < TestBase
   | The pool holds a spare.
   | A claim answers it, and renames it to the name its test-run runs under.
   | The rename is on a thread, so the claim waits for no daemon call.
-  | Every container serving a test-run is named for that run, so docker ps
-  | says which kata it is serving.
+  | Each test-run's container is named for that run.
+  | So docker ps says which kata a container is serving.
   | The rename also takes the container out of the count the cap reads.
   ) do
     threader = ThreaderSynchronous.new
