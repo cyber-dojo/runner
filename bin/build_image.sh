@@ -74,15 +74,13 @@ build_image()
   fi
 
   if [ "${type}" == 'server' ]; then
-    # Create latest tag for image build cache
-    docker tag "${image_name}" "${CYBER_DOJO_RUNNER_IMAGE}:latest"
-    # Tag image-name for local development where runners name comes from echo-env-vars
-    docker tag "${image_name}" cyberdojo/runner:latest
+    # Tag image-name for local development, where sibling repos name the runner
+    # with the dockerhub name their env-vars carry rather than the ECR one.
     docker tag "${image_name}" "cyberdojo/runner:${CYBER_DOJO_RUNNER_TAG}"
-    # After tagging, so removing an earlier build's tags takes its last tag with
-    # them and the image itself goes, rather than being left dangling when
-    # :latest moves to this build. check_args rejects 'server' inside CI, so the
-    # image pulled by the 'Download docker image' CI job is never at risk here.
+    # After tagging, so this build is protected by its own tag, and removing an
+    # earlier build's tags takes its last tag with them and the image itself
+    # goes. check_args rejects 'server' inside CI, so the image pulled by the
+    # 'Download docker image' CI job is never at risk here.
     remove_old_images
     echo
     echo "  echo CYBER_DOJO_RUNNER_SHA=${CYBER_DOJO_RUNNER_SHA}"
