@@ -17,6 +17,19 @@ depends on the pool. That is what makes the whole thing shippable behind a low
 cap, before the aws-prod cluster gains any memory: the cap trades away speed,
 never behaviour.
 
+Two kinds of miss, and only the first is obvious. There may be no spare for the
+image, which is the case the cap and the refill rate decide. Or there may be a
+spare that turns out to be dead: its sleep ended, it was OOM-killed, an
+operator removed it, the daemon restarted under it. Handing out a container
+made earlier cannot rule that out, whereas creating one for the run cannot
+suffer it, so this is the one way the pool could show a learner something they
+would not have seen without it.
+
+The bar is therefore stricter than "correctness never depends on the pool". No
+test-run may answer faulty, or pulling, in a case where it would have answered
+a traffic light with no pool behind it. Both kinds of miss take the same way
+out: run the test-run as though the pool had been empty.
+
 ## 0. A test-run that execs into a container behaves like one that creates its own
 
 The test-run moves from "create a container around this run" to "exec into a
@@ -261,6 +274,24 @@ and step 8 is where it belongs.
 
 In runner.rb, take a spare for the image; if there is none, do the test-run
 exactly as today.
+
+A spare that is refused is the same case arriving later. If create_exec or
+start_exec answers a refusal for a claimed spare, discard it and do the
+test-run exactly as today, rather than letting DaemonRefused reach the learner
+as faulty. One retry, not a loop: a freshly created container failing the same
+way is a real fault and should be reported as one.
+
+The retry is clean because of where the refusal lands. run does create, start,
+create_exec, start_exec, then send_tgz, so both exec calls come before the tgz
+is written. A refusal there means the kata's files never left the runner and
+there is no partial state to unpick, which is what makes falling back safe
+rather than merely hopeful.
+
+Distinguishing the two refusals matters here. A 404 from an exec create says
+the container has gone, and a 409 says it is not running; neither says anything
+about the image, which is why ImageMissing is a separate class and why a
+refused exec must not reach NodeImages#forget. See
+docs/a-missing-image-recovers-only-through-a-pull.md.
 
 Step 4 only refills a pool that a test-run has already drained, so on its own
 the first test-run for an image misses every time. pull_image is what seeds it.

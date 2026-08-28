@@ -17,11 +17,13 @@ set -Eeu -o pipefail
 #                  runner then reads a truncated gzip and answers the learner
 #                  faulty for a kata that was fine.
 #
-#   after it went  An exec create naming a container that no longer exists,
-#                  which is what a claim landing a moment later would send. The
-#                  daemon answers 404 No such container. That is not the 404
-#                  which means an image has left the node, and reading it as
-#                  one would discard a present image. See
+#   after it went  An exec create naming a container that is no longer usable,
+#                  which is what a claim landing a moment later would send. Two
+#                  answers, depending on how far the container has got: 404 No
+#                  such container once it has been removed, and 409 is not
+#                  running while it has exited but is still there. Neither is
+#                  the 404 which means an image has left the node, and reading
+#                  either as one would discard a present image. See
 #                  test/server/run_missing_container_keeps_pulled_test.rb
 #
 # Which together are why step 4 of docs/pre-started-container-pool.md declines
@@ -53,9 +55,19 @@ readonly SOCKET_PATH=/var/run/docker.sock
 # spare, so this only has to catch the case where the probe died first.
 cleanup()
 {
-  docker rm --force "${NAME}" > /dev/null 2>&1 || true
+  docker rm --force "${NAME}" "${NAME}_exited" > /dev/null 2>&1 || true
 }
 trap cleanup EXIT
+
+# Asks the daemon for an exec in the named container and prints what it said.
+exec_create()
+{
+  curl --silent --unix-socket "${SOCKET_PATH}" \
+    --write-out 'HTTP %{http_code}\n' \
+    --header 'Content-Type: application/json' \
+    --data '{"Cmd":["true"]}' \
+    --request POST "http://docker/containers/${1}/exec"
+}
 
 probe_environment
 echo "image: ${IMAGE}"
@@ -83,9 +95,13 @@ echo
 # A name nothing ever had answers the same as one whose container has just been
 # removed, without racing the removal to ask.
 echo 'exec create naming a container that does not exist:'
-curl --silent --unix-socket "${SOCKET_PATH}" \
-  --write-out 'HTTP %{http_code}\n' \
-  --header 'Content-Type: application/json' \
-  --data '{"Cmd":["true"]}' \
-  --request POST "http://docker/containers/${NAME}_never_existed/exec"
+exec_create "${NAME}_never_existed"
 echo
+
+# Stopped rather than removed, which is the same boundary a moment earlier.
+readonly EXITED="${NAME}_exited"
+docker run --detach --name "${EXITED}" --entrypoint='' "${IMAGE}" sleep 30 > /dev/null
+docker stop --time 0 "${EXITED}" > /dev/null
+echo "exec create naming a container that has exited but is still there:"
+exec_create "${EXITED}"
+docker rm --force "${EXITED}" > /dev/null 2>&1

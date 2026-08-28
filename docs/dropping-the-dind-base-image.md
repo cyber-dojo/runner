@@ -36,7 +36,7 @@ daemon resolves the reference before it answers, so a name no registry can serve
 is a plain 404 carrying `{"message":...}`, while a transfer that fails after the
 200 says so with an `error` object in the stream. `NodeImages#stream_error?`
 reads the second. The 404 half is probed both ways, unknown repository and tag
-on a known repository, and `pull_image_test.rb:9j5t9S` pulls for real. The
+on a known repository, and `node_images_test.rb:9j5t9S` pulls for real. The
 in-stream half is docker's documented behaviour and is not something this repo
 has reproduced, which `9j5t9R` says of itself in a comment; forcing a transfer
 to fail mid-stream needs a registry that misbehaves on purpose.
@@ -147,5 +147,5 @@ can hold one, but they falsified a rationale comment in `docker_image_name.rb`
 that had been resting on what `docker image ls` answers. Expect each such swap
 to move something a CLI format string was quietly hiding, and to find it only by
 probing the real daemon: `test/server/node_test.rb:3q1Ps8` and
-`test/server/pull_image_test.rb:9j5t9S` are the shape of test that catches it,
+`test/server/node_images_test.rb:9j5t9S` are the shape of test that catches it,
 and the stubs are what let it through.

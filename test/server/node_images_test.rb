@@ -1,11 +1,11 @@
 require_relative '../test_base'
 require_code 'externals/docker_socket'
 
-class PullImageTest < TestBase
+class NodeImagesTest < TestBase
 
   test '9j5t9K', %w(
   | given gcc_assert HAS already been pulled,
-  | when I call pull_image(id,gcc_assert),
+  | when I call pull(id, gcc_assert),
   | then a new thread is not started
   | no shell command is run,
   | nothing is logged,
@@ -29,7 +29,7 @@ class PullImageTest < TestBase
 
   test '9j5t9M', %w(
   | given gcc_assert has NOT already been pulled,
-  | when I call pull_image(id, gcc_assert),
+  | when I call pull(id, gcc_assert),
   | then the pull runs in a new thread against the daemon
   | and a message is logged
   | and the result is :pulling
@@ -53,7 +53,7 @@ class PullImageTest < TestBase
 
   test '9j5t9N', %w(
   | given gcc_assert has NOT already been pulled,
-  | when I call pull_image(id, gcc_assert),
+  | when I call pull(id, gcc_assert),
   | then the pull runs in a new thread
   | and if the daemon refuses the pull a message is logged
   | naming the code and what it said
@@ -114,7 +114,7 @@ class PullImageTest < TestBase
   test '9j5t9P', %w(
   | given gcc_assert has NOT already been pulled,
   | but is currently being pulled,
-  | when I call pull_image(id, gcc_assert),
+  | when I call pull(id, gcc_assert),
   | then the docker-pull does NOT run
   | nothing is logged
   | and the result is :pulling
