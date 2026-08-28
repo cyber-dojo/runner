@@ -136,9 +136,10 @@ Worth doing but not blocking: giving the 12 start-points in
 `docs/start-points-without-a-manifest-rag-lambda.md` a manifest `rag_lambda`,
 which makes the create / archive / delete path rare rather than removing it.
 
-`node.rb` and `node_images.rb` were the first two of these socket conversions,
-and what the first cost is worth knowing before another. The endpoint was
-the easy half. The daemon answers `RepoTags` for an image with no tags as `[]`
+The image list and the pull were the first two of these socket conversions,
+both in `node_images.rb` now, and what the first cost is worth knowing
+before another. The endpoint was the easy half. The daemon answers
+`RepoTags` for an image with no tags as `[]`
 rather than as the CLI's `<none>:<none>`, so the filtering the CLI needed
 disappeared; but `RepoTags` also carries digest-only references, eg
 `alpine@sha256:...`, which `{{.Repository}}:{{.Tag}}` never printed. Those are
@@ -146,6 +147,6 @@ harmless, since `assert_versioned` refuses a digest-only name and no manifest
 can hold one, but they falsified a rationale comment in `docker_image_name.rb`
 that had been resting on what `docker image ls` answers. Expect each such swap
 to move something a CLI format string was quietly hiding, and to find it only by
-probing the real daemon: `test/server/node_test.rb:3q1Ps8` and
+probing the real daemon: `test/server/node_images_test.rb:3q1Ps8` and
 `test/server/node_images_test.rb:9j5t9S` are the shape of test that catches it,
 and the stubs are what let it through.

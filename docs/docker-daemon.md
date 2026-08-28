@@ -16,7 +16,8 @@ its endpoint table off this one class.
 It answers `[code,body]`, as the transport does. Which code means what belongs
 to whoever asked:
 
-- `Node` raises, carrying what the daemon said instead of the image list
+- `NodeImages` raises when seeding, carrying what the daemon said instead of
+  the image list, a server that cannot learn what the node holds being no use
 - `NodeImages` logs the code and the body, and leaves the image unpulled
 - `TrafficLight` raises a `Fault` naming the image and the code
 - `CyberDojoShRunner` raises `DaemonRefused` carrying the code, and raises the

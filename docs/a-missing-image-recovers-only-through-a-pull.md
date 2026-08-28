@@ -41,9 +41,7 @@ NodeImages', not the daemon's.
 
 config.ru fills it before the first request:
 
-    context.node.image_names.each do |image_name|
-      context.images.add(image_name)
-    end
+    context.images.seed
 
 So most of what @pulled holds was never pulled by this process. It is a
 snapshot of `docker image ls` taken when puma started, which on the machine
@@ -66,17 +64,20 @@ refused any manifest name without a tag, so tagging such a name is the
 identity. It is an asymmetry rather than a bug, and the cheap guard is for
 forget to tag exactly as pull does.
 
-One name did not survive tagging. node.rb filters the exact string
-'<none>:<none>' but not a name like repo/name:<none>, where the repository is
-set and the tag is not. DockerImageName.tagged raises NoMethodError on that, its
-regex having matched nothing. Such a name is nothing to do with cyber-dojo: it
-is whatever else the host happens to have built.
+One name did not survive tagging. names_on_the_node flattens RepoTags and
+filters nothing, which is enough for a dangling image, the daemon answering
+RepoTags as [] for one of those and 3q1Ps4 pinning that it contributes no name.
+It is not enough for a name like repo/name:<none>, where the repository is set
+and the tag is not: that arrives as a name like any other.
+DockerImageName.tagged raises NoMethodError on it, its regex having matched
+nothing. Such a name is nothing to do with cyber-dojo: it is whatever else the
+host happens to have built.
 
 Nothing hits it today, because node_images.rb's pull is the only caller of
 DockerImageName.tagged and it tags manifest names, never seeded ones: the junk
 name sits in @pulled and matches nothing. It stops being harmless as soon as
-anything tags a seeded name. So the filter in node.rb wants widening to any
-name whose tag is <none>, whenever that happens.
+anything tags a seeded name. So names_on_the_node wants a filter for any name
+whose tag is <none>, whenever that happens.
 
 ## An image that leaves the node costs one faulty light
 

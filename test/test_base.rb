@@ -11,10 +11,6 @@ class TestBase < Id58TestBase
 
   attr_reader :context, :run_result
 
-  def node
-    context.node
-  end
-
   def prober
     context.prober
   end

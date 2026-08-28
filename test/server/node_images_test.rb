@@ -31,12 +31,14 @@ class NodeImagesTest < TestBase
   | given gcc_assert has NOT already been pulled,
   | when I call pull(id, gcc_assert),
   | then the pull runs in a new thread against the daemon
-  | and a message is logged
+  | and a message is logged saying how long it took, measured against the
+  | clock the context holds, so that what it says is the test's to state
   | and the result is :pulling
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
+      clock: ClockStub.new(from: 1000.0, advancing_by: 2.5),
       docker: DockerDaemonSpy.new([[200, pull_progress]])
     )
     assert_equal [], images.names
@@ -45,7 +47,7 @@ class NodeImagesTest < TestBase
     assert_equal expected, actual
     assert context.threader.called
     assert_equal [gcc_assert], images.names
-    assert_equal context.logger.logged, "Pulled docker image #{gcc_assert} (0.0 secs)\n"
+    assert_equal "Pulled docker image #{gcc_assert} (2.5 secs)\n", context.logger.logged
     assert_equal [[:pull_image, gcc_assert]], docker.calls
   end
 
@@ -56,7 +58,7 @@ class NodeImagesTest < TestBase
   | when I call pull(id, gcc_assert),
   | then the pull runs in a new thread
   | and if the daemon refuses the pull a message is logged
-  | naming the code and what it said
+  | naming the code, what it said, and which kata asked
   | and gcc_assert is not pulled
   | and the result is :pulling
   ) do
@@ -76,7 +78,7 @@ class NodeImagesTest < TestBase
     assert context.threader.called
     assert_equal [], images.names
 
-    log_message = "Failed to pull docker image #{gcc_assert}, code=404, body=#{body}\n"
+    log_message = "Failed to pull docker image #{gcc_assert}, id=#{id}, code=404, body=#{body}\n"
     assert_equal context.logger.logged, log_message
   end
 
@@ -105,7 +107,7 @@ class NodeImagesTest < TestBase
     assert_equal :pulling, images.pull(id: id, image_name: gcc_assert)
 
     assert_equal [], images.names
-    log_message = "Failed to pull docker image #{gcc_assert}, code=200, body=#{body}\n"
+    log_message = "Failed to pull docker image #{gcc_assert}, id=#{id}, code=200, body=#{body}\n"
     assert_equal context.logger.logged, log_message
   end
 
@@ -156,7 +158,113 @@ class NodeImagesTest < TestBase
     assert_includes context.logger.logged, "Pulled docker image #{alpine} ("
   end
 
+  # - - - - - - - - - - - - - - - - -
+
+  test '3q1Ps3', %w[
+  | seeding believes every RepoTags the daemon answers,
+  | one image being able to carry several of them
+  ] do
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(daemon_images)]]))
+
+    images.seed
+
+    assert_equal expected_names, images.names
+    assert_equal [[:image_names]], docker.calls
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3q1Ps4', %w[
+  | an image with no RepoTags names nothing a manifest could hold,
+  | and is believed under no name at all
+  ] do
+    dangling = [
+      { 'Id' => 'sha256:34a35c5c04b4a0e5cfdd853a8477192634f5a1a5a54b6a80b3b33edd1e7fcdcb',
+        'RepoTags' => [] },
+      { 'Id' => 'sha256:34692745a2bfde5d67ba19550b5a3aed1110ec5aabb4cdc2cf72541d5e516e33',
+        'RepoTags' => [] }
+    ]
+    tainted = (daemon_images + dangling).shuffle
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(tainted)]]))
+
+    images.seed
+
+    assert_equal expected_names, images.names
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3q1Ps6', %w[
+  | when the daemon does not answer 200 seeding raises,
+  | carrying what it said instead, because a server that cannot learn what
+  | the node holds would answer pulling to every test-run
+  ] do
+    message = '{"message":"client version 1.22 is too old"}'
+    set_context(docker: DockerDaemonSpy.new([[400, message]]))
+
+    error = assert_raises { images.seed }
+
+    assert_equal message, error.message
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '3q1Ps8', %w[
+  | a real GET /images/json against the real daemon,
+  | which is the only thing that says the socket request, its headers and
+  | its chunked body carry a name the daemon really holds, none of which a
+  | stub can judge
+  ] do
+    set_context(http: client = DockerSocket.new)
+    tagged = "#{owned_repo}:v1"
+
+    images.seed
+    refute_includes images.names, tagged
+
+    code, body = client.request('POST', "/images/alpine:3.24/tag?repo=#{owned_repo}&tag=v1")
+    assert_equal 201, code, body
+
+    images.seed
+    assert_includes images.names, tagged
+  ensure
+    # The tag is this test's own, so removing it takes nothing else with it.
+    # alpine:3.24 keeps the image alive for the tests that pulled it.
+    client.request('DELETE', "/images/#{tagged}")
+  end
+
   private
+
+  # Lowercase because a repository name may not carry capitals, and per-test
+  # so that a name this test asserts the absence of cannot be one another
+  # test, or another run, put there.
+  def owned_repo
+    "cyber-dojo-node-images-test-#{id58.downcase}"
+  end
+
+  # As GET /images/json answers them, out of alphabetical order, and with
+  # fields alongside RepoTags that say nothing about what an image is named.
+  def daemon_images
+    [
+      { 'Id' => 'sha256:8fabf019a49303ba48925e4769944d3d27f02fee2b581c09537fa82f9f758951',
+        'RepoTags' => ['cyberdojo/runner:83c2554', 'cyberdojo/runner:latest'] },
+      { 'Id' => 'sha256:0ce768d6bf6ca3e2bd001cb7a014df7cfb92bed461e7da6bb5bb9637fd92ffc5',
+        'RepoTags' => ['openjdk:13-jdk-alpine'] },
+      { 'Id' => 'sha256:30e6b0d669915981e3fa85a7debbc2d81bf23a2289f3d772ac8d642e2fc5b3aa',
+        'RepoTags' => ['cyberdojo/saver:723349e'] },
+      { 'Id' => 'sha256:1fce37b0a7ba4b9e5c0d8e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d',
+        'RepoTags' => ['registry.example.com:5000/gcc_assert:2f1a3c9'] }
+    ]
+  end
+
+  def expected_names
+    %w[
+      cyberdojo/runner:83c2554
+      cyberdojo/runner:latest
+      cyberdojo/saver:723349e
+      openjdk:13-jdk-alpine
+      registry.example.com:5000/gcc_assert:2f1a3c9
+    ].sort
+  end
 
   def gcc_assert
     'cyberdojofoundation/gcc_assert:93eefc6'

@@ -18,9 +18,7 @@ $stdout.puts("CYBER_DOJO_USE_CONTAINERD:#{use_containerd}")
 
 require_relative '../context'
 context = Context.new
-context.node.image_names.each do |image_name|
-  context.images.add(image_name)
-end
+context.images.seed
 $stdout.puts("#{context.images.names.size} image names added to NodeImages")
 
 require_relative '../rack_dispatcher'

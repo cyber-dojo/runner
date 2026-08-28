@@ -39,11 +39,15 @@ class MonotonicClockTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'Dm5x42', %w[
-  | a test can stand in for the clock, which is what will let an age be
-  | tested without the suite waiting for one to pass
+  | a test can stand in for the clock, which is what lets a duration or an age
+  | be tested without the suite waiting for one to pass
+  | and the stand-in advances by the interval the test states, on every read
+  | and for ever, so that it neither runs out nor stands still
   ] do
-    set_context(clock: ClockStub.new(now: 41.0))
+    set_context(clock: ClockStub.new(from: 41.0, advancing_by: 2.5))
 
     assert_equal 41.0, clock.now
+    assert_equal 43.5, clock.now
+    assert_equal 46.0, clock.now
   end
 end

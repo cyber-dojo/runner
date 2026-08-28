@@ -64,7 +64,7 @@ something to be gathered from its callers:
 
 | Endpoint | `DockerDaemon` | Caller |
 | --- | --- | --- |
-| `GET /images/json` | `image_names` | `node.rb` |
+| `GET /images/json` | `image_names` | `node_images.rb` |
 | `POST /images/create?fromImage=` | `pull_image` | `node_images.rb` |
 | `GET /containers/json?filters=name` | `containers_named` | `spare_pool.rb` |
 | `POST /containers/create` | `create_container` | `cyber_dojo_sh_runner.rb`, `traffic_light.rb` |

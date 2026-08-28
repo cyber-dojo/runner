@@ -456,27 +456,30 @@ step that changes another repo.
 
 ## Owed, and not part of any step
 
-Three things this work turned up that are not the pool and are not done. None
-blocks a step; all are cheap, and each wants its own commit.
+Two things this work turned up that are not the pool and are not done. Neither
+blocks a step; both are cheap, and each wants its own commit.
 
-Fold Node into NodeImages. Node has one method, image_names, and one caller,
-config.ru, which uses it only to seed the images the node is believed to hold:
+SparePool#create does not read the code the daemon answered, so a 404 there
+becomes a nil container id added to the pool as a spare. NodeImages#forget does
+not tag its argument where pull does, which only chance makes harmless. Both
+are recorded where they bite rather than here, in
+docs/a-missing-image-recovers-only-through-a-pull.md.
 
-    context.node.image_names.each do |image_name|
-      context.images.add(image_name)
-    end
+A third is done. Node has been folded into NodeImages, which is why config.ru
+now reads
 
-That is one class initialising another's belief from the truth, and both are
-about the same question, which images this node has. They differ only in where
-the answer comes from, the daemon or memory, so this is duplication rather than
-a separation of concerns. Folding them gives one class that reads the images
-from the daemon, remembers them, pulls a missing one and forgets a vanished
-one, and config.ru's loop becomes a single call. Node, node.rb, node_test.rb
-and context.node all go.
+    context.images.seed
 
-Worth being clear that this is the opposite conclusion from the one about
+in place of a loop asking one class what the node holds and telling another to
+believe it. Both were about the same question, which images this node has,
+differing only in whether the answer came from the daemon or from memory, so
+they were one question answered twice rather than a separation of concerns.
+NodeImages#seed answers it, names_on_the_node does the reading, and Node,
+node.rb, node_test.rb and context.node are gone.
+
+Worth being clear that this was the opposite conclusion from the one about
 NodeImages and SparePool above, and for a reason: those two sit on opposite
-sides of a boundary, where these two do not.
+sides of a boundary, where these two did not.
 
 The other two are recorded where they bite rather than here, in
 docs/a-missing-image-recovers-only-through-a-pull.md: SparePool#create does not
