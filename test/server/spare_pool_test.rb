@@ -126,6 +126,64 @@ class SparePoolTest < TestBase
     assert_nil spares.claim(image_name: an_image)
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E9', %w(
+  | a create the daemon refuses stops the warm there, nothing being started
+  | and nothing put in the pool,
+  | rather than an entry no container answers to, which costs a slot and
+  | answers every claim of it as though the pool were empty,
+  | and says so in the log, there being nobody waiting on a warm to tell
+  ) do
+    refused = %({"message":"No such image: #{an_image}"})
+    daemon = daemon_refusing_create(404, refused)
+    set_context(docker: daemon, threader: ThreaderSynchronous.new,
+                logger: StdoutLoggerSpy.new)
+
+    spares.warm(image_name: an_image)
+
+    assert_equal %i[containers_named create_container], daemon.endpoints
+    expected = "Failed to warm docker image #{an_image}, code=404, body=#{refused}\n"
+    assert_equal expected, context.logger.logged
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E10', %w(
+  | a create refused 404 says the image has left the node, so the image is
+  | forgotten and the next test-run for it pulls rather than being told it is
+  | already there,
+  | which is the same 404 the run path acts on, noticed earlier: at warm time
+  | no learner has been shown anything yet
+  ) do
+    refused = %({"message":"No such image: #{an_image}"})
+    set_context(docker: daemon_refusing_create(404, refused),
+                threader: ThreaderSynchronous.new, logger: StdoutLoggerSpy.new)
+    images.add(an_image)
+    assert_equal [an_image], images.names
+
+    spares.warm(image_name: an_image)
+
+    assert_equal [], images.names
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E11', %w(
+  | a create refused for any other reason leaves the image alone,
+  | eg a spare name already taken by a container that never started, which
+  | says nothing about whether the image is on the node
+  ) do
+    conflict = '{"message":"Conflict. The container name is already in use"}'
+    set_context(docker: daemon_refusing_create(409, conflict),
+                threader: ThreaderSynchronous.new, logger: StdoutLoggerSpy.new)
+    images.add(an_image)
+
+    spares.warm(image_name: an_image)
+
+    assert_equal [an_image], images.names
+  end
+
   private
 
   # Which image a spare was made from matters to one test only, so the tests
@@ -178,6 +236,13 @@ class SparePoolTest < TestBase
                           [201, %({"Id":"#{creating}"})],
                           [204, '']
                         ])
+  end
+
+  # A daemon with room on the node that refuses the create with this code,
+  # which is what says whether the refusal was about the image or about
+  # something else.
+  def daemon_refusing_create(code, body)
+    DockerDaemonSpy.new([[200, containers_json(an_empty_node)], [code, body]])
   end
 
   # As GET /containers/json answers it. Only how many there are matters here,

@@ -51,21 +51,47 @@ class CyberDojoShRunner
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
-    container_id = create(image_name, container_name)
-    # Everything past the create owns a container, and so has to dispose of it
-    # however it ends. A refused create is outside, having made none to stop.
-    begin
-      docker.start_container(container_id)
-      exec_cyber_dojo_sh(container_id, id, max_seconds, tgz_in)
-    ensure
-      stop(container_id)
+    # A spare is already created and already started, which is the whole of
+    # what holding one buys.
+    spare = spares.claim(image_name: image_name)
+    if spare
+      begin
+        return run_in(spare, id, max_seconds, tgz_in)
+      rescue DaemonRefused
+        # The spare was gone, or was no longer running. A container made for
+        # this run cannot be either of those, so the learner is owed the run
+        # they would have had with no pool rather than a faulty light. Nothing
+        # is half-done: both exec calls come before the tgz is written.
+        nil
+      end
     end
+    run_in(created_and_started(image_name, container_name), id, max_seconds, tgz_in)
   end
 
   private
 
+  # Whatever container this run ends up with is disposed of however the run
+  # ends. A refused container create is outside this, having made none to stop.
+  def run_in(container_id, id, max_seconds, tgz_in)
+    exec_cyber_dojo_sh(container_id, id, max_seconds, tgz_in)
+  ensure
+    stop(container_id)
+  end
+
+  # A container of this run's own, ready to be exec'd into: what a spare
+  # already is by the time it is claimed.
+  def created_and_started(image_name, container_name)
+    container_id = create(image_name, container_name)
+    docker.start_container(container_id)
+    container_id
+  end
+
   def docker
     @context.docker
+  end
+
+  def spares
+    @context.spares
   end
 
   def threader

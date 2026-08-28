@@ -15,7 +15,7 @@ class Dispatcher
     when '/alive'              then ['alive?',            prober.alive?(**args)]
     when '/ready'              then ['ready?',            prober.ready?(**args)]
     when '/sha'                then ['sha',               prober.sha(**args)]
-    when '/pull_image'         then ['pull_image',        images.pull(**args)]
+    when '/pull_image'         then ['pull_image',        pull_and_warm(**args)]
     when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', runner.run_cyber_dojo_sh(**args)]
     else
       raise request_error('unknown path')
@@ -54,6 +54,21 @@ class Dispatcher
     Dispatcher::RequestError.new(text)
   end
 
+  # Creator calls this when a kata is created, which is the earliest the runner
+  # learns an image is about to be wanted, so it is the earliest a spare can be
+  # waiting for the kata's first test-run.
+  #
+  # Only when the image is already on the node. :pulling means it is not there
+  # yet, so there is nothing to make a container from; that image gets its
+  # spare from the refill after its first test-run instead. Warming anyway
+  # would ask the daemon for a container it cannot make and log a failure that
+  # says nothing is wrong.
+  def pull_and_warm(id:, image_name:)
+    answer = images.pull(id: id, image_name: image_name)
+    spares.warm(image_name: image_name) if answer == :pulled
+    answer
+  end
+
   def prober
     @context.prober
   end
@@ -64,5 +79,9 @@ class Dispatcher
 
   def runner
     @context.runner
+  end
+
+  def spares
+    @context.spares
   end
 end

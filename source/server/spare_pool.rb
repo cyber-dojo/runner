@@ -65,6 +65,8 @@ class SparePool
 
       expires_at = clock.now + CyberDojoShContainerConfig::SLEEP_SECONDS
       container_id = create(image_name)
+      next if container_id.nil?
+
       docker.start_container(container_id)
       add(image_name: image_name, container_id: container_id, expires_at: expires_at)
     end
@@ -92,12 +94,28 @@ class SparePool
     JSON.parse(body).size >= SPARES_PER_NODE
   end
 
-  # Creates the container and answers its id. Its config depends on the image
-  # alone, which is what lets it be made before the run it will serve is known.
+  # Creates the container and answers its id, or nil when the daemon refuses.
+  # Its config depends on the image alone, which is what lets it be made
+  # before the run it will serve is known.
+  #
+  # Nil rather than raising, because warming happens on a thread nobody is
+  # waiting on: an exception there would go nowhere, so the log is the only
+  # place the refusal can be reported.
+  #
+  # A 404 says the image has left the node, which is the one refusal that says
+  # anything about the image at all, so it is forgotten here as the run path
+  # forgets it. Noticing it here is noticing it earlier: at warm time no
+  # learner has been shown anything yet, where the run path's 404 has already
+  # cost one faulty light. Every other code says nothing about the image, a
+  # taken container name for instance, and leaves it believed present.
   def create(image_name)
     config = CyberDojoShContainerConfig.image_config(image_name)
-    _code, body = docker.create_container(config, name: spare_name)
-    JSON.parse(body)['Id']
+    code, body = docker.create_container(config, name: spare_name)
+    return JSON.parse(body)['Id'] if code.between?(200, 299)
+
+    logger.log("Failed to warm docker image #{image_name}, code=#{code}, body=#{body}")
+    images.forget(image_name) if code == CyberDojoShRunner::DaemonRefused::NO_SUCH_IMAGE
+    nil
   end
 
   def spare_name
@@ -130,6 +148,14 @@ class SparePool
 
   def docker
     @context.docker
+  end
+
+  def images
+    @context.images
+  end
+
+  def logger
+    @context.logger
   end
 
   def threader

@@ -208,6 +208,57 @@ class CyberDojoShRunnerTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'c9Gf23', %w(
+  | a run given a spare for its image execs into that one,
+  | creating and starting no container of its own,
+  | which is the whole of what holding spares buys
+  ) do
+    # Enough for a run that makes its own container, which this one must not
+    # do, so that failing says which endpoints were asked for rather than
+    # dying on a response the spy ran out of.
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
+    runner = runner_using(spy)
+    spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
+
+    runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    assert_equal %i[create_exec start_exec stop_container], spy.endpoints
+    exec_config = CyberDojoShContainerConfig.exec_config(id58)
+    assert_equal [:create_exec, 'warmed', exec_config], spy.calls[0]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf24', %w(
+  | a claimed spare the daemon refuses an exec in is discarded, and the run
+  | makes its own container instead, exactly as a run with no spare does,
+  | because a spare can be dead by the time it is claimed where a container
+  | made for the run cannot be, so a learner would otherwise be shown a
+  | faulty light they would never have seen without a pool,
+  | and the retry is clean because both exec calls come before the tgz goes,
+  | so the kata's files have not left the runner
+  | and the spare is stopped on the way out like any other container, being
+  | possibly exited rather than gone, and so still something to dispose of
+  ) do
+    gone = '{"message":"No such container: warmed"}'
+    # The 404 refuses the exec in the spare; the 204 after it is the spare's
+    # own stop; the rest is a run making its own container.
+    spy = DockerDaemonSpy.new(
+      [[404, gone], [204, '']] + responses_up_to_the_stream + [[204, '']]
+    )
+    runner = runner_using(spy)
+    spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
+
+    result = runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    refute result[:timed_out], 'timed_out'
+    assert_equal %i[create_exec stop_container
+                    create_container start_container create_exec start_exec stop_container],
+                 spy.endpoints
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test 'c9Gf17', %w(
   | a real fork bomb against the real daemon leaves no container behind
   | however the bomb ends, the bomb saturating PidsLimit so that send_tgz
