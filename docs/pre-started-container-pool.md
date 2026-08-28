@@ -143,6 +143,15 @@ test-run should inherit.
 
 In-process on Context and mutex-guarded, the way NodeImages holds @pulled.
 
+Shaped like it, and deliberately not merged into it. The two are image-keyed
+background-warmed caches alike, but they sit on opposite sides of a boundary:
+no image means a test-run cannot go ahead at all and the learner gets pulling,
+while no spare means it goes ahead exactly as today and is only slower. One
+class doing both would make it easy for a spare-shaped failure to block a run,
+which is the mistake a 404 from an exec create being read as a missing image
+already was. They also differ in lifetime, in how many there are per image, and
+in whether they are capped.
+
 It differs from NodeImages in what a restart costs. The daemon's image store is
 the ground truth behind @pulled, so losing it costs one redundant pull that the
 daemon answers at once. Losing the pool's state leaks running containers
@@ -383,6 +392,51 @@ a cap of eight actually reaches, which is the whole of what the cap buys, and
 whether refilling concurrently with the run beats refilling after it. Both are
 small changes to the same thread.
 
+## 9. A cap someone hosting their own server can set
+
+Anyone running their own server with the cyber-dojo shell script and commander
+gets whatever cap is compiled in, on hardware nobody here has sized. So the cap
+has to be settable, and the way it is settable already exists: commander's
+`--port`.
+
+That chain is worth following rather than inventing another. Its default lives
+in cyberdojo/versioner and reaches commander through dot_env. up.rb takes
+`--port` from the command line or falls back to that default, having declared
+`--port` in the `knowns` allowlist, an undeclared flag being a hard error, and
+in the help text. It then merges the value into the env_vars it hands to
+docker compose, and a compose fragment passes it to the service.
+
+The cap follows it with one deliberate difference: no new versioner entry, so
+the default is duplicated instead. commander carries its own literal, because
+dot_env cannot supply what versioner does not hold.
+
+    commander app/server/up.rb
+      --spares into knowns, into the help table, and
+      spares = up_command_line['--spares'] ||
+               ENV['CYBER_DOJO_RUNNER_SPARES_PER_NODE'] || '8'
+      merged into env_vars
+
+    commander app/docker-compose/environment.yml
+      a runner stanza passing CYBER_DOJO_RUNNER_SPARES_PER_NODE
+      (only web is given any env var today, so this is new)
+
+    runner spare_pool.rb
+      SPARES_PER_NODE read from ENV, defaulting to 8
+
+Duplicating the default has a consequence worth stating, because it is not
+symmetrical. commander always sets the var, from the flag or from its own
+literal, so in a commander-run server commander's number always wins and the
+runner's constant never applies. The runner's constant is what the test suite
+and any deployment that sets nothing will use. If the two ever disagree, the
+one in the runner is the one that looks authoritative while having no effect
+where it matters most.
+
+Zero is the setting that matters most to a self-hoster, and it has to mean no
+pool rather than an empty one: no spare is ever created, every test-run creates
+its own container, and the runner behaves exactly as it did before any of this.
+That is also the switch that makes the whole feature safe to ship to people
+whose hardware we cannot see.
+
 ## Order
 
 With 0 answered, the risk that is left sits in 1 to 3, which is where the
@@ -394,3 +448,38 @@ themselves.
 Steps 4 to 8 are mechanical, and each is small only because that point exists
 to build from: they move when a container is created without touching what a
 test-run does with one.
+
+Step 9 is the one that decides who can have this. Until the cap is settable,
+the only safe number for a server on hardware nobody here has sized is zero, so
+9 comes before the pool is turned on anywhere but aws-prod. It is also the only
+step that changes another repo.
+
+## Owed, and not part of any step
+
+Three things this work turned up that are not the pool and are not done. None
+blocks a step; all are cheap, and each wants its own commit.
+
+Fold Node into NodeImages. Node has one method, image_names, and one caller,
+config.ru, which uses it only to seed the images the node is believed to hold:
+
+    context.node.image_names.each do |image_name|
+      context.images.add(image_name)
+    end
+
+That is one class initialising another's belief from the truth, and both are
+about the same question, which images this node has. They differ only in where
+the answer comes from, the daemon or memory, so this is duplication rather than
+a separation of concerns. Folding them gives one class that reads the images
+from the daemon, remembers them, pulls a missing one and forgets a vanished
+one, and config.ru's loop becomes a single call. Node, node.rb, node_test.rb
+and context.node all go.
+
+Worth being clear that this is the opposite conclusion from the one about
+NodeImages and SparePool above, and for a reason: those two sit on opposite
+sides of a boundary, where these two do not.
+
+The other two are recorded where they bite rather than here, in
+docs/a-missing-image-recovers-only-through-a-pull.md: SparePool#create does not
+read the code the daemon answered, so a 404 there becomes a nil container id
+added to the pool as a spare; and NodeImages#forget does not tag its argument
+where pull does, which only chance makes harmless.
