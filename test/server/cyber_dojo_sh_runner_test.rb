@@ -13,7 +13,7 @@ class CyberDojoShRunnerTest < TestBase
   ) do
     spy = DockerDaemonSpy.new(responses_up_to_the_stream)
 
-    CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
     endpoint, config, name = spy.calls[0]
     assert_equal :create_container, endpoint
@@ -34,7 +34,7 @@ class CyberDojoShRunnerTest < TestBase
   ) do
     spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
 
-    CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
     exec_config = CyberDojoShContainerConfig.exec_config(id58)
     assert_equal [:start_container, 'c0ffee'], spy.calls[1]
@@ -53,7 +53,7 @@ class CyberDojoShRunnerTest < TestBase
   ) do
     spy = DockerDaemonSpy.new(responses_up_to_the_stream)
 
-    CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
     assert_equal tgz_in, spy.written
     assert spy.write_half_closed, 'write_half_closed'
@@ -70,7 +70,7 @@ class CyberDojoShRunnerTest < TestBase
       frames: [[1, 'the-payload'], [2, 'a warning']]
     )
 
-    result = CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    result = runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
     assert_equal 'the-payload', result[:stdout]
     assert_equal 'a warning', result[:stderr]
@@ -90,7 +90,7 @@ class CyberDojoShRunnerTest < TestBase
       stalls: true
     )
 
-    result = CyberDojoShRunner.new(spy).run(id58, image_name, container_name, 0.1, tgz_in)
+    result = runner_using(spy).run(id58, image_name, container_name, 0.1, tgz_in)
 
     assert result[:timed_out], 'timed_out'
     # Empty rather than absent: there is no payload, and the result keeps the
@@ -113,7 +113,7 @@ class CyberDojoShRunnerTest < TestBase
     set_context(http: http)
     name = "cyber_dojo_runner_#{id58}"
 
-    result = CyberDojoShRunner.new(docker).run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
+    result = cyber_dojo_sh_runner.run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
 
     refute result[:timed_out], 'timed_out'
     files = TGZ.files(result[:stdout])
@@ -141,7 +141,7 @@ class CyberDojoShRunnerTest < TestBase
     spy = DockerDaemonSpy.new([[409, conflict]])
 
     error = assert_raises(CyberDojoShRunner::DaemonRefused) do
-      CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+      runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
     end
 
     assert_includes error.message, '409'
@@ -160,7 +160,7 @@ class CyberDojoShRunnerTest < TestBase
     spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [204, ''], [409, conflict]])
 
     error = assert_raises(CyberDojoShRunner::DaemonRefused) do
-      CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+      runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
     end
 
     assert_includes error.message, '409'
@@ -180,12 +180,30 @@ class CyberDojoShRunnerTest < TestBase
     )
 
     assert_raises(CyberDojoShRunner::DaemonRefused) do
-      CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+      runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
     end
 
     assert_equal [:stop_container, 'c0ffee', 1], spy.calls.last
     assert_equal %i[create_container start_container create_exec stop_container],
                  spy.endpoints
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf22', %w(
+  | the container is stopped on a thread, so that the run answers the learner
+  | without waiting for a teardown they cannot see
+  | the stop still happens, and still last, but off the path whose length is
+  | the whole reason for holding containers ready
+  ) do
+    threader = ThreaderSynchronous.new
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
+    set_context(docker: spy, threader: threader)
+
+    cyber_dojo_sh_runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    assert threader.called, 'threader'
+    assert_equal [:stop_container, 'c0ffee', 1], spy.calls.last
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -211,7 +229,7 @@ class CyberDojoShRunnerTest < TestBase
     # What keeps a payload that arrives whole but does not inflate out of the
     # browser is runner.rb answering faulty, which is pinned by c7Dd54 in
     # test/server/run_faulty_gzip_error_test.rb
-    CyberDojoShRunner.new(docker).run(id58, image_name, name, 2, real_tgz_in(FORK_BOMB))
+    cyber_dojo_sh_runner.run(id58, image_name, name, 2, real_tgz_in(FORK_BOMB))
 
     assert gone?(http, name), "#{name} was left behind"
   ensure
@@ -230,7 +248,7 @@ class CyberDojoShRunnerTest < TestBase
     set_context(http: http)
     name = "cyber_dojo_runner_#{id58}"
 
-    result = CyberDojoShRunner.new(docker).run(id58, image_name, name, 1, real_tgz_in("sleep 30\n"))
+    result = cyber_dojo_sh_runner.run(id58, image_name, name, 1, real_tgz_in("sleep 30\n"))
 
     assert result[:timed_out], 'timed_out'
     assert_equal '', result[:stdout]
@@ -252,7 +270,7 @@ class CyberDojoShRunnerTest < TestBase
     set_context(http: http)
     name = "cyber_dojo_runner_#{id58}"
 
-    result = CyberDojoShRunner.new(docker).run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
+    result = cyber_dojo_sh_runner.run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
 
     refute result[:timed_out], 'timed_out'
     assert gone?(http, name), "#{name} was left behind"
@@ -261,6 +279,23 @@ class CyberDojoShRunnerTest < TestBase
   end
 
   private
+
+  # The runner, built the way runner.rb builds it, from the context the test
+  # set up. What it talks to is chosen in set_context and never here.
+  def cyber_dojo_sh_runner
+    CyberDojoShRunner.new(context)
+  end
+
+  # The same, for a test that stands a daemon in rather than using the real
+  # one, so that the standing-in and the building stay one step.
+  #
+  # Threading is synchronous here. The stop runs on a thread, and a test that
+  # pins what the daemon was asked cannot be left racing it. c9Gf22 is the one
+  # test that cares the thread exists, and it wires its own.
+  def runner_using(daemon)
+    set_context(docker: daemon, threader: ThreaderSynchronous.new)
+    cyber_dojo_sh_runner
+  end
 
   # test/client/robustness_test.rb 1B5CD6
   FORK_BOMB = <<~SHELL.freeze

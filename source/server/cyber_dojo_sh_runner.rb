@@ -46,8 +46,8 @@ class CyberDojoShRunner
   # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
   STOP_SECONDS = 1
 
-  def initialize(docker)
-    @docker = docker
+  def initialize(context)
+    @context = context
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
@@ -64,7 +64,13 @@ class CyberDojoShRunner
 
   private
 
-  attr_reader :docker
+  def docker
+    @context.docker
+  end
+
+  def threader
+    @context.threader
+  end
 
   # Runs cyber-dojo.sh in a container that already exists. An exec can only be
   # made in a container that is running, and starting that exec is itself what
@@ -80,8 +86,14 @@ class CyberDojoShRunner
   # The container's own Cmd is a sleep, which outlives the exec that does the
   # work, so nothing else disposes of it and a run that left it would hold it
   # for the rest of that sleep. AutoRemove disposes of it once it has stopped.
+  #
+  # On a thread, because a learner is owed their traffic light and not a wait
+  # for a teardown they cannot see. Should this process die before the thread
+  # runs, the container's own sleep still ends it.
   def stop(container_id)
-    docker.stop_container(container_id, seconds: STOP_SECONDS)
+    threader.thread('stops-container') do
+      docker.stop_container(container_id, seconds: STOP_SECONDS)
+    end
   end
 
   # The container depends on its image alone, so nothing about this run is

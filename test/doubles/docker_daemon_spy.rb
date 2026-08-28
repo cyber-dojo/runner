@@ -26,6 +26,10 @@ class DockerDaemonSpy
     answer(:pull_image, image_name)
   end
 
+  def containers_named(name)
+    answer(:containers_named, name)
+  end
+
   def create_container(config, name: nil)
     answer(:create_container, config, name)
   end

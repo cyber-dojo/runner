@@ -51,11 +51,14 @@ module CyberDojoShContainerConfig
   end
   private_class_method :cyber_dojo_sh_command
 
-  # Does nothing, for long enough to be exec'd into. runner.rb caps a run at
-  # 15 seconds, so a minute outlasts any run and the grace its stop allows,
-  # while still bounding how long a container nobody wants can survive.
+  # How long a container that nobody has claimed stays alive. Long enough to
+  # outlast any run and the grace its stop allows, and short enough to bound
+  # how long a container nobody wants can survive.
+  SLEEP_SECONDS = 60
+
+  # Does nothing, for long enough to be exec'd into.
   def self.sleeping_command
-    { 'Cmd' => %w[sleep 60] }
+    { 'Cmd' => ['sleep', SLEEP_SECONDS.to_s] }
   end
   private_class_method :sleeping_command
 

@@ -107,7 +107,7 @@ class Runner
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = CyberDojoShRunner.new(@context.docker).run(id, image_name, container_name, max_seconds, tgz_in)
+    run = CyberDojoShRunner.new(@context).run(id, image_name, container_name, max_seconds, tgz_in)
 
     [run, files_in]
   end
