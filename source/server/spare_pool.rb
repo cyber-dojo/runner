@@ -11,6 +11,20 @@ require_relative 'cyber_dojo_sh_runner'
 # In-process and mutex-guarded, the way NodeImages holds @pulled. A claim happens
 # on the test-run, and taking time off a test-run is the point of holding
 # spares at all, so a claim asks the daemon nothing.
+#
+# The spares for one image_name are a queue, in the order they were made, so
+# the one at the front has the least of its sleep left. A claim takes from the
+# front, and takes only a spare with enough sleep left for a whole test-run;
+# one at the front with too little is dropped rather than handed out.
+#
+# Front-first therefore hands out the shortest-lived spare that is still long
+# enough. That spends spares before they expire. A spare nobody claims
+# expires, and the create that made it bought nothing.
+#
+# Made-order is expiry-order only because every spare is created with the same
+# CyberDojoShContainerConfig::SLEEP_SECONDS. A sleep that varied from one
+# spare to the next would break that, and the queue would have to be kept in
+# expires_at order instead.
 class SparePool
   # How many spares the node may hold, across every image and every worker on
   # it. An idle container costs about 12MB, so this is what the pool costs the
