@@ -164,7 +164,7 @@ class SparePoolTest < TestBase
   test '7Bq2E9', %w(
   | The daemon refuses the create.
   | The warm stops there, and nothing is started.
-  | The refusal is logged, with the code and the body the daemon gave.
+  | The refusal is logged, with the status code and the body the daemon gave.
   | Nobody is waiting on a warm.
   | So the log is the only place it can be reported.
   ) do

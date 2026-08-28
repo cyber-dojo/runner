@@ -26,13 +26,16 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf11', %w(
-  | the container is started before its exec is made
-  | an exec being something only a running container can hold
-  | and the exec carries what belongs to this one run
-  | and starting the exec is itself what hijacks the stream
-  | so there is nothing to attach beforehand and nothing it writes is missed
-  | and the container is stopped once the run has its payload, because its own
-  | command is a sleep that would otherwise outlive the run
+  | The pool holds no spare, so the run makes its own container.
+  | The container is started, and then an exec is made in it.
+  | Only a running container can hold an exec.
+  | The exec's config holds the command that runs the kata, and the kata id.
+  | A spare and a container made here are both created from image_config.
+  | So the exec is where both of those reach the container.
+  | Starting the exec is what hijacks the stream.
+  | So there is no attach call before it.
+  | The container is stopped once the run has its payload.
+  | Its own command is a sleep, which outlives the exec that did the work.
   ) do
     spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
 
@@ -49,9 +52,9 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf12', %w(
-  | the tgz is written to the stream, and the writing half is then closed
-  | which is what gives the container's [tar -zxf -] its end of file
-  | and without which it waits for one that never comes
+  | The tgz is written to the stream.
+  | The writing half is then closed.
+  | That close is what gives the container's [tar -zxf -] its end of file.
   ) do
     spy = DockerDaemonSpy.new(responses_up_to_the_stream)
 
@@ -64,8 +67,9 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf13', %w(
-  | the container's two streams are answered separately
-  | the payload arriving on stdout, and anything it complained about on stderr
+  | The container writes on both of the daemon's two streams.
+  | What came on stdout and what came on stderr reach the run separately.
+  | The stream ends of its own accord, so the run did not time out.
   ) do
     spy = DockerDaemonSpy.new(
       responses_up_to_the_stream,
@@ -82,10 +86,12 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf14', %w(
-  | a container still sending nothing when max_seconds passes is stopped
-  | and the run answers timed_out, with no partial payload
-  | one second being SIGTERM and then SIGKILL a second later
-  | so cyber-dojo.sh's own EXIT trap still gets its chance
+  | The container sends nothing, and max_seconds passes.
+  | The run answers timed_out.
+  | There is no payload, so its stdout and stderr are both empty.
+  | The container is stopped, as it is on a run that finishes.
+  | The stop sends SIGTERM at once, and SIGKILL one second later.
+  | That second is what gives cyber-dojo.sh's EXIT trap its chance to run.
   ) do
     spy = DockerDaemonSpy.new(
       responses_up_to_the_stream + [[204, '']],
@@ -107,9 +113,12 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf15', %w(
-  | a real run against the real daemon
-  | which is the only thing that says the daemon accepts the config,
-  | the attach path, and the headers, none of which a stub can judge
+  | The run goes to the real daemon.
+  | The kata echoes hello.
+  | Its payload holds tmp/status of 0, and tmp/stdout of hello.
+  | The run does not time out.
+  | A stub cannot judge the config, the attach path, or the headers.
+  | Only the daemon can.
   ) do
     http = DockerSocket.new
     set_context(http: http)
@@ -134,10 +143,12 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf16', %w(
-  | a create the daemon refuses raises, naming what it said
-  | rather than carrying on with no container id
-  | eg a name already taken by a container that never started
-  | and nothing is stopped, a refused create having made no container to stop
+  | The daemon refuses the create with a 409.
+  | That says the container name is already in use.
+  | The run raises.
+  | The error names the status code, and what the daemon said.
+  | Nothing else is asked of the daemon.
+  | A refused create made no container, so there is none to stop.
   ) do
     conflict = '{"message":"Conflict. The container name is already in use"}'
     spy = DockerDaemonSpy.new([[409, conflict]])
@@ -154,9 +165,12 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf20', %w(
-  | an exec create the daemon refuses raises, naming what it said
-  | rather than carrying on with no exec id and starting nothing
-  | eg a container that stopped between being started and being exec'd into
+  | The container is created and started.
+  | The daemon refuses the exec create with a 409.
+  | That says the container is not running.
+  | A container can stop between being started and being exec'd into.
+  | The run raises.
+  | The error names the status code, and what the daemon said.
   ) do
     conflict = '{"message":"Container c0ffee is not running"}'
     spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [204, ''], [409, conflict]])
@@ -172,9 +186,13 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf21', %w(
-  | a run refused partway still disposes of the container it made
-  | the container having been created and started before the refusal
-  | so nothing else stops it and it would sleep out its Cmd holding memory
+  | The container is created and started.
+  | The daemon then refuses the exec create.
+  | The run raises, and stops the container on its way out.
+  | That stop is the last thing asked of the daemon.
+  | The container's Cmd is a sleep, so it exits when that sleep ends.
+  | AutoRemove acts only on a container that exits.
+  | The stop makes it exit now rather than at the end of its sleep.
   ) do
     conflict = '{"message":"Container c0ffee is not running"}'
     spy = DockerDaemonSpy.new(
@@ -193,10 +211,9 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf22', %w(
-  | the container is stopped on a thread, so that the run answers the learner
-  | without waiting for a teardown they cannot see
-  | the stop still happens, and still last, but off the path whose length is
-  | the whole reason for holding containers ready
+  | The container is stopped on a thread, so the run answers without waiting.
+  | The stop still happens, and still last.
+  | A learner waits for the answer, not for a teardown they never see.
   ) do
     threader = ThreaderSynchronous.new
     spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
@@ -211,9 +228,11 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf23', %w(
-  | a run given a spare for its image execs into that one,
-  | creating and starting no container of its own,
-  | which is the whole of what holding spares buys
+  | The pool holds a spare for the image_name.
+  | The run claims it, and the claim renames it to the run's name.
+  | The exec is made in that container.
+  | No container is created and none is started.
+  | Create and start are what the pool has already done.
   ) do
     # The first answers the claim's rename.
     # The rest are what a run making its own container needs, which this run
@@ -234,14 +253,18 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf24', %w(
-  | A claimed spare whose exec the daemon refuses is discarded.
-  | The run then makes its own container, exactly as a run with no spare does.
-  | A spare can be dead by the time it is claimed. A container made for the
-  | run cannot be. So without this a learner would see a faulty light they
-  | would never have seen without a pool.
-  | Retrying is safe here because both exec calls come before the tgz, so the
-  | kata's files have not left the runner.
-  | The dead spare is still stopped, being possibly exited rather than gone.
+  | The pool holds a spare.
+  | The daemon refuses the exec in it with a 404.
+  | The spare is discarded.
+  | The run then makes its own container, as a run with no spare does.
+  | It answers without timing out.
+  | A spare can be dead by the time it is claimed.
+  | A container made for the run cannot be.
+  | The fallback is what keeps a pool from costing a learner a faulty light.
+  | The exec create comes before the tgz is written.
+  | So the kata never began in the spare.
+  | The container made here runs the kata for the first time.
+  | The dead spare is stopped too, as any container this run was given is.
   ) do
     gone = '{"message":"No such container: warmed"}'
     # In order: the claim's rename, the refused exec in the spare, the spare's
@@ -263,9 +286,12 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf17', %w(
-  | a real fork bomb against the real daemon leaves no container behind
-  | however the bomb ends, the bomb saturating PidsLimit so that send_tgz
-  | cannot fork the find, file, tar and gzip its EXIT trap needs
+  | The run goes to the real daemon.
+  | The kata is a fork bomb, and it saturates PidsLimit.
+  | The container's send_tgz forks four processes: find, file, tar and gzip.
+  | None of them can be forked under the bomb.
+  | The container is removed.
+  | The removal does not depend on how the bomb ends.
   ) do
     http = DockerSocket.new
     set_context(http: http)
@@ -285,7 +311,7 @@ class CyberDojoShRunnerTest < TestBase
     # test/server/run_faulty_gzip_error_test.rb
     cyber_dojo_sh_runner.run(id58, image_name, name, 2, real_tgz_in(FORK_BOMB))
 
-    assert gone?(http, name), "#{name} was left behind"
+    assert removed?(http, name), "#{name} was not removed"
   ensure
     http.request('DELETE', "/containers/#{name}?force=true")
   end
@@ -293,10 +319,12 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf18', %w(
-  | a real container that sends nothing before the deadline times out
-  | and is stopped, with no partial payload to report
-  | a sleeping kata rather than a bomb, because a sleep cannot end early:
-  | it sends nothing and nothing kills its PID 1
+  | The run goes to the real daemon.
+  | The kata sleeps for longer than the run's max_seconds.
+  | The run answers timed_out, with an empty stdout.
+  | The container is removed.
+  | A sleeping kata sends nothing, and nothing kills its PID 1.
+  | So it cannot end early, as a fork bomb can.
   ) do
     http = DockerSocket.new
     set_context(http: http)
@@ -306,7 +334,7 @@ class CyberDojoShRunnerTest < TestBase
 
     assert result[:timed_out], 'timed_out'
     assert_equal '', result[:stdout]
-    assert gone?(http, name), "#{name} was left behind"
+    assert removed?(http, name), "#{name} was not removed"
   ensure
     http.request('DELETE', "/containers/#{name}?force=true")
   end
@@ -314,11 +342,13 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf19', %w(
-  | a real run that finishes disposes of its container
-  | which nothing else does: the container's own command is a sleep, so it
-  | outlives the exec that did the work and AutoRemove has nothing to react to
-  | and a run that left it behind would hold one container per test-run
-  | for the rest of that sleep, which scales with traffic and not with any cap
+  | The run goes to the real daemon.
+  | The kata echoes hello, and the run does not time out.
+  | The container's Cmd is a sleep, which outlives the exec that did the work.
+  | The runner stops the container once it has the payload.
+  | The container exits then, rather than at the end of its sleep.
+  | AutoRemove removes a container that has exited.
+  | So the container is removed.
   ) do
     http = DockerSocket.new
     set_context(http: http)
@@ -327,7 +357,7 @@ class CyberDojoShRunnerTest < TestBase
     result = cyber_dojo_sh_runner.run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
 
     refute result[:timed_out], 'timed_out'
-    assert gone?(http, name), "#{name} was left behind"
+    assert removed?(http, name), "#{name} was not removed"
   ensure
     http.request('DELETE', "/containers/#{name}?force=true")
   end
@@ -361,13 +391,13 @@ class CyberDojoShRunnerTest < TestBase
     bomb
   SHELL
 
-  # AutoRemove disposes of the container once it has exited, which is not the
+  # AutoRemove removes the container once it has exited, which is not the
   # instant the stop returns.
-  # A single answer at the end says whether the container went, however many
-  # polls it took, so the giving-up path is the same path as the going one.
+  # A single answer at the end says whether it was removed, however many polls
+  # it took, so giving up and finding it removed take the same path.
   # Inspecting a container by name is no part of what the runner does, so this
   # asks the transport rather than DockerDaemon.
-  def gone?(http, name)
+  def removed?(http, name)
     code = nil
     20.times do
       code, _body = http.request('GET', "/containers/#{name}/json")
