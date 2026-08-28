@@ -25,7 +25,7 @@ On the host:
 Inside the runner, to price its CLI as the runner actually pays for it:
   docker run --rm --entrypoint=\"\" \\
     --volume /var/run/docker.sock:/var/run/docker.sock \\
-    --volume \$PWD:/probe:ro cyberdojo/runner:latest \\
+    --volume \$PWD:/probe:ro cyberdojo/runner:\$(git rev-parse HEAD | cut -c1-7) \\
     bash /probe/time_docker_run_phases.sh"
 
 readonly IMG="${1:-ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a}"
