@@ -37,11 +37,13 @@ class CyberDojoShRunner
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
-    container_id = create(id, image_name, container_name)
-    # Attaching before starting is what stops the container's first bytes
-    # being written before anything is listening for them.
-    stream = docker.attach_container(container_id)
+    container_id = create(image_name, container_name)
     docker.start_container(container_id)
+    # An exec can only be made in a container that is running, and starting
+    # that exec is itself what hijacks the stream, so there is nothing to
+    # attach beforehand and no first bytes to miss.
+    exec_id = create_exec(container_id, id)
+    stream = docker.start_exec(exec_id)
     send_tgz(stream, tgz_in)
     result_of(container_id, stream, max_seconds)
   end
@@ -50,11 +52,21 @@ class CyberDojoShRunner
 
   attr_reader :docker
 
-  def create(id, image_name, container_name)
-    config = CyberDojoShContainerConfig.create_config(id, image_name)
+  # The container depends on its image alone, so nothing about this run is
+  # said here. Its command sleeps, which is what keeps it there to be exec'd.
+  def create(image_name, container_name)
+    config = CyberDojoShContainerConfig.image_config(image_name)
     code, body = docker.create_container(config, name: container_name)
     raise DaemonRefused.new(code, "create answered #{code}: #{body}") unless code.between?(200, 299)
 
+    JSON.parse(body)['Id']
+  end
+
+  # Everything belonging to this one run rides on the exec: the command, and
+  # the vars naming the run.
+  def create_exec(container_id, id)
+    config = CyberDojoShContainerConfig.exec_config(id)
+    _code, body = docker.create_exec(container_id, config)
     JSON.parse(body)['Id']
   end
 
@@ -70,15 +82,19 @@ class CyberDojoShRunner
   # What the container sent, or a stopped container and timed_out. Nothing
   # partial is answered: what arrived before the deadline passed is not a
   # whole payload.
+  #
+  # The container is stopped however the run ends. Its own command is a sleep,
+  # which outlives the exec that did the work, so a run that did not stop it
+  # would leave it holding memory for the rest of that sleep. One second is
+  # enough for cyber-dojo.sh's own EXIT trap to get its chance before the
+  # SIGKILL, and AutoRemove then disposes of the container.
   def result_of(container_id, stream, max_seconds)
     stdout, stderr = read_payload(stream, max_seconds)
     { timed_out: false, stdout: stdout, stderr: stderr }
   rescue DeadlineReader::Expired
-    # Stopping the container is what ends a timed-out run. One second is enough
-    # for cyber-dojo.sh's own EXIT trap to get its chance to run before the
-    # SIGKILL, and AutoRemove then disposes of the container.
-    docker.stop_container(container_id, seconds: 1)
     { timed_out: true, stdout: '', stderr: '' }
+  ensure
+    docker.stop_container(container_id, seconds: 1)
   end
 
   # The deadline starts once the container has everything it needs, and bounds

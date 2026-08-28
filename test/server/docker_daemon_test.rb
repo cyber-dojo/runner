@@ -44,22 +44,10 @@ class DockerDaemonTest < TestBase
   | that the create config does not
   ] do
     http = spied_http([201, created_body])
-    config = CyberDojoShContainerConfig.create_config(id58, image_name)
+    config = CyberDojoShContainerConfig.image_config(image_name)
 
     assert_equal [201, created_body], docker.create_container(config, name: container_name)
     assert_equal [['POST', "/containers/create?name=#{container_name}", config]], http.calls
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'Tq9dM5', %w[
-  | attach_container asks for stdin as well as both output streams
-  | and answers the hijacked socket the transport handed back
-  ] do
-    http = spied_http([204, ''])
-    assert_equal http.stream, docker.attach_container(container_id)
-    expected = "/containers/#{container_id}/attach?stream=1&stdin=1&stdout=1&stderr=1"
-    assert_equal expected, http.attached
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -103,6 +91,33 @@ class DockerDaemonTest < TestBase
     assert_equal [['DELETE', "/containers/#{container_id}", nil]], http.calls
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM10', %w[
+  | create_exec makes an exec inside a container that already exists
+  | which is how a run reaches a container created before the run was known
+  ] do
+    http = spied_http([201, exec_created_body])
+    config = CyberDojoShContainerConfig.exec_config(id58)
+
+    assert_equal [201, exec_created_body], docker.create_exec(container_id, config)
+    assert_equal [['POST', "/containers/#{container_id}/exec", config]], http.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM11', %w[
+  | start_exec hijacks the connection the way attaching to a container does
+  | but says in a body that it is not detaching and wants no tty
+  | and answers the hijacked socket the transport handed back
+  ] do
+    http = spied_http([200, ''])
+
+    assert_equal http.stream, docker.start_exec(exec_id)
+    assert_equal "/exec/#{exec_id}/start", http.attached
+    assert_equal({ 'Detach' => false, 'Tty' => false }, http.attached_body)
+  end
+
   private
 
   # Wires the daemon to a transport that answers response and remembers what it
@@ -126,6 +141,17 @@ class DockerDaemonTest < TestBase
   # As POST /containers/create answers it, being the id and nothing warned of.
   def created_body
     "{\"Id\":\"#{container_id}\",\"Warnings\":[]}"
+  end
+
+  # As POST /containers/{id}/exec answers it, naming the exec rather than the
+  # container it was made in.
+  def exec_id
+    'b7c1e94d2a6f83051c9e7b4a2d8f60931e5c7a9b3d1f8264e0a7c5b93d2f81e64'
+  end
+
+  # As POST /containers/{id}/exec answers it, being the new exec's id alone.
+  def exec_created_body
+    "{\"Id\":\"#{exec_id}\"}"
   end
 
   # As GET /images/json answers it, with fields alongside RepoTags.
@@ -153,7 +179,7 @@ class DockerDaemonTest < TestBase
   # Records what it was asked and answers one canned [code,body], standing in
   # for the transport so that a test can pin the docker URL built onto it.
   class DockerSocketSpy
-    attr_reader :calls, :attached, :stream
+    attr_reader :calls, :attached, :attached_body, :stream
 
     def initialize(response)
       @response = response
@@ -166,8 +192,9 @@ class DockerDaemonTest < TestBase
       @response
     end
 
-    def attach(path)
+    def attach(path, body = nil)
       @attached = path
+      @attached_body = body
       @stream
     end
   end

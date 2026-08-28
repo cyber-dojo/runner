@@ -2,12 +2,12 @@
 set -Eeu -o pipefail
 # Measures what an idle pooled container costs, so a pool cap can be chosen.
 #
-# A pool holds warm containers per image, and a node runs many images at once,
-# so the total is the per-image target multiplied by the number of hot images.
-# That total is only affordable if an idle container is cheap. An idle one has
-# only ever run sleep: its tmpfs mounts are empty, and --memory=2g is a cap
-# rather than a reservation, so the expectation is single-digit MB. This probe
-# is what turns that expectation into a number.
+# A pool holds warm containers per image, but the cap is a total across all of
+# them, so what has to be affordable is that total and not any one image's
+# share. That total is only affordable if an idle container is cheap. An idle
+# one has only ever run sleep: its tmpfs mounts are empty, and --memory=2g is
+# a cap rather than a reservation, so the expectation is single-digit MB. This
+# probe is what turns that expectation into a number.
 #
 # Three things are measured as the idle count rises, because they bind at
 # different points:

@@ -8,32 +8,40 @@ class CyberDojoShRunnerTest < TestBase
 
   test 'c9Gf10', %w(
   | the run creates a container of its own name
+  | from the config that depends on its image alone
   | saying in json what the docker CLI is told in flags
   ) do
-    spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}']])
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream)
 
     CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
     endpoint, config, name = spy.calls[0]
     assert_equal :create_container, endpoint
-    assert_equal CyberDojoShContainerConfig.create_config(id58, image_name), config
+    assert_equal CyberDojoShContainerConfig.image_config(image_name), config
     assert_equal container_name, name
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf11', %w(
-  | the stream is attached before the container is started
-  | so that nothing it writes is missed
-  | and both name the id the create answered
+  | the container is started before its exec is made
+  | an exec being something only a running container can hold
+  | and the exec carries what belongs to this one run
+  | and starting the exec is itself what hijacks the stream
+  | so there is nothing to attach beforehand and nothing it writes is missed
+  | and the container is stopped once the run has its payload, because its own
+  | command is a sleep that would otherwise outlive the run
   ) do
-    spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [204, '']])
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
 
     CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
-    assert_equal [:attach_container, 'c0ffee'], spy.calls[1]
-    assert_equal [:start_container, 'c0ffee'], spy.calls[2]
-    assert_equal %i[create_container attach_container start_container], spy.endpoints
+    exec_config = CyberDojoShContainerConfig.exec_config(id58)
+    assert_equal [:start_container, 'c0ffee'], spy.calls[1]
+    assert_equal [:create_exec, 'c0ffee', exec_config], spy.calls[2]
+    assert_equal [:start_exec, 'e5ec1d'], spy.calls[3]
+    assert_equal %i[create_container start_container create_exec start_exec stop_container],
+                 spy.endpoints
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -43,7 +51,7 @@ class CyberDojoShRunnerTest < TestBase
   | which is what gives the container's [tar -zxf -] its end of file
   | and without which it waits for one that never comes
   ) do
-    spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [204, '']])
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream)
 
     CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -58,7 +66,7 @@ class CyberDojoShRunnerTest < TestBase
   | the payload arriving on stdout, and anything it complained about on stderr
   ) do
     spy = DockerDaemonSpy.new(
-      [[201, '{"Id":"c0ffee"}'], [204, '']],
+      responses_up_to_the_stream,
       frames: [[1, 'the-payload'], [2, 'a warning']]
     )
 
@@ -78,7 +86,7 @@ class CyberDojoShRunnerTest < TestBase
   | so cyber-dojo.sh's own EXIT trap still gets its chance
   ) do
     spy = DockerDaemonSpy.new(
-      [[201, '{"Id":"c0ffee"}'], [204, ''], [204, '']],
+      responses_up_to_the_stream + [[204, '']],
       stalls: true
     )
 
@@ -90,7 +98,8 @@ class CyberDojoShRunnerTest < TestBase
     assert_equal '', result[:stdout]
     assert_equal '', result[:stderr]
     assert_equal [:stop_container, 'c0ffee', 1], spy.calls.last
-    assert_equal %i[create_container attach_container start_container stop_container], spy.endpoints
+    assert_equal %i[create_container start_container create_exec start_exec stop_container],
+                 spy.endpoints
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -189,6 +198,27 @@ class CyberDojoShRunnerTest < TestBase
     http.request('DELETE', "/containers/#{name}?force=true")
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf19', %w(
+  | a real run that finishes disposes of its container
+  | which nothing else does: the container's own command is a sleep, so it
+  | outlives the exec that did the work and AutoRemove has nothing to react to
+  | and a run that left it behind would hold one container per test-run
+  | for the rest of that sleep, which scales with traffic and not with any cap
+  ) do
+    http = DockerSocket.new
+    set_context(http: http)
+    name = "cyber_dojo_runner_#{id58}"
+
+    result = CyberDojoShRunner.new(docker).run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
+
+    refute result[:timed_out], 'timed_out'
+    assert gone?(http, name), "#{name} was left behind"
+  ensure
+    http.request('DELETE', "/containers/#{name}?force=true")
+  end
+
   private
 
   # test/client/robustness_test.rb 1B5CD6
@@ -225,6 +255,13 @@ class CyberDojoShRunnerTest < TestBase
   def real_tgz_in(cyber_dojo_sh)
     files = Sandbox.in({ 'cyber-dojo.sh' => cyber_dojo_sh })
     TGZ.of(files.merge(home_files(Sandbox::DIR, 50 * 1024)))
+  end
+
+  # What the daemon answers to the three calls a run makes before it has a
+  # stream: the container created, the container started, and an exec made in
+  # it. A test that gets as far as the stream needs all three.
+  def responses_up_to_the_stream
+    [[201, '{"Id":"c0ffee"}'], [204, ''], [201, '{"Id":"e5ec1d"}']]
   end
 
   def container_name

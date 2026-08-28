@@ -86,6 +86,30 @@ class DockerSocketTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'a3Bd16', %w(
+  | an attach carrying a body says it is json and how long it is
+  | which is what starting an exec needs, and attaching to a container does not
+  | and it still asks for the upgrade, because it still wants the connection
+  ) do
+    upgraded = "HTTP/1.1 101 UPGRADED\r\nUpgrade: tcp\r\n\r\n"
+    against_server(upgraded) do |path|
+      DockerSocket.new(path).attach('/exec/abc/start', { 'Detach' => false, 'Tty' => false }).read
+    end
+
+    assert_equal [
+      'POST /exec/abc/start HTTP/1.1',
+      'Host: docker',
+      'Content-Type: application/json',
+      'Content-Length: 28',
+      'Connection: Upgrade',
+      'Upgrade: tcp',
+      '',
+      '{"Detach":false,"Tty":false}'
+    ].join("\r\n"), @request_bytes
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test 'a3Bd14', %w(
   | a chunked response answers the body with its chunk framing removed
   | which the daemon sends whatever Connection it is asked for

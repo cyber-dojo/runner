@@ -48,7 +48,7 @@ substring of.
 
 ## The size of it
 
-Eight endpoints in a service of this size, so the layer is thin, and it is worth
+Nine endpoints in a service of this size, so the layer is thin, and it is worth
 keeping only while something wants the list in one place. `CyberDojoShRunner`
 holds one rather than living inside it: the run sequence, being create, attach,
 start, stop and the deadline around them, reads in one piece where it is.

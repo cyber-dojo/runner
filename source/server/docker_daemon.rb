@@ -31,15 +31,25 @@ class DockerDaemon
     http.request('POST', "/containers/create#{named}", config)
   end
 
-  # Answers the container's hijacked socket, which carries its stdin one way
-  # and both its output streams the other, multiplexed.
-  def attach_container(id)
-    http.attach("/containers/#{id}/attach?stream=1&stdin=1&stdout=1&stderr=1")
-  end
-
   # Starts a created container.
   def start_container(id)
     http.request('POST', "/containers/#{id}/start")
+  end
+
+  # Makes an exec inside a container that is already running, from config, and
+  # answers what the daemon said, the new exec's id being in the body. This is
+  # how a run reaches a container created before the run was known: the config
+  # carries the command and the vars belonging to that one run.
+  def create_exec(container_id, config)
+    http.request('POST', "/containers/#{container_id}/exec", config)
+  end
+
+  # Runs a created exec, answering its hijacked socket, which carries stdin one
+  # way and both output streams the other, multiplexed, exactly as attaching to
+  # a container does. Detach false is what keeps the streams on this
+  # connection, and the tty is refused because a pty would corrupt the payload.
+  def start_exec(exec_id)
+    http.attach("/exec/#{exec_id}/start", { 'Detach' => false, 'Tty' => false })
   end
 
   # Stops a running container, giving it seconds to stop in: SIGTERM, and then

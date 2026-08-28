@@ -2,7 +2,7 @@ class DockerDaemonStub
   # as passed to set_context(docker:), standing in for the docker daemon in a
   # whole test-run.
   #
-  # Answers create, start and stop, and hands back an attach stream carrying
+  # Answers create, start, exec and stop, and hands back a stream carrying
   # whatever the container is said to have written to its stdout, framed the
   # way the daemon frames it. timed_out: true makes that stream stand in for a
   # container which never finishes what it is saying. An archive is
@@ -21,12 +21,16 @@ class DockerDaemonStub
     [@create_code, @create_body]
   end
 
-  def attach_container(_id)
-    AttachStreamStub.new(@stdout, timed_out: @timed_out)
-  end
-
   def start_container(_id)
     [204, '']
+  end
+
+  def create_exec(_container_id, _config)
+    [201, '{"Id":"e5ec1d"}']
+  end
+
+  def start_exec(_exec_id)
+    AttachStreamStub.new(@stdout, timed_out: @timed_out)
   end
 
   def stop_container(_id, seconds:)

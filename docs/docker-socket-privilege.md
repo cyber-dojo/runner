@@ -67,8 +67,9 @@ something to be gathered from its callers:
 | `GET /images/json` | `image_names` | `node.rb` |
 | `POST /images/create?fromImage=` | `pull_image` | `puller.rb` |
 | `POST /containers/create` | `create_container` | `cyber_dojo_sh_runner.rb`, `traffic_light.rb` |
-| `POST /containers/{id}/attach` | `attach_container` | `cyber_dojo_sh_runner.rb` |
 | `POST /containers/{id}/start` | `start_container` | `cyber_dojo_sh_runner.rb` |
+| `POST /containers/{id}/exec` | `create_exec` | `cyber_dojo_sh_runner.rb` |
+| `POST /exec/{id}/start` | `start_exec` | `cyber_dojo_sh_runner.rb` |
 | `POST /containers/{id}/stop` | `stop_container` | `cyber_dojo_sh_runner.rb` |
 | `GET /containers/{id}/archive` | `read_file` | `traffic_light.rb` |
 | `DELETE /containers/{id}` | `remove_container` | `traffic_light.rb` |
@@ -80,6 +81,12 @@ having to stop being root. Note what it does not remove: `POST
 containers, so a proxy has to judge the config it is asked for rather than only
 the path. `CyberDojoShContainerConfig` is where the runner's own answer to that
 question already lives.
+
+There are two bodies to judge rather than one. `image_config` says what the
+container may do, and `exec_config` carries the command that runs the kata, so
+a proxy that read only the create config would see the limits and never the
+command, and would allow any command at all on the exec. Both endpoints have to
+be judged on their body and not merely their path.
 
 Enumerating this list was not practical while the runner spawned the docker
 CLI, because the CLI's flags do not map one-to-one onto endpoints and the CLI

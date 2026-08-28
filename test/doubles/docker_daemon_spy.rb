@@ -4,10 +4,10 @@ class DockerDaemonSpy
   # every call by the name of the endpoint and the arguments it was given, so
   # nothing has to match on a docker URL to know what was asked.
   #
-  # attach_container hands back a stream carrying whatever the container is
-  # said to have written, framed the way the daemon frames it, and remembers
-  # what was written to it. stalls: true makes that stream stand in for a
-  # container which is alive and saying nothing.
+  # start_exec hands back a stream carrying whatever the container is said to
+  # have written, framed the way the daemon frames it, and remembers what was
+  # written to it. stalls: true makes that stream stand in for a container
+  # which is alive and saying nothing.
 
   def initialize(responses, frames: [], stalls: false)
     @responses = responses
@@ -46,8 +46,12 @@ class DockerDaemonSpy
     answer(:remove_container, id)
   end
 
-  def attach_container(id)
-    @calls << [:attach_container, id]
+  def create_exec(container_id, config)
+    answer(:create_exec, container_id, config)
+  end
+
+  def start_exec(exec_id)
+    @calls << [:start_exec, exec_id]
     @stream = AttachStreamSpy.new(@frames, @stalls)
   end
 
