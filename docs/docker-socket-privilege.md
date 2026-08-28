@@ -66,7 +66,9 @@ something to be gathered from its callers:
 | --- | --- | --- |
 | `GET /images/json` | `image_names` | `node.rb` |
 | `POST /images/create?fromImage=` | `pull_image` | `puller.rb` |
+| `GET /containers/json?filters=name` | `containers_named` | `container_pool.rb` |
 | `POST /containers/create` | `create_container` | `cyber_dojo_sh_runner.rb`, `traffic_light.rb` |
+| `POST /containers/{id}/rename` | `rename_container` | `container_pool.rb` |
 | `POST /containers/{id}/start` | `start_container` | `cyber_dojo_sh_runner.rb` |
 | `POST /containers/{id}/exec` | `create_exec` | `cyber_dojo_sh_runner.rb` |
 | `POST /exec/{id}/start` | `start_exec` | `cyber_dojo_sh_runner.rb` |

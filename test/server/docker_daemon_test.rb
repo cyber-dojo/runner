@@ -118,6 +118,38 @@ class DockerDaemonTest < TestBase
     assert_equal({ 'Detach' => false, 'Tty' => false }, http.attached_body)
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM12', %w[
+  | containers_named asks for the containers whose name holds the given one
+  | the daemon matching by substring, which is what lets one spare prefix
+  | count every worker's spares on the node without knowing how many workers
+  | there are
+  | and it asks for running containers only, so a spare whose sleep has ended
+  | has left the count already
+  ] do
+    http = spied_http([200, containers_json])
+    filters = '%7B%22name%22%3A%5B%22cyber_dojo_spare_%22%5D%7D'
+
+    assert_equal [200, containers_json], docker.containers_named('cyber_dojo_spare_')
+    assert_equal [['GET', "/containers/json?filters=#{filters}", nil]], http.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM13', %w[
+  | rename_container renames one, which is how claiming a spare takes it out
+  | of the count of spares: a label cannot be changed after a create and a
+  | name can
+  ] do
+    http = spied_http([204, ''])
+    claimed = 'cyber_dojo_runner_K3nW8p_9a3b1c7d'
+
+    assert_equal [204, ''], docker.rename_container(container_id, name: claimed)
+    expected = "/containers/#{container_id}/rename?name=#{claimed}"
+    assert_equal [['POST', expected, nil]], http.calls
+  end
+
   private
 
   # Wires the daemon to a transport that answers response and remembers what it
@@ -152,6 +184,16 @@ class DockerDaemonTest < TestBase
   # As POST /containers/{id}/exec answers it, being the new exec's id alone.
   def exec_created_body
     "{\"Id\":\"#{exec_id}\"}"
+  end
+
+  # As GET /containers/json answers it: one running spare, carrying its name
+  # with the leading slash the daemon gives it.
+  def containers_json
+    JSON.generate([
+                    { 'Id' => container_id,
+                      'Names' => ['/cyber_dojo_spare_w3_1a2b3c4d'],
+                      'State' => 'running' }
+                  ])
   end
 
   # As GET /images/json answers it, with fields alongside RepoTags.

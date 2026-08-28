@@ -56,6 +56,11 @@ Metrics/MethodLength:
     - source/*/dispatcher.rb
     - source/client/demo.rb
     - source/server/home_files.rb
+    # context.rb's initialize names every collaborator once, so it grows by a
+    # line for each service added and shrinks by one for each removed. Naming
+    # them is the file's whole job, and it is excluded from Metrics/AbcSize
+    # for the same reason.
+    - source/server/context.rb
 
 Metrics/ParameterLists:
   Exclude:

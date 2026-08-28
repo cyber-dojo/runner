@@ -19,9 +19,11 @@ to whoever asked:
 - `Node` raises, carrying what the daemon said instead of the image list
 - `Puller` logs the code and the body, and leaves the image unpulled
 - `TrafficLight` raises a `Fault` naming the image and the code
-- `CyberDojoShRunner` raises `DaemonRefused` carrying the code, because a 404 to a
-  create is the daemon saying the image is not on the node, which is what
-  sends `Runner` back to the puller
+- `CyberDojoShRunner` raises `DaemonRefused` carrying the code, and raises the
+  `ImageMissing` subclass of it for a 404 to a container create, that being
+  the daemon saying the image is not on the node, which is what sends `Runner`
+  back to the puller. A 404 to an exec create says the container has gone
+  instead, and stays a plain `DaemonRefused`
 
 Answering anything narrower than `[code,body]` would take those decisions away
 from the only objects in a position to make them.
@@ -46,9 +48,14 @@ endpoint.
 spy records `[:read_file, id, path]` rather than a path a test has to match a
 substring of.
 
-## The size of it
+## What keeps it thin
 
-Nine endpoints in a service of this size, so the layer is thin, and it is worth
-keeping only while something wants the list in one place. `CyberDojoShRunner`
-holds one rather than living inside it: the run sequence, being create, attach,
-start, stop and the deadline around them, reads in one piece where it is.
+No method does anything: each builds one URL and hands back what the daemon
+said. That is what thin means here, and it holds however many endpoints the
+class grows, so the count is not the measure and is not worth maintaining in
+prose. What would end the layer is nothing wanting the list in one place, and
+`docs/docker-socket-privilege.md` wants it.
+
+`CyberDojoShRunner` holds one rather than living inside it: the run sequence,
+being create, start, the exec pair, stop and the deadline around them, reads in
+one piece where it is.

@@ -162,12 +162,16 @@ the container can do it. Step 5's count is a target rather than a ceiling
 already, so a window in which it still counts a claimed container is the kind
 of looseness it is built for.
 
-A claim also has to look at how old the spare is, and decline one with less
-than about twenty seconds of its sleep left, discarding it and falling back.
-Step 7 has the reason: the sleep ending under a run that is already going
-kills the kata part way and answers the learner faulty. The age is in the
-worker's own memory, since the worker created the spare, so this costs no
-daemon call and nothing but a miss.
+A claim also has to look at how much of the spare's sleep is left, and decline
+one that cannot outlast a whole run, discarding it and falling back. Step 7
+has the reason: the sleep ending under a run that is already going kills the
+kata part way and answers the learner faulty. What is left is in the worker's
+own memory, since the worker created the spare, so this costs no daemon call
+and nothing but a miss.
+
+The threshold is not a number of its own. It is CyberDojoShRunner::RUN_SECONDS
+plus CyberDojoShRunner::STOP_SECONDS, read from the runner that imposes both,
+so raising either cannot leave the pool believing the old one.
 
 That query is for reaping and counting, not for claiming, and the difference is
 the whole reason the pool is per worker rather than shared across them.
@@ -302,10 +306,11 @@ Zlib::GzipFile::Error rescue answers faulty with nothing on stdout or stderr.
 Faulty for a kata that was fine is still worth not doing.
 
 Step 4's claim is where it is avoided, because a worker created its spares and
-so knows their age without asking the daemon: it declines one with too little
-sleep left and falls back, which costs a miss and nothing else. The threshold
-is the 15 second run cap runner.rb imposes, plus the second the stop allows,
-plus the exec setup, so about twenty seconds.
+so knows what is left of them without asking the daemon: it declines one that
+cannot outlast a whole run and falls back, which costs a miss and nothing
+else. The threshold is RUN_SECONDS plus STOP_SECONDS, read from
+CyberDojoShRunner, with nothing added for the exec setup between the claim and
+the deadline starting, which is milliseconds against them.
 
 That makes the duration a three-way trade rather than a choice against the
 refill rate. Too short and most of a spare's life is unclaimable: at sixty

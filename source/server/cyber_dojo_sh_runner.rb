@@ -39,6 +39,13 @@ class CyberDojoShRunner
   class ImageMissing < DaemonRefused
   end
 
+  # The longest a kata may run for, whatever its manifest asks for. runner.rb
+  # applies it and DeadlineReader enforces it.
+  RUN_SECONDS = 15
+
+  # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
+  STOP_SECONDS = 1
+
   def initialize(docker)
     @docker = docker
   end
@@ -72,11 +79,9 @@ class CyberDojoShRunner
 
   # The container's own Cmd is a sleep, which outlives the exec that does the
   # work, so nothing else disposes of it and a run that left it would hold it
-  # for the rest of that sleep. One second is enough for cyber-dojo.sh's own
-  # EXIT trap to get its chance before the SIGKILL, and AutoRemove then
-  # disposes of the container.
+  # for the rest of that sleep. AutoRemove disposes of it once it has stopped.
   def stop(container_id)
-    docker.stop_container(container_id, seconds: 1)
+    docker.stop_container(container_id, seconds: STOP_SECONDS)
   end
 
   # The container depends on its image alone, so nothing about this run is

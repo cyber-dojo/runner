@@ -35,6 +35,14 @@ class TestBase < Id58TestBase
     context.logger
   end
 
+  def clock
+    context.clock
+  end
+
+  def spares
+    context.spares
+  end
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 1. test on one OS or many
 

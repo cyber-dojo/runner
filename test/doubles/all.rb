@@ -1,3 +1,4 @@
+require_relative 'clock_stub'
 require_relative 'docker_daemon_spy'
 require_relative 'docker_daemon_stub'
 require_relative 'puller_spy'

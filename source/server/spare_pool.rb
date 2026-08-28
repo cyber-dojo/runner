@@ -1,0 +1,69 @@
+require_relative 'cyber_dojo_sh_runner'
+
+# The spares one worker holds, keyed by the image they were made from.
+#
+# A spare is a container that has only ever run sleep. It serves exactly one
+# exec and is then discarded, so nothing is recycled and there is nothing for
+# a claim to reset: one test-run, one container.
+#
+# In-process and mutex-guarded, the way Puller holds @pulled. A claim happens
+# on the test-run, and taking time off a test-run is the point of holding
+# spares at all, so a claim asks the daemon nothing.
+class SparePool
+  def initialize(context)
+    @context = context
+    @spares = Hash.new { |hash, image_name| hash[image_name] = [] }
+    @mutex = Mutex.new
+  end
+
+  # Answers a spare's container id, or nil when this worker holds none for the
+  # image that can still serve a whole run. Nil is a miss, and a miss is a
+  # test-run creating its own container exactly as one does with no pool
+  # behind it at all.
+  def claim(image_name:)
+    @mutex.synchronize do
+      queue = @spares[image_name]
+      # A spare too near its expiry is dropped rather than left to be
+      # considered again, so one dying spare costs a claim nothing but the
+      # looking.
+      queue.shift while queue.any? && !usable?(queue.first)
+      spare = queue.shift
+      spare&.fetch(:container_id)
+    end
+  end
+
+  # Takes a spare this worker has made into the pool. expires_at is when its
+  # sleep ends, which is what claim measures against: the caller knows both
+  # the clock it was created against and how long it was told to sleep for.
+  def add(image_name:, container_id:, expires_at:)
+    @mutex.synchronize do
+      @spares[image_name] << { container_id: container_id, expires_at: expires_at }
+    end
+  end
+
+  private
+
+  # A spare has to outlive the run it is given to. An exec does not survive
+  # its container's PID 1, so a sleep ending under a run kills the kata part
+  # way and answers the learner faulty for a kata that was fine.
+  # See docs/profiling/check_spare_sleep_ending_under_a_run.sh
+  def usable?(spare)
+    (spare[:expires_at] - clock.now) >= longest_hold_seconds
+  end
+
+  # The longest one run can hold a container: the cap on a kata, and the grace
+  # a stop allows its EXIT trap. Both are read from the runner that imposes
+  # them, so raising either cannot leave this believing the old one.
+  #
+  # Nothing is added for the exec setup between the claim and the deadline
+  # starting, which is measured in milliseconds. What that leaves is about a
+  # second of slack on the only span that matters, the payload read, and the
+  # read cannot overrun its cap because the deadline stops it.
+  def longest_hold_seconds
+    CyberDojoShRunner::RUN_SECONDS + CyberDojoShRunner::STOP_SECONDS
+  end
+
+  def clock
+    @context.clock
+  end
+end
