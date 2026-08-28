@@ -38,19 +38,39 @@ class CyberDojoShRunner
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
     container_id = create(image_name, container_name)
-    docker.start_container(container_id)
-    # An exec can only be made in a container that is running, and starting
-    # that exec is itself what hijacks the stream, so there is nothing to
-    # attach beforehand and no first bytes to miss.
-    exec_id = create_exec(container_id, id)
-    stream = docker.start_exec(exec_id)
-    send_tgz(stream, tgz_in)
-    result_of(container_id, stream, max_seconds)
+    # Everything past the create owns a container, and so has to dispose of it
+    # however it ends. A refused create is outside, having made none to stop.
+    begin
+      docker.start_container(container_id)
+      exec_cyber_dojo_sh(container_id, id, max_seconds, tgz_in)
+    ensure
+      stop(container_id)
+    end
   end
 
   private
 
   attr_reader :docker
+
+  # Runs cyber-dojo.sh in a container that already exists. An exec can only be
+  # made in a container that is running, and starting that exec is itself what
+  # hijacks the stream, so there is nothing to attach beforehand and no first
+  # bytes to miss.
+  def exec_cyber_dojo_sh(container_id, id, max_seconds, tgz_in)
+    exec_id = create_exec(container_id, id)
+    stream = docker.start_exec(exec_id)
+    send_tgz(stream, tgz_in)
+    result_of(stream, max_seconds)
+  end
+
+  # The container's own Cmd is a sleep, which outlives the exec that does the
+  # work, so nothing else disposes of it and a run that left it would hold it
+  # for the rest of that sleep. One second is enough for cyber-dojo.sh's own
+  # EXIT trap to get its chance before the SIGKILL, and AutoRemove then
+  # disposes of the container.
+  def stop(container_id)
+    docker.stop_container(container_id, seconds: 1)
+  end
 
   # The container depends on its image alone, so nothing about this run is
   # said here. Its command sleeps, which is what keeps it there to be exec'd.
@@ -66,7 +86,9 @@ class CyberDojoShRunner
   # the vars naming the run.
   def create_exec(container_id, id)
     config = CyberDojoShContainerConfig.exec_config(id)
-    _code, body = docker.create_exec(container_id, config)
+    code, body = docker.create_exec(container_id, config)
+    raise DaemonRefused.new(code, "exec create answered #{code}: #{body}") unless code.between?(200, 299)
+
     JSON.parse(body)['Id']
   end
 
@@ -79,22 +101,13 @@ class CyberDojoShRunner
     stream.close_write
   end
 
-  # What the container sent, or a stopped container and timed_out. Nothing
-  # partial is answered: what arrived before the deadline passed is not a
-  # whole payload.
-  #
-  # The container is stopped however the run ends. Its own command is a sleep,
-  # which outlives the exec that did the work, so a run that did not stop it
-  # would leave it holding memory for the rest of that sleep. One second is
-  # enough for cyber-dojo.sh's own EXIT trap to get its chance before the
-  # SIGKILL, and AutoRemove then disposes of the container.
-  def result_of(container_id, stream, max_seconds)
+  # What the container sent, or timed_out. Nothing partial is answered: what
+  # arrived before the deadline passed is not a whole payload.
+  def result_of(stream, max_seconds)
     stdout, stderr = read_payload(stream, max_seconds)
     { timed_out: false, stdout: stdout, stderr: stderr }
   rescue DeadlineReader::Expired
     { timed_out: true, stdout: '', stderr: '' }
-  ensure
-    docker.stop_container(container_id, seconds: 1)
   end
 
   # The deadline starts once the container has everything it needs, and bounds

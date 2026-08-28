@@ -135,6 +135,7 @@ class CyberDojoShRunnerTest < TestBase
   | a create the daemon refuses raises, naming what it said
   | rather than carrying on with no container id
   | eg a name already taken by a container that never started
+  | and nothing is stopped, a refused create having made no container to stop
   ) do
     conflict = '{"message":"Conflict. The container name is already in use"}'
     spy = DockerDaemonSpy.new([[409, conflict]])
@@ -145,6 +146,46 @@ class CyberDojoShRunnerTest < TestBase
 
     assert_includes error.message, '409'
     assert_includes error.message, 'already in use'
+    assert_equal %i[create_container], spy.endpoints
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf20', %w(
+  | an exec create the daemon refuses raises, naming what it said
+  | rather than carrying on with no exec id and starting nothing
+  | eg a container that stopped between being started and being exec'd into
+  ) do
+    conflict = '{"message":"Container c0ffee is not running"}'
+    spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [204, ''], [409, conflict]])
+
+    error = assert_raises(CyberDojoShRunner::DaemonRefused) do
+      CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    end
+
+    assert_includes error.message, '409'
+    assert_includes error.message, 'is not running'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf21', %w(
+  | a run refused partway still disposes of the container it made
+  | the container having been created and started before the refusal
+  | so nothing else stops it and it would sleep out its Cmd holding memory
+  ) do
+    conflict = '{"message":"Container c0ffee is not running"}'
+    spy = DockerDaemonSpy.new(
+      [[201, '{"Id":"c0ffee"}'], [204, ''], [409, conflict], [204, '']]
+    )
+
+    assert_raises(CyberDojoShRunner::DaemonRefused) do
+      CyberDojoShRunner.new(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    end
+
+    assert_equal [:stop_container, 'c0ffee', 1], spy.calls.last
+    assert_equal %i[create_container start_container create_exec stop_container],
+                 spy.endpoints
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
