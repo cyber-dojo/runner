@@ -115,6 +115,7 @@ per press; with a pool it also costs a refill thread 404ing quietly for an
 image that is gone. The pool wants the same invalidation, and its create is
 another good place to notice the 404.
 
-docs/dropping-the-dind-base-image.md converts Puller's `docker pull` to POST
-/images/create. Whoever does that owns the streaming-progress error handling
-this fix also needs, so the two belong in one change.
+Puller already pulls with POST /images/create, and
+docs/dropping-the-dind-base-image.md records the two shapes its failures take.
+The streaming-progress error handling this fix needs is the same handling, so
+`Puller#stream_error?` is where to start rather than somewhere new.

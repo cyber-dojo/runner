@@ -86,6 +86,7 @@ colour_from_image means moving that fallback somewhere else, which is what the
 ragger service in docs/rag-functions-into-manifest.txt is for. Until it exists,
 the image route is load-bearing however many start-points carry the field.
 
-This is what decides step 3 of docs/dropping-the-dind-base-image.md, which
-wants the route empty so the last docker CLI caller converts by deletion.
+This is what decides the one item left open in
+docs/dropping-the-dind-base-image.md, which wants the route empty so that
+reading a rag-lambda out of an image can go by deletion rather than by rewrite.
 Empty of start-points is not empty of callers.
