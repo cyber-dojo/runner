@@ -53,7 +53,7 @@ class CyberDojoShRunner
   def run(id, image_name, container_name, max_seconds, tgz_in)
     # A spare is already created and already started, which is the whole of
     # what holding one buys.
-    spare = spares.claim(image_name: image_name)
+    spare = spares.claim(image_name: image_name, container_name: container_name)
     if spare
       begin
         return run_in(spare, id, max_seconds, tgz_in)

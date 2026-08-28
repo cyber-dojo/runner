@@ -34,6 +34,10 @@ class DockerDaemonSpy
     answer(:create_container, config, name)
   end
 
+  def rename_container(id, name:)
+    answer(:rename_container, id, name)
+  end
+
   def start_container(id)
     answer(:start_container, id)
   end

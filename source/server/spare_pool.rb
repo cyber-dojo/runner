@@ -36,16 +36,26 @@ class SparePool
   # image that can still serve a whole run. Nil is a miss, and a miss is a
   # test-run creating its own container exactly as one does with no pool
   # behind it at all.
-  def claim(image_name:)
-    @mutex.synchronize do
-      queue = @spares[image_name]
-      # A spare too near its expiry is dropped rather than left to be
-      # considered again, so one dying spare costs a claim nothing but the
-      # looking.
-      queue.shift while queue.any? && !usable?(queue.first)
-      spare = queue.shift
-      spare&.fetch(:container_id)
+  #
+  # A claimed spare is renamed to the name its test-run runs under, so that a
+  # container serving a run is named the same whether it came from the pool or
+  # was made for the run. That is what lets docker ps say which kata a
+  # container is serving, and what takes the container out of the count the cap
+  # reads.
+  #
+  # On a thread, so the claim itself waits for no daemon call, which is why the
+  # pool is per worker. Atomicity is the mutex's, not the rename's, so nothing
+  # depends on when the rename lands: the count is a target rather than a
+  # ceiling, and a window where it still counts a claimed container is the kind
+  # of looseness it is built for.
+  def claim(image_name:, container_name:)
+    container_id = take(image_name)
+    return nil if container_id.nil?
+
+    threader.thread('renames-spare') do
+      docker.rename_container(container_id, name: container_name)
     end
+    container_id
   end
 
   # Takes a spare this worker has made into the pool. expires_at is when its
@@ -73,6 +83,17 @@ class SparePool
   end
 
   private
+
+  # Takes the next usable spare's container id out of the pool, or nil when
+  # there is none. A spare too near its expiry is dropped as it is passed
+  # over, so that a later claim does not look at it again.
+  def take(image_name)
+    @mutex.synchronize do
+      queue = @spares[image_name]
+      queue.shift while queue.any? && !usable?(queue.first)
+      queue.shift&.fetch(:container_id)
+    end
+  end
 
   # Whether the node already holds as many spares as it is allowed. The count
   # comes from the daemon because the cap is the node's, and the daemon is the

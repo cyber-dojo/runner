@@ -213,38 +213,39 @@ class CyberDojoShRunnerTest < TestBase
   | creating and starting no container of its own,
   | which is the whole of what holding spares buys
   ) do
-    # Enough for a run that makes its own container, which this one must not
-    # do, so that failing says which endpoints were asked for rather than
-    # dying on a response the spy ran out of.
-    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']])
+    # The first answers the claim's rename.
+    # The rest are what a run making its own container needs, which this run
+    # must not do. Given fewer, the spy answers nil and the failure is a JSON
+    # parse error rather than the list of endpoints that were asked for.
+    spy = DockerDaemonSpy.new([[204, '']] + responses_up_to_the_stream + [[204, '']])
     runner = runner_using(spy)
     spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
 
     runner.run(id58, image_name, container_name, max_seconds, tgz_in)
 
-    assert_equal %i[create_exec start_exec stop_container], spy.endpoints
+    assert_equal %i[rename_container create_exec start_exec stop_container], spy.endpoints
+    assert_equal [:rename_container, 'warmed', container_name], spy.calls[0]
     exec_config = CyberDojoShContainerConfig.exec_config(id58)
-    assert_equal [:create_exec, 'warmed', exec_config], spy.calls[0]
+    assert_equal [:create_exec, 'warmed', exec_config], spy.calls[1]
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf24', %w(
-  | a claimed spare the daemon refuses an exec in is discarded, and the run
-  | makes its own container instead, exactly as a run with no spare does,
-  | because a spare can be dead by the time it is claimed where a container
-  | made for the run cannot be, so a learner would otherwise be shown a
-  | faulty light they would never have seen without a pool,
-  | and the retry is clean because both exec calls come before the tgz goes,
-  | so the kata's files have not left the runner
-  | and the spare is stopped on the way out like any other container, being
-  | possibly exited rather than gone, and so still something to dispose of
+  | A claimed spare whose exec the daemon refuses is discarded.
+  | The run then makes its own container, exactly as a run with no spare does.
+  | A spare can be dead by the time it is claimed. A container made for the
+  | run cannot be. So without this a learner would see a faulty light they
+  | would never have seen without a pool.
+  | Retrying is safe here because both exec calls come before the tgz, so the
+  | kata's files have not left the runner.
+  | The dead spare is still stopped, being possibly exited rather than gone.
   ) do
     gone = '{"message":"No such container: warmed"}'
-    # The 404 refuses the exec in the spare; the 204 after it is the spare's
-    # own stop; the rest is a run making its own container.
+    # In order: the claim's rename, the refused exec in the spare, the spare's
+    # own stop, then a run making its own container.
     spy = DockerDaemonSpy.new(
-      [[404, gone], [204, '']] + responses_up_to_the_stream + [[204, '']]
+      [[204, ''], [404, gone], [204, '']] + responses_up_to_the_stream + [[204, '']]
     )
     runner = runner_using(spy)
     spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
@@ -252,7 +253,7 @@ class CyberDojoShRunnerTest < TestBase
     result = runner.run(id58, image_name, container_name, max_seconds, tgz_in)
 
     refute result[:timed_out], 'timed_out'
-    assert_equal %i[create_exec stop_container
+    assert_equal %i[rename_container create_exec stop_container
                     create_container start_container create_exec start_exec stop_container],
                  spy.endpoints
   end

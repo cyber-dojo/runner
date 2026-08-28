@@ -10,7 +10,7 @@ class SparePoolTest < TestBase
   ) do
     set_context
 
-    assert_nil spares.claim(image_name: an_image)
+    assert_nil spares.claim(image_name: an_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -23,8 +23,8 @@ class SparePoolTest < TestBase
     set_context
     spare = add_spare(image_name: an_image, seconds_left: outlives_a_run)
 
-    assert_equal spare, spares.claim(image_name: an_image)
-    assert_nil spares.claim(image_name: an_image)
+    assert_equal spare, spares.claim(image_name: an_image, container_name: a_run_name)
+    assert_nil spares.claim(image_name: an_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -38,8 +38,8 @@ class SparePoolTest < TestBase
     set_context
     spare = add_spare(image_name: a_different_image, seconds_left: outlives_a_run)
 
-    assert_nil spares.claim(image_name: an_image)
-    assert_equal spare, spares.claim(image_name: a_different_image)
+    assert_nil spares.claim(image_name: an_image, container_name: a_run_name)
+    assert_equal spare, spares.claim(image_name: a_different_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -54,7 +54,7 @@ class SparePoolTest < TestBase
     set_context
     add_spare(image_name: an_image, seconds_left: dies_under_a_run)
 
-    assert_nil spares.claim(image_name: an_image)
+    assert_nil spares.claim(image_name: an_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -68,8 +68,8 @@ class SparePoolTest < TestBase
     add_spare(image_name: an_image, seconds_left: dies_under_a_run)
     survivor = add_spare(image_name: an_image, seconds_left: outlives_a_run)
 
-    assert_equal survivor, spares.claim(image_name: an_image)
-    assert_nil spares.claim(image_name: an_image)
+    assert_equal survivor, spares.claim(image_name: an_image, container_name: a_run_name)
+    assert_nil spares.claim(image_name: an_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -105,7 +105,7 @@ class SparePoolTest < TestBase
 
     spares.warm(image_name: an_image)
 
-    assert_equal 'b52f8a30', spares.claim(image_name: an_image)
+    assert_equal 'b52f8a30', spares.claim(image_name: an_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -123,7 +123,7 @@ class SparePoolTest < TestBase
     spares.warm(image_name: an_image)
 
     assert_equal [[:containers_named, 'cyber_dojo_spare_']], daemon.calls
-    assert_nil spares.claim(image_name: an_image)
+    assert_nil spares.claim(image_name: an_image, container_name: a_run_name)
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -184,7 +184,34 @@ class SparePoolTest < TestBase
     assert_equal [an_image], images.names
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E12', %w(
+  | Claiming a spare renames it to the name its test-run runs under.
+  | The rename is on a thread, so the claim waits for no daemon call.
+  | The rename is what ensures that whether or not the container is from the
+  | spares, it will have the same name, which is useful as it lets docker ps
+  | say which kata a container is serving.
+  | It is also what takes the container out of the count the cap reads.
+  ) do
+    threader = ThreaderSynchronous.new
+    daemon = DockerDaemonSpy.new([[204, '']])
+    set_context(docker: daemon, threader: threader)
+    spare = add_spare(image_name: an_image, seconds_left: outlives_a_run)
+
+    claimed = spares.claim(image_name: an_image, container_name: a_run_name)
+
+    assert_equal spare, claimed
+    assert threader.called, 'threader'
+    assert_equal [[:rename_container, spare, a_run_name]], daemon.calls
+  end
+
   private
+
+  # As runner.rb builds it, from the kata id and a per-run random hex8.
+  def a_run_name
+    "cyber_dojo_runner_#{id58}_9a3b1c7d"
+  end
 
   # Which image a spare was made from matters to one test only, so the tests
   # say the role rather than the name. an_image is whichever image the OS
