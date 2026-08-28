@@ -8,7 +8,7 @@ require_relative 'cyber_dojo_sh_runner'
 # exec and is then discarded, so nothing is recycled and there is nothing for
 # a claim to reset: one test-run, one container.
 #
-# In-process and mutex-guarded, the way Puller holds @pulled. A claim happens
+# In-process and mutex-guarded, the way NodeImages holds @pulled. A claim happens
 # on the test-run, and taking time off a test-run is the point of holding
 # spares at all, so a claim asks the daemon nothing.
 class SparePool

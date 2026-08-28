@@ -19,8 +19,8 @@ class TestBase < Id58TestBase
     context.prober
   end
 
-  def puller
-    context.puller
+  def images
+    context.images
   end
 
   def runner

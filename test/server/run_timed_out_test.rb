@@ -11,7 +11,7 @@ class RunTimedOutTest < TestBase
       logger: @logger = StdoutLoggerSpy.new,
       docker: DockerDaemonStub.new(timed_out: true)
     )
-    puller.add(image_name)
+    images.add(image_name)
 
     run = run_cyber_dojo_sh
 

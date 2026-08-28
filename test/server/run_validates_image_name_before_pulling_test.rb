@@ -4,15 +4,15 @@ class RunValidatesImageNameBeforePullingTest < TestBase
 
   test 'B3nQ7k', %w[
   | run_cyber_dojo_sh rejects a malformed manifest image_name itself,
-  | before the puller is consulted,
+  | before the node's images are consulted,
   | so the rejection does not rest on pull_image reaching DockerImageName
   ] do
-    set_context(puller: spy = PullerSpy.new)
+    set_context(images: spy = NodeImagesSpy.new)
 
     assert_raises(DockerImageName::Malformed) do
       run_cyber_dojo_sh(image_name: 'UPPERCASE/name:latest')
     end
 
-    refute spy.called?, 'the puller was consulted before the image_name was validated'
+    refute spy.called?, "the node's images were consulted before the image_name was validated"
   end
 end

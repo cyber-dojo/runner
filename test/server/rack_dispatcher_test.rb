@@ -78,17 +78,17 @@ class RackDispatcherTest < TestBase
   test 'D06A9F', 'pull_image' do
     args = { id: id58, image_name: image_name }
     env = { path_info: 'pull_image', body: args.to_json }
-    rack_call(env, puller: dummy = PullerDummy.new)
+    rack_call(env, images: dummy = NodeImagesDummy.new)
     assert_200('pull_image')
     assert dummy.called?
   end
 
-  class PullerDummy
+  class NodeImagesDummy
     def initialize
       @called = false
     end
 
-    def pull_image(*)
+    def pull(*)
       @called = true
     end
 

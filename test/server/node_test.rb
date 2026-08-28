@@ -5,7 +5,7 @@ class NodeTest < TestBase
 
   test '3q1Ps3', %w[image_names are the RepoTags the daemon answers,
                     one image being able to carry several of them] do
-    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(images)]]))
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(daemon_images)]]))
     actual = node.image_names
     assert_equal expected, actual
     assert_equal [[:image_names]], docker.calls
@@ -21,7 +21,7 @@ class NodeTest < TestBase
       { 'Id' => 'sha256:34692745a2bfde5d67ba19550b5a3aed1110ec5aabb4cdc2cf72541d5e516e33',
         'RepoTags' => [] }
     ]
-    tainted = (images + dangling).shuffle
+    tainted = (daemon_images + dangling).shuffle
     set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(tainted)]]))
     actual = node.image_names
     assert_equal expected, actual
@@ -29,12 +29,12 @@ class NodeTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test '3q1Ps5', %w[image_names populate puller in config.ru] do
-    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(images)]]))
+  test '3q1Ps5', %w[image_names populate the node's images in config.ru] do
+    set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(daemon_images)]]))
     node.image_names.each do |image_name|
-      puller.add(image_name)
+      images.add(image_name)
     end
-    assert_equal expected, puller.image_names
+    assert_equal expected, images.names
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -77,7 +77,7 @@ class NodeTest < TestBase
 
   # As GET /images/json answers them, out of alphabetical order, and with
   # fields alongside RepoTags that say nothing about what an image is named.
-  def images
+  def daemon_images
     [
       { 'Id' => 'sha256:8fabf019a49303ba48925e4769944d3d27f02fee2b581c09537fa82f9f758951',
         'RepoTags' => ['cyberdojo/runner:83c2554', 'cyberdojo/runner:latest'] },

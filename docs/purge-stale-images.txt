@@ -13,7 +13,7 @@ cyberdojofoundation/gpp_assert832566f 2020-06-09 01:05:32 +0100 BST
 cyberdojofoundation/gcc_assert0e5e4d5 2020-06-04 01:29:53 +0100 BST
 
 Add a most-recent-use field to each image-name stored
-in puller's @pulled SynchronizedSet (which may therefore have to
+in NodeImages' @pulled SynchronizedSet (which may therefore have to
 become a SynchronizedHash) and initialize it with 1st Jan 1970
 
 On every run_cyber_dojo_sh call, update the most-recent-use

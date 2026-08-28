@@ -27,7 +27,7 @@ module DockerImageName
   # That takes a digest with no tag, eg name@sha256:..., down with it, and a
   # digest pins harder than any tag does. It goes anyway so that a start-point
   # is named one way. The set of images-present-on-the-node that config.ru
-  # seeds Puller with carries digest-only references among its tags, so what
+  # seeds NodeImages with carries digest-only references among its tags, so what
   # the refusal turns on is what a manifest may say, not what the seed can
   # match.
   def assert_versioned(str)

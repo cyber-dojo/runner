@@ -126,16 +126,16 @@ A pooled container needs its exec killed, and is then discarded rather than
 returned, because what a timed-out kata left running is not something the next
 test-run should inherit.
 
-## 4. ContainerPool, per worker, shaped like Puller
+## 4. SparePool, per worker, shaped like NodeImages
 
-In-process on Context and mutex-guarded, the way Puller holds @pulled.
+In-process on Context and mutex-guarded, the way NodeImages holds @pulled.
 
-It differs from Puller in what a restart costs. The daemon's image store is the
-ground truth behind @pulled, so losing it costs one redundant pull the daemon
-answers at once. Losing the pool's state leaks running containers instead, so
-the daemon has to be the ground truth here too: spares are labelled and named
-at create time, and a worker discovers them through GET /containers/json
-rather than trusting its own memory.
+It differs from NodeImages in what a restart costs. The daemon's image store is
+the ground truth behind @pulled, so losing it costs one redundant pull that the
+daemon answers at once. Losing the pool's state leaks running containers
+instead, so the daemon has to be the ground truth here too: spares are
+labelled and named at create time, and a worker discovers them through
+GET /containers/json rather than trusting its own memory.
 
 Labels and names divide that work between them, because docker will change one
 and not the other. A label cannot be changed after a container is created:
@@ -271,15 +271,15 @@ finishes, create a spare for that image, through step 5's cap check like any
 other create: seeding is one more background creator and gets no allowance of
 its own.
 
-The id that pull_image carries is not the key, and does not become one. Puller
-keys @pulled and @pulling on image_name and underscores the id it is passed;
+The id that pull_image carries is not the key, and does not become one.
+NodeImages keys @pulled and @pulling on image_name and underscores the id;
 the pool keys on image_name for the same reason. Nothing is recycled, so there
 is no per-kata state for a spare to hold, and two katas on the same language
 share both the pull and the pool.
 
 Seeding puts a second caller of /containers/create in a background thread, and
-that create can 404 for an image Puller wrongly believes is present. See
-docs/a-missing-image-recovers-only-through-puller.md: the pool should treat
+that create can 404 for an image NodeImages wrongly believes is present. See
+docs/a-missing-image-recovers-only-through-a-pull.md: the pool should treat
 that 404 the way the run path will, as proof the image has gone, rather than
 retrying quietly for ever.
 
@@ -325,8 +325,8 @@ container referencing an image, and docker will not remove an image that has
 containers, so an image with spares cannot be reclaimed: not by the rules in
 docs/purge-stale-images.txt, and not by kubelet image garbage collection.
 
-Which is worth having. docs/a-missing-image-recovers-only-through-puller.md
-describes the one unrecoverable state the runner has, an image that Puller's
+Which is worth having. docs/a-missing-image-recovers-only-through-a-pull.md
+describes the one unrecoverable state the runner has, an image that the
 add-only @pulled believes is present after it has left the node. Pinning makes
 that state unreachable for any image the pool is keeping warm, and the images
 at risk of reclamation are the cold ones, which by definition have no spares.

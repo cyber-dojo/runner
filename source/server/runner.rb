@@ -21,7 +21,7 @@ class Runner
     # how far a bad name happens to travel before something objects.
     ::DockerImageName.assert_versioned(image_name)
 
-    return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
+    return empty_result(:pulling, 'pulling', {}) unless images.pull(id: id, image_name: image_name) == :pulled
 
     run, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
 
@@ -52,7 +52,7 @@ class Runner
     # refusal is the only sign the runner gets that what @pulled believes
     # about the node is wrong, and believing it anyway makes every later
     # test-run for this image faulty too.
-    puller.forget_image(image_name)
+    images.forget(image_name)
     log(id: id, image_name: image_name, error: e.message)
     faulty_result({})
   rescue CyberDojoShRunner::DaemonRefused => e
@@ -179,7 +179,7 @@ class Runner
     @context.logger.log(JSON.generate(info))
   end
 
-  def puller
-    @context.puller
+  def images
+    @context.images
   end
 end

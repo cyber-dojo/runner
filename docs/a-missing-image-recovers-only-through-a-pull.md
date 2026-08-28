@@ -1,8 +1,8 @@
-# A missing image recovers only through Puller
+# A missing image recovers only through a pull
 
-Since the run path moved to the daemon socket, Puller is the only thing that
-puts an image on a node. Nothing else pulls, and the daemon will not pull on
-the runner's behalf. That is fine while Puller's bookkeeping is right, and
+Since the run path moved to the daemon socket, NodeImages is the only thing
+that puts an image on a node. Nothing else pulls, and the daemon will not pull
+on the runner's behalf. That is fine while its bookkeeping is right, and
 unrecoverable when it is not.
 
 ## The daemon does not pull
@@ -26,21 +26,22 @@ running cyber-dojo.sh over the socket left it behind.
 
 ## What still recovers
 
-runner.rb consults Puller on every test-run, not only at kata creation:
+runner.rb consults the node's images on every test-run, not only at kata
+creation:
 
     return empty_result(:pulling, 'pulling', {}) unless
-      puller.pull_image(id: id, image_name: image_name) == :pulled
+      images.pull(id: id, image_name: image_name) == :pulled
 
 So an image nobody has pulled does recover. The first test-run answers
 "pulling" to the browser, a thread pulls, and a later press gets a traffic
-light. That is the self-heal, and it is Puller's, not the daemon's.
+light. That is the self-heal, and it is NodeImages', not the daemon's.
 
 ## @pulled is seeded from the node, not from pulling
 
 config.ru fills it before the first request:
 
     context.node.image_names.each do |image_name|
-      context.puller.add(image_name)
+      context.images.add(image_name)
     end
 
 So most of what @pulled holds was never pulled by this process. It is a
@@ -54,10 +55,10 @@ It also means the stale window opens at boot rather than at the first pull.
 Anything that removes an image after puma starts is invisible to @pulled.
 
 The two paths agree on the key, which is worth knowing because they reach it
-differently: config.ru adds the raw image-ls name, while pull_image tags the
-manifest name through ::DockerImageName.tagged. Checked against a real node's
-176 names, tagging is the identity on all of them, and no start-point manifest
-uses a digest, which is the form where the two would diverge.
+differently: config.ru adds the raw image-ls name, while pull tags the manifest
+name through ::DockerImageName.tagged. Checked against a real node's 176 names,
+tagging is the identity on all of them, and no start-point manifest uses a
+digest, which is the form where the two would diverge.
 
 One name did not survive tagging. node.rb filters the exact string
 '<none>:<none>' but not a name like repo/name:<none>, where the repository is
@@ -65,7 +66,7 @@ set and the tag is not. DockerImageName.tagged raises NoMethodError on that, its
 regex having matched nothing. Such a name is nothing to do with cyber-dojo: it
 is whatever else the host happens to have built.
 
-Nothing hits it today, because puller.rb's pull_image is the only caller of
+Nothing hits it today, because node_images.rb's pull is the only caller of
 DockerImageName.tagged and it tags manifest names, never seeded ones: the junk
 name sits in @pulled and matches nothing. It stops being harmless as soon as
 anything tags a seeded name, which is what the fix below would do. So the
@@ -74,13 +75,13 @@ change.
 
 ## What does not recover
 
-What does not recover is an image Puller believes is present and is not.
-@pulled is add-only: puller.rb calls @pulled.add, never delete, though
+What does not recover is an image NodeImages believes is present and is not.
+@pulled is add-only: node_images.rb calls @pulled.add, never delete, though
 SynchronizedSet#delete exists and @pulling uses it. Once an image name is in
-there, pull_image answers :pulled forever. If the image then leaves the node,
+there, pull answers :pulled forever. If the image then leaves the node,
 every test-run for it does this:
 
-  1. pull_image answers :pulled, so runner.rb goes on rather than pulling
+  1. pull answers :pulled, so runner.rb goes on rather than pulling
   2. CyberDojoShRunner#create gets 404 and raises DaemonRefused
   3. runner.rb rescues it, logs, and answers faulty_result({})
 
@@ -88,7 +89,7 @@ There is no path out. Nothing re-pulls, because the only pull is gated behind
 the cache that is wrong. The learner gets a faulty traffic light on every press
 until that puma worker restarts, which is what empties @pulled.
 
-## How an image leaves a node under Puller's feet
+## How an image leaves a node under the runner's feet
 
 Not hypothetically. docs/purge-stale-images.txt plans exactly this: delete
 images by age, driven off @pulled. Kubernetes does it too, without asking,
@@ -102,7 +103,7 @@ rather than terminal: the create that 404s is proof the image has gone, so the
 same handler can @pulled.delete(image_name) and let the eager path work
 correctly from then on.
 
-Note what this does not do. It does not make Puller redundant. Puller's job is
+Note what this does not do. It does not make NodeImages redundant. Its job is
 to pull at kata creation so the first test-run is fast, and pull-on-404 is a
 recovery path for when that bookkeeping is wrong, on a run that is already
 going to be slow. Both are wanted.
@@ -115,7 +116,7 @@ per press; with a pool it also costs a refill thread 404ing quietly for an
 image that is gone. The pool wants the same invalidation, and its create is
 another good place to notice the 404.
 
-Puller already pulls with POST /images/create, and
+NodeImages already pulls with POST /images/create, and
 docs/dropping-the-dind-base-image.md records the two shapes its failures take.
 The streaming-progress error handling this fix needs is the same handling, so
-`Puller#stream_error?` is where to start rather than somewhere new.
+`NodeImages#stream_error?` is where to start rather than somewhere new.

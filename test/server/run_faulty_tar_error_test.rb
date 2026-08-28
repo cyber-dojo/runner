@@ -30,6 +30,6 @@ class RunFaultyTarErrorTest < TestBase
       logger: @logger = StdoutLoggerSpy.new,
       docker: DockerDaemonStub.new(stdout: Gnu.zip('not-a-tar'))
     )
-    puller.add(image_name)
+    images.add(image_name)
   end
 end

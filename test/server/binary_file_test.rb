@@ -16,7 +16,7 @@
 #       command = "file --mime-encoding #{filename}"
 #       files['cyber-dojo.sh'] = command
 #
-#       puller.add(image_name)
+#       images.add(image_name)
 #       manifest['max_seconds'] = 3
 #
 #       run_result = runner.run_cyber_dojo_sh(

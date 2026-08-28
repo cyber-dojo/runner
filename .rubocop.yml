@@ -50,7 +50,7 @@ Metrics/MethodLength:
     - source/server/traffic_light.rb
     - source/server/tagged_image_name.rb
     - source/server/runner.rb
-    - source/server/puller.rb
+    - source/server/node_images.rb
     - source/server/files_delta.rb
     - source/server/externals/bash_sheller.rb
     - source/*/dispatcher.rb

@@ -17,12 +17,12 @@ It answers `[code,body]`, as the transport does. Which code means what belongs
 to whoever asked:
 
 - `Node` raises, carrying what the daemon said instead of the image list
-- `Puller` logs the code and the body, and leaves the image unpulled
+- `NodeImages` logs the code and the body, and leaves the image unpulled
 - `TrafficLight` raises a `Fault` naming the image and the code
 - `CyberDojoShRunner` raises `DaemonRefused` carrying the code, and raises the
   `ImageMissing` subclass of it for a 404 to a container create, that being
   the daemon saying the image is not on the node, which is what sends `Runner`
-  back to the puller. A 404 to an exec create says the container has gone
+  back to pull it. A 404 to an exec create says the container has gone
   instead, and stays a plain `DaemonRefused`
 
 Answering anything narrower than `[code,body]` would take those decisions away
@@ -30,8 +30,8 @@ from the only objects in a position to make them.
 
 ## A service, not an external
 
-`Context` builds it alongside node, prober, puller and runner rather than in
-`externals`. `@http` is the external: it is the object that opens the socket,
+`Context` builds it alongside node, prober, images, spares and runner rather
+than in `externals`. `@http` is the external: it opens the socket,
 and this is the object that holds it. So `DockerDaemon` takes `context` in its
 constructor the way the other services do, which is also what lets it reach
 `@context.logger` the day it has something of its own to log.

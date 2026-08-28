@@ -2,14 +2,17 @@ require 'json'
 require_relative 'synchronized_set'
 require_relative 'docker_image_name'
 
-class Puller
+# Which images this node holds, as this worker believes it. A test-run may
+# only go ahead for an image the node has, so this is what gates one, and
+# pulling is how an image it does not have is made ready.
+class NodeImages
   def initialize(context)
     @context = context
     @pulled  = SynchronizedSet.new
     @pulling = SynchronizedSet.new
   end
 
-  def image_names
+  def names
     @pulled.to_a
   end
 
@@ -17,15 +20,17 @@ class Puller
     @pulled.add(image_name)
   end
 
-  # Drops the belief that image_name is on the node, so the next pull_image
-  # pulls it rather than answering :pulled. What @pulled holds is a belief:
-  # config.ru seeds it from the node's images at boot, and an image removed
-  # after that leaves no trace in it.
-  def forget_image(image_name)
+  # Drops the belief that image_name is on the node, so the next pull pulls it
+  # rather than answering :pulled. What @pulled holds is a belief: config.ru
+  # seeds it from the node's images at boot, and an image removed after that
+  # leaves no trace in it.
+  def forget(image_name)
     @pulled.delete(image_name)
   end
 
-  def pull_image(id:, image_name:)
+  # Whether a test-run may go ahead for this image, and if it may not, starts
+  # making it so. Answers :pulled or :pulling.
+  def pull(id:, image_name:)
     ::DockerImageName.assert_versioned(image_name)
     image_name = ::DockerImageName.tagged(image_name)
     if @pulled.include?(image_name)
@@ -33,7 +38,7 @@ class Puller
     else
       if @pulling.add?(image_name)
         threader.thread('pulls-image') do
-          threaded_pull_image(id, image_name)
+          threaded_pull(id, image_name)
         end
       end
       :pulling
@@ -42,7 +47,7 @@ class Puller
 
   private
 
-  def threaded_pull_image(_id, image_name)
+  def threaded_pull(_id, image_name)
     t0 = Time.now
     # This blocks until the pull ends, which is what running on its own thread
     # allows.

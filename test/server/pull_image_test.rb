@@ -15,12 +15,12 @@ class PullImageTest < TestBase
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new
     )
-    assert_equal [], puller.image_names
-    puller.add(gcc_assert)
+    assert_equal [], images.names
+    images.add(gcc_assert)
     expected = :pulled
-    actual = puller.pull_image(id: id, image_name: gcc_assert)
+    actual = images.pull(id: id, image_name: gcc_assert)
     assert_equal expected, actual
-    assert_equal [gcc_assert], puller.image_names
+    assert_equal [gcc_assert], images.names
     refute context.threader.called
     assert_equal context.logger.logged, ''
   end
@@ -39,12 +39,12 @@ class PullImageTest < TestBase
       threader: ThreaderSynchronous.new,
       docker: DockerDaemonSpy.new([[200, pull_progress]])
     )
-    assert_equal [], puller.image_names
+    assert_equal [], images.names
     expected = :pulling
-    actual = puller.pull_image(id: id, image_name: gcc_assert)
+    actual = images.pull(id: id, image_name: gcc_assert)
     assert_equal expected, actual
     assert context.threader.called
-    assert_equal [gcc_assert], puller.image_names
+    assert_equal [gcc_assert], images.names
     assert_equal context.logger.logged, "Pulled docker image #{gcc_assert} (0.0 secs)\n"
     assert_equal [[:pull_image, gcc_assert]], docker.calls
   end
@@ -69,12 +69,12 @@ class PullImageTest < TestBase
       threader: ThreaderSynchronous.new,
       docker: DockerDaemonSpy.new([[404, body]])
     )
-    assert_equal [], puller.image_names
+    assert_equal [], images.names
     expected = :pulling
-    actual = puller.pull_image(id: id, image_name: gcc_assert)
+    actual = images.pull(id: id, image_name: gcc_assert)
     assert_equal expected, actual
     assert context.threader.called
-    assert_equal [], puller.image_names
+    assert_equal [], images.names
 
     log_message = "Failed to pull docker image #{gcc_assert}, code=404, body=#{body}\n"
     assert_equal context.logger.logged, log_message
@@ -102,9 +102,9 @@ class PullImageTest < TestBase
       docker: DockerDaemonSpy.new([[200, body]])
     )
 
-    assert_equal :pulling, puller.pull_image(id: id, image_name: gcc_assert)
+    assert_equal :pulling, images.pull(id: id, image_name: gcc_assert)
 
-    assert_equal [], puller.image_names
+    assert_equal [], images.names
     log_message = "Failed to pull docker image #{gcc_assert}, code=200, body=#{body}\n"
     assert_equal context.logger.logged, log_message
   end
@@ -124,13 +124,13 @@ class PullImageTest < TestBase
       threader: ThreaderSynchronous.new
     )
 
-    puller.instance_variable_get(:@pulling).add(gcc_assert)
-    assert_equal [], puller.image_names
+    images.instance_variable_get(:@pulling).add(gcc_assert)
+    assert_equal [], images.names
     expected = :pulling
-    actual = puller.pull_image(id: id, image_name: gcc_assert)
+    actual = images.pull(id: id, image_name: gcc_assert)
     assert_equal expected, actual
     refute context.threader.called
-    assert_equal [], puller.image_names
+    assert_equal [], images.names
     assert_equal context.logger.logged, ''
   end
 
@@ -150,9 +150,9 @@ class PullImageTest < TestBase
       http: DockerSocket.new
     )
 
-    assert_equal :pulling, puller.pull_image(id: id, image_name: alpine)
+    assert_equal :pulling, images.pull(id: id, image_name: alpine)
 
-    assert_equal [alpine], puller.image_names
+    assert_equal [alpine], images.names
     assert_includes context.logger.logged, "Pulled docker image #{alpine} ("
   end
 

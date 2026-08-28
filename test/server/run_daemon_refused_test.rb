@@ -14,7 +14,7 @@ class RunDaemonRefusedTest < TestBase
         create_body: '{"message":"Conflict. The container name is already in use"}'
       )
     )
-    puller.add(image_name)
+    images.add(image_name)
 
     run = run_cyber_dojo_sh
 
@@ -35,10 +35,10 @@ class RunDaemonRefusedTest < TestBase
         create_body: '{"message":"Conflict. The container name is already in use"}'
       )
     )
-    puller.add(image_name)
+    images.add(image_name)
 
     run_cyber_dojo_sh
 
-    assert_equal [image_name], puller.image_names
+    assert_equal [image_name], images.names
   end
 end

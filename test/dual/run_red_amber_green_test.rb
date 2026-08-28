@@ -90,7 +90,7 @@ module Dual
           logger: StdoutLoggerSpy.new,
           docker: DockerDaemonStub.new(stdout: stdout_tgz, archive: tar.tar_file)
         )
-        puller.add(image_name)
+        images.add(image_name)
         # simplecov:enable
       end
     end
