@@ -162,6 +162,13 @@ the container can do it. Step 5's count is a target rather than a ceiling
 already, so a window in which it still counts a claimed container is the kind
 of looseness it is built for.
 
+A claim also has to look at how old the spare is, and decline one with less
+than about twenty seconds of its sleep left, discarding it and falling back.
+Step 7 has the reason: the sleep ending under a run that is already going
+kills the kata part way and answers the learner faulty. The age is in the
+worker's own memory, since the worker created the spare, so this costs no
+daemon call and nothing but a miss.
+
 That query is for reaping and counting, not for claiming, and the difference is
 the whole reason the pool is per worker rather than shared across them.
 Reaping is background work. Claiming is on the test-run, which an API-driven
@@ -281,7 +288,32 @@ The seed removes the first miss on one worker rather than on all of them.
 ## 7. A spare's lifetime is its sleep
 
 AutoRemove reaps a spare whose sleep has ended, which bounds a leak without any
-bookkeeping to get wrong. The duration is chosen against the refill rate.
+bookkeeping to get wrong.
+
+The sleep ending under a run that is already going is the thing to design
+against. An exec does not survive its container's PID 1, and a probe settles
+what that costs: against a container sleeping 5 seconds, an exec wanting 10
+prints 5 seconds of output and exits 137, which is SIGKILL. So a spare claimed
+too near the end of its sleep has its kata killed part way.
+
+The learner sees that as faulty rather than as a wrong colour. The exec stream
+simply ends, so the runner reads a truncated gzip and runner.rb's
+Zlib::GzipFile::Error rescue answers faulty with nothing on stdout or stderr.
+Faulty for a kata that was fine is still worth not doing.
+
+Step 4's claim is where it is avoided, because a worker created its spares and
+so knows their age without asking the daemon: it declines one with too little
+sleep left and falls back, which costs a miss and nothing else. The threshold
+is the 15 second run cap runner.rb imposes, plus the second the stop allows,
+plus the exec setup, so about twenty seconds.
+
+That makes the duration a three-way trade rather than a choice against the
+refill rate. Too short and most of a spare's life is unclaimable: at sixty
+seconds a spare can be claimed only for its first forty, so a third of every
+spare is wasted and the refill rate has to cover it. Too long and a spare
+leaked by a worker that died lingers. Too long and a purge waits, which is the
+rest of this section. Three hundred seconds puts the waste near seven per cent
+and makes a purge wait five minutes.
 
 That duration also decides how long a spare pins its image. A spare is a
 container referencing an image, and docker will not remove an image that has
