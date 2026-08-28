@@ -47,16 +47,20 @@ class Runner
       Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
-  rescue CyberDojoShRunner::DaemonRefused => e
-    # The daemon would not run the container, so there is no result to report
-    # and nothing the kata did wrong. The learner is owed a traffic light
-    # rather than a 500, and what the daemon said belongs in the log rather
-    # than in the browser.
+  rescue CyberDojoShRunner::ImageMissing => e
     # Forgetting the image is what lets a later test-run pull it again. This
     # refusal is the only sign the runner gets that what @pulled believes
     # about the node is wrong, and believing it anyway makes every later
     # test-run for this image faulty too.
-    puller.forget_image(image_name) if e.code == CyberDojoShRunner::DaemonRefused::NO_SUCH_IMAGE
+    puller.forget_image(image_name)
+    log(id: id, image_name: image_name, error: e.message)
+    faulty_result({})
+  rescue CyberDojoShRunner::DaemonRefused => e
+    # The daemon would not run the kata, so there is no result to report and
+    # nothing the kata did wrong. The learner is owed a traffic light rather
+    # than a 500, and what the daemon said belongs in the log rather than in
+    # the browser. The image is left alone: this refusal says nothing about
+    # what the node holds.
     log(id: id, image_name: image_name, error: e.message)
     faulty_result({})
   rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e

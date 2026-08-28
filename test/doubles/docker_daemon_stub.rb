@@ -9,10 +9,14 @@ class DockerDaemonStub
   # TrafficLight reading the rag-lambda out of the image, which only a test
   # that was given one can answer.
 
-  def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}', timed_out: false, archive: nil)
+  def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}',
+                 exec_code: 201, exec_body: '{"Id":"e5ec1d"}',
+                 timed_out: false, archive: nil)
     @stdout = stdout
     @create_code = create_code
     @create_body = create_body
+    @exec_code = exec_code
+    @exec_body = exec_body
     @timed_out = timed_out
     @archive = archive
   end
@@ -26,7 +30,7 @@ class DockerDaemonStub
   end
 
   def create_exec(_container_id, _config)
-    [201, '{"Id":"e5ec1d"}']
+    [@exec_code, @exec_body]
   end
 
   def start_exec(_exec_id)
