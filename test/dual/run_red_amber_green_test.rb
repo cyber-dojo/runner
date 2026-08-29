@@ -1,6 +1,6 @@
 require_relative '../test_base'
-require_server_code 'tgz'
-require_server_code 'tarfile_writer'
+require_server_lib 'tgz'
+require_server_lib 'tarfile_writer'
 
 module Dual
   class RunRedAmberGreenTest < TestBase

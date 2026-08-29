@@ -1,6 +1,6 @@
 require_relative '../test_base'
-require_code 'gnu_zip'
-require_code 'gnu_unzip'
+require_lib 'gnu_zip'
+require_lib 'gnu_unzip'
 
 class GnuZipTest < TestBase
 

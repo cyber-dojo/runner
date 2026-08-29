@@ -1,6 +1,6 @@
 require_relative '../test_base'
-require_code 'tarfile_reader'
-require_code 'tarfile_writer'
+require_lib 'tarfile_reader'
+require_lib 'tarfile_writer'
 
 class TarFileTest < TestBase
 

@@ -1,7 +1,7 @@
 require_relative '../test_base'
 require_relative '../data/python_pytest'
 require_code 'traffic_light'
-require_code 'tarfile_writer'
+require_lib 'tarfile_writer'
 require_code 'externals/docker_socket'
 
 class TrafficLightTest < TestBase

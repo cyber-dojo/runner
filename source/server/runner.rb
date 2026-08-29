@@ -3,10 +3,10 @@ require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'sandbox'
 require_relative 'docker_image_name'
-require_relative 'tarfile_reader'
-require_relative 'tgz'
+require_relative 'lib/tarfile_reader'
+require_relative 'lib/tgz'
 require_relative 'traffic_light'
-require_relative 'utf8_clean'
+require_relative 'lib/utf8_clean'
 
 class Runner
   def initialize(context)

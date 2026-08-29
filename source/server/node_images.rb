@@ -1,5 +1,5 @@
 require 'json'
-require_relative 'synchronized_set'
+require_relative 'lib/synchronized_set'
 require_relative 'docker_image_name'
 
 # Which images this node holds, as this worker believes it. A test-run may

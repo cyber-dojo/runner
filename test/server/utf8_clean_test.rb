@@ -1,5 +1,5 @@
 require_relative '../test_base'
-require_code 'utf8_clean'
+require_lib 'utf8_clean'
 
 class Utf8CleanTest < TestBase
 

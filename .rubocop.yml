@@ -25,7 +25,7 @@ Lint/RescueException:
 
 Lint/UselessMethodDefinition:
   Exclude:
-    - source/server/empty_binding.rb
+    - source/server/lib/empty_binding.rb
 
 Metrics/AbcSize:
   Exclude:
