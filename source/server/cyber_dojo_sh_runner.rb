@@ -14,8 +14,11 @@ require_relative 'docker_attach_frames'
 class CyberDojoShRunner
   # The daemon would not do what it was asked. Carrying on regardless means
   # working with no container id, or with one that never started, and failing
-  # later somewhere that says nothing about why. It carries the status code so
-  # that what the daemon said reaches the log.
+  # later somewhere that says nothing about why.
+  #
+  # It carries the status code because which refusal it is decides what the
+  # runner does next, which is what ImageMissing below is about, and because
+  # what the daemon said belongs in the log either way.
   class DaemonRefused < RuntimeError
     def initialize(code, message)
       @code = code
@@ -41,10 +44,6 @@ class CyberDojoShRunner
   # away a present image and pull it again for nothing.
   class ImageMissing < DaemonRefused
   end
-
-  # The longest a kata may run for, whatever its manifest asks for.
-  # runner.rb applies it and DeadlineReader enforces it.
-  RUN_SECONDS = 15
 
   def initialize(context)
     @context = context

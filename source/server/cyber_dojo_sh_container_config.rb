@@ -40,29 +40,17 @@ module CyberDojoShContainerConfig
   end
   private_class_method :sandbox_user
 
-  # What the container knows about the run it is serving.
+  # What the run tells cyber_dojo_main.sh about itself.
   def self.env(id, image_name)
-    { 'Env' => [image_name_var(image_name), sandbox_var, id_var(id)] }
+    {
+      'Env' => [
+        "CYBER_DOJO_IMAGE_NAME=#{image_name}",
+        "CYBER_DOJO_ID=#{id}",
+        "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
+      ]
+    }
   end
   private_class_method :env
-
-  # Names the image the kata is running under.
-  def self.image_name_var(image_name)
-    "CYBER_DOJO_IMAGE_NAME=#{image_name}"
-  end
-  private_class_method :image_name_var
-
-  # Names the run, for tracing.
-  def self.id_var(id)
-    "CYBER_DOJO_ID=#{id}"
-  end
-  private_class_method :id_var
-
-  # Names the dir the kata's files are unpacked into.
-  def self.sandbox_var
-    "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
-  end
-  private_class_method :sandbox_var
 
   # The tgz goes in on stdin, and the payload comes back on stdout. Closing
   # stdin once is what gives the container's [tar -zxf -] its end of file.

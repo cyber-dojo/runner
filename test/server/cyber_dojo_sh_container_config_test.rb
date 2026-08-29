@@ -88,8 +88,8 @@ class CyberDojoShContainerConfigTest < TestBase
     assert_equal "#{Sandbox::UID}:#{Sandbox::GID}", config['User']
     assert_equal [
       "CYBER_DOJO_IMAGE_NAME=#{image_name}",
-      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}",
-      "CYBER_DOJO_ID=#{id58}"
+      "CYBER_DOJO_ID=#{id58}",
+      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
     ], config['Env']
     assert_equal ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'], config['Cmd']
     assert config['OpenStdin'], 'OpenStdin'

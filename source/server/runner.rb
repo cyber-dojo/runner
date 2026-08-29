@@ -87,6 +87,10 @@ class Runner
 
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
+  # The longest a kata may run for, whatever its manifest asks for.
+  # DeadlineReader is what enforces it once the run is going.
+  MAX_RUN_SECONDS = 15
+
   STATUS = {
     pulling: 141,
     timed_out: 142,
@@ -103,7 +107,7 @@ class Runner
     image_name = manifest['image_name']
     random_id = @context.random.hex8
     container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    max_seconds = [CyberDojoShRunner::RUN_SECONDS, Integer(manifest['max_seconds'])].min
+    max_seconds = [MAX_RUN_SECONDS, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
