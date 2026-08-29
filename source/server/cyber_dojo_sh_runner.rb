@@ -51,24 +51,36 @@ class CyberDojoShRunner
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
-    # A spare is already created and already started, which is the whole of
-    # what holding one buys.
     spare = spares.claim(image_name: image_name, container_name: container_name)
     if spare
+      # A spare is created and started, ready to run.
       begin
-        return run_in(spare, id, max_seconds, tgz_in)
+        return run_in_and_refill(spare, image_name, id, max_seconds, tgz_in)
       rescue DaemonRefused
-        # The spare was gone, or was no longer running. A container made for
-        # this run cannot be either of those, so the learner is owed the run
-        # they would have had with no pool rather than a faulty light. Nothing
-        # is half-done: both exec calls come before the tgz is written.
+        # The spare was gone, or was no longer running. 
+        # A non-spare container made for this run cannot be either of those.
+        # So the learner is owed the run they would have had with no pool.
+        # Nothing is half-done: both exec calls come before the tgz is written.
         nil
       end
     end
-    run_in(created_and_started(image_name, container_name), id, max_seconds, tgz_in)
+    # There is no spare, or there was but it failed.    
+    container_id = created_and_started(image_name, container_name)
+    run_in_and_refill(container_id, image_name, id, max_seconds, tgz_in)
   end
 
   private
+
+  # Runs in the container, then refills the pool for the next test-run of this
+  # image_name.
+  # The warm happens once the payload has been read, so its create and its
+  # start do not compete with the kata for the daemon.
+  # It runs on warm's own thread, so this run answers without waiting for it.
+  def run_in_and_refill(container_id, image_name, id, max_seconds, tgz_in)
+    result = run_in(container_id, id, max_seconds, tgz_in)
+    spares.warm(image_name: image_name)
+    result
+  end
 
   # Whatever container this run ends up with is disposed of however the run
   # ends. A refused container create is outside this, having made none to stop.
