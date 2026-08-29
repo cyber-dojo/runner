@@ -4,12 +4,10 @@ require_code 'externals/docker_socket'
 class NodeImagesTest < TestBase
 
   test '9j5t9K', %w(
-  | given gcc_assert HAS already been pulled,
-  | when I call pull(id, gcc_assert),
-  | then a new thread is not started
-  | no shell command is run,
-  | nothing is logged,
-  | and the result is :pulled
+  | gcc_assert is believed to be on the node.
+  | A pull for it answers :pulled.
+  | No thread is started, and nothing is logged.
+  | It is still believed to be there.
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -28,12 +26,12 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '9j5t9M', %w(
-  | given gcc_assert has NOT already been pulled,
-  | when I call pull(id, gcc_assert),
-  | then the pull runs in a new thread against the daemon
-  | and a message is logged saying how long it took, measured against the
-  | clock the context holds, so that what it says is the test's to state
-  | and the result is :pulling
+  | gcc_assert is not believed to be on the node.
+  | A pull for it answers :pulling.
+  | The pull runs on a thread, and asks the daemon for that image_name.
+  | The image is then believed to be there.
+  | The log says which image was pulled, and how long it took.
+  | The clock is the context's, so the test says what that duration is.
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -54,13 +52,13 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '9j5t9N', %w(
-  | given gcc_assert has NOT already been pulled,
-  | when I call pull(id, gcc_assert),
-  | then the pull runs in a new thread
-  | and if the daemon refuses the pull a message is logged
-  | naming the code, what it said, and which kata asked
-  | and gcc_assert is not pulled
-  | and the result is :pulling
+  | gcc_assert is not believed to be on the node.
+  | The daemon refuses the pull with a 404.
+  | The pull answers :pulling, and runs on a thread.
+  | The answer says a pull was started, not that it finished.
+  | The image is still not believed to be there.
+  | The log names the image and the kata that asked.
+  | It names the status code too, and what the daemon said.
   ) do
     # The daemon resolves the reference before it answers, so a name no
     # registry can serve arrives as a 404 rather than as an error part way
@@ -85,10 +83,13 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '9j5t9R', %w(
-  | a pull the daemon starts and cannot finish answers 200,
-  | having already committed to a status code before the transfer failed,
-  | and says so with an error object in the stream
-  | so gcc_assert is not pulled and the failure is logged
+  | The daemon answers the pull 200, and the transfer then fails.
+  | The status code goes out before the transfer starts.
+  | A failure part way through cannot change it.
+  | The stream carries an error object instead.
+  | The pull answers :pulling.
+  | The image is not believed to be on the node.
+  | The log names the image, the kata, the status code, and the stream.
   ) do
     # UNVERIFIED against a real daemon. A 404 for an unresolvable name was
     # probed; forcing a transfer to fail after the 200 needs a registry that
@@ -114,12 +115,11 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '9j5t9P', %w(
-  | given gcc_assert has NOT already been pulled,
-  | but is currently being pulled,
-  | when I call pull(id, gcc_assert),
-  | then the docker-pull does NOT run
-  | nothing is logged
-  | and the result is :pulling
+  | gcc_assert is not believed to be on the node.
+  | A pull for it is already under way.
+  | A second pull for it answers :pulling, and starts no thread.
+  | Nothing is logged.
+  | The image is still not believed to be there.
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -137,10 +137,13 @@ class NodeImagesTest < TestBase
   end
 
   test '9j5t9S', %w(
-  | a real pull against the real daemon,
-  | which is the only thing that says the query the runner builds names an
-  | image the daemon will accept, and that a stream it answers 200 to
-  | carries no error, neither of which a stub can judge
+  | The pull goes to the real daemon.
+  | It answers :pulling.
+  | alpine:3.24 is then believed to be on the node.
+  | The log says it was pulled.
+  | The duration in it comes from the real clock, so the test does not pin it.
+  | A stub cannot judge the query the runner builds, or an error-free stream.
+  | Only the daemon can.
   ) do
     # alpine:3.24 is on the node before the tests start, put there by
     # bin/setup_dependent_images.sh, so this re-pull downloads nothing and
@@ -161,8 +164,12 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3q1Ps3', %w[
-  | seeding believes every RepoTags the daemon answers,
-  | one image being able to carry several of them
+  | The daemon answers with the images the node holds.
+  | Seeding believes every RepoTags entry the daemon gives.
+  | One image can carry several tags, and all of them are believed.
+  | A tag whose registry names a port keeps that port.
+  | The names come back in name order, not the order the daemon gave.
+  | The daemon is asked once.
   ] do
     set_context(docker: DockerDaemonSpy.new([[200, JSON.generate(daemon_images)]]))
 
@@ -175,8 +182,12 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3q1Ps4', %w[
-  | an image with no RepoTags names nothing a manifest could hold,
-  | and is believed under no name at all
+  | The daemon's answer holds two images with no RepoTags at all.
+  | Seeding adds nothing for them.
+  | A dangling image carries no name a kata could ask for.
+  | The rest are believed exactly as they are.
+  | The daemon's images are shuffled, so the order they arrive in varies.
+  | The names still come back in name order.
   ] do
     dangling = [
       { 'Id' => 'sha256:34a35c5c04b4a0e5cfdd853a8477192634f5a1a5a54b6a80b3b33edd1e7fcdcb',
@@ -195,9 +206,11 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3q1Ps6', %w[
-  | when the daemon does not answer 200 seeding raises,
-  | carrying what it said instead, because a server that cannot learn what
-  | the node holds would answer pulling to every test-run
+  | The daemon answers the seed 400.
+  | Seeding raises, and the error carries what the daemon said.
+  | config.ru seeds once at boot.
+  | A worker that knows of no images answers :pulling to every test-run.
+  | So a worker that cannot learn what the node holds does not start.
   ] do
     message = '{"message":"client version 1.22 is too old"}'
     set_context(docker: DockerDaemonSpy.new([[400, message]]))
@@ -210,10 +223,12 @@ class NodeImagesTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '3q1Ps8', %w[
-  | a real GET /images/json against the real daemon,
-  | which is the only thing that says the socket request, its headers and
-  | its chunked body carry a name the daemon really holds, none of which a
-  | stub can judge
+  | The seed goes to the real daemon.
+  | A tag this test owns is not among the names it answers.
+  | The daemon then tags alpine:3.24 with that name.
+  | A second seed answers the names again, and the new tag is among them.
+  | A stub cannot judge the socket request, its headers, or its chunked body.
+  | Only the daemon can.
   ] do
     set_context(http: client = DockerSocket.new)
     tagged = "#{owned_repo}:v1"
