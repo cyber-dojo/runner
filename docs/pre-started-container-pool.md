@@ -214,7 +214,7 @@ The thread that reaps a used container creates its successor in the same
 breath, so each test-run refills the pool it drained. Container names stay
 unique per forked worker.
 
-## 5. A hard cap of eight, counted on the daemon
+## 5. A hard cap, counted on the daemon
 
 The cap's scope is the node, because the node is where the memory goes.
 docs/docker-socket-privilege.md bind-mounts the host's socket into the runner,
@@ -222,21 +222,23 @@ so every runner process on a node talks to one daemon, and every spare any of
 them creates is a container on that one node.
 
 A worker cannot know how many peers it shares that node with. puma forks a
-worker per processor, but how many runner pods kubernetes has placed on the
-node is not visible from inside one of them. So the cap cannot be a number each
-worker divides down into a private share: there is no divisor to divide by.
+worker per processor, but how many runner processes the node is running is not
+visible from inside one of them, whether they were placed there by ECS, by a
+docker compose file someone wrote themselves, or by anything else. So the cap
+cannot be a number each worker divides down into a private share: there is no
+divisor to divide by.
 
 It does not need one. Before its background thread creates a spare, a worker
 asks the daemon how many spares the node already holds and creates only if that
 count is under the cap. The daemon is the registry, so nothing has to be
-counted that cannot be seen, and nothing has to be recalculated when kubernetes
-adds or removes a pod.
+counted that cannot be seen, and nothing has to be recalculated when a runner
+process is added or taken away.
 
 What that count filters on is the spare name, not the label. Step 4 has the
 reason: a claimed container keeps the label it was created with, so a label
 query counts spares and containers already serving a test-run alike. Gating the
 cap on that number would make the pool starve itself under exactly the load it
-exists for, since eight concurrent runs would fill a cap of eight on their own
+exists for, since as many concurrent runs as the cap would fill it on their own
 and no spare would be created while they ran. Filtering on the name instead
 means a claimed container leaves the count when it is renamed, and the cap goes
 back to bounding what it was costed to bound: containers that are idle.
@@ -255,22 +257,35 @@ the runner does not control, so a per-image cap cannot be bounded in advance.
 A worker that finds the node at its cap creates no spare at all, and the
 test-run misses and falls back, which step 6 is what makes safe.
 
-An idle container costs the machine about 12MB, so eight spares is about 96MB.
-The aws-prod cluster has not been given any more memory, so that 96MB is the
-whole budget the pool has to fit inside. Eight is chosen to disappear against
-what the node already carries rather than to win as many hits as it can.
-Raising it is a one-number change once the memory lands.
+An idle container costs the machine up to about 12MB, so sixteen spares is
+about 192MB. That is host memory rather than the task's 768MB: the spares are
+siblings of the runner on the EC2 host, not children of it.
 
-What eight costs is hit rate, and nothing else.
+Sixteen rather than the eight this section first argued for, because a claim
+trades RAM for daemon CPU and aws-prod is shorter of CPU than of RAM. It runs
+on c5a.xlarge: 4 cores, 8GiB, and a load average of about 4, so the cores are
+saturated. 3GiB is in use with 0.6GiB free, and 192MB is a sixth of that free
+memory. Whether most of the remaining 4.4GiB is reclaimable page cache is not
+known here, and if it is, there is room to go further.
+
+12MB is the safe end of a range rather than a figure.
+docs/profiling/measure_idle_warm_container_cost.sh reads MemAvailable, which
+moves with how much the host has free, and the same probe on the same machine
+answered about 12MB each with 7.4GB available and about 5.2MB each with 5.7GB
+available. What both runs agree on is the container's own use, 708KB and
+776KB; everything above that is the shim and the daemon's bookkeeping. Size the
+cap against the larger, because sizing it against the smaller overruns.
+
+What the cap costs is hit rate, and nothing else.
 docs/profiling/where-the-traffic-light-time-goes.txt puts a pre-started
 container at about 84ms off the 116.4ms a test-run costs today, and a miss is
 that same 116.4ms path unchanged, so a press either wins or is exactly as it
 was. There is no cap below which the pool stops paying, only one below which it
 pays less often.
 
-At eight across every worker on the node a worker holds about one spare, so the
-window between claiming and the refill landing is a window in which that worker
-misses. The refill runs after the test-run it drained, so that window is at
+A cap spread across every worker on the node leaves each worker holding few
+spares, so the window between claiming and the refill landing is a window in
+which that worker misses. The refill runs after the test-run it drained, so that window is at
 least a whole run long. This is what raising the cap buys: not a faster hit,
 but the same 84ms hit more often.
 
@@ -385,12 +400,53 @@ creating containers, so it belongs with the probes rather than in this file.
 ## 8. Tests, then measure
 
 Re-run docs/profiling/measure_idle_warm_container_cost.sh to confirm what the
-cap of eight really costs on the node it will run on.
+cap really costs on the node it will run on.
 
-Two things section 5 leaves for measurement rather than argument: the hit rate
-a cap of eight actually reaches, which is the whole of what the cap buys, and
-whether refilling concurrently with the run beats refilling after it. Both are
-small changes to the same thread.
+Section 5 leaves two things for measurement rather than argument. Both are
+answered.
+
+Where the refill belongs: with the test-run, after the payload has been read.
+A run now warms a spare on its way out, whether it claimed one or made its own
+container. The warm is on its own thread, so nothing on the path to the answer
+waits for it, and it comes after the payload so its create and its start do not
+compete with the kata for the daemon.
+
+What the cap buys: measured by timing the client suite, which makes about forty
+real test-runs. Every timing starts from the same slate, with the spare
+containers removed and busybox:glibc absent, because a spare made from an image
+holds that image and the pull test needs it gone.
+
+| cap | one puma worker |
+|-----|-----------------|
+| 0   | 26.7s, 26.9s    |
+| 8   | 24.2s, 25.2s    |
+| 32  | 25.2s, 25.5s    |
+
+What one hit is worth, and what the pool costs a miss, are separate numbers.
+docs/profiling/time_hit_vs_miss_under_load.sh times a hit as the exec and the
+stop, and a miss as the create and start those follow, with idle containers
+standing in the background.
+
+| idle | hit ms | miss ms | hit x8 ms | miss x8 ms |
+|------|--------|---------|-----------|------------|
+| 0    | 70     | 171     | 23        | 67         |
+| 8    | 76     | 208     | 24        | 60         |
+| 32   | 80     | 220     | 23        | 65         |
+
+A hit saves 101ms with no pool standing, and 140ms with thirty-two idle. The
+saving grows because idle containers tax a miss harder than a hit: the miss
+goes from 171ms to 220ms where the hit goes from 70ms to 80ms. Eight of them at
+once, the last two columns, cost the daemon far less per run than one at a
+time, and the saving there is about 40ms.
+
+So a cap of eight takes about two seconds off twenty-seven, and raising it to
+thirty-two takes off no more. That is one worker on one image_name, which is
+the case a cap of eight already covers. It says nothing about a node running
+several workers and several LTFs, which is what section 10 is about and what
+the cap of sixteen is sized for.
+
+The same suite against ten workers shows no difference between any of the three
+caps. Section 10 is why.
 
 ## 9. A cap someone hosting their own server can set
 
@@ -436,6 +492,135 @@ pool rather than an empty one: no spare is ever created, every test-run creates
 its own container, and the runner behaves exactly as it did before any of this.
 That is also the switch that makes the whole feature safe to ship to people
 whose hardware we cannot see.
+
+## 10. A pool per worker, filled by whoever shares an image_name
+
+puma forks one worker per processor, which is ten on the node this was measured
+on, and each worker holds its own pool. A warm goes into the pool of whichever
+worker served that test-run. The next test-run goes to whichever worker is
+free.
+
+For one person practising alone, that divides the hit rate by the worker count.
+Their next test-run lands on the worker holding their spare about one time in
+ten, and the other nine spares sit unclaimed until they expire. The client
+suite is exactly this shape, one user's test-runs one after another, which is
+why ten workers show no gain where one worker shows two seconds in
+twenty-seven.
+
+That shape is the worst case rather than the expected one. The pool is keyed by
+image_name, so what fills a worker's pool is how many test-runs share an LTF,
+and not who is practising with whom. Sixteen people practising as a team are
+one such stream. So are five people who have never met, each on their own
+exercise, as long as all five chose python with pytest: to the pool they are
+one stream of test-runs on one image_name. A handful of LTFs carry most of the
+traffic, so under any real load every worker's pool warms and stays warm.
+
+What binds under that load is the cap against the worker count. The cap is the
+node's and the pools are the workers', so a cap below the worker count leaves
+some workers holding nothing however hot the image_name is, and with several
+LTFs hot at once it cannot come close.
+
+So the number to choose is the worker count times the number of image_names hot
+at once. Two workers a task and three tasks is six pools, so sixteen is between
+two and three LTFs in each of them. That is what the cap is now set to, and
+section 5 carries the memory it costs.
+
+### Four caps, not one
+
+There are four places a limit can sit, and they are not alternatives. Each
+bounds something the others cannot see. The first three are about spares,
+which are containers waiting. The fourth is about containers working.
+
+  o) per image_name, per worker. The size of one queue. A limit of one gives
+     every worker a spare for every LTF it is asked for, which is the shape
+     that stops a worker holding python_pytest from missing on bash_bats.
+     Checked by reading one queue's length, in this process.
+  o) per worker, across every image_name. The sum of that worker's queues.
+     This is what bounds a worker whose traffic keeps finding new LTFs, which
+     the first limit cannot: nothing bounds how many image_names are hot.
+     Checked by summing the hash, in this process.
+  o) per node, across every worker and every runner process. What section 5
+     already has, at sixteen. It is the only one that can see the memory that
+     actually matters, and the only one that costs a daemon call.
+  o) how many test-runs are in flight at once, which is how many containers
+     are running a kata rather than waiting to. Nothing names this today. It
+     is set by workers times threads in config/puma.rb, as a side effect of
+     choosing those for other reasons, and a container running a kata costs
+     far more than an idle one: it holds two tmpfs mounts and whatever the
+     kata compiles into them.
+
+Only the third exists today. The first two are free to check, and the third is
+already on the warm's own thread, so adding the first two costs the test-run
+nothing.
+
+Sized together they multiply: a per-image_name limit of one, over however many
+LTFs a worker sees, over however many workers the node runs. The node cap is
+the ceiling that makes that product safe, and the two inner limits are what
+stop the node cap being spent on one worker.
+
+The fourth is the one to size first, because it decides how much memory is
+left for the other three. It is also the one nobody chose: raising threads to
+serve more test-runs at once raises it, and the containers that appear are
+not idle ones at 12MB but working ones running a compiler.
+
+A kata run is CPU work, so the number to size it against is cores. aws-prod
+runs c5a.xlarge, 4 cores, and its load average is already about 4, with
+learners getting a traffic-light inside 4 seconds and not timing out. That is
+a machine at its working point: fully used, not oversubscribed.
+
+So there is nothing to gain by admitting more work. config/puma.rb is two
+workers of eight threads, sixteen in flight per task, which is above what the
+cores can serve and is a backstop rather than a target. What makes runs faster
+is making each one cheaper, which is what the pool does and what a faster
+clock would do. Raising this number does the opposite: the queue moves out of
+puma, where it waits, and into the cores, where everything slows at once.
+
+### Fewer workers would mean fewer pools, and buys no throughput
+
+Ten pools instead of one is the whole of the problem, so the obvious answer is
+fewer workers. The runner waits on a socket rather than computing, and MRI
+releases the GVL for that, so the concurrency lost to fewer workers should come
+back from more threads.
+
+Measured, by publishing the server's port and driving real /run_cyber_dojo_sh
+requests at it, all for one image_name.
+
+| puma                       | 8 at once | 16 at once |
+|----------------------------|-----------|------------|
+| Etc.nprocessors workers    | 285, 270  | 290        |
+| 2 workers, 8 threads       | 273, 269  | 289        |
+
+Milliseconds of batch wall-clock per run. Nothing to choose between them, and
+at sixteen at once they are the same number.
+
+That is the wrong measure, though, and it is worth saying why it looked
+convincing. A batch's wall clock is total daemon work divided by how fast the
+daemon gets through it, and the pool does not reduce that work: every test-run
+still costs a create and a start, done by the warm afterwards rather than by
+the run beforehand. Moved, not removed. A saturated daemon does not care when.
+
+What a learner waits for is one request, so measure one request.
+
+| pool | mean   | median | p90    |
+|------|--------|--------|--------|
+| 8    | 3386ms | 3519ms | 3961ms |
+| 0    | 3566ms | 3682ms | 3973ms |
+
+One worker, sixteen threads, sixteen requests at once, forty-eight of them.
+The spare is worth about 180ms of mean and 160ms of median, which is close to
+the 140ms the hit-versus-miss table predicts. The p90s are level, because the
+tail is set by queueing for the daemon and the spare cannot help with that.
+
+So the pool pays even when the daemon is the bottleneck, and it pays in the
+only currency that matters: the wait between a learner pressing the button and
+the traffic light arriving. What it does not do is raise how many test-runs the
+node can serve in an hour.
+
+Two pools instead of ten does raise the hit rate, about fivefold, and that is
+arithmetic rather than measurement. What the throughput numbers say is only
+that the extra hits do not raise throughput, which no arrangement of the pool
+could. Whether they lower latency further, by turning misses into hits, is the
+measurement that would justify rearranging puma, and it has not been made.
 
 ## Order
 
