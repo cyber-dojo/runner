@@ -54,36 +54,10 @@ class CyberDojoShRunner
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
-    spare = spares.claim(image_name: image_name, container_name: container_name)
-    if spare
-      # A warm (pre-created, pre-started) spare container is ready to run.
-      begin
-        return run_in_and_warm_another(spare, image_name, id, max_seconds, tgz_in)
-      rescue DaemonRefused
-        # The spare was gone, or was no longer running. A non-spare container,
-        # (created for this run), would never experience either of those.
-        # So the learner is owed the run they would have had with no pool.
-        # Nothing is half-done: both exec calls come before the tgz is written.
-        nil
-      end
-    end
-    # There is no spare, or there was but it failed.    
-    container_id = created_and_started(image_name, container_name)
-    run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
+    run_in(created_and_started(image_name, container_name), id, max_seconds, tgz_in)
   end
 
   private
-
-  # Runs in the container, then warms one more spare for this image_name, so
-  # the next test-run for it has one to claim.
-  # The warm happens once the payload has been read, so its create and its
-  # start do not compete with the kata for the daemon.
-  # It runs on warm's own thread, so this run answers without waiting for it.
-  def run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
-    result = run_in(container_id, id, max_seconds, tgz_in)
-    spares.warm(image_name: image_name)
-    result
-  end
 
   # Whatever container this run ends up with is disposed of however the run
   # ends. A refused container create is outside this, having made none to stop.
@@ -93,8 +67,8 @@ class CyberDojoShRunner
     stop(container_id)
   end
 
-  # A container of this run's own, ready to be exec'd into: what a spare
-  # already is by the time it is claimed.
+  # A container for this run, created and started so that it is ready to be
+  # exec'd into.
   def created_and_started(image_name, container_name)
     container_id = create(image_name, container_name)
     docker.start_container(container_id)
@@ -103,10 +77,6 @@ class CyberDojoShRunner
 
   def docker
     @context.docker
-  end
-
-  def spares
-    @context.spares
   end
 
   def threader

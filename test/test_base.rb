@@ -35,10 +35,6 @@ class TestBase < Id58TestBase
     context.clock
   end
 
-  def spares
-    context.spares
-  end
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # 1. test on one OS or many
 

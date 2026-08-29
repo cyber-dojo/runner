@@ -16,7 +16,6 @@ The measurements come from three probes in this directory:
   time_container_removal_inline_vs_deferred.sh  what --rm costs the learner
   time_stdout_eof_to_cli_exit.rb       whether the payload arrives any earlier
   time_test_run_with_cold_created_started_container.rb  what a pool takes off a test-run
-  measure_idle_warm_container_cost.sh  what an idle pooled container costs
   time_test_run_via_daemon_api_vs_cli.rb  what the docker CLI itself costs
   time_timeout_path_api_vs_cli.rb      what a timed-out test-run costs each way
   time_docker_stop_alone_to_cli_exit.rb  how soon the CLI exits after the stop
@@ -230,7 +229,9 @@ it, and the lifecycle is what to attack:
   refill window. Misses are free in the sense that they cost what every
   test-run costs today.
 
-  What that total costs, from measure_idle_warm_container_cost.sh:
+  What that total costs. The probe that produced this was removed along with
+  the pool it was written for, so these numbers are a record rather than
+  something to re-run:
 
         idle       avail KB        lost KB      KB each   test-run ms
            0        7391924              0            0           140

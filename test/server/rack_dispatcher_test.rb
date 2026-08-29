@@ -83,40 +83,6 @@ class RackDispatcherTest < TestBase
     assert dummy.called?
   end
 
-  test 'D06B1a', %w[
-  | pull_image warms a spare when the image is already on the node,
-  | so that the first test-run of the kata being created has one to claim
-  | rather than paying for a container's create and start itself
-  ] do
-    args = { id: id58, image_name: image_name }
-    env = { path_info: 'pull_image', body: args.to_json }
-    rack_call(env, logger: StdoutLoggerSpy.new,
-                   images: NodeImagesStub.new(answering: :pulled),
-                   spares: spares_spy = SparePoolSpy.new)
-
-    assert_200('pull_image')
-    assert_equal [image_name], spares_spy.warmed
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
-  test 'D06B1b', %w[
-  | pull_image warms nothing when the pull has only just started,
-  | there being no image on the node yet to make a container from,
-  | so the first test-run for it misses and step 4's refill warms it after
-  ] do
-    args = { id: id58, image_name: image_name }
-    env = { path_info: 'pull_image', body: args.to_json }
-    rack_call(env, logger: StdoutLoggerSpy.new,
-                   images: NodeImagesStub.new(answering: :pulling),
-                   spares: spares_spy = SparePoolSpy.new)
-
-    assert_200('pull_image')
-    assert_equal [], spares_spy.warmed
-  end
-
-  # - - - - - - - - - - - - - - - - -
-
   class NodeImagesDummy
     def initialize
       @called = false

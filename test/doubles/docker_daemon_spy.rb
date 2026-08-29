@@ -26,16 +26,8 @@ class DockerDaemonSpy
     answer(:pull_image, image_name)
   end
 
-  def containers_named(name)
-    answer(:containers_named, name)
-  end
-
   def create_container(config, name: nil)
     answer(:create_container, config, name)
-  end
-
-  def rename_container(id, name:)
-    answer(:rename_container, id, name)
   end
 
   def start_container(id)
@@ -79,13 +71,10 @@ class DockerDaemonSpy
   # What each part of a run asks the daemon for, named for what that part did.
   # A test says the shape of a run, and the endpoint names stay in here.
   PHASES = {
-    claimed_a_spare: %i[rename_container],
     made_a_container: %i[create_container start_container],
     execd_the_kata: %i[create_exec start_exec],
     was_refused_an_exec: %i[create_exec],
-    stopped_the_container: %i[stop_container],
-    warmed_a_spare: %i[containers_named create_container start_container],
-    spare_pool_is_full: %i[containers_named]
+    stopped_the_container: %i[stop_container]
   }.freeze
 
   # The endpoints those parts ask for, in order, to assert endpoints against.

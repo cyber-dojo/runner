@@ -7,7 +7,6 @@ require_relative 'docker_daemon'
 require_relative 'prober'
 require_relative 'node_images'
 require_relative 'runner'
-require_relative 'spare_pool'
 
 class Context
   def initialize(options = {})
@@ -26,12 +25,11 @@ class Context
     @images = options[:images] || NodeImages.new(self)
     @prober = options[:prober] || Prober.new(self)
     @runner = options[:runner] || Runner.new(self)
-    @spares = options[:spares] || SparePool.new(self)
   end
 
   # What the server reaches the outside world through.
   attr_reader :clock, :http, :logger, :random, :threader
 
   # The services, which reach it only through those.
-  attr_reader :docker, :images, :prober, :runner, :spares
+  attr_reader :docker, :images, :prober, :runner
 end

@@ -31,7 +31,7 @@ from the only objects in a position to make them.
 
 ## A service, not an external
 
-`Context` builds it alongside node, prober, images, spares and runner rather
+`Context` builds it alongside images, prober and runner rather
 than in `externals`. `@http` is the external: it opens the socket,
 and this is the object that holds it. So `DockerDaemon` takes `context` in its
 constructor the way the other services do, which is also what lets it reach
