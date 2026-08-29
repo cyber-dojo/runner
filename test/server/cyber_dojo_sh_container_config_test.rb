@@ -73,40 +73,29 @@ class CyberDojoShContainerConfigTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'f2Cd18', %w(
-  | the image half is everything a container can be created from
-  | before the run it will serve is known
-  | so it carries no id, holds no stdin open
-  | and sleeps rather than running the kata, staying reachable by an exec
+  | The create body is everything one test-run needs.
+  | It names the image, and drops that image's entrypoint.
+  | It runs as the sandbox user, never as root.
+  | It carries the image_name, the sandbox dir, and this run's id.
+  | Its command unpacks the incoming files and runs cyber-dojo.sh.
+  | It holds stdin open, which is how the tgz arrives.
+  | There is no tty, which would corrupt the payload.
   ) do
-    config = CyberDojoShContainerConfig.image_config(image_name)
+    config = CyberDojoShContainerConfig.create_config(id58, image_name)
 
     assert_equal image_name, config['Image']
+    assert_equal [], config['Entrypoint']
     assert_equal "#{Sandbox::UID}:#{Sandbox::GID}", config['User']
     assert_equal [
       "CYBER_DOJO_IMAGE_NAME=#{image_name}",
-      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
+      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}",
+      "CYBER_DOJO_ID=#{id58}"
     ], config['Env']
-    assert_equal %w(sleep 60), config['Cmd']
-    assert_equal [], config['Entrypoint']
-    assert_nil config['OpenStdin']
-    refute_nil config['HostConfig']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'f2Cd19', %w(
-  | the run half is what one test-run adds to a container that already exists
-  | being its id, the command unpacking its files and running its cyber-dojo.sh
-  | and the stdio the tgz goes in on and the payload comes back on
-  ) do
-    config = CyberDojoShContainerConfig.exec_config(id58)
-
     assert_equal ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'], config['Cmd']
-    assert_equal ["CYBER_DOJO_ID=#{id58}"], config['Env']
+    assert config['OpenStdin'], 'OpenStdin'
     assert config['AttachStdin'], 'AttachStdin'
-    assert config['AttachStdout'], 'AttachStdout'
-    assert config['AttachStderr'], 'AttachStderr'
     refute config['Tty'], 'Tty'
+    refute_nil config['HostConfig']
   end
 
   private
@@ -114,7 +103,7 @@ class CyberDojoShContainerConfigTest < TestBase
   # image_name comes from the manifest of whichever OS the test runs under, so
   # the clang test builds a clang config from the same call.
   def config
-    CyberDojoShContainerConfig.image_config(image_name)
+    CyberDojoShContainerConfig.create_config(id58, image_name)
   end
 
   def host_config

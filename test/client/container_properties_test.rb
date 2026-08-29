@@ -3,9 +3,9 @@ require_relative '../test_base'
 class ContainerPropertiesTest < TestBase
 
   test '3A8D91', %w(
-  | requires bash, won't run in sh
-  | the daemon refusing the exec is what says so, the container's own command
-  | being a sleep that an image with no bash runs perfectly well
+  | A kata's image must hold bash.
+  | The container's command is bash, so an image without it starts and dies.
+  | Its init says so on stderr, and the run is faulty.
   ) do
     set_context
     # Pulled onto the node before the server started, by
@@ -16,9 +16,8 @@ class ContainerPropertiesTest < TestBase
     assert stdout.empty?, pretty_result(:stdout)
     assert stderr.empty?, pretty_result(:stderr)
     assert faulty?, pretty_result(:faulty)
-    logged = run_result['log']['stdout']
-    pattern = /exec: "bash": executable file not found in \$PATH/
-    assert logged.match(pattern), pretty_result(:log)
+    logged = run_result['log']['stderr']
+    assert logged.match(/exec bash failed/), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

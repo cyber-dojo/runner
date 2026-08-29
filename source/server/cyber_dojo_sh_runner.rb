@@ -13,9 +13,9 @@ require_relative 'docker_attach_frames'
 # exited.
 class CyberDojoShRunner
   # The daemon would not do what it was asked. Carrying on regardless means
-  # working with no container or exec id, and failing later somewhere that
-  # says nothing about why. It carries the status code so that what the daemon
-  # said reaches the log.
+  # working with no container id, or with one that never started, and failing
+  # later somewhere that says nothing about why. It carries the status code so
+  # that what the daemon said reaches the log.
   class DaemonRefused < RuntimeError
     def initialize(code, message)
       @code = code
@@ -36,9 +36,9 @@ class CyberDojoShRunner
   # is wrong, which is why it has a class of its own rather than a status code
   # the caller has to interpret.
   #
-  # An exec create answers 404 too, and means something else entirely: the
-  # container has gone, not the image. Reading that as an image being absent
-  # would throw away a present image and pull it again for nothing.
+  # A start answers 404 too, and means something else entirely: the container
+  # has gone, not the image. Reading that as an image being absent would throw
+  # away a present image and pull it again for nothing.
   class ImageMissing < DaemonRefused
   end
 
@@ -46,85 +46,41 @@ class CyberDojoShRunner
   # runner.rb applies it and DeadlineReader enforces it.
   RUN_SECONDS = 15
 
-  # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
-  STOP_SECONDS = 1
-
   def initialize(context)
     @context = context
   end
 
   def run(id, image_name, container_name, max_seconds, tgz_in)
-    run_in(created_and_started(image_name, container_name), id, max_seconds, tgz_in)
+    container_id = create(id, image_name, container_name)
+    # Attaching before starting is what stops the container's first bytes
+    # being written before anything is listening for them.
+    stream = docker.attach_container(container_id)
+    start(container_id)
+    send_tgz(stream, tgz_in)
+    result_of(container_id, stream, max_seconds)
   end
 
   private
-
-  # Whatever container this run ends up with is disposed of however the run
-  # ends. A refused container create is outside this, having made none to stop.
-  def run_in(container_id, id, max_seconds, tgz_in)
-    exec_cyber_dojo_sh(container_id, id, max_seconds, tgz_in)
-  ensure
-    stop(container_id)
-  end
-
-  # A container for this run, created and started so that it is ready to be
-  # exec'd into.
-  def created_and_started(image_name, container_name)
-    container_id = create(image_name, container_name)
-    docker.start_container(container_id)
-    container_id
-  end
 
   def docker
     @context.docker
   end
 
-  def threader
-    @context.threader
+  # Starts the container, which is what sets its cyber-dojo.sh going. A refusal
+  # here leaves a container that will never write anything, so the read that
+  # follows would wait out the whole deadline before answering timed_out.
+  def start(container_id)
+    code, body = docker.start_container(container_id)
+    raise DaemonRefused.new(code, "start answered #{code}: #{body}") unless code.between?(200, 299)
   end
 
-  # Runs cyber-dojo.sh in a container that already exists. An exec can only be
-  # made in a container that is running, and starting that exec is itself what
-  # hijacks the stream, so there is nothing to attach beforehand and no first
-  # bytes to miss.
-  def exec_cyber_dojo_sh(container_id, id, max_seconds, tgz_in)
-    exec_id = create_exec(container_id, id)
-    stream = docker.start_exec(exec_id)
-    send_tgz(stream, tgz_in)
-    result_of(stream, max_seconds)
-  end
-
-  # The container's own Cmd is a sleep, which outlives the exec that does the
-  # work, so nothing else disposes of it and a run that left it would hold it
-  # for the rest of that sleep. AutoRemove disposes of it once it has stopped.
-  #
-  # On a thread, because a learner is owed their traffic light and not a wait
-  # for a teardown they cannot see. Should this process die before the thread
-  # runs, the container's own sleep still ends it.
-  def stop(container_id)
-    threader.thread('stops-container') do
-      docker.stop_container(container_id, seconds: STOP_SECONDS)
-    end
-  end
-
-  # The container depends on its image alone, so nothing about this run is
-  # said here. Its command sleeps, which is what keeps it there to be exec'd.
-  def create(image_name, container_name)
-    config = CyberDojoShContainerConfig.image_config(image_name)
+  # The container this run's cyber-dojo.sh runs in, created but not started.
+  def create(id, image_name, container_name)
+    config = CyberDojoShContainerConfig.create_config(id, image_name)
     code, body = docker.create_container(config, name: container_name)
     message = "create answered #{code}: #{body}"
     raise ImageMissing.new(code, message) if code == DaemonRefused::NO_SUCH_IMAGE
     raise DaemonRefused.new(code, message) unless code.between?(200, 299)
-
-    JSON.parse(body)['Id']
-  end
-
-  # Everything belonging to this one run rides on the exec: the command, and
-  # the vars naming the run.
-  def create_exec(container_id, id)
-    config = CyberDojoShContainerConfig.exec_config(id)
-    code, body = docker.create_exec(container_id, config)
-    raise DaemonRefused.new(code, "exec create answered #{code}: #{body}") unless code.between?(200, 299)
 
     JSON.parse(body)['Id']
   end
@@ -140,10 +96,15 @@ class CyberDojoShRunner
 
   # What the container sent, or timed_out. Nothing partial is answered: what
   # arrived before the deadline passed is not a whole payload.
-  def result_of(stream, max_seconds)
+  def result_of(container_id, stream, max_seconds)
     stdout, stderr = read_payload(stream, max_seconds)
     { timed_out: false, stdout: stdout, stderr: stderr }
   rescue DeadlineReader::Expired
+    # Stopping the container is what ends a timed-out run: its cyber-dojo.sh is
+    # still going, so nothing else would. One second is enough for that
+    # script's own EXIT trap to get its chance before the SIGKILL, and
+    # AutoRemove then disposes of the container.
+    docker.stop_container(container_id, seconds: 1)
     { timed_out: true, stdout: '', stderr: '' }
   end
 

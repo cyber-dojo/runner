@@ -4,10 +4,10 @@ class DockerDaemonSpy
   # every call by the name of the endpoint and the arguments it was given, so
   # nothing has to match on a docker URL to know what was asked.
   #
-  # start_exec hands back a stream carrying whatever the container is said to
-  # have written, framed the way the daemon frames it, and remembers what was
-  # written to it. stalls: true makes that stream stand in for a container
-  # which is alive and saying nothing.
+  # attach_container hands back a stream carrying the frames the test gave it,
+  # framed the way the daemon frames them, and remembers what was written to
+  # it. stalls: true makes that stream stand in for a container which is alive
+  # and saying nothing.
 
   def initialize(responses, frames: [], stalls: false)
     @responses = responses
@@ -46,12 +46,8 @@ class DockerDaemonSpy
     answer(:remove_container, id)
   end
 
-  def create_exec(container_id, config)
-    answer(:create_exec, container_id, config)
-  end
-
-  def start_exec(exec_id)
-    @calls << [:start_exec, exec_id]
+  def attach_container(id)
+    @calls << [:attach_container, id]
     @stream = AttachStreamSpy.new(@frames, @stalls)
   end
 
@@ -71,9 +67,7 @@ class DockerDaemonSpy
   # What each part of a run asks the daemon for, named for what that part did.
   # A test says the shape of a run, and the endpoint names stay in here.
   PHASES = {
-    made_a_container: %i[create_container start_container],
-    execd_the_kata: %i[create_exec start_exec],
-    was_refused_an_exec: %i[create_exec],
+    ran_the_kata: %i[create_container attach_container start_container],
     stopped_the_container: %i[stop_container]
   }.freeze
 
