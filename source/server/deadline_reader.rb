@@ -10,9 +10,14 @@ class DeadlineReader
   class Expired < RuntimeError
   end
 
-  def initialize(io, deadline)
+  # The budget starts here, which is when the container has everything it
+  # needs to get going. Taking the seconds rather than the deadline is what
+  # keeps the deadline and every reading of it on one clock: two clocks have
+  # two origins, and the difference between them is not a duration.
+  def initialize(io, max_seconds:, clock:)
     @io = io
-    @deadline = deadline
+    @clock = clock
+    @deadline = clock.now + max_seconds
   end
 
   # Answers at most size bytes, or nil at the end of the stream. The budget
@@ -30,9 +35,11 @@ class DeadlineReader
 
   private
 
-  attr_reader :io, :deadline
+  attr_reader :io, :deadline, :clock
 
+  # How much of the budget is left, which is negative once the deadline has
+  # passed.
   def remaining_seconds
-    deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    deadline - clock.now
   end
 end

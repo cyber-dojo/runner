@@ -61,10 +61,6 @@ class CyberDojoShRunner
 
   private
 
-  def docker
-    @context.docker
-  end
-
   # Starts the container, which is what sets its cyber-dojo.sh going. A refusal
   # here leaves a container that will never write anything, so the read that
   # follows would wait out the whole deadline before answering timed_out.
@@ -110,7 +106,15 @@ class CyberDojoShRunner
   # The deadline starts once the container has everything it needs, and bounds
   # the whole read rather than each part of it.
   def read_payload(stream, max_seconds)
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + max_seconds
-    DockerAttachFrames.demultiplex(DeadlineReader.new(stream, deadline))
+    reader = DeadlineReader.new(stream, max_seconds: max_seconds, clock: clock)
+    DockerAttachFrames.demultiplex(reader)
+  end
+
+  def clock
+    @context.clock
+  end
+
+  def docker
+    @context.docker
   end
 end
