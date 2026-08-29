@@ -34,9 +34,9 @@ A pull is `POST /images/create?fromImage=<name>`, the tag riding inside
 `fromImage` so nothing has to split the name apart. Failure has two shapes: the
 daemon resolves the reference before it answers, so a name no registry can serve
 is a plain 404 carrying `{"message":...}`, while a transfer that fails after the
-200 says so with an `error` object in the stream. `Puller#stream_error?` reads
-the second. The 404 half is probed both ways, unknown repository and unknown tag
-on a known repository, and `pull_image_test.rb:9j5t9S` pulls for real. The
+200 says so with an `error` object in the stream. `NodeImages#stream_error?`
+reads the second. The 404 half is probed both ways, unknown repository and tag
+on a known repository, and `node_images_test.rb:9j5t9S` pulls for real. The
 in-stream half is docker's documented behaviour and is not something this repo
 has reproduced, which `9j5t9R` says of itself in a comment; forcing a transfer
 to fail mid-stream needs a registry that misbehaves on purpose.
@@ -47,14 +47,14 @@ wants. That absence is deliberate rather than merely tolerable. cyber-dojo.org
 runs public images only. The people who run their own servers, under plain
 docker via commander, are the ones who might want a private image, and what is
 asked of them is that they pull it onto the host before bringing the server up.
-config.ru then seeds Puller from the node's images, so an image already on the
-host is one the runner answers `:pulled` for and never tries to fetch. The
+config.ru then seeds NodeImages from the node's images, so an image already on
+the host is one the runner answers `:pulled` for and never tries to fetch. The
 registry credentials stay with whoever pulled it, which is where they belong.
 
 The pull-on-404 retry in
-`docs/a-missing-image-recovers-only-through-puller.md` is cheap to write. It
+`docs/a-missing-image-recovers-only-through-a-pull.md` is cheap to write. It
 needs a pull it can call from `CyberDojoShRunner#create`, and that is this same
-`POST /images/create`, which `Puller` already has.
+`POST /images/create`, which `NodeImages` already has.
 
 ## Reading the rag-lambda out of an image
 
@@ -136,9 +136,10 @@ Worth doing but not blocking: giving the 12 start-points in
 `docs/start-points-without-a-manifest-rag-lambda.md` a manifest `rag_lambda`,
 which makes the create / archive / delete path rare rather than removing it.
 
-`node.rb` and `puller.rb` were the first two of these socket conversions, and
-what the first cost is worth knowing before attempting another. The endpoint was
-the easy half. The daemon answers `RepoTags` for an image with no tags as `[]`
+The image list and the pull were the first two of these socket conversions,
+both in `node_images.rb` now, and what the first cost is worth knowing
+before another. The endpoint was the easy half. The daemon answers
+`RepoTags` for an image with no tags as `[]`
 rather than as the CLI's `<none>:<none>`, so the filtering the CLI needed
 disappeared; but `RepoTags` also carries digest-only references, eg
 `alpine@sha256:...`, which `{{.Repository}}:{{.Tag}}` never printed. Those are
@@ -146,6 +147,6 @@ harmless, since `assert_versioned` refuses a digest-only name and no manifest
 can hold one, but they falsified a rationale comment in `docker_image_name.rb`
 that had been resting on what `docker image ls` answers. Expect each such swap
 to move something a CLI format string was quietly hiding, and to find it only by
-probing the real daemon: `test/server/node_test.rb:3q1Ps8` and
-`test/server/pull_image_test.rb:9j5t9S` are the shape of test that catches it,
+probing the real daemon: `test/server/node_images_test.rb:3q1Ps8` and
+`test/server/node_images_test.rb:9j5t9S` are the shape of test that catches it,
 and the stubs are what let it through.

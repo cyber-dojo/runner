@@ -3,10 +3,10 @@ require_relative 'files_delta'
 require_relative 'home_files'
 require_relative 'sandbox'
 require_relative 'docker_image_name'
-require_relative 'tarfile_reader'
-require_relative 'tgz'
 require_relative 'traffic_light'
-require_relative 'utf8_clean'
+require_relative 'lib/tarfile_reader'
+require_relative 'lib/tgz'
+require_relative 'lib/utf8_clean'
 
 class Runner
   def initialize(context)
@@ -21,7 +21,7 @@ class Runner
     # how far a bad name happens to travel before something objects.
     ::DockerImageName.assert_versioned(image_name)
 
-    return empty_result(:pulling, 'pulling', {}) unless puller.pull_image(id: id, image_name: image_name) == :pulled
+    return empty_result(:pulling, 'pulling', {}) unless images.pull(id: id, image_name: image_name) == :pulled
 
     run, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
 
@@ -47,16 +47,20 @@ class Runner
       Sandbox.out(at_most(16, created)),
       Sandbox.out(changed)
     )
-  rescue CyberDojoShRunner::DaemonRefused => e
-    # The daemon would not run the container, so there is no result to report
-    # and nothing the kata did wrong. The learner is owed a traffic light
-    # rather than a 500, and what the daemon said belongs in the log rather
-    # than in the browser.
+  rescue CyberDojoShRunner::ImageMissing => e
     # Forgetting the image is what lets a later test-run pull it again. This
     # refusal is the only sign the runner gets that what @pulled believes
     # about the node is wrong, and believing it anyway makes every later
     # test-run for this image faulty too.
-    puller.forget_image(image_name) if e.code == CyberDojoShRunner::DaemonRefused::NO_SUCH_IMAGE
+    images.forget(image_name)
+    log(id: id, image_name: image_name, error: e.message)
+    faulty_result({})
+  rescue CyberDojoShRunner::DaemonRefused => e
+    # The daemon would not run the kata, so there is no result to report and
+    # nothing the kata did wrong. The learner is owed a traffic light rather
+    # than a 500, and what the daemon said belongs in the log rather than in
+    # the browser. The image is left alone: this refusal says nothing about
+    # what the node holds.
     log(id: id, image_name: image_name, error: e.message)
     faulty_result({})
   rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e
@@ -83,6 +87,10 @@ class Runner
 
   MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
 
+  # The longest a kata may run for, whatever its manifest asks for.
+  # DeadlineReader is what enforces it once the run is going.
+  MAX_RUN_SECONDS = 15
+
   STATUS = {
     pulling: 141,
     timed_out: 142,
@@ -99,11 +107,11 @@ class Runner
     image_name = manifest['image_name']
     random_id = @context.random.hex8
     container_name = ['cyber_dojo_runner', id, random_id].join('_')
-    max_seconds = [15, Integer(manifest['max_seconds'])].min
+    max_seconds = [MAX_RUN_SECONDS, Integer(manifest['max_seconds'])].min
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = CyberDojoShRunner.new(@context.docker).run(id, image_name, container_name, max_seconds, tgz_in)
+    run = CyberDojoShRunner.new(@context).run(id, image_name, container_name, max_seconds, tgz_in)
 
     [run, files_in]
   end
@@ -175,7 +183,7 @@ class Runner
     @context.logger.log(JSON.generate(info))
   end
 
-  def puller
-    @context.puller
+  def images
+    @context.images
   end
 end

@@ -3,7 +3,9 @@ require_relative '../test_base'
 class ContainerPropertiesTest < TestBase
 
   test '3A8D91', %w(
-  | requires bash, won't run in sh
+  | A kata's image must hold bash.
+  | The container's command is bash, so an image without it starts and dies.
+  | Its init says so on stderr, and the run is faulty.
   ) do
     set_context
     # Pulled onto the node before the server started, by
@@ -15,8 +17,7 @@ class ContainerPropertiesTest < TestBase
     assert stderr.empty?, pretty_result(:stderr)
     assert faulty?, pretty_result(:faulty)
     logged = run_result['log']['stderr']
-    pattern = /\[FATAL tini \(\d+\)\] exec bash failed: No such file or directory/
-    assert logged.match(pattern), pretty_result(:log)
+    assert logged.match(/exec bash failed/), pretty_result(:log)
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - -

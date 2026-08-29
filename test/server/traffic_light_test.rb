@@ -1,8 +1,8 @@
 require_relative '../test_base'
 require_relative '../data/python_pytest'
 require_code 'traffic_light'
-require_code 'tarfile_writer'
 require_code 'externals/docker_socket'
+require_lib 'tarfile_writer'
 
 class TrafficLightTest < TestBase
 
@@ -13,7 +13,15 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
   # red, amber, green
 
-  test '22ECB0', %w[red traffic-light] do
+  test '22ECB0', %w[
+  | The image's rag-lambda answers :red.
+  | The traffic light is red, and there is no fault info.
+  | The lambda is read out of a container made from the image alone.
+  | That container is given no name.
+  | It is created, read from, and removed, and never started.
+  | The daemon copies a file out of a container that has never run.
+  | Those three calls are all the daemon is asked for.
+  ] do
     daemon_spy_lambda_source('lambda{|so,se,st| :red }')
 
     traffic_light_colour(stdout: Test::Data::PythonPytest::STDOUT_RED)
@@ -30,7 +38,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '22ECB1', %w[amber traffic-light] do
+  test '22ECB1', %w[
+  | The image's rag-lambda answers :amber.
+  | The traffic light is amber, and there is no fault info.
+  | The stdout is a real pytest run's, though this lambda ignores it.
+  ] do
     rag = 'lambda{|so,se,st| :amber }'
     daemon_spy_lambda_source(rag)
 
@@ -41,7 +53,11 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '22ECB2', %w[green traffic-light] do
+  test '22ECB2', %w[
+  | The image's rag-lambda answers :green.
+  | The traffic light is green, and there is no fault info.
+  | The stdout is a real pytest run's, though this lambda ignores it.
+  ] do
     rag = 'lambda{|so,se,st| :green }'
     daemon_spy_lambda_source(rag)
 
@@ -52,7 +68,12 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '22ECB3', %w[read rag-lambda message is logged once] do
+  test '22ECB3', %w[
+  | Nothing has been logged about reading the rag-lambda.
+  | A colour is asked for, and the read is logged once.
+  | A second colour is asked for, and nothing more is logged.
+  | The lambda is read from the image once, not once per colour.
+  ] do
     rag = 'lambda{|so,se,st| :green }'
     daemon_spy_lambda_source(rag)
 
@@ -66,8 +87,11 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ExJ5', %w[
-  | a rag-lambda read out of an image is read once and compiled once
-  | however many test-runs ask that image for a colour
+  | Two colours are asked for, from one image.
+  | Both are green.
+  | The lambda is compiled once.
+  | The daemon is asked for three calls: the create, the read, the removal.
+  | Those three are all of them, so the image was read once.
   ] do
     daemon_spy_lambda_source(counted_lambda_source)
 
@@ -81,19 +105,27 @@ class TrafficLightTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
-  test '22ExJ7', %w[lambda status argument is an integer in a string] do
-    rag = 'lambda{|so,se,st| :red }'
+  test '22ExJ7', %w[
+  | The status arrives as a string, as the payload carries it.
+  | The lambda is handed an integer, and answers green only for 0.
+  | The traffic light is green, and there is no fault info.
+  ] do
+    rag = 'lambda{|so,se,st| st == 0 ? :green : :red }'
     daemon_spy_lambda_source(rag)
 
     traffic_light_colour(status: '0')
-    assert_red
+    assert_green
     assert_no_fault_info
   end
 
   # - - - - - - - - - - - - - - - - -
 
   test '22ExJ8', %w(
-  | rag-lambda can return a string or a symbol (Postel's Law)
+  | A rag-lambda answers the string 'red'.
+  | The traffic light is red, and there is no fault info.
+  | Another rag-lambda answers the symbol :red.
+  | That traffic light is red too, and there is no fault info.
+  | A string and a symbol are accepted alike.
   ) do
     rag = "lambda{|so,se,st| 'red' }"
     daemon_spy_lambda_source(rag)
@@ -111,13 +143,14 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ExJ9', %w(
-  | a real read against the real daemon,
-  | which is the only thing that says the daemon will copy a file out of a
-  | container it has created and never started, and that what comes back
-  | parses as a tar holding the rag-lambda, neither of which a stub can judge.
-  | That the DELETE is issued is 22ECB0's to say: the suite is parallel and
-  | creates real containers elsewhere, so counting them here would be flaky
-  | rather than stricter
+  | The read goes to the real daemon.
+  | The image is gcc_assert, which carries a rag-lambda of its own.
+  | The colour is one of red, amber, green.
+  | Which of the three is that lambda's business, not this test's.
+  | Answering one of them at all is what says the read compiled.
+  | The read is logged.
+  | A stub cannot judge a copy out of a never-started container, or a tar.
+  | Only the daemon can.
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -139,9 +172,10 @@ class TrafficLightTest < TestBase
   # faulty
 
   test '22ECB4', %w(
-  | image_name with missing rag-lambda file,
-  | always gives colour==faulty,
-  | adds info to log
+  | The image holds no rag-lambda file.
+  | The daemon answers the read 404.
+  | The traffic light is faulty.
+  | The log says the image must hold /usr/local/bin/red_amber_green.rb.
   ) do
     daemon_spy_missing_lambda
 
@@ -155,9 +189,12 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ECB5', %w(
-  | rag-lambda which raises when eval'd,
-  | gives colour==faulty,
-  | adds message to log
+  | The image's rag-lambda source is not a lambda at all.
+  | Compiling it raises a SyntaxError.
+  | The traffic light is faulty.
+  | The log names the source, the exception class, and what ruby said of it.
+  | That message is asserted whole, down to the caret line.
+  | A ruby upgrade that rewords it fails here.
   ) do
     lambda_source = 'not-a-lambda'
     daemon_spy_lambda_source(lambda_source)
@@ -179,9 +216,11 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ECB6', %w(
-  | rag-lambda which raises when called,
-  | gives colour==faulty,
-  | adds message to log
+  | The image's rag-lambda compiles, and raises when it is called.
+  | The traffic light is faulty.
+  | The log names the source, the exception class, and its message.
+  | The log says the exception came from calling the lambda.
+  | 22ECB5's says it came from compiling one.
   ) do
     lambda_source = "lambda{ |so,se,st| fail RuntimeError, '42' }"
     daemon_spy_lambda_source(lambda_source)
@@ -200,9 +239,11 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ECB7', %w(
-  | rag-lambda with too few parameters,
-  | gives colour==faulty,
-  | adds message to log
+  | The image's rag-lambda takes two parameters.
+  | A rag-lambda is called with three: stdout, stderr and status.
+  | Calling it raises an ArgumentError, given 3 and expecting 2.
+  | The traffic light is faulty.
+  | The log names the source, the exception class, and its message.
   ) do
     lambda_source = 'lambda{ |_a,_b| :red }'
     daemon_spy_lambda_source(lambda_source)
@@ -221,9 +262,10 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ECB8', %w(
-  | rag-lambda with too many parameters,
-  | gives colour==faulty,
-  | adds message to log
+  | The image's rag-lambda takes four parameters.
+  | Calling it with three raises an ArgumentError, given 3 and expecting 4.
+  | The traffic light is faulty.
+  | The log names the source, the exception class, and its message.
   ) do
     lambda_source = 'lambda{ |_a,_b,_c,_d| :red }'
     daemon_spy_lambda_source(lambda_source)
@@ -242,9 +284,11 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ECB9', %w(
-  | rag-lambda which returns non red/amber/green,
-  | gives colour==faulty,
-  | adds message to log
+  | The image's rag-lambda compiles, and answers :orange.
+  | A traffic light is one of red, amber, green.
+  | The traffic light is faulty.
+  | The log names the colour the lambda gave, and the three it can be.
+  | It names the source too.
   ) do
     lambda_source = [
       'lambda {|so,se,st|',
@@ -266,9 +310,12 @@ class TrafficLightTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   test '22ExJ0', %w[
-  | a rag-lambda from the manifest is compiled once however many test-runs
-  | ask it for a colour, the source belonging to a start-point rather than
-  | to a kata, so the same few sources arrive over and over
+  | The rag-lambda source is handed in, not read from an image.
+  | Three colours are asked for from that one source.
+  | All three are red, and none reports fault info.
+  | The source is compiled once.
+  | A rag-lambda source belongs to a start-point, not to a kata.
+  | So the same few sources arrive over and over, and caching them pays.
   ] do
     3.times do
       colour, fault_info = traffic_light.colour_from_lambda(counted_lambda_source, assertion_failed_stdout, '', 134)

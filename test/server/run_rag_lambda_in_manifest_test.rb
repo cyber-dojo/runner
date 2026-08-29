@@ -12,7 +12,7 @@ class RunRagLambdaInManifestTest < TestBase
 
     assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:2733119", image_name
     set_context({ logger: StdoutLoggerSpy.new })
-    puller.add(image_name)
+    images.add(image_name)
 
     result = run_cyber_dojo_sh({ :rag_lambda => alpine_c_assert_rag_lambda })
 
@@ -27,7 +27,7 @@ class RunRagLambdaInManifestTest < TestBase
   ) do
     assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:2733119", image_name
     set_context({ logger: StdoutLoggerSpy.new })
-    puller.add(image_name)
+    images.add(image_name)
 
     result = run_cyber_dojo_sh({ :rag_lambda => 'x' + alpine_c_assert_rag_lambda })
 

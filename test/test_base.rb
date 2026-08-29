@@ -11,16 +11,12 @@ class TestBase < Id58TestBase
 
   attr_reader :context, :run_result
 
-  def node
-    context.node
-  end
-
   def prober
     context.prober
   end
 
-  def puller
-    context.puller
+  def images
+    context.images
   end
 
   def runner
@@ -33,6 +29,10 @@ class TestBase < Id58TestBase
 
   def logger
     context.logger
+  end
+
+  def clock
+    context.clock
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

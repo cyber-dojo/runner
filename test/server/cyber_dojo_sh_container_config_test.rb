@@ -3,48 +3,6 @@ require_code 'cyber_dojo_sh_container_config'
 
 class CyberDojoShContainerConfigTest < TestBase
 
-  test 'f2Cd10', %w(
-  | the config names the image to run
-  | and the command that unpacks the incoming files
-  | and then hands over to the kata's own script
-  ) do
-    assert_equal image_name, config['Image']
-    assert_equal ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'], config['Cmd']
-    assert_equal [], config['Entrypoint']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'f2Cd11', %w(
-  | cyber-dojo.sh is told which image, id and sandbox dir it is running under
-  | and runs as the sandbox user, never as root
-  ) do
-    assert_equal [
-      "CYBER_DOJO_IMAGE_NAME=#{image_name}",
-      "CYBER_DOJO_ID=#{id58}",
-      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
-    ], config['Env']
-
-    assert_equal "#{Sandbox::UID}:#{Sandbox::GID}", config['User']
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'f2Cd12', %w(
-  | stdin is open, so the incoming tgz can be written to it
-  | and closing it once is what gives [tar -zxf -] its end of file
-  | and there is no tty, because a pty would corrupt the binary payload
-  ) do
-    assert config['OpenStdin'], 'OpenStdin'
-    assert config['StdinOnce'], 'StdinOnce'
-    assert config['AttachStdin'], 'AttachStdin'
-    assert config['AttachStdout'], 'AttachStdout'
-    assert config['AttachStderr'], 'AttachStderr'
-    refute config['Tty'], 'Tty'
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
   test 'f2Cd13', %w(
   | the daemon removes the container itself once it exits
   | and tini reaps whatever the kata leaves behind
@@ -110,6 +68,34 @@ class CyberDojoShContainerConfigTest < TestBase
   ) do
     assert_nil host_config['CapAdd']
     assert_includes host_config['Ulimits'].map { |u| u['Name'] }, 'data'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'f2Cd18', %w(
+  | The create body is everything one test-run needs.
+  | It names the image, and drops that image's entrypoint.
+  | It runs as the sandbox user, never as root.
+  | It carries the image_name, the sandbox dir, and this run's id.
+  | Its command unpacks the incoming files and runs cyber-dojo.sh.
+  | It holds stdin open, which is how the tgz arrives.
+  | There is no tty, which would corrupt the payload.
+  ) do
+    config = CyberDojoShContainerConfig.create_config(id58, image_name)
+
+    assert_equal image_name, config['Image']
+    assert_equal [], config['Entrypoint']
+    assert_equal "#{Sandbox::UID}:#{Sandbox::GID}", config['User']
+    assert_equal [
+      "CYBER_DOJO_IMAGE_NAME=#{image_name}",
+      "CYBER_DOJO_ID=#{id58}",
+      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
+    ], config['Env']
+    assert_equal ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'], config['Cmd']
+    assert config['OpenStdin'], 'OpenStdin'
+    assert config['AttachStdin'], 'AttachStdin'
+    refute config['Tty'], 'Tty'
+    refute_nil config['HostConfig']
   end
 
   private

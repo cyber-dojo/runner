@@ -28,6 +28,7 @@ class DockerSocket
   # its response headers already read, so the next read is the container's
   # own bytes. The daemon stops speaking HTTP on it at that point: what
   # follows is the attach stream, which DockerAttachFrames separates.
+  #
   def attach(path)
     socket = UNIXSocket.new(socket_path)
     socket.write(attach_bytes(path))
@@ -55,6 +56,9 @@ class DockerSocket
     end
   end
 
+  # The upgrade is asked for whether or not there is a body, and the
+  # connection is never asked to close, because the connection is the thing
+  # being kept.
   def attach_bytes(path)
     [
       "POST #{path} HTTP/1.1",

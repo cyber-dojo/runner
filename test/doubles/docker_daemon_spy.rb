@@ -4,10 +4,10 @@ class DockerDaemonSpy
   # every call by the name of the endpoint and the arguments it was given, so
   # nothing has to match on a docker URL to know what was asked.
   #
-  # attach_container hands back a stream carrying whatever the container is
-  # said to have written, framed the way the daemon frames it, and remembers
-  # what was written to it. stalls: true makes that stream stand in for a
-  # container which is alive and saying nothing.
+  # attach_container hands back a stream carrying the frames the test gave it,
+  # framed the way the daemon frames them, and remembers what was written to
+  # it. stalls: true makes that stream stand in for a container which is alive
+  # and saying nothing.
 
   def initialize(responses, frames: [], stalls: false)
     @responses = responses
@@ -62,6 +62,18 @@ class DockerDaemonSpy
   # The endpoints a test asked for, in the order it asked for them.
   def endpoints
     @calls.map(&:first)
+  end
+
+  # What each part of a run asks the daemon for, named for what that part did.
+  # A test says the shape of a run, and the endpoint names stay in here.
+  PHASES = {
+    ran_the_kata: %i[create_container attach_container start_container],
+    stopped_the_container: %i[stop_container]
+  }.freeze
+
+  # The endpoints those parts ask for, in order, to assert endpoints against.
+  def endpoints_for(*phases)
+    phases.flat_map { |phase| PHASES.fetch(phase) }
   end
 
   private

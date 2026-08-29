@@ -1,6 +1,6 @@
 require_relative '../test_base'
-require_server_code 'tgz'
-require_server_code 'tarfile_writer'
+require_server_lib 'tgz'
+require_server_lib 'tarfile_writer'
 
 module Dual
   class RunRedAmberGreenTest < TestBase
@@ -90,7 +90,7 @@ module Dual
           logger: StdoutLoggerSpy.new,
           docker: DockerDaemonStub.new(stdout: stdout_tgz, archive: tar.tar_file)
         )
-        puller.add(image_name)
+        images.add(image_name)
         # simplecov:enable
       end
     end

@@ -1,5 +1,5 @@
-require_relative 'empty_binding'
-require_relative 'tarfile_reader'
+require_relative 'lib/empty_binding'
+require_relative 'lib/tarfile_reader'
 require 'concurrent'
 require 'json'
 

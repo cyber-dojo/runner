@@ -30,7 +30,7 @@
 require 'json'
 require 'socket'
 require 'timeout'
-require_relative '../../source/server/tgz'
+require_relative '../../source/server/lib/tgz'
 
 IMAGE = ARGV[0] || 'ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a'
 RUNS = 3

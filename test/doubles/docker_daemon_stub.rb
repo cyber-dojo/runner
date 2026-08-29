@@ -2,17 +2,21 @@ class DockerDaemonStub
   # as passed to set_context(docker:), standing in for the docker daemon in a
   # whole test-run.
   #
-  # Answers create, start and stop, and hands back an attach stream carrying
-  # whatever the container is said to have written to its stdout, framed the
-  # way the daemon frames it. timed_out: true makes that stream stand in for a
-  # container which never finishes what it is saying. An archive is
+  # Answers create, attach, start and stop, and hands back a stream carrying
+  # the stdout the test gave it, framed the way the daemon frames it.
+  # timed_out: true makes that stream stand in for a container which never
+  # finishes what it is saying. An archive is
   # TrafficLight reading the rag-lambda out of the image, which only a test
   # that was given one can answer.
 
-  def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}', timed_out: false, archive: nil)
+  def initialize(stdout: '', create_code: 201, create_body: '{"Id":"c0ffee"}',
+                 start_code: 204, start_body: '',
+                 timed_out: false, archive: nil)
     @stdout = stdout
     @create_code = create_code
     @create_body = create_body
+    @start_code = start_code
+    @start_body = start_body
     @timed_out = timed_out
     @archive = archive
   end
@@ -26,7 +30,7 @@ class DockerDaemonStub
   end
 
   def start_container(_id)
-    [204, '']
+    [@start_code, @start_body]
   end
 
   def stop_container(_id, seconds:)

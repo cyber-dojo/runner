@@ -25,7 +25,7 @@ Lint/RescueException:
 
 Lint/UselessMethodDefinition:
   Exclude:
-    - source/server/empty_binding.rb
+    - source/server/lib/empty_binding.rb
 
 Metrics/AbcSize:
   Exclude:
@@ -50,12 +50,17 @@ Metrics/MethodLength:
     - source/server/traffic_light.rb
     - source/server/tagged_image_name.rb
     - source/server/runner.rb
-    - source/server/puller.rb
+    - source/server/node_images.rb
     - source/server/files_delta.rb
     - source/server/externals/bash_sheller.rb
     - source/*/dispatcher.rb
     - source/client/demo.rb
     - source/server/home_files.rb
+    # context.rb's initialize names every collaborator once, so it grows by a
+    # line for each service added and shrinks by one for each removed. Naming
+    # them is the file's whole job, and it is excluded from Metrics/AbcSize
+    # for the same reason.
+    - source/server/context.rb
 
 Metrics/ParameterLists:
   Exclude:

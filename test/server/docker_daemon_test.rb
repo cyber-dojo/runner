@@ -39,27 +39,14 @@ class DockerDaemonTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'Tq9dM4', %w[
-  | create_container puts the name in a query parameter
-  | which is the one thing the docker CLI's flags say
-  | that the create config does not
+  | create_container puts the name in a query parameter.
+  | Every other flag the docker CLI takes is in the create config instead.
   ] do
     http = spied_http([201, created_body])
     config = CyberDojoShContainerConfig.create_config(id58, image_name)
 
     assert_equal [201, created_body], docker.create_container(config, name: container_name)
     assert_equal [['POST', "/containers/create?name=#{container_name}", config]], http.calls
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - -
-
-  test 'Tq9dM5', %w[
-  | attach_container asks for stdin as well as both output streams
-  | and answers the hijacked socket the transport handed back
-  ] do
-    http = spied_http([204, ''])
-    assert_equal http.stream, docker.attach_container(container_id)
-    expected = "/containers/#{container_id}/attach?stream=1&stdin=1&stdout=1&stderr=1"
-    assert_equal expected, http.attached
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -102,6 +89,25 @@ class DockerDaemonTest < TestBase
     assert_equal [204, ''], docker.remove_container(container_id)
     assert_equal [['DELETE', "/containers/#{container_id}", nil]], http.calls
   end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM10', %w[
+  | attach_container hijacks the connection, and answers the socket the
+  | transport handed back.
+  | It asks for stdin, stdout and stderr, and for a stream rather than what
+  | the container has already written.
+  | A run attaches before it starts the container, so nothing the container
+  | writes is missed.
+  ] do
+    http = spied_http([200, ''])
+
+    assert_equal http.stream, docker.attach_container(container_id)
+    expected = "/containers/#{container_id}/attach?stream=1&stdin=1&stdout=1&stderr=1"
+    assert_equal expected, http.attached
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
 
   private
 
@@ -153,7 +159,7 @@ class DockerDaemonTest < TestBase
   # Records what it was asked and answers one canned [code,body], standing in
   # for the transport so that a test can pin the docker URL built onto it.
   class DockerSocketSpy
-    attr_reader :calls, :attached, :stream
+    attr_reader :calls, :attached, :attached_body, :stream
 
     def initialize(response)
       @response = response
@@ -166,8 +172,9 @@ class DockerDaemonTest < TestBase
       @response
     end
 
-    def attach(path)
+    def attach(path, body = nil)
       @attached = path
+      @attached_body = body
       @stream
     end
   end

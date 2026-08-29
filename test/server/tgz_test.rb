@@ -1,5 +1,5 @@
 require_relative '../test_base'
-require_code 'tgz'
+require_lib 'tgz'
 
 class TgzTest < TestBase
 

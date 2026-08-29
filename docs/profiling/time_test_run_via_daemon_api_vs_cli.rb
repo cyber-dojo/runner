@@ -26,7 +26,7 @@
 
 require 'json'
 require 'socket'
-require_relative '../../source/server/tgz'
+require_relative '../../source/server/lib/tgz'
 
 IMAGE = ARGV[0] || 'ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a'
 RUNS = 10
@@ -323,4 +323,4 @@ puts(format('%-40s %10s', 'via docker CLI, pre-started (exec)', mean_millis(cli_
 puts(format('%-40s %10s', 'via daemon API (AutoRemove, no wait)', mean_millis(api)))
 puts(format('%-40s %10s', 'via daemon API, pre-started (exec)', mean_millis(api_pool)))
 puts
-puts(format('%-40s %10s', 'off the test-run: preparing a spare', mean_millis(refill)))
+puts(format('%-40s %10s', 'off the test-run: preparing it in advance', mean_millis(refill)))

@@ -1,5 +1,5 @@
 require_relative '../test_base'
-require_code 'synchronized_set'
+require_lib 'synchronized_set'
 
 class SynchronizedSetTest < TestBase
 

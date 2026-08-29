@@ -25,6 +25,6 @@ class RunFaultyGzipErrorTest < TestBase
       logger: @logger = StdoutLoggerSpy.new,
       docker: DockerDaemonStub.new(stdout: 'not-a-tgz')
     )
-    puller.add(image_name)
+    images.add(image_name)
   end
 end

@@ -43,7 +43,7 @@
 require 'timeout'
 require_relative '../../source/server/home_files'
 require_relative '../../source/server/sandbox'
-require_relative '../../source/server/tgz'
+require_relative '../../source/server/lib/tgz'
 
 extend HomeFiles
 

@@ -1,14 +1,15 @@
 require_relative 'cyber_dojo_sh_host_config'
 require_relative 'sandbox'
 
-# The body of a POST /containers/create for one run of cyber-dojo.sh, saying
+# The body of the POST /containers/create that runs one cyber-dojo.sh, saying
 # everything the docker CLI would otherwise be told in flags. Every entry
 # arrives the same way: as a group of keys merged in by the method that
 # explains it.
 module CyberDojoShContainerConfig
   def self.create_config(id, image_name)
     [
-      image_and_command(image_name),
+      image(image_name),
+      cyber_dojo_sh_command,
       sandbox_user,
       env(id, image_name),
       stdio,
@@ -16,17 +17,22 @@ module CyberDojoShContainerConfig
     ].reduce(:merge)
   end
 
-  # Unpacks the incoming files, then hands over to the script that runs the
-  # kata's cyber-dojo.sh and sends the payload back on stdout. The image's own
-  # entrypoint is dropped so that the command is what runs.
-  def self.image_and_command(image_name)
+  # The image to run, with its own entrypoint dropped so that the command is
+  # what runs.
+  def self.image(image_name)
     {
       'Image' => image_name,
-      'Cmd' => ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'],
       'Entrypoint' => []
     }
   end
-  private_class_method :image_and_command
+  private_class_method :image
+
+  # Unpacks the incoming files, then hands over to the script that runs the
+  # kata's cyber-dojo.sh and sends the payload back on stdout.
+  def self.cyber_dojo_sh_command
+    { 'Cmd' => ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'] }
+  end
+  private_class_method :cyber_dojo_sh_command
 
   # Never root.
   def self.sandbox_user
