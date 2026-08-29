@@ -39,9 +39,8 @@ class DockerDaemonTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'Tq9dM4', %w[
-  | create_container puts the name in a query parameter
-  | which is the one thing the docker CLI's flags say
-  | that the create config does not
+  | create_container puts the name in a query parameter.
+  | Every other flag the docker CLI takes is in the create config instead.
   ] do
     http = spied_http([201, created_body])
     config = CyberDojoShContainerConfig.create_config(id58, image_name)

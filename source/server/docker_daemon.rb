@@ -22,10 +22,10 @@ class DockerDaemon
     http.request('POST', "/images/create?fromImage=#{image_name}")
   end
 
-  # Creates a container from config. The name is a query parameter rather than
-  # part of the body, which is the one thing the docker CLI's flags say that
-  # the create config does not. A container nothing has to find again is
-  # created without one.
+  # Creates a container from config. Everything the docker CLI would be told
+  # in flags is in that config, except the name: the API takes it as a query
+  # parameter instead. A container nothing has to find again is created
+  # without one.
   def create_container(config, name: nil)
     named = name.nil? ? '' : "?name=#{name}"
     http.request('POST', "/containers/create#{named}", config)
