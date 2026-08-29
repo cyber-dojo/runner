@@ -24,7 +24,7 @@
 
 require 'json'
 require 'socket'
-require_relative '../../source/server/tarfile_reader'
+require_relative '../../source/server/lib/tarfile_reader'
 
 IMAGE = ARGV[0] || 'ghcr.io/cyber-dojo-languages/gcc_assert:2733119'
 SOCKET_PATH = '/var/run/docker.sock'

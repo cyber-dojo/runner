@@ -13,7 +13,7 @@ class CyberDojoShRunnerTest < TestBase
   | Its config comes from the image_name alone.
   | Nothing about this particular run reaches the create.
   ) do
-    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + refill_finds_a_full_node)
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
 
     runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -37,7 +37,7 @@ class CyberDojoShRunnerTest < TestBase
   | The container is stopped once the run has its payload.
   | Its own command is a sleep, which outlives the exec that did the work.
   ) do
-    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + refill_finds_a_full_node)
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
 
     runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -57,7 +57,7 @@ class CyberDojoShRunnerTest < TestBase
   | The writing half is then closed.
   | That close is what gives the container's [tar -zxf -] its end of file.
   ) do
-    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + refill_finds_a_full_node)
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
 
     runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -73,7 +73,7 @@ class CyberDojoShRunnerTest < TestBase
   | The stream ends of its own accord, so the run did not time out.
   ) do
     spy = DockerDaemonSpy.new(
-      responses_up_to_the_stream + [[204, '']] + refill_finds_a_full_node,
+      responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node,
       frames: [[1, 'the-payload'], [2, 'a warning']]
     )
 
@@ -95,7 +95,7 @@ class CyberDojoShRunnerTest < TestBase
   | That second is what gives cyber-dojo.sh's EXIT trap its chance to run.
   ) do
     spy = DockerDaemonSpy.new(
-      responses_up_to_the_stream + [[204, '']] + refill_finds_a_full_node,
+      responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node,
       stalls: true
     )
 
@@ -219,7 +219,7 @@ class CyberDojoShRunnerTest < TestBase
   | A learner waits for the answer, not for a teardown they never see.
   ) do
     threader = ThreaderSynchronous.new
-    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + refill_finds_a_full_node)
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
     set_context(docker: spy, threader: threader)
 
     cyber_dojo_sh_runner.run(id58, image_name, container_name, max_seconds, tgz_in)
@@ -238,9 +238,9 @@ class CyberDojoShRunnerTest < TestBase
   | Create and start are what the pool has already done.
   ) do
     # In order: the claim's rename, the exec made in the spare, the spare's
-    # stop, then the refill's count.
+    # stop, then the warm's count.
     spy = DockerDaemonSpy.new([[204, ''], [201, '{"Id":"e5ec1d"}'], [204, '']] +
-                              refill_finds_a_full_node)
+                              warm_finds_a_full_node)
     runner = runner_using(spy)
     spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
 
@@ -320,7 +320,7 @@ class CyberDojoShRunnerTest < TestBase
     # own stop, then a run making its own container.
     spy = DockerDaemonSpy.new(
       [[204, ''], [404, gone], [204, '']] + responses_up_to_the_stream +
-      [[204, '']] + refill_finds_a_full_node
+      [[204, '']] + warm_finds_a_full_node
     )
     runner = runner_using(spy)
     spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
@@ -469,10 +469,10 @@ class CyberDojoShRunnerTest < TestBase
     TGZ.of(files.merge(home_files(Sandbox::DIR, 50 * 1024)))
   end
 
-  # What the daemon answers the refill a run ends with. The node is already
-  # full, so the refill stops at the count and creates nothing.
+  # What the daemon answers the warm a run ends with. The node is already
+  # full, so the warm stops at the count and creates nothing.
   # A test that is not about the pool wants it to end there.
-  def refill_finds_a_full_node
+  def warm_finds_a_full_node
     full = Array.new(SparePool::SPARES_PER_NODE) do |n|
       { 'Names' => [format('/cyber_dojo_spare_%<n>08x', n: n)] }
     end

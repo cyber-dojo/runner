@@ -29,7 +29,7 @@
 # from it. Each variant spawns a docker CLI, and emulating that process inflates
 # every row: the pre-started row reads 114.3ms emulated against 32.2ms here.
 
-require_relative '../../source/server/tgz'
+require_relative '../../source/server/lib/tgz'
 
 IMAGE = ARGV[0] || 'ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a'
 RUNS = 10

@@ -154,7 +154,7 @@ class SparePool
   # anything about the image at all, so it is forgotten here as the run path
   # forgets it. Noticing it here is noticing it earlier: at warm time no
   # learner has been shown anything yet, where the run path's 404 has already
-  # cost one faulty light. Every other code says nothing about the image, a
+  # cost one faulty light. Every other status says nothing about the image, a
   # taken container name for instance, and leaves it believed present.
   def create(image_name)
     config = CyberDojoShContainerConfig.image_config(image_name)

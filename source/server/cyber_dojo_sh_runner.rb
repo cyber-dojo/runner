@@ -27,11 +27,14 @@ class CyberDojoShRunner
     NO_SUCH_IMAGE = 404
   end
 
-  # The image is not on the node, which only a container create can discover:
-  # it checks the image before the name, so every other code it answers is
-  # reached having already found the image. This is the one refusal that says
-  # the runner's idea of what the node holds is wrong, which is why it has a
-  # class of its own rather than being a code the caller has to interpret.
+  # The image is not on the node, which only a container create can discover.
+  # The daemon looks for the image before it looks at anything else the create
+  # asks for, so a 404 is the only status that says the image is missing.
+  # Every other status it answers was reached with the image already found.
+  #
+  # This is the one refusal that says the runner's idea of what the node holds
+  # is wrong, which is why it has a class of its own rather than a status code
+  # the caller has to interpret.
   #
   # An exec create answers 404 too, and means something else entirely: the
   # container has gone, not the image. Reading that as an image being absent
@@ -39,8 +42,8 @@ class CyberDojoShRunner
   class ImageMissing < DaemonRefused
   end
 
-  # The longest a kata may run for, whatever its manifest asks for. runner.rb
-  # applies it and DeadlineReader enforces it.
+  # The longest a kata may run for, whatever its manifest asks for.
+  # runner.rb applies it and DeadlineReader enforces it.
   RUN_SECONDS = 15
 
   # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
@@ -53,12 +56,12 @@ class CyberDojoShRunner
   def run(id, image_name, container_name, max_seconds, tgz_in)
     spare = spares.claim(image_name: image_name, container_name: container_name)
     if spare
-      # A spare is created and started, ready to run.
+      # A warm (pre-created, pre-started) spare container is ready to run.
       begin
-        return run_in_and_refill(spare, image_name, id, max_seconds, tgz_in)
+        return run_in_and_warm_another(spare, image_name, id, max_seconds, tgz_in)
       rescue DaemonRefused
-        # The spare was gone, or was no longer running. 
-        # A non-spare container made for this run cannot be either of those.
+        # The spare was gone, or was no longer running. A non-spare container,
+        # (created for this run), would never experience either of those.
         # So the learner is owed the run they would have had with no pool.
         # Nothing is half-done: both exec calls come before the tgz is written.
         nil
@@ -66,17 +69,17 @@ class CyberDojoShRunner
     end
     # There is no spare, or there was but it failed.    
     container_id = created_and_started(image_name, container_name)
-    run_in_and_refill(container_id, image_name, id, max_seconds, tgz_in)
+    run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
   end
 
   private
 
-  # Runs in the container, then refills the pool for the next test-run of this
-  # image_name.
+  # Runs in the container, then warms one more spare for this image_name, so
+  # the next test-run for it has one to claim.
   # The warm happens once the payload has been read, so its create and its
   # start do not compete with the kata for the daemon.
   # It runs on warm's own thread, so this run answers without waiting for it.
-  def run_in_and_refill(container_id, image_name, id, max_seconds, tgz_in)
+  def run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
     result = run_in(container_id, id, max_seconds, tgz_in)
     spares.warm(image_name: image_name)
     result

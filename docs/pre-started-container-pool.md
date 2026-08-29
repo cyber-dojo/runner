@@ -393,6 +393,38 @@ the moment it decides to. It has to wait out the sleep of the last spare, once
 no test-run is refilling them. That is a delay rather than a deadlock, and
 choosing the sleep duration is choosing how long a purge waits.
 
+### The sleep is the one number a worker could set for itself
+
+Of everything the pool is configured with, the sleep is the only number that is
+about learners rather than hardware. The three memory caps are about a node,
+which does not change while it runs, so nothing is gained by deciding them at
+run time. The sleep is about the gap between one test-run for an image_name and
+the next, and that gap changes hour by hour: sixteen people on python_pytest
+leave seconds between test-runs, one person leaves a minute, and the same LTF
+is both at different times of day.
+
+A worker can measure it. It serves the test-runs, so it can record when each
+one for an image_name arrived, hit or miss, and a miss is the case worth
+learning from. Keeping the last eight gaps in a ring per image_name is a few
+floats.
+
+The statistic has to be a high percentile rather than a mean, because the aim
+is to cover the gap and a mean sits under most of the gaps it is averaging. One
+long think would drag it the wrong way. Something like:
+
+    sleep = clamp(p75_of_recent_gaps + longest_hold_seconds, 30, 120)
+
+p75 is the gap the spare has to survive. longest_hold_seconds is the sixteen
+that usable? insists on, so what survives is claimable rather than merely
+alive. The floor stops a busy LTF choosing a sleep with no window left in it
+once sixteen is taken; the ceiling stops a quiet one holding memory for as long
+as it likes.
+
+Nothing here is built, and it should not be until the fixed sleep has run in
+production long enough to say what the gaps actually are. The ring buffer is
+also the thing that would answer that: logging p75 per image_name is most of
+the work and none of the risk.
+
 Not verified here: that docker refuses to remove an image referenced by a
 running container. It is the documented behaviour, and checking it means
 creating containers, so it belongs with the probes rather than in this file.
