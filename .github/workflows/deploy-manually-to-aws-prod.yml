@@ -84,6 +84,11 @@ jobs:
       # image's own infrastructure back with it, instead of running today's
       # terraform against yesterday's image, a pairing that has never run before.
       ref: ${{ needs.variables.outputs.commit_sha }}
+      # The Kosli commands default their --commit to the sha this run was
+      # dispatched from, and read it from the checked out workspace. That
+      # workspace holds the image's commit alone, so the trail must be told to
+      # use the ref rather than look for a commit that was never fetched.
+      pass_commit_to_kosli_commands: true
       tf_version: v1.14.9
       tf_vars: |
         TF_VAR_TAGGED_IMAGE=${{ needs.variables.outputs.ecr_registry }}/${{ needs.variables.outputs.service_name }}:${{ needs.variables.outputs.image_tag }}@sha256:${{ needs.variables.outputs.image_fingerprint }}
