@@ -55,12 +55,12 @@ class Runner
     images.forget(image_name)
     log(id: id, image_name: image_name, error: e.message)
     faulty_result({})
-  rescue CyberDojoShRunner::DaemonRefused => e
-    # The daemon would not run the kata, so there is no result to report and
-    # nothing the kata did wrong. The learner is owed a traffic light rather
-    # than a 500, and what the daemon said belongs in the log rather than in
-    # the browser. The image is left alone: this refusal says nothing about
-    # what the node holds.
+  rescue CyberDojoShRunner::RunRefused => e
+    # Nothing would run the kata, so there is no result to report and nothing
+    # the kata did wrong. The learner is owed a traffic light rather than a
+    # 500, and what the refusal said belongs in the log rather than in the
+    # browser. The image is left alone: this refusal says nothing about what
+    # the node holds.
     log(id: id, image_name: image_name, error: e.message)
     faulty_result({})
   rescue Zlib::GzipFile::Error, Gem::Package::TarInvalidError => e
@@ -111,7 +111,7 @@ class Runner
     files_in = Sandbox.in(files)
     tgz_in = TGZ.of(files_in.merge(home_files(Sandbox::DIR, MAX_FILE_SIZE)))
 
-    run = CyberDojoShRunner.new(@context).run(id, image_name, container_name, max_seconds, tgz_in)
+    run = @context.test_run.run(id, image_name, container_name, max_seconds, tgz_in)
 
     [run, files_in]
   end

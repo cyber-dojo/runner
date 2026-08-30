@@ -131,7 +131,7 @@ class CyberDojoShRunnerTest < TestBase
     conflict = '{"message":"Conflict. The container name is already in use"}'
     spy = DockerDaemonSpy.new([[409, conflict]])
 
-    error = assert_raises(CyberDojoShRunner::DaemonRefused) do
+    error = assert_raises(CyberDojoShRunner::RunRefused) do
       runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
     end
 
@@ -150,7 +150,7 @@ class CyberDojoShRunnerTest < TestBase
     conflict = '{"message":"Conflict. The container has been removed"}'
     spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [409, conflict]])
 
-    error = assert_raises(CyberDojoShRunner::DaemonRefused) do
+    error = assert_raises(CyberDojoShRunner::RunRefused) do
       runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
     end
 

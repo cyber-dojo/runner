@@ -28,9 +28,13 @@ module CyberDojoShContainerConfig
   private_class_method :image
 
   # Unpacks the incoming files, then hands over to the script that runs the
-  # kata's cyber-dojo.sh and sends the payload back on stdout.
+  # kata's cyber-dojo.sh and sends the payload back on stdout. Named because
+  # CyberDojoShOciConfig starts this same process under a field name of its
+  # own, and two spellings of one command is one that can drift.
+  COMMAND = ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'].freeze
+
   def self.cyber_dojo_sh_command
-    { 'Cmd' => ['bash', '-c', 'tar -C / -zxf - && bash ~/cyber_dojo_main.sh'] }
+    { 'Cmd' => COMMAND }
   end
   private_class_method :cyber_dojo_sh_command
 
@@ -40,15 +44,18 @@ module CyberDojoShContainerConfig
   end
   private_class_method :sandbox_user
 
-  # What the run tells cyber_dojo_main.sh about itself.
+  # What the run tells cyber_dojo_main.sh about itself. Named for the reason
+  # COMMAND is: CyberDojoShOciConfig hands the container the same entries.
+  def self.env_entries(id, image_name)
+    [
+      "CYBER_DOJO_IMAGE_NAME=#{image_name}",
+      "CYBER_DOJO_ID=#{id}",
+      "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
+    ]
+  end
+
   def self.env(id, image_name)
-    {
-      'Env' => [
-        "CYBER_DOJO_IMAGE_NAME=#{image_name}",
-        "CYBER_DOJO_ID=#{id}",
-        "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
-      ]
-    }
+    { 'Env' => env_entries(id, image_name) }
   end
   private_class_method :env
 

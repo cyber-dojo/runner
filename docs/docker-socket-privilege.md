@@ -67,9 +67,8 @@ something to be gathered from its callers:
 | `GET /images/json` | `image_names` | `node_images.rb` |
 | `POST /images/create?fromImage=` | `pull_image` | `node_images.rb` |
 | `POST /containers/create` | `create_container` | `cyber_dojo_sh_runner.rb`, `traffic_light.rb` |
+| `POST /containers/{id}/attach` | `attach_container` | `cyber_dojo_sh_runner.rb` |
 | `POST /containers/{id}/start` | `start_container` | `cyber_dojo_sh_runner.rb` |
-| `POST /containers/{id}/exec` | `create_exec` | `cyber_dojo_sh_runner.rb` |
-| `POST /exec/{id}/start` | `start_exec` | `cyber_dojo_sh_runner.rb` |
 | `POST /containers/{id}/stop` | `stop_container` | `cyber_dojo_sh_runner.rb` |
 | `GET /containers/{id}/archive` | `read_file` | `traffic_light.rb` |
 | `DELETE /containers/{id}` | `remove_container` | `traffic_light.rb` |
@@ -82,11 +81,13 @@ containers, so a proxy has to judge the config it is asked for rather than only
 the path. `CyberDojoShContainerConfig` is where the runner's own answer to that
 question already lives.
 
-There are two bodies to judge rather than one. `image_config` says what the
-container may do, and `exec_config` carries the command that runs the kata, so
-a proxy that read only the create config would see the limits and never the
-command, and would allow any command at all on the exec. Both endpoints have to
-be judged on their body and not merely their path.
+Two different bodies reach that one endpoint. `CyberDojoShContainerConfig`
+builds the one that runs a kata, carrying the limits and the command together,
+and `traffic_light.rb` creates a container from an image name alone and never
+starts it. So a proxy has to judge the body rather than the path, and judge it
+against both shapes: refusing everything unlike the kata's config would refuse
+the traffic light, and accepting any create with an image name would accept a
+privileged one.
 
 Enumerating this list was not practical while the runner spawned the docker
 CLI, because the CLI's flags do not map one-to-one onto endpoints and the CLI

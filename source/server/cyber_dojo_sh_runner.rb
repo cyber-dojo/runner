@@ -12,14 +12,14 @@ require_relative 'docker_attach_frames'
 # was fine. A payload that does not parse is faulty however the container
 # exited.
 class CyberDojoShRunner
-  # The daemon would not do what it was asked. Carrying on regardless means
-  # working with no container id, or with one that never started, and failing
-  # later somewhere that says nothing about why.
+  # Whatever was asked to run the container would not do it. Carrying on
+  # regardless means working with no container id, or with one that never
+  # started, and failing later somewhere that says nothing about why.
   #
   # It carries the status code because which refusal it is decides what the
   # runner does next, which is what ImageMissing below is about, and because
-  # what the daemon said belongs in the log either way.
-  class DaemonRefused < RuntimeError
+  # what the refusal said belongs in the log either way.
+  class RunRefused < RuntimeError
     def initialize(code, message)
       @code = code
       super(message)
@@ -42,7 +42,7 @@ class CyberDojoShRunner
   # A start answers 404 too, and means something else entirely: the container
   # has gone, not the image. Reading that as an image being absent would throw
   # away a present image and pull it again for nothing.
-  class ImageMissing < DaemonRefused
+  class ImageMissing < RunRefused
   end
 
   def initialize(context)
@@ -66,7 +66,7 @@ class CyberDojoShRunner
   # follows would wait out the whole deadline before answering timed_out.
   def start(container_id)
     code, body = docker.start_container(container_id)
-    raise DaemonRefused.new(code, "start answered #{code}: #{body}") unless code.between?(200, 299)
+    raise RunRefused.new(code, "start answered #{code}: #{body}") unless code.between?(200, 299)
   end
 
   # The container this run's cyber-dojo.sh runs in, created but not started.
@@ -74,8 +74,8 @@ class CyberDojoShRunner
     config = CyberDojoShContainerConfig.create_config(id, image_name)
     code, body = docker.create_container(config, name: container_name)
     message = "create answered #{code}: #{body}"
-    raise ImageMissing.new(code, message) if code == DaemonRefused::NO_SUCH_IMAGE
-    raise DaemonRefused.new(code, message) unless code.between?(200, 299)
+    raise ImageMissing.new(code, message) if code == RunRefused::NO_SUCH_IMAGE
+    raise RunRefused.new(code, message) unless code.between?(200, 299)
 
     JSON.parse(body)['Id']
   end

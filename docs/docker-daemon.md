@@ -20,11 +20,11 @@ to whoever asked:
   the image list, a server that cannot learn what the node holds being no use
 - `NodeImages` logs the code and the body, and leaves the image unpulled
 - `TrafficLight` raises a `Fault` naming the image and the code
-- `CyberDojoShRunner` raises `DaemonRefused` carrying the code, and raises the
+- `CyberDojoShRunner` raises `RunRefused` carrying the code, and raises the
   `ImageMissing` subclass of it for a 404 to a container create, that being
   the daemon saying the image is not on the node, which is what sends `Runner`
   back to pull it. A 404 to an exec create says the container has gone
-  instead, and stays a plain `DaemonRefused`
+  instead, and stays a plain `RunRefused`
 
 Answering anything narrower than `[code,body]` would take those decisions away
 from the only objects in a position to make them.

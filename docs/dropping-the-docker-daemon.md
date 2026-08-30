@@ -281,6 +281,29 @@ production host, which would be a third default in the same category.
 dockerd itself stays on the node: ECS still runs the service containers through
 it. What changes is that it leaves the traffic-light critical path.
 
+## What a containerd proxy would have to allow
+
+The counterpart of the endpoint table in `docker-socket-privilege.md`, written
+before anything enforces it, so that the privilege being asked for is stated
+rather than discovered at step 9.
+
+| Service | What the runner asks of it |
+| --- | --- |
+| images | resolve an image reference, and pull one that the node lacks |
+| content | read and write the blobs a pull produces |
+| snapshots | prepare the rootfs for one test-run, and remove it after |
+| leases | hold what a run is using, so the garbage collector leaves it |
+
+What is absent is the point. There is no containers service and no tasks
+service, because the runner never asks containerd to run anything: it execs
+crun against a bundle itself. A proxy allowing the four above refuses the two
+that create and start containers, which is the pair that makes the socket
+root-equivalent today.
+
+This is service granularity, which is where step 9 draws its line. The method
+names within each service are not written here because nothing has checked them
+against the containerd version the deployed host runs.
+
 ## Staging it
 
 The risk is concentrated in the run plane. Almost everything else can land
@@ -301,9 +324,12 @@ own and none of the early ones changes what a learner sees.
 3. Emit an OCI `config.json` alongside, unused. Generate it from the same source
    as `CyberDojoShContainerConfig`, and test that both express the same limits.
    Nothing runs it, so the field-for-field mapping is de-risked without
-   production seeing any of it. Write the containerd endpoint list here too, the
-   way `docker_daemon.rb` already keeps one for dockerd, so what a proxy would
-   have to allow is stated long before anything enforces it.
+   production seeing any of it. It covers only what the two config classes say,
+   which leaves out `process.capabilities` and the seccomp profile: those are
+   dockerd defaults, and choosing them is the open question below rather than a
+   translation. Write the containerd endpoint list here too, the way
+   `docker_daemon.rb` already keeps one for dockerd, so what a proxy would have
+   to allow is stated long before anything enforces it.
 4. Dual-run in the test suite. The server tests already drive real containers,
    so run a set of katas through both paths and assert identical colours and
    files, with the step 1 probe as a gate on the new path being no weaker. This
@@ -318,7 +344,10 @@ own and none of the early ones changes what a learner sees.
    earlier image still contains.
 8. Retire the docker path, once step 7 has held. Until this lands the runner
    still mounts the full docker socket, because rolling back to an earlier
-   image needs it.
+   image needs it. The step 2 seam goes with it: one implementation left is
+   nothing to choose between, so `Runner` holds that one directly and `Context`
+   carries a single runner again. The seam is what makes the switch possible
+   rather than something the finished design keeps.
 9. Put a proxy in front of the containerd socket, restricted to the images,
    content, snapshots and leases services, and drop the direct socket mount.
 
@@ -413,6 +442,123 @@ production daemon is unchecked.
 
 ## Open questions
 
+- What `linux.maskedPaths` and `linux.readonlyPaths` should hold, the last of
+  dockerd's invisible defaults still unstated. `check_test_run_confinement.rb`
+  measured dockerd hiding `/proc/kcore` and `/proc/timer_list` by mounting
+  /dev/null over them, so a kata run from this config would see the real files.
+  Nothing may run from this config until this is answered, and step 4 is where
+  the absence would otherwise be found by a test that passes.
+
+- Whether a shipped seccomp profile can serve every node cyber-dojo runs on.
+  This is the strongest form of the invisible-defaults argument, and it is not
+  about cyber-dojo.org.
+
+  Today the boundary is portable for free: each operator's dockerd computes it
+  for that operator's node. A server started by the `cyber-dojo` script in the
+  commander repo gets a boundary suited to whatever it runs on, and nobody had
+  to say so. Under this design the runner ships the boundary instead, and a
+  shipped boundary is right for the machines it was generated on and wrong for
+  the rest.
+
+  Two of the three axes turn out not to vary. Capabilities and namespaces are
+  the same whatever the kernel. Of the syscalls, exactly one block carries a
+  `minKernel`, gating `process_vm_readv`, `process_vm_writev` and `ptrace` at
+  4.8, which is 2016, and which every plausible node clears. So the kernel is
+  not the problem it first looked like.
+
+  The arch is. `seccomp_linux.go` takes `goToNative[runtime.GOARCH]`, the arch
+  of the daemon process, so dockerd applies its own host's profile to every
+  container whatever the image is, emulated or not. A profile naming
+  `SCMP_ARCH_X86_64` is wrong on an arm64 self-hoster, and
+  `source/server/seccomp/` holds amd64 alone. So the selection has to be by the
+  arch the runner runs on, read once, which is what dockerd does; and one
+  profile has to exist per arch cyber-dojo supports, each generated on that arch,
+  because the generator reads its own `runtime.GOARCH`.
+
+  Not the arch of the image, which is a tempting mistake twice over. dockerd
+  does not consult it, and the profile is part of the create, so nothing has run
+  yet to be asked. A multi-arch tag does not reach this decision either: it
+  resolves to one image at pull, and `NodeImages` pulls before the create.
+
+  How many profiles that means is settled by the runner image rather than by
+  seccomp. crun runs inside the runner container, so the arch that chooses the
+  profile is the arch the runner sees. `cyberdojo/runner:latest` is a single
+  manifest rather than a manifest list, so the image is published for amd64
+  alone, and one profile is the whole set. An arm64 self-hoster runs the runner
+  emulated today, and an emulated amd64 runner reports x86_64, so committing an
+  `arm64.json` now would add a file nothing could ever select: support in
+  appearance only, which is worse than none.
+
+  Two profiles become right when the runner image is published for two
+  platforms, which is the decision this actually turns on. It is also what a
+  local test-run on arm64 against a CI run on amd64 would need.
+
+  There is a reason to think that publishing has to come first rather than
+  after. An emulated runner is fine under the docker path, because dockerd is
+  native to the host and computes the boundary there. Under this design the
+  emulated runner drives crun itself, with its mounts, cgroups and seccomp,
+  through the emulation. Nothing here has tested that, and it should not be
+  assumed to work.
+
+  What a test-run meets today, with the runner published for amd64 alone. The
+  language images are manifest lists carrying both arches, and dockerd is what
+  pulls them, so a laptop gets an emulated runner driving a native kata:
+
+  | Step | arm64 laptop | amd64 CI |
+  | --- | --- | --- |
+  | Host arch | arm64 | amd64 |
+  | Runner image pulled | amd64 | amd64 |
+  | Runner emulated | yes | no |
+  | Language image pulled | arm64 | amd64 |
+  | Kata emulated | no | no |
+
+  And with the runner published for both, which is what makes a local run and a
+  CI run differ in arch and in nothing else:
+
+  | Step | arm64 laptop | amd64 CI |
+  | --- | --- | --- |
+  | Host arch | arm64 | amd64 |
+  | Runner image pulled | arm64 | amd64 |
+  | Runner emulated | no | no |
+  | Profile the runner selects | `arm64.json` | `amd64.json` |
+  | Language image pulled | arm64 | amd64 |
+  | Kata emulated | no | no |
+
+  Publishing the runner for both arches is worth doing on its own, before any
+  of this, because it is what makes a measurement on a developer machine mean
+  anything. A traffic light is timed in two halves, and on an arm64 machine they
+  are currently in different states: the kata half runs native, since dockerd
+  pulls the arm64 language image, while the runner half runs emulated, which
+  `probe_lib.sh` records as about 72ms per test-run. Part native and part
+  inflated is worse than uniformly wrong. A total is still comparable across the
+  language images, since every one of them carries the same overhead, but a
+  breakdown is not: the overhead lands on one half and changes the shape of the
+  answer rather than scaling it.
+
+  Under this design that gets worse before it gets better. An amd64 runner on an
+  arm64 machine puts both halves under emulation. A runner published for both
+  puts both halves back on the metal, and makes a laptop's numbers directly
+  comparable with CI's as an arm64 against amd64 comparison rather than an
+  emulation artifact.
+
+  The row that changes hands is the language image. dockerd pulls it today, and
+  dockerd is native to the host whatever the runner is, which is why the first
+  table has a native kata under an emulated runner. Under this design the runner
+  pulls it through its own containerd client, so the runner picks the platform,
+  and an emulated amd64 runner asking for what it is would get an emulated kata
+  as well. Which platform to ask for is a decision this design adds and the
+  current one never had to make.
+
+  The third axis is the version. What is committed came from `moby/profiles`
+  main, and what a node enforces is the profile compiled into that node's
+  dockerd. The two drift apart on their own, and a profile that has drifted
+  still runs and still passes every test while allowing a kata something the
+  daemon beside it would refuse. `resolve_seccomp_profile.go` records the
+  version, the platform and the kernel that produced each committed file, which
+  is enough to regenerate but not enough to notice. What would notice is
+  running `check_test_run_confinement.rb` on an aws-beta node, which has not
+  been done: every measurement behind these files was taken on a developer
+  machine under Docker Desktop.
 - Which containerd client to use from Ruby, per the first cost above. This is
   now the largest unknown in the design.
 - A real runner worker's resident size, which is what turns the spawn probe's

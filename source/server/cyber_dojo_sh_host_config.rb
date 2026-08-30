@@ -30,13 +30,21 @@ module CyberDojoShHostConfig
 
   GB = 1024 * 1024 * 1024
 
+  # The memory ceiling a kata runs under.
+  MEMORY_BYTES = 2 * GB
+
+  # How many processes a kata may have, which is what stops a fork bomb.
+  MAX_PROCESSES = 128
+
   # What a kata cannot do: reach the network, exhaust the node's memory, fork
-  # bomb it, or gain a privilege it did not start with.
+  # bomb it, or gain a privilege it did not start with. The two ceilings are
+  # named rather than written here, because CyberDojoShOciConfig expresses the
+  # same two and a second copy of a number is a number that can drift.
   def self.limits
     {
-      'Memory' => 2 * GB,
+      'Memory' => MEMORY_BYTES,
       'NetworkMode' => 'none',
-      'PidsLimit' => 128,
+      'PidsLimit' => MAX_PROCESSES,
       'SecurityOpt' => ['no-new-privileges']
     }
   end
@@ -48,13 +56,19 @@ module CyberDojoShHostConfig
   # scripts runnable. The size accommodates start-points needing large files,
   # eg C#'s "dotnet restore". The sandbox belongs to the sandbox user, and
   # /tmp gets the sticky bit it has everywhere else.
-  def self.tmp_file_systems
+  # Each tmpfs a kata writes into, and the options it is mounted with. Named,
+  # and kept as the options one by one, because CyberDojoShOciConfig mounts the
+  # same two and an OCI runtime takes the options as a list where the docker
+  # rendering takes them as one joined string.
+  def self.tmpfs_options
     {
-      'Tmpfs' => {
-        Sandbox::DIR => "exec,size=250M,uid=#{Sandbox::UID},gid=#{Sandbox::GID}",
-        '/tmp' => 'exec,size=250M,mode=1777'
-      }
+      Sandbox::DIR => ['exec', 'size=250M', "uid=#{Sandbox::UID}", "gid=#{Sandbox::GID}"],
+      '/tmp' => ['exec', 'size=250M', 'mode=1777']
     }
+  end
+
+  def self.tmp_file_systems
+    { 'Tmpfs' => tmpfs_options.transform_values { |options| options.join(',') } }
   end
   private_class_method :tmp_file_systems
 
@@ -75,9 +89,16 @@ module CyberDojoShHostConfig
     'stack' => 16 * MB      # stack size
   }.freeze
 
+  # The limits one image's kata runs under. A clang image loses the data limit
+  # for the reason ptrace below is added. Named because CyberDojoShOciConfig
+  # gives the same limits under names of its own, and a second copy of this
+  # choice is a choice that can drift.
+  def self.resource_limits(image_name)
+    clang?(image_name) ? LIMIT_OF.except('data') : LIMIT_OF
+  end
+
   def self.ulimits(image_name)
-    limits = clang?(image_name) ? LIMIT_OF.except('data') : LIMIT_OF
-    { 'Ulimits' => limits.map { |name, limit| ulimit(name, limit) } }
+    { 'Ulimits' => resource_limits(image_name).map { |name, limit| ulimit(name, limit) } }
   end
   private_class_method :ulimits
 
@@ -85,12 +106,16 @@ module CyberDojoShHostConfig
   # large virtual address space that the data ulimit would refuse, and which
   # needs ptrace to report what it finds. So a clang image trades the one for
   # the other, and no other image is given the capability.
+  # The capabilities this image is given beyond the set the daemon leaves every
+  # container. Named because CyberDojoShOciConfig adds the same ones to a
+  # bounding set it states in full.
+  def self.added_capabilities(image_name)
+    clang?(image_name) ? ['SYS_PTRACE'] : []
+  end
+
   def self.ptrace(image_name)
-    if clang?(image_name)
-      { 'CapAdd' => ['SYS_PTRACE'] }
-    else
-      {}
-    end
+    added = added_capabilities(image_name)
+    added.empty? ? {} : { 'CapAdd' => added }
   end
   private_class_method :ptrace
 
