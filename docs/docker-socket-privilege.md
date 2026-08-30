@@ -93,6 +93,11 @@ Enumerating this list was not practical while the runner spawned the docker
 CLI, because the CLI's flags do not map one-to-one onto endpoints and the CLI
 is free to call others. It became possible when the last CLI caller went.
 
+`docs/dropping-the-docker-daemon.md` carries the counterpart of the table above
+for containerd, written before anything enforces it, and its case is different:
+under that design nothing asks anything to run a container, so a proxy has only
+four services to allow and no create body to judge.
+
 ## Not settled here
 
 Which proxy, and whether the create-config check can be expressed in it. Also

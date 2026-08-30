@@ -310,6 +310,9 @@ The risk is concentrated in the run plane. Almost everything else can land
 against today's docker path, in an order where each step is releasable on its
 own and none of the early ones changes what a learner sees.
 
+Steps 1, 2, 3 and 5 have landed. Step 4 has not, and the next piece of work is
+not step 4: see "Where this has got to" below.
+
 1. Capture the baseline. Run the capability and seccomp probe against the
    current docker path and record what the kernel actually applies: the
    `CapBnd`, `CapEff` and `CapAmb` masks from `/proc/1/status` inside a real
@@ -439,6 +442,49 @@ still running containers through dockerd. It looks like the garbage collection
 win for none of the run-plane risk, but it means two image stores unless dockerd
 is switched to the containerd image store, and whether that is available on the
 production daemon is unchecked.
+
+## Where this has got to
+
+| Step | State |
+| --- | --- |
+| 1. Capture the baseline | done, `docs/profiling/check_test_run_confinement.rb` |
+| 2. Name the seam | done, `Context`'s `:test_run` |
+| 3. Emit an OCI config, unused | done, `CyberDojoShOciConfig` |
+| 3.5 State the boundary dockerd implies | capabilities, namespaces and seccomp done; masked paths not |
+| 4. Dual-run in the test suite | not started, and blocked |
+| 5. Manual deploy workflow | done, ahead of the rest, as its own note says |
+| 6 to 9 | not started |
+
+Step 3.5 is not in the list above because it was not foreseen. Step 3 stopped
+where the two config classes stop, which left `CyberDojoShOciConfig` stating no
+capabilities, no seccomp profile and one namespace, and step 4 cannot run a kata
+from a config like that: its own gate, the step 1 probe, would correctly fail
+it. So the boundary dockerd applies had to be measured and written down first.
+Capabilities, namespaces and seccomp now are. `linux.maskedPaths` and
+`linux.readonlyPaths` are not, and `k7Rm16` fails the moment someone states them
+without reading why they were left.
+
+The next piece of work is not step 4. It is publishing the runner image for
+arm64 as well as amd64, for the three reasons the last open question gives: a
+sandbox installed by an emulated crun is not one to trust, self-hosted servers
+run on arches this repo does not publish for, and a measurement taken on an
+arm64 developer machine is currently part native and part emulated. The build
+platform is not set in this repo: `bin/build_image.sh` sets none, and the build
+runs in `secure-docker-build.yml` in `cyber-dojo/reusable-actions-workflows`,
+which every service consumes at `@main`. So the change is not local to the
+runner, and "builds for arm64" and "passes its own suite on arm64" are separate
+claims.
+
+Two loose threads, both about what a language image resolves to:
+
+- The programs that time a red, amber and green run across all 88 language
+  images were not found while writing this, so whether they drive the runner's
+  HTTP API or shell out to docker was never established. That decides whether
+  they carry the runner's emulation overhead at all.
+- `clang_assert:ed23233` reported `x86_64` from inside a container on an arm64
+  machine, while its manifest carries both arches and the perl image resolved
+  arm64 there. Unexplained. Until it is, "a language image resolves to the host
+  arch" is a generalisation from one image rather than a rule.
 
 ## Open questions
 

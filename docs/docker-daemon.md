@@ -23,8 +23,8 @@ to whoever asked:
 - `CyberDojoShRunner` raises `RunRefused` carrying the code, and raises the
   `ImageMissing` subclass of it for a 404 to a container create, that being
   the daemon saying the image is not on the node, which is what sends `Runner`
-  back to pull it. A 404 to an exec create says the container has gone
-  instead, and stays a plain `RunRefused`
+  back to pull it. A 404 to a start says the container has gone instead, and
+  stays a plain `RunRefused`
 
 Answering anything narrower than `[code,body]` would take those decisions away
 from the only objects in a position to make them.
@@ -58,5 +58,7 @@ prose. What would end the layer is nothing wanting the list in one place, and
 `docs/docker-socket-privilege.md` wants it.
 
 `CyberDojoShRunner` holds one rather than living inside it: the run sequence,
-being create, start, the exec pair, stop and the deadline around them, reads in
-one piece where it is.
+being create, attach, start, stop and the deadline around them, reads in one
+piece where it is. `Context` holds that runner as `:test_run`, so what runs a
+container can be replaced without `Runner` knowing; see
+`docs/dropping-the-docker-daemon.md`.
