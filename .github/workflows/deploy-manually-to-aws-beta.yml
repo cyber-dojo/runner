@@ -1,0 +1,71 @@
+name: Deploy-manually to aws-beta
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag (short commit SHA - first 7 digits)'
+        required: true
+      image_fingerprint:
+        description: 'Image digest (64 hex digits)'
+        required: true
+
+env:
+  SERVICE_NAME: ${{ github.event.repository.name }}   # runner
+  AWS_ECR_ID: ${{ vars.AWS_ECR_ID }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID_BETA }}
+
+jobs:
+
+  variables:
+    runs-on: ubuntu-latest
+    outputs:
+      service_name: ${{ steps.vars.outputs.service_name }}
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+      image_fingerprint: ${{ steps.vars.outputs.image_fingerprint }}
+      aws_account_id: ${{ steps.vars.outputs.aws_account_id }}
+      ecr_registry: ${{ steps.vars.outputs.ecr_registry }}
+      aws_region: ${{ steps.vars.outputs.aws_region }}
+      gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
+    steps:
+    - name: Prepare outputs for the tf deployment workflow
+      id: vars
+      run: |
+        {
+          echo "service_name=${{ env.SERVICE_NAME }}"
+          echo "image_tag=${{ inputs.image_tag }}"
+          echo "image_fingerprint=${{ inputs.image_fingerprint }}"
+          echo "aws_account_id=${{ env.AWS_ACCOUNT_ID }}"
+          echo "ecr_registry=${{ env.AWS_ECR_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
+          echo "aws_region=${{ env.AWS_REGION }}"
+          echo "gh_actions_iam_role_name=gh_actions_services"
+        } >> ${GITHUB_OUTPUT}
+
+  deploy-to-aws-beta:
+    needs: [variables]
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: read
+    uses: kosli-dev/tf/.github/workflows/apply.yml@main
+    with:
+      aws_region: ${{ needs.variables.outputs.aws_region }}
+      aws_role_arn: arn:aws:iam::${{ needs.variables.outputs.aws_account_id }}:role/${{ needs.variables.outputs.gh_actions_iam_role_name }}
+      environment: beta
+      working_directory: deployment/terraform/
+      # The terraform to apply comes from the commit the image was built from,
+      # rather than from this repository's default branch, which is what apply.yml
+      # checks out when no ref is given. So deploying an earlier image puts that
+      # image's own infrastructure back with it, instead of running today's
+      # terraform against yesterday's image, a pairing that has never run before.
+      ref: ${{ inputs.image_tag }}
+      tf_version: v1.14.9
+      tf_vars: |
+        TF_VAR_TAGGED_IMAGE=${{ needs.variables.outputs.ecr_registry }}/${{ needs.variables.outputs.service_name }}:${{ needs.variables.outputs.image_tag }}@sha256:${{ needs.variables.outputs.image_fingerprint }}
+      kosli_host: ${{ vars.KOSLI_HOST }}
+      kosli_org: cyber-dojo
+      kosli_template_file: flow-templates/kosli-apply.yml
+    secrets:
+      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+      kosli_github_token: ${{ secrets.GITHUB_TOKEN }}
