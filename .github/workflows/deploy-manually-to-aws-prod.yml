@@ -20,6 +20,8 @@ jobs:
 
   variables:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       service_name: ${{ steps.vars.outputs.service_name }}
       image_tag: ${{ steps.vars.outputs.image_tag }}
@@ -28,6 +30,7 @@ jobs:
       ecr_registry: ${{ steps.vars.outputs.ecr_registry }}
       aws_region: ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
+      commit_sha: ${{ steps.commit.outputs.commit_sha }}
     steps:
     - name: Prepare outputs for the tf deployment workflow
       id: vars
@@ -41,6 +44,27 @@ jobs:
           echo "aws_region=${{ env.AWS_REGION }}"
           echo "gh_actions_iam_role_name=gh_actions_services"
         } >> ${GITHUB_OUTPUT}
+
+    # actions/checkout only fetches a ref as a commit when it is a full 40 hex
+    # digit sha. Given the 7 digit image tag it builds refspecs for a branch and
+    # a tag of that name, matches nothing, and fails. So expand the tag here.
+    # An unresolvable tag must stop the run: an empty ref makes apply.yml check
+    # out the default branch, which is the wrong-terraform pairing that passing
+    # a ref at all exists to prevent.
+    - name: Expand the 7 digit image tag to the full commit sha
+      id: commit
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+        REPOSITORY: ${{ github.repository }}
+      run: |
+        set -euo pipefail
+        commit_sha=$(gh api "repos/${REPOSITORY}/commits/${IMAGE_TAG}" --jq .sha)
+        if [ ${#commit_sha} -ne 40 ]; then
+          echo "Image tag ${IMAGE_TAG} does not name a commit in ${REPOSITORY}" >&2
+          exit 1
+        fi
+        echo "commit_sha=${commit_sha}" >> ${GITHUB_OUTPUT}
 
   deploy-to-aws-prod:
     needs: [variables]
@@ -59,7 +83,7 @@ jobs:
       # checks out when no ref is given. So deploying an earlier image puts that
       # image's own infrastructure back with it, instead of running today's
       # terraform against yesterday's image, a pairing that has never run before.
-      ref: ${{ inputs.image_tag }}
+      ref: ${{ needs.variables.outputs.commit_sha }}
       tf_version: v1.14.9
       tf_vars: |
         TF_VAR_TAGGED_IMAGE=${{ needs.variables.outputs.ecr_registry }}/${{ needs.variables.outputs.service_name }}:${{ needs.variables.outputs.image_tag }}@sha256:${{ needs.variables.outputs.image_fingerprint }}
