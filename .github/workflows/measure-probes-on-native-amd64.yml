@@ -45,6 +45,10 @@ on:
 jobs:
   measure:
     runs-on: ubuntu-latest
+    # A probe that hangs would otherwise sit for the six hours GitHub allows.
+    # Every step here is seconds to a couple of minutes, so anything past this
+    # is a probe waiting on something rather than measuring.
+    timeout-minutes: 20
     permissions:
       contents: read
     env:
@@ -140,21 +144,25 @@ jobs:
 
       # The overlay figure is the one the 86ms headline rests on, and its own
       # header asks for it to be repeated on native amd64 Linux beside the
-      # docker split. Both time the host's own runtime, so both run on the host
-      # rather than in a container.
+      # docker split.
       #
-      # The overlay probe mounts overlayfs, so it runs under sudo, and it is not
-      # an executable file, so bash runs it rather than the path alone.
+      # Each is invoked the way its own header documents, which is not the same
+      # way. The overlay probe unpacks a rootfs from whatever filesystem it
+      # finds itself in and mounts overlayfs over it, so it belongs inside a
+      # privileged alpine container: run on the host it would tar the whole
+      # runner image into a 768M tmpfs and never finish. The split probe says
+      # "Run on the host", which is where the docker CLI it times lives.
       - name: Time the runtime and the docker split
         run: |
-          sudo apt-get update --quiet
-          sudo apt-get install --quiet --yes crun
           {
-            crun --version
+            docker run --rm --privileged \
+              --volume "${GITHUB_WORKSPACE}/docs/profiling:/probe:ro" \
+              alpine:3.24 \
+                sh -c 'apk add --no-cache bash > /dev/null && bash /probe/time_crun_on_overlay_vs_plain_rootfs.sh' \
+              || echo "overlay probe exited non-zero"
             echo
-            sudo bash docs/profiling/time_crun_on_overlay_vs_plain_rootfs.sh || echo "probe exited non-zero"
-            echo
-            bash docs/profiling/time_docker_run_split.sh || echo "probe exited non-zero"
+            bash docs/profiling/time_docker_run_split.sh "${IMAGE_NAME}" \
+              || echo "split probe exited non-zero"
           } 2>&1 | tee "${REPORT_DIR}/timings.txt"
 
       - name: Upload the reports
