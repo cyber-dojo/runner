@@ -175,15 +175,26 @@ size.
 through `CyberDojoShRunner` and then through crun from `CyberDojoShOciConfig`,
 in one process on one machine. Ten runs of each, after a warm-up of each.
 
-| span | mean | min | max |
-| --- | --- | --- | --- |
-| crun, one kata | 36.5 ms | 30.7 ms | 42.2 ms |
-| daemon, one kata | 108.5 ms | 95.7 ms | 155.0 ms |
+| span | aarch64, Docker Desktop | native amd64 |
+| --- | --- | --- |
+| crun, one kata | 36.5 ms | 65.0 ms |
+| daemon, one kata | 108.5 ms | 137.1 ms |
+| the difference | 72 ms | 72 ms |
 
-About 72ms. This is the first figure here taken from a kata rather than from
+About 72ms on both. The two hosts disagree on every absolute and agree on the
+difference, which is the strongest form this result takes: what the change buys
+survives a different arch, a different kernel and a different daemon version,
+where neither column's own figure does.
+
+It is also the first figure here taken from a kata rather than from
 `/bin/true`, and it is close to what the decomposition above reaches by adding
 up what dockerd does. Two routes to one number is a better reason to believe it
 than either alone.
+
+The amd64 column ran with crun's cgroup manager disabled, because crun cannot
+write cgroups on that host, so its 65.0ms omits work the other column did and
+its kata was held to neither limit. On this machine that omission is worth
+about 2.7ms.
 
 The two paths answered the same four files, `sandbox/cyber-dojo.sh`,
 `tmp/status`, `tmp/stderr` and `tmp/stdout`, with the same contents, and the
@@ -193,9 +204,9 @@ result.
 
 What it does not price. The rootfs is unpacked once and reused, so no per-run
 overlay is included; that is the probe above. The kata is one line of shell, so
-neither column carries a real language's compile. And a same-machine pair is
-the only kind that can be read this way, which is why the figures here are not
-compared with the four-CPU runner's.
+neither column carries a real language's compile. And each column of the table
+is a same-machine pair, which is the only kind that can be read this way: the
+two hosts are compared on their difference and never on their absolutes.
 
 ## The budget
 

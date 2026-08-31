@@ -35,6 +35,18 @@
 # from /bin/true, and it is close to what the daemon-shaped estimate in
 # ../dropping-the-docker-daemon.md predicted by a different route.
 #
+# The same pair on native amd64, through
+# .github/workflows/measure-probes-on-native-amd64.yml, with cgroups disabled
+# because crun cannot write them there:
+#
+#   crun, one kata      65.0 ms   min 63.3  max 67.3
+#   daemon, one kata   137.1 ms   min 125.8  max 145.3
+#
+# Also about 72ms. The two hosts disagree on both absolutes and agree on the
+# difference, which is the strongest form this result takes: what the change
+# buys survives a different arch, a different kernel and a different daemon
+# version, where neither column's own figure does.
+#
 # The same pair with CRUN_CGROUP_MANAGER=disabled put crun at 33.8 ms, so
 # writing the container's cgroups costs about 2.7ms of the 36.5, and a figure
 # taken with cgroups off flatters crun by that much as well as leaving the kata
