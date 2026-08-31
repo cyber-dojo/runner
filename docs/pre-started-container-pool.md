@@ -557,7 +557,7 @@ at once. Two workers a task and three tasks is six pools, so sixteen is between
 two and three LTFs in each of them. That is what the cap is now set to, and
 section 5 carries the memory it costs.
 
-### Four caps, not one
+### Four places a limit can sit
 
 There are four places a limit can sit, and they are not alternatives. Each
 bounds something the others cannot see. The first three are about spares,
@@ -589,6 +589,81 @@ Sized together they multiply: a per-image_name limit of one, over however many
 LTFs a worker sees, over however many workers the node runs. The node cap is
 the ceiling that makes that product safe, and the two inner limits are what
 stop the node cap being spent on one worker.
+
+### An allowlist leaves two, and only one of them is tuned
+
+Naming which image_names a spare may be held for changes the shape above. The
+second cap exists only because "nothing bounds how many image_names are hot",
+and a list of them bounds it by construction, so there is nothing left for that
+cap to enforce. The first stops being a cap and becomes a queue depth, a
+constant of the design rather than a number to tune. The fourth was never the
+pool's: it is set in config/puma.rb, it is set the same way with no pool at all,
+and the pool neither reads nor worsens it.
+
+What remains is the allowlist and the node cap. The node cap is the one that
+cannot be replaced, for the reason section 5 gives: a worker cannot see how many
+runner processes share its node, so nothing computed inside one of them bounds
+the product. It is also what makes raising the task count safe. Six tasks do not
+hold twice the spares of three; they compete for the same cap, and what gives is
+the hit rate, which costs latency and nothing else.
+
+The depth and the node cap have to be chosen together, because the cap can make
+a depth unreachable. Three image_names at a depth of two, over six pools, wants
+thirty-six spares against a cap of sixteen. The cap binds, less than half the
+queues fill, and which ones fill is a race between workers. The same three
+image_names at a depth of one want eighteen and get sixteen, which is nearly
+every queue. So a deeper queue is only worth asking for if the cap rises with
+it, or if the allowlist is shorter.
+
+The intended starting point is a depth of two, which means the cap has to rise
+with it. Three image_names at that depth over six pools is thirty-six spares, at
+about 12MB each about 432MB of host memory, against the 192MB sixteen costs. A
+cap left at sixteen with a depth of two is the race described above rather than a
+deeper queue.
+
+Against that, a depth of one means a worker with eight threads serving one hot
+image_name has one spare and misses on the other seven runs of a burst until it
+refills. Misses cost what a test-run costs today, so this is a question about
+how much of the win is collected rather than about safety, and
+docs/profiling/time_hit_vs_miss_under_load.sh is what answers it.
+
+### Later: an allowlist that maintains itself
+
+A list someone edits is a list that goes stale. The two ways it goes stale are
+not the same check, and neither needs anything the pool does not already see.
+
+  o) an image_name in the list that nothing has asked for lately. The pool
+     already timestamps a claim, so idleness is readable without new
+     bookkeeping.
+  o) an image_name not in the list that test-runs keep asking for. Each of
+     those is already a miss, and the miss path already runs, so demand is
+     learned from work that happens either way.
+
+Three things such a policy needs. It belongs per worker, not per node: a worker
+sees only its own traffic and owns only its own pools, and two workers holding
+different lists is harmless, which is the reason the inner caps were free.
+It needs hysteresis, because an image_name at the boundary would otherwise be
+admitted and evicted in a loop, each turn costing a create and a discard; admit
+on several misses inside a window, evict after an idle period much longer than
+that window. And it needs the list length held at whatever the static list was,
+so the memory already costed does not move.
+
+This is later work, and deliberately so. It reintroduces a tunable policy where
+the static list is one value, and it cannot be sized without hit-rate figures
+that only the static list can produce.
+
+### Why this line rather than dropping the daemon
+
+docs/dropping-the-docker-daemon.md prices its own change at about 72ms, by
+timing one kata through the daemon and through crun on one machine, on two hosts
+that agreed on the difference. This pool is measured at about 84ms by
+docs/profiling/where-the-traffic-light-time-goes.txt, against the 116.4ms a
+test-run costs today.
+
+So the pool saves more, and it does so with no OCI config to keep in step with
+dockerd's, no seccomp profile shipped per architecture, no containerd client, no
+extra capability in the runner container, and the isolation guarantee untouched:
+one test-run, one container, nothing reused.
 
 The fourth is the one to size first, because it decides how much memory is
 left for the other three. It is also the one nobody chose: raising threads to
@@ -670,6 +745,12 @@ Step 9 is the one that decides who can have this. Until the cap is settable,
 the only safe number for a server on hardware nobody here has sized is zero, so
 9 comes before the pool is turned on anywhere but aws-prod. It is also the only
 step that changes another repo.
+
+The allowlist belongs with step 9, and generalises it. An empty list is the pool
+turned off, which is the safe default step 9 needs, and a list of one is the
+smallest thing that can be turned on and measured. So the rollout is the list
+growing an image_name at a time with a hit rate read between each, rather than a
+single decision about whether the pool is on.
 
 ## Owed, and not part of any step
 
