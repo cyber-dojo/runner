@@ -21,7 +21,10 @@ $ make {image_server|image_client}
 $ make {test_server|test_client}
 
 # Run only tests whose id starts with c5a
-$ make {test_server|test_client} tid=c5a 
+$ make {test_server|test_client} tids=c5a
+
+# Run only tests whose id starts with c5a or with 9j5
+$ make {test_server|test_client} tids="c5a 9j5"
 
 # Check coverage metrics
 $ make {coverage_server|coverage_client}

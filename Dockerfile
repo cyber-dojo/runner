@@ -4,6 +4,10 @@ LABEL maintainer=jon@jaggersoft.com
 
 RUN gem install --no-document 'concurrent-ruby'
 
+# crun runs a test-run's container from an OCI config, which is the path
+# docs/dropping-the-docker-daemon.md proposes in place of the docker daemon.
+RUN apk add --no-cache crun
+
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}
 

@@ -206,7 +206,7 @@ class TrafficLightTest < TestBase
       "exception when eval'ing lambda source",
       lambda_source,
       'SyntaxError',
-      ["(eval at /runner/source/traffic_light.rb:131):1: syntax error found",
+      ["(eval at /runner/source/traffic_light.rb:132):1: syntax error found",
        '> 1 | not-a-lambda',
        '    | ^~~ expected an expression after `not`',
        ''].join("\n")

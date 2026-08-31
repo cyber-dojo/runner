@@ -159,10 +159,39 @@ size.
 | crun create+start+delete | 2.5 - 4.1 ms | time_oci_runtimes.sh, the overlay probe |
 | Process.spawn from a puma worker | 0.4 - 0.6 ms | the spawn probe |
 | config.json write | sub-ms | assumed, unmeasured |
+| the image's config | free once cached per image | see below |
 
 Delete, umount and snapshot removal all come off the critical path, into the
 reaper the design needs anyway. Against the 92ms it replaces, that is a saving
 of roughly 80ms.
+
+### The image's config is read once per image, not once per run
+
+Two fields of a language image's own config reach a bundle, and dockerd supplies
+both without being asked, which is why nothing in the runner names them today.
+
+- `Env`, which is where PATH comes from. `process.env` is the whole environment
+  an OCI runtime gives a process, so a config naming only the run's three
+  entries starts a process that cannot find bash.
+- `WorkingDir`, which is where dockerd starts a container. The perl image
+  declares `/usr/src/app`, so a bundle defaulting `process.cwd` to `/` starts a
+  kata somewhere dockerd would not.
+
+`profiling/check_crun_run_from_oci_config.rb` is where both were found, and one
+image read answers both, so they are one cache rather than two.
+
+Resolving that read per test-run puts a round trip on the critical path this
+budget would otherwise not carry, and it does not have to. A tag here is a
+commit sha and is never pushed twice, so an image's config cannot change under
+the name the runner holds. The cache therefore needs no invalidation at all,
+rather than needing one that is left out.
+
+This needs no new scheme: `traffic_light.rb`'s `source_from_image` already reads
+the red-amber-green lambda out of an image and keeps it per image for exactly
+this reason, in a `Concurrent::Map` keyed by image name.
+
+Nothing measures the round trip. What this row prices is the decision to cache,
+so the cost of not caching is unstated rather than small.
 
 ## What it needs installed
 
@@ -262,8 +291,17 @@ production host, which would be a third default in the same category.
   needs neither. The fallback is shelling out to `ctr`, and the snapshot probe
   prices that at about 2.6ms per invocation, which is affordable for pulls but
   is most of a per-test-run snapshot's budget. Which route to take is open.
-- Mount privilege. Applying the snapshot's mount needs CAP_SYS_ADMIN, so the
-  deployment adds mount capability.
+- Privilege in the runner container, which is more than mount capability.
+  `profiling/check_crun_run_from_oci_config.rb` ran a container from the OCI
+  config and hit one refusal at a time: CAP_SYS_ADMIN, without which `clone`
+  will not make the namespaces; CAP_NET_ADMIN, without which the loopback
+  interface cannot be brought up; a writable `/sys/fs/cgroup`, without which the
+  memory and pids limits cannot be applied; a bundle on a mount of its own,
+  since `pivot_root` refuses a new root on the mount it is already on; and an
+  outer seccomp profile that permits `pivot_root`, which dockerd's default
+  refuses. crun also wants `--no-new-keyring`, because dockerd's profile refuses
+  the runner `keyctl`. Each was found by a run rather than reasoned about, so the
+  list is what a deployment has to grant rather than a guess at it.
 - The socket changes rather than disappears, and improves.
   `docker-socket-privilege.md` explains why a proxy does not help today: the
   runner needs container create with an arbitrary config, and a create with a
@@ -303,6 +341,75 @@ root-equivalent today.
 This is service granularity, which is where step 9 draws its line. The method
 names within each service are not written here because nothing has checked them
 against the containerd version the deployed host runs.
+
+## What the proxy does not remove
+
+The proxy above refuses the two services that create and start containers, which
+is what makes today's socket root-equivalent. It does not follow that the runner
+stops being able to create a container with any config it likes.
+
+After step 9 the runner still holds CAP_SYS_ADMIN and still writes the
+`config.json` it hands crun. Mounts in an OCI config are arbitrary, so those two
+together are "create a container with any config": bind the host's root into a
+bundle, run it as uid 0, and the node is yours. That is the same escape the
+proxy exists to refuse, reached without asking anything to run a container.
+
+So step 9 relocates that escape rather than removing it. It moves from a socket,
+where a proxy can police it, to a local binary, where nothing does. "The
+security benefit arrives at step 9" is therefore weaker than it reads: what
+arrives at step 9 is a much smaller socket, four services with no create body to
+judge, and not the end of the arbitrary-config problem.
+
+Two things would close it, and both make a non-root runner mean something, which
+`docker-socket-privilege.md` correctly says it does not mean today.
+
+- Rootless crun with a user namespace. No CAP_SYS_ADMIN anywhere, so the
+  arbitrary mount is refused by the kernel rather than by policy: the runner is
+  root only over its own mapped uids. This is the one route where dropping the
+  uid is itself the protection. It needs cgroup v2 delegation for the memory and
+  pids limits, and `profiling/check_test_run_confinement.rb` measured that
+  dockerd shares its user namespace rather than making one, so this is a change
+  in behaviour rather than a translation of today's.
+- A small privileged helper that owns config generation. It takes an image name
+  and a run id, builds the config itself, and accepts no mounts from its caller.
+  The Ruby worker runs unprivileged and cannot ask for a bundle that reaches the
+  host. File capabilities on that helper keep the privilege in it rather than in
+  the worker, which needs the runner container not to set no-new-privileges on
+  itself, since that is exactly what stops a binary gaining privilege on exec.
+
+The second is cheap rather than elaborate, for the reason the next section
+gives: there is almost nothing per run for a caller to influence.
+
+## A config per image, not per test-run
+
+Field by field, a test-run's OCI config barely varies.
+
+| varies | fields |
+| --- | --- |
+| per run | `CYBER_DOJO_ID` in `process.env`, and `root.path` |
+| per image | the capability set, the rlimits, which seccomp file is read, `CYBER_DOJO_IMAGE_NAME`, and `process.cwd` from the image's `WorkingDir` |
+| never | the command, the sandbox uid and gid, the three mounts, the memory and pids limits, the namespaces, the masked and read-only paths, `noNewPrivileges`, `ociVersion` |
+
+Every per-image field turns on one predicate,
+`CyberDojoShHostConfig.added_capabilities`, so in practice there are two shapes:
+an ordinary image, and a clang image with CAP_SYS_PTRACE.
+
+Three things follow.
+
+The budget's "config.json write, sub-ms, assumed" can become a cached template
+and two substitutions. crun reads a file, so the write stays; building and
+serialising the structure need not happen per run.
+
+The helper above becomes easy to make safe. With only an id and a rootfs path
+left for a caller to supply, there is no field through which to ask for a bind
+mount of the host. The escape closes because the variability is genuinely tiny,
+not because the helper validates cleverly.
+
+And caching a config per image is caching a security artifact per image, which
+is worth saying out loud. Keyed by image name it is as sound as the image config
+cache, for the same reason: a tag is a commit sha and is never pushed twice. A
+stale boundary would be a worse failure than a stale PATH, so what makes it safe
+should not be left implicit.
 
 ## Staging it
 
@@ -354,10 +461,12 @@ not step 4: see "Where this has got to" below.
 9. Put a proxy in front of the containerd socket, restricted to the images,
    content, snapshots and leases services, and drop the direct socket mount.
 
-The speedup arrives at step 7. The security benefit arrives at step 9, and not
-before: through steps 1 to 8 the runner holds exactly the privilege it holds
-today. So a restricted socket is what this plan ends with rather than a reason
-to begin it, and any argument for starting has to rest on the latency alone.
+The speedup arrives at step 7. Through steps 1 to 8 the runner holds at least
+the privilege it holds today, and by the measurements in "What it costs" rather
+more. Step 9 is what reduces the socket, and "What the proxy does not remove"
+says what it leaves behind, which is not nothing. So a restricted socket is what
+this plan ends with rather than a reason to begin it, and any argument for
+starting has to rest on the latency alone.
 
 ### Falling back means deploying an earlier image
 
@@ -450,8 +559,8 @@ production daemon is unchecked.
 | 1. Capture the baseline | done, `docs/profiling/check_test_run_confinement.rb` |
 | 2. Name the seam | done, `Context`'s `:test_run` |
 | 3. Emit an OCI config, unused | done, `CyberDojoShOciConfig` |
-| 3.5 State the boundary dockerd implies | capabilities, namespaces and seccomp done; masked paths not |
-| 4. Dual-run in the test suite | not started, and blocked |
+| 3.5 State the boundary dockerd implies | capabilities, namespaces, seccomp and the proc paths done; the per-CPU thermal_throttle mask not |
+| 4. Dual-run in the test suite | not started; needs crun, and a rootfs to run it over |
 | 5. Manual deploy workflow | done, ahead of the rest, as its own note says |
 | 6 to 9 | not started |
 
@@ -460,40 +569,71 @@ where the two config classes stop, which left `CyberDojoShOciConfig` stating no
 capabilities, no seccomp profile and one namespace, and step 4 cannot run a kata
 from a config like that: its own gate, the step 1 probe, would correctly fail
 it. So the boundary dockerd applies had to be measured and written down first.
-Capabilities, namespaces and seccomp now are. `linux.maskedPaths` and
-`linux.readonlyPaths` are not, and `k7Rm16` fails the moment someone states them
-without reading why they were left.
+Capabilities, namespaces, seccomp, `linux.maskedPaths` and
+`linux.readonlyPaths` now are. The paths come from moby's fixed lists in
+`daemon/pkg/oci/defaults.go`, which `k7Rm24` and `k7Rm23` assert. What is not
+stated is the one mask dockerd computes rather than declares: a
+`/sys/devices/system/cpu/cpu<n>/thermal_throttle` entry per CPU the node has.
 
-The next piece of work is not step 4. It is publishing the runner image for
-arm64 as well as amd64, for the three reasons the last open question gives: a
-sandbox installed by an emulated crun is not one to trust, self-hosted servers
-run on arches this repo does not publish for, and a measurement taken on an
-arm64 developer machine is currently part native and part emulated. The build
-platform is not set in this repo: `bin/build_image.sh` sets none, and the build
-runs in `secure-docker-build.yml` in `cyber-dojo/reusable-actions-workflows`,
-which every service consumes at `@main`. So the change is not local to the
-runner, and "builds for arm64" and "passes its own suite on arm64" are separate
+The next piece of work is not step 4. It is arch, and it splits into two pieces
+that do not depend on each other.
+
+The first is local. A developer's `make image_server` should build for the
+machine it runs on, arm64 on an arm64 laptop and amd64 on a linux box, with the
+katas of a test-run matching. It does not. `linux/amd64` is pinned in eight
+places: the three services in `docker-compose.yml`, the COMMIT_SHA check in
+`bin/build_image.sh`, and four pulls and runs in `bin/setup_dependent_images.sh`.
+So an arm64 laptop builds an emulated amd64 runner and pulls amd64 katas beneath
+it. Removing those pins is what makes an `arm64.json` selectable at all, and
+what makes a measurement taken on a laptop mean anything.
+
+The five language images the suite names, in `test/dependent_display_names.rb`,
+allow it. `clang_assert`, `gcc_assert`, `perl_test_simple` and `python_pytest`
+are manifest lists carrying amd64 and arm64, so the pin rather than the manifest
+is why `clang_assert:ed23233` reports `x86_64` on an arm64 machine.
+`cyberdojofoundation/visual_basic_nunit:003c9f0`, which the client tests use, is
+a single amd64 manifest, so that one kata is emulated on an arm64 laptop
+whatever the pins say.
+
+The second piece is publishing the runner image for both arches, for the three
+reasons the last open question gives: a sandbox installed by an emulated crun is
+not one to trust, self-hosted servers run on arches this repo does not publish
+for, and a measurement taken on an arm64 developer machine is part native and
+part emulated. This one is not local to the runner. The published image is built
+by `secure-docker-build.yml` in `cyber-dojo/reusable-actions-workflows`, which
+every service consumes at `@main`, and which passes no `platforms` to
+`docker/build-push-action@v7` and so builds the CI runner's own arch alone.
+
+sinatra-base did not extend that workflow. It moved its build into its own
+`main.yml` with `platforms: linux/amd64,linux/arm64`, and two things it met are
+what a shared workflow would have to answer. A multi-platform result cannot be
+loaded into a docker image store, so the tar that `secure-docker-build.yml`
+saves and uploads, and that runner's `main.yml` downloads for its test jobs,
+carries one platform rather than the index. And its SBOM step reads
+`{{ json .SBOM.SPDX }}` from `imagetools inspect`, whose shape against an index
+is unchecked here.
+
+Publishing amd64 alone is not a deployment problem meanwhile. The ECS nodes are
+amd64, so a single-arch image and a profile chosen by the runner's own arch
+agree. "Builds for arm64" and "passes its own suite on arm64" stay separate
 claims.
 
-Two loose threads, both about what a language image resolves to:
-
-- The programs that time a red, amber and green run across all 88 language
-  images were not found while writing this, so whether they drive the runner's
-  HTTP API or shell out to docker was never established. That decides whether
-  they carry the runner's emulation overhead at all.
-- `clang_assert:ed23233` reported `x86_64` from inside a container on an arm64
-  machine, while its manifest carries both arches and the perl image resolved
-  arm64 there. Unexplained. Until it is, "a language image resolves to the host
-  arch" is a generalisation from one image rather than a rule.
+One loose thread. The programs that time a red, amber and green run across all
+88 language images were not found while writing this, so whether they drive the
+runner's HTTP API or shell out to docker was never established. That decides
+whether they carry the runner's emulation overhead at all.
 
 ## Open questions
 
-- What `linux.maskedPaths` and `linux.readonlyPaths` should hold, the last of
-  dockerd's invisible defaults still unstated. `check_test_run_confinement.rb`
-  measured dockerd hiding `/proc/kcore` and `/proc/timer_list` by mounting
-  /dev/null over them, so a kata run from this config would see the real files.
-  Nothing may run from this config until this is answered, and step 4 is where
-  the absence would otherwise be found by a test that passes.
+- How the runner arrives at the per-CPU `thermal_throttle` masks. moby stats
+  `/sys/devices/system/cpu/cpu<n>/thermal_throttle` for every possible CPU and
+  masks the ones that exist, computed once as the daemon starts, for the
+  side-channel in advisory GHSA-6fw5-f8r9-fgfm. dockerd reads the node it runs
+  on; the runner would read its own container's `/sys`, and whether those two
+  see the same CPUs is unchecked. Until this is answered a kata run from this
+  config can read a path dockerd masks, so what this gates is a question of its
+  own: a dual-run in the test suite runs our own katas, where a deployment runs
+  a learner's code.
 
 - Whether a shipped seccomp profile can serve every node cyber-dojo runs on.
   This is the strongest form of the invisible-defaults argument, and it is not
@@ -526,18 +666,17 @@ Two loose threads, both about what a language image resolves to:
   yet to be asked. A multi-arch tag does not reach this decision either: it
   resolves to one image at pull, and `NodeImages` pulls before the create.
 
-  How many profiles that means is settled by the runner image rather than by
-  seccomp. crun runs inside the runner container, so the arch that chooses the
-  profile is the arch the runner sees. `cyberdojo/runner:latest` is a single
-  manifest rather than a manifest list, so the image is published for amd64
-  alone, and one profile is the whole set. An arm64 self-hoster runs the runner
-  emulated today, and an emulated amd64 runner reports x86_64, so committing an
-  `arm64.json` now would add a file nothing could ever select: support in
-  appearance only, which is worse than none.
+  crun runs inside the runner container, so the arch that chooses the profile is
+  the arch the runner sees. amd64 and arm64 are the two arches supported, so two
+  profiles are the whole set.
 
-  Two profiles become right when the runner image is published for two
-  platforms, which is the decision this actually turns on. It is also what a
-  local test-run on arm64 against a CI run on amd64 would need.
+  A host-native `make image_server` is what makes `arm64.json` selectable, and a
+  developer laptop is where it is first chosen and first exercised. That is why
+  the local build comes before the published one. Until the published image
+  carries both arches, CI and the ECS nodes choose `amd64.json` because they are
+  amd64, and an arm64 self-hoster chooses it too, because the emulated amd64
+  runner it is left with reports x86_64. That last case is the one the
+  emulation concern below is about rather than one this supports.
 
   There is a reason to think that publishing has to come first rather than
   after. An emulated runner is fine under the docker path, because dockerd is
@@ -546,50 +685,54 @@ Two loose threads, both about what a language image resolves to:
   through the emulation. Nothing here has tested that, and it should not be
   assumed to work.
 
-  What a test-run meets today, with the runner published for amd64 alone. The
-  language images are manifest lists carrying both arches, and dockerd is what
-  pulls them, so a laptop gets an emulated runner driving a native kata:
+  What a suite test-run meets today. The language images are manifest lists
+  carrying both arches, but `setup_dependent_images.sh` pulls them for amd64, so
+  a laptop runs both halves emulated:
 
   | Step | arm64 laptop | amd64 CI |
   | --- | --- | --- |
   | Host arch | arm64 | amd64 |
-  | Runner image pulled | amd64 | amd64 |
+  | Runner image built for | amd64 | amd64 |
   | Runner emulated | yes | no |
-  | Language image pulled | arm64 | amd64 |
-  | Kata emulated | no | no |
+  | Language image pulled | amd64 | amd64 |
+  | Kata emulated | yes | no |
 
-  And with the runner published for both, which is what makes a local run and a
-  CI run differ in arch and in nothing else:
+  And with the pins removed, which is what makes a local run and a CI run differ
+  in arch and in nothing else:
 
   | Step | arm64 laptop | amd64 CI |
   | --- | --- | --- |
   | Host arch | arm64 | amd64 |
-  | Runner image pulled | arm64 | amd64 |
+  | Runner image built for | arm64 | amd64 |
   | Runner emulated | no | no |
   | Profile the runner selects | `arm64.json` | `amd64.json` |
   | Language image pulled | arm64 | amd64 |
   | Kata emulated | no | no |
 
-  Publishing the runner for both arches is worth doing on its own, before any
-  of this, because it is what makes a measurement on a developer machine mean
-  anything. A traffic light is timed in two halves, and on an arm64 machine they
-  are currently in different states: the kata half runs native, since dockerd
-  pulls the arm64 language image, while the runner half runs emulated, which
-  `probe_lib.sh` records as about 72ms per test-run. Part native and part
-  inflated is worse than uniformly wrong. A total is still comparable across the
-  language images, since every one of them carries the same overhead, but a
-  breakdown is not: the overhead lands on one half and changes the shape of the
-  answer rather than scaling it.
+  The last two rows hold for every language image the suite names except
+  `visual_basic_nunit`, which publishes amd64 alone and so stays an emulated
+  kata on an arm64 laptop.
 
-  Under this design that gets worse before it gets better. An amd64 runner on an
-  arm64 machine puts both halves under emulation. A runner published for both
-  puts both halves back on the metal, and makes a laptop's numbers directly
-  comparable with CI's as an arm64 against amd64 comparison rather than an
-  emulation artifact.
+  Building the runner host-native is worth doing on its own, before any of this,
+  because it is what makes a measurement on a developer machine mean anything. A
+  traffic light is timed in two halves, and a probe on an arm64 machine has them
+  in different states: `probe_lib.sh` pins no platform, so its kata half runs
+  native on the arm64 language image, while the runner half is the amd64 image
+  the pinned build produced and runs emulated, at about 72ms per test-run. Part
+  native and part inflated is worse than uniformly wrong. A total is still
+  comparable across the language images, since every one of them carries the
+  same overhead, but a breakdown is not: the overhead lands on one half and
+  changes the shape of the answer rather than scaling it.
+
+  Under this design an amd64 runner on an arm64 machine puts both halves under
+  emulation. A host-native runner puts both halves back on the metal, and makes
+  a laptop's numbers directly comparable with CI's as an arm64 against amd64
+  comparison rather than an emulation artifact.
 
   The row that changes hands is the language image. dockerd pulls it today, and
-  dockerd is native to the host whatever the runner is, which is why the first
-  table has a native kata under an emulated runner. Under this design the runner
+  dockerd is native to the host whatever the runner is, so an unpinned pull
+  gives a native kata under an emulated runner, which is what a probe meets and
+  what the suite would meet if it did not pin. Under this design the runner
   pulls it through its own containerd client, so the runner picks the platform,
   and an emulated amd64 runner asking for what it is would get an emulated kata
   as well. Which platform to ask for is a decision this design adds and the

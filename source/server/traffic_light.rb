@@ -80,8 +80,9 @@ class TrafficLight
   end
 
   # Reading a source out of an image costs a container created and removed, so
-  # it happens once per image. Nothing invalidates it: an image re-pushed
-  # under the same tag keeps its old lambda until the process restarts.
+  # it happens once per image. There is nothing to invalidate: an image's tag is
+  # the commit sha it was built from and is never pushed twice, so the source
+  # behind a name cannot change while this process holds it.
   def source_from_image(image_name)
     lambda_source = @sources[image_name]
     return lambda_source unless lambda_source.nil?

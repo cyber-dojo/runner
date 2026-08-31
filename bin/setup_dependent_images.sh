@@ -20,20 +20,18 @@ pull_dependent_images()
     # Pinned to a version because the runner refuses an unversioned
     # image_name, and because a test naming :latest is a test whose
     # subject can change without the test changing.
-    docker pull --platform linux/amd64 "${ALPINE_WITHOUT_BASH}"
+    docker pull "${ALPINE_WITHOUT_BASH}"
   fi
 
   local -r DISPLAY_NAMES="$(
     docker run \
       --entrypoint='' \
-      --platform linux/amd64 \
       --rm \
       --volume ${ROOT_DIR}/test:/test/:ro \
         ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG} \
           ruby /test/dependent_display_names.rb)"
 
   local -r JSON_DATA=$(docker run --rm \
-    --platform linux/amd64 \
     ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG} \
     bash -c 'ruby /app/repos/inspect.rb')
 
@@ -58,7 +56,7 @@ pull_dependent_images()
           exit_non_zero
         fi
         if ! echo "${IMAGE_NAMES}" | grep "${image_name}" ; then
-          docker pull --platform linux/amd64 "${image_name}"
+          docker pull "${image_name}"
         fi
       done
 }

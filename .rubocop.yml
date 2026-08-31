@@ -48,11 +48,9 @@ Metrics/CyclomaticComplexity:
 Metrics/MethodLength:
   Exclude:
     - source/server/traffic_light.rb
-    - source/server/tagged_image_name.rb
     - source/server/runner.rb
     - source/server/node_images.rb
     - source/server/files_delta.rb
-    - source/server/externals/bash_sheller.rb
     - source/*/dispatcher.rb
     - source/client/demo.rb
     - source/server/home_files.rb
@@ -61,6 +59,18 @@ Metrics/MethodLength:
     # them is the file's whole job, and it is excluded from Metrics/AbcSize
     # for the same reason.
     - source/server/context.rb
+    # cyber_dojo_sh_oci_config.rb's masked_paths is one entry per path dockerd
+    # masks, and the list is moby's rather than this repo's. Splitting it to
+    # fit would put half of one list in a method of its own.
+    - source/server/cyber_dojo_sh_oci_config.rb
+
+Metrics/ModuleLength:
+  Exclude:
+    # cyber_dojo_sh_oci_config.rb states a boundary by enumerating it: the
+    # capabilities, the namespaces, the masked paths and the read-only paths
+    # are each a list with one entry per line. The length is the size of what
+    # dockerd applies, and shortening it would only move the lists elsewhere.
+    - source/server/cyber_dojo_sh_oci_config.rb
 
 Metrics/ParameterLists:
   Exclude:

@@ -6,9 +6,9 @@ image_server:
 
 # test_server does NOT depend on image_server, because in the CI workflow,
 # the image is built with a GitHub Action.
-# If you want to run only some tests, locally, use run_tests.sh directly as per README.md
+# tids runs only the tests whose ids start with one of its values. See README.md
 test_server:
-	${PWD}/bin/run_tests.sh server
+	${PWD}/bin/run_tests.sh server ${tids}
 
 coverage_server:
 	${PWD}/bin/check_coverage.sh server
@@ -20,7 +20,7 @@ image_client:
 	${PWD}/bin/build_image.sh client
 
 test_client:
-	${PWD}/bin/run_tests.sh client
+	${PWD}/bin/run_tests.sh client ${tids}
 
 coverage_client:
 	${PWD}/bin/check_coverage.sh client

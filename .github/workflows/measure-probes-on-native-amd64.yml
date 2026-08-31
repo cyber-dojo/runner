@@ -1,0 +1,157 @@
+name: Measure probes on native amd64
+
+# Runs the confinement probes on a native amd64 Linux host, which no measurement
+# behind docs/dropping-the-docker-daemon.md has had. Every figure and every
+# boundary in that document was taken on a developer machine under Docker
+# Desktop, whose kernel is linuxkit and whose container saw no thermal_throttle
+# paths at all. This says what the same probes report where the kernel is real.
+#
+# What it can answer: whether /sys/devices/system/cpu/cpuN/thermal_throttle
+# exists on a host with real CPUs, which is the last unstated part of the
+# boundary; which of the paths dockerd masks are actually present; whether crun
+# needs the same privileges off Docker Desktop; and how far this host's dockerd
+# profile has drifted from the one the committed files came from.
+#
+# What it cannot answer: anything about the deployed node. A GitHub runner is
+# native amd64 but it is not ECS, and the seccomp question is precisely about
+# per-node variation, so nothing here may be read as production truth.
+#
+# Deliberately workflow_dispatch only. These are measuring instruments, not
+# gates: a probe that runs on every push would fail the build on noise, and a
+# green probe proves nothing about the code.
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: Language image the probes report on
+        required: false
+        type: string
+        default: ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a
+      clang_image_name:
+        description: Clang image, the one given CAP_SYS_PTRACE
+        required: false
+        type: string
+        default: ghcr.io/cyber-dojo-languages/clang_assert:ed23233
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      IMAGE_NAME: ${{ inputs.image_name }}
+      CLANG_IMAGE_NAME: ${{ inputs.clang_image_name }}
+      PROBE_IMAGE: cyberdojo/runner:probe
+      REPORT_DIR: ${{ github.workspace }}/probe-reports
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Make the report directory
+        run: mkdir -p "${REPORT_DIR}"
+
+      # Every answer below depends on the host, so what the host is belongs
+      # beside the answers rather than in the run's metadata.
+      - name: Record the host
+        run: |
+          {
+            echo "date: $(date --utc --iso-8601=seconds)"
+            echo "commit: ${GITHUB_SHA}"
+            echo "runner arch: $(uname -m)"
+            echo "kernel: $(uname -r)"
+            echo "cpus: $(nproc)"
+            echo "docker server version: $(docker version --format '{{.Server.Version}}')"
+            echo
+            echo "== paths dockerd masks, and whether this host has them"
+            for path in /proc/acpi /proc/asound /proc/interrupts /proc/kcore \
+                        /proc/keys /proc/latency_stats /proc/sched_debug \
+                        /proc/scsi /proc/timer_list /proc/timer_stats \
+                        /sys/devices/virtual/powercap /sys/firmware ; do
+              if [ -e "${path}" ]; then echo "${path}: present"; else echo "${path}: absent"; fi
+            done
+            echo
+            echo "== the per-CPU mask the OCI config does not state"
+            echo "possible cpus: $(cat /sys/devices/system/cpu/possible)"
+            for cpu in /sys/devices/system/cpu/cpu[0-9]*/thermal_throttle ; do
+              if [ -e "${cpu}" ]; then echo "${cpu}: present"; fi
+            done
+            echo "thermal_throttle paths found: $(ls -d /sys/devices/system/cpu/cpu[0-9]*/thermal_throttle 2>/dev/null | wc -l)"
+          } | tee "${REPORT_DIR}/host.txt"
+
+      # build_image.sh refuses 'server' inside CI, where the image is built by
+      # secure-docker-build.yml, so the probe image is built here directly. It
+      # is never pushed: it exists to give the probes ruby and crun.
+      - name: Build the probe image
+        run: |
+          docker build \
+            --build-arg COMMIT_SHA="${GITHUB_SHA}" \
+            --tag "${PROBE_IMAGE}" \
+            .
+
+      - name: Pull the language images
+        run: |
+          docker pull "${IMAGE_NAME}"
+          docker pull "${CLANG_IMAGE_NAME}"
+
+      # Needs no privilege of its own: it asks the daemon to run the containers
+      # it reports on, exactly as the runner does today.
+      - name: What dockerd applies to a test-run container
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/runner:ro" \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --entrypoint='' \
+            "${PROBE_IMAGE}" \
+              ruby /runner/docs/profiling/check_test_run_confinement.rb \
+                "${IMAGE_NAME}" "${CLANG_IMAGE_NAME}" \
+            2>&1 | tee "${REPORT_DIR}/test_run_confinement.txt"
+
+      # The flags are the measurement. Each one was added on this laptop only
+      # after a run refused without it, so the set is what a deployment driving
+      # crun has to grant. A run that needs fewer of them here is itself a
+      # finding, so they are listed rather than replaced by --privileged.
+      - name: What crun needs to run a container from the OCI config
+        run: |
+          docker run --rm \
+            --cap-add SYS_ADMIN \
+            --cap-add NET_ADMIN \
+            --security-opt seccomp=unconfined \
+            --cgroupns=private \
+            --tmpfs /tmp:rw,exec,size=2g \
+            --volume /sys/fs/cgroup:/sys/fs/cgroup:rw \
+            --volume "${GITHUB_WORKSPACE}:/runner:ro" \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --entrypoint='' \
+            "${PROBE_IMAGE}" \
+              ruby /runner/docs/profiling/check_crun_run_from_oci_config.rb \
+                "${IMAGE_NAME}" \
+            2>&1 | tee "${REPORT_DIR}/crun_run_from_oci_config.txt"
+
+      # The overlay figure is the one the 86ms headline rests on, and its own
+      # header asks for it to be repeated on native amd64 Linux beside the
+      # docker split. Both time the host's own runtime, so both run on the host
+      # rather than in a container.
+      #
+      # The overlay probe mounts overlayfs, so it runs under sudo, and it is not
+      # an executable file, so bash runs it rather than the path alone.
+      - name: Time the runtime and the docker split
+        run: |
+          sudo apt-get update --quiet
+          sudo apt-get install --quiet --yes crun
+          {
+            crun --version
+            echo
+            sudo bash docs/profiling/time_crun_on_overlay_vs_plain_rootfs.sh || echo "probe exited non-zero"
+            echo
+            bash docs/profiling/time_docker_run_split.sh || echo "probe exited non-zero"
+          } 2>&1 | tee "${REPORT_DIR}/timings.txt"
+
+      - name: Upload the reports
+        if: ${{ success() || failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: probe-reports-${{ github.sha }}
+          path: ${{ env.REPORT_DIR }}
