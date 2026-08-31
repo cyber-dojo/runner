@@ -121,11 +121,18 @@ jobs:
                 "${IMAGE_NAME}" "${CLANG_IMAGE_NAME}" \
             2>&1 | tee "${REPORT_DIR}/test_run_confinement.txt"
 
-      # The flags are the measurement. Each one was added on this laptop only
-      # after a run refused without it, so the set is what a deployment driving
-      # crun has to grant. A run that needs fewer of them here is itself a
-      # finding, so they are listed rather than replaced by --privileged.
+      # The flags are the measurement. Each was added on a developer machine
+      # only after a run refused without it, so the set is what a deployment
+      # driving crun has to grant, and a host needing a different set is itself
+      # a finding. --privileged is not a superset of them: granting it instead
+      # leaves crun unable to open memory.max, so it is not the shortcut it
+      # looks like.
+      #
+      # This step is expected to fail on a GitHub runner, where crun cannot
+      # write cgroup.procs. It is kept so that the refusal is recorded rather
+      # than assumed, and continue-on-error keeps it from hiding the steps below.
       - name: What crun needs to run a container from the OCI config
+        continue-on-error: true
         run: |
           docker run --rm \
             --cap-add SYS_ADMIN \
@@ -141,6 +148,32 @@ jobs:
               ruby /runner/docs/profiling/check_crun_run_from_oci_config.rb \
                 "${IMAGE_NAME}" \
             2>&1 | tee "${REPORT_DIR}/crun_run_from_oci_config.txt"
+
+      # The comparison the whole design rests on, both halves in one process on
+      # one host, which is the only way two such figures can be read together.
+      #
+      # CRUN_CGROUP_MANAGER=disabled, because crun cannot write cgroups here.
+      # The kata is then held to neither the memory nor the pids limit, so this
+      # prices the runtime and not a confined test-run, and the figure must be
+      # read with that said.
+      - name: Time one kata through crun and through the daemon
+        env:
+          CRUN_CGROUP_MANAGER: disabled
+        run: |
+          docker run --rm \
+            --cap-add SYS_ADMIN \
+            --cap-add NET_ADMIN \
+            --security-opt seccomp=unconfined \
+            --cgroupns=private \
+            --tmpfs /tmp:rw,exec,size=2g \
+            --env CRUN_CGROUP_MANAGER \
+            --volume "${GITHUB_WORKSPACE}:/runner:ro" \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --entrypoint='' \
+            "${PROBE_IMAGE}" \
+              ruby /runner/docs/profiling/time_kata_under_crun_vs_daemon.rb \
+                "${IMAGE_NAME}" \
+            2>&1 | tee "${REPORT_DIR}/kata_crun_vs_daemon.txt"
 
       # The overlay figure is the one the 86ms headline rests on, and its own
       # header asks for it to be repeated on native amd64 Linux beside the

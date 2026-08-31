@@ -95,7 +95,10 @@ layers across the language images, which share a great deal.
 
 ## Measurements
 
-Four probes in `profiling/`, all aarch64 under Docker Desktop.
+Five probes in `profiling/`, on aarch64 under Docker Desktop. Two of them have
+also run on native amd64, through
+`.github/workflows/measure-probes-on-native-amd64.yml`, and where they have the
+two hosts are given side by side.
 
 ### The snapshot round trip is free
 
@@ -134,8 +137,24 @@ speedup. The reading is that filesystem preparation does not swallow the saving.
 
 Caveats: one 20-iteration sample, both sides of the overlay on tmpfs, and a
 small alpine rootfs. Mount cost should not scale with tree size, because nothing
-is copied, but this probe does not test that. It wants repeating on native amd64
-Linux alongside `time_docker_run_split.sh` before the 86ms headline is trusted.
+is copied, but this probe does not test that.
+
+Repeated on native amd64, by `.github/workflows/measure-probes-on-native-amd64.yml`
+on a four-CPU runner, it reads differently:
+
+| span | aarch64, Docker Desktop | native amd64 |
+| --- | --- | --- |
+| overlay mount+umount, no container | 521 us | 1526 us |
+| crun run, plain rootfs | 4143 us | 7703 us |
+| crun run, overlay included | 3795 us | 10709 us |
+
+Every span is about twice as long there, so that host is slower rather than
+faster and the columns are not a native-against-emulated comparison. What does
+change is the reading of the third row against the second. Here the difference
+was negative and so below the probe's resolution; there it is 3006us, half
+again the mount measured alone. So "filesystem preparation does not swallow the
+saving" holds, at 3ms against a docker lifecycle the same host priced at 164ms,
+but the 0.5ms in the budget is this machine's figure and not a floor.
 
 ### Spawning from Ruby is a tax, not a floor
 
@@ -150,6 +169,34 @@ caps it at the 376us floor however large the worker gets. That is a contingency
 rather than part of the design: nothing here measures a real worker's resident
 size.
 
+### A real kata, both paths, one machine
+
+`time_kata_under_crun_vs_daemon.rb` sends the tgz the server tests send, first
+through `CyberDojoShRunner` and then through crun from `CyberDojoShOciConfig`,
+in one process on one machine. Ten runs of each, after a warm-up of each.
+
+| span | mean | min | max |
+| --- | --- | --- | --- |
+| crun, one kata | 36.5 ms | 30.7 ms | 42.2 ms |
+| daemon, one kata | 108.5 ms | 95.7 ms | 155.0 ms |
+
+About 72ms. This is the first figure here taken from a kata rather than from
+`/bin/true`, and it is close to what the decomposition above reaches by adding
+up what dockerd does. Two routes to one number is a better reason to believe it
+than either alone.
+
+The two paths answered the same four files, `sandbox/cyber-dojo.sh`,
+`tmp/status`, `tmp/stderr` and `tmp/stdout`, with the same contents, and the
+same bytes on the container's own stderr. That agreement is what makes the pair
+of timings mean anything: a faster path answering something else is not a
+result.
+
+What it does not price. The rootfs is unpacked once and reused, so no per-run
+overlay is included; that is the probe above. The kata is one line of shell, so
+neither column carries a real language's compile. And a same-machine pair is
+the only kind that can be read this way, which is why the figures here are not
+compared with the four-CPU runner's.
+
 ## The budget
 
 | item | cost | source |
@@ -163,7 +210,8 @@ size.
 
 Delete, umount and snapshot removal all come off the critical path, into the
 reaper the design needs anyway. Against the 92ms it replaces, that is a saving
-of roughly 80ms.
+of roughly 80ms, which the kata probe above independently measures at 72ms by
+running one both ways rather than by adding these rows up.
 
 ### The image's config is read once per image, not once per run
 

@@ -25,6 +25,34 @@
 # kata's writes accumulate in it. A real run gets a fresh overlay, priced
 # separately by time_crun_on_overlay_vs_plain_rootfs.sh.
 #
+# What it found, on aarch64 under Docker Desktop, ten runs of each after one
+# warm-up run of each:
+#
+#   crun, one kata      36.5 ms   min 30.7  max 42.2
+#   daemon, one kata   108.5 ms   min 95.7  max 155.0
+#
+# So about 72ms, which is the first figure here taken from a kata rather than
+# from /bin/true, and it is close to what the daemon-shaped estimate in
+# ../dropping-the-docker-daemon.md predicted by a different route.
+#
+# The same pair with CRUN_CGROUP_MANAGER=disabled put crun at 33.8 ms, so
+# writing the container's cgroups costs about 2.7ms of the 36.5, and a figure
+# taken with cgroups off flatters crun by that much as well as leaving the kata
+# unlimited.
+#
+# The two paths agreed on everything asked of them: the same four files,
+# sandbox/cyber-dojo.sh, tmp/status, tmp/stderr and tmp/stdout, with the same
+# contents, and the same bytes on the container's own stderr. That agreement is
+# what makes the pair of timings mean anything; a faster path answering
+# something else would be no result at all.
+#
+# Not measured here. The rootfs is unpacked once and reused, so nothing prices
+# a per-run overlay, which time_crun_on_overlay_vs_plain_rootfs.sh does
+# separately. The kata is one line of shell, so neither column carries a real
+# language's compile. And this is one machine: the same comparison belongs on
+# native amd64, where .github/workflows/measure-probes-on-native-amd64.yml runs
+# the other probes.
+#
 # Runs inside the runner image, which is where crun is installed and where the
 # socket is mounted. The privileges are the ones
 # check_crun_run_from_oci_config.rb found crun needs:
@@ -58,6 +86,19 @@ ID = 'sX9k2mQ4pR'
 RUNS = 10
 MAX_SECONDS = 10
 BUNDLE_DIR = '/tmp/kata-bundle'
+
+# How crun is asked to apply the memory and pids limits, if at all. Whether a
+# container can write its own cgroup varies by host: what a developer machine
+# grants through a private cgroup namespace and a writable /sys/fs/cgroup, a
+# CI runner refuses. CRUN_CGROUP_MANAGER=disabled buys a timing on a host where
+# crun cannot write cgroups, at the price of a container held to neither limit,
+# so a figure taken that way is not a figure for a confined kata.
+CGROUP_MANAGER =
+  if ENV['CRUN_CGROUP_MANAGER'].to_s.empty?
+    []
+  else
+    ["--cgroup-manager=#{ENV['CRUN_CGROUP_MANAGER']}"]
+  end
 
 # The smallest kata that still exercises the whole protocol: the tgz is
 # unpacked, cyber_dojo_main.sh runs it, and a payload comes back.
@@ -113,7 +154,8 @@ def crun_run(config, tgz, run_index)
   t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
   File.write("#{BUNDLE_DIR}/config.json", JSON.generate(config))
   stdout, stderr, status = Open3.capture3(
-    'crun', 'run', '--no-new-keyring', '--bundle', BUNDLE_DIR, "kata-#{ID}-#{run_index}",
+    'crun', *CGROUP_MANAGER, 'run', '--no-new-keyring',
+    '--bundle', BUNDLE_DIR, "kata-#{ID}-#{run_index}",
     stdin_data: tgz
   )
   t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -145,6 +187,7 @@ puts "image: #{IMAGE_NAME}"
 puts "kata: #{CYBER_DOJO_SH.strip}"
 puts "tgz bytes: #{tgz.bytesize}"
 puts "runs: #{RUNS}"
+puts "cgroup manager: #{CGROUP_MANAGER.empty? ? "crun's own default" : ENV['CRUN_CGROUP_MANAGER']}"
 puts
 
 FileUtils.rm_rf(BUNDLE_DIR)
@@ -212,3 +255,10 @@ end
 puts
 report('crun, one kata', crun_spans) unless crun_spans.empty?
 report('daemon, one kata', daemon_spans) unless daemon_spans.empty?
+
+# A column with nothing in it is a failed measurement, and a probe that says so
+# only in its output is one a CI step reports as green.
+if crun_spans.empty? || daemon_spans.empty?
+  warn 'ERROR: one path produced no timings'
+  exit 1
+end

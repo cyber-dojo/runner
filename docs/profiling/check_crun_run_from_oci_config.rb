@@ -168,6 +168,7 @@ def report(context, image_name)
   puts "crun exit: #{status.exitstatus}"
   puts stdout unless stdout.empty?
   puts "stderr: #{stderr}" unless stderr.empty?
+  status.exitstatus
 end
 
 # The same rootfs under crun's own generated config, which says what a bundle
@@ -198,5 +199,8 @@ def report_crun_own_spec
   puts "stderr: #{stderr}" unless stderr.empty?
 end
 
-report(ProbeContext.new(DockerSocket.new), ARGV[0] || DEFAULT_IMAGE_NAME)
+exit_status = report(ProbeContext.new(DockerSocket.new), ARGV[0] || DEFAULT_IMAGE_NAME)
 report_crun_own_spec
+
+# A refusal is a finding, and one a CI step should not report as green.
+exit 1 unless exit_status.zero?
