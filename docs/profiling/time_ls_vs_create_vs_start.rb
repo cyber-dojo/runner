@@ -18,6 +18,33 @@
 #   create  POST /containers/create, the call a miss pays
 #   start   POST /containers/{id}/start, the other half of a miss
 #
+# What it found, on aarch64 under Docker Desktop, 20 runs at each level:
+#
+#   tracked      ls ms    create ms    start ms
+#         0        1.3         40.5        50.2
+#         6       11.7         41.2        48.4
+#        12       25.6         43.0        49.4
+#        16       30.9         45.2        50.2
+#        32       52.1         50.4        50.4
+#
+# Read the two columns separately, because only one of them is on a test-run's
+# path.
+#
+# The ls column answers the question this probe was written for, and the answer
+# is no: at 32 tracked a listing costs 52.1ms, about what the create and start
+# it would save. So a spare is claimed from the queue in this process, and the
+# pool stays per worker. NOTHING IN THIS COLUMN IS ON THE [test] PATH. The one
+# place the runner does list is SparePool#node_is_full?, which runs on the warm
+# thread, after the test-run it followed has already answered. A claim never
+# lists. Any argument that the pool puts a listing on the learner's path is
+# about the shared pool this design does not have.
+#
+# The create column is on the path, because it is what a miss pays, and it does
+# grow with what the daemon tracks: 40.5ms at nothing tracked, 43.0ms at twelve,
+# 50.4ms at thirty-two. Twelve is what one allowlisted image_name asks for at a
+# depth of two over six pools, so the penalty an allowlist buys is about 2.5ms
+# against a create and start of about 92ms, under 3%.
+#
 # Run on the host, not inside the runner image on a machine whose architecture
 # differs from it:
 #
@@ -30,7 +57,11 @@ require 'socket'
 IMAGE = ARGV[0] || 'ghcr.io/cyber-dojo-languages/python_pytest:e8d7fcd'
 SOCKET_PATH = '/var/run/docker.sock'
 RUNS = 20
-LEVELS = [0, 8, 32].freeze
+# 0, 8 and 32 were the first levels measured, and 32 is above what an allowlist
+# reaches: one image_name at a depth of two over six pools is twelve spares. 6,
+# 12 and 16 are the sizes that design actually asks for, so they are measured
+# alongside the ones that priced the design it does not use.
+LEVELS = [0, 6, 12, 16, 32].freeze
 NAME_PREFIX = "probe_lsprice_#{Process.pid}"
 
 UID = 41_966

@@ -26,8 +26,8 @@ class CyberDojoShContainerConfigTest < TestBase
   | and tmp gets the sticky bit, as /tmp does everywhere
   ) do
     assert_equal({
-                   Sandbox::DIR => "exec,size=250M,uid=#{Sandbox::UID},gid=#{Sandbox::GID}",
-                   '/tmp' => 'exec,size=250M,mode=1777'
+                   Sandbox::DIR => "exec,size=64M,uid=#{Sandbox::UID},gid=#{Sandbox::GID}",
+                   '/tmp' => 'exec,size=64M,mode=1777'
                  }, host_config['Tmpfs'])
   end
 
@@ -41,7 +41,7 @@ class CyberDojoShContainerConfigTest < TestBase
     assert_equal [
       ulimit('core', 0),
       ulimit('data', 4 * 1024 * 1024 * 1024),
-      ulimit('fsize', 256 * 1024 * 1024),
+      ulimit('fsize', 16 * 1024 * 1024),
       ulimit('locks', 1024),
       ulimit('nofile', 1024),
       ulimit('nproc', 1024),

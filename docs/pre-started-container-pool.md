@@ -46,6 +46,7 @@ out: run the test-run as though the pool had been empty.
 | 9 | A cap someone hosting their own server can set | not started |
 | 10 | A pool per worker, filled by whoever shares an image_name | done |
 | 11 | An allowlist of image_names, holding python_pytest alone | not started |
+| 12 | A manifest may raise a limit, up to a ceiling the runner owns | not started |
 
 Steps 1 to 3 are the intermediate stable point: the test-run has changed shape
 and no pool sits behind it. Steps 4 to 8 and 10 are the pool. Steps 9 and 11 are
@@ -700,17 +701,81 @@ experiences as under four seconds, and about 180ms under load.
 
 Both of the costs scale with how many containers the daemon is tracking, which
 is the quantity an allowlist sets. One image_name at a depth of two over six
-pools is twelve spares, not thirty-two and not fifty. At twelve, a listing is
-nearer the 1.3ms end than the 50.5ms end, and the miss penalty is a fraction of
-the 42ms measured at fifty. That is the case for revisiting: not that the
-measurements were wrong, but that they were taken at sizes an allowlist does not
-reach.
+pools is twelve spares, not thirty-two and not fifty. So
+docs/profiling/time_ls_vs_create_vs_start.rb was re-run at the sizes this
+design asks for:
+
+    tracked      ls ms    create ms    start ms
+          0        1.3         40.5        50.2
+          6       11.7         41.2        48.4
+         12       25.6         43.0        49.4
+         16       30.9         45.2        50.2
+         32       52.1         50.4        50.4
+
+The two columns answer differently, and only one of them is on a test-run's
+path.
+
+The listing is not. A claim reads one queue in this process; the only listing
+the runner does is `SparePool#node_is_full?`, on the warm thread, after the
+test-run it followed has already answered. So the 52.1ms at thirty-two prices
+the shared pool, where a claim asks the daemon which spares the node holds, and
+this design has never done that. An argument that the pool puts a listing on the
+learner's path is an argument about a different design, and should be met with
+this paragraph rather than re-measured.
+
+The miss is on the path, and it does grow: create goes from 40.5ms at nothing
+tracked to 43.0ms at twelve. That is about 2.5ms against a create and start of
+about 92ms, under 3%, where main's 42ms was create-and-remove at fifty. So the
+objection is real and its size is a function of the cap, which is the thing an
+allowlist holds down.
 
 Two things follow for this file. Section 5 argues its cap from memory alone, and
 should argue it from the listing and the miss penalty as well, because those bind
 sooner. And the 50.5ms listing is what killed sharing pools between workers,
 which this design never did: a claim reads one queue in its own process, and only
 warming asks the daemon, on a thread nobody waits on.
+
+## 12. A manifest may raise a limit, up to a ceiling the runner owns
+
+The limits in CyberDojoShHostConfig are one set for 82 start-points, so they are
+either loose enough for the worst of them or tight enough to break it. Measured,
+the spread is wide: docs/profiling/measure_sandbox_high_water_marks.rb puts the
+largest sandbox at 20MB and the largest file it can see at 3.4MB, while
+elixir_exunit needs an fsize above 16MB for a write that probe never sees, and
+julia_test peaks at 719.9MB of memory where the next highest is 523MB.
+
+So the default is set for the common case and an LTF may ask for more. A new
+manifest key, limits, carrying the same names CyberDojoShHostConfig uses.
+
+Clamped, not obeyed. A manifest arrives inside a start-points image the operator
+supplies, so it is data rather than configuration, and a manifest that could ask
+for a 4GB tmpfs is a way to exhaust a node. Two numbers therefore bound every
+entry: the default, which is what an LTF gets by saying nothing, and a ceiling,
+which is the most any LTF may have. The runner answers
+
+    [ceiling, [default, manifest_ask].max].min
+
+so an LTF can raise a limit but never past the ceiling, and a manifest asking
+for less than the default gets the default: nothing an LTF says can make a kata
+weaker than the common case.
+
+runner.rb:106 already does the same arithmetic for max_seconds, taking the
+minimum of RUN_SECONDS and the manifest's ask. The direction differs and the
+shape does not: a limit the manifest may only tighten needs a min, and one it
+may only loosen needs a max under a ceiling.
+
+What it costs the pool. image_config(image_name) is a config that "depends on
+the image alone, which is what lets it be made before the run it will serve is
+known", and a limit read from the manifest is no longer image_name alone. A
+manifest is per LTF and so is the image, so the two keys agree, but warming
+would have to hold the manifest as well as the name. That is the one place this
+key touches the pool, and it is why the key is step 12 rather than part of
+step 4.
+
+Where the outliers go. Julia and Elixir are the two the measurements name, and
+each has three ways out before prod: a limits entry of its own, a change to the
+start-point so it no longer needs one, or a global cap of zero, which turns the
+pool off and leaves every test-run on the path it takes today.
 
 ### Why this line rather than dropping the daemon
 

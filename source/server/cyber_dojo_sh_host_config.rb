@@ -51,14 +51,21 @@ module CyberDojoShHostConfig
   # Both dirs are tmpfs, which should be faster than the container's own
   # writable layer. A tmpfs is mounted as a secure mountpoint by default,
   # which includes noexec, so exec is set to make a kata's own binaries and
-  # scripts runnable. The size accommodates start-points needing large files,
-  # eg C#'s "dotnet restore". The sandbox belongs to the sandbox user, and
-  # /tmp gets the sticky bit it has everywhere else.
+  # scripts runnable. The sandbox belongs to the sandbox user, and /tmp gets
+  # the sticky bit it has everywhere else.
+  #
+  # The size is what a start-point's own kata needs, with room for a learner
+  # who has written more.
+  # docs/profiling/measure_sandbox_high_water_marks.rb ran all 82 of them: the
+  # largest sandbox reached 20MB, Python with unittest-approval, and the
+  # largest /tmp about 1.2MB. A tmpfs occupies only what is written to it, so
+  # this bounds a runaway rather than reserving anything, and what bounds it in
+  # turn is Memory, tmpfs pages being charged to the container's own cgroup.
   def self.tmp_file_systems
     {
       'Tmpfs' => {
-        Sandbox::DIR => "exec,size=250M,uid=#{Sandbox::UID},gid=#{Sandbox::GID}",
-        '/tmp' => 'exec,size=250M,mode=1777'
+        Sandbox::DIR => "exec,size=64M,uid=#{Sandbox::UID},gid=#{Sandbox::GID}",
+        '/tmp' => 'exec,size=64M,mode=1777'
       }
     }
   end
@@ -70,11 +77,26 @@ module CyberDojoShHostConfig
   #     file would only fill the sandbox.
   # [1] The nproc limit is per user across all containers, not per container.
   #     See docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit
+  # [2] fsize bounds every file the process writes, anywhere in the container,
+  #     and not only the sandbox. So the sizes
+  #     docs/profiling/measure_sandbox_high_water_marks.rb reports are a floor
+  #     on what this has to allow rather than a measure of it: the largest file
+  #     it saw in any of the 82 sandboxes was 3.4MB, and this limit kills
+  #     elixir_exunit's kata with SIGXFSZ, exit 153, its sandbox holding 16KB
+  #     at the time. Whatever Erlang writes, it writes somewhere that probe
+  #     cannot see. Changing the limit alone moves that kata between 2 and 153,
+  #     which is how it was isolated from the tmpfs sizes.
+  #
+  #     So this is set for the common case, and the outliers are handled before
+  #     prod: docs/pre-started-container-pool.md carries the manifest limits
+  #     override, which lets an LTF raise what it needs up to a ceiling the
+  #     runner owns. Until one of those is in place, a global cap of zero turns
+  #     the whole thing off.
   #     There is no cpu ulimit.
   LIMIT_OF = {
     'core' => 0,            # [0]
     'data' => 4 * GB,       # data segment size
-    'fsize' => 256 * MB,    # file size
+    'fsize' => 16 * MB,     # file size [2]
     'locks' => 1024,        # number of file locks
     'nofile' => 1024,       # number of files
     'nproc' => 1024,        # number of processes [1]

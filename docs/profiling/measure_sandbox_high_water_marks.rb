@@ -18,6 +18,8 @@
 #
 # What it measures, inside the container, before it exits:
 #
+#   kata status      what cyber-dojo.sh exited with, so a limit that broke a
+#                    build is read here rather than inferred from a size
 #   sandbox bytes    du of the sandbox dir
 #   sandbox files    how many, against the nofile ulimit's 1024
 #   largest file     against the fsize ulimit's 256MB
@@ -45,6 +47,26 @@
 # has to fit inside, so the tmpfs refuses a write before the ulimit does and the
 # limit cannot fire as written.
 #
+# All 82 start-points, run with the argument all, put the maxima higher than
+# the sample did, and one of them close:
+#
+#   limit          set to    worst of 82
+#   /sandbox       64M       20.0MB   Python, unittest-approval
+#   /tmp           64M       1.2MB    JavaScript, Jasmine
+#   fsize          16MB      3.4MB    C++ (g++), Cucumber
+#   Memory         768MB     719.9MB  Julia, test
+#
+# Julia's 6% margin against Memory is the tightest thing here, and the seven of
+# the sample said 260MB, so a sample cannot size these.
+#
+# The status column is what says whether a limit broke a build, and it has to be
+# read as a comparison rather than a value. Most start-point katas are red by
+# design, so 1 and 2 are ordinary. What matters is a status that moves when a
+# limit moves: elixir_exunit answers 2 with fsize at 256MB and 153, which is
+# SIGXFSZ, with it at 16MB, and moving the tmpfs sizes alone does not change it.
+# Its sandbox holds 16KB either way, so what fsize refused was a write this
+# probe cannot see.
+#
 # Two things to hold against these figures. The sampled peaks undercount:
 # C++ (g++), GoogleTest reports a sampled peak of 72KB and a final 648KB, which
 # says the sampler missed the build, so each peak is a floor rather than a mark.
@@ -59,7 +81,9 @@
 #     --entrypoint='' \
 #     cyberdojo/runner:<tag> ruby /runner/docs/profiling/measure_sandbox_high_water_marks.rb
 #
-# Display names can follow, and replace the sample below.
+# Display names can follow, and replace the sample below. The single argument
+# all measures every start-point in the fixture, pulling whatever the node
+# lacks, which is how the sample's claim to hold the maximum gets tested.
 
 require 'json'
 require_relative '../../source/server/cyber_dojo_sh_container_config'
@@ -117,10 +141,15 @@ MEASURE = <<~BASH
   sample &
   sampler=$!
 
+  # The kata's own output is discarded, and its status is not: a limit low
+  # enough to break a build shows up here rather than in the sizes, where a
+  # build that wrote nothing looks the same as one that had nothing to write.
   cd #{Sandbox::DIR} && bash ./cyber-dojo.sh > /dev/null 2>&1
+  kata_status=$?
 
   kill "${sampler}" 2> /dev/null
   read -r peak_sandbox peak_tmp < /tmp/.peaks
+  echo "kata_status: ${kata_status}"
   echo "peak_sandbox_kb: ${peak_sandbox}"
   echo "peak_tmp_kb: ${peak_tmp}"
   echo "sandbox_kb: $(du -sk #{Sandbox::DIR} | cut -f1)"
@@ -156,7 +185,15 @@ def measure(context, display_name)
   return puts("#{display_name}: not in the fixture") if manifest.nil?
 
   image_name = manifest.fetch('image_name')
-  code, body = context.docker.create_container(CyberDojoShContainerConfig.image_config(image_name))
+  config = CyberDojoShContainerConfig.image_config(image_name)
+  code, body = context.docker.create_container(config)
+  if code == 404
+    # A node this probe has not run on before holds few of the language images,
+    # and a create is the only call that says which. Pulling here rather than
+    # beforehand keeps the probe to the images it is asked for.
+    context.docker.pull_image(image_name)
+    code, body = context.docker.create_container(config)
+  end
   return puts("#{display_name}: create answered #{code}: #{body}") unless code.between?(200, 299)
 
   container_id = JSON.parse(body)['Id']
@@ -187,5 +224,10 @@ rescue DeadlineReader::Expired
 end
 
 context = ProbeContext.new(DockerSocket.new, MonotonicClock.new)
-display_names = ARGV.empty? ? SAMPLE : ARGV
+display_names =
+  case ARGV
+  in [] then SAMPLE
+  in ['all'] then manifests.keys.sort
+  else ARGV
+  end
 display_names.each { |display_name| measure(context, display_name) }
