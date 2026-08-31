@@ -21,6 +21,13 @@ name: Measure probes on native amd64
 # green probe proves nothing about the code.
 
 on:
+  # REMOVE BEFORE MERGING. A workflow_dispatch workflow is offered a Run button
+  # only once it sits on the default branch, and a push trigger carries no such
+  # requirement, so this is what lets the probes run from this branch. Leaving
+  # it in place would make every push measure, which is what the note above
+  # argues against.
+  push:
+    branches: [state-the-boundary-the-daemon-implies]
   workflow_dispatch:
     inputs:
       image_name:
