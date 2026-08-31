@@ -83,6 +83,17 @@ module HomeFiles
   #     accepts it and returns the same verdicts.
   #     Note this does not make [2] unnecessary: an empty or one-byte text
   #     file is reported as binary either way.
+  # [6] --no-run-if-empty is what keeps rm and truncate from being run with no
+  #     file operand at all. Finding nothing is the usual case: most katas have
+  #     no binary files and none over the size limit. Both GNU xargs and
+  #     busybox xargs run their command once on empty input without it, and
+  #     both accept this long form, unlike xargs --null.
+  # [7] The payload's member names are relative: tmp/stdout, and sandbox/...
+  #     for the kata's own files. That is what runner.rb and Sandbox.out read
+  #     them by. --directory / is what makes them relative, given names that
+  #     are already relative to it, and it is what keeps tar silent: tar asked
+  #     to archive an absolute path strips the leading / itself and writes a
+  #     warning about it to the container's stderr.
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
@@ -95,13 +106,14 @@ module HomeFiles
         touch ${TMP_DIR}/status && mv ${TMP_DIR}/status /tmp
         remove_binary_files
         truncate_large_files
-        tar -rf "${TAR_FILE}" /tmp/stdout /tmp/stderr /tmp/status
-        print0_filenames | tar -rf "${TAR_FILE}" --verbatim-files-from --null -T - # [0]
+        tar -rf "${TAR_FILE}" --directory / tmp/stdout tmp/stderr tmp/status # [7]
+        print0_filenames \\
+          | tar -rf "${TAR_FILE}" --directory / --verbatim-files-from --null -T - # [0] [7]
         gzip -1 < "${TAR_FILE}"
       }
       function remove_binary_files()
       {
-        print0_binary_filenames | xargs -0 rm
+        print0_binary_filenames | xargs -0 --no-run-if-empty rm # [6]
       }
       function print0_binary_filenames()
       {
@@ -122,12 +134,14 @@ module HomeFiles
       }
       function print0_filenames()
       {
-        find #{sandbox_dir} -type f -print0
+        # The subshell keeps the cd off the caller, which is still in the
+        # sandbox dir cyber-dojo.sh ran in.
+        ( cd / && find #{unrooted(sandbox_dir)} -type f -print0 ) # [7]
       }
       function truncate_large_files()
       {
         find #{sandbox_dir} -type f -size +#{max_file_size}c -print0 \\
-          | xargs -0 truncate --size #{max_file_size + 1} # [4]
+          | xargs -0 --no-run-if-empty truncate --size #{max_file_size + 1} # [4] [6]
       }
       # - - - - - - - - - - - - - - - - - - -
       trap send_tgz EXIT
