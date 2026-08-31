@@ -754,14 +754,18 @@ single decision about whether the pool is on.
 
 ## Owed, and not part of any step
 
-Two things this work turned up that are not the pool and are not done. Neither
-blocks a step; both are cheap, and each wants its own commit.
+Both things this work turned up are now done.
 
-SparePool#create does not read the code the daemon answered, so a 404 there
-becomes a nil container id added to the pool as a spare. NodeImages#forget does
-not tag its argument where pull does, which only chance makes harmless. Both
-are recorded where they bite rather than here, in
-docs/a-missing-image-recovers-only-through-a-pull.md.
+SparePool#create reads the status the daemon answered, logs a failure, forgets
+the image on a 404 and answers nil, and warm's thread declines to add a nil, so
+nothing that is not a container reaches a queue.
+
+NodeImages#forget tags its argument, as pull does before it looks in @pulled,
+so both places state the keying that both depend on. No test pins it, and
+deliberately: docs/profiling/check_tagged_alters_a_real_image_name.rb found that
+tagged alters none of the 82 start-point image_names, so the two spellings
+coincide for every name a test-run can arrive with. The invariant is real and
+unreachable, which is a comment's job rather than a test's.
 
 A third is done. Node has been folded into NodeImages, which is why config.ru
 now reads
@@ -778,9 +782,3 @@ node.rb, node_test.rb and context.node are gone.
 Worth being clear that this was the opposite conclusion from the one about
 NodeImages and SparePool above, and for a reason: those two sit on opposite
 sides of a boundary, where these two did not.
-
-The other two are recorded where they bite rather than here, in
-docs/a-missing-image-recovers-only-through-a-pull.md: SparePool#create does not
-read the code the daemon answered, so a 404 there becomes a nil container id
-added to the pool as a spare; and NodeImages#forget does not tag its argument
-where pull does, which only chance makes harmless.

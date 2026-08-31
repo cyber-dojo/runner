@@ -36,8 +36,15 @@ class NodeImages
   # rather than answering :pulled. What @pulled holds is a belief: config.ru
   # seeds it from the node's images at boot, and an image removed after that
   # leaves no trace in it.
+  #
+  # Tagged, because pull tags before it looks in @pulled, so that is what
+  # @pulled is keyed by. Every start-point's image_name is already in its
+  # tagged form, which docs/profiling/check_tagged_alters_a_real_image_name.rb
+  # measured over all 82 of them, so today the two spellings coincide and no
+  # test can tell this line from the one without it. It is here so that the
+  # keying is stated in both places that depend on it rather than in one.
   def forget(image_name)
-    @pulled.delete(image_name)
+    @pulled.delete(::DockerImageName.tagged(image_name))
   end
 
   # Whether a test-run may go ahead for this image, and if it may not, starts

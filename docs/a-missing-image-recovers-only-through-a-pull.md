@@ -58,11 +58,14 @@ name through ::DockerImageName.tagged. Checked against a real node's 176 names,
 tagging is the identity on all of them, and no start-point manifest uses a
 digest, which is the form where the two would diverge.
 
-`forget` is a third way in, and it does not tag: runner.rb passes it the raw
-manifest name. That is harmless only because assert_versioned has already
-refused any manifest name without a tag, so tagging such a name is the
-identity. It is an asymmetry rather than a bug, and the cheap guard is for
-forget to tag exactly as pull does.
+`forget` is a third way in, and it tags exactly as pull does, so all three
+places agree on the key by construction rather than by coincidence. The
+coincidence was real while it lasted: runner.rb passes the raw manifest name,
+and assert_versioned has already refused any manifest name without a tag, so
+tagging such a name is the identity.
+docs/profiling/check_tagged_alters_a_real_image_name.rb measures that over the
+82 start-point names, none of which tagging alters, which is why no test can
+tell the tagging from its absence.
 
 One name did not survive tagging. names_on_the_node flattens RepoTags and
 filters nothing, which is enough for a dangling image, the daemon answering
@@ -120,13 +123,16 @@ Note what a retry would not replace. Pulling at kata creation is what makes the
 first test-run fast; recovering from a wrong @pulled is a path for a run that is
 already going to be slow. Both are wanted.
 
-## The pool has the same hole, and does not notice the 404
+## The pool notices the 404 earlier than the run path
 
 docs/pre-started-container-pool.md added a second caller of create, in
-SparePool#warm, on a background thread. It does not read the code that create
-answered: a 404 there parses an error body into a nil container id, which is
-then started and added to the pool as though it were a spare.
+SparePool#warm, on a background thread. It reads the code that create answered:
+a 404 logs the failure and forgets the image, and create answers nil, which
+warm declines to start or add, so nothing that is not a container reaches a
+queue.
 
-So a stale @pulled costs one visible faulty light on the run path, and on the
-pool's path it costs a nil spare that a later claim hands out. The pool wants
-both halves of what the run path has: notice the 404, and forget the image.
+That makes the pool the better of the two places to find out. A stale @pulled
+costs one visible faulty light on the run path, because the run has already
+been asked for by the time the 404 arrives. On the pool's path the 404 arrives
+on a background thread before any learner has been shown anything, so the
+belief is corrected at no cost to a test-run.
