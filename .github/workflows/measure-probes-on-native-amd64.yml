@@ -49,6 +49,13 @@ jobs:
     # Every step here is seconds to a couple of minutes, so anything past this
     # is a probe waiting on something rather than measuring.
     timeout-minutes: 20
+    # Every step below pipes a probe into tee, and the default step shell takes
+    # the pipeline's status from tee, which always succeeds. Naming bash asks
+    # for pipefail, so a probe that exits non-zero fails its step instead of
+    # being reported as a measurement that happened.
+    defaults:
+      run:
+        shell: bash
     permissions:
       contents: read
     env:
@@ -128,9 +135,14 @@ jobs:
       # leaves crun unable to open memory.max, so it is not the shortcut it
       # looks like.
       #
-      # This step is expected to fail on a GitHub runner, where crun cannot
-      # write cgroup.procs. It is kept so that the refusal is recorded rather
-      # than assumed, and continue-on-error keeps it from hiding the steps below.
+      # apparmor=unconfined because Ubuntu's docker-default profile refuses
+      # mount whatever capabilities a container holds, which crun meets as
+      # "set propagation for /: Permission denied". Docker Desktop carries no
+      # AppArmor, so this is a flag a developer machine never needs.
+      #
+      # This step may still fail on a GitHub runner, where crun could not write
+      # cgroup.procs. It is kept so that a refusal is recorded rather than
+      # assumed, and continue-on-error keeps it from hiding the steps below.
       - name: What crun needs to run a container from the OCI config
         continue-on-error: true
         run: |
@@ -138,6 +150,7 @@ jobs:
             --cap-add SYS_ADMIN \
             --cap-add NET_ADMIN \
             --security-opt seccomp=unconfined \
+            --security-opt apparmor=unconfined \
             --cgroupns=private \
             --tmpfs /tmp:rw,exec,size=2g \
             --volume /sys/fs/cgroup:/sys/fs/cgroup:rw \
@@ -164,6 +177,7 @@ jobs:
             --cap-add SYS_ADMIN \
             --cap-add NET_ADMIN \
             --security-opt seccomp=unconfined \
+            --security-opt apparmor=unconfined \
             --cgroupns=private \
             --tmpfs /tmp:rw,exec,size=2g \
             --env CRUN_CGROUP_MANAGER \
