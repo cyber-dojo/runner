@@ -20,6 +20,16 @@ set -Eeu -o pipefail
 # Memory is read from inside a container because containers share the kernel
 # whose free memory matters, which on Docker Desktop is the VM's and not the
 # Mac's.
+#
+# Read its memory figure as an upper bound rather than a measurement. It comes
+# from MemAvailable, which moves with whatever else the host is doing, and the
+# same probe on the same machine answered about 12MB each with 7.4GB available
+# and about 5.2MB each with 5.7GB. measure_spare_cost_by_pss_slope.sh answers
+# the same question by summing every process's Pss at several idle counts and
+# taking the slope, which cancels that drift, and puts it at 5.2MB per idle
+# container, the same at sixteen as at thirty-two. What this probe still answers
+# alone is the other two columns: what docker reports for one container, and
+# whether a daemon tracking many of them answers a test-run more slowly.
 
 readonly MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${MY_DIR}/probe_lib.sh"

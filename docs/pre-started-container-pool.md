@@ -657,6 +657,43 @@ refills. Misses cost what a test-run costs today, so this is a question about
 how much of the win is collected rather than about safety, and
 docs/profiling/time_hit_vs_miss_under_load.sh is what answers it.
 
+### What growing the allowlist costs in RAM
+
+Raising the cap is free; the memory behind it is not, and buying it means an ECS
+change and the downtime that comes with it. So the sizes are worked out here
+rather than discovered one LTF at a time.
+
+Spares are LTFs times depth times six pools, at 5.2MB each.
+docs/profiling/measure_spare_cost_by_pss_slope.sh measures that by summing every
+process's Pss at several idle counts and taking the slope, which answers 5.2MB at
+sixteen idle containers and 5.2MB again at thirty-two. Against the 614MB
+Graham's report leaves free:
+
+| LTFs | cap needed | spares | spare RAM | of today's free |
+| --- | --- | --- | --- | --- |
+| 1 | 16 | 12 | 62MB | 10% |
+| 2 | 24 | 24 | 125MB | 20% |
+| 4 | 48 | 48 | 250MB | 41% |
+| 8 | 96 | 96 | 499MB | 81% |
+
+At a depth of one every row halves, so eight LTFs there costs what four cost at
+a depth of two.
+
+So four LTFs at a depth of two fits inside today's free memory, and only eight
+needs more. To keep today's slack after the spares, the increase needed is
+nothing up to four LTFs and about 0.5GiB for eight. There is no 0.5GiB to buy:
+c5a.xlarge is 8GiB and the step is 16GiB, either m5a.xlarge keeping four vCPU or
+c5a.2xlarge doubling both. Either covers every row above with about 8GiB left
+over, so one move covers the whole table and there is no intermediate worth
+planning for.
+
+Two things to hold against that. 5.2MB is process memory, Pss counting no
+kernel memory a container costs, so the true figure is above it and below the
+12MB that MemAvailable suggested; the rows are therefore a floor rather than a
+bound. And spares are the smaller consumer either way: sixteen test-runs in
+flight at up to 768MB each dwarf them, so RAM bought for this should be sized
+for the containers doing the work, with the spares as rounding.
+
 ### Later: an allowlist that maintains itself
 
 A list someone edits is a list that goes stale. The two ways it goes stale are
@@ -677,6 +714,21 @@ admitted and evicted in a loop, each turn costing a create and a discard; admit
 on several misses inside a window, evict after an idle period much longer than
 that window. And it needs the list length held at whatever the static list was,
 so the memory already costed does not move.
+
+A swap is a queueful rather than a container. Evicting one image_name discards
+depth times pools spares, twelve at a depth of two, and admitting its
+replacement creates twelve more, so one swap is twenty-four calls on the daemon.
+All of it is on the warm and reap threads, so no learner waits for it, but it is
+the same daemon whose bookkeeping is what makes a miss slower, which is a second
+reason to swap rarely.
+
+Evict before admitting, or admission stalls silently. Creating the new
+image_name's spares while the old one's are still held puts twice a queueful on
+the node, twenty-four where the cap is sixteen, and node_is_full? then declines
+to create: the image_name just admitted would hold no spares at all until the
+eviction finished, which reads as a policy that does not work rather than one
+that is waiting. So eviction completes first, and the idle window is long
+enough that one swap never overlaps the next.
 
 This is later work, and deliberately so. It reintroduces a tunable policy where
 the static list is one value, and it cannot be sized without hit-rate figures
