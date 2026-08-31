@@ -25,14 +25,14 @@ def table_data
 
   [
     [ nil ],
-    [ 'test.count',    stats['test_count'],    '>=', 145 ],
+    [ 'test.count',    stats['test_count'],    '>=', 146 ],
     [ 'test.duration', stats['total_time'],    '<=',  10 ],
     [ nil ],
     [ 'test.failures', stats['failure_count'], '<=',  0 ],
     [ 'test.errors',   stats['error_count'  ], '<=',  0 ],
     [ 'test.skips',    stats['skip_count'   ], '<=',  0 ],
     [ nil ],
-    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 1220 ],
+    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 1228 ],
     [ 'test.lines.missed',     test_cov['lines'   ]['missed'], '<=',    0 ],
     [ 'test.branches.total',   test_cov['branches']['total' ], '<=',    4 ],
     [ 'test.branches.missed',  test_cov['branches']['missed'], '<=',    0 ],
