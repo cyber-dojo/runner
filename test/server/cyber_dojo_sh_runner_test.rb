@@ -235,6 +235,28 @@ class CyberDojoShRunnerTest < TestBase
     http.request('DELETE', "/containers/#{name}?force=true")
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf21', %w(
+  | The run goes to the real daemon.
+  | The container's stderr is the second attach stream, not the kata's tmp/stderr.
+  | The kata echoes hello, and the run does not time out.
+  | The kata has no binary files to remove and no large files to truncate.
+  | So neither rm nor truncate writes to the container's stderr.
+  ) do
+    http = DockerSocket.new
+    set_context(http: http)
+    name = "cyber_dojo_runner_#{id58}"
+
+    result = cyber_dojo_sh_runner.run(id58, image_name, name, 10, real_tgz_in("echo hello\n"))
+
+    refute result[:timed_out], 'timed_out'
+    refute_includes result[:stderr], 'rm:'
+    refute_includes result[:stderr], 'truncate:'
+  ensure
+    http.request('DELETE', "/containers/#{name}?force=true")
+  end
+
   private
 
   # The runner, built the way runner.rb builds it, from the context the test

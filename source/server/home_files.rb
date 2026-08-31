@@ -83,6 +83,11 @@ module HomeFiles
   #     accepts it and returns the same verdicts.
   #     Note this does not make [2] unnecessary: an empty or one-byte text
   #     file is reported as binary either way.
+  # [6] --no-run-if-empty is what keeps rm and truncate from being run with no
+  #     file operand at all. Finding nothing is the usual case: most katas have
+  #     no binary files and none over the size limit. Both GNU xargs and
+  #     busybox xargs run their command once on empty input without it, and
+  #     both accept this long form, unlike xargs --null.
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
@@ -101,7 +106,7 @@ module HomeFiles
       }
       function remove_binary_files()
       {
-        print0_binary_filenames | xargs -0 rm
+        print0_binary_filenames | xargs -0 --no-run-if-empty rm # [6]
       }
       function print0_binary_filenames()
       {
@@ -127,7 +132,7 @@ module HomeFiles
       function truncate_large_files()
       {
         find #{sandbox_dir} -type f -size +#{max_file_size}c -print0 \\
-          | xargs -0 truncate --size #{max_file_size + 1} # [4]
+          | xargs -0 --no-run-if-empty truncate --size #{max_file_size + 1} # [4] [6]
       }
       # - - - - - - - - - - - - - - - - - - -
       trap send_tgz EXIT
