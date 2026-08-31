@@ -32,9 +32,15 @@ module CyberDojoShHostConfig
 
   # What a kata cannot do: reach the network, exhaust the node's memory, fork
   # bomb it, or gain a privilege it did not start with.
+  #
+  # The memory limit is per container, so what it bounds on the node is itself
+  # times however many test-runs are in flight. That is what makes it worth
+  # being tight about: 768MB is about three times the most any of the seven
+  # start-points in docs/profiling/measure_sandbox_high_water_marks.rb reached,
+  # the worst being 260MB, and the tmpfs a kata writes into is charged to it.
   def self.limits
     {
-      'Memory' => 2 * GB,
+      'Memory' => 768 * MB,
       'NetworkMode' => 'none',
       'PidsLimit' => 128,
       'SecurityOpt' => ['no-new-privileges']

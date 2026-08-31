@@ -11,7 +11,7 @@ class CyberDojoShContainerConfigTest < TestBase
   ) do
     assert host_config['AutoRemove'], 'AutoRemove'
     assert host_config['Init'], 'Init'
-    assert_equal 2 * 1024 * 1024 * 1024, host_config['Memory']
+    assert_equal 768 * 1024 * 1024, host_config['Memory']
     assert_equal 'none', host_config['NetworkMode']
     assert_equal 128, host_config['PidsLimit']
     assert_equal ['no-new-privileges'], host_config['SecurityOpt']

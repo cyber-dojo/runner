@@ -30,6 +30,28 @@ test-run may answer faulty, or pulling, in a case where it would have answered
 a traffic light with no pool behind it. Both kinds of miss take the same way
 out: run the test-run as though the pool had been empty.
 
+## The steps
+
+| # | step | state |
+| --- | --- | --- |
+| 0 | An exec'd test-run behaves like one that creates its own container | answered, by measurement |
+| 1 | Split CyberDojoShContainerConfig | done |
+| 2 | An exec'd test-run inside CyberDojoShRunner | done |
+| 3 | Disposal, the timeout path included | done |
+| 4 | SparePool, per worker, shaped like NodeImages | done |
+| 5 | A hard cap, counted on the daemon | done, at sixteen |
+| 6 | Wire it into runner.rb and pull_image | done |
+| 7 | A spare's lifetime is its sleep | done |
+| 8 | Tests, then measure | done |
+| 9 | A cap someone hosting their own server can set | not started |
+| 10 | A pool per worker, filled by whoever shares an image_name | done |
+| 11 | An allowlist of image_names, holding python_pytest alone | not started |
+
+Steps 1 to 3 are the intermediate stable point: the test-run has changed shape
+and no pool sits behind it. Steps 4 to 8 and 10 are the pool. Steps 9 and 11 are
+what decide where it may be turned on, and 11 is what the rest of this file's
+later sections are about.
+
 ## 0. A test-run that execs into a container behaves like one that creates its own
 
 The test-run moves from "create a container around this run" to "exec into a
@@ -615,11 +637,18 @@ image_names at a depth of one want eighteen and get sixteen, which is nearly
 every queue. So a deeper queue is only worth asking for if the cap rises with
 it, or if the allowlist is shorter.
 
-The intended starting point is a depth of two, which means the cap has to rise
-with it. Three image_names at that depth over six pools is thirty-six spares, at
-about 12MB each about 432MB of host memory, against the 192MB sixteen costs. A
-cap left at sixteen with a depth of two is the race described above rather than a
-deeper queue.
+The starting point is one image_name, python_pytest, at a depth of two. That is
+what makes the cap need no change: one image_name over six pools at that depth
+wants twelve spares against a cap of sixteen, so every queue fills and the cap
+is not what binds. It is also the whole of the memory already costed, twelve
+containers at about 12MB being about 144MB of the 192MB sixteen was sized for.
+
+Adding image_names is what makes the cap bind, and the arithmetic says when.
+Three at a depth of two over six pools wants thirty-six against a cap of
+sixteen: less than half the queues fill, and which ones fill is a race between
+workers. So the second image_name is the point at which either the depth drops
+to one or the cap rises, and neither should be guessed at before the first one's
+hit rate is read.
 
 Against that, a depth of one means a worker with eight threads serving one hot
 image_name has one spare and misses on the other seven runs of a burst until it
@@ -651,6 +680,37 @@ so the memory already costed does not move.
 This is later work, and deliberately so. It reintroduces a tunable policy where
 the static list is one value, and it cannot be sized without hit-rate figures
 that only the static list can produce.
+
+### What main measured, and what the allowlist answers
+
+main's 289a473f tried this pool and settled on not having one, landing the parts
+worth keeping and none of the pool. Its figures are better than the ones above,
+because they were taken with the pool built rather than argued from a container's
+idle cost, and two of them contradict this file:
+
+  o) a miss gets slower as the pool grows. A create-and-remove went from 183ms
+     to 225ms at 50 idle containers, where section 5 says no slowdown is
+     detectable up to 50. Idle containers are containers the daemon tracks.
+  o) finding a spare costs a listing, and a listing goes from 1.3ms empty to
+     50.5ms at 32 tracked. So at the sizes worth having, finding a spare costs
+     what making a container costs.
+
+And its headline: a hit saves about 100ms against a test-run a learner already
+experiences as under four seconds, and about 180ms under load.
+
+Both of the costs scale with how many containers the daemon is tracking, which
+is the quantity an allowlist sets. One image_name at a depth of two over six
+pools is twelve spares, not thirty-two and not fifty. At twelve, a listing is
+nearer the 1.3ms end than the 50.5ms end, and the miss penalty is a fraction of
+the 42ms measured at fifty. That is the case for revisiting: not that the
+measurements were wrong, but that they were taken at sizes an allowlist does not
+reach.
+
+Two things follow for this file. Section 5 argues its cap from memory alone, and
+should argue it from the listing and the miss penalty as well, because those bind
+sooner. And the 50.5ms listing is what killed sharing pools between workers,
+which this design never did: a claim reads one queue in its own process, and only
+warming asks the daemon, on a thread nobody waits on.
 
 ### Why this line rather than dropping the daemon
 
@@ -746,11 +806,18 @@ the only safe number for a server on hardware nobody here has sized is zero, so
 9 comes before the pool is turned on anywhere but aws-prod. It is also the only
 step that changes another repo.
 
-The allowlist belongs with step 9, and generalises it. An empty list is the pool
-turned off, which is the safe default step 9 needs, and a list of one is the
-smallest thing that can be turned on and measured. So the rollout is the list
-growing an image_name at a time with a hit rate read between each, rather than a
-single decision about whether the pool is on.
+Step 11, the allowlist, belongs with step 9 and generalises it. An empty list is
+the pool turned off, which is the safe default step 9 needs, and a list holding
+python_pytest alone is the smallest thing that can be turned on and measured. So
+the rollout is the list growing an image_name at a time with a hit rate read
+between each, rather than a single decision about whether the pool is on.
+
+python_pytest rather than another, for three reasons. It is among the LTFs the
+server tests already depend on, so the suite exercises the allowlisted path
+without a new fixture. Its image carries no compiler, so a spare of it costs the
+smaller end of the memory range. And it is one of the LTFs most likely to be hot,
+which is what a hit rate needs to be worth reading, though which LTFs are hottest
+should come from press counts rather than from this file.
 
 ## Owed, and not part of any step
 

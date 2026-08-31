@@ -132,6 +132,10 @@ class CyberDojoShRunnerTest < TestBase
     files = TGZ.files(result[:stdout])
     assert_equal '0', files['tmp/status']
     assert_equal "hello\n", files['tmp/stdout']
+    # The container's stderr is the daemon's second attach stream, and separate
+    # from the kata's own stderr, which arrives as tmp/stderr in the payload.
+    # Gathering the payload writes nothing to it.
+    assert_equal '', result[:stderr]
   ensure
     # AutoRemove disposes of a container that exits, but not of one that never
     # started, and this name is the same on every run. Without this a failure
