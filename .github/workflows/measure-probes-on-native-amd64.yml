@@ -30,16 +30,17 @@ on:
     branches: [state-the-boundary-the-daemon-implies]
   workflow_dispatch:
     inputs:
+      # Neither carries a default here. A push event supplies no inputs at all,
+      # so a default written twice would be a default that disagrees with
+      # itself; the env below names each image once and both events read it.
       image_name:
         description: Language image the probes report on
         required: false
         type: string
-        default: ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a
       clang_image_name:
         description: Clang image, the one given CAP_SYS_PTRACE
         required: false
         type: string
-        default: ghcr.io/cyber-dojo-languages/clang_assert:ed23233
 
 jobs:
   measure:
@@ -47,8 +48,8 @@ jobs:
     permissions:
       contents: read
     env:
-      IMAGE_NAME: ${{ inputs.image_name }}
-      CLANG_IMAGE_NAME: ${{ inputs.clang_image_name }}
+      IMAGE_NAME: ${{ inputs.image_name || 'ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a' }}
+      CLANG_IMAGE_NAME: ${{ inputs.clang_image_name || 'ghcr.io/cyber-dojo-languages/clang_assert:ed23233' }}
       PROBE_IMAGE: cyberdojo/runner:probe
       REPORT_DIR: ${{ github.workspace }}/probe-reports
 
