@@ -4,6 +4,11 @@ name: Start-point tests
 # image built from this commit, checking its start_point files still go red,
 # amber and green. Those repos normally test against the released runner, so
 # this is where a runner change that breaks a language shows up first.
+#
+# The image is pulled, not built. The main workflow already builds and pushes
+# it on every push, and ECR tags are immutable, so building it again under the
+# same tag would fail. Pulling is also what lets this workflow be run more than
+# once on the same commit.
 on:
   workflow_dispatch:
     inputs:
@@ -12,6 +17,8 @@ on:
         required: false
         type: string
         default: ''
+
+jobs:
 
 env:
   AWS_ECR_ID:   ${{ vars.AWS_ECR_ID }}
@@ -69,6 +76,13 @@ jobs:
           } >> "${GITHUB_STEP_SUMMARY}"
 
 
+  test-start-point:
+    needs: [start-points]
+    runs-on: ubuntu-latest
+    name: ${{ matrix.start_point.name }}
+    permissions:
+      id-token: write
+      contents: read
   build-image:
     needs: [setup]
     uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build.yml@main
@@ -105,6 +119,19 @@ jobs:
       - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gh_actions_services
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 2400
+          role-session-name: ${{ github.event.repository.name }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Pull the runner image built for this commit
+        run: ./bin/pull_runner_image.sh
       - name: Download docker image
         uses: cyber-dojo/download-artifact@main
         with:
