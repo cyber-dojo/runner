@@ -20,6 +20,32 @@ on:
 
 jobs:
 
+env:
+  AWS_ECR_ID:   ${{ vars.AWS_ECR_ID }}
+  AWS_REGION:   ${{ vars.AWS_REGION }}
+  SERVICE_NAME: ${{ github.event.repository.name }}  # runner
+
+jobs:
+
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.vars.outputs.image_name }}
+      image_tag:  ${{ steps.vars.outputs.image_tag }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Prepare outputs for workflow jobs
+        id: vars
+        run: |
+          ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          {
+            echo "image_name=${ECR_REGISTRY}/${SERVICE_NAME}"
+            echo "image_tag=${GITHUB_SHA:0:7}"
+          } >> ${GITHUB_OUTPUT}
+
+
   start-points:
     runs-on: ubuntu-latest
     outputs:
@@ -57,6 +83,30 @@ jobs:
     permissions:
       id-token: write
       contents: read
+  build-image:
+    needs: [setup]
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build.yml@main
+    with:
+      checkout_repository: cyber-dojo/runner
+      checkout_ref: ${{ github.sha }}
+      checkout_fetch_depth: 1
+      image_name: ${{ needs.setup.outputs.image_name }}
+      image_tag: ${{ needs.setup.outputs.image_tag }}
+      image_build_args: |
+        COMMIT_SHA=${{ github.sha }}
+      # Required inputs, unused because this workflow attests nothing.
+      kosli_flow: ${{ vars.KOSLI_FLOW }}
+      kosli_trail: ${{ github.sha }}
+      kosli_reference_name: ${{ github.event.repository.name }}
+      attest_to_kosli: false
+    secrets:
+      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+
+
+  test-start-point:
+    needs: [start-points, build-image]
+    runs-on: ubuntu-latest
+    name: ${{ matrix.start_point.name }}
     strategy:
       # One broken language must not hide the state of the other 82.
       fail-fast: false
@@ -82,6 +132,10 @@ jobs:
 
       - name: Pull the runner image built for this commit
         run: ./bin/pull_runner_image.sh
+      - name: Download docker image
+        uses: cyber-dojo/download-artifact@main
+        with:
+          image_digest: ${{ needs.build-image.outputs.digest }}
 
       - name: Run the start-point's run_tests.sh against this runner image
         run: ./bin/test_one_start_point.sh "${{ matrix.start_point.tagged_url }}"
