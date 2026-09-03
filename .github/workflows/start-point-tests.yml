@@ -1,0 +1,114 @@
+name: Start-point tests
+
+# Runs each cyber-dojo-start-points repo's own run_tests.sh against the runner
+# image built from this commit, checking its start_point files still go red,
+# amber and green. Those repos normally test against the released runner, so
+# this is where a runner change that breaks a language shows up first.
+on:
+  workflow_dispatch:
+    inputs:
+      start_points:
+        description: 'Start-points to test, space separated, eg "java-junit ruby-minitest". Empty tests all of them.'
+        required: false
+        type: string
+        default: ''
+
+env:
+  AWS_ECR_ID:   ${{ vars.AWS_ECR_ID }}
+  AWS_REGION:   ${{ vars.AWS_REGION }}
+  SERVICE_NAME: ${{ github.event.repository.name }}  # runner
+
+jobs:
+
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.vars.outputs.image_name }}
+      image_tag:  ${{ steps.vars.outputs.image_tag }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Prepare outputs for workflow jobs
+        id: vars
+        run: |
+          ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          {
+            echo "image_name=${ECR_REGISTRY}/${SERVICE_NAME}"
+            echo "image_tag=${GITHUB_SHA:0:7}"
+          } >> ${GITHUB_OUTPUT}
+
+
+  start-points:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Checkout languages-start-points for its git_repo_urls.tagged file
+        uses: actions/checkout@v6
+        with:
+          repository: cyber-dojo/languages-start-points
+          path: languages-start-points
+          fetch-depth: 1
+
+      - name: Prepare the start-points matrix
+        id: matrix
+        env:
+          START_POINTS: ${{ inputs.start_points }}
+        run: |
+          # Unquoted, so each name becomes an argument of its own.
+          matrix="$(./bin/echo_start_points_matrix.sh \
+            languages-start-points/git_repo_urls.tagged ${START_POINTS})"
+          echo "matrix=${matrix}" >> "${GITHUB_OUTPUT}"
+          {
+            echo "## Start-points under test"
+            echo "${matrix}" | jq --raw-output '.[] | "- \(.name)"'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+
+  build-image:
+    needs: [setup]
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build.yml@main
+    with:
+      checkout_repository: cyber-dojo/runner
+      checkout_ref: ${{ github.sha }}
+      checkout_fetch_depth: 1
+      image_name: ${{ needs.setup.outputs.image_name }}
+      image_tag: ${{ needs.setup.outputs.image_tag }}
+      image_build_args: |
+        COMMIT_SHA=${{ github.sha }}
+      # Required inputs, unused because this workflow attests nothing.
+      kosli_flow: ${{ vars.KOSLI_FLOW }}
+      kosli_trail: ${{ github.sha }}
+      kosli_reference_name: ${{ github.event.repository.name }}
+      attest_to_kosli: false
+    secrets:
+      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+
+
+  test-start-point:
+    needs: [start-points, build-image]
+    runs-on: ubuntu-latest
+    name: ${{ matrix.start_point.name }}
+    strategy:
+      # One broken language must not hide the state of the other 82.
+      fail-fast: false
+      # Held below the account's concurrent-job limit so a full run leaves
+      # room for the other workflows.
+      max-parallel: 10
+      matrix:
+        start_point: ${{ fromJSON(needs.start-points.outputs.matrix) }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Download docker image
+        uses: cyber-dojo/download-artifact@main
+        with:
+          image_digest: ${{ needs.build-image.outputs.digest }}
+
+      - name: Run the start-point's run_tests.sh against this runner image
+        run: ./bin/test_one_start_point.sh "${{ matrix.start_point.tagged_url }}"
