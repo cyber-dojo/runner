@@ -4,6 +4,11 @@ name: Start-point tests
 # image built from this commit, checking its start_point files still go red,
 # amber and green. Those repos normally test against the released runner, so
 # this is where a runner change that breaks a language shows up first.
+#
+# The image is pulled, not built. The main workflow already builds and pushes
+# it on every push, and ECR tags are immutable, so building it again under the
+# same tag would fail. Pulling is also what lets this workflow be run more than
+# once on the same commit.
 on:
   workflow_dispatch:
     inputs:
@@ -13,31 +18,7 @@ on:
         type: string
         default: ''
 
-env:
-  AWS_ECR_ID:   ${{ vars.AWS_ECR_ID }}
-  AWS_REGION:   ${{ vars.AWS_REGION }}
-  SERVICE_NAME: ${{ github.event.repository.name }}  # runner
-
 jobs:
-
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      image_name: ${{ steps.vars.outputs.image_name }}
-      image_tag:  ${{ steps.vars.outputs.image_tag }}
-    steps:
-      - uses: cyber-dojo/harden-runner@main
-      - uses: cyber-dojo/pinned-checkout@main
-
-      - name: Prepare outputs for workflow jobs
-        id: vars
-        run: |
-          ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          {
-            echo "image_name=${ECR_REGISTRY}/${SERVICE_NAME}"
-            echo "image_tag=${GITHUB_SHA:0:7}"
-          } >> ${GITHUB_OUTPUT}
-
 
   start-points:
     runs-on: ubuntu-latest
@@ -69,30 +50,13 @@ jobs:
           } >> "${GITHUB_STEP_SUMMARY}"
 
 
-  build-image:
-    needs: [setup]
-    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build.yml@main
-    with:
-      checkout_repository: cyber-dojo/runner
-      checkout_ref: ${{ github.sha }}
-      checkout_fetch_depth: 1
-      image_name: ${{ needs.setup.outputs.image_name }}
-      image_tag: ${{ needs.setup.outputs.image_tag }}
-      image_build_args: |
-        COMMIT_SHA=${{ github.sha }}
-      # Required inputs, unused because this workflow attests nothing.
-      kosli_flow: ${{ vars.KOSLI_FLOW }}
-      kosli_trail: ${{ github.sha }}
-      kosli_reference_name: ${{ github.event.repository.name }}
-      attest_to_kosli: false
-    secrets:
-      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
-
-
   test-start-point:
-    needs: [start-points, build-image]
+    needs: [start-points]
     runs-on: ubuntu-latest
     name: ${{ matrix.start_point.name }}
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       # One broken language must not hide the state of the other 82.
       fail-fast: false
@@ -105,10 +69,19 @@ jobs:
       - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
 
-      - name: Download docker image
-        uses: cyber-dojo/download-artifact@main
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          image_digest: ${{ needs.build-image.outputs.digest }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gh_actions_services
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 2400
+          role-session-name: ${{ github.event.repository.name }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Pull the runner image built for this commit
+        run: ./bin/pull_runner_image.sh
 
       - name: Run the start-point's run_tests.sh against this runner image
         run: ./bin/test_one_start_point.sh "${{ matrix.start_point.tagged_url }}"
