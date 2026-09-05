@@ -116,24 +116,25 @@ class NodeImagesTest < TestBase
 
   test '9j5t9P', %w(
   | gcc_assert is not believed to be on the node.
-  | A pull for it is already under way.
-  | A second pull for it answers :pulling, and starts no thread.
-  | Nothing is logged.
-  | The image is still not believed to be there.
+  | A pull for it answers :pulling, and starts the pull on a thread.
+  | A second pull for it answers :pulling too.
+  | It starts no second thread, so the image is pulled once however many
+  | test-runs ask for it while it is on its way.
+  | Neither pull has finished, so nothing is logged and the image is not
+  | believed to be there.
   ) do
     set_context(
       logger: StdoutLoggerSpy.new,
-      threader: ThreaderSynchronous.new
+      threader: ThreaderDeferred.new,
+      docker: DockerDaemonSpy.new([[200, pull_progress]])
     )
 
-    images.instance_variable_get(:@pulling).add(gcc_assert)
+    assert_equal :pulling, images.pull(id: id, image_name: gcc_assert)
+    assert_equal :pulling, images.pull(id: id, image_name: gcc_assert)
+
+    assert_equal 1, context.threader.deferred
     assert_equal [], images.names
-    expected = :pulling
-    actual = images.pull(id: id, image_name: gcc_assert)
-    assert_equal expected, actual
-    refute context.threader.called
-    assert_equal [], images.names
-    assert_equal context.logger.logged, ''
+    assert_equal '', context.logger.logged
   end
 
   test '9j5t9S', %w(

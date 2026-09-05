@@ -14,8 +14,11 @@ require_relative 'docker_attach_frames'
 class CyberDojoShRunner
   # The daemon would not do what it was asked. Carrying on regardless means
   # working with no container or exec id, and failing later somewhere that
-  # says nothing about why. It carries the status code so that what the daemon
-  # said reaches the log.
+  # says nothing about why.
+  #
+  # It carries the status code because which refusal it is decides what the
+  # runner does next, which is what ImageMissing below is about, and because
+  # what the daemon said belongs in the log either way.
   class DaemonRefused < RuntimeError
     def initialize(code, message)
       @code = code
@@ -49,6 +52,7 @@ class CyberDojoShRunner
   # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
   STOP_SECONDS = 1
 
+
   def initialize(context)
     @context = context
   end
@@ -67,7 +71,7 @@ class CyberDojoShRunner
         nil
       end
     end
-    # There is no spare, or there was but it failed.    
+    # There is no spare, or there was but it failed.
     container_id = created_and_started(image_name, container_name)
     run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
   end
@@ -99,18 +103,6 @@ class CyberDojoShRunner
     container_id = create(image_name, container_name)
     docker.start_container(container_id)
     container_id
-  end
-
-  def docker
-    @context.docker
-  end
-
-  def spares
-    @context.spares
-  end
-
-  def threader
-    @context.threader
   end
 
   # Runs cyber-dojo.sh in a container that already exists. An exec can only be
@@ -180,7 +172,23 @@ class CyberDojoShRunner
   # The deadline starts once the container has everything it needs, and bounds
   # the whole read rather than each part of it.
   def read_payload(stream, max_seconds)
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + max_seconds
-    DockerAttachFrames.demultiplex(DeadlineReader.new(stream, deadline))
+    reader = DeadlineReader.new(stream, max_seconds: max_seconds, clock: clock)
+    DockerAttachFrames.demultiplex(reader)
+  end
+
+  def clock
+    @context.clock
+  end
+
+  def docker
+    @context.docker
+  end
+
+  def spares
+    @context.spares
+  end
+
+  def threader
+    @context.threader
   end
 end

@@ -1,0 +1,87 @@
+name: Start-point tests
+
+# Runs each cyber-dojo-start-points repo's own run_tests.sh against the runner
+# image built from this commit, checking its start_point files still go red,
+# amber and green. Those repos normally test against the released runner, so
+# this is where a runner change that breaks a language shows up first.
+#
+# The image is pulled, not built. The main workflow already builds and pushes
+# it on every push, and ECR tags are immutable, so building it again under the
+# same tag would fail. Pulling is also what lets this workflow be run more than
+# once on the same commit.
+on:
+  workflow_dispatch:
+    inputs:
+      start_points:
+        description: 'Start-points to test, space separated, eg "java-junit ruby-minitest". Empty tests all of them.'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+
+  start-points:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Checkout languages-start-points for its git_repo_urls.tagged file
+        uses: actions/checkout@v6
+        with:
+          repository: cyber-dojo/languages-start-points
+          path: languages-start-points
+          fetch-depth: 1
+
+      - name: Prepare the start-points matrix
+        id: matrix
+        env:
+          START_POINTS: ${{ inputs.start_points }}
+        run: |
+          # Unquoted, so each name becomes an argument of its own.
+          matrix="$(./bin/echo_start_points_matrix.sh \
+            languages-start-points/git_repo_urls.tagged ${START_POINTS})"
+          echo "matrix=${matrix}" >> "${GITHUB_OUTPUT}"
+          {
+            echo "## Start-points under test"
+            echo "${matrix}" | jq --raw-output '.[] | "- \(.name)"'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+
+  test-start-point:
+    needs: [start-points]
+    runs-on: ubuntu-latest
+    name: ${{ matrix.start_point.name }}
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      # One broken language must not hide the state of all the others.
+      fail-fast: false
+      # Held below the account's concurrent-job limit so a full run leaves
+      # room for the other workflows.
+      max-parallel: 10
+      matrix:
+        start_point: ${{ fromJSON(needs.start-points.outputs.matrix) }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gh_actions_services
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 2400
+          role-session-name: ${{ github.event.repository.name }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Pull the runner image built for this commit
+        run: ./bin/pull_runner_image.sh
+
+      - name: Run the start-point's run_tests.sh against this runner image
+        run: ./bin/test_one_start_point.sh "${{ matrix.start_point.tagged_url }}"

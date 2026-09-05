@@ -60,8 +60,8 @@ digest, which is the form where the two would diverge.
 
 `forget` is a third way in, and it tags exactly as pull does, so all three
 places agree on the key by construction rather than by coincidence. The
-coincidence was real while it lasted: runner.rb passes the raw manifest name,
-and assert_versioned has already refused any manifest name without a tag, so
+coincidence holds anyway: runner.rb passes the raw manifest name, and
+assert_versioned has already refused any manifest name without a tag, so
 tagging such a name is the identity.
 docs/profiling/check_tagged_alters_a_real_image_name.rb measures that over the
 82 start-point names, none of which tagging alters, which is why no test can
@@ -125,11 +125,11 @@ already going to be slow. Both are wanted.
 
 ## The pool notices the 404 earlier than the run path
 
-docs/pre-started-container-pool.md added a second caller of create, in
-SparePool#warm, on a background thread. It reads the code that create answered:
-a 404 logs the failure and forgets the image, and create answers nil, which
-warm declines to start or add, so nothing that is not a container reaches a
-queue.
+SparePool#warm, described in docs/pre-started-container-pool.md, is a second
+caller of create, on a background thread. It reads the code that create
+answered: a 404 logs the failure and forgets the image, and create answers nil,
+which warm declines to start or add, so nothing that is not a container reaches
+a queue.
 
 That makes the pool the better of the two places to find out. A stale @pulled
 costs one visible faulty light on the run path, because the run has already

@@ -1,6 +1,7 @@
 require_relative '../test_base'
 require_code 'docker_attach_frames'
 require_code 'deadline_reader'
+require_code 'externals/monotonic_clock'
 require 'stringio'
 
 class DockerAttachFramesTest < TestBase
@@ -105,7 +106,7 @@ class DockerAttachFramesTest < TestBase
     write_end.write(frame(STDOUT_STREAM, 'brown fox'))
     write_end.close
 
-    reader = DeadlineReader.new(read_end, now + 5)
+    reader = DeadlineReader.new(read_end, max_seconds: 5, clock: MonotonicClock.new)
     stdout, stderr = DockerAttachFrames.demultiplex(reader)
 
     assert_equal 'the quick brown fox', stdout
@@ -124,7 +125,7 @@ class DockerAttachFramesTest < TestBase
     read_end, write_end = IO.pipe
     write_end.write(frame(STDOUT_STREAM, 'the quick ')) # and then nothing more
 
-    reader = DeadlineReader.new(read_end, now + 0.1)
+    reader = DeadlineReader.new(read_end, max_seconds: 0.1, clock: MonotonicClock.new)
 
     assert_raises(DeadlineReader::Expired) do
       DockerAttachFrames.demultiplex(reader)
@@ -135,10 +136,6 @@ class DockerAttachFramesTest < TestBase
   end
 
   private
-
-  def now
-    Process.clock_gettime(Process::CLOCK_MONOTONIC)
-  end
 
   HEADER_BYTES = 8
 

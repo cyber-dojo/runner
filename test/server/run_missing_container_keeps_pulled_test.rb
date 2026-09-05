@@ -3,11 +3,12 @@ require_relative '../test_base'
 class RunMissingContainerKeepsPulledTest < TestBase
 
   test 'K3nW8p', %w(
-  | when the daemon answers 404 to an exec create it is the container that
-  | has gone, not the image, so the node's images are left alone
-  | and a present image is not pulled all over again for nothing
-  | see run_missing_image_invalidates_pulled_test.rb for the create that
-  | does mean the image has gone
+  | The daemon answers 404 to an exec create.
+  | That is the container gone, not the image.
+  | So the node's images are left alone.
+  | A present image is not pulled all over again for nothing.
+  | See run_missing_image_invalidates_pulled_test.rb for the create that does
+  | mean the image has gone.
   ) do
     set_context(
       logger: @logger = StdoutLoggerSpy.new,

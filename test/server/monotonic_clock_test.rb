@@ -28,8 +28,9 @@ class MonotonicClockTest < TestBase
   | the clock is not the wall clock, which is the whole reason for it
   | the wall clock counts from 1970 and this counts from the machine booting,
   | so it reads smaller by decades
-  | an age measured against the wall clock could be made negative by ntp
-  | stepping it back, and a spare would then look newer than it is
+  | a duration or an age measured against the wall clock could be made negative
+  | by ntp stepping it back, so a pull would be logged as taking less than no
+  | time and a spare would look newer than it is
   ] do
     set_context
 
