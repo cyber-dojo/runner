@@ -43,15 +43,37 @@ out: run the test-run as though the pool had been empty.
 | 6 | Wire it into runner.rb and pull_image | done |
 | 7 | A spare's lifetime is its sleep | done |
 | 8 | Tests, then measure | done |
-| 9 | A cap someone hosting their own server can set | not started |
+| 9 | A cap someone hosting their own server can set | not started; SPARES_PER_NODE is a constant |
 | 10 | A pool per worker, filled by whoever shares an image_name | done |
-| 11 | An allowlist of image_names, holding python_pytest alone | not started |
-| 12 | A manifest may raise a limit, up to a ceiling the runner owns | not started |
+| 11 | An allowlist of image_names, holding python_pytest alone | not started; what makes this shippable |
+| 12 | A manifest may raise a limit, up to a ceiling the runner owns | not started; now a fallback, not a prerequisite |
+| 13 | Limits set from what a kata uses | done |
 
 Steps 1 to 3 are the intermediate stable point: the test-run has changed shape
 and no pool sits behind it. Steps 4 to 8 and 10 are the pool. Steps 9 and 11 are
 what decide where it may be turned on, and 11 is what the rest of this file's
 later sections are about.
+
+Step 13 was not foreseen. Sizing a cap needs a figure for what a container
+costs, and both numbers behind that turned out to be guesses: the limits a
+test-run runs under, and what an idle spare costs. Both are now measured, which
+moved three of them and one of the answers:
+
+| what | was | is | measured by |
+| --- | --- | --- | --- |
+| Memory | 2GB | 768MB | worst of 82 katas, 719.9MB, julia_test |
+| /sandbox and /tmp tmpfs | 250M each | 64M each | worst of 82, 20MB and 1.2MB |
+| fsize | 256MB | 16MB | largest file of 82, 3.4MB |
+| an idle spare | 12MB | 5.2MB | measure_spare_cost_by_pss_slope.sh |
+
+The last of those halves the RAM the pool needs, so four allowlisted image_names
+at a depth of two now fit in the memory the node already has free, and only
+eight need an ECS change.
+
+Step 12 was a prerequisite when this was written, because fsize at 16MB killed
+every BEAM start. The elixir and erlang start-points now pass +JMsingle true, so
+the JIT creates no 64MiB memfd and both live inside the limit. What is left for
+step 12 is an LTF that needs more and cannot be changed.
 
 ## 0. A test-run that execs into a container behaves like one that creates its own
 
