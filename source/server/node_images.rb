@@ -45,16 +45,27 @@ class NodeImages
   def pull(id:, image_name:)
     ::DockerImageName.assert_versioned(image_name)
     image_name = ::DockerImageName.tagged(image_name)
-    if @pulled.include?(image_name)
-      :pulled
-    else
-      if @pulling.add?(image_name)
-        threader.thread('pulls-image') do
-          threaded_pull(id, image_name)
-        end
-      end
-      :pulling
+    return :pulled if @pulled.include?(image_name)
+
+    # What this worker believes is its own. Each puma worker holds a set of
+    # its own, seeded at boot and added to only by the pulls it performed, so
+    # an image another worker pulled is one this worker has never heard of.
+    # Believing the miss would answer :pulling for an image the node already
+    # holds, once per worker, and the learner is told to wait for a pull that
+    # has already happened. The daemon is what all the workers share, so it
+    # settles it. Only a miss pays for the question; a hit is still a set
+    # lookup and asks the daemon nothing.
+    if on_the_node?(image_name)
+      add(image_name)
+      return :pulled
     end
+
+    if @pulling.add?(image_name)
+      threader.thread('pulls-image') do
+        threaded_pull(id, image_name)
+      end
+    end
+    :pulling
   end
 
   private
@@ -67,6 +78,14 @@ class NodeImages
     raise body.to_s unless code == 200
 
     JSON.parse(body).flat_map { |image| image['RepoTags'] }.sort
+  end
+
+  # Whether the daemon holds image_name now. Anything but a 200, a 404
+  # included, leaves this worker to pull it: a question that cannot be
+  # answered is not evidence the image is there.
+  def on_the_node?(image_name)
+    code, _body = docker.image_exists(image_name)
+    code == 200
   end
 
   def threaded_pull(id, image_name)
