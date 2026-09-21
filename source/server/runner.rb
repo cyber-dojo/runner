@@ -153,10 +153,19 @@ class Runner
   end
 
   def truncated(raw_content)
-    content = Utf8.clean(raw_content)
+    # Bytes, because bytes are what the container counted: home_files.rb
+    # selects on find -size +MAX_FILE_SIZEc and cuts to MAX_FILE_SIZE+1.
+    # Counting characters here would call a file the container had already
+    # cut untruncated, and hand back the short version as though it were
+    # whole, which is worse than saying nothing: the browser shows no
+    # truncation marker. Multi-byte text is where the two counts part.
+    #
+    # Slicing before cleaning also keeps the UTF-16 round trip off bytes
+    # that are about to be dropped. byteslice can cut a character in half,
+    # and dropping that half is what Utf8.clean is for.
     {
-      'content' => content[0...MAX_FILE_SIZE],
-      'truncated' => content.size > MAX_FILE_SIZE
+      'content' => Utf8.clean(raw_content.byteslice(0, MAX_FILE_SIZE)),
+      'truncated' => raw_content.bytesize > MAX_FILE_SIZE
     }
   end
 
