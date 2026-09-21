@@ -11,7 +11,12 @@ class RunPullingTest < TestBase
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
       docker: DockerDaemonSpy.new(
-        [[200, %({"status":"Status: Downloaded newer image for #{image_name}"})]]
+        [
+          # Asked before the pull is started, because a miss is only what this
+          # worker believes. The node does not hold it either.
+          [404, %({"message":"No such image: #{image_name}"})],
+          [200, %({"status":"Status: Downloaded newer image for #{image_name}"})]
+        ]
       )
     )
     assert_equal [], images.names

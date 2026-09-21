@@ -94,6 +94,14 @@ module HomeFiles
   #     are already relative to it, and it is what keeps tar silent: tar asked
   #     to archive an absolute path strips the leading / itself and writes a
   #     warning about it to the container's stderr.
+  # [8] The two streams are named alongside the sandbox dir because they are
+  #     not under it, and runner.rb cuts every payload member to
+  #     MAX_FILE_SIZE whether or not this did. Cutting them here is what
+  #     decides how much crosses the daemon socket to be thrown away: all of
+  #     what cyber-dojo.sh printed, or 50K of it. The tar is built on the
+  #     same 250MB tmpfs the streams sit on, so a chatty kata would otherwise
+  #     need room for its output twice. The mv above has already put them at
+  #     these paths, and the touch before it means find always has them.
 
   def main_sh(sandbox_dir, max_file_size)
     <<~SHELL.strip
@@ -140,8 +148,8 @@ module HomeFiles
       }
       function truncate_large_files()
       {
-        find #{sandbox_dir} -type f -size +#{max_file_size}c -print0 \\
-          | xargs -0 --no-run-if-empty truncate --size #{max_file_size + 1} # [4] [6]
+        find #{sandbox_dir} /tmp/stdout /tmp/stderr -type f -size +#{max_file_size}c -print0 \\
+          | xargs -0 --no-run-if-empty truncate --size #{max_file_size + 1} # [4] [6] [8]
       }
       # - - - - - - - - - - - - - - - - - - -
       trap send_tgz EXIT

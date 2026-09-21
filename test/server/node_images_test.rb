@@ -25,6 +25,31 @@ class NodeImagesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '9j5t9T', %w(
+  | gcc_assert is not believed to be on the node, but the daemon holds it.
+  | Another worker pulled it, or it arrived after this worker seeded.
+  | The pull answers :pulled rather than telling a learner to wait.
+  | It is believed to be there from then on, so the daemon is asked once.
+  | No pull is started, and nothing is logged.
+  ) do
+    set_context(
+      logger: StdoutLoggerSpy.new,
+      threader: ThreaderSynchronous.new,
+      docker: DockerDaemonSpy.new([[200, image_inspect]])
+    )
+    assert_equal [], images.names
+
+    assert_equal :pulled, images.pull(id: id, image_name: gcc_assert)
+    assert_equal :pulled, images.pull(id: id, image_name: gcc_assert)
+
+    assert_equal [gcc_assert], images.names
+    assert_equal [[:image_exists, gcc_assert]], docker.calls
+    refute context.threader.called
+    assert_equal '', context.logger.logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test '9j5t9M', %w(
   | gcc_assert is not believed to be on the node.
   | A pull for it answers :pulling.
@@ -37,7 +62,7 @@ class NodeImagesTest < TestBase
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
       clock: ClockStub.new(from: 1000.0, advancing_by: 2.5),
-      docker: DockerDaemonSpy.new([[200, pull_progress]])
+      docker: DockerDaemonSpy.new([[404, image_not_found], [200, pull_progress]])
     )
     assert_equal [], images.names
     expected = :pulling
@@ -46,7 +71,7 @@ class NodeImagesTest < TestBase
     assert context.threader.called
     assert_equal [gcc_assert], images.names
     assert_equal "Pulled docker image #{gcc_assert} (2.5 secs)\n", context.logger.logged
-    assert_equal [[:pull_image, gcc_assert]], docker.calls
+    assert_equal [[:image_exists, gcc_assert], [:pull_image, gcc_assert]], docker.calls
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -67,7 +92,7 @@ class NodeImagesTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      docker: DockerDaemonSpy.new([[404, body]])
+      docker: DockerDaemonSpy.new([[404, image_not_found], [404, body]])
     )
     assert_equal [], images.names
     expected = :pulling
@@ -102,7 +127,7 @@ class NodeImagesTest < TestBase
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderSynchronous.new,
-      docker: DockerDaemonSpy.new([[200, body]])
+      docker: DockerDaemonSpy.new([[404, image_not_found], [200, body]])
     )
 
     assert_equal :pulling, images.pull(id: id, image_name: gcc_assert)
@@ -123,10 +148,12 @@ class NodeImagesTest < TestBase
   | Neither pull has finished, so nothing is logged and the image is not
   | believed to be there.
   ) do
+    # The daemon is asked on each of the two misses, and says no each time:
+    # the pull is deferred, so nothing has reached the node in between.
     set_context(
       logger: StdoutLoggerSpy.new,
       threader: ThreaderDeferred.new,
-      docker: DockerDaemonSpy.new([[200, pull_progress]])
+      docker: DockerDaemonSpy.new([[404, image_not_found], [404, image_not_found]])
     )
 
     assert_equal :pulling, images.pull(id: id, image_name: gcc_assert)
@@ -137,18 +164,21 @@ class NodeImagesTest < TestBase
     assert_equal '', context.logger.logged
   end
 
-  test '9j5t9S', %w(
-  | The pull goes to the real daemon.
-  | It answers :pulling.
-  | alpine:3.24 is then believed to be on the node.
-  | The log says it was pulled.
-  | The duration in it comes from the real clock, so the test does not pin it.
-  | A stub cannot judge the query the runner builds, or an error-free stream.
-  | Only the daemon can.
+  # A pull answers :pulled for anything the node already holds, so a pull
+  # through here can no longer reach the daemon's pull endpoint without
+  # downloading an image the node lacks. test/client/pull_image_test.rb
+  # already pulls an absent image through the whole runner, so that is where
+  # a real pull is, and nothing here downloads anything.
+
+  test '9j5t9U', %w(
+  | alpine:3.24 is on the node, and this worker does not believe it is.
+  | The real daemon is asked, and says the node holds it.
+  | The pull answers :pulled, and nothing is pulled.
+  | This is the case a worker that did not perform the pull is in.
+  | A stub cannot judge the inspect query the runner builds. Only the daemon can.
   ) do
     # alpine:3.24 is on the node before the tests start, put there by
-    # bin/setup_dependent_images.sh, so this re-pull downloads nothing and
-    # answers Status: Image is up to date.
+    # bin/setup_dependent_images.sh.
     alpine = 'alpine:3.24'
     set_context(
       logger: StdoutLoggerSpy.new,
@@ -156,10 +186,11 @@ class NodeImagesTest < TestBase
       http: DockerSocket.new
     )
 
-    assert_equal :pulling, images.pull(id: id, image_name: alpine)
+    assert_equal :pulled, images.pull(id: id, image_name: alpine)
 
     assert_equal [alpine], images.names
-    assert_includes context.logger.logged, "Pulled docker image #{alpine} ("
+    refute context.threader.called
+    assert_equal '', context.logger.logged
   end
 
   # - - - - - - - - - - - - - - - - -
@@ -285,6 +316,22 @@ class NodeImagesTest < TestBase
   def gcc_assert
     'cyberdojofoundation/gcc_assert:93eefc6'
   end
+
+  # As GET /images/{name}/json answers for an image the node holds. Only the
+  # status code decides anything, so the body carries just enough to look
+  # like an inspect rather than all of one.
+  def image_inspect
+    JSON.generate({
+      'Id' => 'sha256:93eefc6d1c2b7a4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6',
+      'RepoTags' => [gcc_assert]
+    })
+  end
+
+  # As GET /images/{name}/json answers for an image the node does not hold.
+  def image_not_found
+    %({"message":"No such image: #{gcc_assert}"})
+  end
+
 
   # Newline-delimited JSON, as POST /images/create streams it, ending in the
   # Status: line docker writes when the pull completes.
