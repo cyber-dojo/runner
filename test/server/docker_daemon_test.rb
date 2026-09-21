@@ -1,6 +1,7 @@
 require_relative '../test_base'
 require_code 'cyber_dojo_sh_container_config'
 require_code 'docker_daemon'
+require_code 'externals/docker_socket'
 
 class DockerDaemonTest < TestBase
 
@@ -22,6 +23,34 @@ class DockerDaemonTest < TestBase
     http = spied_http([200, pull_progress])
     assert_equal [200, pull_progress], docker.pull_image(image_name)
     assert_equal [['POST', "/images/create?fromImage=#{image_name}", nil]], http.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM12', %w[
+  | image_exists asks after one image by name
+  | rather than listing every image the node holds
+  ] do
+    http = spied_http([200, image_inspect])
+    assert_equal [200, image_inspect], docker.image_exists(image_name)
+    assert_equal [['GET', "/images/#{image_name}/json", nil]], http.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM11', %w[
+  | image_exists goes to the real daemon, for an image the node does not hold.
+  | The daemon answers 404, which is what leaves a worker to pull.
+  | A stub cannot judge the query this builds, or that a name no image
+  | carries is a 404 rather than an error. Only the daemon can.
+  | pull_image is not asked here: test/client/pull_image_test.rb pulls an
+  | absent image through the whole runner, which is where a real pull belongs.
+  ] do
+    set_context(http: DockerSocket.new)
+
+    code, body = docker.image_exists("#{absent_repo}:v1")
+
+    assert_equal 404, code, body
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -117,6 +146,20 @@ class DockerDaemonTest < TestBase
     http = DockerSocketSpy.new(response)
     set_context(http: http)
     http
+  end
+
+  # A name no image on the node can carry, so the daemon answers 404 for it.
+  # Lowercase because a repository name may not carry capitals, and per-test
+  # so that another test, or another run, cannot put one there.
+  def absent_repo
+    "cyber-dojo-docker-daemon-test-#{id58.downcase}"
+  end
+
+  # As GET /images/{name}/json answers for an image the node holds. Only the
+  # status code decides anything, so the body carries just enough to look
+  # like an inspect rather than all of one.
+  def image_inspect
+    %({"Id":"sha256:#{'a1b2c3d4' * 8}","RepoTags":["#{image_name}"]})
   end
 
   # As runner.rb builds it, from the kata id and a per-run random hex8.

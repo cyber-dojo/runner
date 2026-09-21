@@ -22,6 +22,10 @@ class DockerDaemonSpy
     answer(:image_names)
   end
 
+  def image_exists(image_name)
+    answer(:image_exists, image_name)
+  end
+
   def pull_image(image_name)
     answer(:pull_image, image_name)
   end

@@ -15,6 +15,13 @@ class DockerDaemon
     http.request('GET', '/images/json')
   end
 
+  # Whether the node holds image_name, asked one image at a time rather than
+  # by listing every image as image_names does. A 200 says the node holds it
+  # and a 404 says it does not.
+  def image_exists(image_name)
+    http.request('GET', "/images/#{image_name}/json")
+  end
+
   # Pulls image_name onto the node, blocking until the pull ends. The tag rides
   # inside fromImage, which the daemon parses as one reference, so nothing has
   # to split the name apart.
