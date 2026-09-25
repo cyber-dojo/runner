@@ -10,6 +10,9 @@ setup_dependent_images()
 # Must match any_image_without_bash in test/client/container_properties_test.rb
 readonly ALPINE_WITHOUT_BASH=alpine:3.24
 
+# Must match the image_name in test 22ExJ9 in test/server/traffic_light_test.rb
+readonly GCC_ASSERT_WITH_RAG_LAMBDA_FILE=ghcr.io/cyber-dojo-languages/gcc_assert:2733119
+
 pull_dependent_images()
 {
   echo
@@ -21,6 +24,12 @@ pull_dependent_images()
     # image_name, and because a test naming :latest is a test whose
     # subject can change without the test changing.
     docker pull --platform linux/amd64 "${ALPINE_WITHOUT_BASH}"
+  fi
+  if ! echo "${IMAGE_NAMES}" | grep "${GCC_ASSERT_WITH_RAG_LAMBDA_FILE}" ; then
+    # Used by the test reading a rag-lambda file out of a real image.
+    # Pinned to a version that still carries /usr/local/bin/red_amber_green.rb,
+    # because current language images carry the lambda in their manifest.
+    docker pull --platform linux/amd64 "${GCC_ASSERT_WITH_RAG_LAMBDA_FILE}"
   fi
 
   local -r DISPLAY_NAMES="$(

@@ -10,7 +10,7 @@ class RunRagLambdaInManifestTest < TestBase
   | the file out of the languages image.
   ) do
 
-    assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:2733119", image_name
+    assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:4a2d3f8", image_name
     set_context({ logger: StdoutLoggerSpy.new })
     images.add(image_name)
 
@@ -25,7 +25,7 @@ class RunRagLambdaInManifestTest < TestBase
   | when the red-amber-green Ruby lambda in the manifest is malformed
   | a fault colour is returned
   ) do
-    assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:2733119", image_name
+    assert_equal "ghcr.io/cyber-dojo-languages/gcc_assert:4a2d3f8", image_name
     set_context({ logger: StdoutLoggerSpy.new })
     images.add(image_name)
 
