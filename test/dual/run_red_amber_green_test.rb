@@ -7,14 +7,14 @@ module Dual
 
     c_assert_test 'c7Bd56', %w[red] do
       stub(:red)
-      run_cyber_dojo_sh
+      run_cyber_dojo_sh(client_rag_lambda)
       assert red?, run_result
       on_client do
         # simplecov:disable
         expected_stdout = ''
         expected_stderr = [
           'Assertion failed: answer() == 42 (hiker.tests.c: life_the_universe_and_everything: 7)',
-          'make: *** [makefile:19: test.output] Aborted'
+          'make: *** [makefile:24: test.output] Aborted'
         ]
         expected_status = '2'
 
@@ -39,7 +39,7 @@ module Dual
         expected_stdout = ''
         expected_stderr = [
           "hiker.c:5:16: error: invalid suffix 's' on integer constant",
-          'make: *** [makefile:22: test] Error 1'
+          'make: *** [makefile:27: test] Error 1'
         ]
         expected_status = '2'
 
@@ -102,7 +102,16 @@ module Dual
       run_cyber_dojo_sh({
                           changed: { filename => file.sub(from, to) },
                           max_seconds: 5
-                        })
+                        }.merge(client_rag_lambda))
+    end
+
+    # - - - - - - - - - - - - - - - - -
+
+    # On the client the real runner colours the run, and the language image
+    # carries no rag-lambda file, so the manifest's rag_lambda is sent, as web
+    # sends it. On the server the stub's archive supplies the colour instead.
+    def client_rag_lambda
+      ENV['CONTEXT'] == 'client' ? { rag_lambda: manifest['rag_lambda'] } : {}
     end
   end
 end
