@@ -111,7 +111,9 @@ module Dual
     # carries no rag-lambda file, so the manifest's rag_lambda is sent, as web
     # sends it. On the server the stub's archive supplies the colour instead.
     def client_rag_lambda
-      ENV['CONTEXT'] == 'client' ? { rag_lambda: manifest['rag_lambda'] } : {}
+      args = {}
+      on_client { args[:rag_lambda] = manifest['rag_lambda'] }
+      args
     end
   end
 end
