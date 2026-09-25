@@ -77,7 +77,7 @@ jobs:
       aws_region: ${{ needs.variables.outputs.aws_region }}
       aws_role_arn: arn:aws:iam::${{ needs.variables.outputs.aws_account_id }}:role/${{ needs.variables.outputs.gh_actions_iam_role_name }}
       environment: beta
-      working_directory: deployment/terraform/
+      working_directory: deployment/terraform-runner/
       # The terraform to apply comes from the commit the image was built from,
       # rather than from this repository's default branch, which is what apply.yml
       # checks out when no ref is given. So deploying an earlier image puts that
