@@ -35,15 +35,15 @@ class NodeImages
   # Drops the belief that image_name is on the node, so the next pull pulls it
   # rather than answering :pulled. What @pulled holds is a belief: config.ru
   # seeds it from the node's images at boot, and an image removed after that
-  # leaves no trace in it.
+  # leaves no trace in it. The name is tagged as pull tags it, because a
+  # manifest may name an image with no tag while @pulled holds its :latest.
   def forget(image_name)
-    @pulled.delete(image_name)
+    @pulled.delete(::DockerImageName.tagged(image_name))
   end
 
   # Whether a test-run may go ahead for this image, and if it may not, starts
   # making it so. Answers :pulled or :pulling.
   def pull(id:, image_name:)
-    ::DockerImageName.assert_versioned(image_name)
     image_name = ::DockerImageName.tagged(image_name)
     return :pulled if @pulled.include?(image_name)
 

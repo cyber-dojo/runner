@@ -8,42 +8,9 @@ module DockerImageName
   class Malformed < RuntimeError
   end
 
-  # str names a docker image, but names whichever image was pushed to
-  # :latest rather than one particular image. A start-point pointing at
-  # :latest can change underneath the kata, so the runner will not take one.
-  class Unversioned < RuntimeError
-  end
-
   module_function
 
   LATEST = 'latest'.freeze
-
-  # Raises unless str is a docker image name pinned to a tag other than
-  # :latest, which is what the runner accepts from outside. Every way of
-  # asking for :latest collapses to one check here, since tagged answers an
-  # untagged name with the :latest it means. tagged is what answers the
-  # malformed case.
-  #
-  # That takes a digest with no tag, eg name@sha256:..., down with it, and a
-  # digest pins harder than any tag does. It goes anyway so that a start-point
-  # is named one way. The set of images-present-on-the-node that config.ru
-  # seeds NodeImages with carries digest-only references among its tags, so what
-  # the refusal turns on is what a manifest may say, not what the seed can
-  # match.
-  def assert_versioned(str)
-    raise Unversioned, str.inspect if tag_of(tagged(str)) == LATEST
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  # Answers the tag of an image name known to carry one. The digest, which
-  # holds a colon of its own, comes off first; a registry's :port cannot be
-  # last, so what follows the last remaining colon is the tag.
-  def tag_of(tagged)
-    tagged.split('@', 2).first.split(':').last
-  end
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   # The image_names harvested from the nodes have an
   # explicit :latest tag. The image_name in pull_image()

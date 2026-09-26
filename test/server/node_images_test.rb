@@ -25,6 +25,36 @@ class NodeImagesTest < TestBase
 
   # - - - - - - - - - - - - - - - - -
 
+  test '9j5t9V', %w(
+  | gcc_assert:latest is believed to be on the node.
+  | A pull for gcc_assert with no tag answers :pulled.
+  | No thread is started, and nothing is logged.
+  ) do
+    set_context(
+      logger: StdoutLoggerSpy.new,
+      threader: ThreaderSynchronous.new
+    )
+    images.add('cyberdojofoundation/gcc_assert:latest')
+    actual = images.pull(id: id, image_name: 'cyberdojofoundation/gcc_assert')
+    assert_equal :pulled, actual
+    refute context.threader.called
+    assert_equal '', context.logger.logged
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
+  test '9j5t9W', %w(
+  | gcc_assert:latest is believed to be on the node.
+  | Forgetting gcc_assert with no tag drops that belief.
+  ) do
+    set_context(logger: StdoutLoggerSpy.new)
+    images.add('cyberdojofoundation/gcc_assert:latest')
+    images.forget('cyberdojofoundation/gcc_assert')
+    assert_equal [], images.names
+  end
+
+  # - - - - - - - - - - - - - - - - -
+
   test '9j5t9T', %w(
   | gcc_assert is not believed to be on the node, but the daemon holds it.
   | Another worker pulled it, or it arrived after this worker seeded.

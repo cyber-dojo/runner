@@ -142,10 +142,11 @@ before another. The endpoint was the easy half. The daemon answers
 `RepoTags` for an image with no tags as `[]`
 rather than as the CLI's `<none>:<none>`, so the filtering the CLI needed
 disappeared; but `RepoTags` also carries digest-only references, eg
-`alpine@sha256:...`, which `{{.Repository}}:{{.Tag}}` never printed. Those are
-harmless, since `assert_versioned` refuses a digest-only name and no manifest
-can hold one, but they falsified a rationale comment in `docker_image_name.rb`
-that had been resting on what `docker image ls` answers. Expect each such swap
+`alpine@sha256:...`, which `{{.Repository}}:{{.Tag}}` never printed. A
+manifest naming one is tagged by pull as `alpine:latest@sha256:...`, which does
+not match the seeded entry, so pull falls through to asking the daemon rather
+than trusting a belief. They also falsified a rationale comment in
+`docker_image_name.rb` that had been resting on what `docker image ls` answers. Expect each such swap
 to move something a CLI format string was quietly hiding, and to find it only by
 probing the real daemon: `test/server/node_images_test.rb:3q1Ps8` and
 `test/server/node_images_test.rb:9j5t9S` are the shape of test that catches it,
