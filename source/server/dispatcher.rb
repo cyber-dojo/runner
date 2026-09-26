@@ -24,8 +24,6 @@ class Dispatcher
     raise request_error('body is not JSON')
   rescue DockerImageName::Malformed
     raise request_error('malformed image_name')
-  rescue DockerImageName::Unversioned
-    raise request_error('unversioned image_name')
   rescue Exception => e
     if (r = e.message.match('(missing|unknown) keyword(s?): (.*)'))
       raise request_error("#{r[1]} argument#{r[2]}: #{r[3]}")

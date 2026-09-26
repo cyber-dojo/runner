@@ -20,8 +20,7 @@ pull_dependent_images()
   local -r IMAGE_NAMES=$(docker image ls --format '{{.Repository}}:{{.Tag}}' | sort | uniq)
   if ! echo "${IMAGE_NAMES}" | grep "${ALPINE_WITHOUT_BASH}" ; then
     # Used by the test showing bash must be in the image_name.
-    # Pinned to a version because the runner refuses an unversioned
-    # image_name, and because a test naming :latest is a test whose
+    # Pinned to a version because a test naming :latest is a test whose
     # subject can change without the test changing.
     docker pull --platform linux/amd64 "${ALPINE_WITHOUT_BASH}"
   fi

@@ -18,8 +18,8 @@ class Runner
     image_name = manifest['image_name']
     # Checked here rather than left to pull_image's own tagging, so that what
     # the manifest says is this method's business and a run never depends on
-    # how far a bad name happens to travel before something objects.
-    ::DockerImageName.assert_versioned(image_name)
+    # how far a malformed name happens to travel before something objects.
+    ::DockerImageName.tagged(image_name)
 
     return empty_result(:pulling, 'pulling', {}) unless images.pull(id: id, image_name: image_name) == :pulled
 
