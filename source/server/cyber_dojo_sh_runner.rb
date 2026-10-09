@@ -52,7 +52,6 @@ class CyberDojoShRunner
   # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
   STOP_SECONDS = 1
 
-
   def initialize(context)
     @context = context
   end

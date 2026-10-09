@@ -12,7 +12,7 @@ class SparePoolSpy
     @warmed << image_name
   end
 
-  def claim(image_name:)
+  def claim(image_name:, container_name:)
     nil
   end
 end

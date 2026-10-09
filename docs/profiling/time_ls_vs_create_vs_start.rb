@@ -32,12 +32,17 @@
 #
 # The ls column answers the question this probe was written for, and the answer
 # is no: at 32 tracked a listing costs 52.1ms, about what the create and start
-# it would save. So a spare is claimed from the queue in this process, and the
-# pool stays per worker. NOTHING IN THIS COLUMN IS ON THE [test] PATH. The one
-# place the runner does list is SparePool#node_is_full?, which runs on the warm
-# thread, after the test-run it followed has already answered. A claim never
-# lists. Any argument that the pool puts a listing on the learner's path is
-# about the shared pool this design does not have.
+# it would save. So the daemon is not where a claim looks.
+#
+# That rules out the daemon, not sharing. The spares are shared, in a directory
+# every worker on the node reads, where a claim costs one readdir and one
+# unlink: 0.0062ms at twelve held, which
+# docs/profiling/time_claim_from_a_shared_directory.rb measures beside these
+# same numbers.
+#
+# NOTHING IN THIS COLUMN IS ON THE [test] PATH. The one place the runner does
+# list is SparePool#node_is_full?, which runs on the warm thread, after the
+# test-run it followed has already answered. A claim never lists.
 #
 # The create column is on the path, because it is what a miss pays, and it does
 # grow with what the daemon tracks: 40.5ms at nothing tracked, 43.0ms at twelve,

@@ -6,6 +6,7 @@ require_relative 'externals/docker_socket'
 require_relative 'docker_daemon'
 require_relative 'prober'
 require_relative 'node_images'
+require_relative 'node_spares'
 require_relative 'runner'
 require_relative 'spare_pool'
 
@@ -16,6 +17,11 @@ class Context
     @clock    = options[:clock] || MonotonicClock.new
     @http     = options[:http] || DockerSocket.new
     @logger   = options[:logger] || StdoutLogger.new
+    # The store of spares, which is a directory rather than anything in this
+    # process, so that every worker on the node reads the one store. A test
+    # gives it a directory of its own, the way one gives DockerSocket a
+    # socket of its own.
+    @node_spares = options[:node_spares] || NodeSpares.new(dir: NodeSpares::DIR)
     @random   = options[:random] || Random.new
     @threader = options[:threader] || AsynchronousThreader.new
 
@@ -30,7 +36,7 @@ class Context
   end
 
   # What the server reaches the outside world through.
-  attr_reader :clock, :http, :logger, :random, :threader
+  attr_reader :clock, :http, :logger, :node_spares, :random, :threader
 
   # The services, which reach it only through those.
   attr_reader :docker, :images, :prober, :runner, :spares

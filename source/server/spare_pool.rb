@@ -2,29 +2,27 @@ require 'json'
 require_relative 'cyber_dojo_sh_container_config'
 require_relative 'cyber_dojo_sh_runner'
 
-# The spares one worker holds, keyed by the image they were made from.
+# The policy for the node's spares: what may be claimed, how many there may
+# be, and what making one costs.
 #
 # A spare is a container that has only ever run sleep. It serves exactly one
 # exec and is then discarded, so nothing is recycled and there is nothing for
 # a claim to reset: one test-run, one container.
 #
-# In-process and mutex-guarded, the way NodeImages holds @pulled. A claim happens
-# on the test-run, and taking time off a test-run is the point of holding
-# spares at all, so a claim asks the daemon nothing.
+# The spares themselves are NodeSpares', in a directory every worker on the
+# node reads, so a spare one worker warmed is one any of them can claim. This
+# holds no spare of its own, and nothing it knows is lost when a worker dies.
 #
-# The spares for one image_name are a queue, in the order they were made, so
-# the one at the front has the least of its sleep left. A claim takes from the
-# front, and takes only a spare with enough sleep left for a whole test-run;
-# one at the front with too little is dropped rather than handed out.
+# A claim happens on the test-run, and taking time off a test-run is the point
+# of holding spares at all, so a claim asks the daemon nothing. It costs one
+# directory listing and one unlink, which
+# docs/profiling/time_claim_from_a_shared_directory.rb prices at 0.0062ms
+# against the 25.6ms the same question costs the daemon.
 #
-# Front-first therefore hands out the shortest-lived spare that is still long
-# enough. That spends spares before they expire. A spare nobody claims
-# expires, and the create that made it bought nothing.
-#
-# Made-order is expiry-order only because every spare is created with the same
-# CyberDojoShContainerConfig::SLEEP_SECONDS. A sleep that varied from one
-# spare to the next would break that, and the queue would have to be kept in
-# expires_at order instead.
+# A claim takes the spare nearest its expiry that can still serve a whole
+# test-run. That spends spares before they expire, because a spare nobody
+# claims expires and the create that made it bought nothing. One too near its
+# expiry is dropped rather than handed out.
 class SparePool
   # How many spares the node may hold, across every image and every worker on
   # it. An idle container costs up to about 12MB, so a full pool costs the node
@@ -55,11 +53,9 @@ class SparePool
 
   def initialize(context)
     @context = context
-    @spares = Hash.new { |hash, image_name| hash[image_name] = [] }
-    @mutex = Mutex.new
   end
 
-  # Answers a spare's container id, or nil when this worker holds none for the
+  # Answers a spare's container id, or nil when the node holds none for the
   # image that can still serve a whole run. Nil is a miss, and a miss is a
   # test-run creating its own container exactly as one does with no pool
   # behind it at all.
@@ -70,13 +66,13 @@ class SparePool
   # container is serving, and what takes the container out of the count the cap
   # reads.
   #
-  # On a thread, so the claim itself waits for no daemon call, which is why the
-  # pool is per worker. Atomicity is the mutex's, not the rename's, so nothing
-  # depends on when the rename lands: the count is a target rather than a
-  # ceiling, and a window where it still counts a claimed container is the kind
-  # of looseness it is built for.
+  # On a thread, so the claim itself waits for no daemon call. Exclusivity is
+  # the unlink's, not the rename's, so nothing depends on when the rename
+  # lands: the count is a target rather than a ceiling, and a window where it
+  # still counts a claimed container is the kind of looseness it is built for.
   def claim(image_name:, container_name:)
-    container_id = take(image_name)
+    container_id = node_spares.claim(image_name: image_name,
+                                     expiring_between: usable_window)
     return nil if container_id.nil?
 
     threader.thread('renames-spare') do
@@ -89,15 +85,17 @@ class SparePool
   # sleep ends, which is what claim measures against: the caller knows both
   # the clock it was created against and how long it was told to sleep for.
   def add(image_name:, container_id:, expires_at:)
-    @mutex.synchronize do
-      @spares[image_name] << { container_id: container_id, expires_at: expires_at }
-    end
+    node_spares.add(image_name: image_name, container_id: container_id,
+                    expires_at: expires_at)
   end
 
   # Makes a spare for the image and puts it in the pool, on a thread, so that
   # whatever asked for one waits for neither the create nor the start.
   def warm(image_name:)
     threader.thread('warms-spare') do
+      # Before the cap is read, so a spare whose sleep has ended is not
+      # counted as one the node is holding.
+      node_spares.sweep(keeping: unexpired)
       next if node_is_full?
 
       expires_at = clock.now + CyberDojoShContainerConfig::SLEEP_SECONDS
@@ -110,17 +108,6 @@ class SparePool
   end
 
   private
-
-  # Takes the next usable spare's container id out of the pool, or nil when
-  # there is none. A spare too near its expiry is dropped as it is passed
-  # over, so that a later claim does not look at it again.
-  def take(image_name)
-    @mutex.synchronize do
-      queue = @spares[image_name]
-      queue.shift while queue.any? && !usable?(queue.first)
-      queue.shift&.fetch(:container_id)
-    end
-  end
 
   # Whether the node already holds as many spares as it is allowed. The count
   # comes from the daemon because the cap is the node's, and the daemon is the
@@ -170,12 +157,34 @@ class SparePool
     "#{SPARE_NAME_PREFIX}#{@context.random.hex8}"
   end
 
-  # A spare has to outlive the run it is given to. An exec does not survive
-  # its container's PID 1, so a sleep ending under a run kills the kata part
-  # way and answers the learner faulty for a kata that was fine.
+  # When a spare this pool will claim ends its sleep.
+  #
+  # Its near edge is what a spare has to outlive: an exec does not survive its
+  # container's PID 1, so a sleep ending under a run kills the kata part way
+  # and answers the learner faulty for a kata that was fine.
   # See docs/profiling/check_spare_sleep_ending_under_a_run.sh
-  def usable?(spare)
-    (spare[:expires_at] - clock.now) >= longest_hold_seconds
+  #
+  # Its far edge is one whole sleep, which is as far off as a spare this pool
+  # warmed can be: warm reads the clock before it creates. Anything beyond it
+  # was written against a clock of another origin, so the store outlived the
+  # boot whose containers it names and every one of them is gone.
+  def usable_window
+    now = clock.now
+    (now + longest_hold_seconds)..(now + CyberDojoShContainerConfig::SLEEP_SECONDS)
+  end
+
+  # What a sweep keeps: every spare with enough sleep left to serve a run.
+  #
+  # Open at the top where usable_window is not. A spare another worker warmed
+  # sits on that worker's far edge, and a sweep measuring against a clock it
+  # read a moment earlier would put that spare outside its own far edge and
+  # throw away work that was fine. Nothing above the near edge is ever swept,
+  # so no race can cost a spare.
+  #
+  # An expiry further off than a whole sleep is left to a claim, which
+  # refuses it and unlinks it as it passes over.
+  def unexpired
+    (clock.now + longest_hold_seconds)..Float::INFINITY
   end
 
   # The longest one run can hold a container: the cap on a kata, and the grace
@@ -192,6 +201,10 @@ class SparePool
 
   def clock
     @context.clock
+  end
+
+  def node_spares
+    @context.node_spares
   end
 
   def docker

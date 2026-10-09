@@ -15,9 +15,10 @@ rackup "#{__dir__}/config.ru"
 # restarts, and a phased restart needs more than one. Ten, which is what
 # Etc.nprocessors answers on a 4-core host, was ten ruby heaps for no gain.
 #
-# Two also suits the pool of spare containers. A worker holds its own spares,
-# so each extra worker raises the chance that a claim misses a spare another
-# worker is holding.
+# The pool of spare containers does not argue for one count over another. Its
+# spares are kept in a directory every worker on the node reads, so a spare
+# one worker warmed is one any of them can claim, and adding a worker neither
+# divides the pool nor lowers the chance of a hit.
 #
 # We are conservative with threads. Consider what happens when 64 learners
 # press [test] at the same time, on 4 cores, under 8 vs 64 threads.

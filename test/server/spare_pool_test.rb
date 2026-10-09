@@ -241,7 +241,41 @@ class SparePoolTest < TestBase
     assert_equal [[:rename_container, spare, a_run_name]], daemon.calls
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E14', %w(
+  | The store holds a spare whose sleep has ended, for an image_name.
+  | A warm for a different image_name sweeps it away.
+  | A claim only looks at the image it was asked for, so the spares of an
+  | image nobody asks for again are never passed over and never dropped.
+  | Warming is where the sweeping goes: nobody waits on that thread, and it
+  | already asks the daemon how full the node is.
+  ) do
+    daemon = daemon_holding(an_empty_node, creating: '7c1e04d9')
+    set_context(docker: daemon, threader: ThreaderSynchronous.new)
+    add_spare(image_name: a_different_image, seconds_left: dies_under_a_run)
+
+    spares.warm(image_name: an_image)
+
+    assert_equal [warmed_spare], spares_in_the_store
+  end
+
   private
+
+  # Which containers the store still holds a spare for, however near their
+  # expiry, found by walking the store rather than by claiming. A claim drops
+  # what it passes over, so claiming could not tell a sweep from a claim
+  # doing its own dropping.
+  def spares_in_the_store
+    Dir.glob("#{spares_dir}/**/*")
+       .select { |path| File.file?(path) }
+       .map { |path| File.basename(path).split('-').last }
+  end
+
+  # The container the warm in 7Bq2E14 creates, which the sweep must leave.
+  def warmed_spare
+    '7c1e04d9'
+  end
 
   # As runner.rb builds it, from the kata id and a per-run random hex8.
   def a_run_name
@@ -259,10 +293,15 @@ class SparePoolTest < TestBase
     'ghcr.io/cyber-dojo-languages/perl_test_simple:dc0f44a'
   end
 
-  # Comfortably more than one run can need a container for, so a claim in a
-  # test that is not about age is never declined for age.
+  # Inside the window a claim takes, with room either side of it, so a claim
+  # in a test that is not about age is declined neither for being too near
+  # its expiry nor for being further off than a spare can be.
+  #
+  # Read off the sleep rather than written as a number, because the window's
+  # far edge is that sleep: a number here would be the same figure written
+  # twice, and raising the sleep would leave this one behind.
   def outlives_a_run
-    100
+    CyberDojoShContainerConfig::SLEEP_SECONDS - 10
   end
 
   # Comfortably less, so a claim always is.

@@ -38,16 +38,17 @@ out: run the test-run as though the pool had been empty.
 | 1 | Split CyberDojoShContainerConfig | done |
 | 2 | An exec'd test-run inside CyberDojoShRunner | done |
 | 3 | Disposal, the timeout path included | done |
-| 4 | SparePool, per worker, shaped like NodeImages | done |
+| 4 | SparePool, shaped like NodeImages | done |
 | 5 | A hard cap, counted on the daemon | done, at sixteen |
 | 6 | Wire it into runner.rb and pull_image | done |
 | 7 | A spare's lifetime is its sleep | done |
 | 8 | Tests, then measure | done |
 | 9 | A cap someone hosting their own server can set | not started; SPARES_PER_NODE is a constant |
-| 10 | A pool per worker, filled by whoever shares an image_name | done |
+| 10 | One pool per node, filled by whoever shares an image_name | done, superseded by 14 |
 | 11 | An allowlist of image_names, holding python_pytest alone | not started; what makes this shippable |
 | 12 | A manifest may raise a limit, up to a ceiling the runner owns | not started; now a fallback, not a prerequisite |
 | 13 | Limits set from what a kata uses | done |
+| 14 | The spares in a directory every worker reads, claimed by unlink | done |
 
 Steps 1 to 3 are the intermediate stable point: the test-run has changed shape
 and no pool sits behind it. Steps 4 to 8 and 10 are the pool. Steps 9 and 11 are
@@ -184,7 +185,7 @@ A pooled container needs its exec killed, and is then discarded rather than
 returned, because what a timed-out kata left running is not something the next
 test-run should inherit.
 
-## 4. SparePool, per worker, shaped like NodeImages
+## 4. SparePool, shaped like NodeImages
 
 In-process on Context and mutex-guarded, the way NodeImages holds @pulled.
 
@@ -240,20 +241,20 @@ The threshold is not a number of its own. It is CyberDojoShRunner::RUN_SECONDS
 plus CyberDojoShRunner::STOP_SECONDS, read from the runner that imposes both,
 so raising either cannot leave the pool believing the old one.
 
-That query is for reaping and counting, not for claiming, and the difference is
-the whole reason the pool is per worker rather than shared across them.
-Reaping is background work. Claiming is on the test-run, which an API-driven
-pool answers in 14.2ms against 114.1ms today, so a round trip spends against
-a 14ms budget and not a 114ms one. Forked workers share no memory, so a
-shared pool could only be claimed from through the daemon, and the claim would
-have to be atomic (a rename that fails when another worker got there first)
-rather than a list.
+That query is for reaping and counting, not for claiming. Reaping is background
+work. Claiming is on the test-run, which an API-driven pool answers in 14.2ms
+against 114.1ms today, so a round trip spends against a 14ms budget and not a
+114ms one. The daemon is therefore not where a claim may look, and the claim
+must be atomic, since two workers can reach for one spare at the same moment.
 
-Which is to say the two designs differ only in when a worker claims. Claim
-ahead of the test-run and the result is a per-worker pool by definition. Claim
-during it and the learner pays the round trip. A shared pool is therefore not a
-simpler pool, it is this pool with the claim moved onto the path the whole
-exercise exists to shorten, so it is ruled out.
+What that rules out is the daemon, not sharing. Forked workers share no memory,
+but they do share a filesystem, and a spare's whole record fits in a filename.
+So the spares live in a directory, a claim is a readdir and an unlink, and
+unlink is the atomicity: of several workers unlinking one name the kernel lets
+exactly one succeed and tells the rest it is not there. Nothing is locked and
+the daemon is asked nothing. docs/profiling/time_claim_from_a_shared_directory.rb
+prices that claim at 0.0062ms with twelve spares held, against the 25.6ms the
+same question costs the daemon.
 
 The thread that reaps a used container creates its successor in the same
 breath, so each test-run refills the pool it drained. Container names stay
@@ -383,11 +384,11 @@ docs/a-missing-image-recovers-only-through-a-pull.md: the pool should treat
 that 404 the way the run path will, as proof the image has gone, rather than
 retrying quietly for ever.
 
-Seeding is best-effort, not a guarantee. puma forks a worker per processor and
-each worker holds its own pool, so the pull_image request warms only the pool
-of the worker that serves it. A test-run landing on a different worker still
-misses, falls back, and that worker then warms itself through step 4's refill.
-The seed removes the first miss on one worker rather than on all of them.
+Seeding puts the spare in the store every worker on the node reads, so the
+first test-run after it is a hit wherever it lands. What the seed cannot
+promise is that the press comes before the spare's sleep ends: a spare is
+refused once less than a whole run is left of it, so a kata created and left
+for a minute misses its first run and warms through step 4's refill.
 
 ## 7. A spare's lifetime is its sleep
 
@@ -570,37 +571,33 @@ its own container, and the runner behaves exactly as it did before any of this.
 That is also the switch that makes the whole feature safe to ship to people
 whose hardware we cannot see.
 
-## 10. A pool per worker, filled by whoever shares an image_name
+## 10. One pool per node, filled by whoever shares an image_name
 
-puma forks one worker per processor, which is ten on the node this was measured
-on, and each worker holds its own pool. A warm goes into the pool of whichever
-worker served that test-run. The next test-run goes to whichever worker is
-free.
+puma forks one worker per processor, and every one of them reads the same
+store, so a warm by any worker is claimable by any other. The worker count
+divides nothing: it is not a term in the hit rate at all, which is what step
+14 is for.
 
-For one person practising alone, that divides the hit rate by the worker count.
-Their next test-run lands on the worker holding their spare about one time in
-ten, and the other nine spares sit unclaimed until they expire. The client
-suite is exactly this shape, one user's test-runs one after another, which is
-why ten workers show no gain where one worker shows two seconds in
-twenty-seven.
+The pool is keyed by image_name, so what fills it is how many test-runs share
+an LTF, and not who is practising with whom. Sixteen people practising as a
+team are one such stream. So are five people who have never met, each on their
+own exercise, as long as all five chose python with pytest: to the pool they
+are one stream of test-runs on one image_name. A handful of LTFs carry most of
+the traffic, so under any real load the store warms and stays warm.
 
-That shape is the worst case rather than the expected one. The pool is keyed by
-image_name, so what fills a worker's pool is how many test-runs share an LTF,
-and not who is practising with whom. Sixteen people practising as a team are
-one such stream. So are five people who have never met, each on their own
-exercise, as long as all five chose python with pytest: to the pool they are
-one stream of test-runs on one image_name. A handful of LTFs carry most of the
-traffic, so under any real load every worker's pool warms and stays warm.
+One person practising alone is the thin case, and it is now the honest one: a
+spare they warmed is waiting for their next press wherever that press lands.
+What they are still exposed to is the cap and the sleep, not the worker count.
 
-What binds under that load is the cap against the worker count. The cap is the
-node's and the pools are the workers', so a cap below the worker count leaves
-some workers holding nothing however hot the image_name is, and with several
-LTFs hot at once it cannot come close.
+So what binds under load is the cap against how many image_names are hot at
+once. Every spare the cap allows is reachable by every test-run on the node,
+so the cap buys depth in the image_names that are busy rather than a copy per
+worker.
 
-So the number to choose is the worker count times the number of image_names hot
-at once. Two workers a task and three tasks is six pools, so sixteen is between
-two and three LTFs in each of them. That is what the cap is now set to, and
-section 5 carries the memory it costs.
+So the number to choose is the number of image_names hot at once times the
+depth wanted in each. Sixteen is eight such image_names at a depth of two, or
+sixteen at a depth of one, which is well beyond what an allowlist asks for.
+The cap is set there, and section 5 carries the memory it costs.
 
 ### Four places a limit can sit
 
@@ -608,14 +605,17 @@ There are four places a limit can sit, and they are not alternatives. Each
 bounds something the others cannot see. The first three are about spares,
 which are containers waiting. The fourth is about containers working.
 
-  o) per image_name, per worker. The size of one queue. A limit of one gives
-     every worker a spare for every LTF it is asked for, which is the shape
-     that stops a worker holding python_pytest from missing on bash_bats.
-     Checked by reading one queue's length, in this process.
-  o) per worker, across every image_name. The sum of that worker's queues.
-     This is what bounds a worker whose traffic keeps finding new LTFs, which
-     the first limit cannot: nothing bounds how many image_names are hot.
-     Checked by summing the hash, in this process.
+  o) per image_name. The depth of one queue. A limit of one gives the node a
+     spare for every LTF it is asked for, which is the shape that stops a
+     store full of python_pytest from missing on bash_bats. Checked by
+     counting one directory.
+  o) across every image_name in one store. The sum of those queues. This is
+     what bounds a store whose traffic keeps finding new LTFs, which the first
+     limit cannot: nothing bounds how many image_names are hot. Checked by
+     counting the store, which needs no daemon call. A store is one runner
+     container's today, so this and the next are not the same limit while
+     three tasks share a node; whether they should be merged once a store is
+     shared between tasks is open.
   o) per node, across every worker and every runner process. What section 5
      already has, at sixteen. It is the only one that can see the memory that
      actually matters, and the only one that costs a daemon call.
@@ -653,24 +653,20 @@ hold twice the spares of three; they compete for the same cap, and what gives is
 the hit rate, which costs latency and nothing else.
 
 The depth and the node cap have to be chosen together, because the cap can make
-a depth unreachable. Three image_names at a depth of two, over six pools, wants
-thirty-six spares against a cap of sixteen. The cap binds, less than half the
-queues fill, and which ones fill is a race between workers. The same three
-image_names at a depth of one want eighteen and get sixteen, which is nearly
-every queue. So a deeper queue is only worth asking for if the cap rises with
-it, or if the allowlist is shorter.
+a depth unreachable. Eight image_names at a depth of two want sixteen spares
+and get exactly the cap; a ninth gets nothing until one of the eight expires.
+So a deeper queue is only worth asking for if the cap rises with it, or if the
+allowlist is shorter.
 
-The starting point is one image_name, python_pytest, at a depth of two. That is
-what makes the cap need no change: one image_name over six pools at that depth
-wants twelve spares against a cap of sixteen, so every queue fills and the cap
-is not what binds. It is also the whole of the memory already costed, twelve
-containers at about 12MB being about 144MB of the 192MB sixteen was sized for.
+The starting point is one image_name, python_pytest, at a depth of two. That
+wants two spares against a cap of sixteen, so the queue fills and the cap is
+nowhere near binding. The memory is two containers at about 12MB, well inside
+the 192MB sixteen was sized for.
 
-Adding image_names is what makes the cap bind, and the arithmetic says when.
-Three at a depth of two over six pools wants thirty-six against a cap of
-sixteen: less than half the queues fill, and which ones fill is a race between
-workers. So the second image_name is the point at which either the depth drops
-to one or the cap rises, and neither should be guessed at before the first one's
+Adding image_names is what makes the cap bind, and the arithmetic says when:
+not until the ninth at a depth of two. So the allowlist can grow a long way
+before either the depth drops to one or the cap rises, and neither should be
+guessed at before the first one's
 hit rate is read.
 
 Against that, a depth of one means a worker with eight threads serving one hot
@@ -685,29 +681,31 @@ Raising the cap is free; the memory behind it is not, and buying it means an ECS
 change and the downtime that comes with it. So the sizes are worked out here
 rather than discovered one LTF at a time.
 
-Spares are LTFs times depth times six pools, at 5.2MB each.
-docs/profiling/measure_spare_cost_by_pss_slope.sh measures that by summing every
-process's Pss at several idle counts and taking the slope, which answers 5.2MB at
-sixteen idle containers and 5.2MB again at thirty-two. Against the 614MB
-Graham's report leaves free:
+Spares are LTFs times depth, at 5.2MB each, there being one store per node and
+so no multiplier for workers or tasks.
+docs/profiling/measure_spare_cost_by_pss_slope.sh measures the 5.2MB by summing
+every process's Pss at several idle counts and taking the slope, which answers
+5.2MB at sixteen idle containers and 5.2MB again at thirty-two. At a depth of
+two, against the 614MB Graham's report leaves free:
 
 | LTFs | cap needed | spares | spare RAM | of today's free |
 | --- | --- | --- | --- | --- |
-| 1 | 16 | 12 | 62MB | 10% |
-| 2 | 24 | 24 | 125MB | 20% |
-| 4 | 48 | 48 | 250MB | 41% |
-| 8 | 96 | 96 | 499MB | 81% |
+| 1 | 2 | 2 | 10MB | 2% |
+| 2 | 4 | 4 | 21MB | 3% |
+| 4 | 8 | 8 | 42MB | 7% |
+| 8 | 16 | 16 | 83MB | 14% |
+
+So the whole of an eight-LTF allowlist at a depth of two fits inside the cap
+of sixteen and inside a seventh of what is free. Buying memory is not what
+gates growing the allowlist.
 
 At a depth of one every row halves, so eight LTFs there costs what four cost at
 a depth of two.
 
-So four LTFs at a depth of two fits inside today's free memory, and only eight
-needs more. To keep today's slack after the spares, the increase needed is
-nothing up to four LTFs and about 0.5GiB for eight. There is no 0.5GiB to buy:
-c5a.xlarge is 8GiB and the step is 16GiB, either m5a.xlarge keeping four vCPU or
-c5a.2xlarge doubling both. Either covers every row above with about 8GiB left
-over, so one move covers the whole table and there is no intermediate worth
-planning for.
+So every row above fits inside today's free memory with room to spare, and no
+instance change is needed for any allowlist this design would ask for. A
+bigger node is worth revisiting only if the cap itself is raised well past
+sixteen, and nothing here asks for that.
 
 Two things to hold against that. 5.2MB is process memory, Pss counting no
 kernel memory a container costs, so the true figure is above it and below the
@@ -728,9 +726,12 @@ not the same check, and neither needs anything the pool does not already see.
      those is already a miss, and the miss path already runs, so demand is
      learned from work that happens either way.
 
-Three things such a policy needs. It belongs per worker, not per node: a worker
-sees only its own traffic and owns only its own pools, and two workers holding
-different lists is harmless, which is the reason the inner caps were free.
+Three things such a policy needs. Where it belongs is an open question: a
+worker sees only its own traffic, so a per-worker list is the simplest thing
+that can learn, but the spares are the node's and two workers disagreeing
+about the list would have one warming what the other evicts. A list kept
+beside the spares, in the same directory, is the shape that matches where the
+spares now live, and it is unbuilt.
 It needs hysteresis, because an image_name at the boundary would otherwise be
 admitted and evicted in a loop, each turn costing a create and a discard; admit
 on several misses inside a window, evict after an idle period much longer than
@@ -738,11 +739,10 @@ that window. And it needs the list length held at whatever the static list was,
 so the memory already costed does not move.
 
 A swap is a queueful rather than a container. Evicting one image_name discards
-depth times pools spares, twelve at a depth of two, and admitting its
-replacement creates twelve more, so one swap is twenty-four calls on the daemon.
-All of it is on the warm and reap threads, so no learner waits for it, but it is
-the same daemon whose bookkeeping is what makes a miss slower, which is a second
-reason to swap rarely.
+its depth, two spares, and admitting its replacement creates two more, so one
+swap is four calls on the daemon. All of it is on the warm and reap threads, so
+no learner waits for it, but it is the same daemon whose bookkeeping is what
+makes a miss slower, which is a second reason to swap rarely.
 
 Evict before admitting, or admission stalls silently. Creating the new
 image_name's spares while the old one's are still held puts twice a queueful on
@@ -774,8 +774,8 @@ And its headline: a hit saves about 100ms against a test-run a learner already
 experiences as under four seconds, and about 180ms under load.
 
 Both of the costs scale with how many containers the daemon is tracking, which
-is the quantity an allowlist sets. One image_name at a depth of two over six
-pools is twelve spares, not thirty-two and not fifty. So
+is the quantity an allowlist sets, and the cap of sixteen is its ceiling: far
+from the thirty-two and the fifty those costs were read at. So
 docs/profiling/time_ls_vs_create_vs_start.rb was re-run at the sizes this
 design asks for:
 
@@ -789,13 +789,19 @@ design asks for:
 The two columns answer differently, and only one of them is on a test-run's
 path.
 
-The listing is not. A claim reads one queue in this process; the only listing
-the runner does is `SparePool#node_is_full?`, on the warm thread, after the
-test-run it followed has already answered. So the 52.1ms at thirty-two prices
-the shared pool, where a claim asks the daemon which spares the node holds, and
-this design has never done that. An argument that the pool puts a listing on the
-learner's path is an argument about a different design, and should be met with
-this paragraph rather than re-measured.
+The listing is not. A claim reads one directory on the node and unlinks one
+name in it; the only listing the runner asks the daemon for is
+`SparePool#node_is_full?`, on the warm thread, after the test-run it followed
+has already answered. So the 52.1ms at thirty-two prices a claim that asks the
+daemon which spares the node holds, and this design has never done that. An
+argument that the pool puts a daemon listing on the learner's path is an
+argument about a different design, and should be met with this paragraph
+rather than re-measured.
+
+The directory the claim does read is priced separately, by
+docs/profiling/time_claim_from_a_shared_directory.rb: 0.0062ms at twelve held
+on a tmpfs and 0.0095ms on overlayfs, which is one part in fifteen thousand of
+what a hit saves. Sharing the spares costs the learner nothing measurable.
 
 The miss is on the path, and it does grow: create goes from 40.5ms at nothing
 tracked to 43.0ms at twelve. That is about 2.5ms against a create and start of
@@ -805,9 +811,9 @@ allowlist holds down.
 
 Two things follow for this file. Section 5 argues its cap from memory alone, and
 should argue it from the listing and the miss penalty as well, because those bind
-sooner. And the 50.5ms listing is what killed sharing pools between workers,
-which this design never did: a claim reads one queue in its own process, and only
-warming asks the daemon, on a thread nobody waits on.
+sooner. And the 50.5ms listing is what rules the daemon out of a claim: a claim
+reads a directory on the node instead, and only warming asks the daemon, on a
+thread nobody waits on.
 
 ## 12. A manifest may raise a limit, up to a ceiling the runner owns
 
@@ -881,12 +887,14 @@ is making each one cheaper, which is what the pool does and what a faster
 clock would do. Raising this number does the opposite: the queue moves out of
 puma, where it waits, and into the cores, where everything slows at once.
 
-### Fewer workers would mean fewer pools, and buys no throughput
+### The pool buys latency, not throughput
 
-Ten pools instead of one is the whole of the problem, so the obvious answer is
-fewer workers. The runner waits on a socket rather than computing, and MRI
-releases the GVL for that, so the concurrency lost to fewer workers should come
-back from more threads.
+One store per node means the worker count is not a term in the hit rate, so
+the question fewer workers would answer no longer arises. What remains worth
+knowing is what the pool buys at all, and the measurements below are that.
+They were taken against a worker count chosen for other reasons: the runner
+waits on a socket rather than computing, and MRI releases the GVL for that, so
+threads carry concurrency that workers would otherwise.
 
 Measured, by publishing the server's port and driving real /run_cyber_dojo_sh
 requests at it, all for one image_name.
@@ -922,11 +930,11 @@ only currency that matters: the wait between a learner pressing the button and
 the traffic light arriving. What it does not do is raise how many test-runs the
 node can serve in an hour.
 
-Two pools instead of ten does raise the hit rate, about fivefold, and that is
-arithmetic rather than measurement. What the throughput numbers say is only
-that the extra hits do not raise throughput, which no arrangement of the pool
-could. Whether they lower latency further, by turning misses into hits, is the
-measurement that would justify rearranging puma, and it has not been made.
+One store rather than one per worker raises the hit rate by the worker count,
+and that is arithmetic rather than measurement. What the throughput numbers
+say is only that the extra hits do not raise throughput, which no arrangement
+of the pool could. How much latency they take off in production is read from
+the hit rate after it ships, not predicted here.
 
 ## Order
 

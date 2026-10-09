@@ -134,7 +134,7 @@ class DockerDaemonTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'Tq9dM11', %w[
+  test 'Tq9dM14', %w[
   | start_exec hijacks the connection the way attaching to a container does
   | but says in a body that it is not detaching and wants no tty
   | and answers the hijacked socket the transport handed back
@@ -148,13 +148,11 @@ class DockerDaemonTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'Tq9dM12', %w[
-  | containers_named asks for the containers whose name holds the given one
-  | the daemon matching by substring, which is what lets one spare prefix
-  | count every worker's spares on the node without knowing how many workers
-  | there are
-  | and it asks for running containers only, so a spare whose sleep has ended
-  | has left the count already
+  test 'Tq9dM15', %w[
+  | containers_named asks the daemon for containers by name.
+  | The name goes in a url-encoded filters query parameter, exactly as given.
+  | No all parameter is sent, which is what leaves an exited spare uncounted.
+  | The status and body are answered as the transport gave them.
   ] do
     http = spied_http([200, containers_json])
     filters = '%7B%22name%22%3A%5B%22cyber_dojo_spare_%22%5D%7D'

@@ -246,7 +246,7 @@ class CyberDojoShRunnerTest < TestBase
     spy = DockerDaemonSpy.new([[204, ''], [201, '{"Id":"e5ec1d"}'], [204, '']] +
                               warm_finds_a_full_node)
     runner = runner_using(spy)
-    spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
+    spares.add(image_name: image_name, container_id: 'warmed', expires_at: outlives_a_run)
 
     runner.run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -271,7 +271,7 @@ class CyberDojoShRunnerTest < TestBase
       [[200, '[]'], [201, '{"Id":"warmed"}'], [204, '']]
     )
     runner = runner_using(spy)
-    spares.add(image_name: image_name, container_id: 'claimed', expires_at: clock.now + 100)
+    spares.add(image_name: image_name, container_id: 'claimed', expires_at: outlives_a_run)
 
     runner.run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -327,7 +327,7 @@ class CyberDojoShRunnerTest < TestBase
       [[204, '']] + warm_finds_a_full_node
     )
     runner = runner_using(spy)
-    spares.add(image_name: image_name, container_id: 'warmed', expires_at: clock.now + 100)
+    spares.add(image_name: image_name, container_id: 'warmed', expires_at: outlives_a_run)
 
     result = runner.run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -440,6 +440,16 @@ class CyberDojoShRunnerTest < TestBase
   end
 
   private
+
+  # An expiry inside the window a claim takes, with room either side of it,
+  # so a spare added by a test that is not about age is always claimable.
+  #
+  # Read off the sleep rather than written as a number, because the window's
+  # far edge is that sleep: a number here would be the same figure written
+  # twice, and raising the sleep would leave this one behind.
+  def outlives_a_run
+    clock.now + CyberDojoShContainerConfig::SLEEP_SECONDS - 10
+  end
 
   # The runner, built the way runner.rb builds it, from the context the test
   # set up. What it talks to is chosen in set_context and never here.
