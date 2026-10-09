@@ -508,7 +508,7 @@ class CyberDojoShRunnerTest < TestBase
   # full, so the warm stops at the count and creates nothing.
   # A test that is not about the pool wants it to end there.
   def warm_finds_a_full_node
-    full = Array.new(SparePool::SPARES_PER_NODE) do |n|
+    full = Array.new(spares_per_node_with_room) do |n|
       { 'Names' => [format('/cyber_dojo_spare_%<n>08x', n: n)] }
     end
     [[200, JSON.generate(full)]]

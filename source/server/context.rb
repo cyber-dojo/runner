@@ -22,6 +22,10 @@ class Context
     # gives it a directory of its own, the way one gives DockerSocket a
     # socket of its own.
     @node_spares = options[:node_spares] || NodeSpares.new(dir: NodeSpares::DIR)
+    # How many spares the node may hold. Zero is no pool at all, and is what a
+    # Context gets unless it is told otherwise. config.ru tells it, from the
+    # environment, so this file reads nothing from outside.
+    @spares_per_node = options[:spares_per_node] || 0
     @random   = options[:random] || Random.new
     @threader = options[:threader] || AsynchronousThreader.new
 
@@ -36,7 +40,7 @@ class Context
   end
 
   # What the server reaches the outside world through.
-  attr_reader :clock, :http, :logger, :node_spares, :random, :threader
+  attr_reader :clock, :http, :logger, :node_spares, :random, :spares_per_node, :threader
 
   # The services, which reach it only through those.
   attr_reader :docker, :images, :prober, :runner, :spares

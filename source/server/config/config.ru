@@ -17,7 +17,9 @@ use_containerd = ENV['CYBER_DOJO_USE_CONTAINERD'] == 'true'
 $stdout.puts("CYBER_DOJO_USE_CONTAINERD:#{use_containerd}")
 
 require_relative '../context'
-context = Context.new
+spares_per_node = SparePool.spares_per_node_from(ENV)
+$stdout.puts("CYBER_DOJO_RUNNER_SPARES_PER_NODE:#{spares_per_node}")
+context = Context.new(spares_per_node: spares_per_node)
 context.images.seed
 $stdout.puts("#{context.images.names.size} image names added to NodeImages")
 

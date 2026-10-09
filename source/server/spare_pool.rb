@@ -24,32 +24,39 @@ require_relative 'cyber_dojo_sh_runner'
 # claims expires and the create that made it bought nothing. One too near its
 # expiry is dropped rather than handed out.
 class SparePool
-  # How many spares the node may hold, across every image and every worker on
-  # it. An idle container costs up to about 12MB, so a full pool costs the node
-  # up to 12MB * SPARES_PER_NODE.
-  #
-  # 12MB is the safe end of a range rather than a figure. The container's own
-  # use is under 1MB, which two runs of
-  #   docs/profiling/measure_idle_warm_container_cost.sh <image_name>
-  # agree on: 708KB and 776KB. The rest is the shim and the daemon's
-  # bookkeeping, and that is read from MemAvailable, which moves with how much
-  # the host has free. The same probe on the same machine answered about 12MB
-  # each with 7.4GB available and about 5.2MB each with 5.7GB available.
-  # Budget against the larger, because a cap sized on the smaller overruns.
-  #
-  # The cap is the node's rather than each worker's because a worker cannot
-  # see how many peers it has. puma forks one per processor, and however many
-  # runner processes the node is running is invisible from inside one of them.
-  #
-  # What every one of them does share is the daemon socket, bind-mounted from
-  # the host, so the daemon holds every spare on the node however many runners
-  # made them. That is true of any way of running the server. So there is no
-  # divisor, and the daemon is asked instead.
-  SPARES_PER_NODE = 16
-
   # Every spare's name starts with this, so that one filter counts all of them
   # however many workers made them. What follows it keeps two workers apart.
   SPARE_NAME_PREFIX = 'cyber_dojo_spare_'.freeze
+
+  # How many spares the node may hold, across every image and every worker on
+  # it, read from the environment it is given. Unset is none, which is no pool
+  # at all, so a server someone hosts themselves runs exactly as it would
+  # without one unless they ask.
+  #
+  # An idle container costs up to about 12MB, so a full pool costs the node up
+  # to 12MB times this. 12MB is the safe end of a range rather than a figure.
+  # The container's own use is under 1MB, which two runs of
+  #   docs/profiling/measure_idle_warm_container_cost.sh <image_name>
+  # agree on: 708KB and 776KB. The rest is the shim and the daemon's
+  # bookkeeping, read from MemAvailable, which moves with how much the host
+  # has free: about 12MB each with 7.4GB available and about 5.2MB each with
+  # 5.7GB available. Budget against the larger, because a cap sized on the
+  # smaller overruns.
+  #
+  # The cap is the node's rather than each worker's because a worker cannot
+  # see how many peers it has. What every one of them does share is the daemon
+  # socket, bind-mounted from the host, so the daemon holds every spare on the
+  # node however many runners made them, and the daemon is asked instead.
+  #
+  # Anything that is not a whole number of none or more raises. Only someone
+  # who set it on purpose can have mistyped it, and reading a typo as none
+  # would turn their pool off without a word.
+  def self.spares_per_node_from(env)
+    cap = Integer(env.fetch('CYBER_DOJO_RUNNER_SPARES_PER_NODE', '0'))
+    raise ArgumentError, "spares per node cannot be negative: #{cap}" if cap.negative?
+
+    cap
+  end
 
   def initialize(context)
     @context = context
@@ -92,6 +99,10 @@ class SparePool
   # Makes a spare for the image and puts it in the pool, on a thread, so that
   # whatever asked for one waits for neither the create nor the start.
   def warm(image_name:)
+    # A node allowed no spares has no pool, so nothing is warmed and the
+    # daemon is not asked how full the node is.
+    return if @context.spares_per_node.zero?
+
     threader.thread('warms-spare') do
       # Before the cap is read, so a spare whose sleep has ended is not
       # counted as one the node is holding.
@@ -126,7 +137,7 @@ class SparePool
   # loose about.
   def node_is_full?
     _code, body = docker.containers_named(SPARE_NAME_PREFIX)
-    JSON.parse(body).size >= SPARES_PER_NODE
+    JSON.parse(body).size >= @context.spares_per_node
   end
 
   # Creates the container and answers its id, or nil when the daemon refuses.

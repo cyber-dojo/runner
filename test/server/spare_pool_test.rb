@@ -260,6 +260,93 @@ class SparePoolTest < TestBase
     assert_equal [warmed_spare], spares_in_the_store
   end
 
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E15', %w(
+  | The node may hold no spares at all.
+  | A warm makes none, and asks the daemon nothing.
+  | So the runner behaves exactly as it does with no pool behind it.
+  ) do
+    daemon = daemon_holding(an_empty_node, creating: '7c1e04d9')
+    set_context(docker: daemon, threader: ThreaderSynchronous.new, spares_per_node: 0)
+
+    spares.warm(image_name: an_image)
+
+    assert_equal [], daemon.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E16', %w(
+  | The node may hold one spare, and the daemon says it holds one already.
+  | A warm asks how full the node is, and creates nothing.
+  | The cap a warm measures against is the one the node was given.
+  ) do
+    daemon = daemon_holding(1, creating: '7c1e04d9')
+    set_context(docker: daemon, threader: ThreaderSynchronous.new, spares_per_node: 1)
+
+    spares.warm(image_name: an_image)
+
+    assert_equal [[:containers_named, 'cyber_dojo_spare_']], daemon.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E17', %w(
+  | Nothing sets CYBER_DOJO_RUNNER_SPARES_PER_NODE.
+  | So the node may hold no spares, which is no pool at all.
+  | A server someone hosts themselves has no pool unless they ask for one.
+  ) do
+    assert_equal 0, SparePool.spares_per_node_from({})
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E18', %w(
+  | CYBER_DOJO_RUNNER_SPARES_PER_NODE is set to a whole number.
+  | That number is how many spares the node may hold.
+  | Setting it is how a deployment asks for a pool.
+  ) do
+    env = { 'CYBER_DOJO_RUNNER_SPARES_PER_NODE' => '8' }
+
+    assert_equal 8, SparePool.spares_per_node_from(env)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E19', %w(
+  | CYBER_DOJO_RUNNER_SPARES_PER_NODE is set, but not to a number.
+  | Reading it raises rather than reading it as none.
+  | Only someone who set it on purpose can have mistyped it.
+  | Reading a typo as none would turn their pool off without a word.
+  ) do
+    env = { 'CYBER_DOJO_RUNNER_SPARES_PER_NODE' => 'eight' }
+
+    assert_raises(ArgumentError) { SparePool.spares_per_node_from(env) }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E20', %w(
+  | CYBER_DOJO_RUNNER_SPARES_PER_NODE is set to a negative number.
+  | A node cannot hold fewer than no spares.
+  | So reading it raises, as any other value that is not a cap does.
+  ) do
+    env = { 'CYBER_DOJO_RUNNER_SPARES_PER_NODE' => '-1' }
+
+    assert_raises(ArgumentError) { SparePool.spares_per_node_from(env) }
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test '7Bq2E21', %w(
+  | A Context is built without being told how many spares the node may hold.
+  | Its node may hold none, so it has no pool.
+  | Turning the pool on is something a deployment does, never a default.
+  ) do
+    assert_equal 0, Context.new.spares_per_node
+  end
+
   private
 
   # Which containers the store still holds a spare for, however near their
@@ -328,7 +415,7 @@ class SparePoolTest < TestBase
 
   # As many spares as the node is allowed, so a warm has no room for another.
   def a_full_node
-    SparePool::SPARES_PER_NODE
+    spares_per_node_with_room
   end
 
   # None at all, so a warm has room.

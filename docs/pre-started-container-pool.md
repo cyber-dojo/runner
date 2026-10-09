@@ -43,9 +43,9 @@ out: run the test-run as though the pool had been empty.
 | 6 | Wire it into runner.rb and pull_image | done |
 | 7 | A spare's lifetime is its sleep | done |
 | 8 | Tests, then measure | done |
-| 9 | A cap someone hosting their own server can set | not started; SPARES_PER_NODE is a constant |
+| 9 | A cap someone hosting their own server can set | done; unset is no pool |
 | 10 | One pool per node, filled by whoever shares an image_name | done, superseded by 14 |
-| 11 | An allowlist of image_names, holding python_pytest alone | not started; what makes this shippable |
+| 11 | An allowlist of image_names, holding python_pytest alone | dropped; one store makes the cap alone enough |
 | 12 | A manifest may raise a limit, up to a ceiling the runner owns | not started; now a fallback, not a prerequisite |
 | 13 | Limits set from what a kata uses | done |
 | 14 | The spares in a directory every worker reads, claimed by unlink | done |
@@ -528,48 +528,29 @@ caps. Section 10 is why.
 
 ## 9. A cap someone hosting their own server can set
 
-Anyone running their own server with the cyber-dojo shell script and commander
-gets whatever cap is compiled in, on hardware nobody here has sized. So the cap
-has to be settable, and the way it is settable already exists: commander's
-`--port`.
+The cap is read from `CYBER_DOJO_RUNNER_SPARES_PER_NODE`, and unset is zero,
+which is no pool at all. Anyone running their own server gets the runner exactly
+as it was before any of this unless they ask for a pool, on hardware nobody here
+has sized. So commander needs no change, and a deployment that wants the pool
+sets the variable.
 
-That chain is worth following rather than inventing another. Its default lives
-in cyberdojo/versioner and reaches commander through dot_env. up.rb takes
-`--port` from the command line or falls back to that default, having declared
-`--port` in the `knowns` allowlist, an undeclared flag being a hard error, and
-in the help text. It then merges the value into the env_vars it hands to
-docker compose, and a compose fragment passes it to the service.
+Zero has to mean no pool rather than an empty one. A warm returns before it asks
+the daemon anything, so no spare is ever created and every test-run creates its
+own container. 7Bq2E15 pins that.
 
-The cap follows it with one deliberate difference: no new versioner entry, so
-the default is duplicated instead. commander carries its own literal, because
-dot_env cannot supply what versioner does not hold.
+config.ru reads the variable once at boot, logs it as
+`CYBER_DOJO_RUNNER_SPARES_PER_NODE:<n>`, and passes it into Context, so no other
+file reads the environment and Context's options are the seam a test replaces.
+The log line is also how a deployment confirms which cap it is running with.
 
-    commander app/server/up.rb
-      --spares into knowns, into the help table, and
-      spares = up_command_line['--spares'] ||
-               ENV['CYBER_DOJO_RUNNER_SPARES_PER_NODE'] || '8'
-      merged into env_vars
+Anything that is not a whole number of none or more fails the boot. Only someone
+who set the variable on purpose can have mistyped it, and reading a typo as none
+would turn their pool off without a word. 7Bq2E19 and 7Bq2E20 pin a non-number
+and a negative.
 
-    commander app/docker-compose/environment.yml
-      a runner stanza passing CYBER_DOJO_RUNNER_SPARES_PER_NODE
-      (only web is given any env var today, so this is new)
-
-    runner spare_pool.rb
-      SPARES_PER_NODE read from ENV, defaulting to 8
-
-Duplicating the default has a consequence worth stating, because it is not
-symmetrical. commander always sets the var, from the flag or from its own
-literal, so in a commander-run server commander's number always wins and the
-runner's constant never applies. The runner's constant is what the test suite
-and any deployment that sets nothing will use. If the two ever disagree, the
-one in the runner is the one that looks authoritative while having no effect
-where it matters most.
-
-Zero is the setting that matters most to a self-hoster, and it has to mean no
-pool rather than an empty one: no spare is ever created, every test-run creates
-its own container, and the runner behaves exactly as it did before any of this.
-That is also the switch that makes the whole feature safe to ship to people
-whose hardware we cannot see.
+There is no per-image list. Every run warms a replacement for its own image, so
+busy images stay stocked and quiet ones expire, and the one cap bounds the whole
+node. Row 11 says why that is enough.
 
 ## 10. One pool per node, filled by whoever shares an image_name
 
@@ -636,6 +617,12 @@ the ceiling that makes that product safe, and the two inner limits are what
 stop the node cap being spent on one worker.
 
 ### An allowlist leaves two, and only one of them is tuned
+
+The allowlist in this and the next three subsections is not built (row 11). It
+existed to bound memory that six private pools multiplied, and one store per
+node removes the multiplier: the node cap alone bounds the pool, and demand
+decides which images hold spares because every run warms a replacement for its
+own. What follows is kept for the reasoning it records, not as a plan.
 
 Naming which image_names a spare may be held for changes the shape above. The
 second cap exists only because "nothing bounds how many image_names are hot",

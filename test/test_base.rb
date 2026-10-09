@@ -20,7 +20,14 @@ class TestBase < Id58TestBase
   def a_store_of_its_own
     return {} unless ENV['CONTEXT'] == 'server'
 
-    { node_spares: NodeSpares.new(dir: spares_dir) }
+    { node_spares: NodeSpares.new(dir: spares_dir),
+      spares_per_node: spares_per_node_with_room }
+  end
+
+  # The cap a server test runs with unless it says otherwise. Unset is no
+  # pool, and a test that is not about the cap wants a warm to find room.
+  def spares_per_node_with_room
+    16
   end
 
   def spares_dir

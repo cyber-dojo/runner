@@ -14,14 +14,10 @@ require 'fileutils'
 # winner-takes-all operation a claim depends on, and a second host would be a
 # second kernel. That is the one way this can be broken from outside the code.
 class NodeSpares
-  # Where the store is. The container's own /tmp by default, which every
-  # puma worker in it sees and which is created and destroyed with the
-  # container, so nothing in it can outlive the containers it names.
-  #
-  # Settable, so that pointing the store at a path the node shares between
-  # its runner containers is a deployment change rather than a release. Such
-  # a path must be on a local filesystem: see the class comment.
-  DIR = ENV.fetch('CYBER_DOJO_RUNNER_SPARES_DIR', '/tmp/cyber_dojo_spares')
+  # Where the store is: the container's own /tmp, which every puma worker in
+  # it sees and which is created and destroyed with the container, so nothing
+  # in it can outlive the containers it names.
+  DIR = '/tmp/cyber_dojo_spares'.freeze
 
   def initialize(dir:)
     @dir = dir
