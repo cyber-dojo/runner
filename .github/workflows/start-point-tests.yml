@@ -9,7 +9,12 @@ name: Start-point tests
 # it on every push, and ECR tags are immutable, so building it again under the
 # same tag would fail. Pulling is also what lets this workflow be run more than
 # once on the same commit.
+#
+# The main workflow calls this on every push, after the unit and integration
+# tests, and its SDLC gate waits for it, so a runner that breaks a start-point
+# cannot deploy. It can also be run by hand, on a chosen few start-points.
 on:
+  workflow_call:
   workflow_dispatch:
     inputs:
       start_points:
