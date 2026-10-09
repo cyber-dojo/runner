@@ -14,9 +14,11 @@ require 'fileutils'
 # winner-takes-all operation a claim depends on, and a second host would be a
 # second kernel. That is the one way this can be broken from outside the code.
 class NodeSpares
-  # Where the store is: the container's own /tmp, which every puma worker in
-  # it sees and which is created and destroyed with the container, so nothing
-  # in it can outlive the containers it names.
+  # Where the store is. In a runner container on its own this is in its /tmp,
+  # which every puma worker in it sees. Where several runner containers share
+  # a host, the deployment mounts one host directory here, so every one of
+  # them reads one store. An entry that outlives its container is a claim
+  # that misses, never a wrong container.
   DIR = '/tmp/cyber_dojo_spares'.freeze
 
   def initialize(dir:)

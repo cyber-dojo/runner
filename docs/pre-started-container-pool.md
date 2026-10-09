@@ -593,10 +593,10 @@ which are containers waiting. The fourth is about containers working.
   o) across every image_name in one store. The sum of those queues. This is
      what bounds a store whose traffic keeps finding new LTFs, which the first
      limit cannot: nothing bounds how many image_names are hot. Checked by
-     counting the store, which needs no daemon call. A store is one runner
-     container's today, so this and the next are not the same limit while
-     three tasks share a node; whether they should be merged once a store is
-     shared between tasks is open.
+     counting the store, which needs no daemon call. The deployment mounts
+     one store for every runner task on a host, so there this and the next
+     count the same spares. Where no store is mounted, a store is one runner
+     container's, and the two differ.
   o) per node, across every worker and every runner process. What section 5
      already has, at sixteen. It is the only one that can see the memory that
      actually matters, and the only one that costs a daemon call.
