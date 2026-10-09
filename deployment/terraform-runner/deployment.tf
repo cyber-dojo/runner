@@ -17,6 +17,14 @@ module "ecs-service" {
       name          = "docker_socket"
       containerPath = "/var/run/docker.sock"
       host_path     = "/var/run/docker.sock"
+    },
+    # One store of spares for every task on the host, as the spares are
+    # containers on the host's one daemon. /dev/shm is a tmpfs, so the store
+    # goes when the kernel whose clock its expiries were read from goes.
+    {
+      name          = "spares"
+      containerPath = "/tmp/cyber_dojo_spares"
+      host_path     = "/dev/shm/cyber_dojo_runner_spares"
     }
   ]
   tags = module.tags.result
