@@ -244,7 +244,7 @@ jobs:
 
 
   start-point-tests:
-    needs: [unit-tests, integration-tests]
+    needs: [build-image]
     permissions:
       id-token: write
       contents: read

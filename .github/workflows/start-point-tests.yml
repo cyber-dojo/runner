@@ -10,9 +10,15 @@ name: Start-point tests
 # same tag would fail. Pulling is also what lets this workflow be run more than
 # once on the same commit.
 #
-# The main workflow calls this on every push, after the unit and integration
-# tests, and its SDLC gate waits for it, so a runner that breaks a start-point
-# cannot deploy. It can also be run by hand, on a chosen few start-points.
+# The main workflow calls this on every push, alongside the unit and
+# integration tests, and its SDLC gate waits for it, so a runner that breaks a
+# start-point cannot deploy. It can also be run by hand, on a chosen few
+# start-points.
+#
+# Only the three traffic-lights are checked (--lights-only). A start-point's
+# fixtures test the start-point, and they are most of its run time; the lights
+# are what a runner change breaks. The start-points are split into shards, one
+# job each, so the setup every job repeats is paid once per shard.
 on:
   workflow_call:
   workflow_dispatch:
@@ -55,21 +61,20 @@ jobs:
           } >> "${GITHUB_STEP_SUMMARY}"
 
 
-  test-start-point:
+  test-start-points:
     needs: [start-points]
     runs-on: ubuntu-latest
-    name: ${{ matrix.start_point.name }}
+    name: ${{ matrix.shard.name }}
     permissions:
       id-token: write
       contents: read
     strategy:
       # One broken language must not hide the state of all the others.
       fail-fast: false
-      # Held below the account's concurrent-job limit so a full run leaves
-      # room for the other workflows.
-      max-parallel: 10
+      # One job per shard. bin/echo_start_points_matrix.sh sets how many, and
+      # so how many run at once.
       matrix:
-        start_point: ${{ fromJSON(needs.start-points.outputs.matrix) }}
+        shard: ${{ fromJSON(needs.start-points.outputs.matrix) }}
     steps:
       - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
@@ -88,5 +93,18 @@ jobs:
       - name: Pull the runner image built for this commit
         run: ./bin/pull_runner_image.sh
 
-      - name: Run the start-point's run_tests.sh against this runner image
-        run: ./bin/test_one_start_point.sh "${{ matrix.start_point.tagged_url }}"
+      # Every start-point in the shard is run, whatever the ones before it did,
+      # and the job fails at the end naming each one whose lights went wrong.
+      - name: Run each start-point's run_tests.sh against this runner image
+        env:
+          TAGGED_URLS: ${{ matrix.shard.tagged_urls }}
+        run: |
+          failed=()
+          for tagged_url in ${TAGGED_URLS}; do
+            ./bin/test_one_start_point.sh "${tagged_url}" --lights-only \
+              || failed+=("${tagged_url##*/}")
+          done
+          if [ ${#failed[@]} -ne 0 ]; then
+            echo "Lights went wrong for: ${failed[*]}"
+            exit 1
+          fi

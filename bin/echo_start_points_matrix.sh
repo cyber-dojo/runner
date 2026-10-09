@@ -12,10 +12,14 @@ show_help()
     Use: bin/${MY_NAME} <TAGGED_FILE> [NAME...]
 
     Echoes the lines of <TAGGED_FILE> as a one-line JSON array, ready to be
-    read as a GitHub Actions matrix. Each entry holds one start-point at the
-    commit the file pins:
-      tagged_url  the <TAG>@<URL> that bin/test_one_start_point.sh takes
-      name        names the matrix job, which a whole tagged_url reads badly as
+    read as a GitHub Actions matrix. Each entry is one of at most ${SHARDS}
+    shards, holding start-points at the commits the file pins:
+      tagged_urls  the <TAG>@<URL>s that bin/test_one_start_point.sh takes,
+                   space separated
+      name         names the matrix job, which the tagged_urls read badly as
+
+    Start-points are dealt to the shards in turn, so neighbours in the file,
+    such as the csharp-* ones, land in different shards.
 
     <TAGGED_FILE> is the git_repo_urls.tagged file from
     https://github.com/cyber-dojo/languages-start-points
@@ -31,11 +35,11 @@ show_help()
       [
         {
           "name": "java-junit",
-          "tagged_url": "b61527f@https://github.com/cyber-dojo-start-points/java-junit"
+          "tagged_urls": "b61527f@https://github.com/cyber-dojo-start-points/java-junit"
         },
         {
           "name": "ruby-minitest",
-          "tagged_url": "6d16472@https://github.com/cyber-dojo-start-points/ruby-minitest"
+          "tagged_urls": "6d16472@https://github.com/cyber-dojo-start-points/ruby-minitest"
         }
       ]
 
@@ -57,21 +61,31 @@ check_args()
   esac
 }
 
-# Echoes the <TAG>@<URL> lines of ${filename} as a JSON array of
-# {name,tagged_url} objects, keeping only those whose start-point name is in
-# ${names}, or all of them when it is empty. A name is the last path segment
-# of the URL, which is what the cyber-dojo-start-points repo is called.
+# The number of matrix jobs. Each takes one shard, so this is also how many
+# run at once: held below the account's concurrent-job limit so a full run
+# leaves room for the other workflows.
+readonly SHARDS=10
+
+# Echoes the <TAG>@<URL> lines of ${filename} as a JSON array of at most
+# ${SHARDS} {name,tagged_urls} shards, keeping only the start-points whose
+# name is in ${names}, or all of them when it is empty. A name is the last
+# path segment of the URL, which is what the cyber-dojo-start-points repo is
+# called.
 echo_start_points_matrix()
 {
   local -r filename="${1}"
   shift
 
-  jq --raw-input --slurp --compact-output --args '
+  jq --raw-input --slurp --compact-output --argjson shards "${SHARDS}" --args '
     $ARGS.positional as $names
     | split("\n")
     | map(select(length > 0))
     | map({name: sub(".*/"; ""), tagged_url: .})
     | map(select(($names | length) == 0 or (.name as $n | $names | index($n))))
+    | to_entries
+    | group_by(.key % $shards)
+    | map(map(.value))
+    | map({name: (map(.name) | join(" ")), tagged_urls: (map(.tagged_url) | join(" "))})
   ' "$@" < "${filename}"
 }
 
