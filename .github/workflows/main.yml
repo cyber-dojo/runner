@@ -243,6 +243,14 @@ jobs:
             --type=coverage-metrics
 
 
+  start-point-tests:
+    needs: [build-image]
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/start-point-tests.yml
+
+
   sdlc-control-gate:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -253,6 +261,7 @@ jobs:
       - rubocop-lint
       - unit-tests
       - integration-tests
+      - start-point-tests
     steps:
       - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/setup-kosli-cli@main

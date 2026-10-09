@@ -12,11 +12,11 @@ show_help()
     local -r MY_NAME=$(basename "${BASH_SOURCE[0]}")
     cat <<- EOF
 
-    Use: bin/${MY_NAME} <TAG>@<URL>
+    Use: bin/${MY_NAME} <TAG>@<URL> [ARG...]
 
     Runs one cyber-dojo-start-points repo's run_tests.sh against the runner
     image built from this repo, checking its start_point files go red, amber
-    and green.
+    and green. Each ARG is passed on to run_tests.sh, eg --lights-only.
 
     <TAG>@<URL> is one line of the git_repo_urls.tagged file in
     https://github.com/cyber-dojo/languages-start-points
@@ -33,6 +33,7 @@ show_help()
 
     Example:
       bin/${MY_NAME} b61527f@https://github.com/cyber-dojo-start-points/java-junit
+      bin/${MY_NAME} b61527f@https://github.com/cyber-dojo-start-points/java-junit --lights-only
 
 EOF
 }
@@ -99,6 +100,7 @@ test_one_start_point()
   trap remove_tmp_dir INT EXIT
 
   local -r tagged_url="${1}"
+  shift
   local -r tag="$(tagged_url_tag "${tagged_url}")"
   local -r url="$(tagged_url_url "${tagged_url}")"
 
@@ -112,7 +114,16 @@ test_one_start_point()
   export CYBER_DOJO_START_POINT_READY_TRIES=50
 
   echo "Testing ${tagged_url}"
-  "${repo_dir}/run_tests.sh"
+  local status=0
+  "${repo_dir}/run_tests.sh" "$@" || status=$?
+
+  # A workflow job runs a whole shard of start-points on one machine, and
+  # their images together can outgrow its disk. Each is removed once tested,
+  # whatever its result, so the next one has room to be pulled.
+  local -r image_name="$(jq --raw-output .image_name "${repo_dir}/start_point/manifest.json")"
+  docker image rm --force "${image_name}" > /dev/null 2>&1 || true
+
+  return "${status}"
 }
 
 test_one_start_point "$@"
