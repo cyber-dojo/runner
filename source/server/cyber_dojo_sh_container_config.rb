@@ -1,19 +1,36 @@
 require_relative 'cyber_dojo_sh_host_config'
 require_relative 'sandbox'
 
-# The body of the POST /containers/create that runs one cyber-dojo.sh, saying
+# The bodies of the docker API calls that run one cyber-dojo.sh, saying
 # everything the docker CLI would otherwise be told in flags. Every entry
 # arrives the same way: as a group of keys merged in by the method that
 # explains it.
+#
+# The keys divide by what they depend on. image_config is all a container can
+# be created from knowing only its image, and exec_config is what one
+# test-run adds to a container that already exists.
 module CyberDojoShContainerConfig
-  def self.create_config(id, image_name)
+  # The body of a POST /containers/create for a container made before the run
+  # it will serve is known. It sleeps instead of running the kata, so that it
+  # is still there to be exec'd into, and it holds no stdin, because the tgz
+  # arrives on the exec's stdin instead.
+  def self.image_config(image_name)
     [
       image(image_name),
-      cyber_dojo_sh_command,
+      sleeping_command,
       sandbox_user,
-      env(id, image_name),
-      stdio,
+      image_env(image_name),
       host_config(image_name)
+    ].reduce(:merge)
+  end
+
+  # The body of a POST /containers/{id}/exec for one run of cyber-dojo.sh:
+  # what that run adds to a container image_config already made.
+  def self.exec_config(id)
+    [
+      cyber_dojo_sh_command,
+      run_env(id),
+      exec_stdio
     ].reduce(:merge)
   end
 
@@ -34,39 +51,67 @@ module CyberDojoShContainerConfig
   end
   private_class_method :cyber_dojo_sh_command
 
+  # How long a container that nobody has claimed stays alive. Long enough to
+  # outlast any run and the grace its stop allows, and short enough to bound
+  # how long a container nobody wants can survive.
+  SLEEP_SECONDS = 60
+
+  # Does nothing, for long enough to be exec'd into.
+  def self.sleeping_command
+    { 'Cmd' => ['sleep', SLEEP_SECONDS.to_s] }
+  end
+  private_class_method :sleeping_command
+
   # Never root.
   def self.sandbox_user
     { 'User' => "#{Sandbox::UID}:#{Sandbox::GID}" }
   end
   private_class_method :sandbox_user
 
-  # What the run tells cyber_dojo_main.sh about itself.
-  def self.env(id, image_name)
-    {
-      'Env' => [
-        "CYBER_DOJO_IMAGE_NAME=#{image_name}",
-        "CYBER_DOJO_ID=#{id}",
-        "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
-      ]
-    }
+  # What a container knows about the run from its image alone.
+  def self.image_env(image_name)
+    { 'Env' => [image_name_var(image_name), sandbox_var] }
   end
-  private_class_method :env
+  private_class_method :image_env
 
-  # The tgz goes in on stdin, and the payload comes back on stdout. Closing
-  # stdin once is what gives the container's [tar -zxf -] its end of file.
-  # There is no tty: a pty translates the payload bytes and truncates the
-  # stream. See docker_attach_frames.rb
-  def self.stdio
+  # What only the run knows. Exec honours Env, which is how this reaches a
+  # container created before it.
+  def self.run_env(id)
+    { 'Env' => [id_var(id)] }
+  end
+  private_class_method :run_env
+
+  # Names the image the kata is running under.
+  def self.image_name_var(image_name)
+    "CYBER_DOJO_IMAGE_NAME=#{image_name}"
+  end
+  private_class_method :image_name_var
+
+  # Names the run, for tracing.
+  def self.id_var(id)
+    "CYBER_DOJO_ID=#{id}"
+  end
+  private_class_method :id_var
+
+  # Names the dir the kata's files are unpacked into.
+  def self.sandbox_var
+    "CYBER_DOJO_SANDBOX=#{Sandbox::DIR}"
+  end
+  private_class_method :sandbox_var
+
+  # The tgz goes in on the exec's stdin, and the payload comes back on its
+  # stdout. Shutting that stdin down once is what gives the container's
+  # [tar -zxf -] its end of file. There is no tty: a pty translates the payload
+  # bytes and truncates the stream. See docker_attach_frames.rb
+  def self.exec_stdio
     {
-      'OpenStdin' => true,
-      'StdinOnce' => true,
       'AttachStdin' => true,
       'AttachStdout' => true,
       'AttachStderr' => true,
       'Tty' => false
     }
   end
-  private_class_method :stdio
+  private_class_method :exec_stdio
 
   # What the daemon does around the container rather than inside it.
   def self.host_config(image_name)

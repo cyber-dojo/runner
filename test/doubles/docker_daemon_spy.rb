@@ -4,10 +4,10 @@ class DockerDaemonSpy
   # every call by the name of the endpoint and the arguments it was given, so
   # nothing has to match on a docker URL to know what was asked.
   #
-  # attach_container hands back a stream carrying the frames the test gave it,
-  # framed the way the daemon frames them, and remembers what was written to
-  # it. stalls: true makes that stream stand in for a container which is alive
-  # and saying nothing.
+  # start_exec hands back a stream carrying whatever the container is said to
+  # have written, framed the way the daemon frames it, and remembers what was
+  # written to it. stalls: true makes that stream stand in for a container
+  # which is alive and saying nothing.
 
   def initialize(responses, frames: [], stalls: false)
     @responses = responses
@@ -30,8 +30,16 @@ class DockerDaemonSpy
     answer(:pull_image, image_name)
   end
 
+  def containers_named(name)
+    answer(:containers_named, name)
+  end
+
   def create_container(config, name: nil)
     answer(:create_container, config, name)
+  end
+
+  def rename_container(id, name:)
+    answer(:rename_container, id, name)
   end
 
   def start_container(id)
@@ -50,8 +58,12 @@ class DockerDaemonSpy
     answer(:remove_container, id)
   end
 
-  def attach_container(id)
-    @calls << [:attach_container, id]
+  def create_exec(container_id, config)
+    answer(:create_exec, container_id, config)
+  end
+
+  def start_exec(exec_id)
+    @calls << [:start_exec, exec_id]
     @stream = AttachStreamSpy.new(@frames, @stalls)
   end
 
@@ -71,8 +83,13 @@ class DockerDaemonSpy
   # What each part of a run asks the daemon for, named for what that part did.
   # A test says the shape of a run, and the endpoint names stay in here.
   PHASES = {
-    ran_the_kata: %i[create_container attach_container start_container],
-    stopped_the_container: %i[stop_container]
+    claimed_a_spare: %i[rename_container],
+    made_a_container: %i[create_container start_container],
+    execd_the_kata: %i[create_exec start_exec],
+    was_refused_an_exec: %i[create_exec],
+    stopped_the_container: %i[stop_container],
+    warmed_a_spare: %i[containers_named create_container start_container],
+    spare_pool_is_full: %i[containers_named]
   }.freeze
 
   # The endpoints those parts ask for, in order, to assert endpoints against.

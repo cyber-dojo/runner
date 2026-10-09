@@ -72,7 +72,7 @@ class DockerDaemonTest < TestBase
   | Every other flag the docker CLI takes is in the create config instead.
   ] do
     http = spied_http([201, created_body])
-    config = CyberDojoShContainerConfig.create_config(id58, image_name)
+    config = CyberDojoShContainerConfig.image_config(image_name)
 
     assert_equal [201, created_body], docker.create_container(config, name: container_name)
     assert_equal [['POST', "/containers/create?name=#{container_name}", config]], http.calls
@@ -122,21 +122,59 @@ class DockerDaemonTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'Tq9dM10', %w[
-  | attach_container hijacks the connection, and answers the socket the
-  | transport handed back.
-  | It asks for stdin, stdout and stderr, and for a stream rather than what
-  | the container has already written.
-  | A run attaches before it starts the container, so nothing the container
-  | writes is missed.
+  | create_exec makes an exec inside a container that already exists
+  | which is how a run reaches a container created before the run was known
   ] do
-    http = spied_http([200, ''])
+    http = spied_http([201, exec_created_body])
+    config = CyberDojoShContainerConfig.exec_config(id58)
 
-    assert_equal http.stream, docker.attach_container(container_id)
-    expected = "/containers/#{container_id}/attach?stream=1&stdin=1&stdout=1&stderr=1"
-    assert_equal expected, http.attached
+    assert_equal [201, exec_created_body], docker.create_exec(container_id, config)
+    assert_equal [['POST', "/containers/#{container_id}/exec", config]], http.calls
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM14', %w[
+  | start_exec hijacks the connection the way attaching to a container does
+  | but says in a body that it is not detaching and wants no tty
+  | and answers the hijacked socket the transport handed back
+  ] do
+    http = spied_http([200, ''])
+
+    assert_equal http.stream, docker.start_exec(exec_id)
+    assert_equal "/exec/#{exec_id}/start", http.attached
+    assert_equal({ 'Detach' => false, 'Tty' => false }, http.attached_body)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM15', %w[
+  | containers_named asks the daemon for containers by name.
+  | The name goes in a url-encoded filters query parameter, exactly as given.
+  | No all parameter is sent, which is what leaves an exited spare uncounted.
+  | The status and body are answered as the transport gave them.
+  ] do
+    http = spied_http([200, containers_json])
+    filters = '%7B%22name%22%3A%5B%22cyber_dojo_spare_%22%5D%7D'
+
+    assert_equal [200, containers_json], docker.containers_named('cyber_dojo_spare_')
+    assert_equal [['GET', "/containers/json?filters=#{filters}", nil]], http.calls
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'Tq9dM13', %w[
+  | rename_container renames one, which is how claiming a spare takes it out
+  | of the count of spares: a label cannot be changed after a create and a
+  | name can
+  ] do
+    http = spied_http([204, ''])
+    claimed = 'cyber_dojo_runner_K3nW8p_9a3b1c7d'
+
+    assert_equal [204, ''], docker.rename_container(container_id, name: claimed)
+    expected = "/containers/#{container_id}/rename?name=#{claimed}"
+    assert_equal [['POST', expected, nil]], http.calls
+  end
 
   private
 
@@ -175,6 +213,27 @@ class DockerDaemonTest < TestBase
   # As POST /containers/create answers it, being the id and nothing warned of.
   def created_body
     "{\"Id\":\"#{container_id}\",\"Warnings\":[]}"
+  end
+
+  # As POST /containers/{id}/exec answers it, naming the exec rather than the
+  # container it was made in.
+  def exec_id
+    'b7c1e94d2a6f83051c9e7b4a2d8f60931e5c7a9b3d1f8264e0a7c5b93d2f81e64'
+  end
+
+  # As POST /containers/{id}/exec answers it, being the new exec's id alone.
+  def exec_created_body
+    "{\"Id\":\"#{exec_id}\"}"
+  end
+
+  # As GET /containers/json answers it: one running spare, carrying its name
+  # with the leading slash the daemon gives it.
+  def containers_json
+    JSON.generate([
+                    { 'Id' => container_id,
+                      'Names' => ['/cyber_dojo_spare_w3_1a2b3c4d'],
+                      'State' => 'running' }
+                  ])
   end
 
   # As GET /images/json answers it, with fields alongside RepoTags.

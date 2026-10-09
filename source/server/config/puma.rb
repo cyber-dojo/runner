@@ -7,12 +7,18 @@ rackup "#{__dir__}/config.ru"
 # the tar and gzip of a typical test-run payload cost under a millisecond.
 # The Ruby MRI releases the GVL for docker daemon wait, so threads and
 # process serve test-run requests equally well. Throughput was measured both
-# ways, at 8 and at 16 requests at once, and does not change.
+# ways, at 8 and at 16 requests at once, and does not change. The measurements
+# are in docs/pre-started-container-pool.md
 #
 # So the worker count is not what decides how many test-runs the node can
 # serve. Two is for the workers themselves: one keeps serving while the other
 # restarts, and a phased restart needs more than one. Ten, which is what
 # Etc.nprocessors answers on a 4-core host, was ten ruby heaps for no gain.
+#
+# The pool of spare containers does not argue for one count over another. Its
+# spares are kept in a directory every worker on the node reads, so a spare
+# one worker warmed is one any of them can claim, and adding a worker neither
+# divides the pool nor lowers the chance of a hit.
 #
 # We are conservative with threads. Consider what happens when 64 learners
 # press [test] at the same time, on 4 cores, under 8 vs 64 threads.

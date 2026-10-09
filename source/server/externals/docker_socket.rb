@@ -29,9 +29,11 @@ class DockerSocket
   # own bytes. The daemon stops speaking HTTP on it at that point: what
   # follows is the attach stream, which DockerAttachFrames separates.
   #
-  def attach(path)
+  # Starting an exec hijacks the connection the same way, but says what it
+  # wants in a body, which is why one can be given.
+  def attach(path, body = nil)
     socket = UNIXSocket.new(socket_path)
-    socket.write(attach_bytes(path))
+    socket.write(attach_bytes(path, body))
     read_status_code(socket)
     read_headers(socket)
     socket.binmode
@@ -59,16 +61,13 @@ class DockerSocket
   # The upgrade is asked for whether or not there is a body, and the
   # connection is never asked to close, because the connection is the thing
   # being kept.
-  def attach_bytes(path)
-    [
-      "POST #{path} HTTP/1.1",
-      'Host: docker',
-      'Content-Length: 0',
-      'Connection: Upgrade',
-      'Upgrade: tcp',
-      '',
-      ''
-    ].join(CRLF)
+  def attach_bytes(path, body)
+    json = body.nil? ? '' : JSON.generate(body)
+    lines = ["POST #{path} HTTP/1.1", 'Host: docker']
+    lines << 'Content-Type: application/json' unless body.nil?
+    lines << "Content-Length: #{json.bytesize}"
+    lines += ['Connection: Upgrade', 'Upgrade: tcp', '', json]
+    lines.join(CRLF)
   end
 
   def read_status_code(socket)

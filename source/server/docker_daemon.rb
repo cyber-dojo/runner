@@ -1,3 +1,6 @@
+require 'json'
+require 'uri'
+
 # Every endpoint the runner uses on the docker daemon, over a transport that
 # speaks HTTP on a unix socket. This is the complete list, which is what
 # docs/docker-socket-privilege.md needs to say what a socket proxy would have
@@ -38,15 +41,46 @@ class DockerDaemon
     http.request('POST', "/containers/create#{named}", config)
   end
 
-  # Answers the container's hijacked socket, which carries its stdin one way
-  # and both its output streams the other, multiplexed.
-  def attach_container(id)
-    http.attach("/containers/#{id}/attach?stream=1&stdin=1&stdout=1&stderr=1")
-  end
-
   # Starts a created container.
   def start_container(id)
     http.request('POST', "/containers/#{id}/start")
+  end
+
+  # Every running container whose name holds name. The daemon matches a name
+  # filter by substring, which is what lets one spare prefix count every
+  # worker's spares on the node without anything having to know how many
+  # workers there are.
+  #
+  # Running only, the default, is what the count wants: a spare whose sleep has
+  # ended is not one a test-run can be given, whether or not AutoRemove has
+  # finished with it yet.
+  def containers_named(name)
+    filters = URI.encode_www_form_component(JSON.generate({ 'name' => [name] }))
+    http.request('GET', "/containers/json?filters=#{filters}")
+  end
+
+  # Renames a container. Claiming a spare renames it, which is what takes it
+  # out of containers_named: a label cannot be changed after a create, and both
+  # a spare and a container already serving a run are merely running, so the
+  # name is the only thing left that can say which it is.
+  def rename_container(id, name:)
+    http.request('POST', "/containers/#{id}/rename?name=#{name}")
+  end
+
+  # Makes an exec inside a container that is already running, from config, and
+  # answers what the daemon said, the new exec's id being in the body. This is
+  # how a run reaches a container created before the run was known: the config
+  # carries the command and the vars belonging to that one run.
+  def create_exec(container_id, config)
+    http.request('POST', "/containers/#{container_id}/exec", config)
+  end
+
+  # Runs a created exec, answering its hijacked socket, which carries stdin one
+  # way and both output streams the other, multiplexed, exactly as attaching to
+  # a container does. Detach false is what keeps the streams on this
+  # connection, and the tty is refused because a pty would corrupt the payload.
+  def start_exec(exec_id)
+    http.attach("/exec/#{exec_id}/start", { 'Detach' => false, 'Tty' => false })
   end
 
   # Stops a running container, giving it seconds to stop in: SIGTERM, and then

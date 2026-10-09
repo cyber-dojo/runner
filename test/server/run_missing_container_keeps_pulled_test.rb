@@ -3,7 +3,7 @@ require_relative '../test_base'
 class RunMissingContainerKeepsPulledTest < TestBase
 
   test 'K3nW8p', %w(
-  | The daemon answers 404 to the start.
+  | The daemon answers 404 to an exec create.
   | That is the container gone, not the image.
   | So the node's images are left alone.
   | A present image is not pulled all over again for nothing.
@@ -13,8 +13,8 @@ class RunMissingContainerKeepsPulledTest < TestBase
     set_context(
       logger: @logger = StdoutLoggerSpy.new,
       docker: DockerDaemonStub.new(
-        start_code: 404,
-        start_body: '{"message":"No such container: c0ffee"}'
+        exec_code: 404,
+        exec_body: '{"message":"No such container: c0ffee"}'
       )
     )
     images.add(image_name)

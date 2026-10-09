@@ -2,11 +2,40 @@ require_relative 'data/display_names'
 require_relative 'doubles/all'
 require_relative 'id58_test_base'
 require_code 'context'
+require 'fileutils'
 require 'json'
 
 class TestBase < Id58TestBase
+  # The store of spares is a directory, so each test is given one of its own
+  # and no test can claim what another warmed. Built from id rather than id58
+  # because multi_os variants share an id58 and run in parallel, which is the
+  # collision id exists to avoid.
   def set_context(options = {})
-    @context = Context.new(options)
+    @context = Context.new(a_store_of_its_own.merge(options))
+  end
+
+  # Spares are the server's, and only the server's Context holds a store of
+  # them, so the client's tests are given none. ENV['CONTEXT'] is what
+  # require_code.rb tells the two apart by.
+  def a_store_of_its_own
+    return {} unless ENV['CONTEXT'] == 'server'
+
+    { node_spares: NodeSpares.new(dir: spares_dir),
+      spares_per_node: spares_per_node_with_room }
+  end
+
+  # The cap a server test runs with unless it says otherwise. Unset is no
+  # pool, and a test that is not about the cap wants a warm to find room.
+  def spares_per_node_with_room
+    16
+  end
+
+  def spares_dir
+    "/tmp/spares_#{id}"
+  end
+
+  def id58_teardown
+    FileUtils.rm_rf(spares_dir)
   end
 
   attr_reader :context, :run_result
@@ -33,6 +62,10 @@ class TestBase < Id58TestBase
 
   def clock
     context.clock
+  end
+
+  def spares
+    context.spares
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

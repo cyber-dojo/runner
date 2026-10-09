@@ -118,3 +118,17 @@ pull's failures take.
 Note what a retry would not replace. Pulling at kata creation is what makes the
 first test-run fast; recovering from a wrong @pulled is a path for a run that is
 already going to be slow. Both are wanted.
+
+## The pool notices the 404 earlier than the run path
+
+SparePool#warm, described in docs/pre-started-container-pool.md, is a second
+caller of create, on a background thread. It reads the code that create
+answered: a 404 logs the failure and forgets the image, and create answers nil,
+which warm declines to start or add, so nothing that is not a container reaches
+a queue.
+
+That makes the pool the better of the two places to find out. A stale @pulled
+costs one visible faulty light on the run path, because the run has already
+been asked for by the time the 404 arrives. On the pool's path the 404 arrives
+on a background thread before any learner has been shown anything, so the
+belief is corrected at no cost to a test-run.

@@ -7,23 +7,47 @@ require_code 'externals/docker_socket'
 class CyberDojoShRunnerTest < TestBase
 
   test 'c9Gf10', %w(
-  | A run creates a container, attaches to it, and then starts it.
+  | The pool holds no spare, so the run makes its own container.
+  | That create is the run's first call to the daemon.
   | The container is named for the run.
-  | Its config carries everything the run needs.
-  | That is the image, the command that runs the kata, and this run's id.
-  | Attaching before starting is what stops the container's first bytes
-  | reaching nobody.
+  | Its config comes from the image_name alone.
+  | Nothing about this particular run reaches the create.
   ) do
-    spy = DockerDaemonSpy.new(create_and_start_responses)
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
 
     runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
-    assert_equal spy.endpoints_for(:ran_the_kata), spy.endpoints
     endpoint, config, name = spy.calls[0]
     assert_equal :create_container, endpoint
-    assert_equal CyberDojoShContainerConfig.create_config(id58, image_name), config
+    assert_equal CyberDojoShContainerConfig.image_config(image_name), config
     assert_equal container_name, name
-    assert_equal [:attach_container, 'c0ffee'], spy.calls[1]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf11', %w(
+  | The pool holds no spare, so the run makes its own container.
+  | The container is started, and then an exec is made in it.
+  | Only a running container can hold an exec.
+  | The exec's config holds the command that runs the kata, and the kata id.
+  | A spare and a container made here are both created from image_config.
+  | So the exec is where both of those reach the container.
+  | Starting the exec is what hijacks the stream.
+  | So there is no attach call before it.
+  | The container is stopped once the run has its payload.
+  | Its own command is a sleep, which outlives the exec that did the work.
+  ) do
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
+
+    runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    exec_config = CyberDojoShContainerConfig.exec_config(id58)
+    assert_equal [:start_container, 'c0ffee'], spy.calls[1]
+    assert_equal [:create_exec, 'c0ffee', exec_config], spy.calls[2]
+    assert_equal [:start_exec, 'e5ec1d'], spy.calls[3]
+    assert_equal spy.endpoints_for(:made_a_container, :execd_the_kata,
+                                   :stopped_the_container, :spare_pool_is_full),
+                 spy.endpoints
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +57,7 @@ class CyberDojoShRunnerTest < TestBase
   | The writing half is then closed.
   | That close is what gives the container's [tar -zxf -] its end of file.
   ) do
-    spy = DockerDaemonSpy.new(create_and_start_responses)
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
 
     runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
 
@@ -49,7 +73,7 @@ class CyberDojoShRunnerTest < TestBase
   | The stream ends of its own accord, so the run did not time out.
   ) do
     spy = DockerDaemonSpy.new(
-      create_and_start_responses,
+      responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node,
       frames: [[1, 'the-payload'], [2, 'a warning']]
     )
 
@@ -66,13 +90,12 @@ class CyberDojoShRunnerTest < TestBase
   | The container sends nothing, and max_seconds passes.
   | The run answers timed_out.
   | There is no payload, so its stdout and stderr are both empty.
-  | The container is stopped, which a run that finishes never has to do.
-  | Its cyber-dojo.sh is still going, so nothing else would end it.
+  | The container is stopped, as it is on a run that finishes.
   | The stop sends SIGTERM at once, and SIGKILL one second later.
   | That second is what gives cyber-dojo.sh's EXIT trap its chance to run.
   ) do
     spy = DockerDaemonSpy.new(
-      create_and_start_responses + [[204, '']],
+      responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node,
       stalls: true
     )
 
@@ -83,9 +106,10 @@ class CyberDojoShRunnerTest < TestBase
     # same shape whether the run finished or not.
     assert_equal '', result[:stdout]
     assert_equal '', result[:stderr]
-    assert_equal spy.endpoints_for(:ran_the_kata, :stopped_the_container),
+    assert_includes spy.calls, [:stop_container, 'c0ffee', 1]
+    assert_equal spy.endpoints_for(:made_a_container, :execd_the_kata,
+                                   :stopped_the_container, :spare_pool_is_full),
                  spy.endpoints
-    assert_equal [:stop_container, 'c0ffee', 1], spy.calls.last
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -108,6 +132,10 @@ class CyberDojoShRunnerTest < TestBase
     files = TGZ.files(result[:stdout])
     assert_equal '0', files['tmp/status']
     assert_equal "hello\n", files['tmp/stdout']
+    # The container's stderr is the daemon's second attach stream, and separate
+    # from the kata's own stderr, which arrives as tmp/stderr in the payload.
+    # Gathering the payload writes nothing to it.
+    assert_equal '', result[:stderr]
   ensure
     # AutoRemove disposes of a container that exits, but not of one that never
     # started, and this name is the same on every run. Without this a failure
@@ -143,19 +171,172 @@ class CyberDojoShRunnerTest < TestBase
   # - - - - - - - - - - - - - - - - - - - - -
 
   test 'c9Gf20', %w(
-  | The container is created, and the daemon refuses to start it with a 409.
-  | The run raises rather than reading a stream nothing will ever write to.
+  | The container is created and started.
+  | The daemon refuses the exec create with a 409.
+  | That says the container is not running.
+  | A container can stop between being started and being exec'd into.
+  | The run raises.
   | The error names the status code, and what the daemon said.
   ) do
-    conflict = '{"message":"Conflict. The container has been removed"}'
-    spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [409, conflict]])
+    conflict = '{"message":"Container c0ffee is not running"}'
+    spy = DockerDaemonSpy.new([[201, '{"Id":"c0ffee"}'], [204, ''], [409, conflict]])
 
     error = assert_raises(CyberDojoShRunner::DaemonRefused) do
       runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
     end
 
     assert_includes error.message, '409'
-    assert_includes error.message, 'has been removed'
+    assert_includes error.message, 'is not running'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf21', %w(
+  | The container is created and started.
+  | The daemon then refuses the exec create.
+  | The run raises, and stops the container on its way out.
+  | That stop is the last thing asked of the daemon.
+  | The container's Cmd is a sleep, so it exits when that sleep ends.
+  | AutoRemove acts only on a container that exits.
+  | The stop makes it exit now rather than at the end of its sleep.
+  ) do
+    conflict = '{"message":"Container c0ffee is not running"}'
+    spy = DockerDaemonSpy.new(
+      [[201, '{"Id":"c0ffee"}'], [204, ''], [409, conflict], [204, '']]
+    )
+
+    assert_raises(CyberDojoShRunner::DaemonRefused) do
+      runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+    end
+
+    assert_includes spy.calls, [:stop_container, 'c0ffee', 1]
+    assert_equal spy.endpoints_for(:made_a_container, :was_refused_an_exec,
+                                   :stopped_the_container),
+                 spy.endpoints
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf22', %w(
+  | The container is stopped on a thread, so the run answers without waiting.
+  | The stop still happens, once the run has its payload.
+  | A learner waits for the answer, not for a teardown they never see.
+  ) do
+    threader = ThreaderSynchronous.new
+    spy = DockerDaemonSpy.new(responses_up_to_the_stream + [[204, '']] + warm_finds_a_full_node)
+    set_context(docker: spy, threader: threader)
+
+    cyber_dojo_sh_runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    assert threader.called, 'threader'
+    assert_includes spy.calls, [:stop_container, 'c0ffee', 1]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf23', %w(
+  | The pool holds a spare for the image_name.
+  | The run claims it, and the claim renames it to the run's name.
+  | The exec is made in that container.
+  | No container is created and none is started.
+  | Create and start are what the pool has already done.
+  ) do
+    # In order: the claim's rename, the exec made in the spare, the spare's
+    # stop, then the warm's count.
+    spy = DockerDaemonSpy.new([[204, ''], [201, '{"Id":"e5ec1d"}'], [204, '']] +
+                              warm_finds_a_full_node)
+    runner = runner_using(spy)
+    spares.add(image_name: image_name, container_id: 'warmed', expires_at: outlives_a_run)
+
+    runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    assert_equal spy.endpoints_for(:claimed_a_spare, :execd_the_kata,
+                                   :stopped_the_container, :spare_pool_is_full),
+                 spy.endpoints
+    assert_equal [:rename_container, 'warmed', container_name], spy.calls[0]
+    exec_config = CyberDojoShContainerConfig.exec_config(id58)
+    assert_equal [:create_exec, 'warmed', exec_config], spy.calls[1]
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf26', %w[
+  | The pool holds a spare, and the test-run claims it.
+  | The test-run warms another for that image_name, after the stop.
+  | A claim then answers with the container that warm made.
+  | The pool holds what it held before, one spare for that image_name.
+  ] do
+    spy = DockerDaemonSpy.new(
+      [[204, ''], [201, '{"Id":"e5ec1d"}'], [204, '']] +
+      [[200, '[]'], [201, '{"Id":"warmed"}'], [204, '']]
+    )
+    runner = runner_using(spy)
+    spares.add(image_name: image_name, container_id: 'claimed', expires_at: outlives_a_run)
+
+    runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    assert_equal spy.endpoints_for(:claimed_a_spare, :execd_the_kata,
+                                   :stopped_the_container, :warmed_a_spare),
+                 spy.endpoints
+    assert_equal 'warmed', spares.claim(image_name: image_name, container_name: container_name)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf25', %w[
+  | The pool holds no spare, so the run makes its own container.
+  | The run warms a spare for that image_name.
+  | The warm comes last, after the stop.
+  | Nothing on the path to the answer waits for it.
+  | A claim for that image_name then answers with the container the warm made.
+  ] do
+    spy = DockerDaemonSpy.new(
+      responses_up_to_the_stream + [[204, '']] +
+      [[200, '[]'], [201, '{"Id":"warmed"}'], [204, '']]
+    )
+
+    runner_using(spy).run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    assert_equal spy.endpoints_for(:made_a_container, :execd_the_kata,
+                                   :stopped_the_container, :warmed_a_spare),
+                 spy.endpoints
+    assert_equal 'warmed', spares.claim(image_name: image_name, container_name: container_name)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
+  test 'c9Gf24', %w(
+  | The pool holds a spare.
+  | The daemon refuses the exec in it with a 404.
+  | The spare is discarded.
+  | The run then makes its own container, as a run with no spare does.
+  | It answers without timing out.
+  | A spare can be dead by the time it is claimed.
+  | A container made for the run cannot be.
+  | The fallback is what keeps a pool from costing a learner a faulty light.
+  | The exec create comes before the tgz is written.
+  | So the kata never began in the spare.
+  | The container made here runs the kata for the first time.
+  | The dead spare is stopped too, as any container this run was given is.
+  ) do
+    gone = '{"message":"No such container: warmed"}'
+    # In order: the claim's rename, the refused exec in the spare, the spare's
+    # own stop, then a run making its own container.
+    spy = DockerDaemonSpy.new(
+      [[204, ''], [404, gone], [204, '']] + responses_up_to_the_stream +
+      [[204, '']] + warm_finds_a_full_node
+    )
+    runner = runner_using(spy)
+    spares.add(image_name: image_name, container_id: 'warmed', expires_at: outlives_a_run)
+
+    result = runner.run(id58, image_name, container_name, max_seconds, tgz_in)
+
+    refute result[:timed_out], 'timed_out'
+    assert_equal spy.endpoints_for(:claimed_a_spare, :was_refused_an_exec,
+                                   :stopped_the_container,
+                                   :made_a_container, :execd_the_kata,
+                                   :stopped_the_container, :spare_pool_is_full),
+                 spy.endpoints
   end
 
   # - - - - - - - - - - - - - - - - - - - - -
@@ -219,9 +400,11 @@ class CyberDojoShRunnerTest < TestBase
   test 'c9Gf19', %w(
   | The run goes to the real daemon.
   | The kata echoes hello, and the run does not time out.
-  | The container's Cmd is the kata, so it exits when the kata is done.
+  | The container's Cmd is a sleep, which outlives the exec that did the work.
+  | The runner stops the container once it has the payload.
+  | The container exits then, rather than at the end of its sleep.
   | AutoRemove removes a container that has exited.
-  | So the container is removed with nothing else asked of the daemon.
+  | So the container is removed.
   ) do
     http = DockerSocket.new
     set_context(http: http)
@@ -237,9 +420,9 @@ class CyberDojoShRunnerTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
-  test 'c9Gf21', %w(
+  test 'c9Gf27', %w(
   | The run goes to the real daemon.
-  | The container's stderr is the second attach stream, not the kata's tmp/stderr.
+  | The container's stderr is the exec's second stream, not the kata's tmp/stderr.
   | The kata echoes hello, and the run does not time out.
   | Gathering the payload writes nothing to the container's stderr.
   | So the container's stderr is empty.
@@ -258,6 +441,16 @@ class CyberDojoShRunnerTest < TestBase
 
   private
 
+  # An expiry inside the window a claim takes, with room either side of it,
+  # so a spare added by a test that is not about age is always claimable.
+  #
+  # Read off the sleep rather than written as a number, because the window's
+  # far edge is that sleep: a number here would be the same figure written
+  # twice, and raising the sleep would leave this one behind.
+  def outlives_a_run
+    clock.now + CyberDojoShContainerConfig::SLEEP_SECONDS - 10
+  end
+
   # The runner, built the way runner.rb builds it, from the context the test
   # set up. What it talks to is chosen in set_context and never here.
   def cyber_dojo_sh_runner
@@ -266,8 +459,12 @@ class CyberDojoShRunnerTest < TestBase
 
   # The same, for a test that stands a daemon in rather than using the real
   # one, so that the standing-in and the building stay one step.
+  #
+  # Threading is synchronous here. The stop runs on a thread, and a test that
+  # pins what the daemon was asked cannot be left racing it. c9Gf22 is the one
+  # test that cares the thread exists, and it wires its own.
   def runner_using(daemon)
-    set_context(docker: daemon)
+    set_context(docker: daemon, threader: ThreaderSynchronous.new)
     cyber_dojo_sh_runner
   end
 
@@ -307,11 +504,21 @@ class CyberDojoShRunnerTest < TestBase
     TGZ.of(files.merge(home_files(Sandbox::DIR, 50 * 1024)))
   end
 
-  # What the daemon answers the two calls a run makes that expect a reply: the
-  # container created, and the container started. The attach between them
-  # answers a stream rather than a status, so it needs no canned response.
-  def create_and_start_responses
-    [[201, '{"Id":"c0ffee"}'], [204, '']]
+  # What the daemon answers the warm a run ends with. The node is already
+  # full, so the warm stops at the count and creates nothing.
+  # A test that is not about the pool wants it to end there.
+  def warm_finds_a_full_node
+    full = Array.new(spares_per_node_with_room) do |n|
+      { 'Names' => [format('/cyber_dojo_spare_%<n>08x', n: n)] }
+    end
+    [[200, JSON.generate(full)]]
+  end
+
+  # What the daemon answers to the three calls a run makes before it has a
+  # stream: the container created, the container started, and an exec made in
+  # it. A test that gets as far as the stream needs all three.
+  def responses_up_to_the_stream
+    [[201, '{"Id":"c0ffee"}'], [204, ''], [201, '{"Id":"e5ec1d"}']]
   end
 
   def container_name
