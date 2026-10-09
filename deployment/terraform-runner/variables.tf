@@ -52,6 +52,13 @@ variable "app_env_vars" {
   }
 }
 
+# How many pre-started containers the node may hold. "0" is no pool at all,
+# which is what an environment gets unless its tfvars says otherwise.
+variable "spares_per_node" {
+  type    = string
+  default = "0"
+}
+
 variable "ecr_replication_targets" {
   type    = list(map(string))
   default = []
