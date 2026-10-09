@@ -1,6 +1,6 @@
 env = "staging"
 
-# How many pre-started containers the node may hold. Prod holds none.
+# How many pre-started containers the node may hold.
 spares_per_node = "16"
 
 # Allow to replicate app docker images to these accounts
