@@ -58,14 +58,10 @@ name through ::DockerImageName.tagged. Checked against a real node's 176 names,
 tagging is the identity on all of them, and no start-point manifest uses a
 digest, which is the form where the two would diverge.
 
-`forget` is a third way in, and it tags exactly as pull does, so all three
-places agree on the key by construction rather than by coincidence. The
-coincidence holds anyway: runner.rb passes the raw manifest name, and
-assert_versioned has already refused any manifest name without a tag, so
-tagging such a name is the identity.
-docs/profiling/check_tagged_alters_a_real_image_name.rb measures that over the
-82 start-point names, none of which tagging alters, which is why no test can
-tell the tagging from its absence.
+`forget` is a third way in. runner.rb passes it the raw manifest name, which
+may have no tag, and forget tags it exactly as pull does. Without that, a
+manifest naming `x` would forget `x` while @pulled holds `x:latest`, and the
+missing image would never be pulled again.
 
 One name did not survive tagging. names_on_the_node flattens RepoTags and
 filters nothing, which is enough for a dangling image, the daemon answering

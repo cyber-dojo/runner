@@ -142,18 +142,18 @@ The git commit sha used to create the Docker image.
 
 - - - -
 ## image_name
-- Must be pinned to a tag other than `latest`,
-  eg `cyberdojofoundation/python_pytest:56fa098`.
-- `:latest` names whichever image was pushed to it last, so a start-point
-  using it can change underneath the kata. The runner will not take one, so
-  that a start-point names one image and keeps naming it. This is refused
-  however it is asked for: written out as `:latest`, left off entirely
-  (which means `:latest`), or left off in front of a digest.
+- Any docker image name, eg `cyberdojofoundation/python_pytest:56fa098`.
+- A name with no tag means `:latest`, as it does to docker, so
+  `cyberdojofoundation/python_pytest` and `cyberdojofoundation/python_pytest:latest`
+  name the same image.
+- Pinning to a tag other than `latest` is recommended. `:latest` names
+  whichever image was pushed to it last, so a start-point using it can change
+  underneath the kata. The runner does not pull a newer `:latest` over one
+  already on the node.
 - A digest may follow the tag, eg `...:56fa098@sha256:1a2b...`.
 - Both methods taking an **image_name** reject a bad one with a 400, before
   anything is pulled or run.
   * `"malformed image_name"` if it does not name a docker image at all.
-  * `"unversioned image_name"` if it names one but resolves to `:latest`.
 
 - - - -
 ## JSON in
