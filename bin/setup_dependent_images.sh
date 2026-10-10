@@ -34,14 +34,12 @@ pull_dependent_images()
   local -r DISPLAY_NAMES="$(
     docker run \
       --entrypoint='' \
-      --platform linux/amd64 \
       --rm \
       --volume ${ROOT_DIR}/test:/test/:ro \
         ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG} \
           ruby /test/dependent_display_names.rb)"
 
   local -r JSON_DATA=$(docker run --rm \
-    --platform linux/amd64 \
     ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG} \
     bash -c 'ruby /app/repos/inspect.rb')
 

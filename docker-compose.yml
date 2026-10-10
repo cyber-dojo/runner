@@ -2,7 +2,6 @@
 services:
 
   client:
-    platform: linux/amd64
     build:
       context: source/client
     image: ${CYBER_DOJO_RUNNER_CLIENT_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
@@ -20,7 +19,6 @@ services:
       - ./test:/runner/test/:ro
 
   server:
-    platform: linux/amd64
     build:
       context: .
       args:
@@ -41,7 +39,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   languages-start-points:
-    platform: linux/amd64
     image: ${CYBER_DOJO_LANGUAGES_START_POINTS}
     user: nobody
     env_file: [ .env ]
