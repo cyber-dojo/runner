@@ -13,9 +13,6 @@ if ENV['CYBER_DOJO_PROMETHEUS'] == 'true'
   use Prometheus::Middleware::Exporter
 end
 
-use_containerd = ENV['CYBER_DOJO_USE_CONTAINERD'] == 'true'
-$stdout.puts("CYBER_DOJO_USE_CONTAINERD:#{use_containerd}")
-
 require_relative '../context'
 spares_per_node = SparePool.spares_per_node_from(ENV)
 $stdout.puts("CYBER_DOJO_RUNNER_SPARES_PER_NODE:#{spares_per_node}")
