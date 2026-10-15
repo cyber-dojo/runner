@@ -51,7 +51,7 @@ class Demo
   def alive_snippet
     [
       'alive = runner.alive?',
-      'html = green(JSON.pretty_unparse(alive))'
+      'html = green(JSON.pretty_generate(alive))'
     ].join("\n")
   end
 
@@ -63,7 +63,7 @@ class Demo
   def ready_snippet
     [
       'ready = runner.ready?',
-      'html = green(JSON.pretty_unparse(ready))'
+      'html = green(JSON.pretty_generate(ready))'
     ].join("\n")
   end
 
@@ -75,7 +75,7 @@ class Demo
   def sha_snippet
     [
       'sha = runner.sha',
-      'html = green(JSON.pretty_unparse(sha))'
+      'html = green(JSON.pretty_generate(sha))'
     ].join("\n")
   end
 
@@ -83,10 +83,10 @@ class Demo
     [
       'begin',
       '  result = runner.run_cyber_dojo_sh(...)',
-      '  html = green(JSON.pretty_unparse(result))',
+      '  html = green(JSON.pretty_generate(result))',
       'rescue => error',
       '  json = JSON.parse(error.message)',
-      '  html = gray(JSON.pretty_unparse(json))',
+      '  html = gray(JSON.pretty_generate(json))',
       'end'
     ].join("\n")
   end
@@ -141,7 +141,7 @@ class Demo
     background = "background: #{css_colour};"
     whitespace = 'white-space: pre-wrap;'
     font = 'font-size:8pt;'
-    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>#{JSON.pretty_unparse(result)}</pre>#{duration}s\n"
+    "<pre style='#{whitespace}#{margin}#{border}#{padding}#{background}#{font}'>#{JSON.pretty_generate(result)}</pre>#{duration}s\n"
   end
 
   def languages_start_points
