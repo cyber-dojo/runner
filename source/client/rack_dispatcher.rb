@@ -1,54 +1,29 @@
-require_relative 'dispatcher'
 require 'rack'
 require 'json'
 
 class RackDispatcher
   def initialize(context)
     @context = context
-    @dispatcher = Dispatcher.new(context)
   end
 
   def call(env, request_class = Rack::Request)
-    request = request_class.new(env)
-    path = request.path_info
-    body = request.body.read
-    name, result = @dispatcher.call(path, body)
-    json_response_pass(200, { name => result })
-  rescue Dispatcher::RequestError => e
-    json_response_fail(400, path, body, e)
-  rescue Exception => e
-    json_response_fail(500, path, body, e)
+    path = request_class.new(env).path_info
+    case path
+    when '/alive' then json_response(200, { 'alive?' => prober.alive? })
+    when '/ready' then json_response(200, { 'ready?' => prober.ready? })
+    else json_response(400, { 'exception' => { 'path' => path, 'message' => 'unknown path' } })
+    end
   end
 
   private
 
-  def json_response_pass(status, response)
-    json = JSON.generate(response)
-    [status, CONTENT_TYPE_JSON, [json]]
+  def json_response(status, response)
+    [status, CONTENT_TYPE_JSON, [JSON.generate(response)]]
   end
 
-  # - - - - - - - - - - - - - - - -
-
-  def json_response_fail(status, path, body, error)
-    response = diagnostic(path, body, error)
-    json = JSON.pretty_generate(response)
-    $stdout.write(json)
-    [status, CONTENT_TYPE_JSON, [json]]
+  def prober
+    @context.prober
   end
-
-  # - - - - - - - - - - - - - - - -
-
-  def diagnostic(path, body, error)
-    { 'exception' => {
-      'path' => path,
-      'body' => body,
-      'class' => 'Client',
-      'message' => error.message,
-      'backtrace' => error.backtrace
-    } }
-  end
-
-  # - - - - - - - - - - - - - - - -
 
   CONTENT_TYPE_JSON = { 'Content-Type' => 'application/json' }.freeze
 end

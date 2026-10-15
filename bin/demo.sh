@@ -15,5 +15,5 @@ export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-runner}"
 readonly DEMO_FILENAME="/tmp/runner_demo.html"
 
 docker compose --progress=plain up --wait --wait-timeout=10 client
-docker exec -it "$(service_container client)" ruby /runner/demo.rb > "${DEMO_FILENAME}"
+docker exec -it "$(service_container client)" ruby /runner/source/demo.rb > "${DEMO_FILENAME}"
 open "file://${DEMO_FILENAME}"

@@ -32,14 +32,14 @@ def table_data
     [ 'test.errors',   stats['error_count'  ], '<=',  0 ],
     [ 'test.skips',    stats['skip_count'   ], '<=',  0 ],
     [ nil ],
-    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 486 ],
+    [ 'test.lines.total',      test_cov['lines'   ]['total' ], '<=', 504 ],
     [ 'test.lines.missed',     test_cov['lines'   ]['missed'], '<=',   0 ],
     [ 'test.branches.total',   test_cov['branches']['total' ], '<=',   5 ],
     [ 'test.branches.missed',  test_cov['branches']['missed'], '<=',   0 ],
     [ nil ],
-    [ 'code.lines.total',      code_cov['lines'   ]['total' ], '<=', 119 ],
+    [ 'code.lines.total',      code_cov['lines'   ]['total' ], '<=', 136 ],
     [ 'code.lines.missed',     code_cov['lines'   ]['missed'], '<=',   0 ],
-    [ 'code.branches.total',   code_cov['branches']['total' ], '<=',   6 ],
+    [ 'code.branches.total',   code_cov['branches']['total' ], '<=',   9 ],
     [ 'code.branches.missed',  code_cov['branches']['missed'], '<=',   0 ],
   ]
 end
