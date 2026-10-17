@@ -47,7 +47,7 @@ class CyberDojoShRunner
 
   # The longest a kata may run for, whatever its manifest asks for.
   # runner.rb applies it and DeadlineReader enforces it.
-  RUN_SECONDS = 15
+  RUN_SECONDS = 10
 
   # What a stop gives cyber-dojo.sh's own EXIT trap before the SIGKILL.
   STOP_SECONDS = 1
