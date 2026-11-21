@@ -161,14 +161,7 @@ class DockerSocketTest < TestBase
     path = "/tmp/#{id58}.sock"
     FileUtils.rm_f(path)
     server = UNIXServer.new(path)
-    served = Thread.new do
-      connection = server.accept
-      @request_bytes = connection.readpartial(4096)
-      connection.write(response)
-      connection.close
-    rescue StandardError
-      nil # the block raised before connecting, so no connection ever arrives
-    end
+    served = Thread.new { serve_one(server, response) }
     begin
       yield(path)
     ensure
@@ -180,6 +173,18 @@ class DockerSocketTest < TestBase
       served.kill
       FileUtils.rm_f(path)
     end
+  end
+
+  # Accepts one connection on server, keeps the request it sends, and answers
+  # it with response. A method of its own, rather than the thread's block, so
+  # that the paths it takes in the thread are recorded as its own.
+  def serve_one(server, response)
+    connection = server.accept
+    @request_bytes = connection.readpartial(4096)
+    connection.write(response)
+    connection.close
+  rescue StandardError
+    nil # the block raised before connecting, so no connection ever arrives
   end
 
   JOIN_SECONDS = 2

@@ -72,6 +72,18 @@ class CyberDojoShContainerConfigTest < TestBase
 
   # - - - - - - - - - - - - - - - - - - - - -
 
+  test 'f2Cd20', %w(
+  | a clang image named on dockerhub rather than ghcr.io
+  | is a clang image all the same
+  ) do
+    clang = 'cyberdojofoundation/clang_assert:latest'
+    host = CyberDojoShContainerConfig.image_config(clang)['HostConfig']
+    assert_equal ['SYS_PTRACE'], host['CapAdd']
+    refute_includes host['Ulimits'].map { |u| u['Name'] }, 'data'
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - -
+
   test 'f2Cd18', %w(
   | the image half is everything a container can be created from
   | before the run it will serve is known

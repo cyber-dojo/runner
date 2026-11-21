@@ -10,16 +10,7 @@ class Dispatcher
   end
 
   def call(path, body)
-    args = parse_json_args(body)
-    case path
-    when '/alive'              then ['alive?',            prober.alive?(**args)]
-    when '/ready'              then ['ready?',            prober.ready?(**args)]
-    when '/sha'                then ['sha',               prober.sha(**args)]
-    when '/pull_image'         then ['pull_image',        pull_and_warm(**args)]
-    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', runner.run_cyber_dojo_sh(**args)]
-    else
-      raise request_error('unknown path')
-    end
+    dispatched(path, parse_json_args(body))
   rescue JSON::JSONError
     raise request_error('body is not JSON')
   rescue DockerImageName::Malformed
@@ -33,6 +24,20 @@ class Dispatcher
   end
 
   private
+
+  # The method name path is answered under, and the answer of the call it
+  # names. A path naming no call is a RequestError.
+  def dispatched(path, args)
+    case path
+    when '/alive'              then ['alive?',            prober.alive?(**args)]
+    when '/ready'              then ['ready?',            prober.ready?(**args)]
+    when '/sha'                then ['sha',               prober.sha(**args)]
+    when '/pull_image'         then ['pull_image',        pull_and_warm(**args)]
+    when '/run_cyber_dojo_sh'  then ['run_cyber_dojo_sh', runner.run_cyber_dojo_sh(**args)]
+    else
+      raise request_error('unknown path')
+    end
+  end
 
   def parse_json_args(body)
     if body == ''

@@ -354,9 +354,7 @@ class SparePoolTest < TestBase
   # what it passes over, so claiming could not tell a sweep from a claim
   # doing its own dropping.
   def spares_in_the_store
-    Dir.glob("#{spares_dir}/**/*")
-       .select { |path| File.file?(path) }
-       .map { |path| File.basename(path).split('-').last }
+    files_under(spares_dir).map { |path| File.basename(path).split('-').last }
   end
 
   # The container the warm in 7Bq2E14 creates, which the sweep must leave.

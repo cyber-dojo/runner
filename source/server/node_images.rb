@@ -131,12 +131,10 @@ class NodeImages
 
   # The daemon sends its status code before the transfer begins, so a pull it
   # starts and cannot finish is a 200 whose newline-delimited stream carries
-  # an error object. The stream ends with a newline, hence the blank line.
+  # an error object. Each line is one JSON object ending in \r\n, which
+  # JSON.parse takes as whitespace.
   def stream_error?(body)
-    body.each_line.any? do |line|
-      stripped = line.strip
-      !stripped.empty? && JSON.parse(stripped).key?('error')
-    end
+    body.each_line.any? { |line| JSON.parse(line).key?('error') }
   end
 
   def clock

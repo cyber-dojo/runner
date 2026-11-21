@@ -11,9 +11,8 @@ module TarFile
     def files
       @reader.each.with_object({}) do |entry, memo|
         check_ustar(entry)
-        filename = entry.full_name
-        content = entry.read || '' # avoid nil
-        memo[filename] = content
+        # read with no length answers '' for an empty entry, never nil.
+        memo[entry.full_name] = entry.read
       end
     end
 

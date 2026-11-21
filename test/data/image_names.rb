@@ -93,6 +93,8 @@ module Test
           '-x/gcc/assert:23',       # -x is illegal host-name
           'x-/gcc/assert:23',       # x- is illegal host-name
           '/gcc/assert',            # remote-name can't start with /
+          'localhost:5000/Gcc',     # no uppercase in remote-name after a host
+          'host..name/gcc',         # host-name cannot have an empty component
           "gcc@sha256:#{HEX * 31}",   # digest-hex is too short
           "gcc!sha256-2:#{HEX * 32}", # digest must start with @
           "gcc@256:#{HEX * 32}",      # digest-component must start with letter

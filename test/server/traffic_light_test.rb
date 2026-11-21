@@ -334,15 +334,15 @@ class TrafficLightTest < TestBase
   # the tests that use this in threads of one process, so a single tally would
   # have each of them counting the others' evals.
   class EvalCounter
-    @counts = {}
+    @counts = Hash.new(0)
     @mutex = Mutex.new
 
     def self.bump(token)
-      @mutex.synchronize { @counts[token] = (@counts[token] || 0) + 1 }
+      @mutex.synchronize { @counts[token] += 1 }
     end
 
     def self.count(token)
-      @mutex.synchronize { @counts[token] || 0 }
+      @mutex.synchronize { @counts[token] }
     end
   end
 
@@ -368,11 +368,13 @@ class TrafficLightTest < TestBase
     "test: hiker.tests.c:9: test_answer: Assertion `answer() == 42' failed.\n"
   end
 
-  def traffic_light_colour(options = {})
+  # The colour python_pytest's rag-lambda gives stdout, stderr and status,
+  # kept with its fault info for the assert_ helpers below.
+  def traffic_light_colour(stdout: Test::Data::PythonPytest::STDOUT_RED, stderr: 'unused', status: 0)
     @image_name = python_pytest_image_name
-    @stdout = options.delete(:stdout) || Test::Data::PythonPytest::STDOUT_RED
-    @stderr = options.delete(:stderr) || 'unused'
-    @status = options.delete(:status) || 0
+    @stdout = stdout
+    @stderr = stderr
+    @status = status
     @outcome, @fault_info = *traffic_light.colour_from_image(@image_name, @stdout, @stderr, @status)
   end
 
@@ -416,7 +418,7 @@ class TrafficLightTest < TestBase
 
   def read_red_amber_green_lambda_message_count(lines)
     message = "Read red-amber-green lambda from #{python_pytest_image_name}"
-    lines.count { |line| line.include?(message) }
+    lines.grep(/#{Regexp.escape(message)}/).size
   end
 
   # - - - - - - - - - - - - - - - - - - - - - -
