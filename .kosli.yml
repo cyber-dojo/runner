@@ -29,6 +29,10 @@ trail:
           type: custom:test-metrics
         - name: unit-test-coverage-metrics
           type: custom:coverage-metrics
+        # The deployed image's packages are those of the bare image the
+        # unit tests ran in.
+        - name: bare-image-match
+          type: generic
 
         - name: integration-test
           type: junit

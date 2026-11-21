@@ -65,7 +65,7 @@ check_coverage()
     --volume ${HOST_REPORTS_DIR}/test_metrics.json:${CONTAINER_TMP_DIR}/test_metrics.json:ro \
     --volume ${HOST_REPORTS_DIR}/coverage_metrics.json:${CONTAINER_TMP_DIR}/coverage_metrics.json:ro \
     --volume ${HOST_TEST_DIR}/check_test_metrics.rb:${CONTAINER_TMP_DIR}/check_test_metrics.rb:ro \
-      "${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}" \
+      "${CYBER_DOJO_RUNNER_RUBY_IMAGE:-${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}}" \
         sh -c "ruby ${CONTAINER_TMP_DIR}/check_test_metrics.rb" \
         | tee -a "${HOST_REPORTS_DIR}/${TEST_LOG}"
 

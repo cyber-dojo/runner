@@ -13,6 +13,10 @@ test_server:
 coverage_server:
 	${PWD}/bin/check_coverage.sh server
 
+# The server tests and their metrics, with no image built: in the bare image.
+test_server_bare:
+	${PWD}/bin/run_tests_bare.sh ${tids}
+
 
 all_client: image_client test_client coverage_client
 
