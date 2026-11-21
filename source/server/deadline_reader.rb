@@ -27,13 +27,19 @@ class DeadlineReader
     remaining = remaining_seconds
     raise Expired if remaining <= 0
 
-    io.timeout = remaining
+    read_within(size, seconds: remaining)
+  end
+
+  private
+
+  # Answers what io.read(size) answers, if it answers within seconds. The
+  # rescue holds only the read, as the read is all that can time out.
+  def read_within(size, seconds:)
+    io.timeout = seconds
     io.read(size)
   rescue IO::TimeoutError
     raise Expired
   end
-
-  private
 
   attr_reader :io, :deadline, :clock
 

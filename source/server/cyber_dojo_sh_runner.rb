@@ -59,23 +59,31 @@ class CyberDojoShRunner
   def run(id, image_name, container_name, max_seconds, tgz_in)
     spare = spares.claim(image_name: image_name, container_name: container_name)
     if spare
-      # A warm (pre-created, pre-started) spare container is ready to run.
-      begin
-        return run_in_and_warm_another(spare, image_name, id, max_seconds, tgz_in)
-      rescue DaemonRefused
-        # The spare was gone, or was no longer running. A non-spare container,
-        # (created for this run), would never experience either of those.
-        # So the learner is owed the run they would have had with no pool.
-        # Nothing is half-done: both exec calls come before the tgz is written.
-        nil
-      end
+      run_in_spare(spare, image_name, container_name, id, max_seconds, tgz_in)
+    else
+      run_in_new(image_name, container_name, id, max_seconds, tgz_in)
     end
-    # There is no spare, or there was but it failed.
-    container_id = created_and_started(image_name, container_name)
-    run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
   end
 
   private
+
+  # Runs in spare, a warm (pre-created, pre-started) container, or else in a
+  # new one when the daemon refuses the spare.
+  def run_in_spare(spare, image_name, container_name, id, max_seconds, tgz_in) # rubocop:disable Metrics/ParameterLists
+    run_in_and_warm_another(spare, image_name, id, max_seconds, tgz_in)
+  rescue DaemonRefused
+    # The spare was gone, or was no longer running. A non-spare container,
+    # (created for this run), would never experience either of those.
+    # So the learner is owed the run they would have had with no pool.
+    # Nothing is half-done: both exec calls come before the tgz is written.
+    run_in_new(image_name, container_name, id, max_seconds, tgz_in)
+  end
+
+  # Runs in a container created and started for this run alone.
+  def run_in_new(image_name, container_name, id, max_seconds, tgz_in)
+    container_id = created_and_started(image_name, container_name)
+    run_in_and_warm_another(container_id, image_name, id, max_seconds, tgz_in)
+  end
 
   # Runs in the container, then warms one more spare for this image_name, so
   # the next test-run for it has one to claim.

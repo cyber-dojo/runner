@@ -9,6 +9,12 @@ LABEL maintainer=jon@jaggersoft.com
 ARG GEM_REFRESH=1
 RUN gem install --no-document 'concurrent-ruby'
 
+# path_coverage measures which paths through each decision and method the
+# tests take, alongside SimpleCov's line and branch coverage. It is used only
+# by the server test suite (test/lib/path_coverage_start.rb). It is pinned to
+# keep the image reproducible.
+RUN gem install --no-document path_coverage --version 0.7.1
+
 ARG APP_DIR=/runner
 ENV APP_DIR=${APP_DIR}
 

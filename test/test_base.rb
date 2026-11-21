@@ -310,6 +310,14 @@ class TestBase < Id58TestBase
     # %n       %A          %u     %G         %s
   end
 
+  # The path of every file anywhere under dir, directories left out. A glob
+  # ending in / matches only directories, so taking those away leaves the
+  # files without asking each path what it is.
+  def files_under(dir)
+    dirs = Dir.glob("#{dir}/**/*/").map { |path| path.chomp('/') }
+    Dir.glob("#{dir}/**/*") - dirs
+  end
+
   def lo_hex?(char)
     '0123456789abcdef'.include?(char)
   end

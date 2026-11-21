@@ -238,7 +238,7 @@ class NodeSparesTest < TestBase
   # a line the parent ran.
   def claimed_in_another_process
     answer = "/tmp/#{id}.answer"
-    pid = fork { File.write(answer, a_claim.to_s) && exit!(0) }
+    pid = fork { File.write(answer, a_claim.to_s); exit!(0) }
     Process.waitpid(pid)
     File.read(answer)
   end
@@ -270,7 +270,7 @@ class NodeSparesTest < TestBase
   # rather than by rebuilding a path, so this says nothing about how the
   # store lays its directories out.
   def sizes_of_every_file_in_the_store
-    Dir.glob("/tmp/#{id}/**/*").select { |path| File.file?(path) }.map { |path| File.size(path) }
+    files_under("/tmp/#{id}").map { |path| File.size(path) }
   end
 
   # A store under a directory this test alone uses. Built from id rather than

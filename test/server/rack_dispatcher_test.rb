@@ -272,7 +272,8 @@ class RackDispatcherTest < TestBase
   # - - - - - - - - - - - - - - - - -
 
   def rack_call(env, options = { logger: StdoutLoggerSpy.new })
-    klass = env.delete(:klass) || RackRequestStub
+    klass = env.delete(:klass)
+    klass = RackRequestStub if klass.nil?
     set_context(options)
     rack = RackDispatcher.new(context)
     @response = rack.call(env, klass)

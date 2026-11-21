@@ -21,32 +21,42 @@ class Runner
     # how far a malformed name happens to travel before something objects.
     ::DockerImageName.tagged(image_name)
 
-    return empty_result(:pulling, 'pulling', {}) unless images.pull(id: id, image_name: image_name) == :pulled
-
-    run, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
-
-    if run[:timed_out]
-      log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
-      return timed_out_result(run)
-    end
-
-    tgz_out = run[:stdout]
-    files_out, stdout, stderr, status = files_sss_from(tgz_out)
-
-    sss = [stdout['content'], stderr['content'], status['content']]
-    if manifest.key?('rag_lambda')
-      colour, log_info = *@traffic_light.colour_from_lambda(manifest['rag_lambda'], *sss)
+    if images.pull(id: id, image_name: image_name) == :pulled
+      pulled_result(id, files, manifest)
     else
-      colour, log_info = *@traffic_light.colour_from_image(image_name, *sss)
+      empty_result(:pulling, 'pulling', {})
     end
+  end
 
-    created, changed = files_delta(files_in, files_out)
-    result(
-      stdout, stderr, status['content'],
-      colour, log_info,
-      Sandbox.out(at_most(16, created)),
-      Sandbox.out(changed)
-    )
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Runner's requirements on image_name.
+  #   o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
+  #   o) commands: bash, file, grep, tar, truncate
+  # These are satisfied by image_name being built with
+  # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+
+  KB = 1024
+
+  MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
+
+  STATUS = {
+    pulling: 141,
+    timed_out: 142,
+    faulty: 143,
+    corrupt_payload: 144
+  }.freeze
+
+  private
+
+  include FilesDelta
+  include HomeFiles
+
+  # The result of running the kata in its image, which is on the node. A run
+  # the daemon would not serve, or whose payload is corrupt, is a result too.
+  def pulled_result(id, files, manifest)
+    image_name = manifest['image_name']
+    run, files_in = run_cyber_dojo_sh_inner(id, files, manifest)
+    ran_result(id, manifest, run, files_in)
   rescue CyberDojoShRunner::ImageMissing => e
     # Forgetting the image is what lets a later test-run pull it again. This
     # refusal is the only sign the runner gets that what @pulled believes
@@ -76,28 +86,32 @@ class Runner
     empty_result(:corrupt_payload, 'faulty', run)
   end
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Runner's requirements on image_name.
-  #   o) sandbox user, uid=41966, gid=51966, home=/home/sandbox
-  #   o) commands: bash, file, grep, tar, truncate
-  # These are satisfied by image_name being built with
-  # https://github.com/cyber-dojo-tools/image_dockerfile_augmenter
+  # The result of a run the daemon served: timed out, or else the files and
+  # stdout, stderr and status the container sent back, and their colour.
+  def ran_result(id, manifest, run, files_in)
+    image_name = manifest['image_name']
+    if run[:timed_out]
+      log(id: id, image_name: image_name, message: 'timed_out', result: utf8_clean(run))
+      return timed_out_result(run)
+    end
 
-  KB = 1024
+    files_out, stdout, stderr, status = files_sss_from(run[:stdout])
 
-  MAX_FILE_SIZE = 50 * KB # of stdout, stderr, created, changed
+    sss = [stdout['content'], stderr['content'], status['content']]
+    if manifest.key?('rag_lambda')
+      colour, log_info = *@traffic_light.colour_from_lambda(manifest['rag_lambda'], *sss)
+    else
+      colour, log_info = *@traffic_light.colour_from_image(image_name, *sss)
+    end
 
-  STATUS = {
-    pulling: 141,
-    timed_out: 142,
-    faulty: 143,
-    corrupt_payload: 144
-  }.freeze
-
-  private
-
-  include FilesDelta
-  include HomeFiles
+    created, changed = files_delta(files_in, files_out)
+    result(
+      stdout, stderr, status['content'],
+      colour, log_info,
+      Sandbox.out(at_most(16, created)),
+      Sandbox.out(changed)
+    )
+  end
 
   def run_cyber_dojo_sh_inner(id, files, manifest)
     image_name = manifest['image_name']
@@ -116,10 +130,20 @@ class Runner
     files_out = TGZ.files(tgz_out).each.with_object({}) do |(filename, content), memo|
       memo[filename] = truncated(content)
     end
-    stdout = files_out.delete('tmp/stdout') || truncated('')
-    stderr = files_out.delete('tmp/stderr') || truncated('')
-    status = files_out.delete('tmp/status') || truncated('145')
+    stdout = removed(files_out, 'tmp/stdout', default: '')
+    stderr = removed(files_out, 'tmp/stderr', default: '')
+    status = removed(files_out, 'tmp/status', default: '145')
     [files_out, stdout, stderr, status]
+  end
+
+  # The file files_out holds at filename, taken out of it, else default as
+  # though the container had sent it. Each of stdout, stderr and status is
+  # missing or not on its own, so one method removing all three would count
+  # every combination of them as a path of its own.
+  def removed(files_out, filename, default:)
+    file = files_out.delete(filename)
+    file = truncated(default) if file.nil?
+    file
   end
 
   # - - - - - - - - - - - - - - - - - - - - -

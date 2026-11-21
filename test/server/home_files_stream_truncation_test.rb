@@ -33,7 +33,7 @@ class HomeFilesStreamTruncationTest < TestBase
   # that the binary-file scan's own find (-size +1c) cannot be mistaken for it.
   def truncate_find_line(script)
     selector = "-size +#{Runner::MAX_FILE_SIZE}c"
-    line = script.lines.find { |each| each.include?(selector) }
+    line = script[/^.*#{Regexp.escape(selector)}.*$/]
     refute_nil line, script
     line
   end

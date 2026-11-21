@@ -20,7 +20,9 @@ module DockerImageName
     raise Malformed, str.inspect unless valid?(str)
 
     name, match = name_and_match(str)
-    "#{name}:#{match[8] || LATEST}#{match[9]}"
+    tag = match[8]
+    tag = LATEST if tag.nil?
+    "#{name}:#{tag}#{match[9]}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - -

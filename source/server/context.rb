@@ -14,29 +14,29 @@ class Context
   def initialize(options = {})
     # Everything the server reaches the outside world through, and
     # everything a test replaces to keep the outside world out of it.
-    @clock    = options[:clock] || MonotonicClock.new
-    @http     = options[:http] || DockerSocket.new
-    @logger   = options[:logger] || StdoutLogger.new
+    @clock    = given(options, :clock) { MonotonicClock.new }
+    @http     = given(options, :http) { DockerSocket.new }
+    @logger   = given(options, :logger) { StdoutLogger.new }
     # The store of spares, which is a directory rather than anything in this
     # process, so that every worker on the node reads the one store. A test
     # gives it a directory of its own, the way one gives DockerSocket a
     # socket of its own.
-    @node_spares = options[:node_spares] || NodeSpares.new(dir: NodeSpares::DIR)
+    @node_spares = given(options, :node_spares) { NodeSpares.new(dir: NodeSpares::DIR) }
     # How many spares the node may hold. Zero is no pool at all, and is what a
     # Context gets unless it is told otherwise. config.ru tells it, from the
     # environment, so this file reads nothing from outside.
-    @spares_per_node = options[:spares_per_node] || 0
-    @random   = options[:random] || Random.new
-    @threader = options[:threader] || AsynchronousThreader.new
+    @spares_per_node = given(options, :spares_per_node) { 0 }
+    @random   = given(options, :random) { Random.new }
+    @threader = given(options, :threader) { AsynchronousThreader.new }
 
     # The services, which reach the outside world only through those. A
     # DockerDaemon is one of them rather than an external: @http is the object
     # that opens the socket, and DockerDaemon is the only holder of it.
-    @docker = options[:docker] || DockerDaemon.new(self)
-    @images = options[:images] || NodeImages.new(self)
-    @prober = options[:prober] || Prober.new(self)
-    @runner = options[:runner] || Runner.new(self)
-    @spares = options[:spares] || SparePool.new(self)
+    @docker = given(options, :docker) { DockerDaemon.new(self) }
+    @images = given(options, :images) { NodeImages.new(self) }
+    @prober = given(options, :prober) { Prober.new(self) }
+    @runner = given(options, :runner) { Runner.new(self) }
+    @spares = given(options, :spares) { SparePool.new(self) }
   end
 
   # What the server reaches the outside world through.
@@ -44,4 +44,15 @@ class Context
 
   # The services, which reach it only through those.
   attr_reader :docker, :images, :prober, :runner, :spares
+
+  private
+
+  # The object options gives for name, else the default the block makes. Each
+  # default is chosen on its own, so one method choosing them all would count
+  # every combination of them as a path of its own.
+  def given(options, name)
+    value = options[name]
+    value = yield if value.nil?
+    value
+  end
 end

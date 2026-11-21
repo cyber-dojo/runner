@@ -62,9 +62,13 @@ class DockerSocket
   # connection is never asked to close, because the connection is the thing
   # being kept.
   def attach_bytes(path, body)
-    json = body.nil? ? '' : JSON.generate(body)
     lines = ["POST #{path} HTTP/1.1", 'Host: docker']
-    lines << 'Content-Type: application/json' unless body.nil?
+    if body.nil?
+      json = ''
+    else
+      json = JSON.generate(body)
+      lines << 'Content-Type: application/json'
+    end
     lines << "Content-Length: #{json.bytesize}"
     lines += ['Connection: Upgrade', 'Upgrade: tcp', '', json]
     lines.join(CRLF)
