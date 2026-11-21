@@ -1,2 +1,4 @@
 *
 !source/server/
+# Claude Code's local working dirs, never part of the image.
+**/.claude

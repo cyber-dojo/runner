@@ -1,0 +1,15 @@
+# Layered on docker-compose.yml by bin/run_tests_bare.sh (via COMPOSE_FILE),
+# so the server tests run in the bare image, the Dockerfile's base stage
+# (built with --target base): Ruby, its gems and the OS packages, with no
+# source code. The source and tests are mounted, as they are for the deployed
+# image, and so is the docker socket, so the deployed image need not be built
+# before the tests run.
+
+services:
+
+  server:
+    image: ${CYBER_DOJO_RUNNER_BARE_IMAGE}
+    entrypoint: [ "sleep", "infinity" ]
+    working_dir: /runner/source
+    environment:
+      - COMMIT_SHA=${COMMIT_SHA}

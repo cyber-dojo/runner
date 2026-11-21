@@ -36,7 +36,7 @@ pull_dependent_images()
       --entrypoint='' \
       --rm \
       --volume ${ROOT_DIR}/test:/test/:ro \
-        ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG} \
+        "${CYBER_DOJO_RUNNER_RUBY_IMAGE:-${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}}" \
           ruby /test/dependent_display_names.rb)"
 
   local -r JSON_DATA=$(docker run --rm \
