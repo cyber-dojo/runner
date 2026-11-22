@@ -13,13 +13,19 @@ RUN gem install --no-document 'concurrent-ruby'
 # tests take, alongside SimpleCov's line and branch coverage. It is used only
 # by the server test suite (test/lib/path_coverage_start.rb). It is pinned to
 # keep the image reproducible.
-RUN gem install --no-document path_coverage --version 0.7.1
+RUN gem install --no-document path_coverage --version 0.7.2
 
 ARG APP_DIR=/runner
 ENV APP_DIR=${APP_DIR}
 
-# The stage above, base, is the bare image: Ruby, its gems and the OS
-# packages, with no source code. The stage below adds the source code, making
+WORKDIR ${APP_DIR}/source
+# The runner opens /var/run/docker.sock, which is owned by the host's docker
+# group, so it cannot drop to an unprivileged user without matching that group.
+# See docs/docker-socket-privilege.md
+USER root
+
+# The stage above, base, is the bare image: Ruby, its gems, the OS packages
+# and the root user it runs as, with no source code. The stage below adds the source code, making
 # the deployed image. Built with --target base it is the bare image the server
 # tests run in (bin/run_tests_bare.sh); built with
 # --build-context base=<that bare image>, the deployed image is built FROM
@@ -29,12 +35,7 @@ FROM base
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}
 
-WORKDIR ${APP_DIR}/source
-COPY source/server/ .
-# The runner opens /var/run/docker.sock, which is owned by the host's docker
-# group, so it cannot drop to an unprivileged user without matching that group.
-# See docs/docker-socket-privilege.md
-USER root
+COPY --chown=root:root source/server/ .
 HEALTHCHECK --interval=1s --timeout=1s --retries=5 --start-period=5s CMD ./config/healthcheck.sh
 ENTRYPOINT ["/sbin/tini", "-g", "--"]
 CMD [ "./config/up.sh" ]

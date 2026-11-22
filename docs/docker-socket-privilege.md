@@ -1,6 +1,6 @@
 # The docker socket, and why the runner runs as root
 
-The runner's `Dockerfile` ends with `USER root`. Saver and the other services
+The runner's `Dockerfile` sets `USER root`. Saver and the other services
 drop to an unprivileged user, so the runner looks like the odd one out. It is,
 and this is what it would take to change, and why the obvious change is worth
 less than it appears.
