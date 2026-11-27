@@ -30,7 +30,7 @@ check_args()
       ;;
     'server')
       if [ -n "${CI:-}" ] ; then
-        stderr "Inside CI workflow you must use secure-docker-build.yml reusable workflow"
+        stderr "Inside CI workflow you must use secure-docker-build-from-bare-image.yml reusable workflow"
         exit_non_zero
       fi
       ;;
